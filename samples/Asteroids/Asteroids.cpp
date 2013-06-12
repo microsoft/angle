@@ -4,16 +4,24 @@
 
 #define STRINGIFY(str) #str
 #define PLAYER_ACCELERATION 100.0f
-#define TURN_SPEED 100.0f
+#define TURN_SPEED 200.0f
 #define MAX_ASTEROIDS 32
+#define MAX_FALLOUT_PER_ASTEROID 20
+#define FALLOUT_INITIAL_VEL 600.0f
 #define BULLET_SPEED 300.0f
 #define DESTROYED_ASTEROID_SPEED 100.0f
+#define REGULAR_WEAPON_COOLDOWN 0.2f
+#define SPREAD_WEAPON_COOLDOWN 0.5f
+#define LASER_WEAPON_COOLDOWN 1.0f
 
 #define PLAYER_STATE_W     0x1
 #define PLAYER_STATE_A     0x2
 #define PLAYER_STATE_S     0x4
 #define PLAYER_STATE_D     0x8
 #define PLAYER_STATE_SPACE 0x10
+
+#define RENDER_TARGET_WIDTH 1024
+#define RENDER_TARGET_HEIGHT 512
 
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Core;
@@ -27,7 +35,11 @@ using namespace DirectX;
 
 Asteroids::Asteroids() :
     m_playerState(0),
-    m_bulletTimer(0),
+    m_regularWeaponTimer(0),
+    m_spreadWeaponTimer(0),
+    m_laserWeaponTimer(0),
+    m_weapon(Weapon::Regular),
+    m_asteroidRespawnTime(10),
 	m_windowClosed(false),
 	m_windowVisible(true)
 {
@@ -114,10 +126,121 @@ void Asteroids::SetWindow(CoreWindow^ window)
     }
     );
 
-    m_program = esLoadProgram(vs, fs);
-    m_mvp = glGetUniformLocation(m_program, "u_mvp");
-    m_aPosition = glGetAttribLocation(m_program, "a_position");
-    m_aColor = glGetAttribLocation(m_program, "a_color");
+    m_drawProgram = esLoadProgram(vs, fs);
+    m_uMvpDraw = glGetUniformLocation(m_drawProgram, "u_mvp");
+    m_aPositionDraw = glGetAttribLocation(m_drawProgram, "a_position");
+    m_aColorDraw = glGetAttribLocation(m_drawProgram, "a_color");
+
+    vs = STRINGIFY(
+    attribute vec2 a_position;
+    varying vec2 v_uv;
+    void main(void)
+    {
+        gl_Position = vec4(a_position, 0, 1);
+        v_uv = a_position * 0.5 + 0.5;
+    }
+    );
+
+    fs = STRINGIFY(
+    precision mediump float;
+    varying vec2 v_uv;
+    uniform sampler2D u_texture;
+    uniform vec2 u_offset;
+    void main(void)
+    {
+        vec4 color;
+        const int radius = 1;
+        const float gaussianOffset = 1.4;
+        int divisor = 0;
+        for(int i = -radius; i <= radius; ++i)
+        {
+            vec2 uv = v_uv + u_offset * float(i) * gaussianOffset;
+            color += texture2D(u_texture, uv);
+            ++divisor;
+        }
+        gl_FragColor = color / float(divisor);
+    }
+    );
+
+    m_blurProgram = esLoadProgram(vs, fs);
+    m_uTextureBlur = glGetUniformLocation(m_blurProgram, "u_texture");
+    m_uOffsetBlur = glGetUniformLocation(m_blurProgram, "u_offset");
+    m_aPositionBlur = glGetAttribLocation(m_blurProgram, "a_position");
+
+    fs = STRINGIFY(
+    precision mediump float;
+    varying vec2 v_uv;
+    uniform sampler2D u_texture;
+    void main(void)
+    {
+        gl_FragColor = texture2D(u_texture, v_uv);
+    }
+    );
+
+    m_texturePassThruProgram = esLoadProgram(vs, fs);
+    m_uTextureTexturePassThru = glGetUniformLocation(m_texturePassThruProgram, "u_texture");
+    m_aPositionTexturePassThru = glGetAttribLocation(m_texturePassThruProgram, "a_position");
+
+    fs = STRINGIFY(
+    precision mediump float;
+    varying vec2 v_uv;
+    uniform sampler2D u_texture[4];
+    void main(void)
+    {
+        vec4 color;
+        for(int i = 0; i < 4; ++i)
+            color += texture2D(u_texture[i], v_uv);
+        const float bloomPower = 3.0;
+        gl_FragColor.r = (color.r + (max(color.g - 1.0, 0.0) + max(color.b - 1.0, 0.0)) * 0.5 * bloomPower) * color.a;
+        gl_FragColor.g = (color.g + (max(color.r - 1.0, 0.0) + max(color.b - 1.0, 0.0)) * 0.5 * bloomPower) * color.a;
+        gl_FragColor.b = (color.b + (max(color.r - 1.0, 0.0) + max(color.g - 1.0, 0.0)) * 0.5 * bloomPower) * color.a;
+        gl_FragColor.a = color.a;
+    }
+    );
+
+    m_bloomProgram = esLoadProgram(vs, fs);
+    for(int i = 0; i < 4; ++i)
+    {
+        char buffer[] = "u_texture[0]";
+        sprintf(buffer, "u_texture[%i]", i);
+        m_uTextureBloom[i] = glGetUniformLocation(m_bloomProgram, buffer);
+    }
+    m_aPositionBloom = glGetAttribLocation(m_bloomProgram, "a_position");
+
+    //setup the FBO
+    glGenFramebuffers(8, m_offscreenFBO);
+    glGenTextures(8, m_offscreenTex);
+    for(int i = 0; i < 4; ++i)
+    {
+        int width = RENDER_TARGET_WIDTH >> i;
+        int height = RENDER_TARGET_HEIGHT >> i;
+        glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
+        glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_offscreenTex[i], 0);
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            throw FBOIncompleteException();
+
+        glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i + 4]);
+        glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i + 4]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_offscreenTex[i + 4], 0);
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            throw FBOIncompleteException();
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Asteroids::Load(Platform::String^ entryPoint)
@@ -166,6 +289,12 @@ void Asteroids::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventAr
 void Asteroids::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 {
 	m_windowClosed = true;
+    glDeleteProgram(m_drawProgram);
+    glDeleteProgram(m_blurProgram);
+    glDeleteProgram(m_texturePassThruProgram);
+    glDeleteProgram(m_bloomProgram);
+    glDeleteTextures(8, m_offscreenTex);
+    glDeleteFramebuffers(8, m_offscreenFBO);
 }
 
 void Asteroids::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
@@ -200,6 +329,18 @@ void Asteroids::OnKeyDown(CoreWindow^ sender, KeyEventArgs ^args)
 
         case VirtualKey::Space:
             m_playerState |= PLAYER_STATE_SPACE;
+            break;
+
+        case VirtualKey::Number1:
+            m_weapon = Weapon::Regular;
+            break;
+
+        case VirtualKey::Number2:
+            m_weapon = Weapon::Spread;
+            break;
+
+        case VirtualKey::Number3:
+            m_weapon = Weapon::Laser;
             break;
     }
 }
@@ -258,7 +399,7 @@ void Asteroids::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 	// does not occur if the app was previously terminated.
 }
 
-Asteroids::GameObject::GameObject(void) : m_angle(0), m_omega(0), m_scale(1, 1), m_lives(1)
+Asteroids::GameObject::GameObject(void) : m_angle(0), m_omega(0), m_scale(1, 1), m_lives(1), m_lifeTime(0.3f)
 {
 }
 
@@ -268,6 +409,7 @@ void Asteroids::GameObject::Update(float dt)
     m_vel += m_acc * dt;
     m_pos += m_vel * dt;
     m_angle += m_omega * dt;
+    m_lifeTime -= dt;
 }
 
 glm::mat4 Asteroids::GameObject::TransformMatrix(void) const
@@ -303,7 +445,9 @@ void Asteroids::Update()
         m_player.m_omega = -TURN_SPEED;
     if(!(m_playerState & PLAYER_STATE_A) && !(m_playerState & PLAYER_STATE_D))
         m_player.m_omega = 0;
-    m_bulletTimer -= dt;
+    m_regularWeaponTimer -= dt;
+    m_spreadWeaponTimer -= dt;
+    m_laserWeaponTimer -= dt;
     if(m_playerState & PLAYER_STATE_SPACE)
         FireBullet();
 
@@ -314,6 +458,9 @@ void Asteroids::Update()
         it->Update(dt);
     end = m_bullets.end();
     for(GameObjectIter it = m_bullets.begin(); it != end; ++it)
+        it->Update(dt);
+    end = m_asteroidFallout.end();
+    for(GameObjectIter it = m_asteroidFallout.begin(); it != end; ++it)
         it->Update(dt);
 
     //wrap player and asteroids to the other side of the universe if out of bounds
@@ -380,6 +527,20 @@ void Asteroids::Update()
 
                     it2 = m_asteroids.begin() + position;
                 }
+                else
+                {
+                    GameObject fallout;
+                    fallout.m_pos = it2->m_pos;
+                    fallout.m_scale = glm::vec2(5);
+                    for(int i = 0; i < MAX_FALLOUT_PER_ASTEROID; ++i)
+                    {
+                        fallout.m_angle = static_cast<float>(rand() % 10000);
+                        fallout.m_omega = (rand() % 1000) - 500.0f;
+                        float radians = glm::radians(static_cast<float>(rand() % 10000));
+                        fallout.m_vel = it2->m_vel + glm::vec2(cos(radians), sin(radians)) * (rand() % 100 + FALLOUT_INITIAL_VEL);
+                        m_asteroidFallout.push_back(fallout);
+                    }
+                }
                 it2 = m_asteroids.erase(it2);
                 end2 = m_asteroids.end();
                 if(it == end)
@@ -391,33 +552,206 @@ void Asteroids::Update()
         if(it != end)
             ++it;
     }
+
+    //collide asteroid fallout and asteroids
+    end = m_asteroidFallout.end();
+    for(GameObjectIter it = m_asteroidFallout.begin(); it != end; )
+    {
+        if(it->m_lifeTime <= 0)
+        {
+            it = m_asteroidFallout.erase(it);
+            end = m_asteroidFallout.end();
+            continue;
+        }
+        GameObjectIter end2 = m_asteroids.end();
+        for(GameObjectIter it2 = m_asteroids.begin(); it2 != end2;)
+        {
+            float radius1 = MagnitudeSquared(it->m_scale * 0.5f);
+            float radius2 = MagnitudeSquared(it2->m_scale * 0.5f);
+            float distance = MagnitudeSquared(it->m_pos - it2->m_pos);
+
+            //they've collided so delete them
+            if(radius1 + radius2 > distance)
+            {
+                it = m_asteroidFallout.erase(it);
+                end = m_asteroidFallout.end();
+
+                //split the asteroid into 4 smaller ones
+                if(it2->m_lives == 2)
+                {
+                    int position = it2 - m_asteroids.begin();
+                    GameObject asteroid;
+                    float radians = glm::radians(glm::radians(it2->m_angle + 45));
+                    glm::vec2 vel = it2->m_vel;
+                    glm::vec2 pos = it2->m_pos;
+                    glm::vec2 dir1(cos(radians), sin(radians));
+                    glm::vec2 dir2(dir1.y, -dir1.x);
+                    float scale = it2->m_scale.x;
+                    float angle = it2->m_angle;
+                    float omega = it2->m_omega;
+
+                    asteroid.m_scale.x = asteroid.m_scale.y = scale * 0.5f;
+                    asteroid.m_pos = pos + dir1 * scale * 0.25f;
+                    asteroid.m_angle = angle;
+                    asteroid.m_omega = omega + (rand() % 1000) / 10.0f - 50;
+                    asteroid.m_vel = vel + dir1 * DESTROYED_ASTEROID_SPEED;
+                    m_asteroids.push_back(asteroid);
+
+                    asteroid.m_pos = pos - dir1 * scale * 0.25f;
+                    asteroid.m_angle = angle;
+                    asteroid.m_omega = omega + (rand() % 1000) / 10.0f - 50;
+                    asteroid.m_vel = vel - dir1 * DESTROYED_ASTEROID_SPEED;
+                    m_asteroids.push_back(asteroid);
+
+                    asteroid.m_pos = pos + dir2 * scale * 0.25f;
+                    asteroid.m_angle = angle;
+                    asteroid.m_omega = omega + (rand() % 1000) / 10.0f - 50;
+                    asteroid.m_vel = vel + dir2 * DESTROYED_ASTEROID_SPEED;
+                    m_asteroids.push_back(asteroid);
+
+                    asteroid.m_pos = pos - dir2 * scale * 0.25f;
+                    asteroid.m_angle = angle;
+                    asteroid.m_omega = omega + (rand() % 1000) / 10.0f - 50;
+                    asteroid.m_vel = vel - dir2 * DESTROYED_ASTEROID_SPEED;
+                    m_asteroids.push_back(asteroid);
+
+                    it2 = m_asteroids.begin() + position;
+                }
+                else
+                {
+                    int index = it - m_asteroidFallout.begin();
+                    GameObject fallout;
+                    fallout.m_pos = it2->m_pos;
+                    fallout.m_scale = glm::vec2(5);
+                    for(int i = 0; i < MAX_FALLOUT_PER_ASTEROID; ++i)
+                    {
+                        fallout.m_angle = static_cast<float>(rand() % 10000);
+                        fallout.m_omega = (rand() % 1000) - 500.0f;
+                        float radians = glm::radians(static_cast<float>(rand() % 10000));
+                        fallout.m_vel = it2->m_vel + glm::vec2(cos(radians), sin(radians)) * (rand() % 100 + FALLOUT_INITIAL_VEL);
+                        m_asteroidFallout.push_back(fallout);
+                    }
+                    it = m_asteroidFallout.begin() + index;
+                    end = m_asteroidFallout.end();
+                }
+                it2 = m_asteroids.erase(it2);
+                end2 = m_asteroids.end();
+                if(it == end)
+                    break;
+            }
+            else
+                ++it2;
+        }
+        if(it != end)
+            ++it;
+    }
+    
+    //keep the asteroids coming when the universe runs low
+    if(m_asteroids.size() < MAX_ASTEROIDS)
+    {
+        --m_asteroidRespawnTime;
+        if(m_asteroidRespawnTime <= 0)
+        {
+            for(unsigned i = m_asteroids.size(); i < MAX_ASTEROIDS; ++i)
+            {
+                GameObject asteroid;
+                asteroid.m_pos.x = static_cast<float>(rand() % 10000);
+                asteroid.m_pos.y = static_cast<float>(rand() % 10000);
+                asteroid.m_angle = (rand() % 1000) / 10.0f - 50;
+                asteroid.m_omega = (rand() % 1000) / 10.0f - 50;
+                asteroid.m_vel.x = (rand() % 1000) / 10.0f - 50;
+                asteroid.m_vel.y = (rand() % 1000) / 10.0f - 50;
+                asteroid.m_scale = glm::vec2((rand() % 1000) / 20.0f + 50);
+                asteroid.m_lives = 2;
+                m_asteroids.push_back(asteroid);
+            }
+            m_asteroidRespawnTime = 10;
+        }
+    }
 }
 
 void Asteroids::Draw()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glUseProgram(m_program);
+    glUseProgram(m_drawProgram);
 
     CoreWindow ^window = CoreWindow::GetForCurrentThread();
     float halfWindowWidth = window->Bounds.Width * 0.5f;
     float halfWindowHeight = window->Bounds.Height * 0.5f;
     glm::mat4 ortho = glm::ortho(-halfWindowWidth, halfWindowWidth, -halfWindowHeight, halfWindowHeight, -1.0f, 1.0f);
 
-    glUniformMatrix4fv(m_mvp, 1, GL_FALSE, &ortho[0][0]);
+    glUniformMatrix4fv(m_uMvpDraw, 1, GL_FALSE, &ortho[0][0]);
 
     DrawPlayer();
     DrawAsteroids();
     DrawBullets();
     
     const int stride = sizeof(glm::vec3) + sizeof(glm::vec4);
-    glVertexAttribPointer(m_aPosition, 3, GL_FLOAT, GL_FALSE, stride, &m_vertexBuffer[0]);
-    glEnableVertexAttribArray(m_aPosition);
-    glVertexAttribPointer(m_aColor, 4, GL_FLOAT, GL_FALSE, stride, &m_vertexBuffer[3]);
-    glEnableVertexAttribArray(m_aColor);
+    glEnableVertexAttribArray(m_aPositionDraw);
+    glEnableVertexAttribArray(m_aColorDraw);
+    glVertexAttribPointer(m_aPositionDraw, 3, GL_FLOAT, GL_FALSE, stride, &m_vertexBuffer[0]);
+    glVertexAttribPointer(m_aColorDraw, 4, GL_FLOAT, GL_FALSE, stride, &m_vertexBuffer[3]);
 
-    glDrawArrays(GL_LINES, 0, m_vertexBuffer.size() / 7);
+    for(int i = 0; i < 4; ++i)
+    {
+        glViewport(0, 0, RENDER_TARGET_WIDTH >> i, RENDER_TARGET_HEIGHT >> i);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDrawArrays(GL_LINES, 0, m_vertexBuffer.size() / 7);
+    }
     m_vertexBuffer.clear();
+    glDisableVertexAttribArray(m_aPositionDraw);
+    glDisableVertexAttribArray(m_aColorDraw);
+    
+    float fullScreen[] = {
+        -1, 1,
+        -1, -1,
+        1, 1,
+        1, -1
+    };
+
+    glUseProgram(m_blurProgram);
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(m_uTextureBlur, 0);
+    glEnableVertexAttribArray(m_aPositionBlur);
+    glVertexAttribPointer(m_aPositionBlur, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), fullScreen);
+    for(int i = 0; i < 4; ++i)
+    {
+        int width = RENDER_TARGET_WIDTH >> i;
+        int height = RENDER_TARGET_HEIGHT >> i;
+        glViewport(0, 0, width, height);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i + 4]);
+        glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i]);
+        glm::vec2 horiOffset(1.0f / width, 0.0f);
+        glUniform2f(m_uOffsetBlur, horiOffset.x, horiOffset.y);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        
+        glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
+        glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i + 4]);
+        glm::vec2 vertOffset = glm::vec2(0.0f, 1.0f / height);
+        glUniform2f(m_uOffsetBlur, vertOffset.x, vertOffset.y);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
+    glDisableVertexAttribArray(m_aPositionBlur);
+    
+    glViewport(0, 0, static_cast<int>(window->Bounds.Width), static_cast<int>(window->Bounds.Height));
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glUseProgram(m_bloomProgram);
+    for(int i = 0; i < 4; ++i)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i]);
+        glUniform1i(m_uTextureBloom[i], i);
+    }
+    glUniform1i(m_uTextureTexturePassThru, 0);
+    glEnableVertexAttribArray(m_aPositionBloom);
+    glVertexAttribPointer(m_aPositionBloom, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), fullScreen);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableVertexAttribArray(m_aPositionBloom);
+
     eglSwapBuffers(m_esContext.eglDisplay, m_esContext.eglSurface);  
 }
 
@@ -440,17 +774,44 @@ void Asteroids::WrapAround(GameObject &object)
 
 void Asteroids::FireBullet()
 {
-    if(m_bulletTimer <= 0)
+    if(m_weapon == Weapon::Regular)
     {
-        float radians = glm::radians(m_player.m_angle);
-        GameObject bullet;
-        glm::vec2 dir(cos(radians), sin(radians));
-        bullet.m_pos = m_player.m_pos + dir * m_player.m_scale.x * 0.5f;
-        bullet.m_scale = glm::vec2(10, 10);
-        bullet.m_angle = m_player.m_angle;
-        bullet.m_vel = dir * BULLET_SPEED + m_player.m_vel;
-        m_bullets.push_back(bullet);
-        m_bulletTimer = 0.2f;
+        if(m_regularWeaponTimer <= 0)
+        {
+            GameObject bullet;
+            float radians = glm::radians(m_player.m_angle);
+            glm::vec2 dir(cos(radians), sin(radians));
+            bullet.m_pos = m_player.m_pos + dir * m_player.m_scale.x * 0.5f;
+            bullet.m_scale = glm::vec2(10, 10);
+            bullet.m_angle = m_player.m_angle;
+            bullet.m_vel = dir * BULLET_SPEED + m_player.m_vel;
+            m_bullets.push_back(bullet);
+            m_regularWeaponTimer = REGULAR_WEAPON_COOLDOWN;
+        }
+    }
+    else if(m_weapon == Weapon::Spread)
+    {
+        if(m_spreadWeaponTimer <= 0)
+        {
+            GameObject bullet;
+            bullet.m_scale = glm::vec2(10, 10);
+            bullet.m_angle = m_player.m_angle;
+            for(int i = -2; i <= 2; ++i)
+            {
+                float radians = glm::radians(m_player.m_angle + i * 10);
+                glm::vec2 dir(cos(radians), sin(radians));
+                bullet.m_vel = dir * BULLET_SPEED + m_player.m_vel;
+                bullet.m_pos = m_player.m_pos + dir * m_player.m_scale.x * 0.5f;
+                m_bullets.push_back(bullet);
+            }
+            m_spreadWeaponTimer = SPREAD_WEAPON_COOLDOWN;
+        }
+    }
+    else if(m_weapon == Weapon::Laser)
+    {
+        if(m_laserWeaponTimer <= 0)
+        {
+        }
     }
 }
 
@@ -512,6 +873,14 @@ void Asteroids::DrawAsteroids(void)
         glm::mat4 transform = it->TransformMatrix();
         for(int i = 0; i < sizeof(verts) / sizeof(*verts); ++i)
             FillVertexBuffer(m_vertexBuffer, glm::vec3(transform * verts[i]), glm::vec4(1, 0, 0, 1));
+    }
+
+    end = m_asteroidFallout.end();
+    for(GameObjectIter it = m_asteroidFallout.begin(); it != end; ++it)
+    {
+        glm::mat4 transform = it->TransformMatrix();
+        for(int i = 0; i < sizeof(verts) / sizeof(*verts); ++i)
+            FillVertexBuffer(m_vertexBuffer, glm::vec3(transform * verts[i]), glm::vec4(1, 0.7f, 0, 1));
     }
 }
 

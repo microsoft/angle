@@ -9,6 +9,14 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/transform.hpp"
 
+class FBOIncompleteException : public std::exception
+{
+    virtual const char *what() const throw()
+    {
+        return "Offscreen FBO for post-process effects can't be created";
+    }
+};
+
 ref class Asteroids sealed : public Windows::ApplicationModel::Core::IFrameworkView
 {
 public:
@@ -36,6 +44,8 @@ protected:
     void OnKeyUp(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
 
 private:
+    ////////////////////////////////////////////////////////////////////////////
+    //game simulation methods
     struct GameObject
     {
         GameObject(void);
@@ -49,10 +59,19 @@ private:
         glm::vec2 m_pos;
         glm::vec2 m_scale;
         int m_lives;
+        float m_lifeTime;
+    };
+
+    struct Laser
+    {
+        glm::vec2 m_pos;
+        glm::vec2 m_dir;
     };
 
     typedef std::vector<GameObject> GameObjectList;
     typedef GameObjectList::iterator GameObjectIter;
+    typedef std::vector<GameObject> LaserList;
+    typedef LaserList::iterator LaserIter;
     
     void Update();
     void Draw();
@@ -62,20 +81,59 @@ private:
     void DrawPlayer(void);
     void DrawAsteroids(void);
     void DrawBullets(void);
-
-    ESContext m_esContext;
-    GLuint m_program;
-    GLint m_mvp;
-    GLint m_aPosition;
-    GLint m_aColor;
-    GLint m_colorLoc;
+    
+    ////////////////////////////////////////////////////////////////////////////
+    //game stuff
+    enum Weapon
+    {
+        Regular,
+        Spread,
+        Laser,
+    };
     GameObject m_player;
     GameObjectList m_asteroids;
     GameObjectList m_bullets;
-	//CubeRenderer^ m_renderer;
-    std::vector<float> m_vertexBuffer;
+    GameObjectList m_asteroidFallout;
     unsigned m_playerState;
-    float m_bulletTimer;
+    float m_regularWeaponTimer;
+    float m_spreadWeaponTimer;
+    float m_laserWeaponTimer;
+    Weapon m_weapon;
+    int m_asteroidRespawnTime;
+
+    ////////////////////////////////////////////////////////////////////////////
+    //the fake OpenGL DirectX context thing
+    ESContext m_esContext;
+    
+    ////////////////////////////////////////////////////////////////////////////
+    //graphics stuff
+    std::vector<float> m_vertexBuffer;
+    GLuint m_offscreenFBO[8];
+    GLuint m_offscreenTex[8];
+
+    ////////////////////////////////////////////////////////////////////////////
+    //the shaders
+    GLuint m_drawProgram;
+    GLint m_uMvpDraw;
+    GLint m_aPositionDraw;
+    GLint m_aColorDraw;
+    
+    GLuint m_blurProgram;
+    GLint m_aPositionBlur;
+    GLint m_uTextureBlur;
+    GLint m_uOffsetBlur;
+
+    GLuint m_texturePassThruProgram;
+    GLint m_uTextureTexturePassThru;
+    GLint m_aPositionTexturePassThru;
+
+    GLuint m_bloomProgram;
+    GLint m_uTextureBloom[4];
+    GLint m_aPositionBloom;
+
+    ////////////////////////////////////////////////////////////////////////////
+    //windows store stuff
+	//CubeRenderer^ m_renderer;
 	bool m_windowClosed;
 	bool m_windowVisible;
 };

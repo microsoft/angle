@@ -2593,7 +2593,7 @@ bool Renderer11::copyTexture(ID3D11ShaderResourceView *source, const gl::Rectang
         samplerDesc.BorderColor[2] = 0.0f;
         samplerDesc.BorderColor[3] = 0.0f;
         samplerDesc.MinLOD = 0.0f;
-        samplerDesc.MaxLOD = 0.0f;
+        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
         result = mDevice->CreateSamplerState(&samplerDesc, &mCopySampler);
         ASSERT(SUCCEEDED(result));

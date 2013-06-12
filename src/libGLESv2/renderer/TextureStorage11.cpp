@@ -281,7 +281,6 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, int levels, GLenum 
         // this can happen from windows TDR
         if (d3d11::isDeviceLostError(result))
         {
-            HRESULT anus = device->GetDeviceRemovedReason();
             mRenderer->notifyDeviceLost();
             gl::error(GL_OUT_OF_MEMORY);
         }
@@ -341,7 +340,7 @@ RenderTarget *TextureStorage11_2D::getRenderTarget(int level)
             srvDesc.Format = mShaderResourceFormat;
             srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
             srvDesc.Texture2D.MostDetailedMip = level;
-            srvDesc.Texture2D.MipLevels = 1;
+            srvDesc.Texture2D.MipLevels = -1;
 
             ID3D11ShaderResourceView *srv;
             result = device->CreateShaderResourceView(mTexture, &srvDesc, &srv);
