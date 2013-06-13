@@ -7,12 +7,15 @@
 #define TURN_SPEED 200.0f
 #define MAX_ASTEROIDS 32
 #define MAX_FALLOUT_PER_ASTEROID 20
-#define FALLOUT_INITIAL_VEL 600.0f
+#define FALLOUT_INITIAL_VEL 500.0f
 #define BULLET_SPEED 300.0f
 #define DESTROYED_ASTEROID_SPEED 100.0f
 #define REGULAR_WEAPON_COOLDOWN 0.2f
 #define SPREAD_WEAPON_COOLDOWN 0.5f
-#define LASER_WEAPON_COOLDOWN 1.0f
+#define LASER_WEAPON_COOLDOWN 2.0f
+#define THRUST_OUTPUT_RATE 5
+#define MAX_THRUST_PARTICLES 200
+#define LASER_LIFETIME 4.0f
 
 #define PLAYER_STATE_W     0x1
 #define PLAYER_STATE_A     0x2
@@ -72,6 +75,9 @@ void Asteroids::Initialize(CoreApplicationView^ applicationView)
         asteroid.m_lives = 2;
         m_asteroids.push_back(asteroid);
     }
+    m_rocketThrust.m_emissionRate = THRUST_OUTPUT_RATE;
+    m_rocketThrust.m_maxParticles = MAX_THRUST_PARTICLES;
+    m_rocketThrust.m_emissionTimer = 0;
 }
 
 void Asteroids::SetWindow(CoreWindow^ window)
@@ -113,6 +119,7 @@ void Asteroids::SetWindow(CoreWindow^ window)
     void main(void)
     {
         v_color = a_color;
+        v_color.rgb *= a_color.a;
         gl_Position = u_mvp * vec4(a_position, 1);
     }
     );
@@ -312,18 +319,22 @@ void Asteroids::OnKeyDown(CoreWindow^ sender, KeyEventArgs ^args)
     switch(args->VirtualKey)
     {
         case VirtualKey::W:
+        case VirtualKey::Up:
             m_playerState |= PLAYER_STATE_W;
             break;
         
         case VirtualKey::S:
+        case VirtualKey::Down:
             m_playerState |= PLAYER_STATE_S;
             break;
 
         case VirtualKey::A:
+        case VirtualKey::Left:
             m_playerState |= PLAYER_STATE_A;
             break;
 
         case VirtualKey::D:
+        case VirtualKey::Right:
             m_playerState |= PLAYER_STATE_D;
             break;
 
@@ -340,7 +351,7 @@ void Asteroids::OnKeyDown(CoreWindow^ sender, KeyEventArgs ^args)
             break;
 
         case VirtualKey::Number3:
-            m_weapon = Weapon::Laser;
+            m_weapon = Weapon::LaserWeapon;
             break;
     }
 }
@@ -350,18 +361,22 @@ void Asteroids::OnKeyUp(CoreWindow^ sender, KeyEventArgs ^args)
     switch(args->VirtualKey)
     {
         case VirtualKey::W:
+        case VirtualKey::Up:
             m_playerState &= ~PLAYER_STATE_W;
             break;
         
         case VirtualKey::S:
+        case VirtualKey::Down:
             m_playerState &= ~PLAYER_STATE_S;
             break;
 
         case VirtualKey::A:
+        case VirtualKey::Left:
             m_playerState &= ~PLAYER_STATE_A;
             break;
 
         case VirtualKey::D:
+        case VirtualKey::Right:
             m_playerState &= ~PLAYER_STATE_D;
             break;
             
@@ -399,7 +414,7 @@ void Asteroids::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 	// does not occur if the app was previously terminated.
 }
 
-Asteroids::GameObject::GameObject(void) : m_angle(0), m_omega(0), m_scale(1, 1), m_lives(1), m_lifeTime(0.3f)
+Asteroids::GameObject::GameObject(void) : m_angle(0), m_omega(0), m_scale(1, 1), m_lives(1), m_lifeTime(0.2f)
 {
 }
 
@@ -462,6 +477,57 @@ void Asteroids::Update()
     end = m_asteroidFallout.end();
     for(GameObjectIter it = m_asteroidFallout.begin(); it != end; ++it)
         it->Update(dt);
+
+    //update the thrust particles
+    end = m_rocketThrustParticles.end();
+    for(GameObjectIter it = m_rocketThrustParticles.begin(); it != end;)
+    {
+        it->Update(dt);
+        if(it->m_lifeTime <= 0)
+        {
+            it = m_rocketThrustParticles.erase(it);
+            end = m_rocketThrustParticles.end();
+        }
+        else
+            ++it;
+    }
+    if(m_rocketThrustParticles.size() < MAX_THRUST_PARTICLES)
+    {
+        --m_rocketThrust.m_emissionTimer;
+        if(m_rocketThrust.m_emissionTimer <= 0)
+        {
+            GameObject particle;
+            particle.m_color = glm::vec4(1, 0.4f, 0, 1);
+            particle.m_lifeTime = (rand() % 1000) / 3000.0f + 0.1f;
+            float radians = glm::radians(m_player.m_angle);
+            glm::vec2 rearEnd = m_player.m_pos - glm::vec2(cos(radians), sin(radians)) * m_player.m_scale.x * 0.5f;
+            particle.m_pos = rearEnd;
+            radians = glm::radians(m_player.m_angle + (rand() % 6000) / 200.0f - 15);
+            float velScale;
+            if(m_playerState & PLAYER_STATE_W)
+                velScale = (rand() % 1000) / 50.0f + 200.0f;
+            else if(m_playerState & PLAYER_STATE_S)
+                velScale = -((rand() % 1000) / 50.0f + 200.0f);
+            else
+                velScale = (rand() % 1000) / 50.0f + 50.0f;
+            particle.m_vel = m_player.m_vel + -glm::vec2(cos(radians), sin(radians)) * velScale;
+            particle.m_scale = glm::vec2(5);
+            particle.m_omega = (rand() % 1000) / 5.0f - 100;
+            m_rocketThrustParticles.push_back(particle);
+            if(m_rocketThrustParticles.size() == MAX_THRUST_PARTICLES)
+                m_rocketThrust.m_emissionTimer = THRUST_OUTPUT_RATE;
+        }
+    }
+
+    //update the lasers
+    for(LaserIter it = m_lasers.begin(); it != m_lasers.end();)
+    {
+        it->m_lifeTime -= dt;
+        if(it->m_lifeTime <= 0)
+            it = m_lasers.erase(it);
+        else
+            ++it;
+    }
 
     //wrap player and asteroids to the other side of the universe if out of bounds
     WrapAround(m_player);
@@ -646,6 +712,80 @@ void Asteroids::Update()
             ++it;
     }
     
+    //collide the asteroids and lasers
+    for(LaserIter it = m_lasers.begin(); it != m_lasers.end(); ++it)
+    {
+        if(!it->m_lethal)
+            continue;
+        for(GameObjectIter it2 = m_asteroids.begin(); it2 != m_asteroids.end();)
+        {
+            //project asteroid to laser direction
+            glm::vec2 projectedPos = it->m_pos + glm::dot(it2->m_pos - it->m_pos, it->m_dir) / MagnitudeSquared(it->m_dir) * it->m_dir;
+            if(it2->m_scale.x > glm::length(it2->m_pos - projectedPos) && glm::dot(projectedPos - it->m_pos, it->m_dir) >= 0)
+             {
+                //split the asteroid into 4 smaller ones
+                if(it2->m_lives == 2)
+                {
+                    int position = it2 - m_asteroids.begin();
+                    GameObject asteroid;
+                    float radians = glm::radians(glm::radians(it2->m_angle + 45));
+                    glm::vec2 vel = it2->m_vel;
+                    glm::vec2 pos = it2->m_pos;
+                    glm::vec2 dir1(cos(radians), sin(radians));
+                    glm::vec2 dir2(dir1.y, -dir1.x);
+                    float scale = it2->m_scale.x;
+                    float angle = it2->m_angle;
+                    float omega = it2->m_omega;
+
+                    asteroid.m_scale.x = asteroid.m_scale.y = scale * 0.5f;
+                    asteroid.m_pos = pos + dir1 * scale * 0.25f;
+                    asteroid.m_angle = angle;
+                    asteroid.m_omega = omega + (rand() % 1000) / 10.0f - 50;
+                    asteroid.m_vel = vel + dir1 * DESTROYED_ASTEROID_SPEED;
+                    m_asteroids.push_back(asteroid);
+
+                    asteroid.m_pos = pos - dir1 * scale * 0.25f;
+                    asteroid.m_angle = angle;
+                    asteroid.m_omega = omega + (rand() % 1000) / 10.0f - 50;
+                    asteroid.m_vel = vel - dir1 * DESTROYED_ASTEROID_SPEED;
+                    m_asteroids.push_back(asteroid);
+
+                    asteroid.m_pos = pos + dir2 * scale * 0.25f;
+                    asteroid.m_angle = angle;
+                    asteroid.m_omega = omega + (rand() % 1000) / 10.0f - 50;
+                    asteroid.m_vel = vel + dir2 * DESTROYED_ASTEROID_SPEED;
+                    m_asteroids.push_back(asteroid);
+
+                    asteroid.m_pos = pos - dir2 * scale * 0.25f;
+                    asteroid.m_angle = angle;
+                    asteroid.m_omega = omega + (rand() % 1000) / 10.0f - 50;
+                    asteroid.m_vel = vel - dir2 * DESTROYED_ASTEROID_SPEED;
+                    m_asteroids.push_back(asteroid);
+
+                    it2 = m_asteroids.begin() + position;
+                }
+                else
+                {
+                    GameObject fallout;
+                    fallout.m_pos = it2->m_pos;
+                    fallout.m_scale = glm::vec2(5);
+                    for(int i = 0; i < MAX_FALLOUT_PER_ASTEROID; ++i)
+                    {
+                        fallout.m_angle = static_cast<float>(rand() % 10000);
+                        fallout.m_omega = (rand() % 1000) - 500.0f;
+                        float radians = glm::radians(static_cast<float>(rand() % 10000));
+                        fallout.m_vel = it2->m_vel + glm::vec2(cos(radians), sin(radians)) * (rand() % 100 + FALLOUT_INITIAL_VEL);
+                        m_asteroidFallout.push_back(fallout);
+                    }
+                }
+                it2 = m_asteroids.erase(it2);
+            }
+            else
+                ++it2;
+        }
+        it->m_lethal = false;
+    }
+    
     //keep the asteroids coming when the universe runs low
     if(m_asteroids.size() < MAX_ASTEROIDS)
     {
@@ -665,7 +805,7 @@ void Asteroids::Update()
                 asteroid.m_lives = 2;
                 m_asteroids.push_back(asteroid);
             }
-            m_asteroidRespawnTime = 10;
+            m_asteroidRespawnTime = 30;
         }
     }
 }
@@ -684,6 +824,7 @@ void Asteroids::Draw()
     DrawPlayer();
     DrawAsteroids();
     DrawBullets();
+    DrawRocket();
     
     const int stride = sizeof(glm::vec3) + sizeof(glm::vec4);
     glEnableVertexAttribArray(m_aPositionDraw);
@@ -699,6 +840,19 @@ void Asteroids::Draw()
         glDrawArrays(GL_LINES, 0, m_vertexBuffer.size() / 7);
     }
     m_vertexBuffer.clear();
+    DrawLasers();
+    if(m_lasers.size())
+    {
+        glVertexAttribPointer(m_aPositionDraw, 3, GL_FLOAT, GL_FALSE, stride, &m_vertexBuffer[0]);
+        glVertexAttribPointer(m_aColorDraw, 4, GL_FLOAT, GL_FALSE, stride, &m_vertexBuffer[3]);
+        for(int i = 0; i < 4; ++i)
+        {
+            glViewport(0, 0, RENDER_TARGET_WIDTH >> i, RENDER_TARGET_HEIGHT >> i);
+            glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
+            glDrawArrays(GL_TRIANGLES, 0, m_vertexBuffer.size() / 7);
+        }
+    }
+    m_vertexBuffer.clear();
     glDisableVertexAttribArray(m_aPositionDraw);
     glDisableVertexAttribArray(m_aColorDraw);
     
@@ -709,6 +863,7 @@ void Asteroids::Draw()
         1, -1
     };
 
+    glDisable(GL_BLEND);
     glUseProgram(m_blurProgram);
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(m_uTextureBlur, 0);
@@ -735,6 +890,7 @@ void Asteroids::Draw()
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
     glDisableVertexAttribArray(m_aPositionBlur);
+    glEnable(GL_BLEND);
     
     glViewport(0, 0, static_cast<int>(window->Bounds.Width), static_cast<int>(window->Bounds.Height));
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -807,10 +963,18 @@ void Asteroids::FireBullet()
             m_spreadWeaponTimer = SPREAD_WEAPON_COOLDOWN;
         }
     }
-    else if(m_weapon == Weapon::Laser)
+    else if(m_weapon == Weapon::LaserWeapon)
     {
         if(m_laserWeaponTimer <= 0)
         {
+            Laser laser;
+            laser.m_lifeTime = 2;
+            float radians = glm::radians(m_player.m_angle);
+            laser.m_dir = glm::vec2(cos(radians), sin(radians));
+            laser.m_pos = m_player.m_pos + laser.m_dir * m_player.m_scale * 0.5f;
+            laser.m_lethal = true;
+            m_lasers.push_back(laser);
+            m_laserWeaponTimer = LASER_WEAPON_COOLDOWN;
         }
     }
 }
@@ -900,6 +1064,46 @@ void Asteroids::DrawBullets(void)
         glm::mat4 transform = it->TransformMatrix();
         for(int i = 0; i < sizeof(verts) / sizeof(*verts); ++i)
             FillVertexBuffer(m_vertexBuffer, glm::vec3(transform * verts[i]), glm::vec4(0, 0.5f, 1, 1));
+    }
+}
+
+void Asteroids::DrawRocket(void)
+{
+    glm::vec4 verts[] = {
+        glm::vec4(0.5f, 0, 0, 1),
+        glm::vec4(-0.5f, 0.5f, 0, 1),
+        glm::vec4(-0.5f, 0.5f, 0, 1),
+        glm::vec4(-0.5f, -0.5f, 0, 1),
+        glm::vec4(-0.5f, -0.5f, 0, 1),
+        glm::vec4(0.5f, 0, 0, 1),
+    };
+    GameObjectIter end = m_rocketThrustParticles.end();
+    for(GameObjectIter it = m_rocketThrustParticles.begin(); it != end; ++it)
+    {
+        glm::mat4 transform = it->TransformMatrix();
+        for(int i = 0; i < sizeof(verts) / sizeof(*verts); ++i)
+            FillVertexBuffer(m_vertexBuffer, glm::vec3(transform * verts[i]), it->m_color);
+    }
+}
+
+void Asteroids::DrawLasers(void)
+{
+    for(LaserIter it = m_lasers.begin(); it != m_lasers.end(); ++it)
+    {
+        glm::vec2 dir2(it->m_dir.y, -it->m_dir.x);
+        glm::vec2 lowerRight(it->m_pos + dir2 * 10.0f);
+        glm::vec2 upperRight(it->m_pos - dir2 * 10.0f);
+        glm::vec2 lowerLeft(lowerRight + it->m_dir * 100000.0f); 
+        glm::vec2 upperLeft(upperRight + it->m_dir * 100000.0f);
+        float alpha = 1;
+        if(it->m_lifeTime < 1)
+            alpha = it->m_lifeTime;
+        FillVertexBuffer(m_vertexBuffer, glm::vec3(lowerRight, 0), glm::vec4(0, 1, 1, alpha));
+        FillVertexBuffer(m_vertexBuffer, glm::vec3(upperRight, 0), glm::vec4(0, 1, 1, alpha));
+        FillVertexBuffer(m_vertexBuffer, glm::vec3(lowerLeft, 0), glm::vec4(0, 1, 1, alpha));
+        FillVertexBuffer(m_vertexBuffer, glm::vec3(upperRight, 0), glm::vec4(0, 1, 1, alpha));
+        FillVertexBuffer(m_vertexBuffer, glm::vec3(upperLeft, 0), glm::vec4(0, 1, 1, alpha));
+        FillVertexBuffer(m_vertexBuffer, glm::vec3(lowerLeft, 0), glm::vec4(0, 1, 1, alpha));
     }
 }
 

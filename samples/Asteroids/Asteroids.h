@@ -60,17 +60,27 @@ private:
         glm::vec2 m_scale;
         int m_lives;
         float m_lifeTime;
+        glm::vec4 m_color;
     };
 
     struct Laser
     {
+        float m_lifeTime;
         glm::vec2 m_pos;
         glm::vec2 m_dir;
+        bool m_lethal;
+    };
+
+    struct ParticleEffect
+    {
+        unsigned m_maxParticles;
+        int m_emissionRate;
+        int m_emissionTimer;
     };
 
     typedef std::vector<GameObject> GameObjectList;
     typedef GameObjectList::iterator GameObjectIter;
-    typedef std::vector<GameObject> LaserList;
+    typedef std::vector<Laser> LaserList;
     typedef LaserList::iterator LaserIter;
     
     void Update();
@@ -81,6 +91,8 @@ private:
     void DrawPlayer(void);
     void DrawAsteroids(void);
     void DrawBullets(void);
+    void DrawRocket(void);
+    void DrawLasers(void);
     
     ////////////////////////////////////////////////////////////////////////////
     //game stuff
@@ -88,12 +100,15 @@ private:
     {
         Regular,
         Spread,
-        Laser,
+        LaserWeapon,
     };
     GameObject m_player;
+    ParticleEffect m_rocketThrust;
     GameObjectList m_asteroids;
     GameObjectList m_bullets;
     GameObjectList m_asteroidFallout;
+    GameObjectList m_rocketThrustParticles;
+    LaserList m_lasers;
     unsigned m_playerState;
     float m_regularWeaponTimer;
     float m_spreadWeaponTimer;
