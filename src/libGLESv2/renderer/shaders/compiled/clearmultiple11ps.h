@@ -4,7 +4,8 @@
 //
 //
 //   fxc /Gec /nologo /E PS_ClearMultiple /T ps_4_0_level_9_1 /Fh
-//    compiled/clearmultiple11ps.h /Qstrip_reflect /Qstrip_debug Clear11.hlsl
+//    compiled/clearmultiple11ps.h /Vn g_PS_ClearMultiple /Qstrip_reflect
+//    /Qstrip_debug Clear11.hlsl
 //
 //
 // Input signature:

@@ -19,7 +19,7 @@ class Renderer11;
 class SwapChain11 : public SwapChain
 {
   public:
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     SwapChain11(Renderer11 *renderer, CoreWindow ^window, HANDLE shareHandle,
 #else
     SwapChain11(Renderer11 *renderer, HWND window, HANDLE shareHandle,

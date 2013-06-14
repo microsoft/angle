@@ -9,7 +9,7 @@
 #include "common/debug.h"
 #include "common/system.h"
 #include <d3d9.h>
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 typedef DWORD D3DCOLOR;
 #endif
 
@@ -63,7 +63,7 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
 {
     va_list vararg;
     va_start(vararg, format);
-#if defined(ANGLE_DISABLE_PERF) || WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if defined(ANGLE_DISABLE_PERF) || WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     output(traceFileDebugOnly, NULL, format, vararg);
 #else
     output(traceFileDebugOnly, D3DPERF_SetMarker, format, vararg);
@@ -73,7 +73,7 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
 
 bool perfActive()
 {
-#if defined(ANGLE_DISABLE_PERF) || WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if defined(ANGLE_DISABLE_PERF) || WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     return false;
 #else
     static bool active = D3DPERF_GetStatus() != 0;
@@ -83,7 +83,7 @@ bool perfActive()
 
 ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
 {
-#if !defined(ANGLE_DISABLE_PERF) && WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_DESKTOP )
+#if !defined(ANGLE_DISABLE_PERF) && WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
 #if defined(ANGLE_DISABLE_TRACE)
     if (!perfActive())
     {
@@ -99,7 +99,7 @@ ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
 
 ScopedPerfEventHelper::~ScopedPerfEventHelper()
 {
-#if !defined(ANGLE_DISABLE_PERF) && WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_DESKTOP )
+#if !defined(ANGLE_DISABLE_PERF) && WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
     if (perfActive())
     {
         D3DPERF_EndEvent();

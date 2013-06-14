@@ -714,7 +714,7 @@ bool IsTriangleMode(GLenum drawMode)
 
 std::string getTempPath()
 {
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     return ""; //since windows store apps are sandboxed the temp path will be the same directory as the app for now
 #else
     char path[MAX_PATH];

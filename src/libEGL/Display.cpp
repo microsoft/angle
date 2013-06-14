@@ -185,7 +185,7 @@ bool Display::getConfigAttrib(EGLConfig config, EGLint attribute, EGLint *value)
 
 
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 EGLSurface Display::createWindowSurface(CoreWindow ^window, EGLConfig config, const EGLint *attribList)
 #else
 EGLSurface Display::createWindowSurface(HWND window, EGLConfig config, const EGLint *attribList)
@@ -459,7 +459,7 @@ bool Display::isValidSurface(egl::Surface *surface)
     return mSurfaceSet.find(surface) != mSurfaceSet.end();
 }
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 bool Display::hasExistingWindowSurface(CoreWindow ^window)
 #else
 bool Display::hasExistingWindowSurface(HWND window)
@@ -478,7 +478,7 @@ bool Display::hasExistingWindowSurface(HWND window)
 
 void Display::initExtensionString()
 {
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     //todo: figure out what swiftshader_d3d9.dll is for
     bool swiftShader = false;
 #else

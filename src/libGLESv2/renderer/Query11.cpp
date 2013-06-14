@@ -65,7 +65,7 @@ GLuint Query11::getResult()
     {
         while (!testQuery())
         {
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_DESKTOP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
             Sleep(0);
 #endif
             // explicitly check for device loss, some drivers seem to return S_FALSE

@@ -40,7 +40,7 @@ class Display
     bool getConfigs(EGLConfig *configs, const EGLint *attribList, EGLint configSize, EGLint *numConfig);
     bool getConfigAttrib(EGLConfig config, EGLint attribute, EGLint *value);
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     EGLSurface createWindowSurface(CoreWindow ^window, EGLConfig config, const EGLint *attribList);
 #else
     EGLSurface createWindowSurface(HWND window, EGLConfig config, const EGLint *attribList);
@@ -55,7 +55,7 @@ class Display
     bool isValidConfig(EGLConfig config);
     bool isValidContext(gl::Context *context);
     bool isValidSurface(egl::Surface *surface);
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     bool hasExistingWindowSurface(CoreWindow ^window);
 #else
     bool hasExistingWindowSurface(HWND window);

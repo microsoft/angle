@@ -4,7 +4,8 @@
 //
 //
 //   fxc /Gec /nologo /E luminanceps /T ps_4_0_level_9_1 /Fh
-//    compiled/luminanceps.h /Qstrip_reflect /Qstrip_debug Blit.ps
+//    compiled/luminanceps.h /Vn g_ps20_luminanceps /Qstrip_reflect
+//    /Qstrip_debug Blit.ps
 //
 //
 // Input signature:
@@ -60,7 +61,7 @@ ret
 // Approximately 0 instruction slots used
 #endif
 
-const BYTE g_luminanceps[] =
+const BYTE g_ps20_luminanceps[] =
 {
      68,  88,  66,  67, 137,  71, 
     101, 188, 136, 133, 223,  65, 

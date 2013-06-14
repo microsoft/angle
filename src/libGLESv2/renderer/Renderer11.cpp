@@ -137,7 +137,7 @@ EGLint Renderer11::initialize()
         return EGL_NOT_INITIALIZED;
     }
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_DESKTOP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
     mDxgiModule = LoadLibrary(TEXT("dxgi.dll"));
     mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
 
@@ -517,7 +517,7 @@ void Renderer11::sync(bool block)
             result = mDeviceContext->GetData(mSyncQuery, NULL, 0, D3D11_ASYNC_GETDATA_DONOTFLUSH);
 
             // Keep polling, but allow other threads to do something useful first
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_DESKTOP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
             Sleep(0);
 #endif
 
@@ -534,7 +534,7 @@ void Renderer11::sync(bool block)
     }
 }
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 SwapChain *Renderer11::createSwapChain(CoreWindow ^window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
 #else
 SwapChain *Renderer11::createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)

@@ -308,7 +308,7 @@ EGLSurface __stdcall eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EG
             return EGL_NO_SURFACE;
         }
         
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         return display->createWindowSurface(win, config, attrib_list);
 #else
         HWND window = (HWND)win;

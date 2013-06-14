@@ -4,7 +4,8 @@
 //
 //
 //   fxc /Gec /nologo /E passthroughps /T ps_4_0_level_9_1 /Fh
-//    compiled/passthroughps.h /Qstrip_reflect /Qstrip_debug Blit.ps
+//    compiled/passthroughps.h /Vn g_ps20_passthroughps /Qstrip_reflect
+//    /Qstrip_debug Blit.ps
 //
 //
 // Input signature:
@@ -47,7 +48,7 @@ ret
 // Approximately 0 instruction slots used
 #endif
 
-const BYTE g_passthroughps[] =
+const BYTE g_ps20_passthroughps[] =
 {
      68,  88,  66,  67, 235, 113, 
     126,  12, 233, 162, 162,  12, 

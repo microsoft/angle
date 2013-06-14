@@ -17,7 +17,7 @@
 namespace rx
 {
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 SwapChain11::SwapChain11(Renderer11 *renderer, CoreWindow ^window, HANDLE shareHandle,
 #else
 SwapChain11::SwapChain11(Renderer11 *renderer, HWND window, HANDLE shareHandle,
@@ -468,7 +468,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
     if (mWindow)
     {
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_DESKTOP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
         // We cannot create a swap chain for an HWND that is owned by a different process
         DWORD currentProcessId = GetCurrentProcessId();
         DWORD wndProcessId;
@@ -514,12 +514,12 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.Scaling = DXGI_SCALING_NONE;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
         swapChainDesc.Flags = 0;
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
         HRESULT result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow)), &swapChainDesc, nullptr, &mSwapChain);
 #else
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
-        HRESULT result = factory->CreateSwapChainForHwnd(device, mWindow, nullptr, nullptr, &mSwapChain);
+        HRESULT result = factory->CreateSwapChainForHwnd(device, mWindow, &swapChainDesc, nullptr, nullptr, &mSwapChain);
 #endif
 
         if (FAILED(result))

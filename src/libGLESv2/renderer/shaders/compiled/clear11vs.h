@@ -4,7 +4,7 @@
 //
 //
 //   fxc /Gec /nologo /E VS_Clear /T vs_4_0_level_9_1 /Fh compiled/clear11vs.h
-//    /Qstrip_reflect /Qstrip_debug Clear11.hlsl
+//    /Vn g_VS_Clear /Qstrip_reflect /Qstrip_debug Clear11.hlsl
 //
 //
 // Input signature:

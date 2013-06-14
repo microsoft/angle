@@ -10,14 +10,16 @@
 #include "libGLESv2/main.h"
 
 #include "libGLESv2/Context.h"
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 #include "common/ThreadEmulation.h"
 using namespace ThreadEmulation;
 #endif
 
 static DWORD currentTLS = TLS_OUT_OF_INDEXES;
 
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 [Platform::MTAThread]
+#endif
 extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
     switch (reason)

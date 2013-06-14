@@ -4,8 +4,8 @@
 //
 //
 //   fxc /Gec /nologo /E PS_PassthroughLumAlpha /T ps_4_0_level_9_1 /Fh
-//    compiled/passthroughlumalpha11ps.h /Qstrip_reflect /Qstrip_debug
-//    Passthrough11.hlsl
+//    compiled/passthroughlumalpha11ps.h /Vn g_PS_PassthroughLumAlpha
+//    /Qstrip_reflect /Qstrip_debug Passthrough11.hlsl
 //
 //
 // Input signature:

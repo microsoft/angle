@@ -4,7 +4,8 @@
 //
 //
 //   fxc /Gec /nologo /E componentmaskps /T ps_4_0_level_9_1 /Fh
-//    compiled/componentmaskps.h /Qstrip_reflect /Qstrip_debug Blit.ps
+//    compiled/componentmaskps.h /Vn g_ps20_componentmaskps /Qstrip_reflect
+//    /Qstrip_debug Blit.ps
 //
 //
 // Input signature:
@@ -60,7 +61,7 @@ ret
 // Approximately 0 instruction slots used
 #endif
 
-const BYTE g_componentmaskps[] =
+const BYTE g_ps20_componentmaskps[] =
 {
      68,  88,  66,  67,  21, 112, 
     122, 127,  24, 146,  15, 191, 

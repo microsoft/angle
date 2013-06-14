@@ -19,21 +19,21 @@
 
 #include "libEGL/main.h"
 #include "libEGL/Display.h"
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 #include <wrl/client.h>
 #endif
 
 namespace egl
 {
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 Surface::Surface(Display *display, const Config *config, CoreWindow ^window, EGLint postSubBufferSupported) 
 #else
 Surface::Surface(Display *display, const Config *config, HWND window, EGLint postSubBufferSupported) 
 #endif
     : mDisplay(display), mConfig(config), mWindow(window), mPostSubBufferSupported(postSubBufferSupported)
 {
-	CoreWindow::GetForCurrentThread();
+	//CoreWindow::GetForCurrentThread();
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
     mShareHandle = NULL;
@@ -48,7 +48,9 @@ Surface::Surface(Display *display, const Config *config, HWND window, EGLint pos
     mWidth = -1;
     mHeight = -1;
     setSwapInterval(1);
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     mWinRTSelf = ref new PrivateWinRTSurface(this);
+#endif
 
     subclassWindow();
 }
@@ -105,7 +107,7 @@ bool Surface::resetSwapChain()
 
     if (mWindow)
     {
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         CoreWindow ^window = getWindowHandle();
         width = static_cast<int>(window->Bounds.Width);
         height = static_cast<int>(window->Bounds.Height);
@@ -234,7 +236,7 @@ bool Surface::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     return true;
 }
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 void Surface::onWindowSizeChanged()
 {
     checkForOutOfDateSwapChain();    
@@ -261,7 +263,7 @@ HWND Surface::getWindowHandle()
 #define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
 #define kParentWndProc _TEXT("Egl::SurfaceParentWndProc")
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_DESKTOP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
 static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
   if (message == WM_SIZE)
@@ -284,7 +286,7 @@ void Surface::subclassWindow()
         return;
     }
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     //todo: figure out how to get process and thread id for the window, although it's probably not necessary
     //if this dll won't be run from a different process or thread hopefully
     mWindow->SizeChanged += ref new Windows::Foundation::TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(mWinRTSelf, &PrivateWinRTSurface::onWindowSizeChanged);
@@ -317,7 +319,7 @@ void Surface::unsubclassWindow()
         return;
     }
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_DESKTOP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
     // un-subclass
     LONG_PTR parentWndFunc = reinterpret_cast<LONG_PTR>(GetProp(mWindow, kParentWndProc));
 
@@ -340,7 +342,7 @@ void Surface::unsubclassWindow()
 
 bool Surface::checkForOutOfDateSwapChain()
 {
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     int clientWidth = static_cast<int>(mWindow->Bounds.Width);
     int clientHeight = static_cast<int>(mWindow->Bounds.Height);
 #else

@@ -72,13 +72,19 @@
 #define WIN32_LEAN_AND_MEAN 1
 #endif
 #include <windows.h>
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#ifndef WINAPI_FAMILY_PARTITION
+#define WINAPI_FAMILY_APP 0
+#define WINAPI_FAMILY_DESKTOP_APP 1
+#define WINAPI_FAMILY_ONE_PARTITION( arg1, arg2 ) arg2
+#define WINAPI_FAMILY_PARTITION(...) 0
+#endif
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 #include <wrl/client.h>
 #endif
 
 typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 using namespace Windows::UI::Core;
 typedef CoreWindow^ EGLNativeWindowType;
 #else

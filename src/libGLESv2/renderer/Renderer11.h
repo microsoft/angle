@@ -17,7 +17,7 @@
 #include "libGLESv2/renderer/RenderStateCache.h"
 #include "libGLESv2/renderer/InputLayoutCache.h"
 #include "libGLESv2/renderer/RenderTarget.h"
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 #include <wrl/client.h>
 #include <d3d11_1.h>
 #endif
@@ -56,7 +56,7 @@ class Renderer11 : public Renderer
 
     virtual void sync(bool block);
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     virtual SwapChain *createSwapChain(CoreWindow ^window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
 #else
     virtual SwapChain *createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);

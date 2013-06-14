@@ -4,7 +4,8 @@
 //
 //
 //   fxc /Gec /nologo /E standardvs /T vs_4_0_level_9_1 /Fh
-//    compiled/standardvs.h /Qstrip_reflect /Qstrip_debug Blit.vs
+//    compiled/standardvs.h /Vn g_vs20_standardvs /Qstrip_reflect
+//    /Qstrip_debug Blit.vs
 //
 //
 // Input signature:
@@ -58,7 +59,7 @@ ret
 // Approximately 0 instruction slots used
 #endif
 
-const BYTE g_standardvs[] =
+const BYTE g_vs20_standardvs[] =
 {
      68,  88,  66,  67, 163, 146, 
     133,  14, 248,  88, 214,  36, 

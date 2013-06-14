@@ -34,7 +34,7 @@ class Config;
 class Surface
 {
   public:
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     Surface(Display *display, const egl::Config *config, CoreWindow ^window, EGLint postSubBufferSupported);
 #else
     Surface(Display *display, const egl::Config *config, HWND window, EGLint postSubBufferSupported);
@@ -47,7 +47,7 @@ class Surface
     void release();
     bool resetSwapChain();
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     CoreWindow ^getWindowHandle();
 #else
     HWND getWindowHandle();
@@ -75,7 +75,7 @@ class Surface
 private:
     DISALLOW_COPY_AND_ASSIGN(Surface);
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     ref class PrivateWinRTSurface
     {
     internal:
@@ -101,7 +101,7 @@ private:
     bool resetSwapChain(int backbufferWidth, int backbufferHeight);
     bool swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     void onWindowSizeChanged();
 
     CoreWindow ^mWindow;

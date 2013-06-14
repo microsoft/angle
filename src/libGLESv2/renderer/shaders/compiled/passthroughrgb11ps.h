@@ -4,8 +4,8 @@
 //
 //
 //   fxc /Gec /nologo /E PS_PassthroughRGB /T ps_4_0_level_9_1 /Fh
-//    compiled/passthroughrgb11ps.h /Qstrip_reflect /Qstrip_debug
-//    Passthrough11.hlsl
+//    compiled/passthroughrgb11ps.h /Vn g_PS_PassthroughRGB /Qstrip_reflect
+//    /Qstrip_debug Passthrough11.hlsl
 //
 //
 // Input signature:
