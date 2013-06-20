@@ -35,7 +35,7 @@ class Surface
 {
   public:
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-    Surface(Display *display, const egl::Config *config, CoreWindow ^window, EGLint postSubBufferSupported);
+    Surface(Display *display, const egl::Config *config, EGLNativeWindowType window, EGLint postSubBufferSupported);
 #else
     Surface(Display *display, const egl::Config *config, HWND window, EGLint postSubBufferSupported);
 #endif
@@ -48,7 +48,7 @@ class Surface
     bool resetSwapChain();
 
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-    CoreWindow ^getWindowHandle();
+    Windows::UI::Core::CoreWindow ^getWindowHandle();
 #else
     HWND getWindowHandle();
 #endif
@@ -80,7 +80,7 @@ private:
     {
     internal:
         PrivateWinRTSurface(Surface *self);
-        void onWindowSizeChanged(CoreWindow ^sender, WindowSizeChangedEventArgs ^args);
+        void onWindowSizeChanged(Windows::UI::Core::CoreWindow ^sender, Windows::UI::Core::WindowSizeChangedEventArgs ^args);
 
     private:
         Surface *mSelf;
@@ -104,7 +104,7 @@ private:
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     void onWindowSizeChanged();
 
-    CoreWindow ^mWindow;
+    EGLNativeWindowType mWindow;
 #else
     const HWND mWindow;            // Window that the surface is created for.
 #endif

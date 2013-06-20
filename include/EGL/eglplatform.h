@@ -85,8 +85,13 @@
 typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-using namespace Windows::UI::Core;
-typedef CoreWindow^ EGLNativeWindowType;
+typedef struct {
+	Windows::UI::Core::CoreWindow^ window;
+	Windows::UI::Xaml::Controls::SwapChainBackgroundPanel^ panel;
+} WinRTWindow;
+
+typedef WinRTWindow    EGLNativeWindowType;
+
 #else
 typedef HWND    EGLNativeWindowType;
 #endif

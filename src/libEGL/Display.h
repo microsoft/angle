@@ -41,7 +41,7 @@ class Display
     bool getConfigAttrib(EGLConfig config, EGLint attribute, EGLint *value);
 
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-    EGLSurface createWindowSurface(CoreWindow ^window, EGLConfig config, const EGLint *attribList);
+    EGLSurface createWindowSurface(EGLNativeWindowType window, EGLConfig config, const EGLint *attribList);
 #else
     EGLSurface createWindowSurface(HWND window, EGLConfig config, const EGLint *attribList);
 #endif
@@ -56,7 +56,7 @@ class Display
     bool isValidContext(gl::Context *context);
     bool isValidSurface(egl::Surface *surface);
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-    bool hasExistingWindowSurface(CoreWindow ^window);
+    bool hasExistingWindowSurface(EGLNativeWindowType window);
 #else
     bool hasExistingWindowSurface(HWND window);
 #endif

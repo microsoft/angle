@@ -20,11 +20,12 @@ class SwapChain11 : public SwapChain
 {
   public:
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-    SwapChain11(Renderer11 *renderer, CoreWindow ^window, HANDLE shareHandle,
+    SwapChain11(Renderer11 *renderer, EGLNativeWindowType window, HANDLE shareHandle,
 #else
-    SwapChain11(Renderer11 *renderer, HWND window, HANDLE shareHandle,
+		SwapChain11(Renderer11 *renderer, HWND window, HANDLE shareHandle,
 #endif
-                GLenum backBufferFormat, GLenum depthBufferFormat);
+        GLenum backBufferFormat, GLenum depthBufferFormat);
+
     virtual ~SwapChain11();
 
     EGLint resize(EGLint backbufferWidth, EGLint backbufferHeight);

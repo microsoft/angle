@@ -108,7 +108,7 @@ void Asteroids::SetWindow(CoreWindow^ window)
 	//m_renderer->Initialize(CoreWindow::GetForCurrentThread());
     
     esInitContext ( &m_esContext );
-    m_esContext.hWnd = CoreWindow::GetForCurrentThread();
+    m_esContext.hWnd.window = CoreWindow::GetForCurrentThread();
     esCreateWindow ( &m_esContext, TEXT("Simple Instancing"), 320, 240, ES_WINDOW_RGB );
 
     const char *vs = STRINGIFY(

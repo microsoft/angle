@@ -13,12 +13,19 @@
 #include "libGLESv2/renderer/Renderer11.h"
 #include "libGLESv2/renderer/shaders/compiled/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
+#include <windows.ui.xaml.media.dxinterop.h>
+
+using namespace Microsoft::WRL;
+using namespace Windows::UI::Core;
+using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::Foundation;
+using namespace Windows::Graphics::Display;
 
 namespace rx
 {
 
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-SwapChain11::SwapChain11(Renderer11 *renderer, CoreWindow ^window, HANDLE shareHandle,
+SwapChain11::SwapChain11(Renderer11 *renderer, EGLNativeWindowType window, HANDLE shareHandle,
 #else
 SwapChain11::SwapChain11(Renderer11 *renderer, HWND window, HANDLE shareHandle,
 #endif
@@ -231,7 +238,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     }
     else
     {
-        const bool useSharedResource = !mWindow && mRenderer->getShareHandleSupport();
+        const bool useSharedResource = !mWindow.window && mRenderer->getShareHandleSupport();
 
         D3D11_TEXTURE2D_DESC offscreenTextureDesc = {0};
         offscreenTextureDesc.Width = backbufferWidth;
@@ -466,7 +473,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         return EGL_SUCCESS;
     }
 
-    if (mWindow)
+    if (mWindow.window)
     {
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
         // We cannot create a swap chain for an HWND that is owned by a different process
@@ -511,12 +518,35 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount = 2;
-        swapChainDesc.Scaling = DXGI_SCALING_NONE;
+        swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        swapChainDesc.Flags = 0;
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // All Metro style apps must use this SwapEffect.
+		swapChainDesc.Flags = 0;
+
+
+      swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
+
+
+
+
+
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-        HRESULT result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow)), &swapChainDesc, nullptr, &mSwapChain);
+		HRESULT result = S_OK;
+		if(mWindow.panel)
+		{
+			result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
+			if(!result)
+			{
+			    ComPtr<ISwapChainBackgroundPanelNative> panelNative;
+				reinterpret_cast<IUnknown*>(mWindow.panel)->QueryInterface(IID_PPV_ARGS(&panelNative));
+				panelNative->SetSwapChain(mSwapChain);
+			}
+		}
+		else
+		{
+			result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window)), &swapChainDesc, nullptr, &mSwapChain);
+		}
 #else
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
         HRESULT result = factory->CreateSwapChainForHwnd(device, mWindow, &swapChainDesc, nullptr, nullptr, &mSwapChain);

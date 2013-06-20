@@ -23,11 +23,13 @@
 #include <wrl/client.h>
 #endif
 
+using namespace Windows::UI::Core;
+
 namespace egl
 {
 
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-Surface::Surface(Display *display, const Config *config, CoreWindow ^window, EGLint postSubBufferSupported) 
+Surface::Surface(Display *display, const Config *config, EGLNativeWindowType window, EGLint postSubBufferSupported) 
 #else
 Surface::Surface(Display *display, const Config *config, HWND window, EGLint postSubBufferSupported) 
 #endif
@@ -55,8 +57,11 @@ Surface::Surface(Display *display, const Config *config, HWND window, EGLint pos
 }
 
 Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType)
-    : mDisplay(display), mWindow(nullptr), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
+    : mDisplay(display), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
 {
+	mWindow.window = nullptr;
+	mWindow.panel = nullptr;
+
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
     mWindowSubclassed = false;
@@ -104,7 +109,7 @@ bool Surface::resetSwapChain()
     int width;
     int height;
 
-    if (mWindow)
+    if (mWindow.window)
     {
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         CoreWindow ^window = getWindowHandle();
@@ -255,7 +260,7 @@ CoreWindow ^Surface::getWindowHandle()
 HWND Surface::getWindowHandle()
 #endif
 {
-    return mWindow;
+    return mWindow.window;
 }
 
 
@@ -280,7 +285,7 @@ static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam
 
 void Surface::subclassWindow()
 {
-    if (!mWindow)
+    if (!mWindow.window)
     {
         return;
     }
@@ -288,7 +293,7 @@ void Surface::subclassWindow()
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     //todo: figure out how to get process and thread id for the window, although it's probably not necessary
     //if this dll won't be run from a different process or thread hopefully
-    mWindow->SizeChanged += ref new Windows::Foundation::TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(mWinRTSelf, &PrivateWinRTSurface::onWindowSizeChanged);
+    mWindow.window->SizeChanged += ref new Windows::Foundation::TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(mWinRTSelf, &PrivateWinRTSurface::onWindowSizeChanged);
 #else
     DWORD processId;
     DWORD threadId = GetWindowThreadProcessId(mWindow, &processId);
@@ -342,8 +347,8 @@ void Surface::unsubclassWindow()
 bool Surface::checkForOutOfDateSwapChain()
 {
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-    int clientWidth = static_cast<int>(mWindow->Bounds.Width);
-    int clientHeight = static_cast<int>(mWindow->Bounds.Height);
+    int clientWidth = static_cast<int>(mWindow.window->Bounds.Width);
+    int clientHeight = static_cast<int>(mWindow.window->Bounds.Height);
 #else
     RECT client;
     if (!GetClientRect(getWindowHandle(), &client))

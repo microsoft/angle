@@ -19,7 +19,7 @@ class SwapChain
 {
   public:
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-    SwapChain(CoreWindow ^window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
+    SwapChain(EGLNativeWindowType window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
 #else
     SwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
 #endif
@@ -38,7 +38,7 @@ class SwapChain
 
   protected:
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-    const CoreWindow ^mWindow;
+    EGLNativeWindowType mWindow;
 #else
     const HWND mWindow;            // Window that the surface is created for.
 #endif
