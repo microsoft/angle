@@ -38,7 +38,7 @@
     <ClCompile Include="debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DetectRecursion.cpp">
+    <ClCompile Include="DetectCallDepth.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Diagnostics.cpp">
@@ -134,7 +134,7 @@
     <ClCompile Include="timing\RestrictVertexShaderTiming.cpp">
       <Filter>Source Files\timing</Filter>
     </ClCompile>
-    <ClCompile Include="..\third_party\compiler\ArrayBoundsClamper.cpp">
+    <ClCompile Include="ArrayBoundsClamper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -154,7 +154,7 @@
     <ClInclude Include="debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DetectRecursion.h">
+    <ClInclude Include="DetectCallDepth.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Diagnostics.h">
@@ -256,7 +256,7 @@
     <ClInclude Include="HashNames.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\third_party\compiler\ArrayBoundsClamper.h">
+    <ClInclude Include="ArrayBoundsClamper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

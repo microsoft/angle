@@ -38,9 +38,6 @@
     <ClCompile Include="debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DetectRecursion.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Diagnostics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -137,6 +134,9 @@
     <ClCompile Include="..\third_party\compiler\ArrayBoundsClamper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DetectCallDepth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseTypes.h">
@@ -152,9 +152,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="debug.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DetectRecursion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Diagnostics.h">
@@ -257,6 +254,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\third_party\compiler\ArrayBoundsClamper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DetectCallDepth.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

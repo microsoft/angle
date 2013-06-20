@@ -33,7 +33,6 @@ Surface::Surface(Display *display, const Config *config, HWND window, EGLint pos
 #endif
     : mDisplay(display), mConfig(config), mWindow(window), mPostSubBufferSupported(postSubBufferSupported)
 {
-	//CoreWindow::GetForCurrentThread();
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
     mShareHandle = NULL;

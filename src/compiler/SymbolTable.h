@@ -50,13 +50,16 @@ public:
     virtual bool isVariable() const { return false; }
     void setUniqueId(int id) { uniqueId = id; }
     int getUniqueId() const { return uniqueId; }
-    virtual void dump(TInfoSink &infoSink) const = 0;	
+    virtual void dump(TInfoSink &infoSink) const = 0;
+    void relateToExtension(const TString& ext) { extension = ext; }
+    const TString& getExtension() const { return extension; }
 
 private:
     DISALLOW_COPY_AND_ASSIGN(TSymbol);
 
     const TString *name;
     unsigned int uniqueId;      // For real comparing during code generation
+    TString extension;
 };
 
 //
@@ -71,15 +74,13 @@ private:
 //
 class TVariable : public TSymbol {
 public:
-    TVariable(const TString *name, const TType& t, bool uT = false ) : TSymbol(name), type(t), userType(uT), unionArray(0), arrayInformationType(0) { }
+    TVariable(const TString *name, const TType& t, bool uT = false ) : TSymbol(name), type(t), userType(uT), unionArray(0) { }
     virtual ~TVariable() { }
     virtual bool isVariable() const { return true; }    
     TType& getType() { return type; }    
     const TType& getType() const { return type; }
     bool isUserType() const { return userType; }
     void setQualifier(TQualifier qualifier) { type.setQualifier(qualifier); }
-    void updateArrayInformationType(TType *t) { arrayInformationType = t; }
-    TType* getArrayInformationType() { return arrayInformationType; }
 
     virtual void dump(TInfoSink &infoSink) const;
 
@@ -110,7 +111,6 @@ private:
     // we are assuming that Pool Allocator will free the memory allocated to unionArray
     // when this object is destroyed
     ConstantUnion *unionArray;
-    TType *arrayInformationType;  // this is used for updating maxArraySize in all the references to a given symbol
 };
 
 //
@@ -159,9 +159,6 @@ public:
     void relateToOperator(TOperator o) { op = o; }
     TOperator getBuiltInOp() const { return op; }
 
-    void relateToExtension(const TString& ext) { extension = ext; }
-    const TString& getExtension() const { return extension; }
-
     void setDefined() { defined = true; }
     bool isDefined() { return defined; }
 
@@ -178,7 +175,6 @@ private:
     TType returnType;
     TString mangledName;
     TOperator op;
-    TString extension;
     bool defined;
 };
 

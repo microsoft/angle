@@ -689,7 +689,23 @@ void Renderer11::setBlendState(const gl::BlendState &blendState, const gl::Color
                 "blend state.");
         }
 
-        const float blendColors[] = { blendColor.red, blendColor.green, blendColor.blue, blendColor.alpha };
+        float blendColors[4] = {0.0f};
+        if (blendState.sourceBlendRGB != GL_CONSTANT_ALPHA && blendState.sourceBlendRGB != GL_ONE_MINUS_CONSTANT_ALPHA &&
+            blendState.destBlendRGB != GL_CONSTANT_ALPHA && blendState.destBlendRGB != GL_ONE_MINUS_CONSTANT_ALPHA)
+        {
+            blendColors[0] = blendColor.red;
+            blendColors[1] = blendColor.green;
+            blendColors[2] = blendColor.blue;
+            blendColors[3] = blendColor.alpha;
+        }
+        else
+        {
+            blendColors[0] = blendColor.alpha;
+            blendColors[1] = blendColor.alpha;
+            blendColors[2] = blendColor.alpha;
+            blendColors[3] = blendColor.alpha;
+        }
+
         mDeviceContext->OMSetBlendState(dxBlendState, blendColors, sampleMask);
 
         mCurBlendState = blendState;
@@ -2609,7 +2625,7 @@ bool Renderer11::copyTexture(ID3D11ShaderResourceView *source, const gl::Rectang
         samplerDesc.BorderColor[2] = 0.0f;
         samplerDesc.BorderColor[3] = 0.0f;
         samplerDesc.MinLOD = 0.0f;
-        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX; //breaks Surface RT if 0.0f
 
         result = mDevice->CreateSamplerState(&samplerDesc, &mCopySampler);
         ASSERT(SUCCEEDED(result));
@@ -3560,6 +3576,26 @@ ID3D11Texture2D *Renderer11::resolveMultisampledTexture(ID3D11Texture2D *source,
         source->AddRef();
         return source;
     }
+}
+
+bool Renderer11::getLUID(LUID *adapterLuid) const
+{
+    adapterLuid->HighPart = 0;
+    adapterLuid->LowPart = 0;
+
+    if (!mDxgiAdapter)
+    {
+        return false;
+    }
+
+    DXGI_ADAPTER_DESC adapterDesc;
+    if (FAILED(mDxgiAdapter->GetDesc(&adapterDesc)))
+    {
+        return false;
+    }
+
+    *adapterLuid = adapterDesc.AdapterLuid;
+    return true;
 }
 
 }
