@@ -238,7 +238,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     }
     else
     {
-        const bool useSharedResource = !mWindow.window && mRenderer->getShareHandleSupport();
+        const bool useSharedResource = !mWindow.window.Get() && mRenderer->getShareHandleSupport();
 
         D3D11_TEXTURE2D_DESC offscreenTextureDesc = {0};
         offscreenTextureDesc.Width = backbufferWidth;
@@ -473,7 +473,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         return EGL_SUCCESS;
     }
 
-    if (mWindow.window)
+    if (mWindow.window.Get())
     {
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
         // We cannot create a swap chain for an HWND that is owned by a different process
@@ -545,7 +545,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 		}
 		else
 		{
-			result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window)), &swapChainDesc, nullptr, &mSwapChain);
+			result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window.Get())), &swapChainDesc, nullptr, &mSwapChain);
 		}
 #else
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;

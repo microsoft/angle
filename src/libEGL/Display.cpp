@@ -468,7 +468,7 @@ bool Display::hasExistingWindowSurface(HWND window)
 {
     for (SurfaceSet::iterator surface = mSurfaceSet.begin(); surface != mSurfaceSet.end(); surface++)
     {
-        if ((*surface)->getWindowHandle() == window.window)
+        if ((*surface)->getWindowHandle() == window.window.Get())
         {
             return true;
         }

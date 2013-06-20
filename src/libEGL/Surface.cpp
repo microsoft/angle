@@ -109,7 +109,7 @@ bool Surface::resetSwapChain()
     int width;
     int height;
 
-    if (mWindow.window)
+    if (mWindow.window.Get())
     {
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         CoreWindow ^window = getWindowHandle();
@@ -260,7 +260,7 @@ CoreWindow ^Surface::getWindowHandle()
 HWND Surface::getWindowHandle()
 #endif
 {
-    return mWindow.window;
+    return mWindow.window.Get();
 }
 
 
@@ -285,7 +285,7 @@ static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam
 
 void Surface::subclassWindow()
 {
-    if (!mWindow.window)
+    if (mWindow.window.Get() == nullptr)
     {
         return;
     }
