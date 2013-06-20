@@ -518,20 +518,13 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount = 2;
-        swapChainDesc.Scaling = DXGI_SCALING_NONE;
+        swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // All Metro style apps must use this SwapEffect.
 		swapChainDesc.Flags = 0;
-
-
-      swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
-
-
-
-
+		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
 
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
 		HRESULT result = S_OK;
 		if(mWindow.panel)
 		{
