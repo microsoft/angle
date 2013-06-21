@@ -186,11 +186,7 @@ bool Display::getConfigAttrib(EGLConfig config, EGLint attribute, EGLint *value)
 
 
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 EGLSurface Display::createWindowSurface(EGLNativeWindowType window, EGLConfig config, const EGLint *attribList)
-#else
-EGLSurface Display::createWindowSurface(HWND window, EGLConfig config, const EGLint *attribList)
-#endif
 {
     const Config *configuration = mConfigSet.get(config);
     EGLint postSubBufferSupported = EGL_FALSE;
@@ -460,15 +456,15 @@ bool Display::isValidSurface(egl::Surface *surface)
     return mSurfaceSet.find(surface) != mSurfaceSet.end();
 }
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
-#else
-bool Display::hasExistingWindowSurface(HWND window)
-#endif
 {
     for (SurfaceSet::iterator surface = mSurfaceSet.begin(); surface != mSurfaceSet.end(); surface++)
     {
-        if ((*surface)->getWindowHandle() == window.window.Get())
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+		if ((*surface)->getWindowHandle() == window.window.Get())
+#else
+        if ((*surface)->getWindowHandle() == window)
+#endif
         {
             return true;
         }

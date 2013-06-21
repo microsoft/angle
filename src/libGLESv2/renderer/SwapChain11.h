@@ -19,12 +19,8 @@ class Renderer11;
 class SwapChain11 : public SwapChain
 {
   public:
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     SwapChain11(Renderer11 *renderer, EGLNativeWindowType window, HANDLE shareHandle,
-#else
-		SwapChain11(Renderer11 *renderer, HWND window, HANDLE shareHandle,
-#endif
-        GLenum backBufferFormat, GLenum depthBufferFormat);
+	GLenum backBufferFormat, GLenum depthBufferFormat);
 
     virtual ~SwapChain11();
 
@@ -52,6 +48,11 @@ class SwapChain11 : public SwapChain
     void initPassThroughResources();
     void releaseOffscreenTexture();
     EGLint resetOffscreenTexture(int backbufferWidth, int backbufferHeight);
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+    Windows::UI::Core::CoreWindow ^getWindowHandle();
+#else
+    HWND getWindowHandle();
+#endif
 
     Renderer11 *mRenderer;
     EGLint mHeight;

@@ -34,11 +34,7 @@ class Config;
 class Surface
 {
   public:
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     Surface(Display *display, const egl::Config *config, EGLNativeWindowType window, EGLint postSubBufferSupported);
-#else
-    Surface(Display *display, const egl::Config *config, HWND window, EGLint postSubBufferSupported);
-#endif
     Surface(Display *display, const egl::Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureTarget);
 
     ~Surface();
@@ -103,11 +99,9 @@ private:
 
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     void onWindowSizeChanged();
-
-    EGLNativeWindowType mWindow;
-#else
-    const HWND mWindow;            // Window that the surface is created for.
 #endif
+	EGLNativeWindowType mWindow;
+
     bool mWindowSubclassed;        // Indicates whether we successfully subclassed mWindow for WM_RESIZE hooking
     const egl::Config *mConfig;    // EGL config surface was created with
     EGLint mHeight;                // Height of surface

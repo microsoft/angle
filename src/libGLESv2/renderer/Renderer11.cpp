@@ -40,7 +40,9 @@
 
 #include "libEGL/Display.h"
 
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_PARTITION_APP )
 using namespace Windows::UI::Core;
+#endif
 
 #ifdef _DEBUG
 // this flag enables suppressing some spurious warnings that pop up in certain WebGL samples
@@ -536,11 +538,7 @@ void Renderer11::sync(bool block)
     }
 }
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 SwapChain *Renderer11::createSwapChain(EGLNativeWindowType window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
-#else
-SwapChain *Renderer11::createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
-#endif
 {
     return new rx::SwapChain11(this, window, shareHandle, backBufferFormat, depthBufferFormat);
 }

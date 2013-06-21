@@ -21,18 +21,14 @@
 #include "libEGL/Display.h"
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 #include <wrl/client.h>
+using namespace Windows::UI::Core;
 #endif
 
-using namespace Windows::UI::Core;
 
 namespace egl
 {
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 Surface::Surface(Display *display, const Config *config, EGLNativeWindowType window, EGLint postSubBufferSupported) 
-#else
-Surface::Surface(Display *display, const Config *config, HWND window, EGLint postSubBufferSupported) 
-#endif
     : mDisplay(display), mConfig(config), mWindow(window), mPostSubBufferSupported(postSubBufferSupported)
 {
     mRenderer = mDisplay->getRenderer();
@@ -59,9 +55,12 @@ Surface::Surface(Display *display, const Config *config, HWND window, EGLint pos
 Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType)
     : mDisplay(display), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
 {
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 	mWindow.window = nullptr;
 	mWindow.panel = nullptr;
-
+#else
+	mWindow = NULL;
+#endif
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
     mWindowSubclassed = false;
@@ -109,7 +108,7 @@ bool Surface::resetSwapChain()
     int width;
     int height;
 
-    if (mWindow.window.Get())
+    if (getWindowHandle())
     {
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         CoreWindow ^window = getWindowHandle();
@@ -256,12 +255,15 @@ void Surface::PrivateWinRTSurface::onWindowSizeChanged(CoreWindow ^/*sender*/, W
 }
 
 CoreWindow ^Surface::getWindowHandle()
+{
+	return mWindow.window.Get();
+}
 #else
 HWND Surface::getWindowHandle()
-#endif
 {
-    return mWindow.window.Get();
+    return mWindow;
 }
+#endif
 
 
 #define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
@@ -285,7 +287,7 @@ static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam
 
 void Surface::subclassWindow()
 {
-    if (mWindow.window.Get() == nullptr)
+    if (getWindowHandle() == nullptr)
     {
         return;
     }

@@ -8,27 +8,24 @@
 // SwapChain11.cpp: Implements a back-end specific class for the D3D11 swap chain.
 
 #include "libGLESv2/renderer/SwapChain11.h"
-
 #include "libGLESv2/renderer/renderer11_utils.h"
 #include "libGLESv2/renderer/Renderer11.h"
 #include "libGLESv2/renderer/shaders/compiled/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
-#include <windows.ui.xaml.media.dxinterop.h>
 
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_PARTITION_APP )
+#include <windows.ui.xaml.media.dxinterop.h>
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
+#endif
 
 namespace rx
 {
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 SwapChain11::SwapChain11(Renderer11 *renderer, EGLNativeWindowType window, HANDLE shareHandle,
-#else
-SwapChain11::SwapChain11(Renderer11 *renderer, HWND window, HANDLE shareHandle,
-#endif
                          GLenum backBufferFormat, GLenum depthBufferFormat)
     : mRenderer(renderer), SwapChain(window, shareHandle, backBufferFormat, depthBufferFormat)
 {
@@ -238,7 +235,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     }
     else
     {
-        const bool useSharedResource = !mWindow.window.Get() && mRenderer->getShareHandleSupport();
+        const bool useSharedResource = !getWindowHandle() && mRenderer->getShareHandleSupport();
 
         D3D11_TEXTURE2D_DESC offscreenTextureDesc = {0};
         offscreenTextureDesc.Width = backbufferWidth;
@@ -473,7 +470,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         return EGL_SUCCESS;
     }
 
-    if (mWindow.window.Get())
+    if (getWindowHandle())
     {
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
         // We cannot create a swap chain for an HWND that is owned by a different process
@@ -518,7 +515,11 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount = 2;
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
+#else
+        swapChainDesc.Scaling = DXGI_SCALING_NONE;
+#endif
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 		swapChainDesc.Flags = 0;
 		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
@@ -812,5 +813,17 @@ void SwapChain11::recreate()
 {
     // possibly should use this method instead of reset
 }
+
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+CoreWindow ^SwapChain11::getWindowHandle()
+{
+	return mWindow.window.Get();
+}
+#else
+HWND SwapChain11::getWindowHandle()
+{
+    return mWindow;
+}
+#endif
 
 }
