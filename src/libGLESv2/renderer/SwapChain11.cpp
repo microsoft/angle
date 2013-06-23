@@ -530,7 +530,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 		if(mWindow.panel)
 		{
 			result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
-			if(!result)
+			if SUCCEEDED(result)
 			{
 			    ComPtr<ISwapChainBackgroundPanelNative> panelNative;
 				reinterpret_cast<IUnknown*>(mWindow.panel)->QueryInterface(IID_PPV_ARGS(&panelNative));
