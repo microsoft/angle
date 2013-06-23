@@ -2946,12 +2946,17 @@ gl::Context *glCreateContext(const gl::Context *shareContext, rx::Renderer *rend
 
 void glDestroyContext(gl::Context *context)
 {
-    delete context;
-
+ 
     if (context == gl::getContext())
     {
         gl::makeCurrent(NULL, NULL, NULL);
     }
+
+	// delete context after calling getContext()
+	if(context)
+	{
+		delete context;
+	}
 }
 
 void glMakeCurrent(gl::Context *context, egl::Display *display, egl::Surface *surface)
