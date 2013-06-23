@@ -92,10 +92,10 @@ typedef struct {
 	Windows::UI::Xaml::Controls::SwapChainBackgroundPanel^ panel;
 } WinRTWindow;
 
-typedef WinRTWindow    EGLNativeWindowType;
+typedef WinRTWindow EGLNativeWindowType;
 
 #else
-typedef HWND    EGLNativeWindowType;
+typedef HWND EGLNativeWindowType;
 #endif
 
 #elif defined(__WINSCW__) || defined(__SYMBIAN32__)  /* Symbian */

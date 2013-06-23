@@ -170,6 +170,10 @@ void ESUTIL_API esInitContext ( ESContext *esContext )
 //
 GLboolean ESUTIL_API esCreateWindow ( ESContext *esContext, LPCTSTR title, GLint width, GLint height, GLuint flags )
 {
+   UNREFERENCED_PARAMETER(title);
+   UNREFERENCED_PARAMETER(width);
+   UNREFERENCED_PARAMETER(height);
+
    EGLint configAttribList[] =
    {
        EGL_RED_SIZE,       5,
@@ -281,6 +285,12 @@ void ESUTIL_API esLogMessage ( const char *formatStr, ... )
 //
 char* ESUTIL_API esLoadTGA ( char *fileName, int *width, int *height )
 {
+#pragma message("esLoadTGA not implmented on WinRT");
+
+   UNREFERENCED_PARAMETER(fileName);
+   UNREFERENCED_PARAMETER(width);
+   UNREFERENCED_PARAMETER(height);
+
    //char *buffer;
 
    //if ( WinTGALoad ( fileName, &buffer, width, height ) )

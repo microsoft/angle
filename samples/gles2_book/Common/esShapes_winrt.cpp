@@ -112,13 +112,13 @@ int ESUTIL_API esGenSphere ( int numSlices, float radius, GLfloat **vertices, GL
       {
          for ( j = 0; j < numSlices; j++ )
          {
-            *indexBuf++  = i * ( numSlices + 1 ) + j;
-            *indexBuf++ = ( i + 1 ) * ( numSlices + 1 ) + j;
-            *indexBuf++ = ( i + 1 ) * ( numSlices + 1 ) + ( j + 1 );
+            *indexBuf++  = (GLushort)(i * ( numSlices + 1 ) + j);
+            *indexBuf++ = (GLushort)(( i + 1 ) * ( numSlices + 1 ) + j);
+            *indexBuf++ = (GLushort)(( i + 1 ) * ( numSlices + 1 ) + ( j + 1 ));
 
-            *indexBuf++ = i * ( numSlices + 1 ) + j;
-            *indexBuf++ = ( i + 1 ) * ( numSlices + 1 ) + ( j + 1 );
-            *indexBuf++ = i * ( numSlices + 1 ) + ( j + 1 );
+            *indexBuf++ = (GLushort)(i * ( numSlices + 1 ) + j);
+            *indexBuf++ = (GLushort)(( i + 1 ) * ( numSlices + 1 ) + ( j + 1 ));
+            *indexBuf++ = (GLushort)(i * ( numSlices + 1 ) + ( j + 1 ));
          }
       }
    }
