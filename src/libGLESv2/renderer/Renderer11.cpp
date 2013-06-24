@@ -2280,7 +2280,7 @@ int Renderer11::getMajorShaderModel() const
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MAJOR_VERSION;   // 4
       case D3D_FEATURE_LEVEL_9_3:
       case D3D_FEATURE_LEVEL_9_2:
-      case D3D_FEATURE_LEVEL_9_1:  return 9;
+      case D3D_FEATURE_LEVEL_9_1:  return 3;
       default: UNREACHABLE();      return 0;
     }
 }
