@@ -1224,7 +1224,9 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
     mUsesPointSize = vertexShader->mUsesPointSize;
     std::string varyingSemantic = (mUsesPointSize && shaderModel == 3) ? "COLOR" : "TEXCOORD";
     std::string targetSemantic = (shaderModel >= 4) ? "SV_Target" : "COLOR";
-    std::string positionSemantic = (shaderModel >= 4) ? "SV_Position" : "POSITION";
+
+	//TODO: Review change from POSITION to SV_Position which won't compile in DX Levels 9_3 to 9_1
+    std::string positionSemantic = (shaderModel >= 4) ? "SV_Position" : "SV_Position";
     std::string depthSemantic = (shaderModel >= 4) ? "SV_Depth" : "DEPTH";
 
     // special varyings that use reserved registers
