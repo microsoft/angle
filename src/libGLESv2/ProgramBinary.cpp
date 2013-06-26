@@ -1162,6 +1162,12 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
         return false;
     }
 
+#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
+    bool isWinRT = true;
+#else
+    bool isWinRT = false;
+#endif
+
     bool usesMRT = fragmentShader->mUsesMultipleRenderTargets;
     bool usesFragColor = fragmentShader->mUsesFragColor;
     bool usesFragData = fragmentShader->mUsesFragData;
@@ -1223,15 +1229,9 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
 
     mUsesPointSize = vertexShader->mUsesPointSize;
     std::string varyingSemantic = (mUsesPointSize && shaderModel == 3) ? "COLOR" : "TEXCOORD";
-#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
-    std::string targetSemantic = "SV_Target";
-    std::string positionSemantic = "SV_Position";
-    std::string depthSemantic = "SV_Depth";
-#else
-    std::string targetSemantic = (shaderModel >= 4) ? "SV_Target" : "COLOR";
-    std::string positionSemantic = (shaderModel >= 4) ? "SV_Position" : "POSITION";
-    std::string depthSemantic = (shaderModel >= 4) ? "SV_Depth" : "DEPTH";
-#endif
+    std::string targetSemantic = (shaderModel >= 4 || isWinRT) ? "SV_Target" : "COLOR";
+    std::string positionSemantic = (shaderModel >= 4 || isWinRT) ? "SV_Position" : "POSITION";
+    std::string depthSemantic = (shaderModel >= 4 || isWinRT) ? "SV_Depth" : "DEPTH";
 
     // special varyings that use reserved registers
     int reservedRegisterIndex = registers;
@@ -1285,12 +1285,10 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
                   "struct VS_OUTPUT\n"
                   "{\n";
 
-#if !WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
-    if (shaderModel < 4)
+    if (shaderModel < 4 && !isWinRT)
     {
         vertexHLSL += "    float4 gl_Position : " + positionSemantic + ";\n";
     }
-#endif
 
     for (int r = 0; r < registers; r++)
     {
@@ -1309,9 +1307,7 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
         vertexHLSL += "    float gl_PointSize : PSIZE;\n";
     }
 
-#if !WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
-    if (shaderModel >= 4)
-#endif
+    if (shaderModel >= 4 || isWinRT)
     {
         vertexHLSL += "    float4 gl_Position : " + positionSemantic + ";\n";
     }
@@ -1333,9 +1329,7 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
         vertexHLSL += "(input." + decorateAttribute(attribute->name) + ");\n";
     }
 
-#if !WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
-    if (shaderModel >= 4)
-#endif
+    if (shaderModel >= 4 || isWinRT)
     {
         vertexHLSL += "\n"
                       "    gl_main();\n"
@@ -1346,7 +1340,6 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
                       "    output.gl_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
                       "    output.gl_Position.w = gl_Position.w;\n";
     }
-#if !WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
     else
     {
         vertexHLSL += "\n"
@@ -1358,7 +1351,6 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
                       "    output.gl_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
                       "    output.gl_Position.w = gl_Position.w;\n";
     }
-#endif
 
     if (vertexShader->mUsesPointSize && shaderModel >= 3)
     {
@@ -1474,10 +1466,7 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
 
     if (fragmentShader->mUsesFragCoord)
     {
-#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
-        pixelHLSL += "    float4 dx_VPos : SV_Position;\n";
-#else
-        if (shaderModel >= 4)
+        if (shaderModel >= 4 || isWinRT)
         {
             pixelHLSL += "    float4 dx_VPos : SV_Position;\n";
         }
@@ -1485,7 +1474,6 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
         {
             pixelHLSL += "    float2 dx_VPos : VPOS;\n";
         }
-#endif
     }
 
     pixelHLSL += "};\n"
@@ -1508,20 +1496,16 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
 
     if (fragmentShader->mUsesFrontFacing)
     {
-#if !WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
-        if (shaderModel >= 4)
-#endif
+        if (shaderModel >= 4 || isWinRT)
         {
             pixelHLSL += "PS_OUTPUT main(PS_INPUT input, bool isFrontFace : SV_IsFrontFace)\n"
                          "{\n";
         }
-#if !WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
         else
         {
             pixelHLSL += "PS_OUTPUT main(PS_INPUT input, float vFace : VFACE)\n"
                          "{\n";
         }
-#endif
     }
     else
     {
@@ -1533,14 +1517,11 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
     {
         pixelHLSL += "    float rhw = 1.0 / input.gl_FragCoord.w;\n";
         
-#if !WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
-        if (shaderModel >= 4)
-#endif
+        if (shaderModel >= 4 || isWinRT)
         {
             pixelHLSL += "    gl_FragCoord.x = input.dx_VPos.x;\n"
                          "    gl_FragCoord.y = input.dx_VPos.y;\n";
         }
-#if !WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
         else if (shaderModel >= 3)
         {
             pixelHLSL += "    gl_FragCoord.x = input.dx_VPos.x + 0.5;\n"
@@ -1552,7 +1533,6 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
             pixelHLSL += "    gl_FragCoord.x = (input.gl_FragCoord.x * rhw) * dx_ViewCoords.x + dx_ViewCoords.z;\n"
                          "    gl_FragCoord.y = (input.gl_FragCoord.y * rhw) * dx_ViewCoords.y + dx_ViewCoords.w;\n";
         }
-#endif
         
         pixelHLSL += "    gl_FragCoord.z = (input.gl_FragCoord.z * rhw) * dx_DepthFront.x + dx_DepthFront.y;\n"
                      "    gl_FragCoord.w = rhw;\n";
@@ -1566,13 +1546,11 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
 
     if (fragmentShader->mUsesFrontFacing)
     {
-#if !WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
-        if (shaderModel <= 3)
+        if (shaderModel <= 3 && !isWinRT)
         {
             pixelHLSL += "    gl_FrontFacing = (vFace * dx_DepthFront.z >= 0.0);\n";
         }
         else
-#endif
         {
             pixelHLSL += "    gl_FrontFacing = isFrontFace;\n";
         }
