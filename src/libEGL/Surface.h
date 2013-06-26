@@ -45,6 +45,7 @@ class Surface
 
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     Windows::UI::Core::CoreWindow ^getWindowHandle();
+    float convertDipsToPixels(float dips); 
 #else
     HWND getWindowHandle();
 #endif

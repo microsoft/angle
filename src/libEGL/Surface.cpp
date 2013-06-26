@@ -112,8 +112,8 @@ bool Surface::resetSwapChain()
     {
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         CoreWindow ^window = getWindowHandle();
-        width = static_cast<int>(window->Bounds.Width);
-        height = static_cast<int>(window->Bounds.Height);
+        width = static_cast<int>(convertDipsToPixels(window->Bounds.Width));
+        height = static_cast<int>(convertDipsToPixels(window->Bounds.Height));
 #else
         RECT windowRect;
         if (!GetClientRect(getWindowHandle(), &windowRect))
@@ -240,6 +240,14 @@ bool Surface::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 }
 
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+
+// Method to convert a length in device-independent pixels (DIPs) to a length in physical pixels.
+float Surface::convertDipsToPixels(float dips)
+{
+   static const float dipsPerInch = 96.0f;
+   return floor(dips * Windows::Graphics::Display::DisplayProperties::LogicalDpi / dipsPerInch + 0.5f); // Round to nearest integer.
+}
+
 void Surface::onWindowSizeChanged()
 {
     checkForOutOfDateSwapChain();    
