@@ -526,26 +526,26 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.Scaling = DXGI_SCALING_NONE;
 #endif
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-		swapChainDesc.Flags = 0;
-		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
+        swapChainDesc.Flags = 0;
+        swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
 
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
-		HRESULT result = S_OK;
-		if(mWindow.panel)
-		{
-			result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
-			if SUCCEEDED(result)
-			{
-			    ComPtr<ISwapChainBackgroundPanelNative> panelNative;
-				reinterpret_cast<IUnknown*>(mWindow.panel)->QueryInterface(IID_PPV_ARGS(&panelNative));
-				panelNative->SetSwapChain(mSwapChain);
-			}
-		}
-		else
-		{
-			result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window.Get())), &swapChainDesc, nullptr, &mSwapChain);
-		}
+        HRESULT result = S_OK;
+        if(mWindow.panel)
+        {
+            result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
+            if SUCCEEDED(result)
+            {
+                ComPtr<ISwapChainBackgroundPanelNative> panelNative;
+                reinterpret_cast<IUnknown*>(mWindow.panel)->QueryInterface(IID_PPV_ARGS(&panelNative));
+                panelNative->SetSwapChain(mSwapChain);
+            }
+        }
+        else
+        {
+            result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window.Get())), &swapChainDesc, nullptr, &mSwapChain);
+        }
 #else
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
         HRESULT result = factory->CreateSwapChainForHwnd(device, mWindow, &swapChainDesc, nullptr, nullptr, &mSwapChain);
@@ -826,7 +826,7 @@ void SwapChain11::recreate()
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 CoreWindow ^SwapChain11::getWindowHandle()
 {
-	return mWindow.window.Get();
+    return mWindow.window.Get();
 }
 #else
 HWND SwapChain11::getWindowHandle()
