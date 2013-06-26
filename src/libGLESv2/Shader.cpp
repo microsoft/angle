@@ -230,7 +230,11 @@ void Shader::initializeCompiler()
 
         if (result)
         {
+#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
+            ShShaderOutput hlslVersion = SH_HLSL11_OUTPUT;
+#else
             ShShaderOutput hlslVersion = (mRenderer->getMajorShaderModel() >= 4) ? SH_HLSL11_OUTPUT : SH_HLSL9_OUTPUT;
+#endif
 
             ShBuiltInResources resources;
             ShInitBuiltInResources(&resources);

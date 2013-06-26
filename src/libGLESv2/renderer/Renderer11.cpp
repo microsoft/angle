@@ -2280,7 +2280,7 @@ int Renderer11::getMajorShaderModel() const
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MAJOR_VERSION;   // 4
       case D3D_FEATURE_LEVEL_9_3:
       case D3D_FEATURE_LEVEL_9_2:
-      case D3D_FEATURE_LEVEL_9_1:  return 3;
+      case D3D_FEATURE_LEVEL_9_1:  return 2;
       default: UNREACHABLE();      return 0;
     }
 }
@@ -2293,9 +2293,9 @@ int Renderer11::getMinorShaderModel() const
       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MINOR_VERSION;   // 0
       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MINOR_VERSION; // 1
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MINOR_VERSION;   // 0
-      case D3D_FEATURE_LEVEL_9_3:  return 3;
-      case D3D_FEATURE_LEVEL_9_2:  return 2;
-      case D3D_FEATURE_LEVEL_9_1:  return 1;
+      case D3D_FEATURE_LEVEL_9_3:
+      case D3D_FEATURE_LEVEL_9_2:
+      case D3D_FEATURE_LEVEL_9_1:  return 0;
       default: UNREACHABLE();      return 0;
     }
 }
