@@ -56,10 +56,10 @@ Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGL
     : mDisplay(display), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
 {
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-	mWindow.window = nullptr;
-	mWindow.panel = nullptr;
+    mWindow.window = nullptr;
+    mWindow.panel = nullptr;
 #else
-	mWindow = NULL;
+    mWindow = NULL;
 #endif
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
@@ -264,7 +264,7 @@ void Surface::PrivateWinRTSurface::onWindowSizeChanged(CoreWindow ^/*sender*/, W
 
 CoreWindow ^Surface::getWindowHandle()
 {
-	return mWindow.window.Get();
+    return mWindow.window.Get();
 }
 #else
 HWND Surface::getWindowHandle()

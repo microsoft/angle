@@ -101,7 +101,7 @@ private:
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     void onWindowSizeChanged();
 #endif
-	EGLNativeWindowType mWindow;
+    EGLNativeWindowType mWindow;
 
     bool mWindowSubclassed;        // Indicates whether we successfully subclassed mWindow for WM_RESIZE hooking
     const egl::Config *mConfig;    // EGL config surface was created with

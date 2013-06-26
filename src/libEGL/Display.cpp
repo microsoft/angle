@@ -461,7 +461,7 @@ bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
     for (SurfaceSet::iterator surface = mSurfaceSet.begin(); surface != mSurfaceSet.end(); surface++)
     {
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-		if ((*surface)->getWindowHandle() == window.window.Get())
+        if ((*surface)->getWindowHandle() == window.window.Get())
 #else
         if ((*surface)->getWindowHandle() == window)
 #endif

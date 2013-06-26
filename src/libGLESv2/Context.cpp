@@ -2952,11 +2952,11 @@ void glDestroyContext(gl::Context *context)
         gl::makeCurrent(NULL, NULL, NULL);
     }
 
-	// delete context after calling getContext()
-	if(context)
-	{
-		delete context;
-	}
+    // delete context after calling getContext()
+    if(context)
+    {
+        delete context;
+    }
 }
 
 void glMakeCurrent(gl::Context *context, egl::Display *display, egl::Surface *surface)

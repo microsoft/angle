@@ -89,7 +89,7 @@ typedef HBITMAP EGLNativePixmapType;
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 typedef struct {
     Platform::Agile<Windows::UI::Core::CoreWindow> window;
-	Windows::UI::Xaml::Controls::SwapChainBackgroundPanel^ panel;
+    Windows::UI::Xaml::Controls::SwapChainBackgroundPanel^ panel;
 } WinRTWindow;
 
 typedef WinRTWindow EGLNativeWindowType;
