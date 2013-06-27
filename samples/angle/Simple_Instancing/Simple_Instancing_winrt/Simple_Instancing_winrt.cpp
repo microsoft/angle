@@ -226,7 +226,7 @@ void Simple_Instancing_winrt::SetWindow(CoreWindow^ window)
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Simple_Instancing_winrt::OnPointerMoved);
 
 	//m_renderer->Initialize(CoreWindow::GetForCurrentThread());
-    m_esContext.hWnd = CoreWindow::GetForCurrentThread();
+    m_esContext.hWnd.window = CoreWindow::GetForCurrentThread();
     esCreateWindow ( &m_esContext, TEXT("Simple Instancing"), 320, 240, ES_WINDOW_RGB );
    
     if ( !Init ( &m_esContext ) )
