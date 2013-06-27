@@ -18,7 +18,7 @@ namespace rx
 class SwapChain
 {
   public:
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     SwapChain(EGLNativeWindowType window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
 #else
     SwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
@@ -37,7 +37,7 @@ class SwapChain
     virtual HANDLE getShareHandle() {return mShareHandle;};
 
   protected:
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     EGLNativeWindowType mWindow;
 #else
     const HWND mWindow;            // Window that the surface is created for.

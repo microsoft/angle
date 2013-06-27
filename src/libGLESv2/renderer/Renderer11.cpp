@@ -28,8 +28,7 @@
 #include "libGLESv2/renderer/Query11.h"
 #include "libGLESv2/renderer/Fence11.h"
 
-
-#if WINAPI_FAMILY_PARTITION( WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgb11ps.h"
@@ -53,7 +52,7 @@
 
 #include "libEGL/Display.h"
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_PARTITION_APP )
 using namespace Windows::UI::Core;
 #endif
 
@@ -2638,7 +2637,7 @@ bool Renderer11::copyTexture(ID3D11ShaderResourceView *source, const gl::Rectang
         samplerDesc.BorderColor[2] = 0.0f;
         samplerDesc.BorderColor[3] = 0.0f;
         samplerDesc.MinLOD = 0.0f;
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_PARTITION_APP )
         samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
 #else
         samplerDesc.MaxLOD = D3D11_FLOAT32_MAX; //breaks Surface RT if 0.0f

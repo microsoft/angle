@@ -460,7 +460,7 @@ bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
 {
     for (SurfaceSet::iterator surface = mSurfaceSet.begin(); surface != mSurfaceSet.end(); surface++)
     {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
         if ((*surface)->getWindowHandle() == window.window.Get())
 #else
         if ((*surface)->getWindowHandle() == window)
@@ -475,7 +475,7 @@ bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
 
 void Display::initExtensionString()
 {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
     //todo: figure out what swiftshader_d3d9.dll is for
     bool swiftShader = false;
 #else

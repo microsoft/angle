@@ -84,7 +84,7 @@ void Fence11::finishFence()
 
     while (!testFence())
     {
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
         Sleep(0);
 #endif
     }
