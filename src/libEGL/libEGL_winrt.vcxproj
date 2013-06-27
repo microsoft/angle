@@ -217,7 +217,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\common\ThreadEmulation.cpp" />
+    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="..\Common\debug.cpp" />
     <ClCompile Include="Display.cpp" />
@@ -226,7 +226,8 @@
     <ClCompile Include="Surface.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\common\ThreadEmulation.h" />
+    <ClInclude Include="..\common\winrt\ThreadEmulation.h" />
+    <ClInclude Include="..\common\winrt\threadutils.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="..\..\include\EGL\egl.h" />

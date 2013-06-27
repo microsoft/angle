@@ -29,7 +29,7 @@
     <ClCompile Include="Surface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\ThreadEmulation.cpp">
+    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -61,7 +61,10 @@
     <ClInclude Include="..\common\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\ThreadEmulation.h">
+    <ClInclude Include="..\common\winrt\ThreadEmulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\winrt\threadutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

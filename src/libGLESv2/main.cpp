@@ -11,8 +11,8 @@
 
 #include "libGLESv2/Context.h"
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
-#include "common/ThreadEmulation.h"
-using namespace ThreadEmulation;
+#include "common/winrt/threadutils.h"
+using namespace ThreadUtilsWinRT;
 #endif
 
 static DWORD currentTLS = TLS_OUT_OF_INDEXES;
@@ -36,8 +36,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
         // Fall throught to initialize index
       case DLL_THREAD_ATTACH:
         {
-            //gl::Current *current = (gl::Current*)LocalAlloc(LPTR, sizeof(gl::Current));
-			gl::Current *current = (gl::Current*)malloc(sizeof(gl::Current));
+            gl::Current *current = (gl::Current*)LocalAlloc(LPTR, sizeof(gl::Current));
 
             if (current)
             {
@@ -54,8 +53,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
 
             if (current)
             {
-                //LocalFree((HLOCAL)current);
-                free(current);
+                LocalFree((HLOCAL)current);
             }
         }
         break;
@@ -65,8 +63,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
 
             if (current)
             {
-                //LocalFree((HLOCAL)current);
-                free(current);
+                LocalFree((HLOCAL)current);
             }
 
             TlsFree(currentTLS);
