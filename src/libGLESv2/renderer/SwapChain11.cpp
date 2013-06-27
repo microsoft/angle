@@ -521,7 +521,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount = 2;
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
         swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
 #else
         swapChainDesc.Scaling = DXGI_SCALING_NONE;
@@ -530,7 +530,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.Flags = 0;
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
         HRESULT result = S_OK;
         if(mWindow.panel)
@@ -824,7 +824,7 @@ void SwapChain11::recreate()
     // possibly should use this method instead of reset
 }
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 CoreWindow ^SwapChain11::getWindowHandle()
 {
     return mWindow.window.Get();

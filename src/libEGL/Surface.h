@@ -43,7 +43,7 @@ class Surface
     void release();
     bool resetSwapChain();
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     Windows::UI::Core::CoreWindow ^getWindowHandle();
     float convertDipsToPixels(float dips); 
 #else
@@ -72,7 +72,7 @@ class Surface
 private:
     DISALLOW_COPY_AND_ASSIGN(Surface);
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     ref class PrivateWinRTSurface
     {
     internal:
@@ -98,7 +98,7 @@ private:
     bool resetSwapChain(int backbufferWidth, int backbufferHeight);
     bool swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     void onWindowSizeChanged();
 #endif
     EGLNativeWindowType mWindow;

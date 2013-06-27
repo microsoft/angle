@@ -9,6 +9,7 @@
 
 #include "libGLESv2/main.h"
 
+
 #include "libGLESv2/Context.h"
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
 #include "common/winrt/threadutils.h"
@@ -17,7 +18,7 @@ using namespace ThreadUtilsWinRT;
 
 static DWORD currentTLS = TLS_OUT_OF_INDEXES;
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 [Platform::MTAThread]
 #endif
 extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)

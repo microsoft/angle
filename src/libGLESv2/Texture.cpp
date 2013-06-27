@@ -377,7 +377,7 @@ GLenum Texture2D::getActualFormat(GLint level) const
     if (level < IMPLEMENTATION_MAX_TEXTURE_LEVELS)
         return mImageArray[level]->getActualFormat();
     else
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
         return DXGI_FORMAT_UNKNOWN;
 #else
         return D3DFMT_UNKNOWN;
@@ -979,7 +979,7 @@ GLenum TextureCubeMap::getActualFormat(GLenum target, GLint level) const
     if (level < IMPLEMENTATION_MAX_TEXTURE_LEVELS)
         return mImageArray[faceIndex(target)][level]->getActualFormat();
     else
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
         return DXGI_FORMAT_UNKNOWN;
 #else
         return D3DFMT_UNKNOWN;

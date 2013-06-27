@@ -109,7 +109,7 @@ class Renderer
 
     virtual void sync(bool block) = 0;
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     virtual SwapChain *createSwapChain(EGLNativeWindowType window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;
 #else
     virtual SwapChain *createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;

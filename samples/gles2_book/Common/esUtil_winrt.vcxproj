@@ -31,7 +31,6 @@
     <ClCompile Include="esShapes_winrt.cpp" />
     <ClCompile Include="esTransform_winrt.cpp" />
     <ClCompile Include="esUtil_winrt.cpp" />
-    <ClCompile Include="Win32\esUtil_TGA_winrt.cpp" />
     <ClCompile Include="Win32\esUtil_win32_winrt.cpp" />
   </ItemGroup>
   <ItemGroup>

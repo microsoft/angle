@@ -19,7 +19,7 @@
 
 #include "libEGL/main.h"
 #include "libEGL/Display.h"
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #include <wrl/client.h>
 using namespace Windows::UI::Core;
 #endif
@@ -45,7 +45,7 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
     mWidth = -1;
     mHeight = -1;
     setSwapInterval(1);
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     mWinRTSelf = ref new PrivateWinRTSurface(this);
 #endif
 
@@ -55,7 +55,7 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
 Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType)
     : mDisplay(display), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
 {
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     mWindow.window = nullptr;
     mWindow.panel = nullptr;
 #else
@@ -356,7 +356,7 @@ void Surface::unsubclassWindow()
 
 bool Surface::checkForOutOfDateSwapChain()
 {
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     int clientWidth = static_cast<int>(mWindow.window->Bounds.Width);
     int clientHeight = static_cast<int>(mWindow.window->Bounds.Height);
 #else

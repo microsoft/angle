@@ -19,15 +19,6 @@
     <Image Include="Assets\SplashScreen.png">
       <Filter>Assets</Filter>
     </Image>
-    <Filter Include="dlls">
-      <UniqueIdentifier>{85678c86-c751-4050-a455-71c010fe8213}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="dlls\ARM">
-      <UniqueIdentifier>{66207f3a-5633-4afc-9a3c-395c8dea8644}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="dlls\Win32">
-      <UniqueIdentifier>{0f9b921e-a38b-4ec9-b244-d7b69a2a7545}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SimplePixelShader.hlsl" />
@@ -52,11 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Asteroids_TemporaryKey.pfx" />
-    <None Include="dlls\ARM\d3dcompiler_46.dll">
-      <Filter>dlls\ARM</Filter>
-    </None>
-    <None Include="dlls\Win32\D3Dcompiler_46.dll">
-      <Filter>dlls\Win32</Filter>
-    </None>
+    <None Include="Win32-dlls\D3Dcompiler_46.dll" />
   </ItemGroup>
 </Project>

@@ -387,7 +387,7 @@ ID3D11SamplerState *RenderStateCache::getSamplerState(const gl::SamplerState &sa
         samplerDesc.BorderColor[2] = 0.0f;
         samplerDesc.BorderColor[3] = 0.0f;
         samplerDesc.MinLOD = gl_d3d11::ConvertMinLOD(samplerState.minFilter, samplerState.lodOffset);
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
         samplerDesc.MaxLOD = FLT_MAX;
 #else
         samplerDesc.MaxLOD = gl_d3d11::ConvertMaxLOD(samplerState.minFilter, samplerState.lodOffset);
