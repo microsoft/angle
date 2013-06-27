@@ -14,7 +14,7 @@
 #include "libGLESv2/main.h"
 #include "libGLESv2/mathutil.h"
 #include "libGLESv2/utilities.h"
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP )
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #include "libGLESv2/renderer/Blit.h"
 #endif
 #include "libGLESv2/Renderbuffer.h"

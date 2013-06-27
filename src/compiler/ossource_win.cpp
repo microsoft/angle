@@ -5,6 +5,11 @@
 //
 
 #include "compiler/osinclude.h"
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+using namespace ThreadEmulation;
+#endif
+
 //
 // This file contains contains the window's specific functions
 //

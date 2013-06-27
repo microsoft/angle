@@ -154,8 +154,8 @@ EGLint Renderer11::initialize()
         return EGL_NOT_INITIALIZED;
     }
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
-    mDxgiModule = LoadLibrary(TEXT("dxgi.dll"));
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+	mDxgiModule = LoadLibrary(TEXT("dxgi.dll"));
     mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
 
     if (mD3d11Module == NULL || mDxgiModule == NULL)
@@ -534,8 +534,8 @@ void Renderer11::sync(bool block)
             result = mDeviceContext->GetData(mSyncQuery, NULL, 0, D3D11_ASYNC_GETDATA_DONOTFLUSH);
 
             // Keep polling, but allow other threads to do something useful first
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
-            Sleep(0);
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+			Sleep(0);
 #endif
 
             if (testDeviceLost(true))

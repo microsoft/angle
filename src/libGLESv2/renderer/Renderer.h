@@ -20,7 +20,7 @@
 const int versionWindowsVista = MAKEWORD(0x00, 0x06);
 const int versionWindows7 = MAKEWORD(0x01, 0x06);
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_DESKTOP_APP )
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 // Return the version of the operating system in a format suitable for ordering
 // comparison.
 inline int getComparableOSVersion()

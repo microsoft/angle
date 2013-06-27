@@ -18,7 +18,7 @@
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
 #endif
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_PARTITION_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #include <windows.ui.xaml.media.dxinterop.h>
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
@@ -477,8 +477,9 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
     if (getWindowHandle())
     {
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
-        // We cannot create a swap chain for an HWND that is owned by a different process
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+		// We cannot create a swap #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+		for an HWND that is owned by a different process
         DWORD currentProcessId = GetCurrentProcessId();
         DWORD wndProcessId;
         GetWindowThreadProcessId(mWindow, &wndProcessId);
@@ -620,8 +621,8 @@ void SwapChain11::initPassThroughResources()
     samplerDesc.BorderColor[2] = 0.0f;
     samplerDesc.BorderColor[3] = 0.0f;
     samplerDesc.MinLOD = 0;
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_PARTITION_APP )
-    samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+	samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
 #else
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX; //breaks Surface RT if 0.0f
 #endif

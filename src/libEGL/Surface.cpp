@@ -277,7 +277,7 @@ HWND Surface::getWindowHandle()
 #define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
 #define kParentWndProc _TEXT("Egl::SurfaceParentWndProc")
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
   if (message == WM_SIZE)
@@ -333,8 +333,8 @@ void Surface::unsubclassWindow()
         return;
     }
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_DESKTOP_APP )
-    // un-subclass
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+	// un-subclass
     LONG_PTR parentWndFunc = reinterpret_cast<LONG_PTR>(GetProp(mWindow, kParentWndProc));
 
     // Check the windowproc is still SurfaceWindowProc.

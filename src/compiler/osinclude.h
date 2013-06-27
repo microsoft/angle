@@ -28,15 +28,9 @@
 #define STRICT
 #define VC_EXTRALEAN 1
 #include <windows.h>
-#ifndef WINAPI_FAMILY_PARTITION
-#define WINAPI_FAMILY_APP 0
-#define WINAPI_FAMILY_DESKTOP_APP 1
-#define WINAPI_FAMILY_ONE_PARTITION( arg1, arg2 ) arg2
-#define WINAPI_FAMILY_PARTITION(...) 0
-#endif
+
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #include "common/winrt/ThreadEmulation.h"
-using namespace ThreadEmulation;
 #endif  // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #elif defined(ANGLE_OS_POSIX)
 #include <pthread.h>
@@ -65,7 +59,7 @@ inline void* OS_GetTLSValue(OS_TLSIndex nIndex)
 {
     ASSERT(nIndex != OS_INVALID_TLS_INDEX);
 #if defined(ANGLE_OS_WIN)
-    return TlsGetValue(nIndex);
+	return ThreadEmulation::TlsGetValue(nIndex);
 #elif defined(ANGLE_OS_POSIX)
     return pthread_getspecific(nIndex);
 #endif  // ANGLE_OS_WIN
