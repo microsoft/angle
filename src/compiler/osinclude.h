@@ -34,16 +34,15 @@
 #define WINAPI_FAMILY_ONE_PARTITION( arg1, arg2 ) arg2
 #define WINAPI_FAMILY_PARTITION(...) 0
 #endif
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #include "common/winrt/ThreadEmulation.h"
 using namespace ThreadEmulation;
-#endif  // WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#endif  // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #elif defined(ANGLE_OS_POSIX)
 #include <pthread.h>
 #include <semaphore.h>
 #include <errno.h>
 #endif  // ANGLE_OS_WIN
-
 
 #include "compiler/debug.h"
 
