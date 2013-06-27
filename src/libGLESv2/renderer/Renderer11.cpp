@@ -28,6 +28,17 @@
 #include "libGLESv2/renderer/Query11.h"
 #include "libGLESv2/renderer/Fence11.h"
 
+#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
+#include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
+#include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
+#include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgb11ps.h"
+#include "libGLESv2/renderer/shaders/compiled/winrt/passthroughlum11ps.h"
+#include "libGLESv2/renderer/shaders/compiled/winrt/passthroughlumalpha11ps.h"
+
+#include "libGLESv2/renderer/shaders/compiled/winrt/clear11vs.h"
+#include "libGLESv2/renderer/shaders/compiled/winrt/clearsingle11ps.h"
+#include "libGLESv2/renderer/shaders/compiled/winrt/clearmultiple11ps.h"
+#else
 #include "libGLESv2/renderer/shaders/compiled/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgb11ps.h"
@@ -37,6 +48,7 @@
 #include "libGLESv2/renderer/shaders/compiled/clear11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/clearsingle11ps.h"
 #include "libGLESv2/renderer/shaders/compiled/clearmultiple11ps.h"
+#endif
 
 #include "libEGL/Display.h"
 

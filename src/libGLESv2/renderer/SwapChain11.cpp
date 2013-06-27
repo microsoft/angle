@@ -10,8 +10,13 @@
 #include "libGLESv2/renderer/SwapChain11.h"
 #include "libGLESv2/renderer/renderer11_utils.h"
 #include "libGLESv2/renderer/Renderer11.h"
+#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
+#include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
+#include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
+#else
 #include "libGLESv2/renderer/shaders/compiled/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
+#endif
 
 #if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_PARTITION_APP )
 #include <windows.ui.xaml.media.dxinterop.h>
