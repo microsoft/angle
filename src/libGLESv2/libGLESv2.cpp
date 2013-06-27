@@ -2652,7 +2652,8 @@ void __stdcall glGenerateMipmap(GLenum target)
                         return gl::error(GL_INVALID_OPERATION);
                     }
 
-                    tex2d->generateMipmaps();
+                    if(context->getMajorShaderModel() > 2)
+                        tex2d->generateMipmaps();
                     break;
                 }
 
@@ -2665,7 +2666,8 @@ void __stdcall glGenerateMipmap(GLenum target)
                         return gl::error(GL_INVALID_OPERATION);
                     }
 
-                    texcube->generateMipmaps();
+                    if(context->getMajorShaderModel() > 2)
+                        texcube->generateMipmaps();
                     break;
                 }
 
