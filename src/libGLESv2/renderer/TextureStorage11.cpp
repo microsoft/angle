@@ -343,7 +343,7 @@ RenderTarget *TextureStorage11_2D::getRenderTarget(int level)
             srvDesc.Format = mShaderResourceFormat;
             srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
             srvDesc.Texture2D.MostDetailedMip = level;
-            srvDesc.Texture2D.MipLevels = -1; //breaks Surface RT if 1
+            srvDesc.Texture2D.MipLevels = (mRenderer->getMajorShaderModel() < 4) ? -1 : 1;
 
             ID3D11ShaderResourceView *srv;
             result = device->CreateShaderResourceView(mTexture, &srvDesc, &srv);
