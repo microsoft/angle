@@ -285,7 +285,7 @@ void ESUTIL_API esLogMessage ( const char *formatStr, ... )
 //
 char* ESUTIL_API esLoadTGA ( char *fileName, int *width, int *height )
 {
-#pragma message("esLoadTGA not implmented on WinRT");
+#pragma message("esLoadTGA not implmented on WinRT")
 
    UNREFERENCED_PARAMETER(fileName);
    UNREFERENCED_PARAMETER(width);
