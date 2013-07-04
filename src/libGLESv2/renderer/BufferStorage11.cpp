@@ -131,7 +131,7 @@ void *BufferStorage11::getData()
     return mResolvedData;
 }
 
-void BufferStorage11::setData(const void* data, unsigned int size, unsigned int offset)
+void BufferStorage11::setData(const void* data, unsigned int size, unsigned int offset, GLenum bindingPoint)
 {
     ID3D11Device *device = mRenderer->getDevice();
     ID3D11DeviceContext *context = mRenderer->getDeviceContext();
@@ -193,7 +193,15 @@ void BufferStorage11::setData(const void* data, unsigned int size, unsigned int 
         D3D11_BUFFER_DESC bufferDesc;
         bufferDesc.ByteWidth = requiredBufferSize;
         bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_INDEX_BUFFER;
+        if(mRenderer->getMajorShaderModel() > 2)
+            bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_INDEX_BUFFER;
+        else
+        {
+            if(bindingPoint == GL_ARRAY_BUFFER)
+                bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+            else
+                bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+        }
         bufferDesc.CPUAccessFlags = 0;
         bufferDesc.MiscFlags = 0;
         bufferDesc.StructureByteStride = 0;

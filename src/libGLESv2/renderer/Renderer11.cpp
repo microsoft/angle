@@ -1131,48 +1131,9 @@ void Renderer11::drawElements(GLenum mode, GLsizei count, GLenum type, const GLv
     }
 }
 
-void Renderer11::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer)
+template <typename T>
+void WriteIndexBufferLineLoop(T *data, GLenum type, const GLvoid *indices, GLsizei count)
 {
-    // Get the raw indices for an indexed draw
-    if (type != GL_NONE && elementArrayBuffer)
-    {
-        gl::Buffer *indexBuffer = elementArrayBuffer;
-        BufferStorage *storage = indexBuffer->getStorage();
-        intptr_t offset = reinterpret_cast<intptr_t>(indices);
-        indices = static_cast<const GLubyte*>(storage->getData()) + offset;
-    }
-
-    if (!mLineLoopIB)
-    {
-        mLineLoopIB = new StreamingIndexBufferInterface(this);
-        if (!mLineLoopIB->reserveBufferSpace(INITIAL_INDEX_BUFFER_SIZE, GL_UNSIGNED_INT))
-        {
-            delete mLineLoopIB;
-            mLineLoopIB = NULL;
-
-            ERR("Could not create a 32-bit looping index buffer for GL_LINE_LOOP.");
-            return gl::error(GL_OUT_OF_MEMORY);
-        }
-    }
-
-    const int spaceNeeded = (count + 1) * sizeof(unsigned int);
-    if (!mLineLoopIB->reserveBufferSpace(spaceNeeded, GL_UNSIGNED_INT))
-    {
-        ERR("Could not reserve enough space in looping index buffer for GL_LINE_LOOP.");
-        return gl::error(GL_OUT_OF_MEMORY);
-    }
-
-    void* mappedMemory = NULL;
-    int offset = mLineLoopIB->mapBuffer(spaceNeeded, &mappedMemory);
-    if (offset == -1 || mappedMemory == NULL)
-    {
-        ERR("Could not map index buffer for GL_LINE_LOOP.");
-        return gl::error(GL_OUT_OF_MEMORY);
-    }
-
-    unsigned int *data = reinterpret_cast<unsigned int*>(mappedMemory);
-    unsigned int indexBufferOffset = static_cast<unsigned int>(offset);
-
     switch (type)
     {
       case GL_NONE:   // Non-indexed draw
@@ -1205,6 +1166,55 @@ void Renderer11::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices,
         break;
       default: UNREACHABLE();
     }
+}
+
+void Renderer11::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer)
+{
+    // Get the raw indices for an indexed draw
+    if (type != GL_NONE && elementArrayBuffer)
+    {
+        gl::Buffer *indexBuffer = elementArrayBuffer;
+        BufferStorage *storage = indexBuffer->getStorage();
+        intptr_t offset = reinterpret_cast<intptr_t>(indices);
+        indices = static_cast<const GLubyte*>(storage->getData()) + offset;
+    }
+
+    GLenum indexType = (mFeatureLevel > D3D_FEATURE_LEVEL_9_1) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
+    int indexTypeSize = (mFeatureLevel > D3D_FEATURE_LEVEL_9_1) ? sizeof(unsigned int) : sizeof(unsigned short);
+    if (!mLineLoopIB)
+    {
+        mLineLoopIB = new StreamingIndexBufferInterface(this);
+        if (!mLineLoopIB->reserveBufferSpace(INITIAL_INDEX_BUFFER_SIZE, indexType))
+        {
+            delete mLineLoopIB;
+            mLineLoopIB = NULL;
+
+            ERR("Could not create a 32-bit looping index buffer for GL_LINE_LOOP.");
+            return gl::error(GL_OUT_OF_MEMORY);
+        }
+    }
+
+    const int spaceNeeded = (count + 1) * sizeof(unsigned int);
+    if (!mLineLoopIB->reserveBufferSpace(spaceNeeded, indexType))
+    {
+        ERR("Could not reserve enough space in looping index buffer for GL_LINE_LOOP.");
+        return gl::error(GL_OUT_OF_MEMORY);
+    }
+
+    void* mappedMemory = NULL;
+    int offset = mLineLoopIB->mapBuffer(spaceNeeded, &mappedMemory);
+    if (offset == -1 || mappedMemory == NULL)
+    {
+        ERR("Could not map index buffer for GL_LINE_LOOP.");
+        return gl::error(GL_OUT_OF_MEMORY);
+    }
+
+    unsigned int indexBufferOffset = static_cast<unsigned int>(offset);
+
+    if(mFeatureLevel > D3D_FEATURE_LEVEL_9_1)
+        WriteIndexBufferLineLoop(reinterpret_cast<unsigned int*>(mappedMemory), type, indices, count);
+    else
+        WriteIndexBufferLineLoop(reinterpret_cast<unsigned short*>(mappedMemory), type, indices, count);
 
     if (!mLineLoopIB->unmapBuffer())
     {
@@ -1225,6 +1235,47 @@ void Renderer11::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices,
     mDeviceContext->DrawIndexed(count + 1, 0, -minIndex);
 }
 
+template <typename T>
+void WriteIndexBufferTriangleFan(T *data, GLenum type, const GLvoid *indices, int numTris)
+{
+    switch (type)
+    {
+        case GL_NONE:   // Non-indexed draw
+        for (int i = 0; i < numTris; i++)
+        {
+            data[i*3 + 0] = 0;
+            data[i*3 + 1] = i + 1;
+            data[i*3 + 2] = i + 2;
+        }
+        break;
+        case GL_UNSIGNED_BYTE:
+        for (int i = 0; i < numTris; i++)
+        {
+            data[i*3 + 0] = static_cast<const GLubyte*>(indices)[0];
+            data[i*3 + 1] = static_cast<const GLubyte*>(indices)[i + 1];
+            data[i*3 + 2] = static_cast<const GLubyte*>(indices)[i + 2];
+        }
+        break;
+        case GL_UNSIGNED_SHORT:
+        for (int i = 0; i < numTris; i++)
+        {
+            data[i*3 + 0] = static_cast<const GLushort*>(indices)[0];
+            data[i*3 + 1] = static_cast<const GLushort*>(indices)[i + 1];
+            data[i*3 + 2] = static_cast<const GLushort*>(indices)[i + 2];
+        }
+        break;
+        case GL_UNSIGNED_INT:
+        for (int i = 0; i < numTris; i++)
+        {
+            data[i*3 + 0] = static_cast<const GLuint*>(indices)[0];
+            data[i*3 + 1] = static_cast<const GLuint*>(indices)[i + 1];
+            data[i*3 + 2] = static_cast<const GLuint*>(indices)[i + 2];
+        }
+        break;
+        default: UNREACHABLE();
+    }
+}
+
 void Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer, int instances)
 {
     // Get the raw indices for an indexed draw
@@ -1236,10 +1287,13 @@ void Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indic
         indices = static_cast<const GLubyte*>(storage->getData()) + offset;
     }
 
+    const GLenum indexType = (mFeatureLevel > D3D_FEATURE_LEVEL_9_1) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
+    const int indexTypeSize = (indexType == GL_UNSIGNED_INT) ? sizeof(unsigned int) : sizeof(unsigned short);
     if (!mTriangleFanIB)
     {
         mTriangleFanIB = new StreamingIndexBufferInterface(this);
-        if (!mTriangleFanIB->reserveBufferSpace(INITIAL_INDEX_BUFFER_SIZE, GL_UNSIGNED_INT))
+            
+        if (!mTriangleFanIB->reserveBufferSpace(INITIAL_INDEX_BUFFER_SIZE, indexType))
         {
             delete mTriangleFanIB;
             mTriangleFanIB = NULL;
@@ -1250,8 +1304,8 @@ void Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indic
     }
 
     const int numTris = count - 2;
-    const int spaceNeeded = (numTris * 3) * sizeof(unsigned int);
-    if (!mTriangleFanIB->reserveBufferSpace(spaceNeeded, GL_UNSIGNED_INT))
+    const int spaceNeeded = (numTris * 3) * indexTypeSize;
+    if (!mTriangleFanIB->reserveBufferSpace(spaceNeeded, indexType))
     {
         ERR("Could not reserve enough space in scratch index buffer for GL_TRIANGLE_FAN.");
         return gl::error(GL_OUT_OF_MEMORY);
@@ -1265,45 +1319,12 @@ void Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indic
         return gl::error(GL_OUT_OF_MEMORY);
     }
 
-    unsigned int *data = reinterpret_cast<unsigned int*>(mappedMemory);
     unsigned int indexBufferOffset = static_cast<unsigned int>(offset);
 
-    switch (type)
-    {
-      case GL_NONE:   // Non-indexed draw
-        for (int i = 0; i < numTris; i++)
-        {
-            data[i*3 + 0] = 0;
-            data[i*3 + 1] = i + 1;
-            data[i*3 + 2] = i + 2;
-        }
-        break;
-      case GL_UNSIGNED_BYTE:
-        for (int i = 0; i < numTris; i++)
-        {
-            data[i*3 + 0] = static_cast<const GLubyte*>(indices)[0];
-            data[i*3 + 1] = static_cast<const GLubyte*>(indices)[i + 1];
-            data[i*3 + 2] = static_cast<const GLubyte*>(indices)[i + 2];
-        }
-        break;
-      case GL_UNSIGNED_SHORT:
-        for (int i = 0; i < numTris; i++)
-        {
-            data[i*3 + 0] = static_cast<const GLushort*>(indices)[0];
-            data[i*3 + 1] = static_cast<const GLushort*>(indices)[i + 1];
-            data[i*3 + 2] = static_cast<const GLushort*>(indices)[i + 2];
-        }
-        break;
-      case GL_UNSIGNED_INT:
-        for (int i = 0; i < numTris; i++)
-        {
-            data[i*3 + 0] = static_cast<const GLuint*>(indices)[0];
-            data[i*3 + 1] = static_cast<const GLuint*>(indices)[i + 1];
-            data[i*3 + 2] = static_cast<const GLuint*>(indices)[i + 2];
-        }
-        break;
-      default: UNREACHABLE();
-    }
+    if(mFeatureLevel > D3D_FEATURE_LEVEL_9_1)
+        WriteIndexBufferTriangleFan(reinterpret_cast<unsigned int*>(mappedMemory), type, indices, numTris);
+    else
+        WriteIndexBufferTriangleFan(reinterpret_cast<unsigned short*>(mappedMemory), type, indices, numTris);
 
     if (!mTriangleFanIB->unmapBuffer())
     {
