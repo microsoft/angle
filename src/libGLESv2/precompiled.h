@@ -32,9 +32,13 @@
 #include <unordered_map>
 #include <vector>
 
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #include <d3d9.h>
-//#include <D3D11.h>
+#include <D3D11.h>
+#else
 #include <D3D11_1.h>
+#endif
+
 #include <dxgi.h>
 #include <D3Dcompiler.h>
 

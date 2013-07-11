@@ -8,8 +8,10 @@
 
 #include "common/debug.h"
 #include "common/system.h"
+
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #include <d3d9.h>
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#else
 typedef DWORD D3DCOLOR;
 #endif
 
