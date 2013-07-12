@@ -42,6 +42,10 @@ Renderer::~Renderer()
 
 bool Renderer::initializeCompiler()
 {
+#if defined(_PHONE_SDK_8_0)
+	return true;
+#else
+
 #if defined(ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES)
     // Find a D3DCompiler module that had already been loaded based on a predefined list of versions.
     static TCHAR* d3dCompilerNames[] = ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES;
@@ -56,7 +60,7 @@ bool Renderer::initializeCompiler()
 #else
     // Load the version of the D3DCompiler DLL associated with the Direct3D version ANGLE was built with.
     #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-    mD3dCompilerModule = LoadPackagedLibrary(D3DCOMPILER_DLL, 0);
+    mD3dCompilerModule = LoadPackagedLibrary((LPCWSTR)D3DCOMPILER_DLL, 0);
     #else
     mD3dCompilerModule = LoadLibrary(D3DCOMPILER_DLL);
 #endif
@@ -72,11 +76,14 @@ bool Renderer::initializeCompiler()
     ASSERT(mD3DCompileFunc);
 
     return mD3DCompileFunc != NULL;
+#endif
 }
 
 // Compiles HLSL code into executable binaries
 ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, const char *profile, UINT optimizationFlags, bool alternateFlags)
 {
+#if !defined(_PHONE_SDK_8_0)
+
     if (!hlsl)
     {
         return NULL;
@@ -168,7 +175,7 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
             }
         }
     }
-
+#endif
     return NULL;
 }
 
