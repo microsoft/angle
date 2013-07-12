@@ -110,7 +110,7 @@ bool Surface::resetSwapChain()
 
     if (getWindowHandle())
     {
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
         CoreWindow ^window = getWindowHandle();
         width = static_cast<int>(convertDipsToPixels(window->Bounds.Width));
         height = static_cast<int>(convertDipsToPixels(window->Bounds.Height));
@@ -239,7 +239,7 @@ bool Surface::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     return true;
 }
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
 // Method to convert a length in device-independent pixels (DIPs) to a length in physical pixels.
 float Surface::convertDipsToPixels(float dips)
@@ -300,7 +300,7 @@ void Surface::subclassWindow()
         return;
     }
 
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     //todo: figure out how to get process and thread id for the window, although it's probably not necessary
     //if this dll won't be run from a different process or thread hopefully
     mWindow.window->SizeChanged += ref new Windows::Foundation::TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(mWinRTSelf, &PrivateWinRTSurface::onWindowSizeChanged);
