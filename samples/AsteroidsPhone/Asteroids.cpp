@@ -91,7 +91,7 @@ void Asteroids::SetWindow(CoreWindow^ window)
 	window->Closed += 
         ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Asteroids::OnWindowClosed);
 
-	window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
+	//window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
 
 	window->PointerPressed +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Asteroids::OnPointerPressed);
