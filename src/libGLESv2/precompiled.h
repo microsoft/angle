@@ -40,7 +40,10 @@
 #endif
 
 #include <dxgi.h>
+
+#if !defined(_PHONE_SDK_8_0)
 #include <D3Dcompiler.h>
+#endif
 
 #ifdef _MSC_VER
 #include <hash_map>
