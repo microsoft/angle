@@ -11,6 +11,8 @@
 #include "libGLESv2/renderer/IndexBuffer.h"
 #include "libGLESv2/renderer/Renderer.h"
 
+using namespace std;
+
 namespace rx
 {
 
@@ -132,7 +134,7 @@ bool StreamingIndexBufferInterface::reserveBufferSpace(unsigned int size, GLenum
     unsigned int curBufferSize = getBufferSize();
     if (size > curBufferSize)
     {
-        result = setBufferSize(std::max(size, 2 * curBufferSize), indexType);
+        result = setBufferSize(max(size, 2 * curBufferSize), indexType);
         setWritePosition(0);
     }
     else if (getWritePosition() + size > curBufferSize)
