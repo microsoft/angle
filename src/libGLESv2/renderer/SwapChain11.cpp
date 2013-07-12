@@ -525,8 +525,15 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount = 2;
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-        swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+        swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+        swapChainDesc.BufferCount = 1;
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // On phone, no swap effects are supported.
+
+#elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
+		swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
 #else
         swapChainDesc.Scaling = DXGI_SCALING_NONE;
 #endif
@@ -535,7 +542,6 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
         HRESULT result = S_OK;
         if(mWindow.panel)
         {
