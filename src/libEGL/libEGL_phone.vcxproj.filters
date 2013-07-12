@@ -2,30 +2,71 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{e1620025-3386-4f2f-9fa9-5d4c5a094b09}</UniqueIdentifier>
+      <UniqueIdentifier>{b4bf9b90-dad9-48f5-b02a-e1577e8c6c3b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{a79b6420-2231-4f50-ae3a-488fca7b9bc7}</UniqueIdentifier>
+      <UniqueIdentifier>{e4fcd8be-9f03-4dd4-897b-6a2bfd657a63}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="libEGL_phone.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Config.cpp" />
-    <ClCompile Include="Display.cpp" />
-    <ClCompile Include="libEGL.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Surface.cpp" />
-    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp" />
+    <ClInclude Include="Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Display.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\winrt\ThreadEmulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\winrt\threadutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\EGL\egl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\EGL\eglext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\EGL\eglplatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Config.h" />
-    <ClInclude Include="Display.h" />
-    <ClInclude Include="main.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="Surface.h" />
-    <ClInclude Include="..\common\winrt\ThreadEmulation.h" />
-    <ClInclude Include="..\common\winrt\threadutils.h" />
+    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Display.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libEGL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Surface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

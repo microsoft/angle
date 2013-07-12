@@ -19,33 +19,37 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{57eae839-8a09-4250-986a-3e21f98afbb0}</ProjectGuid>
-    <RootNamespace>libEGL_phone_vcxproj</RootNamespace>
+    <ProjectGuid>{57EAE839-8A09-4250-986A-3E21F98AFBB0}</ProjectGuid>
+    <RootNamespace>libEGL_phone</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110_wp80</PlatformToolset>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110_wp80</PlatformToolset>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v110_wp80</PlatformToolset>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v110_wp80</PlatformToolset>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
@@ -57,109 +61,73 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(ProjectDir)/..; $(ProjectDir)/../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CompileAsWinRT>true</CompileAsWinRT>
+      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..; $(ProjectDir)/../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-    </Link>
-    <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>libEGL_phone.def</ModuleDefinitionFile>
-    </Lib>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(ProjectDir)/..; $(ProjectDir)/../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_USRDLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CompileAsWinRT>true</CompileAsWinRT>
+      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..; $(ProjectDir)/../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-    </Link>
-    <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>libEGL_phone.def</ModuleDefinitionFile>
-    </Lib>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <PreprocessorDefinitions>_LIB;WINAPI_FAMILY=WINAPI_FAMILY_APP;_WINDLL;_WINDOWS;_USRDLL;LIBEGL_EXPORTS;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(ProjectDir)/..; $(ProjectDir)/../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CompileAsWinRT>true</CompileAsWinRT>
+      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..; $(ProjectDir)/../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-    </Link>
-    <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>libEGL_phone.def</ModuleDefinitionFile>
-    </Lib>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <PreprocessorDefinitions>_LIB;NDEBUG;WINAPI_FAMILY=WINAPI_FAMILY_APP;_WINDLL;_WINDOWS;_USRDLL;LIBEGL_EXPORTS;_CRT_SECURE_NO_DEPRECATE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(ProjectDir)/..; $(ProjectDir)/../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_USRDLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CompileAsWinRT>true</CompileAsWinRT>
+      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..; $(ProjectDir)/../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-    </Link>
-    <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>libEGL_phone.def</ModuleDefinitionFile>
-    </Lib>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="Windows">
@@ -174,14 +142,10 @@
     <None Include="libEGL_phone.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp" />
-    <ClCompile Include="Config.cpp" />
-    <ClCompile Include="Display.cpp" />
-    <ClCompile Include="libEGL.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Surface.cpp" />
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="..\..\include\EGL\egl.h" />
+    <ClInclude Include="..\..\include\EGL\eglext.h" />
+    <ClInclude Include="..\..\include\EGL\eglplatform.h" />
+    <ClInclude Include="..\common\version.h" />
     <ClInclude Include="..\common\winrt\ThreadEmulation.h" />
     <ClInclude Include="..\common\winrt\threadutils.h" />
     <ClInclude Include="Config.h" />
@@ -189,6 +153,15 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Surface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\common\debug.cpp" />
+    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp" />
+    <ClCompile Include="Config.cpp" />
+    <ClCompile Include="Display.cpp" />
+    <ClCompile Include="libEGL.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Surface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libGLESv2\libGLESv2_phone.vcxproj">
