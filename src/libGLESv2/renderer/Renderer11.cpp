@@ -2907,6 +2907,10 @@ ShaderExecutable *Renderer11::loadExecutable(const void *function, size_t length
 
 ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const char *shaderHLSL, rx::ShaderType type)
 {
+#if defined(_PHONE_SDK_8_0)
+	return NULL;
+#else
+
     const char *profile = NULL;
 
     switch (type)
@@ -2939,6 +2943,7 @@ ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const ch
     binary->Release();
 
     return executable;
+#endif
 }
 
 VertexBuffer *Renderer11::createVertexBuffer()
