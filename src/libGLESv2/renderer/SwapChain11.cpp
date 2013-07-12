@@ -19,10 +19,14 @@
 #endif
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 #include <windows.ui.xaml.media.dxinterop.h>
+using namespace Windows::UI::Xaml::Controls;
+#endif
+
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
-using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 #endif
@@ -535,13 +539,15 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         HRESULT result = S_OK;
         if(mWindow.panel)
         {
-            result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+			result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
             if SUCCEEDED(result)
             {
                 ComPtr<ISwapChainBackgroundPanelNative> panelNative;
                 reinterpret_cast<IUnknown*>(mWindow.panel)->QueryInterface(IID_PPV_ARGS(&panelNative));
                 panelNative->SetSwapChain(mSwapChain);
             }
+#endif
         }
         else
         {
