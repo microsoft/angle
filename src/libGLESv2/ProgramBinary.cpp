@@ -1519,8 +1519,8 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
         
         if (shaderModel >= 4 || isWinRT)
         {
-            pixelHLSL += "    gl_FragCoord.x = input.dx_VPos.x;\n"
-                         "    gl_FragCoord.y = input.dx_VPos.y;\n";
+            pixelHLSL += "    gl_FragCoord.x = input.gl_FragCoord.x;\n"
+                         "    gl_FragCoord.y = -input.gl_FragCoord.y;\n";
         }
         else if (shaderModel >= 3)
         {
