@@ -2915,13 +2915,45 @@ ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const ch
         if(mFeatureLevel >= D3D_FEATURE_LEVEL_10_0)
             profile = "vs_4_0";
         else
-            profile = "vs_4_0_level_9_1";
+        {
+            switch(mFeatureLevel)
+            {
+                case D3D_FEATURE_LEVEL_9_3:
+                    profile = "vs_4_0_level_9_3";
+                    break;
+
+                case D3D_FEATURE_LEVEL_9_2:
+                case D3D_FEATURE_LEVEL_9_1:
+                    profile = "vs_4_0_level_9_1";
+                    break;
+
+                default:
+                    UNREACHABLE();
+                    return NULL;
+            }
+        }
         break;
       case rx::SHADER_PIXEL:
         if(mFeatureLevel >= D3D_FEATURE_LEVEL_10_0)
             profile = "ps_4_0";
         else
-            profile = "ps_4_0_level_9_1";
+        {
+            switch(mFeatureLevel)
+            {
+                case D3D_FEATURE_LEVEL_9_3:
+                    profile = "ps_4_0_level_9_3";
+                    break;
+
+                case D3D_FEATURE_LEVEL_9_2:
+                case D3D_FEATURE_LEVEL_9_1:
+                    profile = "ps_4_0_level_9_1";
+                    break;
+
+                default:
+                    UNREACHABLE();
+                    return NULL;
+            }
+        }
         break;
       case rx::SHADER_GEOMETRY:
         profile = "gs_4_0";
