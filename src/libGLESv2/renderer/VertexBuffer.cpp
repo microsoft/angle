@@ -12,6 +12,8 @@
 #include "libGLESv2/renderer/Renderer.h"
 #include "libGLESv2/Context.h"
 
+using namespace std;
+
 namespace rx
 {
 
@@ -156,7 +158,7 @@ bool StreamingVertexBufferInterface::reserveSpace(unsigned int size)
     unsigned int curBufferSize = getBufferSize();
     if (size > curBufferSize)
     {
-        result = setBufferSize(std::max(size, 3 * curBufferSize / 2));
+        result = setBufferSize(max(size, 3 * curBufferSize / 2));
         setWritePosition(0);
     }
     else if (getWritePosition() + size > curBufferSize)

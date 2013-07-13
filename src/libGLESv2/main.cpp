@@ -11,7 +11,7 @@
 
 
 #include "libGLESv2/Context.h"
-#if WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #include "common/winrt/threadutils.h"
 using namespace ThreadUtilsWinRT;
 #endif
