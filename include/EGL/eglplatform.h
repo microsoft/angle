@@ -84,7 +84,7 @@ typedef HBITMAP EGLNativePixmapType;
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 typedef struct {
     Platform::Agile<Windows::UI::Core::CoreWindow> window;
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if defined(WINAPI_PARTITION_PHONE)
 	void* panel;
 #else
     Windows::UI::Xaml::Controls::SwapChainBackgroundPanel^ panel;

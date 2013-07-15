@@ -20,7 +20,7 @@
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if !defined(WINAPI_PARTITION_PHONE)
 #include <windows.ui.xaml.media.dxinterop.h>
 using namespace Windows::UI::Xaml::Controls;
 #endif
@@ -526,7 +526,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount = 2;
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if defined(WINAPI_PARTITION_PHONE)
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.BufferCount = 1;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // On phone, no swap effects are supported.
@@ -545,7 +545,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         HRESULT result = S_OK;
         if(mWindow.panel)
         {
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if !defined(WINAPI_PARTITION_PHONE)
 			result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
             if SUCCEEDED(result)
             {

@@ -11,7 +11,7 @@
 
 #include <windows.h>
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if defined(WINAPI_PARTITION_PHONE)
 //#include <processthreadsapi.h>
 
 namespace ThreadUtilsWinRT
