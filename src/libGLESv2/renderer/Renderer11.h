@@ -186,6 +186,7 @@ class Renderer11 : public Renderer
     ID3D11DeviceContext *getDeviceContext() { return mDeviceContext; };
     //IDXGIFactory *getDxgiFactory() { return mDxgiFactory; };
     IDXGIFactory2 *getDxgiFactory() { return mDxgiFactory; };
+    D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; }
 
     bool getRenderTargetResource(gl::Renderbuffer *colorbuffer, unsigned int *subresourceIndex, ID3D11Texture2D **resource);
     void unapplyRenderTargets();

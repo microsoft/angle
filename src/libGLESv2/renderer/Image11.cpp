@@ -185,7 +185,10 @@ void Image11::loadData(GLint xoffset, GLint yoffset, GLsizei width, GLsizei heig
     switch (mInternalFormat)
     {
       case GL_ALPHA8_EXT:
-        loadAlphaDataToNative(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
+        if(mRenderer->getFeatureLevel() < D3D_FEATURE_LEVEL_9_2)
+            loadAlphaDataToBGRA(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
+        else
+            loadAlphaDataToNative(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
         break;
       case GL_LUMINANCE8_EXT:
         loadLuminanceDataToNativeOrBGRA(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData, false);
@@ -380,8 +383,11 @@ void Image11::createStagingTexture()
 
     ID3D11Texture2D *newTexture = NULL;
     int lodOffset = 1;
-    const DXGI_FORMAT dxgiFormat = getDXGIFormat();
+    DXGI_FORMAT dxgiFormat = getDXGIFormat();
     ASSERT(!d3d11::IsDepthStencilFormat(dxgiFormat)); // We should never get here for depth textures
+
+    if(mRenderer->getFeatureLevel() < D3D_FEATURE_LEVEL_9_2 && dxgiFormat == DXGI_FORMAT_A8_UNORM)
+        dxgiFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
 
     if (mWidth != 0 && mHeight != 0)
     {
