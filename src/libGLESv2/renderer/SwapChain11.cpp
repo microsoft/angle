@@ -633,11 +633,10 @@ void SwapChain11::initPassThroughResources()
     samplerDesc.BorderColor[2] = 0.0f;
     samplerDesc.BorderColor[3] = 0.0f;
     samplerDesc.MinLOD = 0;
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-	samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
-#else
-    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX; //breaks Surface RT if 0.0f
-#endif
+    if(device->GetFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
+    	samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
+    else
+        samplerDesc.MaxLOD = 0.0f;
 
     result = device->CreateSamplerState(&samplerDesc, &mPassThroughSampler);
     ASSERT(SUCCEEDED(result));

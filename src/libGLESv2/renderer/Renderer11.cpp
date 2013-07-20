@@ -2658,11 +2658,10 @@ bool Renderer11::copyTexture(ID3D11ShaderResourceView *source, const gl::Rectang
         samplerDesc.BorderColor[2] = 0.0f;
         samplerDesc.BorderColor[3] = 0.0f;
         samplerDesc.MinLOD = 0.0f;
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-        samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
-#else
-        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX; //breaks Surface RT if 0.0f
-#endif
+        if(mDevice->GetFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
+            samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
+        else
+            samplerDesc.MaxLOD = 0.0f; //breaks Surface RT if 0.0f
 
         result = mDevice->CreateSamplerState(&samplerDesc, &mCopySampler);
         ASSERT(SUCCEEDED(result));
