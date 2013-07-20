@@ -134,7 +134,7 @@ UINT TextureStorage11::getSubresourceIndex(int level, int faceIndex)
 
 bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsigned int sourceSubresource,
                                               int level, int face, GLint xoffset, GLint yoffset,
-                                              GLsizei width, GLsizei height)
+                                              GLsizei width, GLsizei height, bool mipped)
 {
     if (srcTexture)
     {
@@ -154,6 +154,20 @@ bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsig
         ID3D11DeviceContext *context = mRenderer->getDeviceContext();
         
         ASSERT(getBaseTexture());
+        if(!mipped)
+        {
+            D3D11_TEXTURE2D_DESC texDesc;
+            mTexture->GetDesc(&texDesc);
+            mTexture->Release();
+            texDesc.MipLevels = 1;
+            HRESULT result = mRenderer->getDevice()->CreateTexture2D(&texDesc, NULL, &mTexture);
+            ASSERT(SUCCEEDED(result));
+            if(mSRV)
+            {
+                mSRV->Release();
+                mSRV = NULL;
+            }
+        }
         context->CopySubresourceRegion(getBaseTexture(), getSubresourceIndex(level + mLodOffset, face),
                                        xoffset, yoffset, 0, srcTexture, sourceSubresource, &srcBox);
         return true;
@@ -430,7 +444,7 @@ ID3D11ShaderResourceView *TextureStorage11_2D::getSRV()
         D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
         srvDesc.Format = mShaderResourceFormat;
         srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-        srvDesc.Texture2D.MipLevels = (mMipLevels == 0 ? -1 : mMipLevels);
+        srvDesc.Texture2D.MipLevels = -1;//(mMipLevels == 0 ? -1 : mMipLevels); //mMipLevels is pretty much useless since it's always set to the max mips
         srvDesc.Texture2D.MostDetailedMip = 0;
 
         HRESULT result = device->CreateShaderResourceView(mTexture, &srvDesc, &mSRV);
