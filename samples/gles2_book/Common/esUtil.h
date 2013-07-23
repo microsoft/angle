@@ -290,6 +290,13 @@ void ESUTIL_API esMatrixMultiply(ESMatrix *result, ESMatrix *srcA, ESMatrix *src
 //
 void ESUTIL_API esMatrixLoadIdentity(ESMatrix *result);
 
+//
+/// \brief Resize the window
+/// \param esContext Application context
+/// \param width Width in pixels of window to create
+/// \param height Height in pixels of window to create
+void ESUTIL_API esResizeWindow ( ESContext *esContext, GLint width, GLint height );
+
 #ifdef __cplusplus
 }
 #endif

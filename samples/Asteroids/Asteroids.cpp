@@ -43,23 +43,23 @@ Asteroids::Asteroids() :
     m_laserWeaponTimer(0),
     m_weapon(Weapon::Regular),
     m_asteroidRespawnTime(10),
-	m_windowClosed(false),
-	m_windowVisible(true)
+    m_windowClosed(false),
+    m_windowVisible(true)
 {
 }
 
 void Asteroids::Initialize(CoreApplicationView^ applicationView)
 {
-	applicationView->Activated +=
+    applicationView->Activated +=
         ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &Asteroids::OnActivated);
 
-	CoreApplication::Suspending +=
+    CoreApplication::Suspending +=
         ref new EventHandler<SuspendingEventArgs^>(this, &Asteroids::OnSuspending);
 
-	CoreApplication::Resuming +=
+    CoreApplication::Resuming +=
         ref new EventHandler<Platform::Object^>(this, &Asteroids::OnResuming);
 
-	//m_renderer = ref new CubeRenderer();
+    //m_renderer = ref new CubeRenderer();
     m_player.m_scale = glm::vec2(40);
     for(int i = 0; i < MAX_ASTEROIDS; ++i)
     {
@@ -82,22 +82,22 @@ void Asteroids::Initialize(CoreApplicationView^ applicationView)
 
 void Asteroids::SetWindow(CoreWindow^ window)
 {
-	window->SizeChanged += 
+    window->SizeChanged += 
         ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &Asteroids::OnWindowSizeChanged);
 
-	window->VisibilityChanged +=
-		ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &Asteroids::OnVisibilityChanged);
+    window->VisibilityChanged +=
+        ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &Asteroids::OnVisibilityChanged);
 
-	window->Closed += 
+    window->Closed += 
         ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Asteroids::OnWindowClosed);
 
-	window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
+    window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
 
-	window->PointerPressed +=
-		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Asteroids::OnPointerPressed);
+    window->PointerPressed +=
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Asteroids::OnPointerPressed);
 
-	window->PointerMoved +=
-		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Asteroids::OnPointerMoved);
+    window->PointerMoved +=
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Asteroids::OnPointerMoved);
 
     window->KeyDown +=
         ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Asteroids::OnKeyDown);
@@ -105,14 +105,16 @@ void Asteroids::SetWindow(CoreWindow^ window)
     window->KeyUp +=
         ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Asteroids::OnKeyUp);
 
-	//m_renderer->Initialize(CoreWindow::GetForCurrentThread());
-    
+    //m_renderer->Initialize(CoreWindow::GetForCurrentThread());
+    m_orientation = DisplayProperties::CurrentOrientation;
+    m_windowBounds = window->Bounds;
+
     esInitContext ( &m_esContext );
     m_esContext.hWnd.window = CoreWindow::GetForCurrentThread();
     esCreateWindow ( &m_esContext, TEXT("Simple Instancing"), 320, 240, ES_WINDOW_RGB );
 
     const char *vs = STRINGIFY(
-    attribute vec3 a_position;
+        attribute vec3 a_position;
     attribute vec4 a_color;
     varying vec4 v_color;
     uniform mat4 u_mvp;
@@ -125,7 +127,7 @@ void Asteroids::SetWindow(CoreWindow^ window)
     );
 
     const char *fs = STRINGIFY(
-    precision mediump float;
+        precision mediump float;
     varying vec4 v_color;
     void main(void)
     {
@@ -139,7 +141,7 @@ void Asteroids::SetWindow(CoreWindow^ window)
     m_aColorDraw = glGetAttribLocation(m_drawProgram, "a_color");
 
     vs = STRINGIFY(
-    attribute vec2 a_position;
+        attribute vec2 a_position;
     varying vec2 v_uv;
     void main(void)
     {
@@ -149,7 +151,7 @@ void Asteroids::SetWindow(CoreWindow^ window)
     );
 
     fs = STRINGIFY(
-    precision mediump float;
+        precision mediump float;
     varying vec2 v_uv;
     uniform sampler2D u_texture;
     uniform vec2 u_offset;
@@ -175,7 +177,7 @@ void Asteroids::SetWindow(CoreWindow^ window)
     m_aPositionBlur = glGetAttribLocation(m_blurProgram, "a_position");
 
     fs = STRINGIFY(
-    precision mediump float;
+        precision mediump float;
     varying vec2 v_uv;
     uniform sampler2D u_texture;
     void main(void)
@@ -189,7 +191,7 @@ void Asteroids::SetWindow(CoreWindow^ window)
     m_aPositionTexturePassThru = glGetAttribLocation(m_texturePassThruProgram, "a_position");
 
     fs = STRINGIFY(
-    precision mediump float;
+        precision mediump float;
     varying vec2 v_uv;
     uniform sampler2D u_texture[4];
     void main(void)
@@ -256,27 +258,27 @@ void Asteroids::Load(Platform::String^ entryPoint)
 
 void Asteroids::Run()
 {
-	BasicTimer^ timer = ref new BasicTimer();
-	while (!m_windowClosed)
-	{
-		if (m_windowVisible)
-		{
-			timer->Update();
-			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+    BasicTimer^ timer = ref new BasicTimer();
+    while (!m_windowClosed)
+    {
+        if (m_windowVisible)
+        {
+            timer->Update();
+            CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
             Update();
             Draw();
 
 
-            
-			//m_renderer->Update(timer->Total, timer->Delta);
-			//m_renderer->Render();
-			//m_renderer->Present(); // This call is synchronized to the display frame rate.
-		}
-		else
-		{
-			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
-		}
-	}
+
+            //m_renderer->Update(timer->Total, timer->Delta);
+            //m_renderer->Render();
+            //m_renderer->Present(); // This call is synchronized to the display frame rate.
+        }
+        else
+        {
+            CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+        }
+    }
 }
 
 void Asteroids::Uninitialize()
@@ -285,17 +287,82 @@ void Asteroids::Uninitialize()
 
 void Asteroids::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
 {
-	//m_renderer->UpdateForWindowSizeChange();
+    //m_renderer->UpdateForWindowSizeChange();
+    if (sender->Bounds.Width  != m_windowBounds.Width ||
+        sender->Bounds.Height != m_windowBounds.Height ||
+        m_orientation != DisplayProperties::CurrentOrientation)
+    {
+        // Internally calls DX11's version of flush
+        glFlush();
+
+        // Store the window bounds so the next time we get a SizeChanged event we can
+        // avoid rebuilding everything if the size is identical.
+        m_windowBounds = sender->Bounds;
+
+        // Calculate the necessary swap chain and render target size in pixels.
+        float windowWidth = ConvertDipsToPixels(m_windowBounds.Width);
+        float windowHeight = ConvertDipsToPixels(m_windowBounds.Height);
+
+        // The width and height of the swap chain must be based on the window's
+        // landscape-oriented width and height. If the window is in a portrait
+        // orientation, the dimensions must be reversed.
+        m_orientation = DisplayProperties::CurrentOrientation;
+        bool swapDimensions =
+            m_orientation == DisplayOrientations::Portrait ||
+            m_orientation == DisplayOrientations::PortraitFlipped;
+        m_renderTargetSize.Width = swapDimensions ? windowHeight : windowWidth;
+        m_renderTargetSize.Height = swapDimensions ? windowWidth : windowHeight;
+
+        // Actually resize the underlying swapchain
+        esResizeWindow(&m_esContext, static_cast<UINT>(m_renderTargetSize.Width), static_cast<UINT>(m_renderTargetSize.Height));
+        glViewport(0, 0, static_cast<UINT>(m_renderTargetSize.Width), static_cast<UINT>(m_renderTargetSize.Height));
+
+        // Recreate the FBO with the new dimensions
+        glDeleteFramebuffers(8, m_offscreenFBO);
+        glDeleteTextures(8, m_offscreenTex);
+
+        //setup the FBO
+        glGenFramebuffers(8, m_offscreenFBO);
+        glGenTextures(8, m_offscreenTex);
+        for(int i = 0; i < 4; ++i)
+        {
+            int width = (swapDimensions) ? RENDER_TARGET_HEIGHT >> i : RENDER_TARGET_WIDTH >> i;
+            int height = (swapDimensions) ? RENDER_TARGET_WIDTH >> i : RENDER_TARGET_HEIGHT >> i;
+            glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
+            glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_offscreenTex[i], 0);
+            if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                throw FBOIncompleteException();
+
+            glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i + 4]);
+            glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i + 4]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_offscreenTex[i + 4], 0);
+            if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                throw FBOIncompleteException();
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
 
 void Asteroids::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
 {
-	m_windowVisible = args->Visible;
+    m_windowVisible = args->Visible;
 }
 
 void Asteroids::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 {
-	m_windowClosed = true;
+    m_windowClosed = true;
     glDeleteProgram(m_drawProgram);
     glDeleteProgram(m_blurProgram);
     glDeleteProgram(m_texturePassThruProgram);
@@ -306,53 +373,53 @@ void Asteroids::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 
 void Asteroids::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
 {
-	// Insert your code here.
+    // Insert your code here.
 }
 
 void Asteroids::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
 {
-	// Insert your code here.
+    // Insert your code here.
 }
 
 void Asteroids::OnKeyDown(CoreWindow^ sender, KeyEventArgs ^args)
 {
     switch(args->VirtualKey)
     {
-        case VirtualKey::W:
-        case VirtualKey::Up:
-            m_playerState |= PLAYER_STATE_W;
-            break;
-        
-        case VirtualKey::S:
-        case VirtualKey::Down:
-            m_playerState |= PLAYER_STATE_S;
-            break;
+    case VirtualKey::W:
+    case VirtualKey::Up:
+        m_playerState |= PLAYER_STATE_W;
+        break;
 
-        case VirtualKey::A:
-        case VirtualKey::Left:
-            m_playerState |= PLAYER_STATE_A;
-            break;
+    case VirtualKey::S:
+    case VirtualKey::Down:
+        m_playerState |= PLAYER_STATE_S;
+        break;
 
-        case VirtualKey::D:
-        case VirtualKey::Right:
-            m_playerState |= PLAYER_STATE_D;
-            break;
+    case VirtualKey::A:
+    case VirtualKey::Left:
+        m_playerState |= PLAYER_STATE_A;
+        break;
 
-        case VirtualKey::Space:
-            m_playerState |= PLAYER_STATE_SPACE;
-            break;
+    case VirtualKey::D:
+    case VirtualKey::Right:
+        m_playerState |= PLAYER_STATE_D;
+        break;
 
-        case VirtualKey::Number1:
-            m_weapon = Weapon::Regular;
-            break;
+    case VirtualKey::Space:
+        m_playerState |= PLAYER_STATE_SPACE;
+        break;
 
-        case VirtualKey::Number2:
-            m_weapon = Weapon::Spread;
-            break;
+    case VirtualKey::Number1:
+        m_weapon = Weapon::Regular;
+        break;
 
-        case VirtualKey::Number3:
-            m_weapon = Weapon::LaserWeapon;
-            break;
+    case VirtualKey::Number2:
+        m_weapon = Weapon::Spread;
+        break;
+
+    case VirtualKey::Number3:
+        m_weapon = Weapon::LaserWeapon;
+        break;
     }
 }
 
@@ -360,58 +427,64 @@ void Asteroids::OnKeyUp(CoreWindow^ sender, KeyEventArgs ^args)
 {
     switch(args->VirtualKey)
     {
-        case VirtualKey::W:
-        case VirtualKey::Up:
-            m_playerState &= ~PLAYER_STATE_W;
-            break;
-        
-        case VirtualKey::S:
-        case VirtualKey::Down:
-            m_playerState &= ~PLAYER_STATE_S;
-            break;
+    case VirtualKey::W:
+    case VirtualKey::Up:
+        m_playerState &= ~PLAYER_STATE_W;
+        break;
 
-        case VirtualKey::A:
-        case VirtualKey::Left:
-            m_playerState &= ~PLAYER_STATE_A;
-            break;
+    case VirtualKey::S:
+    case VirtualKey::Down:
+        m_playerState &= ~PLAYER_STATE_S;
+        break;
 
-        case VirtualKey::D:
-        case VirtualKey::Right:
-            m_playerState &= ~PLAYER_STATE_D;
-            break;
-            
-        case VirtualKey::Space:
-            m_playerState &= ~PLAYER_STATE_SPACE;
-            break;
+    case VirtualKey::A:
+    case VirtualKey::Left:
+        m_playerState &= ~PLAYER_STATE_A;
+        break;
+
+    case VirtualKey::D:
+    case VirtualKey::Right:
+        m_playerState &= ~PLAYER_STATE_D;
+        break;
+
+    case VirtualKey::Space:
+        m_playerState &= ~PLAYER_STATE_SPACE;
+        break;
     }
+}
+
+float Asteroids::ConvertDipsToPixels(float dips)
+{
+    static const float dipsPerInch = 96.0f;
+    return floor(dips * DisplayProperties::LogicalDpi / dipsPerInch + 0.5f); // Round to nearest integer.
 }
 
 void Asteroids::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
 {
-	CoreWindow::GetForCurrentThread()->Activate();
+    CoreWindow::GetForCurrentThread()->Activate();
 }
 
 void Asteroids::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
 {
-	// Save app state asynchronously after requesting a deferral. Holding a deferral
-	// indicates that the application is busy performing suspending operations. Be
-	// aware that a deferral may not be held indefinitely. After about five seconds,
-	// the app will be forced to exit.
-	SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
+    // Save app state asynchronously after requesting a deferral. Holding a deferral
+    // indicates that the application is busy performing suspending operations. Be
+    // aware that a deferral may not be held indefinitely. After about five seconds,
+    // the app will be forced to exit.
+    SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
 
-	create_task([this, deferral]()
-	{
-		// Insert your code here.
+    create_task([this, deferral]()
+    {
+        // Insert your code here.
 
-		deferral->Complete();
-	});
+        deferral->Complete();
+    });
 }
- 
+
 void Asteroids::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 {
-	// Restore any data or state that was unloaded on suspend. By default, data
-	// and state are persisted when resuming from suspend. Note that this event
-	// does not occur if the app was previously terminated.
+    // Restore any data or state that was unloaded on suspend. By default, data
+    // and state are persisted when resuming from suspend. Note that this event
+    // does not occur if the app was previously terminated.
 }
 
 Asteroids::GameObject::GameObject(void) : m_angle(0), m_omega(0), m_scale(1, 1), m_lives(1), m_lifeTime(0.2f)
@@ -711,7 +784,7 @@ void Asteroids::Update()
         if(it != end)
             ++it;
     }
-    
+
     //collide the asteroids and lasers
     for(LaserIter it = m_lasers.begin(); it != m_lasers.end(); ++it)
     {
@@ -722,7 +795,7 @@ void Asteroids::Update()
             //project asteroid to laser direction
             glm::vec2 projectedPos = it->m_pos + glm::dot(it2->m_pos - it->m_pos, it->m_dir) / MagnitudeSquared(it->m_dir) * it->m_dir;
             if(it2->m_scale.x > glm::length(it2->m_pos - projectedPos) && glm::dot(projectedPos - it->m_pos, it->m_dir) >= 0)
-             {
+            {
                 //split the asteroid into 4 smaller ones
                 if(it2->m_lives == 2)
                 {
@@ -785,7 +858,7 @@ void Asteroids::Update()
         }
         it->m_lethal = false;
     }
-    
+
     //keep the asteroids coming when the universe runs low
     if(m_asteroids.size() < MAX_ASTEROIDS)
     {
@@ -825,16 +898,23 @@ void Asteroids::Draw()
     DrawAsteroids();
     DrawBullets();
     DrawRocket();
-    
+
     const int stride = sizeof(glm::vec3) + sizeof(glm::vec4);
     glEnableVertexAttribArray(m_aPositionDraw);
     glEnableVertexAttribArray(m_aColorDraw);
     glVertexAttribPointer(m_aPositionDraw, 3, GL_FLOAT, GL_FALSE, stride, &m_vertexBuffer[0]);
     glVertexAttribPointer(m_aColorDraw, 4, GL_FLOAT, GL_FALSE, stride, &m_vertexBuffer[3]);
 
+    bool swapDimensions =
+        m_orientation == Windows::Graphics::Display::DisplayOrientations::Portrait ||
+        m_orientation == Windows::Graphics::Display::DisplayOrientations::PortraitFlipped;
+
     for(int i = 0; i < 4; ++i)
     {
-        glViewport(0, 0, RENDER_TARGET_WIDTH >> i, RENDER_TARGET_HEIGHT >> i);
+        if(swapDimensions)
+            glViewport(0, 0, RENDER_TARGET_HEIGHT >> i, RENDER_TARGET_WIDTH >> i);
+        else
+            glViewport(0, 0, RENDER_TARGET_WIDTH >> i, RENDER_TARGET_HEIGHT >> i);
         glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
         glClear(GL_COLOR_BUFFER_BIT);
         glDrawArrays(GL_LINES, 0, m_vertexBuffer.size() / 7);
@@ -847,7 +927,10 @@ void Asteroids::Draw()
         glVertexAttribPointer(m_aColorDraw, 4, GL_FLOAT, GL_FALSE, stride, &m_vertexBuffer[3]);
         for(int i = 0; i < 4; ++i)
         {
-            glViewport(0, 0, RENDER_TARGET_WIDTH >> i, RENDER_TARGET_HEIGHT >> i);
+            if(swapDimensions)
+                glViewport(0, 0, RENDER_TARGET_HEIGHT >> i, RENDER_TARGET_WIDTH >> i);
+            else
+                glViewport(0, 0, RENDER_TARGET_WIDTH >> i, RENDER_TARGET_HEIGHT >> i);
             glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
             glDrawArrays(GL_TRIANGLES, 0, m_vertexBuffer.size() / 7);
         }
@@ -855,7 +938,7 @@ void Asteroids::Draw()
     m_vertexBuffer.clear();
     glDisableVertexAttribArray(m_aPositionDraw);
     glDisableVertexAttribArray(m_aColorDraw);
-    
+
     float fullScreen[] = {
         -1, 1,
         -1, -1,
@@ -871,8 +954,8 @@ void Asteroids::Draw()
     glVertexAttribPointer(m_aPositionBlur, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), fullScreen);
     for(int i = 0; i < 4; ++i)
     {
-        int width = RENDER_TARGET_WIDTH >> i;
-        int height = RENDER_TARGET_HEIGHT >> i;
+        int width = (swapDimensions) ? RENDER_TARGET_HEIGHT >> i : RENDER_TARGET_WIDTH >> i;
+        int height = (swapDimensions) ? RENDER_TARGET_WIDTH >> i : RENDER_TARGET_HEIGHT >> i;
         glViewport(0, 0, width, height);
 
         glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i + 4]);
@@ -881,7 +964,7 @@ void Asteroids::Draw()
         glUniform2f(m_uOffsetBlur, horiOffset.x, horiOffset.y);
         glClear(GL_COLOR_BUFFER_BIT);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        
+
         glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
         glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i + 4]);
         glm::vec2 vertOffset = glm::vec2(0.0f, 1.0f / height);
@@ -891,7 +974,7 @@ void Asteroids::Draw()
     }
     glDisableVertexAttribArray(m_aPositionBlur);
     glEnable(GL_BLEND);
-    
+
     glViewport(0, 0, static_cast<int>(window->Bounds.Width), static_cast<int>(window->Bounds.Height));
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -989,7 +1072,7 @@ void Asteroids::RemoveOutOfBoundsBullets()
     for(GameObjectIter it = m_bullets.begin(); it != end;)
     {
         if(it->m_pos.x - it->m_scale.x > halfWindowWidth || it->m_pos.x + it->m_scale.x < halfWindowWidth ||
-           it->m_pos.y - it->m_scale.y > halfWindowHeight || it->m_pos.y + it->m_scale.y < halfWindowHeight)
+            it->m_pos.y - it->m_scale.y > halfWindowHeight || it->m_pos.y + it->m_scale.y < halfWindowHeight)
             it = m_bullets.erase(it);
         else
             ++it;
@@ -1115,7 +1198,7 @@ IFrameworkView^ Direct3DApplicationSource::CreateView()
 [Platform::MTAThread]
 int main(Platform::Array<Platform::String^>^)
 {
-	auto direct3DApplicationSource = ref new Direct3DApplicationSource();
-	CoreApplication::Run(direct3DApplicationSource);
-	return 0;
+    auto direct3DApplicationSource = ref new Direct3DApplicationSource();
+    CoreApplication::Run(direct3DApplicationSource);
+    return 0;
 }

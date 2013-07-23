@@ -273,6 +273,7 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreatePixmapSurface(EGLDisplay dpy, EGLConfig c
 EGLAPI EGLBoolean EGLAPIENTRY eglDestroySurface(EGLDisplay dpy, EGLSurface surface);
 EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface(EGLDisplay dpy, EGLSurface surface,
 			   EGLint attribute, EGLint *value);
+EGLAPI EGLint EGLAPIENTRY eglResizeSurface(EGLSurface surface, EGLint width, EGLint height);
 
 EGLAPI EGLBoolean EGLAPIENTRY eglBindAPI(EGLenum api);
 EGLAPI EGLenum EGLAPIENTRY eglQueryAPI(void);

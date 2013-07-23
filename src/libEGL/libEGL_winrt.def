@@ -27,6 +27,7 @@ EXPORTS
 	eglQuerySurface                 @13
 	eglReleaseTexImage              @21
 	eglReleaseThread                @17
+	eglResizeSurface				@35
 	eglSurfaceAttrib                @19
 	eglSwapBuffers                  @32
 	eglSwapInterval                 @22
