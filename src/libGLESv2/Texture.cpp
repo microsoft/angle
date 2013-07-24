@@ -14,7 +14,7 @@
 #include "libGLESv2/main.h"
 #include "libGLESv2/mathutil.h"
 #include "libGLESv2/utilities.h"
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(PLATFORM_WINRT)
 #include "libGLESv2/renderer/Blit.h"
 #endif
 #include "libGLESv2/Renderbuffer.h"
@@ -377,7 +377,7 @@ GLenum Texture2D::getActualFormat(GLint level) const
     if (level < IMPLEMENTATION_MAX_TEXTURE_LEVELS)
         return mImageArray[level]->getActualFormat();
     else
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
         return DXGI_FORMAT_UNKNOWN;
 #else
         return D3DFMT_UNKNOWN;
@@ -979,7 +979,7 @@ GLenum TextureCubeMap::getActualFormat(GLenum target, GLint level) const
     if (level < IMPLEMENTATION_MAX_TEXTURE_LEVELS)
         return mImageArray[faceIndex(target)][level]->getActualFormat();
     else
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
         return DXGI_FORMAT_UNKNOWN;
 #else
         return D3DFMT_UNKNOWN;

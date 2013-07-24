@@ -73,7 +73,7 @@
 #endif
 #include <windows.h>
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
 #include <wrl/client.h>
 #include <agile.h>
 #endif
@@ -81,7 +81,7 @@
 typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
 typedef struct {
     Platform::Agile<Windows::UI::Core::CoreWindow> window;
 #if defined(WINAPI_PARTITION_PHONE)

@@ -65,7 +65,7 @@ GLuint Query11::getResult()
     {
         while (!testQuery())
         {
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(PLATFORM_WINRT)
             Sleep(0);
 #endif
             // explicitly check for device loss, some drivers seem to return S_FALSE

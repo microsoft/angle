@@ -84,7 +84,7 @@ void Fence11::finishFence()
 
     while (!testFence())
     {
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(PLATFORM_WINRT)
         Sleep(0);
 #endif
     }

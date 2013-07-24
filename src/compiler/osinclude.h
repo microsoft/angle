@@ -29,10 +29,10 @@
 #define VC_EXTRALEAN 1
 #include <windows.h>
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
 #include "common/winrt/ThreadEmulation.h"
 using namespace ThreadEmulation;
-#endif  // WINAPI_FAMILY_ONE_PARTITION( WINAPI_FAMILY, WINAPI_FAMILY_APP )
+#endif  // #if defined(PLATFORM_WINRT)
 #elif defined(ANGLE_OS_POSIX)
 #include <pthread.h>
 #include <semaphore.h>
@@ -61,7 +61,7 @@ inline void* OS_GetTLSValue(OS_TLSIndex nIndex)
 {
     ASSERT(nIndex != OS_INVALID_TLS_INDEX);
 #if defined(ANGLE_OS_WIN)
-	return ThreadEmulation::TlsGetValue(nIndex);
+	return TlsGetValue(nIndex);
 #elif defined(ANGLE_OS_POSIX)
     return pthread_getspecific(nIndex);
 #endif  // ANGLE_OS_WIN

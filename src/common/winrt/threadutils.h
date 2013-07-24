@@ -74,7 +74,7 @@ inline void* LocalAlloc(UINT uFlags, size_t size)
 }
 
 
-#elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_PARTITION_APP)
 
 namespace ThreadUtilsWinRT
 {

@@ -18,7 +18,7 @@
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
 #endif
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_PARTITION_APP)
 
 #if !defined(WINAPI_PARTITION_PHONE)
 #include <windows.ui.xaml.media.dxinterop.h>
@@ -481,9 +481,9 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
     if (getWindowHandle())
     {
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(PLATFORM_WINRT)
 		// We cannot create a swap #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-		for an HWND that is owned by a different process
+		// for an HWND that is owned by a different process
         DWORD currentProcessId = GetCurrentProcessId();
         DWORD wndProcessId;
         GetWindowThreadProcessId(mWindow, &wndProcessId);
@@ -531,7 +531,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.BufferCount = 1;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // On phone, no swap effects are supported.
 
-#elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_PARTITION_APP)
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
 		swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
 #else
@@ -541,7 +541,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.Flags = 0;
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_PARTITION_APP)
         HRESULT result = S_OK;
         if(mWindow.panel)
         {
@@ -835,7 +835,7 @@ void SwapChain11::recreate()
     // possibly should use this method instead of reset
 }
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_PARTITION_APP)
 CoreWindow ^SwapChain11::getWindowHandle()
 {
     return mWindow.window.Get();

@@ -714,7 +714,7 @@ bool IsTriangleMode(GLenum drawMode)
 
 std::string getTempPath()
 {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
     //since windows store apps are sandboxed the temp path will be the same directory as the app for now
     Windows::ApplicationModel::Package^ package = Windows::ApplicationModel::Package::Current;
     std::wstring t = std::wstring(package->InstalledLocation->Path->Data());

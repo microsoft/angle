@@ -85,7 +85,7 @@ inline unsigned int unorm(float x)
 
 inline bool supportsSSE2()
 {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
     return false;
 #else
     static bool checked = false;

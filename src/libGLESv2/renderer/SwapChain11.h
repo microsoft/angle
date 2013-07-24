@@ -48,7 +48,7 @@ class SwapChain11 : public SwapChain
     void initPassThroughResources();
     void releaseOffscreenTexture();
     EGLint resetOffscreenTexture(int backbufferWidth, int backbufferHeight);
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
     Windows::UI::Core::CoreWindow ^getWindowHandle();
 #else
     HWND getWindowHandle();

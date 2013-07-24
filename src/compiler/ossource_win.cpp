@@ -6,7 +6,7 @@
 
 #include "compiler/osinclude.h"
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
 using namespace ThreadEmulation;
 #endif
 

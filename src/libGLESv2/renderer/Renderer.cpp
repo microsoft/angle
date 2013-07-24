@@ -11,11 +11,13 @@
 #include "libGLESv2/main.h"
 #include "libGLESv2/Program.h"
 #include "libGLESv2/renderer/Renderer.h"
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-#include "libGLESv2/renderer/Renderer9.h"
-#endif
+
+#if defined(PLATFORM_WINRT)
 #include "libGLESv2/renderer/Renderer11.h"
 #include "libGLESv2/utilities.h"
+#else
+#include "libGLESv2/renderer/Renderer9.h"
+#endif
 
 #if !defined(ANGLE_ENABLE_D3D11)
 // Enables use of the Direct3D 11 API for a default display, when available
@@ -59,7 +61,7 @@ bool Renderer::initializeCompiler()
     }
 #else
     // Load the version of the D3DCompiler DLL associated with the Direct3D version ANGLE was built with.
-    #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
     mD3dCompilerModule = LoadPackagedLibrary((LPCWSTR)D3DCOMPILER_DLL, 0);
     #else
     mD3dCompilerModule = LoadLibrary(D3DCOMPILER_DLL);
@@ -155,7 +157,7 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
         }
         else
         {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
             if(result == E_OUTOFMEMORY)
 #else
             if (result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY)
@@ -213,7 +215,7 @@ rx::Renderer *glCreateRenderer(egl::Display *display, HDC hDc, EGLNativeDisplayT
         delete renderer;
     }
 
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(PLATFORM_WINRT)
     bool softwareDevice = (displayId == EGL_SOFTWARE_DISPLAY_ANGLE);
     renderer = new rx::Renderer9(display, hDc, softwareDevice);
 #endif

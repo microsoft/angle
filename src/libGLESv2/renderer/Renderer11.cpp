@@ -28,7 +28,7 @@
 #include "libGLESv2/renderer/Query11.h"
 #include "libGLESv2/renderer/Fence11.h"
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
+#if defined(PLATFORM_WINRT)
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgb11ps.h"
@@ -38,6 +38,7 @@
 #include "libGLESv2/renderer/shaders/compiled/winrt/clear11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/clearsingle11ps.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/clearmultiple11ps.h"
+using namespace Windows::UI::Core;
 #else
 #include "libGLESv2/renderer/shaders/compiled/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
@@ -52,9 +53,7 @@
 
 #include "libEGL/Display.h"
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-using namespace Windows::UI::Core;
-#endif
+
 
 #ifdef _DEBUG
 // this flag enables suppressing some spurious warnings that pop up in certain WebGL samples
@@ -153,7 +152,7 @@ EGLint Renderer11::initialize()
         return EGL_NOT_INITIALIZED;
     }
 
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(PLATFORM_WINRT)
 	mDxgiModule = LoadLibrary(TEXT("dxgi.dll"));
     mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
 
@@ -533,7 +532,7 @@ void Renderer11::sync(bool block)
             result = mDeviceContext->GetData(mSyncQuery, NULL, 0, D3D11_ASYNC_GETDATA_DONOTFLUSH);
 
             // Keep polling, but allow other threads to do something useful first
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(PLATFORM_WINRT)
 			Sleep(0);
 #endif
 

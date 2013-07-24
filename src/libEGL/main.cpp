@@ -10,14 +10,14 @@
 
 #include "common/debug.h"
 #include <cstdlib>
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
 #include "common/winrt/threadutils.h"
 using namespace ThreadUtilsWinRT;
 #endif
 
 static DWORD currentTLS = TLS_OUT_OF_INDEXES;
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
 [Platform::MTAThread]
 #endif
 extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
