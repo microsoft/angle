@@ -10,7 +10,7 @@
 #include "libGLESv2/renderer/SwapChain11.h"
 #include "libGLESv2/renderer/renderer11_utils.h"
 #include "libGLESv2/renderer/Renderer11.h"
-#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
+#if defined(PLATFORM_WINRT)
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
 #else
@@ -496,8 +496,11 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         }
 #endif
 
-        //IDXGIFactory *factory = mRenderer->getDxgiFactory();
+#if defined(PLATFORM_WINRT)
         IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
+#else
+        IDXGIFactory *factory = mRenderer->getDxgiFactory();
+#endif
 
         //DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
         //swapChainDesc.BufferCount = 2;

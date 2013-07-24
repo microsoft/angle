@@ -11,11 +11,10 @@
 #include "libGLESv2/main.h"
 #include "libGLESv2/Program.h"
 #include "libGLESv2/renderer/Renderer.h"
-
-#if defined(PLATFORM_WINRT)
 #include "libGLESv2/renderer/Renderer11.h"
 #include "libGLESv2/utilities.h"
-#else
+
+#if !efined(PLATFORM_WINRT)
 #include "libGLESv2/renderer/Renderer9.h"
 #endif
 

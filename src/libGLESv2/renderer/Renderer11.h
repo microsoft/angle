@@ -184,8 +184,11 @@ class Renderer11 : public Renderer
     // D3D11-renderer specific methods
     ID3D11Device *getDevice() { return mDevice; }
     ID3D11DeviceContext *getDeviceContext() { return mDeviceContext; };
-    //IDXGIFactory *getDxgiFactory() { return mDxgiFactory; };
-    IDXGIFactory2 *getDxgiFactory() { return mDxgiFactory; };
+#if defined(PLATFORM_WINRT)
+	IDXGIFactory2 *getDxgiFactory() { return mDxgiFactory; };
+#else
+	IDXGIFactory *getDxgiFactory() { return mDxgiFactory; };
+#endif
     D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; }
 
     bool getRenderTargetResource(gl::Renderbuffer *colorbuffer, unsigned int *subresourceIndex, ID3D11Texture2D **resource);
@@ -351,9 +354,11 @@ class Renderer11 : public Renderer
     IDXGIAdapter *mDxgiAdapter;
     DXGI_ADAPTER_DESC mAdapterDescription;
     char mDescription[128];
-    //IDXGIFactory *mDxgiFactory;
+#if defined(PLATFORM_WINRT)
     IDXGIFactory2 *mDxgiFactory;
-
+#else
+    IDXGIFactory *mDxgiFactory;
+#endif
     // Cached device caps
     bool mBGRATextureSupport;
 };
