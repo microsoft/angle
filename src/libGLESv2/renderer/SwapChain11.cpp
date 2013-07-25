@@ -18,9 +18,9 @@
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
 #endif
 
-#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
 
-#if !defined(WINAPI_PARTITION_PHONE)
+#if !defined(PLATFORM_WP8)
 #include <windows.ui.xaml.media.dxinterop.h>
 using namespace Windows::UI::Xaml::Controls;
 #endif
@@ -439,6 +439,7 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
 EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swapInterval)
 {
     ID3D11Device *device = mRenderer->getDevice();
+	HRESULT result = S_OK;
 
     if (device == NULL)
     {
@@ -519,7 +520,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.Windowed = TRUE;
 
-        HRESULT result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
+       result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
 #else
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
         swapChainDesc.Width = backbufferWidth;
@@ -531,12 +532,12 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount = 2;
 
-#if defined(WINAPI_PARTITION_PHONE)
+#if defined(PLATFORM_WP8)
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.BufferCount = 1;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // On phone, no swap effects are supported.
 
-#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_PARTITION_APP)
+#elif defined(PLATFORM_WINRT)
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
 		swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
 #else
@@ -546,11 +547,10 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.Flags = 0;
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
 
-#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_PARTITION_APP)
-        HRESULT result = S_OK;
+#if defined(PLATFORM_WINRT)
         if(mWindow.panel)
         {
-#if !defined(WINAPI_PARTITION_PHONE)
+#if !defined(PLATFORM_WP8)
 			result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
             if SUCCEEDED(result)
             {
@@ -841,7 +841,7 @@ void SwapChain11::recreate()
     // possibly should use this method instead of reset
 }
 
-#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_PARTITION_APP)
+#if defined(PLATFORM_WINRT)
 CoreWindow ^SwapChain11::getWindowHandle()
 {
     return mWindow.window.Get();

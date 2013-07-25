@@ -84,7 +84,7 @@ typedef HBITMAP EGLNativePixmapType;
 #if defined(PLATFORM_WINRT)
 typedef struct {
     Platform::Agile<Windows::UI::Core::CoreWindow> window;
-#if defined(WINAPI_PARTITION_PHONE)
+#if defined(PLATFORM_WP8)
 	void* panel;
 #else
     Windows::UI::Xaml::Controls::SwapChainBackgroundPanel^ panel;

@@ -1162,7 +1162,7 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
         return false;
     }
 
-#if WINAPI_FAMILY_PARTITION( WINAPI_FAMILY_APP )
+#if defined(PLATFORM_WINRT)
     bool isWinRT = true;
 #else
     bool isWinRT = false;
