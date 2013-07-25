@@ -45,5 +45,6 @@
     <None Include="Asteroids_TemporaryKey.pfx" />
     <None Include="dlls\Win32\D3Dcompiler_46.dll" />
     <None Include="dlls\ARM\D3Dcompiler_46.dll" />
+    <None Include="dlls\Win32\d3dcompiler_47.dll" />
   </ItemGroup>
 </Project>
