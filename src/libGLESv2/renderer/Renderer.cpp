@@ -14,7 +14,7 @@
 #include "libGLESv2/renderer/Renderer11.h"
 #include "libGLESv2/utilities.h"
 
-#if !efined(PLATFORM_WINRT)
+#if !defined(PLATFORM_WINRT)
 #include "libGLESv2/renderer/Renderer9.h"
 #endif
 

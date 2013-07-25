@@ -36,7 +36,7 @@ void *BufferStorage9::getData()
     return mMemory;
 }
 
-void BufferStorage9::setData(const void* data, unsigned int size, unsigned int offset)
+void BufferStorage9::setData(const void* data, unsigned int size, unsigned int offset, GLenum bindingPoint)
 {
     if (!mMemory || offset + size > mAllocatedSize)
     {

@@ -502,23 +502,25 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         IDXGIFactory *factory = mRenderer->getDxgiFactory();
 #endif
 
-        //DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
-        //swapChainDesc.BufferCount = 2;
-        //swapChainDesc.BufferDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
-        //swapChainDesc.BufferDesc.Width = backbufferWidth;
-        //swapChainDesc.BufferDesc.Height = backbufferHeight;
-        //swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-        //swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-        //swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-        //swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-        //swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        //swapChainDesc.Flags = 0;
-        //swapChainDesc.OutputWindow = mWindow;
-        //swapChainDesc.SampleDesc.Count = 1;
-        //swapChainDesc.SampleDesc.Quality = 0;
-        //swapChainDesc.Windowed = TRUE;
+#if !defined(PLATFORM_WINRT)
+        DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
+        swapChainDesc.BufferCount = 2;
+        swapChainDesc.BufferDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
+        swapChainDesc.BufferDesc.Width = backbufferWidth;
+        swapChainDesc.BufferDesc.Height = backbufferHeight;
+        swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+        swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+        swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
+        swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc.Flags = 0;
+        swapChainDesc.OutputWindow = mWindow;
+        swapChainDesc.SampleDesc.Count = 1;
+        swapChainDesc.SampleDesc.Quality = 0;
+        swapChainDesc.Windowed = TRUE;
 
-        //HRESULT result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
+        HRESULT result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
+#else
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
         swapChainDesc.Width = backbufferWidth;
         swapChainDesc.Height = backbufferHeight;
@@ -566,6 +568,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
         HRESULT result = factory->CreateSwapChainForHwnd(device, mWindow, &swapChainDesc, nullptr, nullptr, &mSwapChain);
 #endif
+#endif // if !defined(PLATFORM_WINRT)
 
         if (FAILED(result))
         {
