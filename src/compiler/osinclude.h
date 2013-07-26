@@ -29,10 +29,10 @@
 #define VC_EXTRALEAN 1
 #include <windows.h>
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrt/ThreadEmulation.h"
 using namespace ThreadEmulation;
-#endif  // #if defined(PLATFORM_WINRT)
+#endif  // #if defined(ANGLE_PLATFORM_WINRT)
 #elif defined(ANGLE_OS_POSIX)
 #include <pthread.h>
 #include <semaphore.h>

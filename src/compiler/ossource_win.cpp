@@ -6,7 +6,7 @@
 
 #include "compiler/osinclude.h"
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 using namespace ThreadEmulation;
 #endif
 

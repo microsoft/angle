@@ -32,7 +32,7 @@
 #include <unordered_map>
 #include <vector>
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include <D3D11_1.h>
 #else
 #include <d3d9.h>
@@ -41,9 +41,8 @@
 
 #include <dxgi.h>
 
-#if !defined(_PHONE_SDK_8_0)
 #include <D3Dcompiler.h>
-#endif
+
 
 #ifdef _MSC_VER
 #include <hash_map>

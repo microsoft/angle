@@ -85,7 +85,7 @@ inline unsigned int unorm(float x)
 
 inline bool supportsSSE2()
 {
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     return false;
 #else
     static bool checked = false;

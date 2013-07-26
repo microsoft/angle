@@ -28,7 +28,7 @@
 #include "libGLESv2/renderer/Query11.h"
 #include "libGLESv2/renderer/Fence11.h"
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgb11ps.h"
@@ -152,7 +152,7 @@ EGLint Renderer11::initialize()
         return EGL_NOT_INITIALIZED;
     }
 
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
 	mDxgiModule = LoadLibrary(TEXT("dxgi.dll"));
     mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
 
@@ -247,7 +247,7 @@ EGLint Renderer11::initialize()
     memset(mDescription, 0, sizeof(mDescription));
     wcstombs(mDescription, mAdapterDescription.Description, sizeof(mDescription) - 1);
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     result = mDxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&mDxgiFactory);
 #else
     result = mDxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&mDxgiFactory);
@@ -535,7 +535,7 @@ void Renderer11::sync(bool block)
             result = mDeviceContext->GetData(mSyncQuery, NULL, 0, D3D11_ASYNC_GETDATA_DONOTFLUSH);
 
             // Keep polling, but allow other threads to do something useful first
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
 			Sleep(0);
 #endif
 
@@ -2908,11 +2908,7 @@ ShaderExecutable *Renderer11::loadExecutable(const void *function, size_t length
 
 ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const char *shaderHLSL, rx::ShaderType type)
 {
-#if defined(_PHONE_SDK_8_0)
-	return NULL;
-#else
-
-    const char *profile = NULL;
+	const char *profile = NULL;
 
     switch (type)
     {
@@ -2976,7 +2972,6 @@ ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const ch
     binary->Release();
 
     return executable;
-#endif
 }
 
 VertexBuffer *Renderer11::createVertexBuffer()

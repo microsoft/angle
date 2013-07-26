@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
       <Configuration>Debug</Configuration>
@@ -26,48 +26,69 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="esShader_winrt.cpp" />
+    <ClCompile Include="esShapes_winrt.cpp" />
+    <ClCompile Include="esTransform_winrt.cpp" />
+    <ClCompile Include="esUtil_winrt.cpp" />
+    <ClCompile Include="Win32\esUtil_win32_winrt.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="esUtil.h" />
+    <ClInclude Include="esUtil_win.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\libEGL\libEGL_winrt_2013.vcxproj">
+      <Project>{cd5990d7-2d62-490e-8436-ccd388893139}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\libGLESv2\libGLESv2_winrt_2013.vcxproj">
+      <Project>{5c1b40b9-6262-44a0-97a6-a8b9f032e6e0}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{e7b1d854-ad49-4662-8326-24579123f471}</ProjectGuid>
+    <ProjectGuid>{44eedad2-d9ad-45dc-83b0-e5f50bd4377b}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>preprocessor_winrt</ProjectName>
-    <RootNamespace>preprocessor_winrt</RootNamespace>
+    <ProjectName>esUtil_winrt</ProjectName>
+    <RootNamespace>esUtil_winrt</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
-    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>
+    <ApplicationType>Windows Store</ApplicationType>
+    <ApplicationTypeRevision>8.1</ApplicationTypeRevision>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -92,37 +113,38 @@
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <GenerateManifest>false</GenerateManifest>
-    <TargetName>preprocessor</TargetName>
+    <TargetName>esUtil</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <GenerateManifest>false</GenerateManifest>
-    <TargetName>preprocessor</TargetName>
+    <TargetName>esUtil</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <GenerateManifest>false</GenerateManifest>
-    <TargetName>preprocessor</TargetName>
+    <TargetName>esUtil</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <GenerateManifest>false</GenerateManifest>
-    <TargetName>preprocessor</TargetName>
+    <TargetName>esUtil</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>false</GenerateManifest>
-    <TargetName>preprocessor</TargetName>
+    <TargetName>esUtil</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateManifest>false</GenerateManifest>
-    <TargetName>preprocessor</TargetName>
+    <TargetName>esUtil</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <CompileAsWinRT>false</CompileAsWinRT>
+      <CompileAsWinRT>true</CompileAsWinRT>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
-      <PreprocessorDefinitions>_UNICODE;UNICODE;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;ANGLE_PLATFORM_WINRT;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4451</DisableSpecificWarnings>
+      <PreprocessorDefinitions>ANGLE_PLATFORM_WINRT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,12 +155,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <CompileAsWinRT>false</CompileAsWinRT>
+      <CompileAsWinRT>true</CompileAsWinRT>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
-      <PreprocessorDefinitions>_UNICODE;UNICODE;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;ANGLE_PLATFORM_WINRT;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4451</DisableSpecificWarnings>
+      <PreprocessorDefinitions>ANGLE_PLATFORM_WINRT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,12 +172,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|arm'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <CompileAsWinRT>false</CompileAsWinRT>
+      <CompileAsWinRT>true</CompileAsWinRT>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
-      <PreprocessorDefinitions>_UNICODE;UNICODE;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;ANGLE_PLATFORM_WINRT;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4451</DisableSpecificWarnings>
+      <PreprocessorDefinitions>ANGLE_PLATFORM_WINRT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -165,12 +189,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|arm'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <CompileAsWinRT>false</CompileAsWinRT>
+      <CompileAsWinRT>true</CompileAsWinRT>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
-      <PreprocessorDefinitions>_UNICODE;UNICODE;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;ANGLE_PLATFORM_WINRT;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4451</DisableSpecificWarnings>
+      <PreprocessorDefinitions>ANGLE_PLATFORM_WINRT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -181,12 +206,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <CompileAsWinRT>false</CompileAsWinRT>
+      <CompileAsWinRT>true</CompileAsWinRT>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
-      <PreprocessorDefinitions>_UNICODE;UNICODE;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;ANGLE_PLATFORM_WINRT;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4451</DisableSpecificWarnings>
+      <PreprocessorDefinitions>ANGLE_PLATFORM_WINRT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -197,12 +223,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <CompileAsWinRT>false</CompileAsWinRT>
+      <CompileAsWinRT>true</CompileAsWinRT>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../../include;$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
-      <PreprocessorDefinitions>_UNICODE;UNICODE;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;ANGLE_PLATFORM_WINRT;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4451</DisableSpecificWarnings>
+      <PreprocessorDefinitions>ANGLE_PLATFORM_WINRT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -210,39 +237,6 @@
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="DiagnosticsBase.cpp" />
-    <ClCompile Include="DirectiveHandlerBase.cpp" />
-    <ClCompile Include="DirectiveParser.cpp" />
-    <ClCompile Include="ExpressionParser.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="Lexer.cpp" />
-    <ClCompile Include="Macro.cpp" />
-    <ClCompile Include="MacroExpander.cpp" />
-    <ClCompile Include="Preprocessor.cpp" />
-    <ClCompile Include="Token.cpp" />
-    <ClCompile Include="Tokenizer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="length_limits.h" />
-    <ClInclude Include="DiagnosticsBase.h" />
-    <ClInclude Include="DirectiveHandlerBase.h" />
-    <ClInclude Include="DirectiveParser.h" />
-    <ClInclude Include="ExpressionParser.h" />
-    <ClInclude Include="Input.h" />
-    <ClInclude Include="Lexer.h" />
-    <ClInclude Include="Macro.h" />
-    <ClInclude Include="MacroExpander.h" />
-    <ClInclude Include="numeric_lex.h" />
-    <ClInclude Include="pp_utils.h" />
-    <ClInclude Include="Preprocessor.h" />
-    <ClInclude Include="SourceLocation.h" />
-    <ClInclude Include="Token.h" />
-    <ClInclude Include="Tokenizer.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Tokenizer.l" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -292,6 +292,8 @@
     <ClCompile Include="..\common\RefCountObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp" />
+    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

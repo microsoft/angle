@@ -14,13 +14,17 @@
 #include "libGLESv2/renderer/Renderer11.h"
 #include "libGLESv2/utilities.h"
 
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
 #include "libGLESv2/renderer/Renderer9.h"
 #endif
 
 #if !defined(ANGLE_ENABLE_D3D11)
 // Enables use of the Direct3D 11 API for a default display, when available
 #define ANGLE_ENABLE_D3D11 1
+#endif
+
+#if defined(ANGLE_PLATFORM_WP8)
+#pragma comment(lib,"d3dcompiler.lib")
 #endif
 
 namespace rx
@@ -43,9 +47,12 @@ Renderer::~Renderer()
 
 bool Renderer::initializeCompiler()
 {
-#if defined(_PHONE_SDK_8_0)
+
+#if defined(ANGLE_PLATFORM_WP8)
+	mD3dCompilerModule = nullptr;
+    mD3DCompileFunc = reinterpret_cast<pCompileFunc>(D3DCompile);
 	return true;
-#else
+#endif
 
 #if defined(ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES)
     // Find a D3DCompiler module that had already been loaded based on a predefined list of versions.
@@ -60,7 +67,7 @@ bool Renderer::initializeCompiler()
     }
 #else
     // Load the version of the D3DCompiler DLL associated with the Direct3D version ANGLE was built with.
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     mD3dCompilerModule = LoadPackagedLibrary((LPCWSTR)D3DCOMPILER_DLL, 0);
     #else
     mD3dCompilerModule = LoadLibrary(D3DCOMPILER_DLL);
@@ -77,14 +84,11 @@ bool Renderer::initializeCompiler()
     ASSERT(mD3DCompileFunc);
 
     return mD3DCompileFunc != NULL;
-#endif
 }
 
 // Compiles HLSL code into executable binaries
 ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, const char *profile, UINT optimizationFlags, bool alternateFlags)
 {
-#if !defined(_PHONE_SDK_8_0)
-
     if (!hlsl)
     {
         return NULL;
@@ -156,7 +160,7 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
         }
         else
         {
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
             if(result == E_OUTOFMEMORY)
 #else
             if (result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY)
@@ -176,7 +180,6 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
             }
         }
     }
-#endif
     return NULL;
 }
 
@@ -214,7 +217,7 @@ rx::Renderer *glCreateRenderer(egl::Display *display, HDC hDc, EGLNativeDisplayT
         delete renderer;
     }
 
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
     bool softwareDevice = (displayId == EGL_SOFTWARE_DISPLAY_ANGLE);
     renderer = new rx::Renderer9(display, hDc, softwareDevice);
 #endif

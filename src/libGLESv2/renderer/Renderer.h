@@ -20,7 +20,7 @@
 const int versionWindowsVista = MAKEWORD(0x00, 0x06);
 const int versionWindows7 = MAKEWORD(0x01, 0x06);
 
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
 // Return the version of the operating system in a format suitable for ordering
 // comparison.
 inline int getComparableOSVersion()
@@ -109,7 +109,7 @@ class Renderer
 
     virtual void sync(bool block) = 0;
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     virtual SwapChain *createSwapChain(EGLNativeWindowType window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;
 #else
     virtual SwapChain *createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;

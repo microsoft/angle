@@ -11,7 +11,7 @@
 
 #include <windows.h>
 
-#if defined(WINAPI_PARTITION_PHONE)
+#if defined(ANGLE_PLATFORM_WP8)
 //#include <processthreadsapi.h>
 
 namespace ThreadUtilsWinRT
@@ -74,7 +74,7 @@ inline void* LocalAlloc(UINT uFlags, size_t size)
 }
 
 
-#elif defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_PARTITION_APP)
+#elif defined(ANGLE_PLATFORM_WINRT)
 
 namespace ThreadUtilsWinRT
 {

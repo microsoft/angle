@@ -65,7 +65,7 @@ GLuint Query11::getResult()
     {
         while (!testQuery())
         {
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
             Sleep(0);
 #endif
             // explicitly check for device loss, some drivers seem to return S_FALSE

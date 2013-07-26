@@ -460,7 +460,7 @@ bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
 {
     for (SurfaceSet::iterator surface = mSurfaceSet.begin(); surface != mSurfaceSet.end(); surface++)
     {
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
         if ((*surface)->getWindowHandle() == window.window.Get())
 #else
         if ((*surface)->getWindowHandle() == window)
@@ -475,7 +475,7 @@ bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
 
 void Display::initExtensionString()
 {
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     //todo: figure out what swiftshader_d3d9.dll is for
     bool swiftShader = false;
 #else

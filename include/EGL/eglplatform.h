@@ -73,7 +73,7 @@
 #endif
 #include <windows.h>
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include <wrl/client.h>
 #include <agile.h>
 #endif
@@ -81,10 +81,10 @@
 typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 typedef struct {
     Platform::Agile<Windows::UI::Core::CoreWindow> window;
-#if defined(WINAPI_PARTITION_PHONE)
+#if defined(ANGLE_PLATFORM_WP8)
 	void* panel;
 #else
     Windows::UI::Xaml::Controls::SwapChainBackgroundPanel^ panel;
