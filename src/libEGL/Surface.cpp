@@ -19,7 +19,7 @@
 
 #include "libEGL/main.h"
 #include "libEGL/Display.h"
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include <wrl/client.h>
 using namespace Windows::UI::Core;
 #endif
@@ -45,7 +45,7 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
     mWidth = -1;
     mHeight = -1;
     setSwapInterval(1);
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     mWinRTSelf = ref new PrivateWinRTSurface(this);
 #endif
 
@@ -55,7 +55,7 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
 Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType)
     : mDisplay(display), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
 {
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     mWindow.window = nullptr;
     mWindow.panel = nullptr;
 #else
@@ -110,7 +110,7 @@ bool Surface::resetSwapChain()
 
     if (getWindowHandle())
     {
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
         CoreWindow ^window = getWindowHandle();
         width = static_cast<int>(convertDipsToPixels(window->Bounds.Width));
         height = static_cast<int>(convertDipsToPixels(window->Bounds.Height));
@@ -239,7 +239,7 @@ bool Surface::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     return true;
 }
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 
 // Method to convert a length in device-independent pixels (DIPs) to a length in physical pixels.
 float Surface::convertDipsToPixels(float dips)
@@ -277,7 +277,7 @@ HWND Surface::getWindowHandle()
 #define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
 #define kParentWndProc _TEXT("Egl::SurfaceParentWndProc")
 
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
 static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
   if (message == WM_SIZE)
@@ -300,7 +300,7 @@ void Surface::subclassWindow()
         return;
     }
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     //todo: figure out how to get process and thread id for the window, although it's probably not necessary
     //if this dll won't be run from a different process or thread hopefully
     mWindow.window->SizeChanged += ref new Windows::Foundation::TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(mWinRTSelf, &PrivateWinRTSurface::onWindowSizeChanged);
@@ -333,7 +333,7 @@ void Surface::unsubclassWindow()
         return;
     }
 
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
 
 	// un-subclass
     LONG_PTR parentWndFunc = reinterpret_cast<LONG_PTR>(GetProp(mWindow, kParentWndProc));
@@ -357,7 +357,7 @@ void Surface::unsubclassWindow()
 
 bool Surface::checkForOutOfDateSwapChain()
 {
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     int clientWidth = static_cast<int>(mWindow.window->Bounds.Width);
     int clientHeight = static_cast<int>(mWindow.window->Bounds.Height);
 #else

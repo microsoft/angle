@@ -11,14 +11,14 @@
 
 
 #include "libGLESv2/Context.h"
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrt/threadutils.h"
 using namespace ThreadUtilsWinRT;
 #endif
 
 static DWORD currentTLS = TLS_OUT_OF_INDEXES;
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 [Platform::MTAThread]
 #endif
 extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)

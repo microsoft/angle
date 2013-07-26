@@ -9,7 +9,7 @@
 #include "common/debug.h"
 #include "common/system.h"
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 typedef DWORD D3DCOLOR;
 #else
 #include <d3d9.h>
@@ -65,7 +65,7 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
 {
     va_list vararg;
     va_start(vararg, format);
-#if defined(ANGLE_DISABLE_PERF) || defined(PLATFORM_WINRT)
+#if defined(ANGLE_DISABLE_PERF) || defined(ANGLE_PLATFORM_WINRT)
     output(traceFileDebugOnly, NULL, format, vararg);
 #else
     output(traceFileDebugOnly, D3DPERF_SetMarker, format, vararg);
@@ -75,7 +75,7 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
 
 bool perfActive()
 {
-#if defined(ANGLE_DISABLE_PERF) || defined(PLATFORM_WINRT)
+#if defined(ANGLE_DISABLE_PERF) || defined(ANGLE_PLATFORM_WINRT)
 	return false;
 #else
     static bool active = D3DPERF_GetStatus() != 0;
@@ -85,7 +85,7 @@ bool perfActive()
 
 ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
 {
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 	return;
 #elif !defined(ANGLE_DISABLE_PERF)
 
@@ -104,7 +104,7 @@ ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
 
 ScopedPerfEventHelper::~ScopedPerfEventHelper()
 {
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 	return;
 #elif !defined(ANGLE_DISABLE_PERF)
 

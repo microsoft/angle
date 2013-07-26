@@ -1162,7 +1162,7 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
         return false;
     }
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     bool isWinRT = true;
 #else
     bool isWinRT = false;

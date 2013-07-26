@@ -84,7 +84,7 @@ void Fence11::finishFence()
 
     while (!testFence())
     {
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
         Sleep(0);
 #endif
     }

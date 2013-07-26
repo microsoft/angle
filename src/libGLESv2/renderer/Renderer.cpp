@@ -14,7 +14,7 @@
 #include "libGLESv2/renderer/Renderer11.h"
 #include "libGLESv2/utilities.h"
 
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
 #include "libGLESv2/renderer/Renderer9.h"
 #endif
 
@@ -60,7 +60,7 @@ bool Renderer::initializeCompiler()
     }
 #else
     // Load the version of the D3DCompiler DLL associated with the Direct3D version ANGLE was built with.
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     mD3dCompilerModule = LoadPackagedLibrary((LPCWSTR)D3DCOMPILER_DLL, 0);
     #else
     mD3dCompilerModule = LoadLibrary(D3DCOMPILER_DLL);
@@ -156,7 +156,7 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
         }
         else
         {
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
             if(result == E_OUTOFMEMORY)
 #else
             if (result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY)
@@ -214,7 +214,7 @@ rx::Renderer *glCreateRenderer(egl::Display *display, HDC hDc, EGLNativeDisplayT
         delete renderer;
     }
 
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
     bool softwareDevice = (displayId == EGL_SOFTWARE_DISPLAY_ANGLE);
     renderer = new rx::Renderer9(display, hDc, softwareDevice);
 #endif

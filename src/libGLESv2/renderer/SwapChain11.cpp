@@ -10,7 +10,7 @@
 #include "libGLESv2/renderer/SwapChain11.h"
 #include "libGLESv2/renderer/renderer11_utils.h"
 #include "libGLESv2/renderer/Renderer11.h"
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
 #else
@@ -18,9 +18,9 @@
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
 #endif
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 
-#if !defined(PLATFORM_WP8)
+#if !defined(ANGLE_PLATFORM_WP8)
 #include <windows.ui.xaml.media.dxinterop.h>
 using namespace Windows::UI::Xaml::Controls;
 #endif
@@ -482,7 +482,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
     if (getWindowHandle())
     {
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
 		// We cannot create a swap #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 		// for an HWND that is owned by a different process
         DWORD currentProcessId = GetCurrentProcessId();
@@ -497,13 +497,13 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         }
 #endif
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
         IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
 #else
         IDXGIFactory *factory = mRenderer->getDxgiFactory();
 #endif
 
-#if !defined(PLATFORM_WINRT)
+#if !defined(ANGLE_PLATFORM_WINRT)
         DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
         swapChainDesc.BufferCount = 2;
         swapChainDesc.BufferDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
@@ -532,12 +532,12 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount = 2;
 
-#if defined(PLATFORM_WP8)
+#if defined(ANGLE_PLATFORM_WP8)
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.BufferCount = 1;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // On phone, no swap effects are supported.
 
-#elif defined(PLATFORM_WINRT)
+#elif defined(ANGLE_PLATFORM_WINRT)
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
 		swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
 #else
@@ -547,10 +547,10 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.Flags = 0;
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
         if(mWindow.panel)
         {
-#if !defined(PLATFORM_WP8)
+#if !defined(ANGLE_PLATFORM_WP8)
 			result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
             if SUCCEEDED(result)
             {
@@ -568,7 +568,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
         HRESULT result = factory->CreateSwapChainForHwnd(device, mWindow, &swapChainDesc, nullptr, nullptr, &mSwapChain);
 #endif
-#endif // if !defined(PLATFORM_WINRT)
+#endif // if !defined(ANGLE_PLATFORM_WINRT)
 
         if (FAILED(result))
         {
@@ -841,7 +841,7 @@ void SwapChain11::recreate()
     // possibly should use this method instead of reset
 }
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 CoreWindow ^SwapChain11::getWindowHandle()
 {
     return mWindow.window.Get();

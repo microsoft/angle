@@ -11,7 +11,7 @@
 
 #include <windows.h>
 
-#if defined(PLATFORM_WP8)
+#if defined(ANGLE_ANGLE_PLATFORM_WP8)
 //#include <processthreadsapi.h>
 
 namespace ThreadUtilsWinRT
@@ -74,7 +74,7 @@ inline void* LocalAlloc(UINT uFlags, size_t size)
 }
 
 
-#elif defined(PLATFORM_WINRT)
+#elif defined(ANGLE_PLATFORM_WINRT)
 
 namespace ThreadUtilsWinRT
 {

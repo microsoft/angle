@@ -17,7 +17,7 @@
 #include "libGLESv2/renderer/RenderStateCache.h"
 #include "libGLESv2/renderer/InputLayoutCache.h"
 #include "libGLESv2/renderer/RenderTarget.h"
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include <wrl/client.h>
 #include <d3d11_1.h>
 #endif
@@ -56,7 +56,7 @@ class Renderer11 : public Renderer
 
     virtual void sync(bool block);
 
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     virtual SwapChain *createSwapChain(EGLNativeWindowType window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
 #else
     virtual SwapChain *createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
@@ -184,7 +184,7 @@ class Renderer11 : public Renderer
     // D3D11-renderer specific methods
     ID3D11Device *getDevice() { return mDevice; }
     ID3D11DeviceContext *getDeviceContext() { return mDeviceContext; };
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 	IDXGIFactory2 *getDxgiFactory() { return mDxgiFactory; };
 #else
 	IDXGIFactory *getDxgiFactory() { return mDxgiFactory; };
@@ -354,7 +354,7 @@ class Renderer11 : public Renderer
     IDXGIAdapter *mDxgiAdapter;
     DXGI_ADAPTER_DESC mAdapterDescription;
     char mDescription[128];
-#if defined(PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
     IDXGIFactory2 *mDxgiFactory;
 #else
     IDXGIFactory *mDxgiFactory;
