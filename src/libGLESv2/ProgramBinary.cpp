@@ -1618,8 +1618,6 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
 
 bool ProgramBinary::load(InfoLog &infoLog, const void *binary, GLsizei length)
 {
-#if !defined(_PHONE_SDK_8_0)
-
     BinaryInputStream stream(binary, length);
 
     int format = 0;
@@ -1788,13 +1786,11 @@ bool ProgramBinary::load(InfoLog &infoLog, const void *binary, GLsizei length)
     {
         mGeometryExecutable = NULL;
     }
-#endif
     return true;
 }
 
 bool ProgramBinary::save(void* binary, GLsizei bufSize, GLsizei *length)
 {
-#if !defined(_PHONE_SDK_8_0)
 
     BinaryOutputStream stream;
 
@@ -1902,7 +1898,6 @@ bool ProgramBinary::save(void* binary, GLsizei bufSize, GLsizei *length)
     {
         *length = totalLength;
     }
-#endif
     return true;
 }
 
