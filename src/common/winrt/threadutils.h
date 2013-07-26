@@ -11,7 +11,7 @@
 
 #include <windows.h>
 
-#if defined(ANGLE_ANGLE_PLATFORM_WP8)
+#if defined(ANGLE_PLATFORM_WP8)
 //#include <processthreadsapi.h>
 
 namespace ThreadUtilsWinRT
