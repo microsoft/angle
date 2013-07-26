@@ -94,6 +94,7 @@ private:
     void DrawBullets(void);
     void DrawRocket(void);
     void DrawLasers(void);
+    void CreateFBO(void);
     
     ////////////////////////////////////////////////////////////////////////////
     //game stuff

@@ -217,36 +217,7 @@ void Asteroids::SetWindow(CoreWindow^ window)
     m_aPositionBloom = glGetAttribLocation(m_bloomProgram, "a_position");
 
     //setup the FBO
-    glGenFramebuffers(8, m_offscreenFBO);
-    glGenTextures(8, m_offscreenTex);
-    for(int i = 0; i < 4; ++i)
-    {
-        int width = RENDER_TARGET_WIDTH >> i;
-        int height = RENDER_TARGET_HEIGHT >> i;
-        glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
-        glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_offscreenTex[i], 0);
-        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            throw FBOIncompleteException();
-
-        glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i + 4]);
-        glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i + 4]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_offscreenTex[i + 4], 0);
-        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            throw FBOIncompleteException();
-    }
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    CreateFBO();
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -322,36 +293,7 @@ void Asteroids::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventAr
         glDeleteTextures(8, m_offscreenTex);
 
         //setup the FBO
-        glGenFramebuffers(8, m_offscreenFBO);
-        glGenTextures(8, m_offscreenTex);
-        for(int i = 0; i < 4; ++i)
-        {
-            int width = (swapDimensions) ? RENDER_TARGET_HEIGHT >> i : RENDER_TARGET_WIDTH >> i;
-            int height = (swapDimensions) ? RENDER_TARGET_WIDTH >> i : RENDER_TARGET_HEIGHT >> i;
-            glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
-            glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_offscreenTex[i], 0);
-            if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-                throw FBOIncompleteException();
-
-            glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i + 4]);
-            glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i + 4]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_offscreenTex[i + 4], 0);
-            if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-                throw FBOIncompleteException();
-        }
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        CreateFBO();
     }
 }
 
@@ -1188,6 +1130,44 @@ void Asteroids::DrawLasers(void)
         FillVertexBuffer(m_vertexBuffer, glm::vec3(upperLeft, 0), glm::vec4(0, 1, 1, alpha));
         FillVertexBuffer(m_vertexBuffer, glm::vec3(lowerLeft, 0), glm::vec4(0, 1, 1, alpha));
     }
+}
+
+void Asteroids::CreateFBO(void)
+{
+    bool swapDimensions =
+        m_orientation == DisplayOrientations::Portrait ||
+        m_orientation == DisplayOrientations::PortraitFlipped;
+
+    glGenFramebuffers(8, m_offscreenFBO);
+    glGenTextures(8, m_offscreenTex);
+    for(int i = 0; i < 4; ++i)
+    {
+        int width = (swapDimensions) ? RENDER_TARGET_HEIGHT >> i : RENDER_TARGET_WIDTH >> i;
+        int height = (swapDimensions) ? RENDER_TARGET_WIDTH >> i : RENDER_TARGET_HEIGHT >> i;
+        glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i]);
+        glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_offscreenTex[i], 0);
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            throw FBOIncompleteException();
+
+        glBindFramebuffer(GL_FRAMEBUFFER, m_offscreenFBO[i + 4]);
+        glBindTexture(GL_TEXTURE_2D, m_offscreenTex[i + 4]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_offscreenTex[i + 4], 0);
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            throw FBOIncompleteException();
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 IFrameworkView^ Direct3DApplicationSource::CreateView()
