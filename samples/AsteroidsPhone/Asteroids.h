@@ -42,6 +42,7 @@ protected:
 	void OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
     void OnKeyDown(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
     void OnKeyUp(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::KeyEventArgs^ args);
+    float ConvertDipsToPixels(float dips);
 
 private:
     ////////////////////////////////////////////////////////////////////////////
@@ -149,6 +150,9 @@ private:
     ////////////////////////////////////////////////////////////////////////////
     //windows store stuff
 	//CubeRenderer^ m_renderer;
+	Windows::Foundation::Rect m_windowBounds;
+	Windows::Foundation::Size m_renderTargetSize;
+	Windows::Graphics::Display::DisplayOrientations m_orientation;
 	bool m_windowClosed;
 	bool m_windowVisible;
 };

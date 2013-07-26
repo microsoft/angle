@@ -23,6 +23,10 @@
 #define ANGLE_ENABLE_D3D11 1
 #endif
 
+#if defined(ANGLE_PLATFORM_WP8)
+#pragma comment(lib,"d3dcompiler.lib")
+#endif
+
 namespace rx
 {
 
@@ -43,9 +47,12 @@ Renderer::~Renderer()
 
 bool Renderer::initializeCompiler()
 {
-#if defined(_PHONE_SDK_8_0)
+
+#if defined(ANGLE_PLATFORM_WP8)
+	mD3dCompilerModule = nullptr;
+    mD3DCompileFunc = reinterpret_cast<pCompileFunc>(D3DCompile);
 	return true;
-#else
+#endif
 
 #if defined(ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES)
     // Find a D3DCompiler module that had already been loaded based on a predefined list of versions.
@@ -77,14 +84,11 @@ bool Renderer::initializeCompiler()
     ASSERT(mD3DCompileFunc);
 
     return mD3DCompileFunc != NULL;
-#endif
 }
 
 // Compiles HLSL code into executable binaries
 ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, const char *profile, UINT optimizationFlags, bool alternateFlags)
 {
-#if !defined(_PHONE_SDK_8_0)
-
     if (!hlsl)
     {
         return NULL;
@@ -176,7 +180,6 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
             }
         }
     }
-#endif
     return NULL;
 }
 
