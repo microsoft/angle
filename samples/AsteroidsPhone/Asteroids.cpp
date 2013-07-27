@@ -44,7 +44,7 @@ Asteroids::Asteroids() :
     m_weapon(Weapon::Regular),
     m_asteroidRespawnTime(10),
     m_windowClosed(false),
-    m_windowVisible(true)
+    m_windowVisible(false)
 {
 }
 
