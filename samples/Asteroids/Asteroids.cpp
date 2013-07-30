@@ -917,7 +917,7 @@ void Asteroids::Draw()
     glDisableVertexAttribArray(m_aPositionBlur);
     glEnable(GL_BLEND);
 
-    glViewport(0, 0, static_cast<int>(window->Bounds.Width), static_cast<int>(window->Bounds.Height));
+    glViewport(0, 0, static_cast<int>(ConvertDipsToPixels(window->Bounds.Width)), static_cast<int>(ConvertDipsToPixels(window->Bounds.Height)));
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(m_bloomProgram);
