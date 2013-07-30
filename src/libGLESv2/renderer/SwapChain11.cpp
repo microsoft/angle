@@ -402,7 +402,9 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
 
     // Resize swap chain
     DXGI_FORMAT backbufferDXGIFormat = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
-    HRESULT result = mSwapChain->ResizeBuffers(2, backbufferWidth, backbufferHeight, backbufferDXGIFormat, 0);
+	HRESULT result = S_OK;
+
+    result = mSwapChain->ResizeBuffers(2, backbufferWidth, backbufferHeight, backbufferDXGIFormat, 0);
 
     if (FAILED(result))
     {
@@ -497,73 +499,70 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         }
 #endif
 
-#if defined(ANGLE_PLATFORM_WINRT)
-        IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
-#else
-        IDXGIFactory *factory = mRenderer->getDxgiFactory();
-#endif
 
 #if !defined(ANGLE_PLATFORM_WINRT)
-        DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
-        swapChainDesc.BufferCount = 2;
-        swapChainDesc.BufferDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
-        swapChainDesc.BufferDesc.Width = backbufferWidth;
-        swapChainDesc.BufferDesc.Height = backbufferHeight;
-        swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-        swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-        swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-        swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.Flags = 0;
-        swapChainDesc.OutputWindow = mWindow;
-        swapChainDesc.SampleDesc.Count = 1;
-        swapChainDesc.SampleDesc.Quality = 0;
-        swapChainDesc.Windowed = TRUE;
+        IDXGIFactory *factory = mRenderer->getDxgiFactory();
+		DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
+		swapChainDesc.BufferCount = 2;
+		swapChainDesc.BufferDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
+		swapChainDesc.BufferDesc.Width = backbufferWidth;
+		swapChainDesc.BufferDesc.Height = backbufferHeight;
+		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
+		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.Flags = 0;
+		swapChainDesc.OutputWindow = mWindow;
+		swapChainDesc.SampleDesc.Count = 1;
+		swapChainDesc.SampleDesc.Quality = 0;
+		swapChainDesc.Windowed = TRUE;
+		result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
 
-       result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
-#else
-        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
-        swapChainDesc.Width = backbufferWidth;
-        swapChainDesc.Height = backbufferHeight;
-        swapChainDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
-        swapChainDesc.Stereo = FALSE;
-        swapChainDesc.SampleDesc.Count = 1;
-        swapChainDesc.SampleDesc.Quality = 0;
-        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = 2;
+#elif defined(ANGLE_PLATFORM_WP8)
+		IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+		swapChainDesc.Width = backbufferWidth; // Match the size of the window.
+		swapChainDesc.Height = backbufferHeight;
+		swapChainDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
+		swapChainDesc.Stereo = false;
+		swapChainDesc.SampleDesc.Count = 1; // Don't use multi-sampling.
+		swapChainDesc.SampleDesc.Quality = 0;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.BufferCount = 1; // On phone, only single buffering is supported.
+		swapChainDesc.Scaling = DXGI_SCALING_STRETCH; // On phone, only stretch and aspect-ratio stretch scaling are allowed.
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // On phone, no swap effects are supported.
+		swapChainDesc.Flags = 0;
+		result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window.Get())), &swapChainDesc, nullptr, &mSwapChain);  
 
-#if defined(ANGLE_PLATFORM_WINRT)
+#elif defined(ANGLE_PLATFORM_WINRT)
+        IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+		swapChainDesc.Width = backbufferWidth;
+		swapChainDesc.Height = backbufferHeight;
+		swapChainDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
+		swapChainDesc.Stereo = FALSE;
+		swapChainDesc.SampleDesc.Count = 1;
+		swapChainDesc.SampleDesc.Quality = 0;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.BufferCount = 2;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
 		swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
-#else
-        swapChainDesc.Scaling = DXGI_SCALING_NONE;
-#endif
-        swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        swapChainDesc.Flags = 0;
-        swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;           // This is the most common swapchain format.
-
-#if defined(ANGLE_PLATFORM_WINRT)
-        if(mWindow.panel)
-        {
-#if !defined(ANGLE_PLATFORM_WP8)
+		if(mWindow.panel)
+		{
 			result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
-            if SUCCEEDED(result)
-            {
-                ComPtr<ISwapChainBackgroundPanelNative> panelNative;
-                reinterpret_cast<IUnknown*>(mWindow.panel)->QueryInterface(IID_PPV_ARGS(&panelNative));
-                panelNative->SetSwapChain(mSwapChain);
-            }
+			if SUCCEEDED(result)
+			{
+				ComPtr<ISwapChainBackgroundPanelNative> panelNative;
+				reinterpret_cast<IUnknown*>(mWindow.panel)->QueryInterface(IID_PPV_ARGS(&panelNative));
+				panelNative->SetSwapChain(mSwapChain);
+			}
+		}
+		else
+		{
+			result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window.Get())), &swapChainDesc, nullptr, &mSwapChain);
+		}
 #endif
-        }
-        else
-        {
-            result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window.Get())), &swapChainDesc, nullptr, &mSwapChain);
-        }
-#else
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
-        HRESULT result = factory->CreateSwapChainForHwnd(device, mWindow, &swapChainDesc, nullptr, nullptr, &mSwapChain);
-#endif
-#endif // if !defined(ANGLE_PLATFORM_WINRT)
 
         if (FAILED(result))
         {
