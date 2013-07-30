@@ -45,7 +45,7 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
     mWidth = -1;
     mHeight = -1;
     setSwapInterval(1);
-#if defined(ANGLE_PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WP8)
     mWinRTSelf = ref new PrivateWinRTSurface(this);
 #endif
 
@@ -303,7 +303,7 @@ void Surface::subclassWindow()
 #if defined(ANGLE_PLATFORM_WINRT)
     //todo: figure out how to get process and thread id for the window, although it's probably not necessary
     //if this dll won't be run from a different process or thread hopefully
-    mWindow.window->SizeChanged += ref new Windows::Foundation::TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(mWinRTSelf, &PrivateWinRTSurface::onWindowSizeChanged);
+    //mWindow.window->SizeChanged += ref new Windows::Foundation::TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(mWinRTSelf, &PrivateWinRTSurface::onWindowSizeChanged);
 #else
     DWORD processId;
     DWORD threadId = GetWindowThreadProcessId(mWindow, &processId);
@@ -358,8 +358,8 @@ void Surface::unsubclassWindow()
 bool Surface::checkForOutOfDateSwapChain()
 {
 #if defined(ANGLE_PLATFORM_WINRT)
-    int clientWidth = static_cast<int>(mWindow.window->Bounds.Width);
-    int clientHeight = static_cast<int>(mWindow.window->Bounds.Height);
+	int clientWidth = static_cast<int>(convertDipsToPixels(mWindow.window->Bounds.Width));
+    int clientHeight = static_cast<int>(convertDipsToPixels(mWindow.window->Bounds.Height));
 #else
     RECT client;
     if (!GetClientRect(getWindowHandle(), &client))
