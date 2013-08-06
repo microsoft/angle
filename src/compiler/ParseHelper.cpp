@@ -535,7 +535,7 @@ bool TParseContext::constructorErrorCheck(const TSourceLoc& line, TIntermNode* n
         return true;
     }
     
-    if (op == EOpConstructStruct && !type->isArray() && int(type->getStruct()->size()) != function.getParamCount()) {
+    if (op == EOpConstructStruct && !type->isArray() && int(type->getStruct()->fields().size()) != function.getParamCount()) {
         error(line, "Number of constructor parameters does not match the number of structure fields", "constructor");
         return true;
     }
@@ -658,9 +658,9 @@ bool TParseContext::containsSampler(TType& type)
         return true;
 
     if (type.getBasicType() == EbtStruct) {
-        TTypeList& structure = *type.getStruct();
-        for (unsigned int i = 0; i < structure.size(); ++i) {
-            if (containsSampler(*structure[i]))
+        const TFieldList& fields = type.getStruct()->fields();
+        for (unsigned int i = 0; i < fields.size(); ++i) {
+            if (containsSampler(*fields[i]->type()))
                 return true;
         }
     }
@@ -892,6 +892,19 @@ bool TParseContext::supportsExtension(const char* extension)
     return (iter != extbehavior.end());
 }
 
+bool TParseContext::isExtensionEnabled(const char* extension) const
+{
+    const TExtensionBehavior& extbehavior = extensionBehavior();
+    TExtensionBehavior::const_iterator iter = extbehavior.find(extension);
+
+    if (iter == extbehavior.end())
+    {
+        return false;
+    }
+
+    return (iter->second == EBhEnable || iter->second == EBhRequire);
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 //
 // Non-Errors.
@@ -907,8 +920,9 @@ const TFunction* TParseContext::findFunction(const TSourceLoc& line, TFunction* 
 {
     // First find by unmangled name to check whether the function name has been
     // hidden by a variable name or struct typename.
+    // If a function is found, check for one with a matching argument list.
     const TSymbol* symbol = symbolTable.find(call->getName(), builtIn);
-    if (symbol == 0) {
+    if (symbol == 0 || symbol->isFunction()) {
         symbol = symbolTable.find(call->getMangledName(), builtIn);
     }
 
@@ -923,27 +937,6 @@ const TFunction* TParseContext::findFunction(const TSourceLoc& line, TFunction* 
     }
 
     return static_cast<const TFunction*>(symbol);
-}
-
-bool TParseContext::isVariableBuiltIn(const TVariable* var)
-{
-    bool builtIn = false;
-    // First find by unmangled name to check whether the function name has been
-    // hidden by a variable name or struct typename.
-    const TSymbol* symbol = symbolTable.find(var->getName(), &builtIn);
-    if (symbol == 0) {
-        symbol = symbolTable.find(var->getMangledName(), &builtIn);
-    }
-
-    if (symbol == 0) {
-        return false;
-    }
-
-    if (!symbol->isVariable()) {
-        return false;
-    }
-
-    return builtIn;
 }
 
 //
@@ -1063,9 +1056,9 @@ TIntermTyped* TParseContext::addConstructor(TIntermNode* node, const TType* type
 
     TIntermAggregate* aggrNode = node->getAsAggregate();
     
-    TTypeList::const_iterator memberTypes;
+    TFieldList::const_iterator memberFields;
     if (op == EOpConstructStruct)
-        memberTypes = type->getStruct()->begin();
+        memberFields = type->getStruct()->fields().begin();
     
     TType elementType = *type;
     if (type->isArray())
@@ -1087,7 +1080,7 @@ TIntermTyped* TParseContext::addConstructor(TIntermNode* node, const TType* type
         if (type->isArray())
             newNode = constructStruct(node, &elementType, 1, node->getLine(), false);
         else if (op == EOpConstructStruct)
-            newNode = constructStruct(node, *memberTypes, 1, node->getLine(), false);
+            newNode = constructStruct(node, (*memberFields)->type(), 1, node->getLine(), false);
         else
             newNode = constructBuiltIn(type, op, node, node->getLine(), false);
 
@@ -1118,7 +1111,7 @@ TIntermTyped* TParseContext::addConstructor(TIntermNode* node, const TType* type
         if (type->isArray())
             newNode = constructStruct(*p, &elementType, paramCount+1, node->getLine(), true);
         else if (op == EOpConstructStruct)
-            newNode = constructStruct(*p, memberTypes[paramCount], paramCount+1, node->getLine(), true);
+            newNode = constructStruct(*p, memberFields[paramCount]->type(), paramCount+1, node->getLine(), true);
         else
             newNode = constructBuiltIn(type, op, *p, node->getLine(), true);
         
@@ -1370,14 +1363,14 @@ TIntermTyped* TParseContext::addConstArrayNode(int index, TIntermTyped* node, co
 //
 TIntermTyped* TParseContext::addConstStruct(TString& identifier, TIntermTyped* node, const TSourceLoc& line)
 {
-    const TTypeList* fields = node->getType().getStruct();
+    const TFieldList& fields = node->getType().getStruct()->fields();
 
     size_t instanceSize = 0;
-    for (size_t index = 0; index < fields->size(); ++index) {
-        if ((*fields)[index]->getFieldName() == identifier) {
+    for (size_t index = 0; index < fields.size(); ++index) {
+        if (fields[index]->name() == identifier) {
             break;
         } else {
-            instanceSize += (*fields)[index]->getObjectSize();
+            instanceSize += fields[index]->type()->getObjectSize();
         }
     }
 
@@ -1423,21 +1416,21 @@ const int kWebGLMaxStructNesting = 4;
 
 }  // namespace
 
-bool TParseContext::structNestingErrorCheck(const TSourceLoc& line, const TType& fieldType)
+bool TParseContext::structNestingErrorCheck(const TSourceLoc& line, const TField& field)
 {
     if (!isWebGLBasedSpec(shaderSpec)) {
         return false;
     }
 
-    if (fieldType.getBasicType() != EbtStruct) {
+    if (field.type()->getBasicType() != EbtStruct) {
         return false;
     }
 
     // We're already inside a structure definition at this point, so add
     // one to the field's struct nesting.
-    if (1 + fieldType.getDeepestStructNesting() > kWebGLMaxStructNesting) {
+    if (1 + field.type()->getDeepestStructNesting() > kWebGLMaxStructNesting) {
         std::stringstream extraInfoStream;
-        extraInfoStream << "Reference of struct type " << fieldType.getTypeName() 
+        extraInfoStream << "Reference of struct type " << field.name()
                         << " exceeds maximum struct nesting of " << kWebGLMaxStructNesting;
         std::string extraInfo = extraInfoStream.str();
         error(line, "", "", extraInfo.c_str());
@@ -1445,6 +1438,140 @@ bool TParseContext::structNestingErrorCheck(const TSourceLoc& line, const TType&
     }
 
     return false;
+}
+
+//
+// Parse an array index expression
+//
+TIntermTyped* TParseContext::addIndexExpression(TIntermTyped *baseExpression, const TSourceLoc& location, TIntermTyped *indexExpression)
+{
+    TIntermTyped *indexedExpression = NULL;
+
+    if (!baseExpression->isArray() && !baseExpression->isMatrix() && !baseExpression->isVector())
+    {
+        if (baseExpression->getAsSymbolNode())
+        {
+            error(location, " left of '[' is not of type array, matrix, or vector ", baseExpression->getAsSymbolNode()->getSymbol().c_str());
+        }
+        else
+        {
+            error(location, " left of '[' is not of type array, matrix, or vector ", "expression");
+        }
+        recover();
+    }
+
+    if (indexExpression->getQualifier() == EvqConst)
+    {
+        int index = indexExpression->getAsConstantUnion()->getIConst(0);
+        if (index < 0)
+        {
+            std::stringstream infoStream;
+            infoStream << index;
+            std::string info = infoStream.str();
+            error(location, "negative index", info.c_str());
+            recover();
+            index = 0;
+        }
+        if (baseExpression->getType().getQualifier() == EvqConst)
+        {
+            if (baseExpression->isArray())
+            {
+                // constant folding for arrays
+                indexedExpression = addConstArrayNode(index, baseExpression, location);
+            }
+            else if (baseExpression->isVector())
+            {
+                // constant folding for vectors
+                TVectorFields fields;
+                fields.num = 1;
+                fields.offsets[0] = index; // need to do it this way because v.xy sends fields integer array
+                indexedExpression = addConstVectorNode(fields, baseExpression, location);
+            }
+            else if (baseExpression->isMatrix())
+            {
+                // constant folding for matrices
+                indexedExpression = addConstMatrixNode(index, baseExpression, location);
+            }
+        }
+        else
+        {
+            if (baseExpression->isArray())
+            {
+                if (index >= baseExpression->getType().getArraySize())
+                {
+                    std::stringstream extraInfoStream;
+                    extraInfoStream << "array index out of range '" << index << "'";
+                    std::string extraInfo = extraInfoStream.str();
+                    error(location, "", "[", extraInfo.c_str());
+                    recover();
+                    index = baseExpression->getType().getArraySize() - 1;
+                }
+                else if (baseExpression->getQualifier() == EvqFragData && index > 0 && !isExtensionEnabled("GL_EXT_draw_buffers"))
+                {
+                    error(location, "", "[", "array indexes for gl_FragData must be zero when GL_EXT_draw_buffers is disabled");
+                    recover();
+                    index = 0;
+                }
+            }
+            else if ((baseExpression->isVector() || baseExpression->isMatrix()) && baseExpression->getType().getNominalSize() <= index)
+            {
+                std::stringstream extraInfoStream;
+                extraInfoStream << "field selection out of range '" << index << "'";
+                std::string extraInfo = extraInfoStream.str();
+                error(location, "", "[", extraInfo.c_str());
+                recover();
+                index = baseExpression->getType().getNominalSize() - 1;
+            }
+
+            indexExpression->getAsConstantUnion()->getUnionArrayPointer()->setIConst(index);
+            indexedExpression = intermediate.addIndex(EOpIndexDirect, baseExpression, indexExpression, location);
+        }
+    }
+    else
+    {
+        indexedExpression = intermediate.addIndex(EOpIndexIndirect, baseExpression, indexExpression, location);
+    }
+
+    if (indexedExpression == 0)
+    {
+        ConstantUnion *unionArray = new ConstantUnion[1];
+        unionArray->setFConst(0.0f);
+        indexedExpression = intermediate.addConstantUnion(unionArray, TType(EbtFloat, EbpHigh, EvqConst), location);
+    }
+    else if (baseExpression->isArray())
+    {
+        const TType &baseType = baseExpression->getType();
+        if (baseType.getStruct())
+        {
+            TType copyOfType(baseType.getStruct());
+            indexedExpression->setType(copyOfType);
+        }
+        else
+        {
+            indexedExpression->setType(TType(baseExpression->getBasicType(), baseExpression->getPrecision(), EvqTemporary, baseExpression->getNominalSize(), baseExpression->isMatrix()));
+        }
+
+        if (baseExpression->getType().getQualifier() == EvqConst)
+        {
+            indexedExpression->getTypePointer()->setQualifier(EvqConst);
+        }
+    }
+    else if (baseExpression->isMatrix())
+    {
+        TQualifier qualifier = baseExpression->getType().getQualifier() == EvqConst ? EvqConst : EvqTemporary;
+        indexedExpression->setType(TType(baseExpression->getBasicType(), baseExpression->getPrecision(), qualifier, baseExpression->getNominalSize()));
+    }
+    else if (baseExpression->isVector())
+    {
+        TQualifier qualifier = baseExpression->getType().getQualifier() == EvqConst ? EvqConst : EvqTemporary;
+        indexedExpression->setType(TType(baseExpression->getBasicType(), baseExpression->getPrecision(), qualifier));
+    }
+    else
+    {
+        indexedExpression->setType(baseExpression->getType());
+    }
+
+    return indexedExpression;
 }
 
 //

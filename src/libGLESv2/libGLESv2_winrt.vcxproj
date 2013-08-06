@@ -306,6 +306,7 @@
     <ClCompile Include="renderer\IndexBuffer11.cpp" />
     <ClCompile Include="renderer\IndexDataManager.cpp" />
     <ClCompile Include="renderer\Image11.cpp" />
+    <ClCompile Include="renderer\IndexRangeCache.cpp" />
     <ClCompile Include="renderer\InputLayoutCache.cpp" />
     <ClCompile Include="renderer\Query11.cpp" />
     <ClCompile Include="renderer\Renderer.cpp" />

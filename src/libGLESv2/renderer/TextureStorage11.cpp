@@ -69,7 +69,9 @@ bool TextureStorage11::IsTextureFormatRenderable(DXGI_FORMAT format)
       case DXGI_FORMAT_R8G8B8A8_UNORM:
       case DXGI_FORMAT_A8_UNORM:
       case DXGI_FORMAT_R32G32B32A32_FLOAT:
+#if defined(ANGLE_PLATFORM_WINRT)
       case DXGI_FORMAT_R32G32B32_FLOAT:
+#endif
       case DXGI_FORMAT_R16G16B16A16_FLOAT:
       case DXGI_FORMAT_B8G8R8A8_UNORM:
       case DXGI_FORMAT_R8_UNORM:
@@ -80,6 +82,9 @@ bool TextureStorage11::IsTextureFormatRenderable(DXGI_FORMAT format)
       case DXGI_FORMAT_BC1_UNORM:
       case DXGI_FORMAT_BC2_UNORM: 
       case DXGI_FORMAT_BC3_UNORM:
+#if !defined(ANGLE_PLATFORM_WINRT)
+      case DXGI_FORMAT_R32G32B32_FLOAT:
+#endif
         return false;
       default:
         UNREACHABLE();
@@ -134,7 +139,7 @@ UINT TextureStorage11::getSubresourceIndex(int level, int faceIndex)
 
 bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsigned int sourceSubresource,
                                               int level, int face, GLint xoffset, GLint yoffset,
-                                              GLsizei width, GLsizei height, bool mipped)
+                                              GLsizei width, GLsizei height)
 {
     if (srcTexture)
     {
@@ -154,20 +159,6 @@ bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsig
         ID3D11DeviceContext *context = mRenderer->getDeviceContext();
         
         ASSERT(getBaseTexture());
-        if(!mipped)
-        {
-            D3D11_TEXTURE2D_DESC texDesc;
-            mTexture->GetDesc(&texDesc);
-            mTexture->Release();
-            texDesc.MipLevels = 1;
-            HRESULT result = mRenderer->getDevice()->CreateTexture2D(&texDesc, NULL, &mTexture);
-            ASSERT(SUCCEEDED(result));
-            if(mSRV)
-            {
-                mSRV->Release();
-                mSRV = NULL;
-            }
-        }
         context->CopySubresourceRegion(getBaseTexture(), getSubresourceIndex(level + mLodOffset, face),
                                        xoffset, yoffset, 0, srcTexture, sourceSubresource, &srcBox);
         return true;
@@ -200,15 +191,6 @@ void TextureStorage11::generateMipmapLayer(RenderTarget11 *source, RenderTarget1
             mRenderer->copyTexture(sourceSRV, sourceArea, source->getWidth(), source->getHeight(),
                                    destRTV, destArea, dest->getWidth(), dest->getHeight(),
                                    GL_RGBA);
-        }
-
-        if (sourceSRV)
-        {
-            sourceSRV->Release();
-        }
-        if (destRTV)
-        {
-            destRTV->Release();
         }
     }
 }

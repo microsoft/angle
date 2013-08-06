@@ -45,6 +45,7 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
     mWidth = -1;
     mHeight = -1;
     setSwapInterval(1);
+
     subclassWindow();
 }
 

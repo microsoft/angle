@@ -68,18 +68,6 @@ OutputHLSL::OutputHLSL(TParseContext &context, const ShBuiltInResources& resourc
     mUsesFaceforward2 = false;
     mUsesFaceforward3 = false;
     mUsesFaceforward4 = false;
-    mUsesEqualMat2 = false;
-    mUsesEqualMat3 = false;
-    mUsesEqualMat4 = false;
-    mUsesEqualVec2 = false;
-    mUsesEqualVec3 = false;
-    mUsesEqualVec4 = false;
-    mUsesEqualIVec2 = false;
-    mUsesEqualIVec3 = false;
-    mUsesEqualIVec4 = false;
-    mUsesEqualBVec2 = false;
-    mUsesEqualBVec3 = false;
-    mUsesEqualBVec4 = false;
     mUsesAtan2_1 = false;
     mUsesAtan2_2 = false;
     mUsesAtan2_3 = false;
@@ -996,108 +984,6 @@ void OutputHLSL::header()
                "\n";
     }
 
-    if (mUsesEqualMat2)
-    {
-        out << "bool equal(float2x2 m, float2x2 n)\n"
-               "{\n"
-               "    return m[0][0] == n[0][0] && m[0][1] == n[0][1] &&\n"
-               "           m[1][0] == n[1][0] && m[1][1] == n[1][1];\n"
-               "}\n";
-    }
-
-    if (mUsesEqualMat3)
-    {
-        out << "bool equal(float3x3 m, float3x3 n)\n"
-               "{\n"
-               "    return m[0][0] == n[0][0] && m[0][1] == n[0][1] && m[0][2] == n[0][2] &&\n"
-               "           m[1][0] == n[1][0] && m[1][1] == n[1][1] && m[1][2] == n[1][2] &&\n"
-               "           m[2][0] == n[2][0] && m[2][1] == n[2][1] && m[2][2] == n[2][2];\n"
-               "}\n";
-    }
-
-    if (mUsesEqualMat4)
-    {
-        out << "bool equal(float4x4 m, float4x4 n)\n"
-               "{\n"
-               "    return m[0][0] == n[0][0] && m[0][1] == n[0][1] && m[0][2] == n[0][2] && m[0][3] == n[0][3] &&\n"
-               "           m[1][0] == n[1][0] && m[1][1] == n[1][1] && m[1][2] == n[1][2] && m[1][3] == n[1][3] &&\n"
-               "           m[2][0] == n[2][0] && m[2][1] == n[2][1] && m[2][2] == n[2][2] && m[2][3] == n[2][3] &&\n"
-               "           m[3][0] == n[3][0] && m[3][1] == n[3][1] && m[3][2] == n[3][2] && m[3][3] == n[3][3];\n"
-               "}\n";
-    }
-
-    if (mUsesEqualVec2)
-    {
-        out << "bool equal(float2 v, float2 u)\n"
-               "{\n"
-               "    return v.x == u.x && v.y == u.y;\n"
-               "}\n";
-    }
-
-    if (mUsesEqualVec3)
-    {
-        out << "bool equal(float3 v, float3 u)\n"
-               "{\n"
-               "    return v.x == u.x && v.y == u.y && v.z == u.z;\n"
-               "}\n";
-    }
-
-    if (mUsesEqualVec4)
-    {
-        out << "bool equal(float4 v, float4 u)\n"
-               "{\n"
-               "    return v.x == u.x && v.y == u.y && v.z == u.z && v.w == u.w;\n"
-               "}\n";
-    }
-
-    if (mUsesEqualIVec2)
-    {
-        out << "bool equal(int2 v, int2 u)\n"
-               "{\n"
-               "    return v.x == u.x && v.y == u.y;\n"
-               "}\n";
-    }
-
-    if (mUsesEqualIVec3)
-    {
-        out << "bool equal(int3 v, int3 u)\n"
-               "{\n"
-               "    return v.x == u.x && v.y == u.y && v.z == u.z;\n"
-               "}\n";
-    }
-
-    if (mUsesEqualIVec4)
-    {
-        out << "bool equal(int4 v, int4 u)\n"
-               "{\n"
-               "    return v.x == u.x && v.y == u.y && v.z == u.z && v.w == u.w;\n"
-               "}\n";
-    }
-
-    if (mUsesEqualBVec2)
-    {
-        out << "bool equal(bool2 v, bool2 u)\n"
-               "{\n"
-               "    return v.x == u.x && v.y == u.y;\n"
-               "}\n";
-    }
-
-    if (mUsesEqualBVec3)
-    {
-        out << "bool equal(bool3 v, bool3 u)\n"
-               "{\n"
-               "    return v.x == u.x && v.y == u.y && v.z == u.z;\n"
-               "}\n";
-    }
-
-    if (mUsesEqualBVec4)
-    {
-        out << "bool equal(bool4 v, bool4 u)\n"
-               "{\n"
-               "    return v.x == u.x && v.y == u.y && v.z == u.z && v.w == u.w;\n"
-               "}\n";
-    }
-
     if (mUsesAtan2_1)
     {
         out << "float atanyx(float y, float x)\n"
@@ -1296,7 +1182,10 @@ bool OutputHLSL::visitBinary(Visit visit, TIntermBinary *node)
       case EOpIndexDirectStruct:
         if (visit == InVisit)
         {
-            out << "." + decorateField(node->getType().getFieldName(), node->getLeft()->getType());
+            const TStructure* structure = node->getLeft()->getType().getStruct();
+            const TIntermConstantUnion* index = node->getRight()->getAsConstantUnion();
+            const TField* field = structure->fields()[index->getIConst(0)];
+            out << "." + decorateField(field->name(), node->getLeft()->getType());
 
             return false;
         }
@@ -1365,18 +1254,18 @@ bool OutputHLSL::visitBinary(Visit visit, TIntermBinary *node)
                 out << "!(";
             }
 
-            const TTypeList *fields = node->getLeft()->getType().getStruct();
+            const TFieldList &fields = node->getLeft()->getType().getStruct()->fields();
 
-            for (size_t i = 0; i < fields->size(); i++)
+            for (size_t i = 0; i < fields.size(); i++)
             {
-                const TType *fieldType = (*fields)[i];
+                const TField *field = fields[i];
 
                 node->getLeft()->traverse(this);
-                out << "." + decorateField(fieldType->getFieldName(), node->getLeft()->getType()) + " == ";
+                out << "." + decorateField(field->name(), node->getLeft()->getType()) + " == ";
                 node->getRight()->traverse(this);
-                out << "." + decorateField(fieldType->getFieldName(), node->getLeft()->getType());
+                out << "." + decorateField(field->name(), node->getLeft()->getType());
 
-                if (i < fields->size() - 1)
+                if (i < fields.size() - 1)
                 {
                     out << " && ";
                 }
@@ -1388,59 +1277,15 @@ bool OutputHLSL::visitBinary(Visit visit, TIntermBinary *node)
         }
         else
         {
-            if (node->getLeft()->isMatrix())
-            {
-                switch (node->getLeft()->getNominalSize())
-                {
-                  case 2: mUsesEqualMat2 = true; break;
-                  case 3: mUsesEqualMat3 = true; break;
-                  case 4: mUsesEqualMat4 = true; break;
-                  default: UNREACHABLE();
-                }
-            }
-            else if (node->getLeft()->isVector())
-            {
-                switch (node->getLeft()->getBasicType())
-                {
-                  case EbtFloat:
-                    switch (node->getLeft()->getNominalSize())
-                    {
-                      case 2: mUsesEqualVec2 = true; break;
-                      case 3: mUsesEqualVec3 = true; break;
-                      case 4: mUsesEqualVec4 = true; break;
-                      default: UNREACHABLE();
-                    }
-                    break;
-                  case EbtInt:
-                    switch (node->getLeft()->getNominalSize())
-                    {
-                      case 2: mUsesEqualIVec2 = true; break;
-                      case 3: mUsesEqualIVec3 = true; break;
-                      case 4: mUsesEqualIVec4 = true; break;
-                      default: UNREACHABLE();
-                    }
-                    break;
-                  case EbtBool:
-                    switch (node->getLeft()->getNominalSize())
-                    {
-                      case 2: mUsesEqualBVec2 = true; break;
-                      case 3: mUsesEqualBVec3 = true; break;
-                      case 4: mUsesEqualBVec4 = true; break;
-                      default: UNREACHABLE();
-                    }
-                    break;
-                  default: UNREACHABLE();
-                }
-            }
-            else UNREACHABLE();
+            ASSERT(node->getLeft()->isMatrix() || node->getLeft()->isVector());
 
             if (node->getOp() == EOpEqual)
             {
-                outputTriplet(visit, "equal(", ", ", ")");
+                outputTriplet(visit, "all(", " == ", ")");
             }
             else
             {
-                outputTriplet(visit, "!equal(", ", ", ")");
+                outputTriplet(visit, "!all(", " == ", ")");
             }
         }
         break;
@@ -1626,7 +1471,7 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
             {
                 if (variable->getType().getStruct())
                 {
-                    addConstructor(variable->getType(), scopedStruct(variable->getType().getTypeName()), NULL);
+                    addConstructor(variable->getType(), scopedStruct(variable->getType().getStruct()->name()), NULL);
                 }
 
                 if (!variable->getAsSymbolNode() || variable->getAsSymbolNode()->getSymbol() != "")   // Variable declaration
@@ -1753,7 +1598,7 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
                 {
                     if (symbol->getType().getStruct())
                     {
-                        addConstructor(symbol->getType(), scopedStruct(symbol->getType().getTypeName()), NULL);
+                        addConstructor(symbol->getType(), scopedStruct(symbol->getType().getStruct()->name()), NULL);
                     }
 
                     out << argumentString(symbol);
@@ -2014,8 +1859,8 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
         outputTriplet(visit, "mat4(", ", ", ")");
         break;
       case EOpConstructStruct:
-        addConstructor(node->getType(), scopedStruct(node->getType().getTypeName()), &node->getSequence());
-        outputTriplet(visit, structLookup(node->getType().getTypeName()) + "_ctor(", ", ", ")");
+        addConstructor(node->getType(), scopedStruct(node->getType().getStruct()->name()), &node->getSequence());
+        outputTriplet(visit, structLookup(node->getType().getStruct()->name()) + "_ctor(", ", ", ")");
         break;
       case EOpLessThan:         outputTriplet(visit, "(", " < ", ")");                 break;
       case EOpGreaterThan:      outputTriplet(visit, "(", " > ", ")");                 break;
@@ -2586,22 +2431,23 @@ TString OutputHLSL::typeString(const TType &type)
 {
     if (type.getBasicType() == EbtStruct)
     {
-        if (type.getTypeName() != "")
+        const TString& typeName = type.getStruct()->name();
+        if (typeName != "")
         {
-            return structLookup(type.getTypeName());
+            return structLookup(typeName);
         }
         else   // Nameless structure, define in place
         {
-            const TTypeList &fields = *type.getStruct();
+            const TFieldList &fields = type.getStruct()->fields();
 
             TString string = "struct\n"
                              "{\n";
 
             for (unsigned int i = 0; i < fields.size(); i++)
             {
-                const TType &field = *fields[i];
+                const TField *field = fields[i];
 
-                string += "    " + typeString(field) + " " + decorate(field.getFieldName()) + arrayString(field) + ";\n";
+                string += "    " + typeString(*field->type()) + " " + decorate(field->name()) + arrayString(*field->type()) + ";\n";
             }
 
             string += "} ";
@@ -2739,13 +2585,13 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
         structure += "struct " + decorate(name) + "\n"
                      "{\n";
 
-        const TTypeList &fields = *type.getStruct();
+        const TFieldList &fields = type.getStruct()->fields();
 
         for (unsigned int i = 0; i < fields.size(); i++)
         {
-            const TType &field = *fields[i];
+            const TField *field = fields[i];
 
-            structure += "    " + typeString(field) + " " + decorateField(field.getFieldName(), type) + arrayString(field) + ";\n";
+            structure += "    " + typeString(*field->type()) + " " + decorateField(field->name(), type) + arrayString(*field->type()) + ";\n";
         }
 
         structure += "};\n";
@@ -2757,7 +2603,7 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
 
         for (unsigned int i = 0; i < fields.size(); i++)
         {
-            ctorParameters.push_back(*fields[i]);
+            ctorParameters.push_back(*fields[i]->type());
         }
     }
     else if (parameters)
@@ -2930,17 +2776,17 @@ const ConstantUnion *OutputHLSL::writeConstantUnion(const TType &type, const Con
 
     if (type.getBasicType() == EbtStruct)
     {
-        out << structLookup(type.getTypeName()) + "_ctor(";
+        out << structLookup(type.getStruct()->name()) + "_ctor(";
         
-        const TTypeList *structure = type.getStruct();
+        const TFieldList &fields = type.getStruct()->fields();
 
-        for (size_t i = 0; i < structure->size(); i++)
+        for (size_t i = 0; i < fields.size(); i++)
         {
-            const TType *fieldType = (*structure)[i];
+            const TType *fieldType = fields[i]->type();
 
             constUnion = writeConstantUnion(*fieldType, constUnion);
 
-            if (i != structure->size() - 1)
+            if (i != fields.size() - 1)
             {
                 out << ", ";
             }
@@ -3047,7 +2893,7 @@ TString OutputHLSL::decorateUniform(const TString &string, const TType &type)
 
 TString OutputHLSL::decorateField(const TString &string, const TType &structure)
 {
-    if (structure.getTypeName().compare(0, 3, "gl_") != 0)
+    if (structure.getStruct()->name().compare(0, 3, "gl_") != 0)
     {
         return decorate(string);
     }
@@ -3095,7 +2941,7 @@ int OutputHLSL::uniformRegister(TIntermSymbol *uniform)
 
 void OutputHLSL::declareUniform(const TType &type, const TString &name, int index)
 {
-    const TTypeList *structure = type.getStruct();
+    TStructure *structure = type.getStruct();
 
     if (!structure)
     {
@@ -3103,18 +2949,18 @@ void OutputHLSL::declareUniform(const TType &type, const TString &name, int inde
     }
     else
     {
+        const TFieldList &fields = structure->fields();
+
         if (type.isArray())
         {
             int elementIndex = index;
 
             for (int i = 0; i < type.getArraySize(); i++)
             {
-                for (size_t j = 0; j < structure->size(); j++)
+                for (size_t j = 0; j < fields.size(); j++)
                 {
-                    const TType &fieldType = *(*structure)[j];
-                    const TString &fieldName = fieldType.getFieldName();
-
-                    const TString uniformName = name + "[" + str(i) + "]." + fieldName;
+                    const TType &fieldType = *fields[j]->type();
+                    const TString uniformName = name + "[" + str(i) + "]." + fields[j]->name();
                     declareUniform(fieldType, uniformName, elementIndex);
                     elementIndex += fieldType.totalRegisterCount();
                 }
@@ -3124,12 +2970,10 @@ void OutputHLSL::declareUniform(const TType &type, const TString &name, int inde
         {
             int fieldIndex = index;
 
-            for (size_t i = 0; i < structure->size(); i++)
+            for (size_t i = 0; i < fields.size(); i++)
             {
-                const TType &fieldType = *(*structure)[i];
-                const TString &fieldName = fieldType.getFieldName();
-
-                const TString uniformName = name + "." + fieldName;
+                const TType &fieldType = *fields[i]->type();
+                const TString uniformName = name + "." + fields[i]->name();
                 declareUniform(fieldType, uniformName, fieldIndex);
                 fieldIndex += fieldType.totalRegisterCount();
             }

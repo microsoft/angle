@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2002-2012 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2002-2013 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -101,11 +101,11 @@ struct TParseContext {
     const TPragma& pragma() const { return directiveHandler.pragma(); }
     const TExtensionBehavior& extensionBehavior() const { return directiveHandler.extensionBehavior(); }
     bool supportsExtension(const char* extension);
+    bool isExtensionEnabled(const char* extension) const;
 
     bool containsSampler(TType& type);
     bool areAllChildConst(TIntermAggregate* aggrNode);
     const TFunction* findFunction(const TSourceLoc& line, TFunction* pfnCall, bool *builtIn = 0);
-    bool isVariableBuiltIn(const TVariable* pVar);
     bool executeInitializer(const TSourceLoc& line, TString& identifier, TPublicType& pType,
                             TIntermTyped* initializer, TIntermNode*& intermNode, TVariable* variable = 0);
 
@@ -117,6 +117,7 @@ struct TParseContext {
     TIntermTyped* addConstMatrixNode(int , TIntermTyped*, const TSourceLoc&);
     TIntermTyped* addConstArrayNode(int index, TIntermTyped* node, const TSourceLoc& line);
     TIntermTyped* addConstStruct(TString& , TIntermTyped*, const TSourceLoc&);
+    TIntermTyped* addIndexExpression(TIntermTyped *baseExpression, const TSourceLoc& location, TIntermTyped *indexExpression);
 
     // Performs an error check for embedded struct declarations.
     // Returns true if an error was raised due to the declaration of
@@ -124,7 +125,7 @@ struct TParseContext {
     bool enterStructDeclaration(const TSourceLoc& line, const TString& identifier);
     void exitStructDeclaration();
 
-    bool structNestingErrorCheck(const TSourceLoc& line, const TType& fieldType);
+    bool structNestingErrorCheck(const TSourceLoc& line, const TField& field);
 };
 
 int PaParseStrings(size_t count, const char* const string[], const int length[],

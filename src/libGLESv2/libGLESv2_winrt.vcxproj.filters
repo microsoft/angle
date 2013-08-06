@@ -173,6 +173,9 @@
     <ClCompile Include="..\common\winrt\ThreadEmulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\IndexRangeCache.cpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinaryStream.h">

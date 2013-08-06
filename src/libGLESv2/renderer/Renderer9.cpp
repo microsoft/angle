@@ -1454,7 +1454,7 @@ void Renderer9::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, 
         indices = static_cast<const GLubyte*>(storage->getData()) + offset;
     }
 
-    UINT startIndex = 0;
+    unsigned int startIndex = 0;
 
     if (get32BitIndexSupport())
     {
@@ -1471,7 +1471,16 @@ void Renderer9::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, 
             }
         }
 
-        const int spaceNeeded = (count + 1) * sizeof(unsigned int);
+        if (static_cast<unsigned int>(count) + 1 > (std::numeric_limits<unsigned int>::max() / sizeof(unsigned int)))
+        {
+            ERR("Could not create a 32-bit looping index buffer for GL_LINE_LOOP, too many indices required.");
+            return gl::error(GL_OUT_OF_MEMORY);
+        }
+
+        // Checked by Renderer9::applyPrimitiveType
+        ASSERT(count >= 0);
+
+        const unsigned int spaceNeeded = (static_cast<unsigned int>(count) + 1) * sizeof(unsigned int);
         if (!mLineLoopIB->reserveBufferSpace(spaceNeeded, GL_UNSIGNED_INT))
         {
             ERR("Could not reserve enough space in looping index buffer for GL_LINE_LOOP.");
@@ -1479,14 +1488,14 @@ void Renderer9::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, 
         }
 
         void* mappedMemory = NULL;
-        int offset = mLineLoopIB->mapBuffer(spaceNeeded, &mappedMemory);
-        if (offset == -1 || mappedMemory == NULL)
+        unsigned int offset = 0;
+        if (!mLineLoopIB->mapBuffer(spaceNeeded, &mappedMemory, &offset))
         {
             ERR("Could not map index buffer for GL_LINE_LOOP.");
             return gl::error(GL_OUT_OF_MEMORY);
         }
 
-        startIndex = static_cast<UINT>(offset) / 4;
+        startIndex = static_cast<unsigned int>(offset) / 4;
         unsigned int *data = reinterpret_cast<unsigned int*>(mappedMemory);
 
         switch (type)
@@ -1543,7 +1552,16 @@ void Renderer9::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, 
             }
         }
 
-        const int spaceNeeded = (count + 1) * sizeof(unsigned short);
+        // Checked by Renderer9::applyPrimitiveType
+        ASSERT(count >= 0);
+
+        if (static_cast<unsigned int>(count) + 1 > (std::numeric_limits<unsigned short>::max() / sizeof(unsigned short)))
+        {
+            ERR("Could not create a 16-bit looping index buffer for GL_LINE_LOOP, too many indices required.");
+            return gl::error(GL_OUT_OF_MEMORY);
+        }
+
+        const unsigned int spaceNeeded = (static_cast<unsigned int>(count) + 1) * sizeof(unsigned short);
         if (!mLineLoopIB->reserveBufferSpace(spaceNeeded, GL_UNSIGNED_SHORT))
         {
             ERR("Could not reserve enough space in looping index buffer for GL_LINE_LOOP.");
@@ -1551,14 +1569,14 @@ void Renderer9::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, 
         }
 
         void* mappedMemory = NULL;
-        int offset = mLineLoopIB->mapBuffer(spaceNeeded, &mappedMemory);
-        if (offset == -1 || mappedMemory == NULL)
+        unsigned int offset;
+        if (mLineLoopIB->mapBuffer(spaceNeeded, &mappedMemory, &offset))
         {
             ERR("Could not map index buffer for GL_LINE_LOOP.");
             return gl::error(GL_OUT_OF_MEMORY);
         }
 
-        startIndex = static_cast<UINT>(offset) / 2;
+        startIndex = static_cast<unsigned int>(offset) / 2;
         unsigned short *data = reinterpret_cast<unsigned short*>(mappedMemory);
 
         switch (type)

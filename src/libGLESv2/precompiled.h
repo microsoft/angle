@@ -40,9 +40,7 @@
 #endif // ANGLE_PLATFORM_WINRT
 
 #include <dxgi.h>
-
 #include <D3Dcompiler.h>
-
 
 #ifdef _MSC_VER
 #include <hash_map>

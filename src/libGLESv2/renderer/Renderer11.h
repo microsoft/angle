@@ -297,6 +297,9 @@ class Renderer11 : public Renderer
     float mCurNear;
     float mCurFar;
 
+    // Currently applied primitive topology
+    D3D11_PRIMITIVE_TOPOLOGY mCurrentPrimitiveTopology;
+
     unsigned int mAppliedIBSerial;
     unsigned int mAppliedStorageIBSerial;
     unsigned int mAppliedIBOffset;
@@ -307,10 +310,14 @@ class Renderer11 : public Renderer
     dx_VertexConstants mVertexConstants;
     dx_VertexConstants mAppliedVertexConstants;
     ID3D11Buffer *mDriverConstantBufferVS;
+    ID3D11Buffer *mCurrentVertexConstantBuffer;
 
     dx_PixelConstants mPixelConstants;
     dx_PixelConstants mAppliedPixelConstants;
     ID3D11Buffer *mDriverConstantBufferPS;
+    ID3D11Buffer *mCurrentPixelConstantBuffer;
+
+    ID3D11Buffer *mCurrentGeometryConstantBuffer;
 
     // Vertex, index and input layouts
     VertexDataManager *mVertexDataManager;

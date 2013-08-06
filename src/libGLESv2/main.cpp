@@ -9,7 +9,6 @@
 
 #include "libGLESv2/main.h"
 
-
 #include "libGLESv2/Context.h"
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrt/threadutils.h"

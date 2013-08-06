@@ -8,6 +8,7 @@
 // SwapChain11.cpp: Implements a back-end specific class for the D3D11 swap chain.
 
 #include "libGLESv2/renderer/SwapChain11.h"
+
 #include "libGLESv2/renderer/renderer11_utils.h"
 #include "libGLESv2/renderer/Renderer11.h"
 #if defined(ANGLE_PLATFORM_WINRT)
@@ -615,7 +616,7 @@ void SwapChain11::initPassThroughResources()
     if(device->GetFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
         samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
     else
-        samplerDesc.MaxLOD = 0.0f;
+        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
     result = device->CreateSamplerState(&samplerDesc, &mPassThroughSampler);
     ASSERT(SUCCEEDED(result));

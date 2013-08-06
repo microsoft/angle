@@ -36,7 +36,7 @@ void *BufferStorage9::getData()
     return mMemory;
 }
 
-void BufferStorage9::setData(const void* data, unsigned int size, unsigned int offset, GLenum bindingPoint)
+void BufferStorage9::setData(const void* data, unsigned int size, unsigned int offset)
 {
     if (!mMemory || offset + size > mAllocatedSize)
     {
@@ -54,7 +54,10 @@ void BufferStorage9::setData(const void* data, unsigned int size, unsigned int o
     }
 
     mSize = std::max(mSize, offset + size);
-    memcpy(reinterpret_cast<char*>(mMemory) + offset, data, size);
+    if (data)
+    {
+        memcpy(reinterpret_cast<char*>(mMemory) + offset, data, size);
+    }
 }
 
 void BufferStorage9::clear()

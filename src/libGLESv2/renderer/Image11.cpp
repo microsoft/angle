@@ -111,16 +111,16 @@ bool Image11::isDirty() const
     return (mStagingTexture && mDirty);
 }
 
-bool Image11::updateSurface(TextureStorageInterface2D *storage, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, bool mipped)
+bool Image11::updateSurface(TextureStorageInterface2D *storage, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height)
 {
     TextureStorage11_2D *storage11 = TextureStorage11_2D::makeTextureStorage11_2D(storage->getStorageInstance());
-    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, 0, xoffset, yoffset, width, height, mipped);
+    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, 0, xoffset, yoffset, width, height);
 }
 
 bool Image11::updateSurface(TextureStorageInterfaceCube *storage, int face, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height)
 {
     TextureStorage11_Cube *storage11 = TextureStorage11_Cube::makeTextureStorage11_Cube(storage->getStorageInstance());
-    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, face, xoffset, yoffset, width, height, true);
+    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, face, xoffset, yoffset, width, height);
 }
 
 bool Image11::redefine(Renderer *renderer, GLint internalformat, GLsizei width, GLsizei height, bool forceRelease)
@@ -161,8 +161,14 @@ DXGI_FORMAT Image11::getDXGIFormat() const
     // this should only happen if the image hasn't been redefined first
     // which would be a bug by the caller
     ASSERT(mDXGIFormat != DXGI_FORMAT_UNKNOWN);
-
-    return mDXGIFormat;
+    if(mRenderer->getFeatureLevel() < D3D_FEATURE_LEVEL_9_2 && mDXGIFormat == DXGI_FORMAT_A8_UNORM)
+    {
+        return DXGI_FORMAT_B8G8R8A8_UNORM;
+    }
+    else 
+    {
+        return mDXGIFormat;
+    }
 }
 
 // Store the pixel rectangle designated by xoffset,yoffset,width,height with pixels stored as format/type at input
@@ -197,7 +203,7 @@ void Image11::loadData(GLint xoffset, GLint yoffset, GLsizei width, GLsizei heig
         loadAlphaFloatDataToRGBA(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
         break;
       case GL_LUMINANCE32F_EXT:
-        loadLuminanceFloatDataToRGB(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
+        loadLuminanceFloatDataToRGBA(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
         break;
       case GL_ALPHA16F_EXT:
         loadAlphaHalfFloatDataToRGBA(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
@@ -233,7 +239,7 @@ void Image11::loadData(GLint xoffset, GLint yoffset, GLsizei width, GLsizei heig
         loadBGRADataToBGRA(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
         break;
       case GL_RGB32F_EXT:
-        loadRGBFloatDataToNative(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
+        loadRGBFloatDataToRGBA(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
         break;
       case GL_RGB16F_EXT:
         loadRGBHalfFloatDataToRGBA(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
@@ -383,11 +389,11 @@ void Image11::createStagingTexture()
 
     ID3D11Texture2D *newTexture = NULL;
     int lodOffset = 1;
-    DXGI_FORMAT dxgiFormat = getDXGIFormat();
+
+    const DXGI_FORMAT dxgiFormat = getDXGIFormat();
     ASSERT(!d3d11::IsDepthStencilFormat(dxgiFormat)); // We should never get here for depth textures
 
-    if(mRenderer->getFeatureLevel() < D3D_FEATURE_LEVEL_9_2 && dxgiFormat == DXGI_FORMAT_A8_UNORM)
-        dxgiFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
+ 
 
     if (mWidth != 0 && mHeight != 0)
     {

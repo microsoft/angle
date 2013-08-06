@@ -85,15 +85,13 @@ static void getVariableInfo(ShShaderInfo varType,
 }
 
 //
-// Driver must call this first, once, before doing any other
-// compiler operations.
+// Driver must call this first, once, before doing any other compiler operations.
+// Subsequent calls to this function are no-op.
 //
 int ShInitialize()
 {
-    if (!InitProcess())
-        return 0;
-
-    return 1;
+    static const bool kInitialized = InitProcess();
+    return kInitialized ? 1 : 0;
 }
 
 //
@@ -101,9 +99,7 @@ int ShInitialize()
 //
 int ShFinalize()
 {
-    if (!DetachProcess())
-        return 0;
-
+    DetachProcess();
     return 1;
 }
 
@@ -145,9 +141,6 @@ ShHandle ShConstructCompiler(ShShaderType type, ShShaderSpec spec,
                              ShShaderOutput output,
                              const ShBuiltInResources* resources)
 {
-    if (!InitThread())
-        return 0;
-
     TShHandleBase* base = static_cast<TShHandleBase*>(ConstructCompiler(type, spec, output));
     TCompiler* compiler = base->getAsCompiler();
     if (compiler == 0)
@@ -186,9 +179,6 @@ int ShCompile(
     size_t numStrings,
     int compileOptions)
 {
-    if (!InitThread())
-        return 0;
-
     if (handle == 0)
         return 0;
 
