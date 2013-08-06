@@ -16,7 +16,7 @@
 
 #if !defined(ANGLE_PLATFORM_WINRT)
 #include "libGLESv2/renderer/Renderer9.h"
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 #if !defined(ANGLE_ENABLE_D3D11)
 // Enables use of the Direct3D 11 API for a default display, when available
@@ -60,9 +60,9 @@ bool Renderer::initializeCompiler()
     // Load the version of the D3DCompiler DLL associated with the Direct3D version ANGLE was built with.
 #if defined(ANGLE_PLATFORM_WINRT)
     mD3dCompilerModule = LoadPackagedLibrary((LPCWSTR)D3DCOMPILER_DLL, 0);
-    #else
+#else
     mD3dCompilerModule = LoadLibrary(D3DCOMPILER_DLL);
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 #endif  // ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES
 
     if (!mD3dCompilerModule)
@@ -155,7 +155,7 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
             if(result == E_OUTOFMEMORY)
 #else
             if (result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY)
-#endif
+#endif // ANGLE_PLATFORM_WINRT
             {
                 return gl::error(GL_OUT_OF_MEMORY, (ShaderBlob*) NULL);
             }
@@ -211,7 +211,7 @@ rx::Renderer *glCreateRenderer(egl::Display *display, HDC hDc, EGLNativeDisplayT
 #if !defined(ANGLE_PLATFORM_WINRT)
     bool softwareDevice = (displayId == EGL_SOFTWARE_DISPLAY_ANGLE);
     renderer = new rx::Renderer9(display, hDc, softwareDevice);
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     
     if (renderer)
     {

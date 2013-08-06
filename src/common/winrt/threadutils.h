@@ -12,8 +12,6 @@
 #include <windows.h>
 
 
-#if defined(ANGLE_PLATFORM_WINRT)
-
 namespace ThreadUtilsWinRT
 {
 
@@ -40,6 +38,5 @@ inline void* LocalAlloc(UINT uFlags, size_t size)
 
 }
 
-#endif
 
 #endif // COMMON_WINRT_THREADUTILS_H_

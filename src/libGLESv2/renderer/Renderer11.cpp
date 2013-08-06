@@ -34,7 +34,6 @@
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgb11ps.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughlum11ps.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughlumalpha11ps.h"
-
 #include "libGLESv2/renderer/shaders/compiled/winrt/clear11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/clearsingle11ps.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/clearmultiple11ps.h"
@@ -49,7 +48,7 @@ using namespace Windows::UI::Core;
 #include "libGLESv2/renderer/shaders/compiled/clear11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/clearsingle11ps.h"
 #include "libGLESv2/renderer/shaders/compiled/clearmultiple11ps.h"
-#endif
+#endif //ANGLE_PLATFORM_WINRT
 
 #include "libEGL/Display.h"
 
@@ -171,7 +170,7 @@ EGLint Renderer11::initialize()
         ERR("Could not retrieve D3D11CreateDevice address - aborting!\n");
         return EGL_NOT_INITIALIZED;
     }
-#endif
+#endif //ANGLE_PLATFORM_WINRT
 
     D3D_FEATURE_LEVEL featureLevels[] =
     {
@@ -251,7 +250,7 @@ EGLint Renderer11::initialize()
     result = mDxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&mDxgiFactory);
 #else
     result = mDxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&mDxgiFactory);
-#endif
+#endif //ANGLE_PLATFORM_WINRT
 
     if (!mDxgiFactory || FAILED(result))
     {
@@ -537,7 +536,7 @@ void Renderer11::sync(bool block)
             // Keep polling, but allow other threads to do something useful first
 #if !defined(ANGLE_PLATFORM_WINRT)
 			Sleep(0);
-#endif
+#endif //ANGLE_PLATFORM_WINRT
 
             if (testDeviceLost(true))
             {

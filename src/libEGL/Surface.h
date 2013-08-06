@@ -72,20 +72,6 @@ class Surface
 private:
     DISALLOW_COPY_AND_ASSIGN(Surface);
 
-#if defined(ANGLE_PLATFORM_WINRT)
-    ref class PrivateWinRTSurface
-    {
-    internal:
-        PrivateWinRTSurface(Surface *self);
-        void onWindowSizeChanged(Windows::UI::Core::CoreWindow ^sender, Windows::UI::Core::WindowSizeChangedEventArgs ^args);
-
-    private:
-        Surface *mSelf;
-    };
-    PrivateWinRTSurface ^mWinRTSelf;
-    friend ref class PrivateWinRTSurface;
-#endif
-
     Display *const mDisplay;
     rx::Renderer *mRenderer;
 
@@ -100,7 +86,7 @@ private:
 
 #if defined(ANGLE_PLATFORM_WINRT)
     void onWindowSizeChanged();
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     EGLNativeWindowType mWindow;
 
     bool mWindowSubclassed;        // Indicates whether we successfully subclassed mWindow for WM_RESIZE hooking

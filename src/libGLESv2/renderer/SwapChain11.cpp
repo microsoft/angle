@@ -13,19 +13,18 @@
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
-#else
-#include "libGLESv2/renderer/shaders/compiled/passthrough11vs.h"
-#include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
-#endif
-
-#if defined(ANGLE_PLATFORM_WINRT)
 #include <windows.ui.xaml.media.dxinterop.h>
 using namespace Windows::UI::Xaml::Controls;
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
-#endif
+#else
+#include "libGLESv2/renderer/shaders/compiled/passthrough11vs.h"
+#include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
+#endif // ANGLE_PLATFORM_WINRT
+
+
 
 namespace rx
 {
@@ -493,7 +492,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
             release();
             return EGL_BAD_NATIVE_WINDOW;
         }
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 
 #if !defined(ANGLE_PLATFORM_WINRT)
@@ -542,7 +541,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 		{
 			result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window.Get())), &swapChainDesc, nullptr, &mSwapChain);
 		}
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
         if (FAILED(result))
         {
@@ -825,6 +824,6 @@ HWND SwapChain11::getWindowHandle()
 {
     return mWindow;
 }
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 }

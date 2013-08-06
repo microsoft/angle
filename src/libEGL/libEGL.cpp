@@ -319,7 +319,7 @@ EGLSurface __stdcall eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EG
         }
 
         return display->createWindowSurface(window, config, attrib_list);
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     }
     catch(std::bad_alloc&)
     {

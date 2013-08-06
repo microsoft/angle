@@ -11,6 +11,11 @@
 #include "libGLESv2/main.h"
 #include "libGLESv2/renderer/Renderer11.h"
 
+#if defined(ANGLE_PLATFORM_WINRT)
+#include "common/winrt/ThreadEmulation.h"
+using namespace ThreadEmulation;
+#endif
+
 namespace rx
 {
 
@@ -84,9 +89,7 @@ void Fence11::finishFence()
 
     while (!testFence())
     {
-#if !defined(ANGLE_PLATFORM_WINRT)
         Sleep(0);
-#endif
     }
 }
 

@@ -13,7 +13,7 @@
 typedef DWORD D3DCOLOR;
 #else
 #include <d3d9.h>
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 namespace gl
 {
@@ -99,7 +99,7 @@ ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
     va_start(vararg, format);
     output(true, reinterpret_cast<PerfOutputFunction>(D3DPERF_BeginEvent), format, vararg);
     va_end(vararg);
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 }
 
 ScopedPerfEventHelper::~ScopedPerfEventHelper()
@@ -112,6 +112,6 @@ ScopedPerfEventHelper::~ScopedPerfEventHelper()
     {
         D3DPERF_EndEvent();
     }
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 }
 }

@@ -37,7 +37,7 @@
 #else
 #include <d3d9.h>
 #include <D3D11.h>
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 #include <dxgi.h>
 

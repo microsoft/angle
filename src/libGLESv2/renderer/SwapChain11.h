@@ -52,7 +52,7 @@ class SwapChain11 : public SwapChain
     Windows::UI::Core::CoreWindow ^getWindowHandle();
 #else
     HWND getWindowHandle();
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
     Renderer11 *mRenderer;
     EGLint mHeight;

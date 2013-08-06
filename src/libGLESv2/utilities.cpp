@@ -736,7 +736,7 @@ std::string getTempPath()
     }
     
     return path;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 }
 
 void writeFile(const char* path, const void* content, size_t size)

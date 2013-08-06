@@ -1166,7 +1166,7 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
     bool isWinRT = true;
 #else
     bool isWinRT = false;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
     bool usesMRT = fragmentShader->mUsesMultipleRenderTargets;
     bool usesFragColor = fragmentShader->mUsesFragColor;

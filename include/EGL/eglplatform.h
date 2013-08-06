@@ -76,7 +76,7 @@
 #if defined(ANGLE_PLATFORM_WINRT)
 #include <wrl/client.h>
 #include <agile.h>
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;

@@ -464,7 +464,7 @@ bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
         if ((*surface)->getWindowHandle() == window.window.Get())
 #else
         if ((*surface)->getWindowHandle() == window)
-#endif
+#endif // ANGLE_PLATFORM_WINRT
         {
             return true;
         }
@@ -480,7 +480,7 @@ void Display::initExtensionString()
     bool swiftShader = false;
 #else
     HMODULE swiftShader = GetModuleHandle(TEXT("swiftshader_d3d9.dll"));
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     bool shareHandleSupported = mRenderer->getShareHandleSupport();
 
     mExtensionString = "";

@@ -30,7 +30,7 @@ inline int getComparableOSVersion()
     int minorVersion = HIBYTE(LOWORD(version));
     return MAKEWORD(minorVersion, majorVersion);
 }
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 namespace egl
 {
@@ -109,11 +109,7 @@ class Renderer
 
     virtual void sync(bool block) = 0;
 
-#if defined(ANGLE_PLATFORM_WINRT)
     virtual SwapChain *createSwapChain(EGLNativeWindowType window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;
-#else
-    virtual SwapChain *createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;
-#endif
 
     virtual void setSamplerState(gl::SamplerType type, int index, const gl::SamplerState &sampler) = 0;
     virtual void setTexture(gl::SamplerType type, int index, gl::Texture *texture) = 0;

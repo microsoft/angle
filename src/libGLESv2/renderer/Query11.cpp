@@ -11,6 +11,11 @@
 #include "libGLESv2/renderer/Renderer11.h"
 #include "libGLESv2/main.h"
 
+#if defined(ANGLE_PLATFORM_WINRT)
+#include "common/winrt/ThreadEmulation.h"
+using namespace ThreadEmulation;
+#endif
+
 namespace rx
 {
 
@@ -65,9 +70,7 @@ GLuint Query11::getResult()
     {
         while (!testQuery())
         {
-#if !defined(ANGLE_PLATFORM_WINRT)
             Sleep(0);
-#endif
             // explicitly check for device loss, some drivers seem to return S_FALSE
             // if the device is lost
             if (mRenderer->testDeviceLost(true))

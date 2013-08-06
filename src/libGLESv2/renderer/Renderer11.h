@@ -20,7 +20,7 @@
 #if defined(ANGLE_PLATFORM_WINRT)
 #include <wrl/client.h>
 #include <d3d11_1.h>
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 namespace gl
 {
@@ -56,11 +56,7 @@ class Renderer11 : public Renderer
 
     virtual void sync(bool block);
 
-#if defined(ANGLE_PLATFORM_WINRT)
     virtual SwapChain *createSwapChain(EGLNativeWindowType window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
-#else
-    virtual SwapChain *createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
-#endif
 
     virtual void setSamplerState(gl::SamplerType type, int index, const gl::SamplerState &sampler);
     virtual void setTexture(gl::SamplerType type, int index, gl::Texture *texture);
@@ -188,7 +184,7 @@ class Renderer11 : public Renderer
 	IDXGIFactory2 *getDxgiFactory() { return mDxgiFactory; };
 #else
 	IDXGIFactory *getDxgiFactory() { return mDxgiFactory; };
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; }
 
     bool getRenderTargetResource(gl::Renderbuffer *colorbuffer, unsigned int *subresourceIndex, ID3D11Texture2D **resource);
@@ -358,7 +354,7 @@ class Renderer11 : public Renderer
     IDXGIFactory2 *mDxgiFactory;
 #else
     IDXGIFactory *mDxgiFactory;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     // Cached device caps
     bool mBGRATextureSupport;
 };

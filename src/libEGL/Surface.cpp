@@ -22,7 +22,7 @@
 #if defined(ANGLE_PLATFORM_WINRT)
 #include <wrl/client.h>
 using namespace Windows::UI::Core;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 
 namespace egl
@@ -45,10 +45,6 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
     mWidth = -1;
     mHeight = -1;
     setSwapInterval(1);
-#if defined(ANGLE_PLATFORM_WP8)
-    mWinRTSelf = ref new PrivateWinRTSurface(this);
-#endif
-
     subclassWindow();
 }
 
@@ -60,7 +56,7 @@ Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGL
     mWindow.panel = nullptr;
 #else
     mWindow = NULL;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
     mWindowSubclassed = false;
@@ -126,7 +122,7 @@ bool Surface::resetSwapChain()
 
         width = windowRect.right - windowRect.left;
         height = windowRect.bottom - windowRect.top;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     }
     else
     {
@@ -253,15 +249,6 @@ void Surface::onWindowSizeChanged()
     checkForOutOfDateSwapChain();    
 }
 
-Surface::PrivateWinRTSurface::PrivateWinRTSurface(Surface *self) : mSelf(self) 
-{
-}
-
-void Surface::PrivateWinRTSurface::onWindowSizeChanged(CoreWindow ^/*sender*/, WindowSizeChangedEventArgs ^/*args*/)
-{
-    mSelf->onWindowSizeChanged();
-}
-
 CoreWindow ^Surface::getWindowHandle()
 {
     return mWindow.window.Get();
@@ -271,7 +258,7 @@ HWND Surface::getWindowHandle()
 {
     return mWindow;
 }
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 
 #define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
@@ -291,7 +278,7 @@ static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam
   WNDPROC prevWndFunc = reinterpret_cast<WNDPROC >(GetProp(hwnd, kParentWndProc));
   return CallWindowProc(prevWndFunc, hwnd, message, wparam, lparam);
 }
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 void Surface::subclassWindow()
 {
@@ -300,11 +287,7 @@ void Surface::subclassWindow()
         return;
     }
 
-#if defined(ANGLE_PLATFORM_WINRT)
-    //todo: figure out how to get process and thread id for the window, although it's probably not necessary
-    //if this dll won't be run from a different process or thread hopefully
-    //mWindow.window->SizeChanged += ref new Windows::Foundation::TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(mWinRTSelf, &PrivateWinRTSurface::onWindowSizeChanged);
-#else
+#if !defined(ANGLE_PLATFORM_WINRT)
     DWORD processId;
     DWORD threadId = GetWindowThreadProcessId(mWindow, &processId);
     if (processId != GetCurrentProcessId() || threadId != GetCurrentThreadId())
@@ -322,7 +305,7 @@ void Surface::subclassWindow()
 
     SetProp(mWindow, kSurfaceProperty, reinterpret_cast<HANDLE>(this));
     SetProp(mWindow, kParentWndProc, reinterpret_cast<HANDLE>(oldWndProc));
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     mWindowSubclassed = true;
 }
 
@@ -351,7 +334,7 @@ void Surface::unsubclassWindow()
 
     RemoveProp(mWindow, kSurfaceProperty);
     RemoveProp(mWindow, kParentWndProc);
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     mWindowSubclassed = false;
 }
 
@@ -371,7 +354,7 @@ bool Surface::checkForOutOfDateSwapChain()
     // Grow the buffer now, if the window has grown. We need to grow now to avoid losing information.
     int clientWidth = client.right - client.left;
     int clientHeight = client.bottom - client.top;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     bool sizeDirty = clientWidth != getWidth() || clientHeight != getHeight();
 
     if (mSwapIntervalDirty)

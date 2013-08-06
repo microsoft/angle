@@ -109,7 +109,7 @@ inline bool supportsSSE2()
     checked = true;
 
     return supports;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 }
 
 inline unsigned short float32ToFloat16(float fp32)
