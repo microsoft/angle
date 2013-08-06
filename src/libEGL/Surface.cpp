@@ -318,7 +318,7 @@ void Surface::unsubclassWindow()
 
 #if !defined(ANGLE_PLATFORM_WINRT)
 
-	// un-subclass
+    // un-subclass
     LONG_PTR parentWndFunc = reinterpret_cast<LONG_PTR>(GetProp(mWindow, kParentWndProc));
 
     // Check the windowproc is still SurfaceWindowProc.
@@ -341,7 +341,7 @@ void Surface::unsubclassWindow()
 bool Surface::checkForOutOfDateSwapChain()
 {
 #if defined(ANGLE_PLATFORM_WINRT)
-	int clientWidth = static_cast<int>(convertDipsToPixels(mWindow.window->Bounds.Width));
+    int clientWidth = static_cast<int>(convertDipsToPixels(mWindow.window->Bounds.Width));
     int clientHeight = static_cast<int>(convertDipsToPixels(mWindow.window->Bounds.Height));
 #else
     RECT client;

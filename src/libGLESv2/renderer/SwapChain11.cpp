@@ -397,7 +397,7 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
 
     // Resize swap chain
     DXGI_FORMAT backbufferDXGIFormat = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
-	HRESULT result = S_OK;
+    HRESULT result = S_OK;
 
     result = mSwapChain->ResizeBuffers(2, backbufferWidth, backbufferHeight, backbufferDXGIFormat, 0);
 
@@ -436,7 +436,7 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
 EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swapInterval)
 {
     ID3D11Device *device = mRenderer->getDevice();
-	HRESULT result = S_OK;
+    HRESULT result = S_OK;
 
     if (device == NULL)
     {
@@ -480,8 +480,8 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
     if (getWindowHandle())
     {
 #if !defined(ANGLE_PLATFORM_WINRT)
-		// We cannot create a swap #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-		// for an HWND that is owned by a different process
+        // We cannot create a swap #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+        // for an HWND that is owned by a different process
         DWORD currentProcessId = GetCurrentProcessId();
         DWORD wndProcessId;
         GetWindowThreadProcessId(mWindow, &wndProcessId);
@@ -497,50 +497,50 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
 #if !defined(ANGLE_PLATFORM_WINRT)
         IDXGIFactory *factory = mRenderer->getDxgiFactory();
-		DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
-		swapChainDesc.BufferCount = 2;
-		swapChainDesc.BufferDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
-		swapChainDesc.BufferDesc.Width = backbufferWidth;
-		swapChainDesc.BufferDesc.Height = backbufferHeight;
-		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.Flags = 0;
-		swapChainDesc.OutputWindow = mWindow;
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.SampleDesc.Quality = 0;
-		swapChainDesc.Windowed = TRUE;
-		result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
+        DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
+        swapChainDesc.BufferCount = 2;
+        swapChainDesc.BufferDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
+        swapChainDesc.BufferDesc.Width = backbufferWidth;
+        swapChainDesc.BufferDesc.Height = backbufferHeight;
+        swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+        swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+        swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
+        swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc.Flags = 0;
+        swapChainDesc.OutputWindow = mWindow;
+        swapChainDesc.SampleDesc.Count = 1;
+        swapChainDesc.SampleDesc.Quality = 0;
+        swapChainDesc.Windowed = TRUE;
+        result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
 
 #elif defined(ANGLE_PLATFORM_WINRT)
         IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
-		swapChainDesc.Width = backbufferWidth;
-		swapChainDesc.Height = backbufferHeight;
-		swapChainDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
-		swapChainDesc.Stereo = FALSE;
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.SampleDesc.Quality = 0;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.BufferCount = 2;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
-		swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
-		if(mWindow.panel)
-		{
-			result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
-			if SUCCEEDED(result)
-			{
-				ComPtr<ISwapChainBackgroundPanelNative> panelNative;
-				reinterpret_cast<IUnknown*>(mWindow.panel)->QueryInterface(IID_PPV_ARGS(&panelNative));
-				panelNative->SetSwapChain(mSwapChain);
-			}
-		}
-		else
-		{
-			result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window.Get())), &swapChainDesc, nullptr, &mSwapChain);
-		}
+        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+        swapChainDesc.Width = backbufferWidth;
+        swapChainDesc.Height = backbufferHeight;
+        swapChainDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
+        swapChainDesc.Stereo = FALSE;
+        swapChainDesc.SampleDesc.Count = 1;
+        swapChainDesc.SampleDesc.Quality = 0;
+        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc.BufferCount = 2;
+        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
+        swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
+        if(mWindow.panel)
+        {
+            result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
+            if SUCCEEDED(result)
+            {
+                ComPtr<ISwapChainBackgroundPanelNative> panelNative;
+                reinterpret_cast<IUnknown*>(mWindow.panel)->QueryInterface(IID_PPV_ARGS(&panelNative));
+                panelNative->SetSwapChain(mSwapChain);
+            }
+        }
+        else
+        {
+            result = factory->CreateSwapChainForCoreWindow(device, reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window.Get())), &swapChainDesc, nullptr, &mSwapChain);
+        }
 #endif // ANGLE_PLATFORM_WINRT
 
         if (FAILED(result))
@@ -613,7 +613,7 @@ void SwapChain11::initPassThroughResources()
     samplerDesc.BorderColor[3] = 0.0f;
     samplerDesc.MinLOD = 0;
     if(device->GetFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
-    	samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
+        samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
     else
         samplerDesc.MaxLOD = 0.0f;
 

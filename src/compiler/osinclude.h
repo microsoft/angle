@@ -61,9 +61,9 @@ inline void* OS_GetTLSValue(OS_TLSIndex nIndex)
     ASSERT(nIndex != OS_INVALID_TLS_INDEX);
 #if defined(ANGLE_OS_WIN)
 #if defined(ANGLE_PLATFORM_WINRT)
-	return ThreadEmulation::TlsGetValue(nIndex);
+    return ThreadEmulation::TlsGetValue(nIndex);
 #else
-	return TlsGetValue(nIndex);
+    return TlsGetValue(nIndex);
 #endif // ANGLE_PLATFORM_WINRT
 #elif defined(ANGLE_OS_POSIX)
     return pthread_getspecific(nIndex);

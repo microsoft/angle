@@ -20,7 +20,7 @@ class SwapChain11 : public SwapChain
 {
   public:
     SwapChain11(Renderer11 *renderer, EGLNativeWindowType window, HANDLE shareHandle,
-	GLenum backBufferFormat, GLenum depthBufferFormat);
+    GLenum backBufferFormat, GLenum depthBufferFormat);
 
     virtual ~SwapChain11();
 

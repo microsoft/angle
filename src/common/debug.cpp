@@ -76,7 +76,7 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
 bool perfActive()
 {
 #if defined(ANGLE_DISABLE_PERF) || defined(ANGLE_PLATFORM_WINRT)
-	return false;
+    return false;
 #else
     static bool active = D3DPERF_GetStatus() != 0;
     return active;
@@ -86,7 +86,7 @@ bool perfActive()
 ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
 {
 #if defined(ANGLE_PLATFORM_WINRT)
-	return;
+    return;
 #elif !defined(ANGLE_DISABLE_PERF)
 
 #if defined(ANGLE_DISABLE_TRACE)
@@ -105,7 +105,7 @@ ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
 ScopedPerfEventHelper::~ScopedPerfEventHelper()
 {
 #if defined(ANGLE_PLATFORM_WINRT)
-	return;
+    return;
 #elif !defined(ANGLE_DISABLE_PERF)
 
     if (perfActive())

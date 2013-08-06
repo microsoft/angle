@@ -152,7 +152,7 @@ EGLint Renderer11::initialize()
     }
 
 #if !defined(ANGLE_PLATFORM_WINRT)
-	mDxgiModule = LoadLibrary(TEXT("dxgi.dll"));
+    mDxgiModule = LoadLibrary(TEXT("dxgi.dll"));
     mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
 
     if (mD3d11Module == NULL || mDxgiModule == NULL)
@@ -535,7 +535,7 @@ void Renderer11::sync(bool block)
 
             // Keep polling, but allow other threads to do something useful first
 #if !defined(ANGLE_PLATFORM_WINRT)
-			Sleep(0);
+            Sleep(0);
 #endif //ANGLE_PLATFORM_WINRT
 
             if (testDeviceLost(true))
@@ -2907,7 +2907,7 @@ ShaderExecutable *Renderer11::loadExecutable(const void *function, size_t length
 
 ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const char *shaderHLSL, rx::ShaderType type)
 {
-	const char *profile = NULL;
+    const char *profile = NULL;
 
     switch (type)
     {

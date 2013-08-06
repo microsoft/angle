@@ -181,9 +181,9 @@ class Renderer11 : public Renderer
     ID3D11Device *getDevice() { return mDevice; }
     ID3D11DeviceContext *getDeviceContext() { return mDeviceContext; };
 #if defined(ANGLE_PLATFORM_WINRT)
-	IDXGIFactory2 *getDxgiFactory() { return mDxgiFactory; };
+    IDXGIFactory2 *getDxgiFactory() { return mDxgiFactory; };
 #else
-	IDXGIFactory *getDxgiFactory() { return mDxgiFactory; };
+    IDXGIFactory *getDxgiFactory() { return mDxgiFactory; };
 #endif // ANGLE_PLATFORM_WINRT
     D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; }
 
