@@ -11,70 +11,8 @@
 
 #include <windows.h>
 
-#if defined(ANGLE_PLATFORM_WP8)
-//#include <processthreadsapi.h>
 
-namespace ThreadUtilsWinRT
-{
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define TLS_OUT_OF_INDEXES ((DWORD)0xFFFFFFFF)
-
-_Must_inspect_result_
-WINBASEAPI
-DWORD
-WINAPI
-TlsAlloc(
-    VOID
-    );
-
-
-WINBASEAPI
-LPVOID
-WINAPI
-TlsGetValue(
-    _In_ DWORD dwTlsIndex
-    );
-
-
-WINBASEAPI
-BOOL
-WINAPI
-TlsSetValue(
-    _In_ DWORD dwTlsIndex,
-    _In_opt_ LPVOID lpTlsValue
-    );
-
-
-WINBASEAPI
-BOOL
-WINAPI
-TlsFree(
-    _In_ DWORD dwTlsIndex
-    );
-
-inline void LocalFree(HLOCAL index)
-{
-    free((void*) index);
-}
-
-inline void* LocalAlloc(UINT uFlags, size_t size)
-{
-    return malloc(size);
-}
-
-#ifdef __cplusplus
-}
-#endif
-
-}
-
-
-#elif defined(ANGLE_PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
 
 namespace ThreadUtilsWinRT
 {

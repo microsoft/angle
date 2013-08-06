@@ -23,9 +23,7 @@
 #define ANGLE_ENABLE_D3D11 1
 #endif
 
-#if defined(ANGLE_PLATFORM_WP8)
-#pragma comment(lib,"d3dcompiler.lib")
-#endif
+
 
 namespace rx
 {
@@ -47,13 +45,6 @@ Renderer::~Renderer()
 
 bool Renderer::initializeCompiler()
 {
-
-#if defined(ANGLE_PLATFORM_WP8)
-	mD3dCompilerModule = nullptr;
-    mD3DCompileFunc = reinterpret_cast<pCompileFunc>(D3DCompile);
-	return true;
-#endif
-
 #if defined(ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES)
     // Find a D3DCompiler module that had already been loaded based on a predefined list of versions.
     static TCHAR* d3dCompilerNames[] = ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES;
