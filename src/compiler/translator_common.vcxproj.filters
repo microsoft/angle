@@ -134,7 +134,7 @@
     <ClCompile Include="timing\RestrictVertexShaderTiming.cpp">
       <Filter>Source Files\timing</Filter>
     </ClCompile>
-    <ClCompile Include="..\third_party\compiler\ArrayBoundsClamper.cpp">
+    <ClCompile Include="ArrayBoundsClamper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -256,7 +256,7 @@
     <ClInclude Include="HashNames.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\third_party\compiler\ArrayBoundsClamper.h">
+    <ClInclude Include="ArrayBoundsClamper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
