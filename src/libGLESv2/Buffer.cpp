@@ -37,11 +37,11 @@ Buffer::~Buffer()
     delete mStaticIndexBuffer;
 }
 
-void Buffer::bufferData(const void *data, GLsizeiptr size, GLenum usage)
+void Buffer::bufferData(const void *data, GLsizeiptr size, GLenum usage, GLenum bindingPoint)
 {
     mBufferStorage->clear();
     mIndexRangeCache.clear();
-    mBufferStorage->setData(data, size, 0);
+    mBufferStorage->setData(data, size, 0, bindingPoint);
 
     mUsage = usage;
 
@@ -54,9 +54,9 @@ void Buffer::bufferData(const void *data, GLsizeiptr size, GLenum usage)
     }
 }
 
-void Buffer::bufferSubData(const void *data, GLsizeiptr size, GLintptr offset)
+void Buffer::bufferSubData(const void *data, GLsizeiptr size, GLintptr offset, GLenum bindingPoint)
 {
-    mBufferStorage->setData(data, size, offset);
+    mBufferStorage->setData(data, size, offset, bindingPoint);
     mIndexRangeCache.invalidateRange(offset, size);
 
     if ((mStaticVertexBuffer && mStaticVertexBuffer->getBufferSize() != 0) || (mStaticIndexBuffer && mStaticIndexBuffer->getBufferSize() != 0))

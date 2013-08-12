@@ -111,16 +111,16 @@ bool Image11::isDirty() const
     return (mStagingTexture && mDirty);
 }
 
-bool Image11::updateSurface(TextureStorageInterface2D *storage, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height)
+bool Image11::updateSurface(TextureStorageInterface2D *storage, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, bool mipped)
 {
     TextureStorage11_2D *storage11 = TextureStorage11_2D::makeTextureStorage11_2D(storage->getStorageInstance());
-    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, 0, xoffset, yoffset, width, height);
+    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, 0, xoffset, yoffset, width, height, mipped);
 }
 
 bool Image11::updateSurface(TextureStorageInterfaceCube *storage, int face, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height)
 {
     TextureStorage11_Cube *storage11 = TextureStorage11_Cube::makeTextureStorage11_Cube(storage->getStorageInstance());
-    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, face, xoffset, yoffset, width, height);
+    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, face, xoffset, yoffset, width, height, true);
 }
 
 bool Image11::redefine(Renderer *renderer, GLint internalformat, GLsizei width, GLsizei height, bool forceRelease)
@@ -390,10 +390,11 @@ void Image11::createStagingTexture()
     ID3D11Texture2D *newTexture = NULL;
     int lodOffset = 1;
 
-    const DXGI_FORMAT dxgiFormat = getDXGIFormat();
+    DXGI_FORMAT dxgiFormat = getDXGIFormat();
     ASSERT(!d3d11::IsDepthStencilFormat(dxgiFormat)); // We should never get here for depth textures
 
- 
+    if(mRenderer->getFeatureLevel() < D3D_FEATURE_LEVEL_9_2 && dxgiFormat == DXGI_FORMAT_A8_UNORM)
+        dxgiFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
 
     if (mWidth != 0 && mHeight != 0)
     {
