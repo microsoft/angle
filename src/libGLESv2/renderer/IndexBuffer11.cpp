@@ -170,7 +170,7 @@ DXGI_FORMAT IndexBuffer11::getIndexFormat() const
     {
       case GL_UNSIGNED_BYTE:    return DXGI_FORMAT_R16_UINT;
       case GL_UNSIGNED_SHORT:   return DXGI_FORMAT_R16_UINT;
-      case GL_UNSIGNED_INT:     return DXGI_FORMAT_R32_UINT;
+      case GL_UNSIGNED_INT:     return (mRenderer->getFeatureLevel() == D3D_FEATURE_LEVEL_9_1) ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
       default: UNREACHABLE();   return DXGI_FORMAT_UNKNOWN;
     }
 }

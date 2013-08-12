@@ -616,7 +616,7 @@ void SwapChain11::initPassThroughResources()
     if(device->GetFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
         samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
     else
-        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+        samplerDesc.MaxLOD = 0.0f;
 
     result = device->CreateSamplerState(&samplerDesc, &mPassThroughSampler);
     ASSERT(SUCCEEDED(result));
