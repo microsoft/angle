@@ -38,4 +38,4 @@ fxc /Gec /nologo /E PS_PassthroughLumAlpha /T ps_4_0_level_9_1 /Fh compiled/winr
 
 fxc /Gec /nologo /E VS_Clear /T vs_4_0_level_9_1 /Fh compiled/winrt/clear11vs.h /Vn g_VS_Clear /Qstrip_reflect /Qstrip_debug Clear11.hlsl
 fxc /Gec /nologo /E PS_ClearSingle /T ps_4_0_level_9_1 /Fh compiled/winrt/clearsingle11ps.h /Vn g_PS_ClearSingle /Qstrip_reflect /Qstrip_debug Clear11.hlsl
-fxc /Gec /nologo /E PS_ClearMultiple /T ps_4_0_level_9_1 /Fh compiled/winrt/clearmultiple11ps.h /Vn g_PS_ClearMultiple /Qstrip_reflect /Qstrip_debug Clear11.hlsl
+fxc /Gec /nologo /E PS_ClearMultiple_winrt /T ps_4_0_level_9_1 /Fh compiled/winrt/clearmultiple11ps.h /Vn g_PS_ClearMultiple /Qstrip_reflect /Qstrip_debug Clear11.hlsl
