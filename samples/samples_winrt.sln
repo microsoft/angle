@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows 8
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simple_Instancing_winrt", "angle\Simple_Instancing\Simple_Instancing_winrt\Simple_Instancing_winrt.vcxproj", "{F625B38E-39AD-4624-A6FF-EC21FF8CFE5F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esUtil_winrt", "gles2_book\Common\esUtil_winrt.vcxproj", "{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}"
@@ -14,6 +14,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "translator_hlsl_winrt", "..\src\compiler\translator_hlsl_winrt.vcxproj", "{F7CC3484-9BCF-4063-B842-02C0C621FC1B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "preprocessor_winrt", "..\src\compiler\preprocessor\preprocessor_winrt.vcxproj", "{E7B1D854-AD49-4662-8326-24579123F471}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RotatingCube", "RotatingCube\RotatingCube.vcxproj", "{5B49B15D-3723-47FB-9926-187D5D1ED1ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +117,24 @@ Global
 		{E7B1D854-AD49-4662-8326-24579123F471}.Release|Win32.Build.0 = Release|Win32
 		{E7B1D854-AD49-4662-8326-24579123F471}.Release|x64.ActiveCfg = Release|x64
 		{E7B1D854-AD49-4662-8326-24579123F471}.Release|x64.Build.0 = Release|x64
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Debug|ARM.ActiveCfg = Debug|ARM
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Debug|ARM.Build.0 = Debug|ARM
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Debug|ARM.Deploy.0 = Debug|ARM
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Debug|Win32.Build.0 = Debug|Win32
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Debug|Win32.Deploy.0 = Debug|Win32
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Debug|x64.ActiveCfg = Debug|x64
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Debug|x64.Build.0 = Debug|x64
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Debug|x64.Deploy.0 = Debug|x64
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Release|ARM.ActiveCfg = Release|ARM
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Release|ARM.Build.0 = Release|ARM
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Release|ARM.Deploy.0 = Release|ARM
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Release|Win32.ActiveCfg = Release|Win32
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Release|Win32.Build.0 = Release|Win32
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Release|Win32.Deploy.0 = Release|Win32
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Release|x64.ActiveCfg = Release|x64
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Release|x64.Build.0 = Release|x64
+		{5B49B15D-3723-47FB-9926-187D5D1ED1ED}.Release|x64.Deploy.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
