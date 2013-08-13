@@ -2400,7 +2400,9 @@ int Renderer11::getMaxTextureWidth() const
 {
     switch (mFeatureLevel)
     {
+#if defined(ANGLE_PLATFORM_WINRT)
       case D3D_FEATURE_LEVEL_11_1:
+#endif // ANGLE_PLATFORM_WINRT
       case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 16384
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 8192
@@ -2415,7 +2417,9 @@ int Renderer11::getMaxTextureHeight() const
 {
     switch (mFeatureLevel)
     {
+#if defined(ANGLE_PLATFORM_WINRT)
       case D3D_FEATURE_LEVEL_11_1:
+#endif // ANGLE_PLATFORM_WINRT
       case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 16384
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 8192
@@ -2430,7 +2434,9 @@ bool Renderer11::get32BitIndexSupport() const
 {
     switch (mFeatureLevel)
     {
+#if defined(ANGLE_PLATFORM_WINRT)
       case D3D_FEATURE_LEVEL_11_1:
+#endif // ANGLE_PLATFORM_WINRT
       case D3D_FEATURE_LEVEL_11_0: 
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_DRAWINDEXED_INDEX_COUNT_2_TO_EXP >= 32;   // true
@@ -2486,7 +2492,9 @@ unsigned int Renderer11::getMaxRenderTargets() const
 
     switch (mFeatureLevel)
     {
+#if defined(ANGLE_PLATFORM_WINRT)
       case D3D_FEATURE_LEVEL_11_1:
+#endif // ANGLE_PLATFORM_WINRT
       case D3D_FEATURE_LEVEL_11_0:
         return D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;  // 8
       case D3D_FEATURE_LEVEL_10_1:
