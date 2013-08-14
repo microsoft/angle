@@ -39,11 +39,9 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest" />
+    <AppxManifest Include="Package_2013.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Simple_Instancing_winrt_TemporaryKey.pfx" />
-    <None Include="..\..\..\d3dcompiler\Win32\D3Dcompiler_46.dll" />
-    <None Include="..\..\..\d3dcompiler\ARM\D3Dcompiler_46.dll" />
   </ItemGroup>
 </Project>
