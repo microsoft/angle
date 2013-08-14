@@ -14,10 +14,6 @@
 #include "libGLESv2/renderer/Renderer11.h"
 #include "libGLESv2/utilities.h"
 
-#if !defined(ANGLE_PLATFORM_WINRT)
-#include "libGLESv2/renderer/Renderer9.h"
-#endif // ANGLE_PLATFORM_WINRT
-
 #if !defined(ANGLE_ENABLE_D3D11)
 // Enables use of the Direct3D 11 API for a default display, when available
 #define ANGLE_ENABLE_D3D11 1
@@ -31,8 +27,10 @@
 #else
     #pragma message("Warning: Visual Studio 2013 and Windows 8.1 required for Windows Store App certification")
     #pragma message("Warning: Visual Studio 2012 d3dcompiler dll is available only for development.")
-#endif (_MSC_VER >= 1800)
-#endif
+#endif // (_MSC_VER >= 1800)
+#else 
+#include "libGLESv2/renderer/Renderer9.h"
+#endif // ANGLE_PLATFORM_WINRT
 
 namespace rx
 {
