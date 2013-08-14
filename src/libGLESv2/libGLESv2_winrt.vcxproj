@@ -138,6 +138,7 @@
       <ModuleDefinitionFile>libGLESv2_winrt.def</ModuleDefinitionFile>
       <AdditionalDependencies>d3d11.lib;dxguid.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -158,6 +159,7 @@
       <ModuleDefinitionFile>libGLESv2_winrt.def</ModuleDefinitionFile>
       <AdditionalDependencies>d3d11.lib;dxguid.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|arm'">
@@ -178,6 +180,7 @@
       <ModuleDefinitionFile>libGLESv2_winrt.def</ModuleDefinitionFile>
       <AdditionalDependencies>d3d11.lib;dxguid.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|arm'">
@@ -198,6 +201,7 @@
       <ModuleDefinitionFile>libGLESv2_winrt.def</ModuleDefinitionFile>
       <AdditionalDependencies>d3d11.lib;dxguid.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -218,6 +222,7 @@
       <ModuleDefinitionFile>libGLESv2_winrt.def</ModuleDefinitionFile>
       <AdditionalDependencies>d3d11.lib;dxguid.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -238,6 +243,7 @@
       <ModuleDefinitionFile>libGLESv2_winrt.def</ModuleDefinitionFile>
       <AdditionalDependencies>d3d11.lib;dxguid.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
+      <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -110,6 +110,15 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Level4</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Level4</WarningLevel>
     </ClCompile>
+    <Link>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Link>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Link>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
@@ -118,6 +127,15 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Level4</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Level4</WarningLevel>
     </ClCompile>
+    <Link>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Link>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Link>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Image Include="Assets\Logo.png" />

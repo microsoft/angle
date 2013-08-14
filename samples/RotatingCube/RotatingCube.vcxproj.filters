@@ -34,6 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="RotatingCube_TemporaryKey.pfx" />
-    <None Include="D3Dcompiler_46.dll" />
+    <None Include="..\d3dcompiler\Win32\D3Dcompiler_46.dll" />
+    <None Include="..\d3dcompiler\ARM\D3Dcompiler_46.dll" />
   </ItemGroup>
 </Project>
