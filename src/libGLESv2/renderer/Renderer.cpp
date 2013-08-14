@@ -23,10 +23,14 @@
 #define ANGLE_ENABLE_D3D11 1
 #endif
 
-#if defined(ANGLE_PLATFORM_WINRT) && (_MSC_VER >= 1800)
-#pragma comment(lib,"d3dcompiler.lib")
+#if defined(ANGLE_PLATFORM_WINRT)
+#if (_MSC_VER >= 1800)
+    #pragma comment(lib,"d3dcompiler.lib")
+#else
+    #pragma message("Warning: Visual Studio 2013 and Windows 8.1 required for Windows Store App certification")
+    #pragma message("Warning: Visual Studio 2012 d3dcompiler dll is available only for development.")
+#endif (_MSC_VER >= 1800)
 #endif
-
 
 namespace rx
 {
