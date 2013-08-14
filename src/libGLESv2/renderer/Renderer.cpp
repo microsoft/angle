@@ -23,6 +23,8 @@
 #define ANGLE_ENABLE_D3D11 1
 #endif
 
+// d3dcompiler is available to Windows Store Apps (winrt) in Windows 8.1
+// using Visual Studio 2013
 #if defined(ANGLE_PLATFORM_WINRT)
 #if (_MSC_VER >= 1800)
     #pragma comment(lib,"d3dcompiler.lib")
