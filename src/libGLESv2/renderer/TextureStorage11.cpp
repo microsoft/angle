@@ -71,7 +71,7 @@ bool TextureStorage11::IsTextureFormatRenderable(DXGI_FORMAT format)
       case DXGI_FORMAT_R32G32B32A32_FLOAT:
 #if defined(ANGLE_PLATFORM_WINRT)
       case DXGI_FORMAT_R32G32B32_FLOAT:
-#endif
+#endif // ANGLE_PLATFORM_WINRT
       case DXGI_FORMAT_R16G16B16A16_FLOAT:
       case DXGI_FORMAT_B8G8R8A8_UNORM:
       case DXGI_FORMAT_R8_UNORM:
@@ -84,7 +84,7 @@ bool TextureStorage11::IsTextureFormatRenderable(DXGI_FORMAT format)
       case DXGI_FORMAT_BC3_UNORM:
 #if !defined(ANGLE_PLATFORM_WINRT)
       case DXGI_FORMAT_R32G32B32_FLOAT:
-#endif
+#endif // ANGLE_PLATFORM_WINRT
         return false;
       default:
         UNREACHABLE();

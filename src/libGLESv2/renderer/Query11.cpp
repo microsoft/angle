@@ -14,7 +14,7 @@
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrt/ThreadEmulation.h"
 using namespace ThreadEmulation;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
 namespace rx
 {

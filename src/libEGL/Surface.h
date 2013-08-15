@@ -48,7 +48,7 @@ class Surface
     float convertDipsToPixels(float dips); 
 #else
     HWND getWindowHandle();
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     bool swap();
     bool postSubBuffer(EGLint x, EGLint y, EGLint width, EGLint height);
 

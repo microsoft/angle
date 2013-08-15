@@ -65,7 +65,7 @@ class SwapChain11 : public SwapChain
     IDXGISwapChain1 *mSwapChain;
 #else
     IDXGISwapChain *mSwapChain;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 
     ID3D11Texture2D *mBackBufferTexture;
     ID3D11RenderTargetView *mBackBufferRTView;

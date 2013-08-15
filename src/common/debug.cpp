@@ -69,7 +69,7 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
     output(traceFileDebugOnly, NULL, format, vararg);
 #else
     output(traceFileDebugOnly, D3DPERF_SetMarker, format, vararg);
-#endif
+#endif // ANGLE_PLATFORM_WINRT
     va_end(vararg);
 }
 
@@ -80,7 +80,7 @@ bool perfActive()
 #else
     static bool active = D3DPERF_GetStatus() != 0;
     return active;
-#endif
+#endif // ANGLE_PLATFORM_WINRT
 }
 
 ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
