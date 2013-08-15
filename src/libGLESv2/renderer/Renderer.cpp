@@ -13,10 +13,11 @@
 #include "libGLESv2/renderer/Renderer.h"
 #include "libGLESv2/renderer/Renderer11.h"
 #include "libGLESv2/utilities.h"
+#include "third_party/trace_event/trace_event.h"
 
 #if !defined(ANGLE_ENABLE_D3D11)
 // Enables use of the Direct3D 11 API for a default display, when available
-#define ANGLE_ENABLE_D3D11 1
+#define ANGLE_ENABLE_D3D11 0
 #endif
 
 // d3dcompiler is available to Windows Store Apps (winrt) in Windows 8.1
@@ -52,6 +53,7 @@ Renderer::~Renderer()
 
 bool Renderer::initializeCompiler()
 {
+    TRACE_EVENT0("gpu", "initializeCompiler");
 #if defined(ANGLE_PLATFORM_WINRT) && (_MSC_VER >= 1800)
     mD3dCompilerModule = NULL;
     mD3DCompileFunc = reinterpret_cast<pCompileFunc>(D3DCompile);

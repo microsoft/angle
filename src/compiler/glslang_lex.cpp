@@ -2897,6 +2897,11 @@ int reserved_word(yyscan_t yyscanner) {
     return 0;
 }
 
+void yyerror(YYLTYPE* lloc, TParseContext* context, const char* reason) {
+    context->error(*lloc, reason, yyget_text(context->scanner));
+    context->recover();
+}
+
 int glslang_initialize(TParseContext* context) {
     yyscan_t scanner = NULL;
     if (yylex_init_extra(context,&scanner))
@@ -2925,6 +2930,7 @@ int glslang_scan(size_t count, const char* const string[], const int length[],
     // Initialize preprocessor.
     if (!context->preprocessor.init(count, string, length))
         return 1;
+    context->preprocessor.setMaxTokenLength(SH_MAX_TOKEN_LENGTH);
 
     // Define extension macros.
     const TExtensionBehavior& extBehavior = context->extensionBehavior();

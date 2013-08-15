@@ -55,7 +55,7 @@ DWORD TextureStorage11::GetTextureBindFlags(DXGI_FORMAT format, GLenum glusage, 
     {
         bindFlags |= D3D11_BIND_DEPTH_STENCIL;
     }
-    else if (forceRenderable || (TextureStorage11::IsTextureFormatRenderable(format) && (glusage == GL_FRAMEBUFFER_ATTACHMENT_ANGLE)))
+    else if(forceRenderable || (TextureStorage11::IsTextureFormatRenderable(format) && (glusage == GL_FRAMEBUFFER_ATTACHMENT_ANGLE)))
     {
         bindFlags |= D3D11_BIND_RENDER_TARGET;
     }
@@ -139,7 +139,7 @@ UINT TextureStorage11::getSubresourceIndex(int level, int faceIndex)
 
 bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsigned int sourceSubresource,
                                               int level, int face, GLint xoffset, GLint yoffset,
-                                              GLsizei width, GLsizei height, bool mipped)
+                                              GLsizei width, GLsizei height)
 {
     if (srcTexture)
     {
@@ -159,6 +159,7 @@ bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsig
         ID3D11DeviceContext *context = mRenderer->getDeviceContext();
         
         ASSERT(getBaseTexture());
+#if defined(ANLGE_PLATFORM_WINRT)
         if (!mipped)
         {
             D3D11_TEXTURE2D_DESC texDesc;
@@ -173,6 +174,7 @@ bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsig
                 mSRV = NULL;
             }
         }
+#endif
         context->CopySubresourceRegion(getBaseTexture(), getSubresourceIndex(level + mLodOffset, face),
                                        xoffset, yoffset, 0, srcTexture, sourceSubresource, &srcBox);
         return true;

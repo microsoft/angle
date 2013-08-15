@@ -288,6 +288,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
             else
             {
                 result = offscreenTextureResource->GetSharedHandle(&mShareHandle);
+                offscreenTextureResource->Release();
 
                 if (FAILED(result))
                 {
@@ -693,7 +694,11 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 
     // Apply shaders
     deviceContext->IASetInputLayout(mPassThroughIL);
+#if defined(ANGLE_PLATFORM_WINRT)
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+#else
+   deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+#endif // ANGLE_PLATFORM_WINRT
     deviceContext->VSSetShader(mPassThroughVS, NULL, 0);
     deviceContext->PSSetShader(mPassThroughPS, NULL, 0);
     deviceContext->GSSetShader(NULL, NULL, 0);

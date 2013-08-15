@@ -1519,8 +1519,8 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
         
         if (shaderModel >= 4 || isWinRT)
         {
-            pixelHLSL += "    gl_FragCoord.x = input.gl_FragCoord.x;\n"
-                         "    gl_FragCoord.y = -input.gl_FragCoord.y;\n";
+            pixelHLSL += "    gl_FragCoord.x = input.dx_VPos.x;\n"
+                         "    gl_FragCoord.y = input.dx_VPos.y;\n";
         }
         else if (shaderModel >= 3)
         {
@@ -1652,6 +1652,8 @@ bool ProgramBinary::load(InfoLog &infoLog, const void *binary, GLsizei length)
         mLinkedAttribute[i].name = name;
         stream.read(&mSemanticIndex[i]);
     }
+
+    initAttributesByLayout();
 
     for (unsigned int i = 0; i < MAX_TEXTURE_IMAGE_UNITS; ++i)
     {
@@ -2058,6 +2060,8 @@ bool ProgramBinary::linkAttributes(InfoLog &infoLog, const AttributeBindings &at
             mSemanticIndex[attributeIndex++] = index++;
         }
     }
+
+    initAttributesByLayout();
 
     return true;
 }
@@ -2585,12 +2589,6 @@ struct AttributeSorter
     AttributeSorter(const int (&semanticIndices)[MAX_VERTEX_ATTRIBS])
         : originalIndices(semanticIndices)
     {
-        for (int i = 0; i < MAX_VERTEX_ATTRIBS; i++)
-        {
-            indices[i] = i;
-        }
-
-        std::sort(&indices[0], &indices[MAX_VERTEX_ATTRIBS], *this);
     }
 
     bool operator()(int a, int b)
@@ -2598,27 +2596,32 @@ struct AttributeSorter
         return originalIndices[a] == -1 ? false : originalIndices[a] < originalIndices[b];
     }
 
-    int indices[MAX_VERTEX_ATTRIBS];
     const int (&originalIndices)[MAX_VERTEX_ATTRIBS];
 };
 
+void ProgramBinary::initAttributesByLayout()
+{
+    for (int i = 0; i < MAX_VERTEX_ATTRIBS; i++)
+    {
+        mAttributesByLayout[i] = i;
+    }
+
+    std::sort(&mAttributesByLayout[0], &mAttributesByLayout[MAX_VERTEX_ATTRIBS], AttributeSorter(mSemanticIndex));
+}
+
 void ProgramBinary::sortAttributesByLayout(rx::TranslatedAttribute attributes[MAX_VERTEX_ATTRIBS], int sortedSemanticIndices[MAX_VERTEX_ATTRIBS]) const
 {
-    AttributeSorter sorter(mSemanticIndex);
-
-    int oldIndices[MAX_VERTEX_ATTRIBS];
     rx::TranslatedAttribute oldTranslatedAttributes[MAX_VERTEX_ATTRIBS];
 
     for (int i = 0; i < MAX_VERTEX_ATTRIBS; i++)
     {
-        oldIndices[i] = mSemanticIndex[i];
         oldTranslatedAttributes[i] = attributes[i];
     }
 
     for (int i = 0; i < MAX_VERTEX_ATTRIBS; i++)
     {
-        int oldIndex = sorter.indices[i];
-        sortedSemanticIndices[i] = oldIndices[oldIndex];
+        int oldIndex = mAttributesByLayout[i];
+        sortedSemanticIndices[i] = mSemanticIndex[oldIndex];
         attributes[i] = oldTranslatedAttributes[oldIndex];
     }
 }

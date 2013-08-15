@@ -475,7 +475,7 @@ void Texture2D::commitRect(GLint level, GLint xoffset, GLint yoffset, GLsizei wi
     if (level < levelCount())
     {
         rx::Image *image = mImageArray[level];
-        if (image->updateSurface(mTexStorage, level, xoffset, yoffset, width, height, isMipmapFiltered() && isMipmapComplete()))
+        if (image->updateSurface(mTexStorage, level, xoffset, yoffset, width, height))
         {
             image->markClean();
         }

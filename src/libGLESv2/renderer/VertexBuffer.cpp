@@ -12,8 +12,6 @@
 #include "libGLESv2/renderer/Renderer.h"
 #include "libGLESv2/Context.h"
 
-using namespace std;
-
 namespace rx
 {
 

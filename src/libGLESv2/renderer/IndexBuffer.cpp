@@ -11,8 +11,6 @@
 #include "libGLESv2/renderer/IndexBuffer.h"
 #include "libGLESv2/renderer/Renderer.h"
 
-using namespace std;
-
 namespace rx
 {
 
