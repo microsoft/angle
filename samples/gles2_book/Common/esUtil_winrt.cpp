@@ -69,7 +69,7 @@ EGLBoolean CreateEGLContext ( EGLNativeWindowType hWnd, EGLDisplay* eglDisplay,
    
    // Get Display
    //display = eglGetDisplay(GetDC(hWnd));
-   display = eglGetDisplay(nullptr);
+   display = eglGetDisplay(EGL_D3D11_ONLY_DISPLAY_ANGLE);
    if ( display == EGL_NO_DISPLAY )
    {
       return EGL_FALSE;

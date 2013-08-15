@@ -76,22 +76,22 @@
 #if defined(ANGLE_PLATFORM_WINRT)
 #include <wrl/client.h>
 #include <agile.h>
-#endif // ANGLE_PLATFORM_WINRT
 
-typedef HDC     EGLNativeDisplayType;
-typedef HBITMAP EGLNativePixmapType;
-
-#if defined(ANGLE_PLATFORM_WINRT)
+// WinRT apps must specify a CoreWindow
+// WinRT XAML apps may also provide an optional SwapChainBackgroundPanel
 typedef struct {
     Platform::Agile<Windows::UI::Core::CoreWindow> window;
     Windows::UI::Xaml::Controls::SwapChainBackgroundPanel^ panel;
-} WinRTWindow;
+} EGLNativeWindowType;
 
-typedef WinRTWindow EGLNativeWindowType;
+typedef int EGLNativeDisplayType;
+typedef HBITMAP EGLNativePixmapType;
 
 #else
-typedef HWND EGLNativeWindowType;
-#endif
+typedef HDC     EGLNativeDisplayType;
+typedef HBITMAP EGLNativePixmapType;
+typedef HWND    EGLNativeWindowType;
+#endif // ANGLE_PLATFORM_WINRT
 
 #elif defined(__WINSCW__) || defined(__SYMBIAN32__)  /* Symbian */
 
