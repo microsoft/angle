@@ -495,7 +495,6 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         }
 #endif // ANGLE_PLATFORM_WINRT
 
-
 #if !defined(ANGLE_PLATFORM_WINRT)
         IDXGIFactory *factory = mRenderer->getDxgiFactory();
         DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
