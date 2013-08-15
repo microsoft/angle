@@ -26,7 +26,7 @@
     #pragma comment(lib,"d3dcompiler.lib")
 #else
     #pragma message("Warning: Visual Studio 2013 and Windows 8.1 required for Windows Store App certification")
-    #pragma message("Warning: Visual Studio 2012 d3dcompiler dll is available only for development.")
+    #pragma message("Warning: Visual Studio 2012 d3dcompiler dll is available only for development of a Windows Store App.")
 #endif // (_MSC_VER >= 1800)
 #else 
 #include "libGLESv2/renderer/Renderer9.h"
@@ -165,7 +165,7 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
         else
         {
 #if defined(ANGLE_PLATFORM_WINRT)
-            if(result == E_OUTOFMEMORY)
+            if (result == E_OUTOFMEMORY)
 #else
             if (result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY)
 #endif // ANGLE_PLATFORM_WINRT

@@ -1221,7 +1221,7 @@ void Renderer11::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices,
 
     unsigned int indexBufferOffset = offset;
 
-    if(mFeatureLevel > D3D_FEATURE_LEVEL_9_1)
+    if (mFeatureLevel > D3D_FEATURE_LEVEL_9_1)
         WriteIndexBufferLineLoop(reinterpret_cast<unsigned int*>(mappedMemory), type, indices, count);
     else
         WriteIndexBufferLineLoop(reinterpret_cast<unsigned short*>(mappedMemory), type, indices, count);
@@ -1338,7 +1338,7 @@ void Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indic
 
     unsigned int indexBufferOffset = offset;
 
-    if(mFeatureLevel > D3D_FEATURE_LEVEL_9_1)
+    if (mFeatureLevel > D3D_FEATURE_LEVEL_9_1)
         WriteIndexBufferTriangleFan(reinterpret_cast<unsigned int*>(mappedMemory), type, indices, numTris);
     else
         WriteIndexBufferTriangleFan(reinterpret_cast<unsigned short*>(mappedMemory), type, indices, numTris);
@@ -2687,7 +2687,7 @@ bool Renderer11::copyTexture(ID3D11ShaderResourceView *source, const gl::Rectang
         samplerDesc.BorderColor[2] = 0.0f;
         samplerDesc.BorderColor[3] = 0.0f;
         samplerDesc.MinLOD = 0.0f;
-        if(mDevice->GetFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
+        if (mDevice->GetFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
             samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
         else
             samplerDesc.MaxLOD = 0.0f; //breaks Surface RT if 0.0f
@@ -2782,7 +2782,7 @@ bool Renderer11::copyTexture(ID3D11ShaderResourceView *source, const gl::Rectang
     mDeviceContext->VSSetShader(mCopyVS, NULL, 0);
 
     ID3D11PixelShader *ps = NULL;
-    switch(destFormat)
+    switch (destFormat)
     {
       case GL_RGBA:            ps = mCopyRGBAPS;     break;
       case GL_RGB:             ps = mCopyRGBPS;      break;
@@ -2940,46 +2940,46 @@ ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const ch
     switch (type)
     {
       case rx::SHADER_VERTEX:
-        if(mFeatureLevel >= D3D_FEATURE_LEVEL_10_0)
+        if (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0)
             profile = "vs_4_0";
         else
         {
             switch(mFeatureLevel)
             {
-                case D3D_FEATURE_LEVEL_9_3:
-                    profile = "vs_4_0_level_9_3";
-                    break;
+              case D3D_FEATURE_LEVEL_9_3:
+                profile = "vs_4_0_level_9_3";
+                break;
 
-                case D3D_FEATURE_LEVEL_9_2:
-                case D3D_FEATURE_LEVEL_9_1:
-                    profile = "vs_4_0_level_9_1";
-                    break;
+              case D3D_FEATURE_LEVEL_9_2:
+              case D3D_FEATURE_LEVEL_9_1:
+                profile = "vs_4_0_level_9_1";
+                break;
 
-                default:
-                    UNREACHABLE();
-                    return NULL;
+              default:
+                UNREACHABLE();
+                return NULL;
             }
         }
         break;
       case rx::SHADER_PIXEL:
-        if(mFeatureLevel >= D3D_FEATURE_LEVEL_10_0)
+        if (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0)
             profile = "ps_4_0";
         else
         {
             switch(mFeatureLevel)
             {
-                case D3D_FEATURE_LEVEL_9_3:
-                    profile = "ps_4_0_level_9_3";
-                    break;
+              case D3D_FEATURE_LEVEL_9_3:
+                profile = "ps_4_0_level_9_3";
+                break;
 
-                case D3D_FEATURE_LEVEL_9_2:
-                case D3D_FEATURE_LEVEL_9_1:
-                    profile = "ps_4_0_level_9_1";
-                    break;
+              case D3D_FEATURE_LEVEL_9_2:
+              case D3D_FEATURE_LEVEL_9_1:
+                profile = "ps_4_0_level_9_1";
+                break;
 
-                default:
-                    UNREACHABLE();
-                    return NULL;
+              default:
+                UNREACHABLE();
+                return NULL;
             }
         }
         break;

@@ -1761,7 +1761,7 @@ void __stdcall glDeleteProgram(GLuint program)
         {
             if (!context->getProgram(program))
             {
-                if(context->getShader(program))
+                if (context->getShader(program))
                 {
                     return gl::error(GL_INVALID_OPERATION);
                 }
@@ -1851,7 +1851,7 @@ void __stdcall glDeleteShader(GLuint shader)
         {
             if (!context->getShader(shader))
             {
-                if(context->getProgram(shader))
+                if (context->getProgram(shader))
                 {
                     return gl::error(GL_INVALID_OPERATION);
                 }
@@ -2652,7 +2652,7 @@ void __stdcall glGenerateMipmap(GLenum target)
                         return gl::error(GL_INVALID_OPERATION);
                     }
 
-                    if(context->getMajorShaderModel() > 2)
+                    if (context->getMajorShaderModel() > 2)
                         tex2d->generateMipmaps();
                     break;
                 }
@@ -2666,7 +2666,7 @@ void __stdcall glGenerateMipmap(GLenum target)
                         return gl::error(GL_INVALID_OPERATION);
                     }
 
-                    if(context->getMajorShaderModel() > 2)
+                    if (context->getMajorShaderModel() > 2)
                         texcube->generateMipmaps();
                     break;
                 }
@@ -3218,7 +3218,7 @@ void __stdcall glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attac
             gl::Framebuffer *framebuffer = NULL;
             if (target == GL_READ_FRAMEBUFFER_ANGLE)
             {
-                if(context->getReadFramebufferHandle() == 0)
+                if (context->getReadFramebufferHandle() == 0)
                 {
                     return gl::error(GL_INVALID_OPERATION);
                 }
@@ -3569,7 +3569,7 @@ void __stdcall glGetQueryObjectuivEXT(GLuint id, GLenum pname, GLuint *params)
                 return gl::error(GL_INVALID_OPERATION);
             }
 
-            switch(pname)
+            switch (pname)
             {
               case GL_QUERY_RESULT_EXT:
                 params[0] = queryObject->getResult();

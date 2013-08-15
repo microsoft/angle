@@ -527,7 +527,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.BufferCount = 2;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
         swapChainDesc.Scaling = mWindow.panel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
-        if(mWindow.panel)
+        if (mWindow.panel)
         {
             result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
             if SUCCEEDED(result)
@@ -612,7 +612,7 @@ void SwapChain11::initPassThroughResources()
     samplerDesc.BorderColor[2] = 0.0f;
     samplerDesc.BorderColor[3] = 0.0f;
     samplerDesc.MinLOD = 0;
-    if(device->GetFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
+    if (device->GetFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
         samplerDesc.MaxLOD = FLT_MAX; //breaks Surface RT if 0.0f
     else
         samplerDesc.MaxLOD = 0.0f;

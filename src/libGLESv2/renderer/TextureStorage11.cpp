@@ -55,7 +55,7 @@ DWORD TextureStorage11::GetTextureBindFlags(DXGI_FORMAT format, GLenum glusage, 
     {
         bindFlags |= D3D11_BIND_DEPTH_STENCIL;
     }
-    else if(forceRenderable || (TextureStorage11::IsTextureFormatRenderable(format) && (glusage == GL_FRAMEBUFFER_ATTACHMENT_ANGLE)))
+    else if (forceRenderable || (TextureStorage11::IsTextureFormatRenderable(format) && (glusage == GL_FRAMEBUFFER_ATTACHMENT_ANGLE)))
     {
         bindFlags |= D3D11_BIND_RENDER_TARGET;
     }
@@ -64,7 +64,7 @@ DWORD TextureStorage11::GetTextureBindFlags(DXGI_FORMAT format, GLenum glusage, 
 
 bool TextureStorage11::IsTextureFormatRenderable(DXGI_FORMAT format)
 {
-    switch(format)
+    switch (format)
     {
       case DXGI_FORMAT_R8G8B8A8_UNORM:
       case DXGI_FORMAT_A8_UNORM:
@@ -159,7 +159,7 @@ bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsig
         ID3D11DeviceContext *context = mRenderer->getDeviceContext();
         
         ASSERT(getBaseTexture());
-        if(!mipped)
+        if (!mipped)
         {
             D3D11_TEXTURE2D_DESC texDesc;
             mTexture->GetDesc(&texDesc);
@@ -167,7 +167,7 @@ bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsig
             texDesc.MipLevels = 1;
             HRESULT result = mRenderer->getDevice()->CreateTexture2D(&texDesc, NULL, &mTexture);
             ASSERT(SUCCEEDED(result));
-            if(mSRV)
+            if (mSRV)
             {
                 mSRV->Release();
                 mSRV = NULL;
@@ -249,7 +249,7 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, int levels, GLenum 
     }
 
     DXGI_FORMAT convertedFormat = gl_d3d11::ConvertTextureFormat(internalformat);
-    if(mRenderer->getFeatureLevel() < D3D_FEATURE_LEVEL_9_2 && convertedFormat == DXGI_FORMAT_A8_UNORM)
+    if (mRenderer->getFeatureLevel() < D3D_FEATURE_LEVEL_9_2 && convertedFormat == DXGI_FORMAT_A8_UNORM)
         convertedFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
     if (d3d11::IsDepthStencilFormat(convertedFormat))
     {
@@ -278,7 +278,7 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, int levels, GLenum 
         D3D11_TEXTURE2D_DESC desc;
         desc.Width = width;      // Compressed texture size constraints?
         desc.Height = height;
-        if(mRenderer->getMajorShaderModel() <= 2 && (!gl::isPow2(width) || !gl::isPow2(height)))
+        if (mRenderer->getMajorShaderModel() <= 2 && (!gl::isPow2(width) || !gl::isPow2(height)))
             desc.MipLevels = 1;
         else
             desc.MipLevels = (levels > 0) ? levels + mLodOffset : 0;

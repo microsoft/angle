@@ -201,11 +201,11 @@ void BufferStorage11::setData(const void* data, unsigned int size, unsigned int 
         D3D11_BUFFER_DESC bufferDesc;
         bufferDesc.ByteWidth = requiredBufferSize;
         bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        if(mRenderer->getMajorShaderModel() > 2)
+        if (mRenderer->getMajorShaderModel() > 2)
             bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_INDEX_BUFFER;
         else
         {
-            if(bindingPoint == GL_ARRAY_BUFFER)
+            if (bindingPoint == GL_ARRAY_BUFFER)
                 bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
             else
                 bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;

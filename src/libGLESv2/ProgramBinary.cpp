@@ -1386,7 +1386,7 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
                         }
                     }
 
-                    if(sharedRegister)
+                    if (sharedRegister)
                     {
                         vertexHLSL += ".";
 
