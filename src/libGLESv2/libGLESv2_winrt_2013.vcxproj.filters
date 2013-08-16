@@ -176,6 +176,9 @@
     <ClCompile Include="renderer\IndexRangeCache.cpp">
       <Filter>Source Files\Renderer11</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\event_tracer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinaryStream.h">
