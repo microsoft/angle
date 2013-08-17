@@ -1703,7 +1703,7 @@ void Renderer11::maskedClear(const gl::ClearParameters &clearParams, bool usingE
         rsScissorDesc.DepthBias = 0;
         rsScissorDesc.DepthBiasClamp = 0.0f;
         rsScissorDesc.SlopeScaledDepthBias = 0.0f;
-        rsScissorDesc.DepthClipEnable = FALSE;
+        rsScissorDesc.DepthClipEnable = (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3) ? TRUE : FALSE;
         rsScissorDesc.ScissorEnable = TRUE;
         rsScissorDesc.MultisampleEnable = FALSE;
         rsScissorDesc.AntialiasedLineEnable = FALSE;
@@ -1719,7 +1719,7 @@ void Renderer11::maskedClear(const gl::ClearParameters &clearParams, bool usingE
         rsNoScissorDesc.DepthBias = 0;
         rsNoScissorDesc.DepthBiasClamp = 0.0f;
         rsNoScissorDesc.SlopeScaledDepthBias = 0.0f;
-        rsNoScissorDesc.DepthClipEnable = FALSE;
+        rsScissorDesc.DepthClipEnable = (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3) ? TRUE : FALSE;
         rsNoScissorDesc.ScissorEnable = FALSE;
         rsNoScissorDesc.MultisampleEnable = FALSE;
         rsNoScissorDesc.AntialiasedLineEnable = FALSE;
