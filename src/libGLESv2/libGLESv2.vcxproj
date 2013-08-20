@@ -72,14 +72,14 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProgramFiles)\Windows Kits\8.0\Include\shared;$(ProgramFiles)\Windows Kits\8.0\Include\um;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProgramFiles)\Windows Kits\8.0\Lib\win8\um\x86;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProgramFiles)\Windows Kits\8.0\Include\shared;$(ProgramFiles)\Windows Kits\8.0\Include\um;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProgramFiles)\Windows Kits\8.0\Lib\win8\um\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,7 +93,7 @@
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -126,7 +126,7 @@ copy "$(OutDir)libGLESv2.lib" "$(ProjectDir)..\..\lib\$(Configuration)\"
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
       <AdditionalOptions>$(ExternalCompilerOptions) %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -164,7 +164,7 @@ copy "$(OutDir)libGLESv2.lib" "$(ProjectDir)..\..\lib\$(Configuration)\"
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
       <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
@@ -200,7 +200,7 @@ copy "$(OutDir)libGLESv2.lib" "$(ProjectDir)..\..\lib\$(Configuration)\"
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4512;4702;4718;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
       <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
@@ -237,6 +237,12 @@ copy "$(OutDir)libGLESv2.lib" "$(ProjectDir)..\..\lib\$(Configuration)\"
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="..\common\debug.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\common\event_tracer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -305,8 +311,10 @@ copy "$(OutDir)libGLESv2.lib" "$(ProjectDir)..\..\lib\$(Configuration)\"
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\debug.h" />
+    <ClInclude Include="..\common\event_tracer.h" />
     <ClInclude Include="..\common\system.h" />
     <ClInclude Include="..\third_party\murmurhash\MurmurHash3.h" />
+    <ClInclude Include="..\third_party\trace_event\trace_event.h" />
     <ClInclude Include="angletypes.h" />
     <ClInclude Include="BinaryStream.h" />
     <ClInclude Include="Buffer.h" />
