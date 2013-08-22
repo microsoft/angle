@@ -40,9 +40,19 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\libEGL\libEGL_winrt_2013.vcxproj">
       <Project>{cd5990d7-2d62-490e-8436-ccd388893139}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
     <ProjectReference Include="..\..\..\src\libGLESv2\libGLESv2_winrt_2013.vcxproj">
       <Project>{5c1b40b9-6262-44a0-97a6-a8b9f032e6e0}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
