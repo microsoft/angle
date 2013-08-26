@@ -41,7 +41,7 @@
     <ProjectReference Include="..\..\..\src\libEGL\libEGL_winrt.vcxproj">
       <Project>{cd5990d7-2d62-490e-8436-ccd388893139}</Project>
       <Private>false</Private>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
