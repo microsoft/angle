@@ -1736,12 +1736,12 @@ bool ProgramBinary::load(InfoLog &infoLog, const void *binary, GLsizei length)
     const GUID *binaryIdentifier = (const GUID *) ptr;
     ptr += sizeof(GUID);
 
-    GUID identifier = mRenderer->getAdapterIdentifier();
-    if (memcmp(&identifier, binaryIdentifier, sizeof(GUID)) != 0)
-    {
-        infoLog.append("Invalid program binary.");
-        return false;
-    }
+    //GUID identifier = mRenderer->getAdapterIdentifier();
+    //if (memcmp(&identifier, binaryIdentifier, sizeof(GUID)) != 0)
+    //{
+    //    infoLog.append("Invalid program binary.");
+    //    return false;
+    //}
 
     const char *pixelShaderFunction = ptr;
     ptr += pixelShaderSize;

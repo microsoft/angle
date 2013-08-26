@@ -87,7 +87,17 @@ void RotatingCube::SetWindow(CoreWindow^ window)
     //title, width, and height are unused, but included for backwards compatibility
     esCreateWindow ( &m_esContext, nullptr, 0, 0, ES_WINDOW_RGB | ES_WINDOW_DEPTH );
 
-    m_colorProgram = esLoadProgram(g_colorVertexShader, g_colorFragmentShader);
+    //m_colorProgram = esLoadProgram(g_colorVertexShader, g_colorFragmentShader);
+    m_colorProgram = glCreateProgram();
+    FILE *fp = fopen("shader.bin", "rb");
+    fseek(fp, 0, SEEK_END);
+    int fileSize = ftell(fp);
+    rewind(fp);
+    char *shaderBuffer = new char[fileSize];
+    fread(shaderBuffer, fileSize, 1, fp);
+    glProgramBinaryOES(m_colorProgram, GL_PROGRAM_BINARY_ANGLE, shaderBuffer, fileSize);
+    delete [] shaderBuffer;
+    fclose(fp);
     a_positionColor = glGetAttribLocation(m_colorProgram, "a_position");
     a_colorColor = glGetAttribLocation(m_colorProgram, "a_color");
     u_mvpColor = glGetUniformLocation(m_colorProgram, "u_mvp");

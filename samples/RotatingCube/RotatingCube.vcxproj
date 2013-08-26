@@ -122,7 +122,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
-      <PreprocessorDefinitions>ANGLE_PLATFORM_WINRT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GL_GLEXT_PROTOTYPES;ANGLE_PLATFORM_WINRT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Level4</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Level4</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Level4</WarningLevel>
@@ -169,6 +169,9 @@
       <Link>%(OutputDir)%(FileName)%(Extension)</Link>
     </None>
     <None Include="RotatingCube_TemporaryKey.pfx" />
+    <None Include="shader.bin">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</DeploymentContent>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gles2_book\Common\esUtil_winrt.vcxproj">
