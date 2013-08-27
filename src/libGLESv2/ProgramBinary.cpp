@@ -1736,12 +1736,16 @@ bool ProgramBinary::load(InfoLog &infoLog, const void *binary, GLsizei length)
     const GUID *binaryIdentifier = (const GUID *) ptr;
     ptr += sizeof(GUID);
 
-    //GUID identifier = mRenderer->getAdapterIdentifier();
-    //if (memcmp(&identifier, binaryIdentifier, sizeof(GUID)) != 0)
-    //{
-    //    infoLog.append("Invalid program binary.");
-    //    return false;
-    //}
+//since precompiled HLSL is a standardized format that doesn't change based on
+//the platform it's compiled on this is an unnecessary check
+#if !defined(ANGLE_PLATFORM_WINRT)
+    GUID identifier = mRenderer->getAdapterIdentifier();
+    if (memcmp(&identifier, binaryIdentifier, sizeof(GUID)) != 0)
+    {
+        infoLog.append("Invalid program binary.");
+        return false;
+    }
+#endif
 
     const char *pixelShaderFunction = ptr;
     ptr += pixelShaderSize;
