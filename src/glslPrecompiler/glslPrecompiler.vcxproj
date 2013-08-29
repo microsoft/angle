@@ -78,30 +78,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Program.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Uniform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Program.h" />
-    <ClInclude Include="ProgramBinary.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Uniform.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\compiler\preprocessor\preprocessor.vcxproj">
-      <Project>{fbe32df3-0fb0-4f2f-a424-2c21bd7bc325}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\compiler\translator_common.vcxproj">
-      <Project>{5b3a6db8-1e7e-40d7-92b9-da8aae619fad}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\compiler\translator_hlsl.vcxproj">
-      <Project>{5620f0e4-6c43-49bc-a178-b804e1a0c3a7}</Project>
-      <Private>false</Private>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+    <ProjectReference Include="..\..\samples\gles2_book\Common\esUtil.vcxproj">
+      <Project>{47c93f52-ab4e-4ff9-8d4f-b38cd60a183f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
