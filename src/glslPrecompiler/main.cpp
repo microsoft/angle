@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 //
 void usage()
 {
-    printf("Usage: translate [-i -m -o -u -l -e -b=e -b=g -b=h -x=i -x=d] file1 file2 ...\n"
+    printf("Usage: glslPrecompiler [-i -m -o -u -l -e -b=e -b=g -b=h -x=i -x=d] file1 file2 ...\n"
         "Where: filename : filename ending in .frag or .vert\n"
         "       -o=[file] : output file\n");
 }
