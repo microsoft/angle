@@ -20,6 +20,9 @@ using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
+#elif defined(COMPILE_SHADER)
+#include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
+#include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
 #else
 #include "libGLESv2/renderer/shaders/compiled/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"

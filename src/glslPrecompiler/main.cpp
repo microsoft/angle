@@ -11,6 +11,10 @@ static void usage();
 
 int main(int argc, char* argv[])
 {
+    ESContext esContext;
+    esInitContext(&esContext);
+    esCreateWindow(&esContext, TEXT("GLSL Precompiler"), 1, 1, ES_WINDOW_RGB);
+
     GLuint vertexShader = 0;
     GLuint fragmentShader = 0;
     bool usageFail = false;
@@ -79,13 +83,20 @@ int main(int argc, char* argv[])
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &linkStatus);
         char *infoLog = new char[linkStatus];
         glGetProgramInfoLog(program, linkStatus, NULL, infoLog);
-        printf("Failed to link the shaders into a program due to:%s\n", infoLog);
+        printf("Failed to link the shaders into a program due to:\n%s\n", infoLog);
         delete [] infoLog;
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
         return 0;
     }
-
+    glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH_OES, &linkStatus);
+    char *binary = new char[linkStatus];
+    GLenum binaryFormat;
+    glGetProgramBinaryOES(program, linkStatus, NULL, &binaryFormat, binary);
+    FILE *fp = fopen(outputFile, "wb");
+    fwrite(binary, linkStatus, 1, fp);
+    fclose(fp);
+    delete [] binary;
     printf("Compilation successful\n");
     return 0;
 }
