@@ -487,13 +487,6 @@ EGLBoolean __stdcall eglQuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint 
     }
 }
 
-EGLint __stdcall eglResizeSurface(EGLSurface surface, EGLint width, EGLint height)
-{
-    egl::Surface *surf = static_cast<egl::Surface*>(surface);
-    rx::SwapChain *swapChain = surf->getSwapChain();
-    return swapChain->resize(width, height);
-}
-
 EGLBoolean __stdcall eglQuerySurfacePointerANGLE(EGLDisplay dpy, EGLSurface surface, EGLint attribute, void **value)
 {
     TRACE("(EGLDisplay dpy = 0x%0.8p, EGLSurface surface = 0x%0.8p, EGLint attribute = %d, void **value = 0x%0.8p)",

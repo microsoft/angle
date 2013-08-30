@@ -244,6 +244,14 @@ EGLSurface Display::createWindowSurface(EGLNativeWindowType window, EGLConfig co
 
     mSurfaceSet.insert(surface);
 
+#if defined(ANGLE_PLATFORM_WINRT)
+    m_orientation = Windows::Graphics::Display::DisplayProperties::CurrentOrientation;
+    m_windowBounds = window.window->Bounds;
+    mDisplayRT = ref new DisplayRT(this, surface);
+    window.window->SizeChanged += 
+        ref new Windows::Foundation::TypedEventHandler<Windows::UI::Core::CoreWindow^, Windows::UI::Core::WindowSizeChangedEventArgs^>(mDisplayRT, &DisplayRT::onWindowSizeChanged);
+#endif
+
     return success(surface);
 }
 
@@ -542,5 +550,30 @@ const char *Display::getVendorString() const
 {
     return mVendorString.c_str();
 }
+
+#if defined(ANGLE_PLATFORM_WINRT)
+void Display::onWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args, Surface *surface)
+{
+    if (sender->Bounds.Width  != m_windowBounds.Width ||
+        sender->Bounds.Height != m_windowBounds.Height ||
+        m_orientation != Windows::Graphics::Display::DisplayProperties::CurrentOrientation)
+    {
+        glFlush();
+
+        m_orientation = Windows::Graphics::Display::DisplayProperties::CurrentOrientation;
+        m_windowBounds = sender->Bounds;
+        surface->onWindowSizeChanged();
+    }
+}
+
+Display::DisplayRT::DisplayRT(Display *display, Surface *surface) : mDisplay(display), mSurface(surface)
+{
+}
+
+void Display::DisplayRT::onWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args)
+{
+    mDisplay->onWindowSizeChanged(sender, args, mSurface);
+}
+#endif
 
 }

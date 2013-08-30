@@ -300,8 +300,3 @@ char* ESUTIL_API esLoadTGA ( char *fileName, int *width, int *height )
 
    return NULL;
 }
-
-void ESUTIL_API esResizeWindow ( ESContext *esContext, GLint width, GLint height )
-{
-    eglResizeSurface(esContext->eglSurface, width, height);
-}

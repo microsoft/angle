@@ -68,6 +68,10 @@ class Surface
 
     virtual void setBoundTexture(gl::Texture2D *texture);
     virtual gl::Texture2D *getBoundTexture() const;
+    
+#if defined(ANGLE_PLATFORM_WINRT)
+    void onWindowSizeChanged();
+#endif // ANGLE_PLATFORM_WINRT
 
 private:
     DISALLOW_COPY_AND_ASSIGN(Surface);
@@ -84,9 +88,6 @@ private:
     bool resetSwapChain(int backbufferWidth, int backbufferHeight);
     bool swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
 
-#if defined(ANGLE_PLATFORM_WINRT)
-    void onWindowSizeChanged();
-#endif // ANGLE_PLATFORM_WINRT
     EGLNativeWindowType mWindow;
 
     bool mWindowSubclassed;        // Indicates whether we successfully subclassed mWindow for WM_RESIZE hooking

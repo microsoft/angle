@@ -206,9 +206,6 @@ void RotatingCube::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEven
         sender->Bounds.Height != m_windowBounds.Height ||
         m_orientation != DisplayProperties::CurrentOrientation)
     {
-        // Internally calls DX11's version of flush
-        glFlush();
-
         // Store the window bounds so the next time we get a SizeChanged event we can
         // avoid rebuilding everything if the size is identical.
         m_windowBounds = sender->Bounds;
@@ -221,14 +218,7 @@ void RotatingCube::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEven
         // landscape-oriented width and height. If the window is in a portrait
         // orientation, the dimensions must be reversed.
         m_orientation = DisplayProperties::CurrentOrientation;
-        //bool swapDimensions =
-        //    m_orientation == DisplayOrientations::Portrait ||
-        //    m_orientation == DisplayOrientations::PortraitFlipped;
-        //if(swapDimensions)
-        //    std::swap(windowWidth, windowHeight);
 
-        // Actually resize the underlying swapchain
-        esResizeWindow(&m_esContext, static_cast<UINT>(windowWidth), static_cast<UINT>(windowHeight));
         glViewport(0, 0, static_cast<UINT>(windowWidth), static_cast<UINT>(windowHeight));
         m_projectionMatrix = XMMatrixPerspectiveFovRH(70.0f * XM_PI / 180.0f, windowWidth / windowHeight, 0.01f, 100.0f);
     }
