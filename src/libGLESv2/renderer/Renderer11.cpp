@@ -2983,6 +2983,7 @@ ShaderExecutable *Renderer11::loadExecutable(const void *function, size_t length
     return executable;
 }
 
+#if !defined(ANGLE_PLATFORM_WP8)
 ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const char *shaderHLSL, rx::ShaderType type)
 {
     const char *profile = NULL;
@@ -3050,6 +3051,7 @@ ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const ch
 
     return executable;
 }
+#endif
 
 VertexBuffer *Renderer11::createVertexBuffer()
 {

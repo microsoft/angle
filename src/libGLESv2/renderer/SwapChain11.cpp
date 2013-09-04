@@ -14,8 +14,10 @@
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
+#if !defined(ANGLE_PLATFORM_WP8)
 #include <windows.ui.xaml.media.dxinterop.h>
 using namespace Windows::UI::Xaml::Controls;
+#endif
 using namespace Microsoft::WRL;
 using namespace Windows::UI::Core;
 using namespace Windows::Foundation;
@@ -517,6 +519,29 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.Windowed = TRUE;
         result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
+
+#elif defined(ANGLE_PLATFORM_WP8)
+        IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+		swapChainDesc.Width = static_cast<UINT>(backbufferWidth); // Match the size of the window.
+		swapChainDesc.Height = static_cast<UINT>(backbufferHeight);
+		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // This is the most common swap chain format.
+		swapChainDesc.Stereo = false;
+		swapChainDesc.SampleDesc.Count = 1; // Don't use multi-sampling.
+		swapChainDesc.SampleDesc.Quality = 0;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.BufferCount = 1; // On phone, only single buffering is supported.
+		swapChainDesc.Scaling = DXGI_SCALING_STRETCH; // On phone, only stretch and aspect-ratio stretch scaling are allowed.
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // On phone, no swap effects are supported.
+		swapChainDesc.Flags = 0;
+
+		result = factory->CreateSwapChainForCoreWindow(
+			device,
+			reinterpret_cast<IUnknown*>(const_cast<CoreWindow^>(mWindow.window.Get())),
+			&swapChainDesc,
+			nullptr, // Allow on all displays.
+			&mSwapChain
+			);
 
 #elif defined(ANGLE_PLATFORM_WINRT)
         IDXGIFactory2 *factory = mRenderer->getDxgiFactory();

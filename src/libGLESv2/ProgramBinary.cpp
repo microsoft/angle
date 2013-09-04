@@ -1923,6 +1923,10 @@ GLint ProgramBinary::getLength()
 
 bool ProgramBinary::link(InfoLog &infoLog, const AttributeBindings &attributeBindings, FragmentShader *fragmentShader, VertexShader *vertexShader)
 {
+#if defined(ANGLE_PLATFORM_WP8)
+	ERR("No program linking in ANGLE_PLATFORM_WP8 \n");
+	return false;
+#else
     if (!fragmentShader || !fragmentShader->isCompiled())
     {
         return false;
@@ -1996,6 +2000,7 @@ bool ProgramBinary::link(InfoLog &infoLog, const AttributeBindings &attributeBin
     }
 
     return success;
+#endif // ANGLE_PLATFORM_WP8
 }
 
 // Determines the mapping between GL attributes and Direct3D 9 vertex stream usage indices

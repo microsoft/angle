@@ -10,14 +10,29 @@
 #include "libGLESv2/main.h"
 
 #include "libGLESv2/Context.h"
-#if defined(ANGLE_PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT) && !defined(ANGLE_PLATFORM_WP8)
 #include "common/winrt/threadutils.h"
 using namespace ThreadUtilsWinRT;
 #endif // ANGLE_PLATFORM_WINRT
 
+#if defined(ANGLE_PLATFORM_WP8)
+#define TLS_OUT_OF_INDEXES -1
+
+__declspec( thread ) DWORD currentTLS = TLS_OUT_OF_INDEXES;
+__declspec( thread ) gl::Current glContext;
+
+gl::Current* TlsGetValue(DWORD index) { return &glContext; };
+void * LocalAlloc(UINT uFlags, size_t size) { return (void*) &glContext; };
+void LocalFree(HLOCAL index) {glContext.context = NULL; glContext.display = NULL;};
+DWORD TlsAlloc() { return 1; };
+void TlsSetValue(DWORD currentTLS, gl::Current* current) {};
+void TlsFree(DWORD index) {currentTLS = TLS_OUT_OF_INDEXES;};
+#else
 static DWORD currentTLS = TLS_OUT_OF_INDEXES;
+#endif
 
 #if defined(ANGLE_PLATFORM_WINRT)
+
 [Platform::MTAThread]
 #endif // ANGLE_PLATFORM_WINRT
 extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
@@ -75,6 +90,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
 
     return TRUE;
 }
+
 
 namespace gl
 {

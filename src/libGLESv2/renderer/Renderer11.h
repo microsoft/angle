@@ -159,7 +159,9 @@ class Renderer11 : public Renderer
 
     // Shader operations
     virtual ShaderExecutable *loadExecutable(const void *function, size_t length, rx::ShaderType type);
+#if !defined(ANGLE_PLATFORM_WP8)
     virtual ShaderExecutable *compileToExecutable(gl::InfoLog &infoLog, const char *shaderHLSL, rx::ShaderType type);
+#endif
 
     // Image operations
     virtual Image *createImage();

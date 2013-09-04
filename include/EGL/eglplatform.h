@@ -81,7 +81,11 @@
 // WinRT XAML apps may also provide an optional SwapChainBackgroundPanel
 typedef struct {
     Platform::Agile<Windows::UI::Core::CoreWindow> window;
+#if !defined(ANGLE_PLATFORM_WP8)
     Windows::UI::Xaml::Controls::SwapChainBackgroundPanel^ panel;
+#else
+	void* panel;
+#endif
 } EGLNativeWindowType;
 
 typedef int EGLNativeDisplayType;

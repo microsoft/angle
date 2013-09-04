@@ -13,9 +13,13 @@
 #include "libGLESv2/Uniform.h"
 #include "libGLESv2/angletypes.h"
 
+#if defined(ANGLE_PLATFORM_WP8)
+#define D3DCOMPILE_OPTIMIZATION_LEVEL3            (1 << 15)
+#endif // ANGLE_PLATFORM_WP8
+
 #if !defined(ANGLE_COMPILE_OPTIMIZATION_LEVEL)
 #define ANGLE_COMPILE_OPTIMIZATION_LEVEL D3DCOMPILE_OPTIMIZATION_LEVEL3
-#endif
+#endif // ANGLE_COMPILE_OPTIMIZATION_LEVEL
 
 const int versionWindowsVista = MAKEWORD(0x00, 0x06);
 const int versionWindows7 = MAKEWORD(0x01, 0x06);
@@ -209,7 +213,9 @@ class Renderer
 
     // Shader operations
     virtual ShaderExecutable *loadExecutable(const void *function, size_t length, rx::ShaderType type) = 0;
+#if !defined(ANGLE_PLATFORM_WP8)
     virtual ShaderExecutable *compileToExecutable(gl::InfoLog &infoLog, const char *shaderHLSL, rx::ShaderType type) = 0;
+#endif //ANGLE_PLATFORM_WP8
 
     // Image operations
     virtual Image *createImage() = 0;
@@ -232,7 +238,6 @@ class Renderer
   protected:
     bool initializeCompiler();
     ShaderBlob *compileToBinary(gl::InfoLog &infoLog, const char *hlsl, const char *profile, UINT optimizationFlags, bool alternateFlags);
-
     egl::Display *mDisplay;
 
   private:

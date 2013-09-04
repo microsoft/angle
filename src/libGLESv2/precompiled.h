@@ -40,7 +40,10 @@
 #endif // ANGLE_PLATFORM_WINRT
 
 #include <dxgi.h>
+
+#if !defined (ANGLE_PLATFORM_WP8)
 #include <D3Dcompiler.h>
+#endif // ANGLE_PLATFORM_WP8
 
 #ifdef _MSC_VER
 #include <hash_map>

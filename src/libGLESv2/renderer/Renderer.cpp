@@ -20,6 +20,10 @@
 #define ANGLE_ENABLE_D3D11 0
 #endif
 
+#if !defined(D3DCOMPILER_DLL)
+#define D3DCOMPILER_DLL "NO_COMPILER"
+#endif
+
 // d3dcompiler is available to Windows Store Apps (winrt) in Windows 8.1
 // using Visual Studio 2013
 #if defined(ANGLE_PLATFORM_WINRT)
@@ -54,6 +58,12 @@ Renderer::~Renderer()
 bool Renderer::initializeCompiler()
 {
     TRACE_EVENT0("gpu", "initializeCompiler");
+#if defined(ANGLE_PLATFORM_WP8)
+    mD3dCompilerModule = NULL;
+    mD3DCompileFunc = NULL;
+    return true;
+#endif // (ANGLE_PLATFORM_WINRT) && (_MSC_VER >= 1800)
+
 #if defined(ANGLE_PLATFORM_WINRT) && (_MSC_VER >= 1800)
     mD3dCompilerModule = NULL;
     mD3DCompileFunc = reinterpret_cast<pCompileFunc>(D3DCompile);
@@ -92,6 +102,7 @@ bool Renderer::initializeCompiler()
     return mD3DCompileFunc != NULL;
 }
 
+#if !defined(ANGLE_PLATFORM_WP8)
 // Compiles HLSL code into executable binaries
 ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, const char *profile, UINT optimizationFlags, bool alternateFlags)
 {
@@ -188,6 +199,7 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
     }
     return NULL;
 }
+#endif // ANGLE_PLATFORM_WP8
 
 }
 
