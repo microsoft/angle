@@ -70,7 +70,9 @@ void RotatingCube::SetWindow(CoreWindow^ window)
 	window->Closed += 
         ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &RotatingCube::OnWindowClosed);
 
-	//window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
+#if !defined(ANGLE_PLATFORM_WP8)
+	window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
+#endif
 
 	window->PointerPressed +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &RotatingCube::OnPointerPressed);
@@ -78,6 +80,7 @@ void RotatingCube::SetWindow(CoreWindow^ window)
 	window->PointerMoved +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &RotatingCube::OnPointerMoved);
 
+#if defined(ANGLE_PLATFORM_WP8)
 	DisplayProperties::AutoRotationPreferences = 
 		DisplayOrientations::Landscape | 
 		DisplayOrientations::LandscapeFlipped | 
@@ -85,6 +88,7 @@ void RotatingCube::SetWindow(CoreWindow^ window)
 		DisplayOrientations::PortraitFlipped;
 	DisplayProperties::OrientationChanged +=
 		ref new DisplayPropertiesEventHandler(this, &RotatingCube::OnOrientationChanged);
+#endif
 
 	m_orientation = DisplayProperties::CurrentOrientation;
     m_windowBounds = window->Bounds;
@@ -252,15 +256,12 @@ void RotatingCube::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
 	// Insert your code here.
 }
 
+#if defined(ANGLE_PLATFORM_WP8)
 void RotatingCube::OnOrientationChanged(Platform::Object^ sender)
 {
 	m_windowBounds = CoreWindow::GetForCurrentThread()->Bounds;
 	float aspectRatio = m_windowBounds.Width / m_windowBounds.Height;
 	float fovAngleY = 70.0f * XM_PI / 180.0f;
-	if (aspectRatio < 1.0f)
-	{
-		//fovAngleY /= aspectRatio;
-	}
 
 	XMMATRIX orientationCorrection;
 	DXGI_MODE_ROTATION rotation;
@@ -292,6 +293,7 @@ void RotatingCube::OnOrientationChanged(Platform::Object^ sender)
     m_projectionMatrix = XMMatrixPerspectiveFovRH(fovAngleY, aspectRatio, 0.01f, 100.0f);
 	m_projectionMatrix = XMMatrixMultiply(orientationCorrection, m_projectionMatrix);
 }
+#endif
 
 void RotatingCube::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
 {

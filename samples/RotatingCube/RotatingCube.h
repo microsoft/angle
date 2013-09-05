@@ -33,7 +33,9 @@ protected:
 	void OnVisibilityChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::VisibilityChangedEventArgs^ args);
 	void OnPointerPressed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
 	void OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
+#if defined(ANGLE_PLATFORM_WP8)
 	void OnOrientationChanged(Platform::Object^ sender);
+#endif
 
 private:
     ESContext m_esContext;
