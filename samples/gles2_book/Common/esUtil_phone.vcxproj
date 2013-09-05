@@ -55,6 +55,12 @@
   <PropertyGroup>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>_LIB;ANGLE_PLATFORM_WINRT;ANGLE_PLATFORM_WP8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -166,6 +172,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\libEGL\libEGL_phone.vcxproj">
       <Project>{57eae839-8a09-4250-986a-3e21f98afbb0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\libGLESv2\libGLESv2_phone.vcxproj">
+      <Project>{0592f9c3-d727-4d41-bc9e-e43b269ad877}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

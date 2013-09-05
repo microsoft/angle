@@ -70,13 +70,21 @@ void RotatingCube::SetWindow(CoreWindow^ window)
 	window->Closed += 
         ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &RotatingCube::OnWindowClosed);
 
-	window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
+	//window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
 
 	window->PointerPressed +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &RotatingCube::OnPointerPressed);
 
 	window->PointerMoved +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &RotatingCube::OnPointerMoved);
+
+	DisplayProperties::AutoRotationPreferences = 
+		DisplayOrientations::Landscape | 
+		DisplayOrientations::LandscapeFlipped | 
+		DisplayOrientations::Portrait | 
+		DisplayOrientations::PortraitFlipped;
+	DisplayProperties::OrientationChanged +=
+		ref new DisplayPropertiesEventHandler(this, &RotatingCube::OnOrientationChanged);
 
 	m_orientation = DisplayProperties::CurrentOrientation;
     m_windowBounds = window->Bounds;
@@ -242,6 +250,47 @@ void RotatingCube::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
 void RotatingCube::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
 {
 	// Insert your code here.
+}
+
+void RotatingCube::OnOrientationChanged(Platform::Object^ sender)
+{
+	m_windowBounds = CoreWindow::GetForCurrentThread()->Bounds;
+	float aspectRatio = m_windowBounds.Width / m_windowBounds.Height;
+	float fovAngleY = 70.0f * XM_PI / 180.0f;
+	if (aspectRatio < 1.0f)
+	{
+		//fovAngleY /= aspectRatio;
+	}
+
+	XMMATRIX orientationCorrection;
+	DXGI_MODE_ROTATION rotation;
+
+	switch(Windows::Graphics::Display::DisplayProperties::CurrentOrientation)
+	{
+		case DisplayOrientations::Portrait:
+			orientationCorrection = XMMatrixIdentity();
+			rotation = DXGI_MODE_ROTATION_IDENTITY;
+			break;
+
+		case DisplayOrientations::PortraitFlipped:
+			orientationCorrection = XMMatrixRotationZ(XM_PI);
+			rotation = DXGI_MODE_ROTATION_ROTATE180;
+			break;
+
+		case DisplayOrientations::Landscape:
+			orientationCorrection = XMMatrixRotationZ(-XM_PIDIV2);
+			rotation = DXGI_MODE_ROTATION_ROTATE90;
+			break;
+			
+		case DisplayOrientations::LandscapeFlipped:
+			orientationCorrection = XMMatrixRotationZ(XM_PIDIV2);
+			rotation = DXGI_MODE_ROTATION_ROTATE270;
+			break;
+	}
+    float windowWidth = ConvertDipsToPixels(m_windowBounds.Width);
+    float windowHeight = ConvertDipsToPixels(m_windowBounds.Height);
+    m_projectionMatrix = XMMatrixPerspectiveFovRH(fovAngleY, aspectRatio, 0.01f, 100.0f);
+	m_projectionMatrix = XMMatrixMultiply(orientationCorrection, m_projectionMatrix);
 }
 
 void RotatingCube::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
