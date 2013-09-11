@@ -133,11 +133,6 @@
     <ClCompile Include="RotatingCube.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.bin">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Xml Include="WMAppManifest.xml" />
   </ItemGroup>
   <ItemGroup>

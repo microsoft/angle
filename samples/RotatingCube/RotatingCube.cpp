@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "RotatingCube.h"
 #include "BasicTimer.h"
+#include "shader.h"
 
 #define STRINGIFY(x) #x
 
@@ -101,15 +102,7 @@ void RotatingCube::SetWindow(CoreWindow^ window)
 
     //m_colorProgram = esLoadProgram(g_colorVertexShader, g_colorFragmentShader);
     m_colorProgram = glCreateProgram();
-    FILE *fp = fopen("shader.bin", "rb");
-    fseek(fp, 0, SEEK_END);
-    int fileSize = ftell(fp);
-    rewind(fp);
-    char *shaderBuffer = new char[fileSize];
-    fread(shaderBuffer, fileSize, 1, fp);
-    glProgramBinaryOES(m_colorProgram, GL_PROGRAM_BINARY_ANGLE, shaderBuffer, fileSize);
-    delete [] shaderBuffer;
-    fclose(fp);
+    glProgramBinaryOES(m_colorProgram, GL_PROGRAM_BINARY_ANGLE, gProgram, sizeof(gProgram));
     a_positionColor = glGetAttribLocation(m_colorProgram, "a_position");
     a_colorColor = glGetAttribLocation(m_colorProgram, "a_color");
     u_mvpColor = glGetUniformLocation(m_colorProgram, "u_mvp");

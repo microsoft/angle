@@ -285,7 +285,7 @@ void Asteroids::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventAr
         m_renderTargetSize.Height = swapDimensions ? windowWidth : windowHeight;
 
         // Actually resize the underlying swapchain
-        esResizeWindow(&m_esContext, static_cast<UINT>(m_renderTargetSize.Width), static_cast<UINT>(m_renderTargetSize.Height));
+        //esResizeWindow(&m_esContext, static_cast<UINT>(m_renderTargetSize.Width), static_cast<UINT>(m_renderTargetSize.Height));
         glViewport(0, 0, static_cast<UINT>(m_renderTargetSize.Width), static_cast<UINT>(m_renderTargetSize.Height));
 
         // Recreate the FBO with the new dimensions

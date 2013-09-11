@@ -18,7 +18,9 @@ int main(int argc, char* argv[])
     GLuint vertexShader = 0;
     GLuint fragmentShader = 0;
     bool usageFail = false;
+    bool outputToHeaderFile = false;
     char outputFile[1024] = "shader.file";
+    char variableName[1024];
 
     argc--;
     argv++;
@@ -28,6 +30,12 @@ int main(int argc, char* argv[])
             case 'o':
                 if (argv[0][2] == '=' && strlen(argv[0] + 3)) {
                     strcpy(outputFile, argv[0] + 3);
+                }
+                break;
+            case 'v':
+                if (argv[0][2] == '=') {
+                    strcpy(variableName, argv[0] + 3);
+                    outputToHeaderFile = true;
                 }
                 break;
             default: usageFail = true;
@@ -90,12 +98,31 @@ int main(int argc, char* argv[])
         return 0;
     }
     glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH_OES, &linkStatus);
-    char *binary = new char[linkStatus];
+    unsigned char *binary = new unsigned char[linkStatus];
     GLenum binaryFormat;
     glGetProgramBinaryOES(program, linkStatus, NULL, &binaryFormat, binary);
-    FILE *fp = fopen(outputFile, "wb");
-    fwrite(binary, linkStatus, 1, fp);
-    fclose(fp);
+    if(outputToHeaderFile)
+    {
+        FILE *fp = fopen(outputFile, "w");
+        fprintf(fp, "unsigned char %s[] = {\n", variableName);
+        fprintf(fp, "%3i, ", binary[0]);
+        for(int i = 1; i < linkStatus - 1; ++i)
+        {
+            if(i % 8 == 0)
+                fprintf(fp, "\n");
+            fprintf(fp, "%3i, ", binary[i]);
+        }
+        if((linkStatus - 1) % 8 == 0)
+            fprintf(fp, "\n");
+        fprintf(fp, "%3i\n};", binary[linkStatus - 1]);
+        fclose(fp);
+    }
+    else
+    {
+        FILE *fp = fopen(outputFile, "wb");
+        fwrite(binary, linkStatus, 1, fp);
+        fclose(fp);
+    }
     delete [] binary;
     printf("Compilation successful\n");
     return 0;
@@ -106,7 +133,8 @@ int main(int argc, char* argv[])
 //
 void usage()
 {
-    printf("Usage: glslPrecompiler [-i -m -o -u -l -e -b=e -b=g -b=h -x=i -x=d] file1 file2 ...\n"
+    printf("Usage: glslPrecompiler [-o=[file] -v=[variable]] file1 file2\n"
         "Where: filename : filename ending in .frag or .vert\n"
-        "       -o=[file] : output file\n");
+        "       -o=[file] : output file\n"
+        "       -v=[variable] : output to char array named [variable] in header file, omit for binary file\n");
 }
