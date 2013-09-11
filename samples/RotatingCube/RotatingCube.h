@@ -7,6 +7,7 @@
 #include <wrl/client.h>
 #include <ppl.h>
 #include <ppltasks.h>
+#include "CubeRenderer.h"
 
 using namespace DirectX;
 
@@ -41,11 +42,7 @@ private:
     ESContext m_esContext;
 	Windows::Foundation::Rect m_windowBounds;
 	Windows::Graphics::Display::DisplayOrientations m_orientation;
-    GLuint m_colorProgram;
-    GLint a_positionColor;
-    GLint a_colorColor;
-    GLint u_mvpColor;
-    XMMATRIX m_projectionMatrix;
+    CubeRenderer m_cubeRenderer;
 	bool m_windowClosed;
 	bool m_windowVisible;
 };

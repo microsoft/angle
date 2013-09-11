@@ -10,10 +10,12 @@
     <ClInclude Include="BasicTimer.h" />
     <ClInclude Include="RotatingCube.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="CubeRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RotatingCube.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="CubeRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="WMAppManifest.xml" />
