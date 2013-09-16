@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows 8
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libEGL_winrt", "libEGL\libEGL_winrt.vcxproj", "{CD5990D7-2D62-490E-8436-CCD388893139}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5C1B40B9-6262-44A0-97A6-A8B9F032E6E0} = {5C1B40B9-6262-44A0-97A6-A8B9F032E6E0}
