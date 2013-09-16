@@ -73,24 +73,12 @@
 #endif
 #include <windows.h>
 
-#if defined(ANGLE_PLATFORM_WINRT)
-#include <wrl/client.h>
-#include <agile.h>
-
-// WinRT apps must specify a CoreWindow
-// WinRT XAML apps may also provide an optional SwapChainBackgroundPanel
-typedef struct {
-    Platform::Agile<Windows::UI::Core::CoreWindow> window;
-#if !defined(ANGLE_PLATFORM_WP8)
-    Windows::UI::Xaml::Controls::SwapChainBackgroundPanel^ panel;
-#else
-	void* panel;
-#endif
-} EGLNativeWindowType;
-
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#include <wrl\client.h>
+#define WINRT_EGL_WINDOW(x) reinterpret_cast<IUnknown *>(x)
+typedef Microsoft::WRL::ComPtr<IUnknown> EGLNativeWindowType;
 typedef int EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
-
 #else
 typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
