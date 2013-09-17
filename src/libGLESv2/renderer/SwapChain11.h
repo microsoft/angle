@@ -48,11 +48,6 @@ class SwapChain11 : public SwapChain
     void initPassThroughResources();
     void releaseOffscreenTexture();
     EGLint resetOffscreenTexture(int backbufferWidth, int backbufferHeight);
-#if defined(ANGLE_PLATFORM_WINRT)
-    Windows::UI::Core::CoreWindow ^getWindowHandle();
-#else
-    HWND getWindowHandle();
-#endif // ANGLE_PLATFORM_WINRT
 
     Renderer11 *mRenderer;
     EGLint mHeight;
@@ -61,11 +56,11 @@ class SwapChain11 : public SwapChain
     unsigned int mSwapInterval;
     bool mPassThroughResourcesInit;
 
-#if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     IDXGISwapChain1 *mSwapChain;
 #else
     IDXGISwapChain *mSwapChain;
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
     ID3D11Texture2D *mBackBufferTexture;
     ID3D11RenderTargetView *mBackBufferRTView;
