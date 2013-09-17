@@ -244,13 +244,15 @@ EGLSurface Display::createWindowSurface(EGLNativeWindowType window, EGLConfig co
 
     mSurfaceSet.insert(surface);
 
-#if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if 0
     m_orientation = Windows::Graphics::Display::DisplayProperties::CurrentOrientation;
     m_windowBounds = window.window->Bounds;
     mDisplayRT = ref new DisplayRT(this, surface);
     window.window->SizeChanged += 
         ref new Windows::Foundation::TypedEventHandler<Windows::UI::Core::CoreWindow^, Windows::UI::Core::WindowSizeChangedEventArgs^>(mDisplayRT, &DisplayRT::onWindowSizeChanged);
 #endif
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
     return success(surface);
 }
@@ -468,11 +470,7 @@ bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
 {
     for (SurfaceSet::iterator surface = mSurfaceSet.begin(); surface != mSurfaceSet.end(); surface++)
     {
-#if defined(ANGLE_PLATFORM_WINRT)
-        if ((*surface)->getWindowHandle() == window.window.Get())
-#else
         if ((*surface)->getWindowHandle() == window)
-#endif // ANGLE_PLATFORM_WINRT
         {
             return true;
         }
@@ -483,12 +481,11 @@ bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
 
 void Display::initExtensionString()
 {
-#if defined(ANGLE_PLATFORM_WINRT)
-    //todo: figure out what swiftshader_d3d9.dll is for
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     bool swiftShader = false;
 #else
     HMODULE swiftShader = GetModuleHandle(TEXT("swiftshader_d3d9.dll"));
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     bool shareHandleSupported = mRenderer->getShareHandleSupport();
 
     mExtensionString = "";
@@ -551,7 +548,8 @@ const char *Display::getVendorString() const
     return mVendorString.c_str();
 }
 
-#if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if 0
 void Display::onWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args, Surface *surface)
 {
     if (sender->Bounds.Width  != m_windowBounds.Width ||
@@ -574,6 +572,8 @@ void Display::DisplayRT::onWindowSizeChanged(Windows::UI::Core::CoreWindow^ send
 {
     mDisplay->onWindowSizeChanged(sender, args, mSurface);
 }
+#endif
+
 #endif
 
 }
