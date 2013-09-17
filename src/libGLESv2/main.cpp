@@ -10,12 +10,9 @@
 #include "libGLESv2/main.h"
 
 #include "libGLESv2/Context.h"
-#if defined(ANGLE_PLATFORM_WINRT) && !defined(ANGLE_PLATFORM_WP8)
-#include "common/winrt/threadutils.h"
-using namespace ThreadUtilsWinRT;
-#endif // ANGLE_PLATFORM_WINRT
 
-#if defined(ANGLE_PLATFORM_WP8)
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #define TLS_OUT_OF_INDEXES -1
 
 __declspec( thread ) DWORD currentTLS = TLS_OUT_OF_INDEXES;
@@ -31,10 +28,7 @@ void TlsFree(DWORD index) {currentTLS = TLS_OUT_OF_INDEXES;};
 static DWORD currentTLS = TLS_OUT_OF_INDEXES;
 #endif
 
-#if defined(ANGLE_PLATFORM_WINRT)
 
-[Platform::MTAThread]
-#endif // ANGLE_PLATFORM_WINRT
 extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
     switch (reason)
