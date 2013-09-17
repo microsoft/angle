@@ -14,7 +14,7 @@ public:
 
     void CreateResources();
     void UpdateForWindowSizeChanged();
-#if defined(ANGLE_PLATFORM_WP8)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 	void OnOrientationChanged();
 #endif
 
