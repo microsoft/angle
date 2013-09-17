@@ -26,7 +26,7 @@
 
 // d3dcompiler is available to Windows Store Apps (winrt) in Windows 8.1
 // using Visual Studio 2013
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
 #if (_MSC_VER >= 1800)
     #pragma comment(lib,"d3dcompiler.lib")
 #else
@@ -35,7 +35,7 @@
 #endif // (_MSC_VER >= 1800)
 #else 
 #include "libGLESv2/renderer/Renderer9.h"
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
 
 namespace rx
 {
@@ -58,17 +58,17 @@ Renderer::~Renderer()
 bool Renderer::initializeCompiler()
 {
     TRACE_EVENT0("gpu", "initializeCompiler");
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if defined(ANGLE_PLATFORM_WP8)
     mD3dCompilerModule = NULL;
     mD3DCompileFunc = NULL;
     return true;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#endif //#if defined(ANGLE_PLATFORM_WP8)
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && (_MSC_VER >= 1800)
+#if defined(ANGLE_PLATFORM_WINRT) && (_MSC_VER >= 1800)
     mD3dCompilerModule = NULL;
     mD3DCompileFunc = reinterpret_cast<pCompileFunc>(D3DCompile);
     return true;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && (_MSC_VER >= 1800)
+#endif // #if defined(ANGLE_PLATFORM_WINRT) && (_MSC_VER >= 1800)
 
 #if defined(ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES)
     // Find a D3DCompiler module that had already been loaded based on a predefined list of versions.
@@ -83,11 +83,11 @@ bool Renderer::initializeCompiler()
     }
 #else
     // Load the version of the D3DCompiler DLL associated with the Direct3D version ANGLE was built with.
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
     mD3dCompilerModule = LoadPackagedLibrary((LPCWSTR)D3DCOMPILER_DLL, 0);
 #else
     mD3dCompilerModule = LoadLibrary(D3DCOMPILER_DLL);
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif //
 #endif  // ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES
 
     if (!mD3dCompilerModule)
@@ -102,7 +102,7 @@ bool Renderer::initializeCompiler()
     return mD3DCompileFunc != NULL;
 }
 
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if !defined(ANGLE_PLATFORM_WP8)
 // Compiles HLSL code into executable binaries
 ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, const char *profile, UINT optimizationFlags, bool alternateFlags)
 {
@@ -177,11 +177,11 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
         }
         else
         {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
             if (result == E_OUTOFMEMORY)
 #else
             if (result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY)
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
             {
                 return gl::error(GL_OUT_OF_MEMORY, (ShaderBlob*) NULL);
             }
@@ -199,7 +199,7 @@ ShaderBlob *Renderer::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, co
     }
     return NULL;
 }
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#endif // #if !defined(ANGLE_PLATFORM_WP8)
 
 }
 
@@ -235,10 +235,10 @@ rx::Renderer *glCreateRenderer(egl::Display *display, HDC hDc, EGLNativeDisplayT
         delete renderer;
     }
 
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(ANGLE_PLATFORM_WINRT)
     bool softwareDevice = (displayId == EGL_SOFTWARE_DISPLAY_ANGLE);
     renderer = new rx::Renderer9(display, hDc, softwareDevice);
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif //#if !defined(ANGLE_PLATFORM_WINRT)
     
     if (renderer)
     {

@@ -69,9 +69,9 @@ bool TextureStorage11::IsTextureFormatRenderable(DXGI_FORMAT format)
       case DXGI_FORMAT_R8G8B8A8_UNORM:
       case DXGI_FORMAT_A8_UNORM:
       case DXGI_FORMAT_R32G32B32A32_FLOAT:
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
       case DXGI_FORMAT_R32G32B32_FLOAT:
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif //#if defined(ANGLE_PLATFORM_WINRT)
       case DXGI_FORMAT_R16G16B16A16_FLOAT:
       case DXGI_FORMAT_B8G8R8A8_UNORM:
       case DXGI_FORMAT_R8_UNORM:
@@ -82,9 +82,9 @@ bool TextureStorage11::IsTextureFormatRenderable(DXGI_FORMAT format)
       case DXGI_FORMAT_BC1_UNORM:
       case DXGI_FORMAT_BC2_UNORM: 
       case DXGI_FORMAT_BC3_UNORM:
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(ANGLE_PLATFORM_WINRT)      
       case DXGI_FORMAT_R32G32B32_FLOAT:
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if !defined(ANGLE_PLATFORM_WINRT) 
         return false;
       default:
         UNREACHABLE();

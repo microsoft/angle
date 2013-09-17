@@ -17,11 +17,11 @@
 #include "libGLESv2/renderer/RenderStateCache.h"
 #include "libGLESv2/renderer/InputLayoutCache.h"
 #include "libGLESv2/renderer/RenderTarget.h"
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+
+#if defined(ANGLE_PLATFORM_WINRT)
 #include <wrl/client.h>
 #include <d3d11_1.h>
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
 namespace gl
 {
 class Renderbuffer;
@@ -159,7 +159,7 @@ class Renderer11 : public Renderer
 
     // Shader operations
     virtual ShaderExecutable *loadExecutable(const void *function, size_t length, rx::ShaderType type);
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if !defined(ANGLE_PLATFORM_WP8)
     virtual ShaderExecutable *compileToExecutable(gl::InfoLog &infoLog, const char *shaderHLSL, rx::ShaderType type);
 #endif
 
@@ -182,11 +182,13 @@ class Renderer11 : public Renderer
     // D3D11-renderer specific methods
     ID3D11Device *getDevice() { return mDevice; }
     ID3D11DeviceContext *getDeviceContext() { return mDeviceContext; };
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
+
     IDXGIFactory2 *getDxgiFactory() { return mDxgiFactory; };
 #else
     IDXGIFactory *getDxgiFactory() { return mDxgiFactory; };
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
+
     D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; }
 
     bool getRenderTargetResource(gl::Renderbuffer *colorbuffer, unsigned int *subresourceIndex, ID3D11Texture2D **resource);
@@ -359,11 +361,11 @@ class Renderer11 : public Renderer
     IDXGIAdapter *mDxgiAdapter;
     DXGI_ADAPTER_DESC mAdapterDescription;
     char mDescription[128];
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
     IDXGIFactory2 *mDxgiFactory;
 #else
     IDXGIFactory *mDxgiFactory;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
     // Cached device caps
     bool mBGRATextureSupport;
 };

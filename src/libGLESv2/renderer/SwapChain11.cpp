@@ -11,13 +11,13 @@
 
 #include "libGLESv2/renderer/renderer11_utils.h"
 #include "libGLESv2/renderer/Renderer11.h"
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrtutils.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if !defined(ANGLE_PLATFORM_WP8)
 #include <windows.ui.xaml.media.dxinterop.h>
-#endif
+#endif // #if !defined(ANGLE_PLATFORM_WP8)
 using namespace Microsoft::WRL;
 using namespace ABI::Windows::UI::Core;
 using namespace Windows::Foundation;
@@ -27,7 +27,7 @@ using namespace Windows::Foundation;
 #else
 #include "libGLESv2/renderer/shaders/compiled/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/passthroughrgba11ps.h"
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
 
 namespace rx
 {
@@ -483,7 +483,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
     if (mWindow)
     {
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(ANGLE_PLATFORM_WINRT)
         // We cannot create a swap #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
         // for an HWND that is owned by a different process
         DWORD currentProcessId = GetCurrentProcessId();
@@ -496,9 +496,9 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
             release();
             return EGL_BAD_NATIVE_WINDOW;
         }
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif //#if !defined(ANGLE_PLATFORM_WINRT)
 
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(ANGLE_PLATFORM_WINRT)
         IDXGIFactory *factory = mRenderer->getDxgiFactory();
         DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
         swapChainDesc.BufferCount = 2;
@@ -517,7 +517,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         swapChainDesc.Windowed = TRUE;
         result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
 
-#elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#elif defined(ANGLE_PLATFORM_WP8)
         IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
 		swapChainDesc.Width = static_cast<UINT>(backbufferWidth); // Match the size of the window.
@@ -540,7 +540,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 			&mSwapChain
 			);
 
-#elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#elif defined(ANGLE_PLATFORM_WINRT)
         bool isPanel = winrt::isSwapChainBackgroundPanel(mWindow.Get());
         IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
@@ -571,7 +571,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         {
             result = factory->CreateSwapChainForCoreWindow(device, mWindow.Get(), &swapChainDesc, nullptr, &mSwapChain);
         }
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if !defined(ANGLE_PLATFORM_WINRT)
 
         if (FAILED(result))
         {
@@ -723,11 +723,11 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 
     // Apply shaders
     deviceContext->IASetInputLayout(mPassThroughIL);
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 #else
    deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
     deviceContext->VSSetShader(mPassThroughVS, NULL, 0);
     deviceContext->PSSetShader(mPassThroughPS, NULL, 0);
     deviceContext->GSSetShader(NULL, NULL, 0);
