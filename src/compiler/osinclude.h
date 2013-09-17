@@ -28,17 +28,27 @@
 #define STRICT
 #define VC_EXTRALEAN 1
 #include <windows.h>
+
+#if defined(WINAPI_FAMILY)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#define ANGLE_OS_WINRT
+#endif
+#if defined(WINAPI_PARTITION_PHONE) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#define ANGLE_OS_WP8
+#endif
+#endif // #if defined(WINAPI_FAMILY)
+
 #elif defined(ANGLE_OS_POSIX)
 #include <pthread.h>
 #include <semaphore.h>
 #include <errno.h>
 #endif  // ANGLE_OS_WIN
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_OS_WINRT)
 #include "third_party/winrt/ThreadEmulation/ThreadEmulation.h"
 #define TLS_OUT_OF_INDEXES ((DWORD)0xFFFFFFFF)
 #define OS_INVALID_TLS_INDEX (TLS_OUT_OF_INDEXES)
-#endif  #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif //#if defined(ANGLE_OS_WINRT)
 
 #include "compiler/debug.h"
 
@@ -60,7 +70,7 @@ bool OS_FreeTLSIndex(OS_TLSIndex nIndex);
 inline void* OS_GetTLSValue(OS_TLSIndex nIndex)
 {
     ASSERT(nIndex != OS_INVALID_TLS_INDEX);
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_OS_WINRT)
     return ThreadEmulation::TlsGetValue(nIndex);
 #elif defined(ANGLE_OS_WIN)
     return TlsGetValue(nIndex);
