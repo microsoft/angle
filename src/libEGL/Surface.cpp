@@ -21,7 +21,7 @@
 #include "libEGL/main.h"
 #include "libEGL/Display.h"
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrtutils.h"
 #include <wrl/client.h>
 #include <wrl\implements.h>
@@ -31,7 +31,7 @@
 #include <windows.applicationmodel.core.h>
 
 using namespace ABI::Windows::UI::Core;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
 
 
 
@@ -111,7 +111,7 @@ bool Surface::resetSwapChain()
 
     if (mWindow)
     {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
         winrt::getCurrentWindowDimensions(width, height);
 #else
         RECT windowRect;
@@ -125,7 +125,7 @@ bool Surface::resetSwapChain()
 
         width = windowRect.right - windowRect.left;
         height = windowRect.bottom - windowRect.top;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
     }
     else
     {
@@ -244,7 +244,7 @@ EGLNativeWindowType Surface::getWindowHandle()
 }
 
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
 
 
 
@@ -253,13 +253,13 @@ void Surface::onWindowSizeChanged()
     checkForOutOfDateSwapChain();    
 }
 
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
 
 
 #define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
 #define kParentWndProc _TEXT("Egl::SurfaceParentWndProc")
 
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(ANGLE_PLATFORM_WINRT)
 static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
   if (message == WM_SIZE)
@@ -273,7 +273,7 @@ static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam
   WNDPROC prevWndFunc = reinterpret_cast<WNDPROC >(GetProp(hwnd, kParentWndProc));
   return CallWindowProc(prevWndFunc, hwnd, message, wparam, lparam);
 }
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if !defined(ANGLE_PLATFORM_WINRT)
 
 void Surface::subclassWindow()
 {
@@ -282,7 +282,7 @@ void Surface::subclassWindow()
         return;
     }
 
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(ANGLE_PLATFORM_WINRT)
     DWORD processId;
     DWORD threadId = GetWindowThreadProcessId(mWindow, &processId);
     if (processId != GetCurrentProcessId() || threadId != GetCurrentThreadId())
@@ -300,7 +300,7 @@ void Surface::subclassWindow()
 
     SetProp(mWindow, kSurfaceProperty, reinterpret_cast<HANDLE>(this));
     SetProp(mWindow, kParentWndProc, reinterpret_cast<HANDLE>(oldWndProc));
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if !defined(ANGLE_PLATFORM_WINRT)
     mWindowSubclassed = true;
 }
 
@@ -311,7 +311,7 @@ void Surface::unsubclassWindow()
         return;
     }
 
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(ANGLE_PLATFORM_WINRT)
 
     // un-subclass
     LONG_PTR parentWndFunc = reinterpret_cast<LONG_PTR>(GetProp(mWindow, kParentWndProc));
@@ -329,13 +329,13 @@ void Surface::unsubclassWindow()
 
     RemoveProp(mWindow, kSurfaceProperty);
     RemoveProp(mWindow, kParentWndProc);
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if !defined(ANGLE_PLATFORM_WINRT)
     mWindowSubclassed = false;
 }
 
 bool Surface::checkForOutOfDateSwapChain()
 {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
     int clientWidth = 0;
     int clientHeight = 0;
     winrt::getCurrentWindowDimensions(clientWidth,clientHeight);
@@ -350,7 +350,7 @@ bool Surface::checkForOutOfDateSwapChain()
     // Grow the buffer now, if the window has grown. We need to grow now to avoid losing information.
     int clientWidth = client.right - client.left;
     int clientHeight = client.bottom - client.top;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
     bool sizeDirty = clientWidth != getWidth() || clientHeight != getHeight();
 
     if (mSwapIntervalDirty)
