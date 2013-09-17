@@ -61,9 +61,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
+    <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
+    <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -81,6 +89,8 @@
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>libEGL_phone.def</ModuleDefinitionFile>
+      <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -98,6 +108,8 @@
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>libEGL_phone.def</ModuleDefinitionFile>
+      <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -116,6 +128,8 @@
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>libEGL_phone.def</ModuleDefinitionFile>
+      <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -133,6 +147,8 @@
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>libEGL_phone.def</ModuleDefinitionFile>
+      <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
+      <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -162,7 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\debug.cpp" />
-    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp" />
+    <ClCompile Include="..\common\winrtutils.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="libEGL.cpp" />
