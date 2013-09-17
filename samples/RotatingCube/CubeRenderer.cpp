@@ -148,8 +148,6 @@ void CubeRenderer::OnOrientationChanged()
 			rotation = DXGI_MODE_ROTATION_ROTATE270;
 			break;
 	}
-    float windowWidth = ConvertDipsToPixels(m_windowBounds.Width);
-    float windowHeight = ConvertDipsToPixels(m_windowBounds.Height);
     m_projectionMatrix = XMMatrixPerspectiveFovRH(fovAngleY, aspectRatio, 0.01f, 100.0f);
 	m_projectionMatrix = XMMatrixMultiply(orientationCorrection, m_projectionMatrix);
 }
