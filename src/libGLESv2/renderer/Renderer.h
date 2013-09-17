@@ -13,9 +13,9 @@
 #include "libGLESv2/Uniform.h"
 #include "libGLESv2/angletypes.h"
 
-#if defined(ANGLE_PLATFORM_WP8)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 #define D3DCOMPILE_OPTIMIZATION_LEVEL3            (1 << 15)
-#endif // ANGLE_PLATFORM_WP8
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 
 #if !defined(ANGLE_COMPILE_OPTIMIZATION_LEVEL)
 #define ANGLE_COMPILE_OPTIMIZATION_LEVEL D3DCOMPILE_OPTIMIZATION_LEVEL3
@@ -24,7 +24,7 @@
 const int versionWindowsVista = MAKEWORD(0x00, 0x06);
 const int versionWindows7 = MAKEWORD(0x01, 0x06);
 
-#if !defined(ANGLE_PLATFORM_WINRT)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 // Return the version of the operating system in a format suitable for ordering
 // comparison.
 inline int getComparableOSVersion()
@@ -34,7 +34,7 @@ inline int getComparableOSVersion()
     int minorVersion = HIBYTE(LOWORD(version));
     return MAKEWORD(minorVersion, majorVersion);
 }
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
 namespace egl
 {
@@ -213,9 +213,9 @@ class Renderer
 
     // Shader operations
     virtual ShaderExecutable *loadExecutable(const void *function, size_t length, rx::ShaderType type) = 0;
-#if !defined(ANGLE_PLATFORM_WP8)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
     virtual ShaderExecutable *compileToExecutable(gl::InfoLog &infoLog, const char *shaderHLSL, rx::ShaderType type) = 0;
-#endif //ANGLE_PLATFORM_WP8
+#endif //WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 
     // Image operations
     virtual Image *createImage() = 0;
