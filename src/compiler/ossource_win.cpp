@@ -6,10 +6,6 @@
 
 #include "compiler/osinclude.h"
 
-#if defined(ANGLE_PLATFORM_WINRT)
-using namespace ThreadEmulation;
-#endif
-
 //
 // This file contains contains the window's specific functions
 //
@@ -17,6 +13,10 @@ using namespace ThreadEmulation;
 #if !defined(ANGLE_OS_WIN)
 #error Trying to build a windows specific file in a non windows build.
 #endif
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+using namespace ThreadEmulation;
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
 
 //
