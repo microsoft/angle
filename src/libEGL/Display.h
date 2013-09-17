@@ -69,10 +69,11 @@ class Display
 
     bool restoreLostDevice();
 
-#if defined(ANGLE_PLATFORM_WINRT)
-    void onWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args, Surface *surface);
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if 0
+    void onWindowSizeChanged(ABI::Windows::UI::Core::CoreWindow* sender, ABI::Windows::UI::Core::WindowSizeChangedEventArgs^ args, Surface *surface);
 
-    ref class DisplayRT
+    class DisplayRT
     {
       internal:
         DisplayRT(Display *display, Surface *surface);
@@ -83,8 +84,10 @@ class Display
     };
     
     DisplayRT ^mDisplayRT;
-	Windows::Graphics::Display::DisplayOrientations m_orientation;
-	Windows::Foundation::Rect m_windowBounds;
+	ABI::Windows::Graphics::Display::DisplayOrientations m_orientation;
+
+	ABI::Windows::Foundation::Rect m_windowBounds;
+#endif
 #endif
 
     EGLNativeDisplayType mDisplayId;
