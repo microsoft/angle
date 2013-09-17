@@ -34,7 +34,7 @@ protected:
 	void OnVisibilityChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::VisibilityChangedEventArgs^ args);
 	void OnPointerPressed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
 	void OnPointerMoved(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::PointerEventArgs^ args);
-#if defined(ANGLE_PLATFORM_WP8)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 	void OnOrientationChanged(Platform::Object^ sender);
 #endif
 
