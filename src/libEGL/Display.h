@@ -69,7 +69,7 @@ class Display
 
     bool restoreLostDevice();
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
 #if 0
     void onWindowSizeChanged(ABI::Windows::UI::Core::CoreWindow* sender, ABI::Windows::UI::Core::WindowSizeChangedEventArgs^ args, Surface *surface);
 
@@ -88,7 +88,7 @@ class Display
 
 	ABI::Windows::Foundation::Rect m_windowBounds;
 #endif
-#endif
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
 
     EGLNativeDisplayType mDisplayId;
     const HDC mDc;
