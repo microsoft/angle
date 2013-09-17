@@ -10,17 +10,12 @@
 
 #include "common/debug.h"
 #include <cstdlib>
-#if defined(ANGLE_PLATFORM_WINRT) && !defined(ANGLE_PLATFORM_WP8)
-#include "common/winrt/threadutils.h"
-using namespace ThreadUtilsWinRT;
-#endif // ANGLE_PLATFORM_WINRT
 
-#if defined(ANGLE_PLATFORM_WP8)
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #define TLS_OUT_OF_INDEXES -1
-
 __declspec( thread ) DWORD currentTLS = TLS_OUT_OF_INDEXES;
 __declspec( thread ) egl::Current glContext;
-
 egl::Current* TlsGetValue(DWORD index) { return &glContext; };
 void * LocalAlloc(UINT uFlags, size_t size) { return (void*) &glContext; };
 void LocalFree(HLOCAL index) {};
@@ -32,9 +27,6 @@ static DWORD currentTLS = TLS_OUT_OF_INDEXES;
 #endif
 
 
-#if defined(ANGLE_PLATFORM_WINRT)
-[Platform::MTAThread]
-#endif // ANGLE_PLATFORM_WINRT
 extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
     switch (reason)
