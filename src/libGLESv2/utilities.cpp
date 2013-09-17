@@ -11,9 +11,9 @@
 #include "libGLESv2/mathutil.h"
 
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrtutils.h"
-#endif
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
 
 namespace gl
 {
@@ -742,9 +742,8 @@ bool IsTriangleMode(GLenum drawMode)
 
 std::string getTempPath()
 {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
     return winrt::getTemporaryFilePath();
-
 #else
     char path[MAX_PATH];
     DWORD pathLen = GetTempPathA(sizeof(path) / sizeof(path[0]), path);
@@ -762,7 +761,7 @@ std::string getTempPath()
     }
     
     return path;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
 }
 
 void writeFile(const char* path, const void* content, size_t size)
