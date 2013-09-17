@@ -244,7 +244,7 @@ EGLSurface Display::createWindowSurface(EGLNativeWindowType window, EGLConfig co
 
     mSurfaceSet.insert(surface);
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
 #if 0
     m_orientation = Windows::Graphics::Display::DisplayProperties::CurrentOrientation;
     m_windowBounds = window.window->Bounds;
@@ -252,7 +252,7 @@ EGLSurface Display::createWindowSurface(EGLNativeWindowType window, EGLConfig co
     window.window->SizeChanged += 
         ref new Windows::Foundation::TypedEventHandler<Windows::UI::Core::CoreWindow^, Windows::UI::Core::WindowSizeChangedEventArgs^>(mDisplayRT, &DisplayRT::onWindowSizeChanged);
 #endif
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
 
     return success(surface);
 }
@@ -481,11 +481,11 @@ bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
 
 void Display::initExtensionString()
 {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
     bool swiftShader = false;
 #else
     HMODULE swiftShader = GetModuleHandle(TEXT("swiftshader_d3d9.dll"));
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
     bool shareHandleSupported = mRenderer->getShareHandleSupport();
 
     mExtensionString = "";
@@ -548,7 +548,7 @@ const char *Display::getVendorString() const
     return mVendorString.c_str();
 }
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
 #if 0
 void Display::onWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args, Surface *surface)
 {
@@ -574,6 +574,6 @@ void Display::DisplayRT::onWindowSizeChanged(Windows::UI::Core::CoreWindow^ send
 }
 #endif
 
-#endif
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
 
 }
