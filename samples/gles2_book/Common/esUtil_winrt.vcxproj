@@ -40,11 +40,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\libEGL\libEGL_winrt.vcxproj">
       <Project>{cd5990d7-2d62-490e-8436-ccd388893139}</Project>
-      <Private>false</Private>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
     <ProjectReference Include="..\..\..\src\libGLESv2\libGLESv2_winrt.vcxproj">
       <Project>{5c1b40b9-6262-44a0-97a6-a8b9f032e6e0}</Project>
@@ -117,26 +112,32 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>esUtil</TargetName>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>esUtil</TargetName>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>esUtil</TargetName>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>esUtil</TargetName>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>esUtil</TargetName>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>esUtil</TargetName>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -160,6 +161,10 @@
       <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -182,6 +187,10 @@
       <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|arm'">
     <ClCompile>
@@ -204,6 +213,10 @@
       <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|arm'">
     <ClCompile>
@@ -226,6 +239,10 @@
       <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -248,6 +265,10 @@
       <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -270,6 +291,10 @@
       <AdditionalOptions>/IGNORE:4264 %(AdditionalOptions)</AdditionalOptions>
       <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
