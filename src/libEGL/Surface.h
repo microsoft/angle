@@ -43,12 +43,8 @@ class Surface
     void release();
     bool resetSwapChain();
 
-#if defined(ANGLE_PLATFORM_WINRT)
-    Windows::UI::Core::CoreWindow ^getWindowHandle();
-    float convertDipsToPixels(float dips); 
-#else
-    HWND getWindowHandle();
-#endif // ANGLE_PLATFORM_WINRT
+    EGLNativeWindowType getWindowHandle();
+
     bool swap();
     bool postSubBuffer(EGLint x, EGLint y, EGLint width, EGLint height);
 
@@ -69,9 +65,10 @@ class Surface
     virtual void setBoundTexture(gl::Texture2D *texture);
     virtual gl::Texture2D *getBoundTexture() const;
     
-#if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     void onWindowSizeChanged();
-#endif // ANGLE_PLATFORM_WINRT
+#endif // #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+
 
 private:
     DISALLOW_COPY_AND_ASSIGN(Surface);

@@ -9,6 +9,7 @@
 // Implements EGLSurface and related functionality. [EGL 1.4] section 2.2 page 3.
 
 #include <tchar.h>
+#include <algorithm>
 
 #include "libEGL/Surface.h"
 
@@ -19,10 +20,19 @@
 
 #include "libEGL/main.h"
 #include "libEGL/Display.h"
-#if defined(ANGLE_PLATFORM_WINRT)
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#include "common/winrtutils.h"
 #include <wrl/client.h>
-using namespace Windows::UI::Core;
-#endif // ANGLE_PLATFORM_WINRT
+#include <wrl\implements.h>
+#include <wrl\module.h>
+#include <wrl\event.h>
+#include <wrl\wrappers\corewrappers.h>
+#include <windows.applicationmodel.core.h>
+
+using namespace ABI::Windows::UI::Core;
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+
 
 
 namespace egl
@@ -50,14 +60,8 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
 }
 
 Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType)
-    : mDisplay(display), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
+    : mWindow(NULL), mDisplay(display), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
 {
-#if defined(ANGLE_PLATFORM_WINRT)
-    mWindow.window = nullptr;
-    mWindow.panel = nullptr;
-#else
-    mWindow = NULL;
-#endif // ANGLE_PLATFORM_WINRT
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
     mWindowSubclassed = false;
@@ -105,12 +109,10 @@ bool Surface::resetSwapChain()
     int width;
     int height;
 
-    if (getWindowHandle())
+    if (mWindow)
     {
-#if defined(ANGLE_PLATFORM_WINRT)
-        CoreWindow ^window = getWindowHandle();
-        width = static_cast<int>(convertDipsToPixels(window->Bounds.Width));
-        height = static_cast<int>(convertDipsToPixels(window->Bounds.Height));
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+        winrt::getCurrentWindowDimensions(width, height);
 #else
         RECT windowRect;
         if (!GetClientRect(getWindowHandle(), &windowRect))
@@ -123,7 +125,7 @@ bool Surface::resetSwapChain()
 
         width = windowRect.right - windowRect.left;
         height = windowRect.bottom - windowRect.top;
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     }
     else
     {
@@ -236,36 +238,28 @@ bool Surface::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     return true;
 }
 
-#if defined(ANGLE_PLATFORM_WINRT)
-
-// Method to convert a length in device-independent pixels (DIPs) to a length in physical pixels.
-float Surface::convertDipsToPixels(float dips)
+EGLNativeWindowType Surface::getWindowHandle()
 {
-   static const float dipsPerInch = 96.0f;
-   return floor(dips * Windows::Graphics::Display::DisplayProperties::LogicalDpi / dipsPerInch + 0.5f); // Round to nearest integer.
+    return mWindow;
 }
+
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+
+
 
 void Surface::onWindowSizeChanged()
 {
     checkForOutOfDateSwapChain();    
 }
 
-CoreWindow ^Surface::getWindowHandle()
-{
-    return mWindow.window.Get();
-}
-#else
-HWND Surface::getWindowHandle()
-{
-    return mWindow;
-}
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
 
 #define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
 #define kParentWndProc _TEXT("Egl::SurfaceParentWndProc")
 
-#if !defined(ANGLE_PLATFORM_WINRT)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
   if (message == WM_SIZE)
@@ -279,16 +273,16 @@ static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam
   WNDPROC prevWndFunc = reinterpret_cast<WNDPROC >(GetProp(hwnd, kParentWndProc));
   return CallWindowProc(prevWndFunc, hwnd, message, wparam, lparam);
 }
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
 void Surface::subclassWindow()
 {
-    if (getWindowHandle() == nullptr)
+    if (mWindow == nullptr)
     {
         return;
     }
 
-#if !defined(ANGLE_PLATFORM_WINRT)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     DWORD processId;
     DWORD threadId = GetWindowThreadProcessId(mWindow, &processId);
     if (processId != GetCurrentProcessId() || threadId != GetCurrentThreadId())
@@ -306,7 +300,7 @@ void Surface::subclassWindow()
 
     SetProp(mWindow, kSurfaceProperty, reinterpret_cast<HANDLE>(this));
     SetProp(mWindow, kParentWndProc, reinterpret_cast<HANDLE>(oldWndProc));
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     mWindowSubclassed = true;
 }
 
@@ -317,7 +311,7 @@ void Surface::unsubclassWindow()
         return;
     }
 
-#if !defined(ANGLE_PLATFORM_WINRT)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
     // un-subclass
     LONG_PTR parentWndFunc = reinterpret_cast<LONG_PTR>(GetProp(mWindow, kParentWndProc));
@@ -335,15 +329,16 @@ void Surface::unsubclassWindow()
 
     RemoveProp(mWindow, kSurfaceProperty);
     RemoveProp(mWindow, kParentWndProc);
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     mWindowSubclassed = false;
 }
 
 bool Surface::checkForOutOfDateSwapChain()
 {
-#if defined(ANGLE_PLATFORM_WINRT)
-    int clientWidth = static_cast<int>(convertDipsToPixels(mWindow.window->Bounds.Width));
-    int clientHeight = static_cast<int>(convertDipsToPixels(mWindow.window->Bounds.Height));
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+    int clientWidth = 0;
+    int clientHeight = 0;
+    winrt::getCurrentWindowDimensions(clientWidth,clientHeight);
 #else
     RECT client;
     if (!GetClientRect(getWindowHandle(), &client))
@@ -355,7 +350,7 @@ bool Surface::checkForOutOfDateSwapChain()
     // Grow the buffer now, if the window has grown. We need to grow now to avoid losing information.
     int clientWidth = client.right - client.left;
     int clientHeight = client.bottom - client.top;
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     bool sizeDirty = clientWidth != getWidth() || clientHeight != getHeight();
 
     if (mSwapIntervalDirty)
