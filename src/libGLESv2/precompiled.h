@@ -32,12 +32,12 @@
 #include <unordered_map>
 #include <vector>
 
-#if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #include <D3D11_1.h>
 #else
 #include <d3d9.h>
 #include <D3D11.h>
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
 #include <dxgi.h>
 

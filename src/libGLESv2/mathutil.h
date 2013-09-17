@@ -85,7 +85,7 @@ inline unsigned int unorm(float x)
 
 inline bool supportsSSE2()
 {
-#if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     return false;
 #else
     static bool checked = false;
@@ -109,7 +109,7 @@ inline bool supportsSSE2()
     checked = true;
 
     return supports;
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 }
 
 inline unsigned short float32ToFloat16(float fp32)

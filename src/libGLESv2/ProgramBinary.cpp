@@ -1162,11 +1162,11 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
         return false;
     }
 
-#if defined(ANGLE_PLATFORM_WINRT) || defined(COMPILE_SHADER)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) || defined(COMPILE_SHADER)
     bool isWinRT = true;
 #else
     bool isWinRT = false;
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
     bool usesMRT = fragmentShader->mUsesMultipleRenderTargets;
     bool usesFragColor = fragmentShader->mUsesFragColor;
@@ -1738,14 +1738,14 @@ bool ProgramBinary::load(InfoLog &infoLog, const void *binary, GLsizei length)
 
 //since precompiled HLSL is a standardized format that doesn't change based on
 //the platform it's compiled on this is an unnecessary check
-#if !defined(ANGLE_PLATFORM_WINRT)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     GUID identifier = mRenderer->getAdapterIdentifier();
     if (memcmp(&identifier, binaryIdentifier, sizeof(GUID)) != 0)
     {
         infoLog.append("Invalid program binary.");
         return false;
     }
-#endif
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
     const char *pixelShaderFunction = ptr;
     ptr += pixelShaderSize;
@@ -1923,8 +1923,8 @@ GLint ProgramBinary::getLength()
 
 bool ProgramBinary::link(InfoLog &infoLog, const AttributeBindings &attributeBindings, FragmentShader *fragmentShader, VertexShader *vertexShader)
 {
-#if defined(ANGLE_PLATFORM_WP8)
-	ERR("No program linking in ANGLE_PLATFORM_WP8 \n");
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+	ERR("No program linking in WINAPI_PARTITION_PHONE \n");
 	return false;
 #else
     if (!fragmentShader || !fragmentShader->isCompiled())
@@ -2000,7 +2000,7 @@ bool ProgramBinary::link(InfoLog &infoLog, const AttributeBindings &attributeBin
     }
 
     return success;
-#endif // ANGLE_PLATFORM_WP8
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 }
 
 // Determines the mapping between GL attributes and Direct3D 9 vertex stream usage indices
