@@ -33,6 +33,12 @@
     <Filter Include="Source Files\Renderer11">
       <UniqueIdentifier>{72db61d3-e081-4b58-bc63-a04a8a70585f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Third Party\winrt">
+      <UniqueIdentifier>{f444a40f-7488-4088-8d76-aa99299dba11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party\winrt\ThreadEmulation">
+      <UniqueIdentifier>{4b8b2979-dba3-4cf6-a850-482ed249eaff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Buffer.cpp">
@@ -170,14 +176,17 @@
     <ClCompile Include="renderer\ImageSSE2.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\IndexRangeCache.cpp">
       <Filter>Header Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\common\event_tracer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\winrtutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.cpp">
+      <Filter>Third Party\winrt\ThreadEmulation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -402,6 +411,15 @@
     </ClInclude>
     <ClInclude Include="..\common\winrt\threadutils.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\angleutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\winrtutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.h">
+      <Filter>Third Party\winrt\ThreadEmulation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

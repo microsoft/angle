@@ -25,6 +25,12 @@
     <Filter Include="Shaders\Compiled">
       <UniqueIdentifier>{ad910e5c-7599-4fbb-880d-409c85a096df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Third Party\winrt">
+      <UniqueIdentifier>{ce329487-67d0-456c-af04-e54b3ae60490}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party\winrt\ThreadEmulation">
+      <UniqueIdentifier>{2aedafdf-e78e-499e-bd69-4d2b6092114d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="libGLESv2_phone.def">
@@ -161,6 +167,9 @@
     <ClInclude Include="renderer\VertexDataManager.h">
       <Filter>Source Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.h">
+      <Filter>Third Party\winrt\ThreadEmulation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="renderer\BufferStorage.cpp">
@@ -292,13 +301,16 @@
     <ClCompile Include="..\common\RefCountObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="renderer\IndexRangeCache.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\common\event_tracer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.cpp">
+      <Filter>Third Party\winrt\ThreadEmulation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\winrtutils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

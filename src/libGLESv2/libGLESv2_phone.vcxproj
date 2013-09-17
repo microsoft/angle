@@ -61,9 +61,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
+    <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
+    <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -80,8 +88,9 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;PhoneAppModelHost.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>libGLESv2_phone.def</ModuleDefinitionFile>
+      <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -98,8 +107,9 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;ole32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>libGLESv2_phone.def</ModuleDefinitionFile>
+      <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -117,8 +127,9 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;ole32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>libGLESv2_phone.def</ModuleDefinitionFile>
+      <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -135,8 +146,9 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;ole32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>libGLESv2_phone.def</ModuleDefinitionFile>
+      <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -152,6 +164,7 @@
     <None Include="libGLESv2_phone.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.h" />
     <ClInclude Include="renderer\BufferStorage.h" />
     <ClInclude Include="renderer\BufferStorage11.h" />
     <ClInclude Include="renderer\Fence11.h" />
@@ -200,8 +213,9 @@
     <ClCompile Include="..\common\debug.cpp" />
     <ClCompile Include="..\common\event_tracer.cpp" />
     <ClCompile Include="..\common\RefCountObject.cpp" />
-    <ClCompile Include="..\common\winrt\ThreadEmulation.cpp" />
+    <ClCompile Include="..\common\winrtutils.cpp" />
     <ClCompile Include="..\third_party\murmurhash\MurmurHash3.cpp" />
+    <ClCompile Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="Fence.cpp" />
