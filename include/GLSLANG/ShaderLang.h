@@ -163,6 +163,11 @@ typedef enum {
   SH_DEPENDENCY_GRAPH = 0x0400,
 
   // Enforce the GLSL 1.017 Appendix A section 7 packing restrictions.
+  // This flag only enforces (and can only enforce) the packing
+  // restrictions for uniform variables in both vertex and fragment
+  // shaders. ShCheckVariablesWithinPackingLimits() lets embedders
+  // enforce the packing restrictions for varying variables during
+  // program link time.
   SH_ENFORCE_PACKING_RESTRICTIONS = 0x0800,
 
   // This flag ensures all indirect (expression-based) array indexing
@@ -178,6 +183,12 @@ typedef enum {
 
   // This flag limits the depth of the call stack.
   SH_LIMIT_CALL_STACK_DEPTH = 0x4000,
+
+  // This flag initializes gl_Position to vec4(0.0, 0.0, 0.0, 1.0) at
+  // the beginning of the vertex shader, and has no effect in the
+  // fragment shader. It is intended as a workaround for drivers which
+  // incorrectly fail to link programs if gl_Position is not written.
+  SH_INIT_GL_POSITION = 0x8000,
 } ShCompileOptions;
 
 // Defines alternate strategies for implementing array index clamping.
@@ -433,6 +444,25 @@ COMPILER_EXPORT void ShGetNameHashingEntry(const ShHandle handle,
 COMPILER_EXPORT void ShGetInfoPointer(const ShHandle handle,
                                       ShShaderInfo pname,
                                       void** params);
+
+typedef struct
+{
+    ShDataType type;
+    int size;
+} ShVariableInfo;
+
+// Returns 1 if the passed in variables pack in maxVectors following
+// the packing rules from the GLSL 1.017 spec, Appendix A, section 7.
+// Returns 0 otherwise. Also look at the SH_ENFORCE_PACKING_RESTRICTIONS
+// flag above.
+// Parameters:
+// maxVectors: the available rows of registers.
+// varInfoArray: an array of variable info (types and sizes).
+// varInfoArraySize: the size of the variable array.
+COMPILER_EXPORT int ShCheckVariablesWithinPackingLimits(
+    int maxVectors,
+    ShVariableInfo* varInfoArray,
+    size_t varInfoArraySize);
 
 #ifdef __cplusplus
 }
