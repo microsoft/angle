@@ -85,7 +85,6 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
     return TRUE;
 }
 
-
 namespace gl
 {
 void makeCurrent(Context *context, egl::Display *display, egl::Surface *surface)

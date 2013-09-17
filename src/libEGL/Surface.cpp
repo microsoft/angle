@@ -60,7 +60,7 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
 }
 
 Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType)
-    : mWindow(NULL), mDisplay(display), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
+    : mDisplay(display), mWindow(NULL), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
 {
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
@@ -265,7 +265,7 @@ static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam
   if (message == WM_SIZE)
   {
       Surface* surf = reinterpret_cast<Surface*>(GetProp(hwnd, kSurfaceProperty));
-      if (surf)
+      if(surf)
       {
           surf->checkForOutOfDateSwapChain();
       }
@@ -277,7 +277,7 @@ static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam
 
 void Surface::subclassWindow()
 {
-    if (mWindow == nullptr)
+    if (!mWindow)
     {
         return;
     }
@@ -292,7 +292,7 @@ void Surface::subclassWindow()
 
     SetLastError(0);
     LONG_PTR oldWndProc = SetWindowLongPtr(mWindow, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(SurfaceWindowProc));
-    if (oldWndProc == 0 && GetLastError() != ERROR_SUCCESS)
+    if(oldWndProc == 0 && GetLastError() != ERROR_SUCCESS)
     {
         mWindowSubclassed = false;
         return;
@@ -306,7 +306,7 @@ void Surface::subclassWindow()
 
 void Surface::unsubclassWindow()
 {
-    if (!mWindowSubclassed)
+    if(!mWindowSubclassed)
     {
         return;
     }
@@ -321,7 +321,7 @@ void Surface::unsubclassWindow()
     // hwnd as well and did not unsubclass before destroying its EGL context. The
     // application should be modified to either subclass before initializing the
     // EGL context, or to unsubclass before destroying the EGL context.
-    if (parentWndFunc)
+    if(parentWndFunc)
     {
         LONG_PTR prevWndFunc = SetWindowLongPtr(mWindow, GWLP_WNDPROC, parentWndFunc);
         ASSERT(prevWndFunc == reinterpret_cast<LONG_PTR>(SurfaceWindowProc));

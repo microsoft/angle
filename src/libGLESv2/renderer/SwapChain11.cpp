@@ -242,7 +242,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     }
     else
     {
-        const bool useSharedResource = mWindow && mRenderer->getShareHandleSupport();
+        const bool useSharedResource = !mWindow && mRenderer->getShareHandleSupport();
 
         D3D11_TEXTURE2D_DESC offscreenTextureDesc = {0};
         offscreenTextureDesc.Width = backbufferWidth;

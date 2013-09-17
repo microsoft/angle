@@ -9,7 +9,6 @@
 #include "libEGL/main.h"
 
 #include "common/debug.h"
-#include <cstdlib>
 
 
 #if defined(ANGLE_PLATFORM_WINRT)
