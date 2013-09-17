@@ -8,7 +8,7 @@
 
 #include "common/winrtutils.h"
 
-#include <windows.ui.xaml.media.dxinterop.h>
+
 #include <wrl\implements.h>
 #include <wrl\module.h>
 #include <wrl\event.h>
@@ -16,6 +16,10 @@
 #include <windows.applicationmodel.core.h>
 #include <windows.graphics.display.h>
 #include <math.h>
+
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#include <windows.ui.xaml.media.dxinterop.h>
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 
 using namespace ABI::Windows::Foundation;
 using namespace ABI::Windows::Storage;
@@ -51,8 +55,12 @@ float convertDipsToPixels(float dips)
 
 bool isSwapChainBackgroundPanel(ComPtr<IUnknown> window)
 {
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+    return FALSE;
+#else
     ComPtr<ISwapChainBackgroundPanelNative> panelNative;
     return S_OK == (window.Get())->QueryInterface(IID_PPV_ARGS(&panelNative));
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 }
 
 
