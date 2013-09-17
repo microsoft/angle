@@ -14,9 +14,9 @@
 #include "libGLESv2/main.h"
 #include "libGLESv2/mathutil.h"
 #include "libGLESv2/utilities.h"
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if !defined(ANGLE_PLATFORM_WINRT)
 #include "libGLESv2/renderer/Blit.h"
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if !defined(ANGLE_PLATFORM_WINRT)
 #include "libGLESv2/Renderbuffer.h"
 #include "libGLESv2/renderer/Image.h"
 #include "libGLESv2/renderer/Renderer.h"
@@ -378,11 +378,11 @@ GLenum Texture2D::getActualFormat(GLint level) const
         return mImageArray[level]->getActualFormat();
     else
     {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
         return DXGI_FORMAT_UNKNOWN;
 #else
         return D3DFMT_UNKNOWN;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
     }
 }
 
@@ -982,11 +982,11 @@ GLenum TextureCubeMap::getActualFormat(GLenum target, GLint level) const
         return mImageArray[faceIndex(target)][level]->getActualFormat();
     else
     {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT)
         return DXGI_FORMAT_UNKNOWN;
 #else
         return D3DFMT_UNKNOWN;
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#endif // #if defined(ANGLE_PLATFORM_WINRT)
     }
 }
 

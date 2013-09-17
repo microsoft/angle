@@ -12,7 +12,7 @@
 #include "libGLESv2/Context.h"
 
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#if defined(ANGLE_PLATFORM_WINRT) 
 #define TLS_OUT_OF_INDEXES -1
 
 __declspec( thread ) DWORD currentTLS = TLS_OUT_OF_INDEXES;
@@ -26,7 +26,7 @@ void TlsSetValue(DWORD currentTLS, gl::Current* current) {};
 void TlsFree(DWORD index) {currentTLS = TLS_OUT_OF_INDEXES;};
 #else
 static DWORD currentTLS = TLS_OUT_OF_INDEXES;
-#endif
+#endif // #if defined(ANGLE_PLATFORM_WINRT) 
 
 
 extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
