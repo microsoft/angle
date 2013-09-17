@@ -308,7 +308,7 @@ EGLSurface __stdcall eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EG
             return EGL_NO_SURFACE;
         }
         
-#if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
         return display->createWindowSurface(win, config, attrib_list);
 #else
         HWND window = (HWND)win;
@@ -319,7 +319,7 @@ EGLSurface __stdcall eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EG
         }
 
         return display->createWindowSurface(window, config, attrib_list);
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     }
     catch(std::bad_alloc&)
     {
