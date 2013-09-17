@@ -116,7 +116,7 @@ void CubeRenderer::Update(float timeTotal, float /*timeDelta*/)
 	m_modelMatrix = XMMatrixRotationY(timeTotal * XM_PIDIV4);
 }
 
-#if defined(ANGLE_PLATFORM_WP8)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 void CubeRenderer::OnOrientationChanged()
 {
 	m_windowBounds = Windows::UI::Core::CoreWindow::GetForCurrentThread()->Bounds;
