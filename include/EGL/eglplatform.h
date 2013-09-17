@@ -83,7 +83,7 @@ typedef HBITMAP EGLNativePixmapType;
 typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
 typedef HWND    EGLNativeWindowType;
-#endif // ANGLE_PLATFORM_WINRT
+#endif //#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 
 #elif defined(__WINSCW__) || defined(__SYMBIAN32__)  /* Symbian */
 
