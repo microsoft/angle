@@ -17,9 +17,19 @@
 #include <windows.graphics.display.h>
 #include <math.h>
 
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if defined(WINAPI_FAMILY)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#define ANGLE_PLATFORM_WINRT
+#endif // #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+
+#if defined(WINAPI_PARTITION_PHONE) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#define ANGLE_PLATFORM_WP8
+#endif // #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#endif // #if defined(WINAPI_FAMILY)
+
+#if !defined(ANGLE_PLATFORM_WP8)
 #include <windows.ui.xaml.media.dxinterop.h>
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#endif // !defined(ANGLE_PLATFORM_WP8)
 
 using namespace ABI::Windows::Foundation;
 using namespace ABI::Windows::Storage;
@@ -55,12 +65,12 @@ float convertDipsToPixels(float dips)
 
 bool isSwapChainBackgroundPanel(ComPtr<IUnknown> window)
 {
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#if defined(ANGLE_PLATFORM_WP8)
     return FALSE;
 #else
     ComPtr<ISwapChainBackgroundPanelNative> panelNative;
     return S_OK == (window.Get())->QueryInterface(IID_PPV_ARGS(&panelNative));
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#endif // #if defined(ANGLE_PLATFORM_WP8)
 }
 
 
