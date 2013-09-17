@@ -70,7 +70,7 @@ void RotatingCube::SetWindow(CoreWindow^ window)
 	window->Closed += 
         ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &RotatingCube::OnWindowClosed);
 
-#if !defined(ANGLE_PLATFORM_WP8)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 	window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
 #endif
 
@@ -80,7 +80,7 @@ void RotatingCube::SetWindow(CoreWindow^ window)
 	window->PointerMoved +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &RotatingCube::OnPointerMoved);
 
-#if defined(ANGLE_PLATFORM_WP8)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 	DisplayProperties::AutoRotationPreferences = 
 		DisplayOrientations::Landscape | 
 		DisplayOrientations::LandscapeFlipped | 
@@ -94,7 +94,7 @@ void RotatingCube::SetWindow(CoreWindow^ window)
     m_windowBounds = window->Bounds;
 
     esInitContext ( &m_esContext );
-    m_esContext.hWnd.window = CoreWindow::GetForCurrentThread();
+    m_esContext.hWnd = WINRT_EGL_WINDOW(CoreWindow::GetForCurrentThread());
 
     //title, width, and height are unused, but included for backwards compatibility
     esCreateWindow ( &m_esContext, nullptr, 0, 0, ES_WINDOW_RGB | ES_WINDOW_DEPTH );
@@ -156,7 +156,7 @@ void RotatingCube::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
 	// Insert your code here.
 }
 
-#if defined(ANGLE_PLATFORM_WP8)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 void RotatingCube::OnOrientationChanged(Platform::Object^ sender)
 {
 	m_cubeRenderer.OnOrientationChanged();
