@@ -32,18 +32,28 @@
 #include <unordered_map>
 #include <vector>
 
+#if defined(WINAPI_FAMILY)
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #include <D3D11_1.h>
+#define ANGLE_PLATFORM_WINRT
+#endif // #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+
+#if defined(WINAPI_PARTITION_PHONE) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#define ANGLE_PLATFORM_WP8
+#endif // #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+
+#if !defined(ANGLE_PLATFORM_WP8)
+#include <D3Dcompiler.h>
+#endif // #if !defined(ANGLE_PLATFORM_WP8)
+
 #else
 #include <d3d9.h>
 #include <D3D11.h>
-#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#include <D3Dcompiler.h>
+#endif // #if defined(WINAPI_FAMILY)
 
 #include <dxgi.h>
 
-#if !defined (ANGLE_PLATFORM_WP8)
-#include <D3Dcompiler.h>
-#endif // ANGLE_PLATFORM_WP8
 
 #ifdef _MSC_VER
 #include <hash_map>
