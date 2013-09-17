@@ -9,11 +9,12 @@
 #include "common/debug.h"
 #include "common/system.h"
 
-#if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 typedef DWORD D3DCOLOR;
 #else
 #include <d3d9.h>
-#endif // ANGLE_PLATFORM_WINRT
+#endif // #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+
 
 namespace gl
 {
@@ -65,27 +66,27 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
 {
     va_list vararg;
     va_start(vararg, format);
-#if defined(ANGLE_DISABLE_PERF) || defined(ANGLE_PLATFORM_WINRT)
+#if defined(ANGLE_DISABLE_PERF) || WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     output(traceFileDebugOnly, NULL, format, vararg);
 #else
     output(traceFileDebugOnly, D3DPERF_SetMarker, format, vararg);
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     va_end(vararg);
 }
 
 bool perfActive()
 {
-#if defined(ANGLE_DISABLE_PERF) || defined(ANGLE_PLATFORM_WINRT)
+#if defined(ANGLE_DISABLE_PERF) || WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     return false;
 #else
     static bool active = D3DPERF_GetStatus() != 0;
     return active;
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 }
 
 ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
 {
-#if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     return;
 #elif !defined(ANGLE_DISABLE_PERF)
 
@@ -99,12 +100,12 @@ ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
     va_start(vararg, format);
     output(true, reinterpret_cast<PerfOutputFunction>(D3DPERF_BeginEvent), format, vararg);
     va_end(vararg);
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 }
 
 ScopedPerfEventHelper::~ScopedPerfEventHelper()
 {
-#if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     return;
 #elif !defined(ANGLE_DISABLE_PERF)
 
@@ -112,6 +113,6 @@ ScopedPerfEventHelper::~ScopedPerfEventHelper()
     {
         D3DPERF_EndEvent();
     }
-#endif // ANGLE_PLATFORM_WINRT
+#endif // WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 }
 }
