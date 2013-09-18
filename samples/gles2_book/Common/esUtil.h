@@ -94,8 +94,8 @@ typedef struct
 //  Extensions
 //
 
-#if !defined (ANGLE_PLATFORM_WINRT)
-// TODO: figure out why these won't compile with 
+#if 0
+// TODO: figure out why these won't compile with GL_GLEXT_PROTOTYPES preprocessor directive
 extern PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR;
 extern PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR;
 
