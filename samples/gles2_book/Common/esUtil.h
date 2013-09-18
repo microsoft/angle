@@ -94,6 +94,8 @@ typedef struct
 //  Extensions
 //
 
+#if !defined (ANGLE_PLATFORM_WINRT)
+// TODO: figure out why these won't compile with 
 extern PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR;
 extern PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR;
 
@@ -108,6 +110,7 @@ extern PFNGLISFENCENVPROC glIsFenceNV;
 extern PFNGLFINISHFENCENVPROC glFinishFenceNV;
 extern PFNGLSETFENCENVPROC glSetFenceNV;
 extern PFNGLTESTFENCENVPROC glTestFenceNV;
+#endif // #if !defined (ANGLE_PLATFORM_WINRT)
 
 ///
 //  Public Functions

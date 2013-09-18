@@ -1,7 +1,6 @@
 #pragma once
 
 #include "esUtil.h"
-#include <GLES2/gl2ext.h>
 #include <DirectXMath.h>
 
 using namespace DirectX;

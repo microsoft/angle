@@ -2,7 +2,6 @@
 
 #include "pch.h"
 #include "esUtil.h"
-#include <GLES2/gl2ext.h>
 #include <DirectXMath.h>
 #include <wrl/client.h>
 #include <ppl.h>

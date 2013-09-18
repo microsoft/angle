@@ -192,6 +192,9 @@
     <ClInclude Include="..\third_party\compiler\ArrayBoundsClamper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InitializeGLPosition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="depgraph\DependencyGraph.cpp">
@@ -300,6 +303,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\third_party\compiler\ArrayBoundsClamper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InitializeGLPosition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1630,11 +1630,14 @@ bool ProgramBinary::load(InfoLog &infoLog, const void *binary, GLsizei length)
 
     int version = 0;
     stream.read(&version);
+
     if (version != VERSION_DWORD)
     {
         infoLog.append("Invalid program binary version.");
+#if !defined(ANGLE_PLATFORM_WINRT)
         return false;
-    }
+ #endif
+   }
 
     int compileFlags = 0;
     stream.read(&compileFlags);

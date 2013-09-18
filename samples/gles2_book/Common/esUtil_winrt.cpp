@@ -34,6 +34,7 @@
 //  Extensions
 //
 
+
 PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR;
 PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR;
 
