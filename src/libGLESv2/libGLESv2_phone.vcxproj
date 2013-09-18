@@ -62,16 +62,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -89,7 +93,7 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;PhoneAppModelHost.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;PhoneAppModelHost.lib;RuntimeObject.lib</AdditionalDependencies>
       <ModuleDefinitionFile>libGLESv2_phone.def</ModuleDefinitionFile>
       <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
     </Link>
@@ -109,7 +113,7 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;ole32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;PhoneAppModelHost.lib;RuntimeObject.lib</AdditionalDependencies>
       <ModuleDefinitionFile>libGLESv2_phone.def</ModuleDefinitionFile>
       <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
     </Link>
@@ -130,7 +134,7 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;ole32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;PhoneAppModelHost.lib;RuntimeObject.lib</AdditionalDependencies>
       <ModuleDefinitionFile>libGLESv2_phone.def</ModuleDefinitionFile>
       <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
     </Link>
@@ -150,7 +154,7 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;ole32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;PhoneAppModelHost.lib;RuntimeObject.lib</AdditionalDependencies>
       <ModuleDefinitionFile>libGLESv2_phone.def</ModuleDefinitionFile>
       <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
     </Link>

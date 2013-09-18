@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="en-US"/>
-  <App xmlns="" ProductID="{62f8c9a8-74dd-4e77-98f1-da48dc25669f}" Title="RotatingCube_phone" RuntimeType="Modern Native" Version="1.0.0.0" Genre="apps.normal"  Author="RotatingCube_phone author" Description="Simple Direct3D application" Publisher="RotatingCube_phone" PublisherID="{6c53a376-3480-40d4-ade9-978ea1a070c2}">
+  <App xmlns="" ProductID="{6aa1b903-db92-434b-a9c2-ab807965f1e9}" Title="RotatingCube_phone" RuntimeType="Modern Native" Version="1.0.0.0" Genre="apps.normal"  Author="RotatingCube_phone author" Description="Simple Direct3D application" Publisher="RotatingCube_phone" PublisherID="{e5df2ff5-d007-48fb-8be8-72b03597bb86}">
     <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />

@@ -96,6 +96,7 @@
     <TargetName>libGLESv2</TargetName>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <GenerateManifest>true</GenerateManifest>
@@ -103,6 +104,7 @@
     <TargetName>libGLESv2</TargetName>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <GenerateManifest>true</GenerateManifest>
@@ -110,6 +112,7 @@
     <TargetName>libGLESv2</TargetName>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <GenerateManifest>true</GenerateManifest>
@@ -117,6 +120,7 @@
     <TargetName>libGLESv2</TargetName>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>true</GenerateManifest>
@@ -124,6 +128,7 @@
     <TargetName>libGLESv2</TargetName>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateManifest>true</GenerateManifest>
@@ -131,6 +136,7 @@
     <TargetName>libGLESv2</TargetName>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

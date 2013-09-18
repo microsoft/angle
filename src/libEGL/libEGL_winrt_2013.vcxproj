@@ -101,6 +101,7 @@
     <TargetName>libEGL</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <GenerateManifest>false</GenerateManifest>
@@ -108,6 +109,7 @@
     <TargetName>libEGL</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <GenerateManifest>false</GenerateManifest>
@@ -115,6 +117,7 @@
     <TargetName>libEGL</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <GenerateManifest>false</GenerateManifest>
@@ -122,6 +125,7 @@
     <TargetName>libEGL</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>false</GenerateManifest>
@@ -129,6 +133,7 @@
     <TargetName>libEGL</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateManifest>false</GenerateManifest>
@@ -136,6 +141,7 @@
     <TargetName>libEGL</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

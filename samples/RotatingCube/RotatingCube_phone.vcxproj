@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{62f8c9a8-74dd-4e77-98f1-da48dc25669f}</ProjectGuid>
+    <ProjectGuid>{6aa1b903-db92-434b-a9c2-ab807965f1e9}</ProjectGuid>
     <RootNamespace>RotatingCube_phone</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
@@ -55,15 +55,28 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <OutDir>$(SolutionDir)\WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <OutDir>$(SolutionDir)\WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
+    <OutDir>$(SolutionDir)\WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)\WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GL_GLEXT_PROTOTYPES;PSAPI_VERSION=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../gles2_book/Common;../../include;$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../include;../gles2_book/Common;$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
@@ -75,9 +88,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GL_GLEXT_PROTOTYPES;PSAPI_VERSION=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../gles2_book/Common;../../include;$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../include;../gles2_book/Common;$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
@@ -89,9 +102,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GL_GLEXT_PROTOTYPES;PSAPI_VERSION=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../gles2_book/Common;../../include;$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../include;../gles2_book/Common;$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
@@ -103,9 +116,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GL_GLEXT_PROTOTYPES;PSAPI_VERSION=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../gles2_book/Common;../../include;$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../include;../gles2_book/Common;$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
@@ -121,21 +134,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Assets\ApplicationIcon.png" />
+    <Image Include="Assets\AlignmentGrid.png" />
+    <Image Include="Assets\Tiles\FlipCycleTileLarge.png" />
+    <Image Include="Assets\Tiles\FlipCycleTileMedium.png" />
+    <Image Include="Assets\Tiles\FlipCycleTileSmall.png" />
+    <Image Include="Assets\Tiles\IconicTileMediumLarge.png" />
+    <Image Include="Assets\Tiles\IconicTileSmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="WMAppManifest.xml">
+      <SubType>Designer</SubType>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="BasicTimer.h" />
     <ClInclude Include="CubeRenderer.h" />
-    <ClInclude Include="pch.h" />
     <ClInclude Include="RotatingCube.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CubeRenderer.cpp" />
-    <ClCompile Include="pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="RotatingCube.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="WMAppManifest.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gles2_book\Common\esUtil_phone.vcxproj">
