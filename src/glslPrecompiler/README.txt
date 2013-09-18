@@ -12,3 +12,5 @@ glslPrecompiler [-o=[file] -v=[variable]] file1 file2
 Where: filename : filename ending in .frag or .vert
     -o=[file] : output file
     -v=[variable] : output to char array named [variable] in header file, omit for binary file
+
+see precompiler.bat for an example.
