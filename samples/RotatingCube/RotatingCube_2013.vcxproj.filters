@@ -23,11 +23,13 @@
   <ItemGroup>
     <ClCompile Include="RotatingCube.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="CubeRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RotatingCube.h" />
     <ClInclude Include="BasicTimer.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="CubeRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package_2013.appxmanifest" />
