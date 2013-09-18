@@ -1,9 +1,9 @@
 angleproject
 ============
 
-WinRT Contributions by Dale Stammen (https://github.com/stammen) and Steven Chith (https://github.com/steven-chith)
+WinRT (Windows 8.0 and 8.1) and Windows Phone 8.0 contributions by Dale Stammen (https://github.com/stammen) and Steven Chith (https://github.com/steven-chith)
 
-Angle Project (https://code.google.com/p/angleproject/) with support for Windows Store Apps (WinRT). This version supports
+Angle Project (https://code.google.com/p/angleproject/) with support for Windows Store Apps (WinRT) and Windows Phone Apps (WP8). This version supports
 developing Windows Store Apps using Visual Studio 2013 and Windows 8.1. It is also possbile to develop a Windows Store App
 using Visual Studio 2012 and Windows 8.0 but this version will not be accepted in the Windows App Store.
 
