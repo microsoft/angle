@@ -6,6 +6,7 @@
 
 #include "../samples/gles2_book/Common/esUtil.h"
 #include <stdio.h>
+#include <assert.h>
 
 static void usage();
 
@@ -21,6 +22,9 @@ int main(int argc, char* argv[])
     bool outputToHeaderFile = false;
     char outputFile[1024] = "shader.file";
     char variableName[1024];
+
+    if (argc < 3)
+        usageFail = TRUE;
 
     argc--;
     argv++;
@@ -46,6 +50,7 @@ int main(int argc, char* argv[])
                 shader = vertexShader = glCreateShader(GL_VERTEX_SHADER);
             else
                 shader = fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
             FILE *fp = fopen(argv[0], "r");
             if(!fp)
             {
@@ -64,7 +69,8 @@ int main(int argc, char* argv[])
             glCompileShader(shader);
             int compileStatus;
             glGetShaderiv(shader, GL_COMPILE_STATUS, &compileStatus);
-            if(compileStatus == GL_FALSE)
+
+            if(compileStatus != GL_TRUE)
             {
                 glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &compileStatus);
                 sourceBuffer = new char[compileStatus];
@@ -78,7 +84,10 @@ int main(int argc, char* argv[])
     }
 
     if (usageFail)
+    {
         usage();
+        return -1;
+    }
 
     GLuint program = glCreateProgram();
     glAttachShader(program, vertexShader);
@@ -86,7 +95,8 @@ int main(int argc, char* argv[])
     glLinkProgram(program);
     int linkStatus;
     glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
-    if(linkStatus == GL_FALSE)
+
+    if(linkStatus != GL_TRUE)
     {
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &linkStatus);
         char *infoLog = new char[linkStatus];
@@ -98,6 +108,10 @@ int main(int argc, char* argv[])
         return 0;
     }
     glGetProgramiv(program, GL_PROGRAM_BINARY_LENGTH_OES, &linkStatus);
+
+
+
+
     unsigned char *binary = new unsigned char[linkStatus];
     GLenum binaryFormat;
     glGetProgramBinaryOES(program, linkStatus, NULL, &binaryFormat, binary);
