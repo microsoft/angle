@@ -9,7 +9,7 @@ using Visual Studio 2012 and Windows 8.0 but this version will not be accepted i
 
 This version is based on ANGLE v1.2.0.2446
 
-This version adds support for Windows Phone 8.0 and Windows 8.0 WinRT Store Apps using precompiled shaders.
+This version adds support for Windows Phone 8.0 and Windows 8.0 WinRT Store Apps using precompiled shaders. For an example, see samples/RotatingCube/RotatingCube_phone.sln.
 
 ANGLE
 =====
