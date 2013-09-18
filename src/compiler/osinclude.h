@@ -29,14 +29,25 @@
 #define VC_EXTRALEAN 1
 #include <windows.h>
 
+// check if WinRT
 #if defined(WINAPI_FAMILY)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
 #define ANGLE_OS_WINRT
 #endif
+#endif // !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#endif // #if defined(WINAPI_FAMILY)
+
+// check if Windows Phone 8
+#if defined(WINAPI_FAMILY)
 #if defined(WINAPI_PARTITION_PHONE) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 #define ANGLE_OS_WP8
+#ifndef ANGLE_OS_WINRT
+#define ANGLE_OS_WINRT
 #endif
+#endif // #if defined(WINAPI_PARTITION_PHONE) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 #endif // #if defined(WINAPI_FAMILY)
+
 
 #elif defined(ANGLE_OS_POSIX)
 #include <pthread.h>
