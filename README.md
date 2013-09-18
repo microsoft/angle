@@ -8,7 +8,8 @@ developing Windows Store Apps using Visual Studio 2013 and Windows 8.1. It is al
 using Visual Studio 2012 and Windows 8.0 but this version will not be accepted in the Windows App Store.
 
 This version is based on ANGLE v1.2.0.2446
-This version adds support for Windows Phone 8.0 using precompiled shaders.
+
+This version adds support for Windows Phone 8.0 and Windows 8.0 WinRT Store Apps using precompiled shaders.
 
 ANGLE
 =====
