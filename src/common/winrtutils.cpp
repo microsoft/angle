@@ -14,7 +14,6 @@
 #include <wrl\event.h>
 #include <wrl\wrappers\corewrappers.h>
 #include <windows.applicationmodel.core.h>
-#include <windows.graphics.display.h>
 #include <math.h>
 
 // check if WinRT
@@ -52,17 +51,34 @@ using namespace ABI::Windows::UI::Core;
 namespace winrt 
 {
 
+DisplayOrientations GetDisplayOrientation()
+{
+    ComPtr<IDisplayPropertiesStatics> dp;
+    DisplayOrientations orientation = DisplayOrientations_None;
+
+    if (SUCCEEDED(GetActivationFactory(HStringReference(RuntimeClass_Windows_Graphics_Display_DisplayProperties).Get(), dp.GetAddressOf()))) 
+    {
+        if (SUCCEEDED(dp->get_CurrentOrientation(&orientation))) 
+        {
+            return orientation;
+        }
+    }
+    return DisplayOrientations_None;
+}
+
 static float GetLogicalDpi()
 {
-  ComPtr<IDisplayPropertiesStatics> dp;
-  FLOAT dpi = 1.0;
+    ComPtr<IDisplayPropertiesStatics> dp;
+    FLOAT dpi = 1.0;
 
-  if (SUCCEEDED(GetActivationFactory(HStringReference(RuntimeClass_Windows_Graphics_Display_DisplayProperties).Get(), dp.GetAddressOf()))) {
-    if (SUCCEEDED(dp->get_LogicalDpi(&dpi))) {
-      return dpi;
+    if (SUCCEEDED(GetActivationFactory(HStringReference(RuntimeClass_Windows_Graphics_Display_DisplayProperties).Get(), dp.GetAddressOf()))) 
+    {
+        if (SUCCEEDED(dp->get_LogicalDpi(&dpi)))
+        {
+            return dpi;
+        }
     }
-  }
-  return 1.0;
+    return 1.0;
 }
 
 
