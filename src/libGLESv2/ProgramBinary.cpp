@@ -1517,7 +1517,7 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
     {
         pixelHLSL += "    float rhw = 1.0 / input.gl_FragCoord.w;\n";
         
-        if (shaderModel >= 4 || isWinRT)
+        if (shaderModel >= 4)
         {
             pixelHLSL += "    gl_FragCoord.x = input.dx_VPos.x;\n"
                          "    gl_FragCoord.y = input.dx_VPos.y;\n";
@@ -1526,6 +1526,11 @@ bool ProgramBinary::linkVaryings(InfoLog &infoLog, int registers, const Varying 
         {
             pixelHLSL += "    gl_FragCoord.x = input.dx_VPos.x + 0.5;\n"
                          "    gl_FragCoord.y = input.dx_VPos.y + 0.5;\n";
+        }
+        else if(isWinRT)
+        {
+            pixelHLSL += "    gl_FragCoord.x = input.gl_FragCoord.x + 0.5;\n"
+                         "    gl_FragCoord.y = input.gl_FragCoord.y + 0.5;\n";
         }
         else
         {
