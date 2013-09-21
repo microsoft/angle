@@ -8,9 +8,10 @@ How to use the GLSL precompiler:
   - ANGLE_ENABLE_D3D11
 - the usage for the program is:
 
-glslPrecompiler [-o=[file] -v=[variable]] file1 file2
-Where: filename : filename ending in .frag or .vert
-    -o=[file] : output file
-    -v=[variable] : output to char array named [variable] in header file, omit for binary file
+glslPrecompiler [-o=[file] -a=[variable]] -v=[vertex_shader_1] ... -v=[vertex_shader_1] -f=[fragment_shader_1] ... -f=[fragment_shader_n]]
+Where:  -o=[file] : output file\n"
+        -a=[variable] : output to char array named [variable] in header file, omit for binary file\n");
+        -v=[vertex_shader_n] : vertex shader file
+        -f=[fragment_shader_n] : fragment shader file
 
 see precompiler.bat for an example.

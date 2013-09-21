@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 //
 void usage()
 {
-    printf("Usage: glslPrecompiler [-o=[file] -a=[variable]] -v=vertex_shader_1 ... -v=vertex_shader_1 -f=fragment_shader_1 ... -f=fragment_shader_n\n"
+    printf("Usage: glslPrecompiler [-o=[file] -a=[variable]] -v=[vertex_shader_1] ... -v=[vertex_shader_1] -f=[fragment_shader_1] ... -f=[fragment_shader_n]\n"
         "Where: filename : filename ending in .frag or .vert\n"
         "       -o=[file] : output file\n"
         "       -v=[variable] : output to char array named [variable] in header file, omit for binary file\n");
