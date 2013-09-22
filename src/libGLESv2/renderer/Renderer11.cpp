@@ -176,7 +176,9 @@ EGLint Renderer11::initialize()
 
 #if defined(ANGLE_PLATFORM_WP8)
 #define USE_FEATURE_LEVEL_9_3
-#endif
+#elif defined(ANGLE_PLATFORM_WINRT)
+#define USE_FEATURE_LEVEL_9_1
+#endif // #if defined(ANGLE_PLATFORM_WP8)
 
     D3D_FEATURE_LEVEL featureLevels[] =
     {

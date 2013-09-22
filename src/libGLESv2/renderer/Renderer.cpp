@@ -26,12 +26,15 @@
 
 // d3dcompiler is available to Windows Store Apps (winrt) in Windows 8.1
 // using Visual Studio 2013
-#if defined(ANGLE_PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WP8)
+    #pragma message("Warning: d3dcompiler dll is not available for Windows Phone 8.0. Must use precompiled shaders.")
+#elif defined(ANGLE_PLATFORM_WINRT)
 #if (_MSC_VER >= 1800)
     #pragma comment(lib,"d3dcompiler.lib")
 #else
     #pragma message("Warning: Visual Studio 2013 and Windows 8.1 required for Windows Store App certification")
     #pragma message("Warning: Visual Studio 2012 d3dcompiler dll is available only for development of a Windows Store App.")
+    #pragma message("Warning: d3dcompiler dll is not available for Windows 8.0 Store Apps. Must use precompiled shaders.")
 #endif // (_MSC_VER >= 1800)
 #else 
 #include "libGLESv2/renderer/Renderer9.h"
@@ -44,6 +47,7 @@ Renderer::Renderer(egl::Display *display) : mDisplay(display)
 {
     mD3dCompilerModule = NULL;
     mD3DCompileFunc = NULL;
+    mHasCompiler = TRUE;
 }
 
 Renderer::~Renderer()
@@ -61,12 +65,15 @@ bool Renderer::initializeCompiler()
 #if defined(ANGLE_PLATFORM_WP8)
     mD3dCompilerModule = NULL;
     mD3DCompileFunc = NULL;
+    mHasCompiler = false;
     return true;
 #endif //#if defined(ANGLE_PLATFORM_WP8)
 
 #if defined(ANGLE_PLATFORM_WINRT) && (_MSC_VER >= 1800)
+    ERR("No D3D compiler module available - must use precompiled shaders\n");
     mD3dCompilerModule = NULL;
     mD3DCompileFunc = reinterpret_cast<pCompileFunc>(D3DCompile);
+    mHasCompiler = true;
     return true;
 #endif // #if defined(ANGLE_PLATFORM_WINRT) && (_MSC_VER >= 1800)
 
@@ -85,6 +92,13 @@ bool Renderer::initializeCompiler()
     // Load the version of the D3DCompiler DLL associated with the Direct3D version ANGLE was built with.
 #if defined(ANGLE_PLATFORM_WINRT)
     mD3dCompilerModule = LoadPackagedLibrary((LPCWSTR)D3DCOMPILER_DLL, 0);
+    if (!mD3dCompilerModule)
+    {
+        ERR("No D3D compiler module found - must use precompiled shaders\n");
+        mD3DCompileFunc = NULL;
+        mHasCompiler = false;
+        return true;
+    }
 #else
     mD3dCompilerModule = LoadLibrary(D3DCOMPILER_DLL);
 #endif //
@@ -93,6 +107,7 @@ bool Renderer::initializeCompiler()
     if (!mD3dCompilerModule)
     {
         ERR("No D3D compiler module found - aborting!\n");
+        mHasCompiler = FALSE;
         return false;
     }
 
