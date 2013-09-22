@@ -1185,11 +1185,7 @@ bool Context::getBooleanv(GLenum pname, GLboolean *params)
 {
     switch (pname)
     {
-#if defined(ANGLE_PLATFORM_WP8)
-      case GL_SHADER_COMPILER:           *params = GL_FALSE;                            break;
-#else
-      case GL_SHADER_COMPILER:           *params = GL_TRUE;                             break;
-#endif
+      case GL_SHADER_COMPILER:           *params = mRenderer->getCompilerSupport();     break;
       case GL_SAMPLE_COVERAGE_INVERT:    *params = mState.sampleCoverageInvert;         break;
       case GL_DEPTH_WRITEMASK:           *params = mState.depthStencil.depthMask;       break;
       case GL_COLOR_WRITEMASK:
