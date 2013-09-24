@@ -163,6 +163,7 @@ class Renderer
     virtual bool getLuminanceTextureSupport() = 0;
     virtual bool getLuminanceAlphaTextureSupport() = 0;
     bool getVertexTextureSupport() const { return getMaxVertexTextureImageUnits() > 0; }
+    bool getCompilerSupport() const { return mHasCompiler; }
     virtual unsigned int getMaxVertexTextureImageUnits() const = 0;
     virtual unsigned int getMaxCombinedTextureImageUnits() const = 0;
     virtual unsigned int getReservedVertexUniformVectors() const = 0;
@@ -245,6 +246,7 @@ class Renderer
 
     HMODULE mD3dCompilerModule;
     pCompileFunc mD3DCompileFunc;
+    bool mHasCompiler;
 };
 
 }
