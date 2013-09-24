@@ -41,7 +41,7 @@ void Buffer::bufferData(const void *data, GLsizeiptr size, GLenum usage, GLenum 
 {
     mBufferStorage->clear();
     mIndexRangeCache.clear();
-    mBufferStorage->setData(data, size, 0, bindingPoint);
+    mBufferStorage->setData(data, std::max((GLsizeiptr)1, size), 0, bindingPoint);
 
     mUsage = usage;
 
