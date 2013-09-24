@@ -139,7 +139,7 @@ UINT TextureStorage11::getSubresourceIndex(int level, int faceIndex)
 
 bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsigned int sourceSubresource,
                                               int level, int face, GLint xoffset, GLint yoffset,
-                                              GLsizei width, GLsizei height)
+                                              GLsizei width, GLsizei height, bool mipped)
 {
     if (srcTexture)
     {
@@ -159,7 +159,7 @@ bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsig
         ID3D11DeviceContext *context = mRenderer->getDeviceContext();
         
         ASSERT(getBaseTexture());
-#if defined(ANLGE_PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT)
         if (!mipped)
         {
             D3D11_TEXTURE2D_DESC texDesc;
