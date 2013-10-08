@@ -176,11 +176,14 @@ EGLint Renderer11::initialize()
     }
 #endif // #if !defined(ANGLE_PLATFORM_WINRT)
 
+#if (_MSC_VER < 1800)
 #if defined(ANGLE_PLATFORM_WP8)
 #define USE_FEATURE_LEVEL_9_3
 #elif defined(ANGLE_PLATFORM_WINRT)
 #define USE_FEATURE_LEVEL_9_1
 #endif // #if defined(ANGLE_PLATFORM_WP8)
+#endif // #if (_MSC_VER < 1800)
+
 
     D3D_FEATURE_LEVEL featureLevels[] =
     {
