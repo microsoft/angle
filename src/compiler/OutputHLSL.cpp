@@ -17,6 +17,17 @@
 #include <cfloat>
 #include <stdio.h>
 
+#if defined(WINAPI_FAMILY)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+#define ANGLE_PLATFORM_WINRT
+#endif
+#if defined(WINAPI_PARTITION_PHONE) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+#define ANGLE_PLATFORM_WP8
+#endif
+#endif
+#endif
+
 namespace sh
 {
 // Integer to TString conversion
@@ -2012,8 +2023,11 @@ bool OutputHLSL::visitLoop(Visit visit, TIntermLoop *node)
     }
     else
     {
+#if (_MSC_VER < 1800) && (defined(ANGLE_PLATFORM_WINRT) || defined(ANGLE_PLATFORM_WP8))
+        out << "{[fastopt] [loop] for(";
+#else
         out << "{for(";
-        
+#endif
         if (node->getInit())
         {
             node->getInit()->traverse(this);
@@ -2305,6 +2319,11 @@ bool OutputHLSL::handleExcessiveLoop(TIntermLoop *node)
                 
                 // for(int index = initial; index < clampedLimit; index += increment)
 
+#if (_MSC_VER < 1800) && (defined(ANGLE_PLATFORM_WINRT) || defined(ANGLE_PLATFORM_WP8))
+                out << "[fastopt] [loop] for(";
+#else
+                out << "for(";
+#endif
                 out << "for(";
                 index->traverse(this);
                 out << " = ";
