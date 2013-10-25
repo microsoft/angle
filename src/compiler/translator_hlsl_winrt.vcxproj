@@ -94,37 +94,37 @@
     <GenerateManifest>false</GenerateManifest>
     <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>translator_hlsl</TargetName>
-    <OutDir>$(SolutionDir)WinRT\libs\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <GenerateManifest>false</GenerateManifest>
     <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>translator_hlsl</TargetName>
-    <OutDir>$(SolutionDir)WinRT\libs\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <GenerateManifest>false</GenerateManifest>
     <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>translator_hlsl</TargetName>
-    <OutDir>$(SolutionDir)WinRT\libs\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <GenerateManifest>false</GenerateManifest>
     <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>translator_hlsl</TargetName>
-    <OutDir>$(SolutionDir)WinRT\libs\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>false</GenerateManifest>
     <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>translator_hlsl</TargetName>
-    <OutDir>$(SolutionDir)WinRT\libs\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateManifest>false</GenerateManifest>
     <IntDir>WinRT\vs2012\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>translator_hlsl</TargetName>
-    <OutDir>$(SolutionDir)WinRT\libs\vs2012\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

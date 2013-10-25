@@ -99,7 +99,7 @@
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
     <TargetName>libEGL</TargetName>
-    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
     <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -107,7 +107,7 @@
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
     <TargetName>libEGL</TargetName>
-    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
     <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -115,7 +115,7 @@
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
     <TargetName>libEGL</TargetName>
-    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
     <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -123,7 +123,7 @@
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
     <TargetName>libEGL</TargetName>
-    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
     <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -131,7 +131,7 @@
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
     <TargetName>libEGL</TargetName>
-    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
     <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -139,7 +139,7 @@
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
     <TargetName>libEGL</TargetName>
-    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
     <LinkIncremental>false</LinkIncremental>
     <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
