@@ -33,6 +33,13 @@
 #endif // #if defined(WINAPI_PARTITION_PHONE) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 #endif // #if defined(WINAPI_FAMILY)
 
+#if defined(ANGLE_PLATFORM_WINRT)
+#include <wrl\client.h>
+typedef Microsoft::WRL::ComPtr<IUnknown> AngleNativeWindowHDC;
+#else
+typedef HDC AngleNativeWindowHDC;
+#endif //#if defined(WINAPI_FAMILY)
+
 
 #if defined(min)
 #undef min
