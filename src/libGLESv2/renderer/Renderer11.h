@@ -43,7 +43,7 @@ enum
 class Renderer11 : public Renderer
 {
   public:
-    Renderer11(egl::Display *display, HDC hDc);
+    Renderer11(egl::Display *display, AngleNativeWindowHDC hDc);
     virtual ~Renderer11();
 
     static Renderer11 *makeRenderer11(Renderer *renderer);
@@ -216,7 +216,7 @@ class Renderer11 : public Renderer
 
     HMODULE mD3d11Module;
     HMODULE mDxgiModule;
-    HDC mDc;
+    AngleNativeWindowHDC mDc;
 
     bool mDeviceLost;
 

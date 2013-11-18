@@ -31,7 +31,9 @@
 #if defined(ANGLE_PLATFORM_WINRT) || defined(COMPILE_SHADER)
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrtutils.h"
+#include "common/winrtwindow.h"
 #include "third_party/winrt/ThreadEmulation/ThreadEmulation.h"
+using namespace Microsoft::WRL;
 using namespace ThreadEmulation;
 #endif
 
@@ -84,7 +86,7 @@ enum
     MAX_TEXTURE_IMAGE_UNITS_VTF_SM4 = 16
 };
 
-Renderer11::Renderer11(egl::Display *display, HDC hDc) : Renderer(display), mDc(hDc)
+Renderer11::Renderer11(egl::Display *display, AngleNativeWindowHDC hDc) : Renderer(display), mDc(hDc)
 {
     mVertexDataManager = NULL;
     mIndexDataManager = NULL;
@@ -148,6 +150,33 @@ Renderer11 *Renderer11::makeRenderer11(Renderer *renderer)
 #define D3D11_MESSAGE_ID_DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET ((D3D11_MESSAGE_ID)3146081)
 #endif
 
+static const D3D_FEATURE_LEVEL sfeatureLevels[] =
+{
+    D3D_FEATURE_LEVEL_11_1,
+	D3D_FEATURE_LEVEL_11_0,
+    D3D_FEATURE_LEVEL_10_1,
+    D3D_FEATURE_LEVEL_10_0,
+    D3D_FEATURE_LEVEL_9_3,
+    D3D_FEATURE_LEVEL_9_2,
+    D3D_FEATURE_LEVEL_9_1
+};
+
+static const D3D_FEATURE_LEVEL* getFeatureLevels(const D3D_FEATURE_LEVEL maxLevel, unsigned int& size)
+{
+	unsigned int length = ArraySize(sfeatureLevels);
+	for(unsigned int i = 0; i < length; i++)
+	{
+		if(maxLevel == sfeatureLevels[i])
+		{
+			size = length - i;
+			return &sfeatureLevels[i];
+		}
+	}
+	size = 0;
+	return NULL;
+}
+
+
 EGLint Renderer11::initialize()
 {
     if (!initializeCompiler())
@@ -184,35 +213,48 @@ EGLint Renderer11::initialize()
 #endif // #if defined(ANGLE_PLATFORM_WP8)
 #endif // #if (_MSC_VER < 1800)
 
-
-    D3D_FEATURE_LEVEL featureLevels[] =
-    {
-#ifdef D3D_FEATURE_LEVEL_11_1
-        D3D_FEATURE_LEVEL_11_1,
-#endif // D3D_FEATURE_LEVEL_11_1
-#ifdef USE_FEATURE_LEVEL_11_0
-        D3D_FEATURE_LEVEL_11_0
-#elif defined(USE_FEATURE_LEVEL_10_1)
-        D3D_FEATURE_LEVEL_10_1
-#elif defined(USE_FEATURE_LEVEL_10_0)
-        D3D_FEATURE_LEVEL_10_0
-#elif defined(USE_FEATURE_LEVEL_9_3)
-        D3D_FEATURE_LEVEL_9_3
-#elif defined(USE_FEATURE_LEVEL_9_2)
-        D3D_FEATURE_LEVEL_9_2
-#elif defined(USE_FEATURE_LEVEL_9_1)
-        D3D_FEATURE_LEVEL_9_1
-#else
-        D3D_FEATURE_LEVEL_11_0,
-        D3D_FEATURE_LEVEL_10_1,
-        D3D_FEATURE_LEVEL_10_0,
-        D3D_FEATURE_LEVEL_9_3,
-        D3D_FEATURE_LEVEL_9_2,
-        D3D_FEATURE_LEVEL_9_1,
-#endif
-    };
-
     HRESULT result = S_OK;
+	D3D_FEATURE_LEVEL maxFeatureLevel = sfeatureLevels[0];
+
+#if defined(ANGLE_PLATFORM_WINRT)
+
+	ComPtr<IWinrtEglWindow> iWinRTWindow;
+	result = mDc.As(&iWinRTWindow);
+    if (FAILED(result))
+    {
+        ERR("Invalid IWinrtEglWindow - aborting!\n");
+        return EGL_NOT_INITIALIZED;
+    }
+
+	switch(iWinRTWindow->GetAngleD3DFeatureLevel())
+	{
+		case ANGLE_D3D_FEATURE_LEVEL_ANY:
+		case ANGLE_D3D_FEATURE_LEVEL_11_1:
+			maxFeatureLevel = D3D_FEATURE_LEVEL_11_1;
+			break;
+		case ANGLE_D3D_FEATURE_LEVEL_11_0:
+			maxFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+			break;
+		case ANGLE_D3D_FEATURE_LEVEL_10_1:
+			maxFeatureLevel = D3D_FEATURE_LEVEL_10_1;
+			break;
+		case ANGLE_D3D_FEATURE_LEVEL_10_0:
+			maxFeatureLevel = D3D_FEATURE_LEVEL_10_0;
+			break;
+		case ANGLE_D3D_FEATURE_LEVEL_9_3:
+			maxFeatureLevel = D3D_FEATURE_LEVEL_9_3;
+			break;
+		case ANGLE_D3D_FEATURE_LEVEL_9_2:
+			maxFeatureLevel = D3D_FEATURE_LEVEL_9_2;
+			break;		
+		case ANGLE_D3D_FEATURE_LEVEL_9_1:
+			maxFeatureLevel = D3D_FEATURE_LEVEL_9_1;
+			break;
+	}
+#endif
+
+	unsigned int numFeatureLevels;
+	const D3D_FEATURE_LEVEL* featureLevels = getFeatureLevels(maxFeatureLevel, numFeatureLevels);
 
 #ifdef _DEBUG
     result = D3D11CreateDevice(NULL,
@@ -220,7 +262,7 @@ EGLint Renderer11::initialize()
                                NULL,
                                D3D11_CREATE_DEVICE_DEBUG,
                                featureLevels,
-                               ArraySize(featureLevels),
+                               numFeatureLevels,
                                D3D11_SDK_VERSION,
                                &mDevice,
                                &mFeatureLevel,
@@ -239,7 +281,7 @@ EGLint Renderer11::initialize()
                                    NULL,
                                    0,
                                    featureLevels,
-                                   ArraySize(featureLevels),
+                                   numFeatureLevels,
                                    D3D11_SDK_VERSION,
                                    &mDevice,
                                    &mFeatureLevel,
@@ -276,6 +318,7 @@ EGLint Renderer11::initialize()
     wcstombs(mDescription, mAdapterDescription.Description, sizeof(mDescription) - 1);
 
 #if defined(ANGLE_PLATFORM_WINRT)
+    iWinRTWindow->SetAngleD3DDevice(mDevice);
     result = mDxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&mDxgiFactory);
 #else
     result = mDxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&mDxgiFactory);
