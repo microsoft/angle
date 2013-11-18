@@ -96,9 +96,9 @@
 
 #if defined(ANGLE_PLATFORM_WINRT)
 #include <wrl\client.h>
-#define WINRT_EGL_WINDOW(x) reinterpret_cast<IUnknown *>(x)
+#define WINRT_EGL_IUNKNOWN(x) reinterpret_cast<IUnknown *>(x)
 typedef Microsoft::WRL::ComPtr<IUnknown> EGLNativeWindowType;
-typedef int EGLNativeDisplayType;
+typedef EGLNativeWindowType EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
 #else
 typedef HDC     EGLNativeDisplayType;
