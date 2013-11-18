@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "esUtil.h"
+#include "winrtwindow.h"
 #include <DirectXMath.h>
 #include <wrl/client.h>
 #include <ppl.h>
@@ -39,6 +40,8 @@ protected:
 
 private:
     ESContext m_esContext;
+	Microsoft::WRL::ComPtr<IWinrtEglWindow> m_eglWindow;
+
 	Windows::Foundation::Rect m_windowBounds;
 	Windows::Graphics::Display::DisplayOrientations m_orientation;
     CubeRenderer m_cubeRenderer;

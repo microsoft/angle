@@ -61,45 +61,50 @@ void RotatingCube::Initialize(CoreApplicationView^ applicationView)
 
 void RotatingCube::SetWindow(CoreWindow^ window)
 {
-	window->SizeChanged += 
+    window->SizeChanged +=
         ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &RotatingCube::OnWindowSizeChanged);
 
-	window->VisibilityChanged +=
-		ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &RotatingCube::OnVisibilityChanged);
+    window->VisibilityChanged +=
+        ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &RotatingCube::OnVisibilityChanged);
 
-	window->Closed += 
+    window->Closed +=
         ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &RotatingCube::OnWindowClosed);
 
 #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
-	window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
+    window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
 #endif
 
-	window->PointerPressed +=
-		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &RotatingCube::OnPointerPressed);
+    window->PointerPressed +=
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &RotatingCube::OnPointerPressed);
 
-	window->PointerMoved +=
-		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &RotatingCube::OnPointerMoved);
+    window->PointerMoved +=
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &RotatingCube::OnPointerMoved);
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
-	DisplayProperties::AutoRotationPreferences = 
-		DisplayOrientations::Landscape | 
-		DisplayOrientations::LandscapeFlipped | 
-		DisplayOrientations::Portrait | 
-		DisplayOrientations::PortraitFlipped;
-	DisplayProperties::OrientationChanged +=
-		ref new DisplayPropertiesEventHandler(this, &RotatingCube::OnOrientationChanged);
+    DisplayProperties::AutoRotationPreferences = 
+        DisplayOrientations::Landscape | 
+        DisplayOrientations::LandscapeFlipped | 
+        DisplayOrientations::Portrait | 
+        DisplayOrientations::PortraitFlipped;
+    DisplayProperties::OrientationChanged +=
+        ref new DisplayPropertiesEventHandler(this, &RotatingCube::OnOrientationChanged);
 #endif
 
-	m_orientation = DisplayProperties::CurrentOrientation;
+    m_orientation = DisplayProperties::CurrentOrientation;
     m_windowBounds = window->Bounds;
 
-    esInitContext ( &m_esContext );
-    m_esContext.hWnd = WINRT_EGL_WINDOW(CoreWindow::GetForCurrentThread());
+    esInitContext(&m_esContext);
 
-    //title, width, and height are unused, but included for backwards compatibility
-    esCreateWindow ( &m_esContext, nullptr, 0, 0, ES_WINDOW_RGB | ES_WINDOW_DEPTH );
+    HRESULT result = CreateWinrtEglWindow(WINRT_EGL_IUNKNOWN(CoreWindow::GetForCurrentThread()), ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_9_3, m_eglWindow.GetAddressOf());
+    if (SUCCEEDED(result))
+    {
+        m_esContext.hWnd = m_eglWindow;
 
-    m_cubeRenderer.CreateResources();
+        //title, width, and height are unused, but included for backwards compatibility
+        esCreateWindow(&m_esContext, nullptr, 0, 0, ES_WINDOW_RGB | ES_WINDOW_DEPTH);
+
+        m_cubeRenderer.CreateResources();
+    }
 }
 
 void RotatingCube::Load(Platform::String^ entryPoint)
@@ -178,8 +183,15 @@ void RotatingCube::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ a
 
 	create_task([this, deferral]()
 	{
-		// Insert your code here.
-
+		
+#if (_MSC_VER >= 1800)
+        Microsoft::WRL::ComPtr<IDXGIDevice3> dxgiDevice;
+        HRESULT result = m_eglWindow->GetAngleD3DDevice().As(&dxgiDevice);
+        if (SUCCEEDED(result))
+        {
+            dxgiDevice->Trim();
+        }
+#endif
 		deferral->Complete();
 	});
 }
