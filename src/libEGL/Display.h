@@ -18,6 +18,10 @@
 
 #include "libEGL/Config.h"
 
+
+
+
+
 namespace gl
 {
 class Context;
@@ -65,12 +69,12 @@ class Display
   private:
     DISALLOW_COPY_AND_ASSIGN(Display);
 
-    Display(EGLNativeDisplayType displayId, EGLNativeWindowHDC deviceContext);
+    Display(EGLNativeDisplayType displayId, AngleNativeWindowHDC deviceContext);
 
     bool restoreLostDevice();
 
     EGLNativeDisplayType mDisplayId;
-    const EGLNativeWindowHDC mDc;
+    const AngleNativeWindowHDC mDc;
 
     bool mSoftwareDevice;
     

@@ -46,7 +46,7 @@ egl::Display *Display::getDisplay(EGLNativeDisplayType displayId)
     return display;
 }
 
-Display::Display(EGLNativeDisplayType displayId, EGLNativeWindowHDC deviceContext) : mDc(deviceContext)
+Display::Display(EGLNativeDisplayType displayId, AngleNativeWindowHDC deviceContext) : mDc(deviceContext)
 {
     mDisplayId = displayId;
     mRenderer = NULL;
