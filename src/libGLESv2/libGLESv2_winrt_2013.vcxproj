@@ -279,6 +279,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\common\winrtwindow.cpp" />
     <ClCompile Include="..\third_party\murmurhash\MurmurHash3.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -365,6 +366,7 @@
     <ClInclude Include="..\common\debug.h" />
     <ClInclude Include="..\common\system.h" />
     <ClInclude Include="..\common\winrtutils.h" />
+    <ClInclude Include="..\common\winrtwindow.h" />
     <ClInclude Include="..\common\winrt\ThreadEmulation.h" />
     <ClInclude Include="..\common\winrt\threadutils.h" />
     <ClInclude Include="..\third_party\murmurhash\MurmurHash3.h" />

@@ -188,6 +188,9 @@
     <ClCompile Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.cpp">
       <Filter>Third Party\winrt\ThreadEmulation</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\winrtwindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinaryStream.h">
@@ -420,6 +423,9 @@
     </ClInclude>
     <ClInclude Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.h">
       <Filter>Third Party\winrt\ThreadEmulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\winrtwindow.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
