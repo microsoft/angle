@@ -244,16 +244,6 @@ EGLNativeWindowType Surface::getWindowHandle()
 }
 
 
-#if defined(ANGLE_PLATFORM_WINRT)
-
-
-
-void Surface::onWindowSizeChanged()
-{
-    checkForOutOfDateSwapChain();    
-}
-
-#endif // #if defined(ANGLE_PLATFORM_WINRT)
 
 
 #define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
