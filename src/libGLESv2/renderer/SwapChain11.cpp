@@ -13,6 +13,7 @@
 #include "libGLESv2/renderer/Renderer11.h"
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrtutils.h"
+#include "common/winrtwindow.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
 #if !defined(ANGLE_PLATFORM_WP8)
@@ -518,59 +519,73 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
 
 #elif defined(ANGLE_PLATFORM_WP8)
-        IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
-		swapChainDesc.Width = static_cast<UINT>(backbufferWidth); // Match the size of the window.
-		swapChainDesc.Height = static_cast<UINT>(backbufferHeight);
-		swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // This is the most common swap chain format.
-		swapChainDesc.Stereo = false;
-		swapChainDesc.SampleDesc.Count = 1; // Don't use multi-sampling.
-		swapChainDesc.SampleDesc.Quality = 0;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.BufferCount = 1; // On phone, only single buffering is supported.
-		swapChainDesc.Scaling = DXGI_SCALING_STRETCH; // On phone, only stretch and aspect-ratio stretch scaling are allowed.
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // On phone, no swap effects are supported.
-		swapChainDesc.Flags = 0;
 
-		result = factory->CreateSwapChainForCoreWindow(
-			device,
-			mWindow.Get(),
-			&swapChainDesc,
-			nullptr, // Allow on all displays.
-			&mSwapChain
-			);
+		ComPtr<IWinrtEglWindow> iWinRTWindow;
+		result = mWindow.As(&iWinRTWindow);
+		if(SUCCEEDED(result)) 
+		{
+			IUnknown* iWindow = iWinRTWindow->GetWindowInterface().Get();
+			IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
+			DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+			swapChainDesc.Width = static_cast<UINT>(backbufferWidth); // Match the size of the window.
+			swapChainDesc.Height = static_cast<UINT>(backbufferHeight);
+			swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // This is the most common swap chain format.
+			swapChainDesc.Stereo = false;
+			swapChainDesc.SampleDesc.Count = 1; // Don't use multi-sampling.
+			swapChainDesc.SampleDesc.Quality = 0;
+			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			swapChainDesc.BufferCount = 1; // On phone, only single buffering is supported.
+			swapChainDesc.Scaling = DXGI_SCALING_STRETCH; // On phone, only stretch and aspect-ratio stretch scaling are allowed.
+			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; // On phone, no swap effects are supported.
+			swapChainDesc.Flags = 0;
+
+			result = factory->CreateSwapChainForCoreWindow(
+				device,
+				iWindow,
+				&swapChainDesc,
+				nullptr, // Allow on all displays.
+				&mSwapChain
+				);
+		}
 
 #elif defined(ANGLE_PLATFORM_WINRT)
-        bool isPanel = winrt::isSwapChainBackgroundPanel(mWindow.Get());
-        IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
-        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
-        swapChainDesc.Width = backbufferWidth;
-        swapChainDesc.Height = backbufferHeight;
-        swapChainDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
-        swapChainDesc.Stereo = FALSE;
-        swapChainDesc.SampleDesc.Count = 1;
-        swapChainDesc.SampleDesc.Quality = 0;
-        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = 2;
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
-        swapChainDesc.Scaling = isPanel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
-        if (isPanel)
-        {
-            ComPtr<ISwapChainBackgroundPanelNative> panelNative;
-            result = mWindow.Get()->QueryInterface(IID_PPV_ARGS(&panelNative));
-            if SUCCEEDED(result)
-            {
-                result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
-                if SUCCEEDED(result)
-                {
-                    panelNative->SetSwapChain(mSwapChain);
-                }
-            }
-        }
-        else
-        {
-            result = factory->CreateSwapChainForCoreWindow(device, mWindow.Get(), &swapChainDesc, nullptr, &mSwapChain);
-        }
+		ComPtr<IWinrtEglWindow> iWinRTWindow;
+		result = mWindow.As(&iWinRTWindow);
+		if(SUCCEEDED(result))
+		{
+			IUnknown* iWindow = iWinRTWindow->GetWindowInterface().Get();
+			bool isPanel = winrt::isSwapChainBackgroundPanel(iWindow);
+			IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
+			DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+			swapChainDesc.Width = backbufferWidth;
+			swapChainDesc.Height = backbufferHeight;
+			swapChainDesc.Format = gl_d3d11::ConvertRenderbufferFormat(mBackBufferFormat);
+			swapChainDesc.Stereo = FALSE;
+			swapChainDesc.SampleDesc.Count = 1;
+			swapChainDesc.SampleDesc.Quality = 0;
+			swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			swapChainDesc.BufferCount = 2;
+			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
+			swapChainDesc.Scaling = isPanel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
+			if (isPanel)
+			{
+				ComPtr<ISwapChainBackgroundPanelNative> panelNative;
+
+				result = iWinRTWindow->GetWindowInterface().As(&panelNative);
+				if SUCCEEDED(result)
+				{
+					result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
+					if SUCCEEDED(result)
+					{
+						panelNative->SetSwapChain(mSwapChain);
+					}
+				}
+			}
+			else
+			{
+				result = factory->CreateSwapChainForCoreWindow(device, iWindow, &swapChainDesc, nullptr, &mSwapChain);
+			}
+		}
 #endif // #if !defined(ANGLE_PLATFORM_WINRT)
 
         if (FAILED(result))
