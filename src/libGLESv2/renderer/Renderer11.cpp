@@ -31,7 +31,7 @@
 #if defined(ANGLE_PLATFORM_WINRT) || defined(COMPILE_SHADER)
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrtutils.h"
-#include "common/winrtwindow.h"
+#include "common/winrtangle.h"
 #include "third_party/winrt/ThreadEmulation/ThreadEmulation.h"
 using namespace Microsoft::WRL;
 using namespace ThreadEmulation;

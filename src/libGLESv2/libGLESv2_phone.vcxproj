@@ -176,6 +176,8 @@
     <None Include="libGLESv2_phone.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\winrtutils.h" />
+    <ClInclude Include="..\common\winrtangle.h" />
     <ClInclude Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.h" />
     <ClInclude Include="renderer\BufferStorage.h" />
     <ClInclude Include="renderer\BufferStorage11.h" />
@@ -226,7 +228,7 @@
     <ClCompile Include="..\common\event_tracer.cpp" />
     <ClCompile Include="..\common\RefCountObject.cpp" />
     <ClCompile Include="..\common\winrtutils.cpp" />
-    <ClCompile Include="..\common\winrtwindow.cpp" />
+    <ClCompile Include="..\common\winrtangle.cpp" />
     <ClCompile Include="..\third_party\murmurhash\MurmurHash3.cpp" />
     <ClCompile Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.cpp" />
     <ClCompile Include="Buffer.cpp" />

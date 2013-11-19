@@ -13,7 +13,7 @@
 #include "libGLESv2/renderer/Renderer11.h"
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrtutils.h"
-#include "common/winrtwindow.h"
+#include "common/winrtangle.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthroughrgba11ps.h"
 #if !defined(ANGLE_PLATFORM_WP8)

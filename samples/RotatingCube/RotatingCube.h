@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "esUtil.h"
-#include "winrtwindow.h"
+#include "winrtangle.h"
 #include <DirectXMath.h>
 #include <wrl/client.h>
 #include <ppl.h>
