@@ -4,13 +4,10 @@
 // found in the LICENSE file.
 //
 
-// Surface.h: Defines the egl::Surface class, representing a drawing surface
-// such as the client area of a window, including any back buffers.
-// Implements EGLSurface and related functionality. [EGL 1.4] section 2.2 page 3.
+// winrtangle.h: Defines the interface for the EGLNativeWindowType
 
-#ifndef WINRT_WINDOWH_
-#define WINRT_WINDOWH_
-
+#ifndef WINRT_ANGLE_H_
+#define WINRT_ANGLE_H_
 
 #include <unknwn.h>
 #include <wrl.h>
@@ -48,5 +45,5 @@ struct __declspec(uuid("6B70903A-0D55-45BA-A10E-CA2D428E4867")) IWinPhone8XamlD3
 HRESULT __stdcall CreateWinrtEglWindow(Microsoft::WRL::ComPtr<IUnknown> windowInterface, ANGLE_D3D_FEATURE_LEVEL featureLevel, IWinrtEglWindow ** result);
 HRESULT __stdcall CreateWinPhone8XamlWindow(IWinPhone8XamlD3DWindow ** result);
 
-#endif   // WINRT_WINDOWH_
+#endif   // WINRT_ANGLE_H_
 
