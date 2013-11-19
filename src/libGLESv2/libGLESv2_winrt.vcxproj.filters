@@ -188,7 +188,7 @@
     <ClCompile Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.cpp">
       <Filter>Third Party\winrt\ThreadEmulation</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\winrtwindow.cpp">
+    <ClCompile Include="..\common\winrtangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -424,7 +424,7 @@
     <ClInclude Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.h">
       <Filter>Third Party\winrt\ThreadEmulation</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\winrtwindow.h">
+    <ClInclude Include="..\common\winrtangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
