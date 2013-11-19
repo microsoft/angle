@@ -5,7 +5,7 @@
 #define STRINGIFY(x) #x
 
 const char g_colorVertexShader[] = STRINGIFY(
-precision mediump float;
+    precision mediump float;
 attribute vec3 a_position;
 attribute vec3 a_color;
 varying vec4 v_color;
@@ -18,7 +18,7 @@ void main(void)
 );
 
 const char g_colorFragmentShader[] = STRINGIFY(
-precision mediump float;
+    precision mediump float;
 varying vec4 v_color;
 void main(void)
 {
@@ -37,25 +37,25 @@ using namespace concurrency;
 
 struct VertexPositionColor
 {
-	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT3 color;
+    DirectX::XMFLOAT3 pos;
+    DirectX::XMFLOAT3 color;
 };
 
 RotatingCube::RotatingCube() :
-	m_windowClosed(false),
-	m_windowVisible(true)
+m_windowClosed(false),
+m_windowVisible(true)
 {
 }
 
 void RotatingCube::Initialize(CoreApplicationView^ applicationView)
 {
-	applicationView->Activated +=
+    applicationView->Activated +=
         ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &RotatingCube::OnActivated);
 
-	CoreApplication::Suspending +=
+    CoreApplication::Suspending +=
         ref new EventHandler<SuspendingEventArgs^>(this, &RotatingCube::OnSuspending);
 
-	CoreApplication::Resuming +=
+    CoreApplication::Resuming +=
         ref new EventHandler<Platform::Object^>(this, &RotatingCube::OnResuming);
 }
 
@@ -81,10 +81,10 @@ void RotatingCube::SetWindow(CoreWindow^ window)
         ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &RotatingCube::OnPointerMoved);
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
-    DisplayProperties::AutoRotationPreferences = 
-        DisplayOrientations::Landscape | 
-        DisplayOrientations::LandscapeFlipped | 
-        DisplayOrientations::Portrait | 
+    DisplayProperties::AutoRotationPreferences =
+        DisplayOrientations::Landscape |
+        DisplayOrientations::LandscapeFlipped |
+        DisplayOrientations::Portrait |
         DisplayOrientations::PortraitFlipped;
     DisplayProperties::OrientationChanged +=
         ref new DisplayPropertiesEventHandler(this, &RotatingCube::OnOrientationChanged);
@@ -95,7 +95,19 @@ void RotatingCube::SetWindow(CoreWindow^ window)
 
     esInitContext(&m_esContext);
 
-    HRESULT result = CreateWinrtEglWindow(WINRT_EGL_IUNKNOWN(CoreWindow::GetForCurrentThread()), ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_9_3, m_eglWindow.GetAddressOf());
+    // we need to select the correct DirectX feature level depending on the platform
+    // default is for WinRT on Windows 8.0
+    ANGLE_D3D_FEATURE_LEVEL featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_9_1;
+
+#if (_MSC_VER >= 1800)
+    // WinRT on Windows 8.1 can compile shaders at run time so we don't care about the DirectX feature level
+    featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_ANY;
+#elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
+    // Windows Phone 8.0 uses D3D_FEATURE_LEVEL_9_3
+    featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_9_3;
+#endif 
+
+    HRESULT result = CreateWinrtEglWindow(WINRT_EGL_IUNKNOWN(CoreWindow::GetForCurrentThread()), featureLevel, m_eglWindow.GetAddressOf());
     if (SUCCEEDED(result))
     {
         m_esContext.hWnd = m_eglWindow;
@@ -113,23 +125,23 @@ void RotatingCube::Load(Platform::String^ entryPoint)
 
 void RotatingCube::Run()
 {
-	BasicTimer^ timer = ref new BasicTimer();
+    BasicTimer^ timer = ref new BasicTimer();
 
-	while (!m_windowClosed)
-	{
-		if (m_windowVisible)
-		{
-			timer->Update();
-			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+    while (!m_windowClosed)
+    {
+        if (m_windowVisible)
+        {
+            timer->Update();
+            CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
             m_cubeRenderer.Update(timer->Total, timer->Delta);
             m_cubeRenderer.Render();
             eglSwapBuffers(m_esContext.eglDisplay, m_esContext.eglSurface);
-		}
-		else
-		{
-			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
-		}
-	}
+        }
+        else
+        {
+            CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+        }
+    }
 }
 
 void RotatingCube::Uninitialize()
@@ -143,47 +155,47 @@ void RotatingCube::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEven
 
 void RotatingCube::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
 {
-	m_windowVisible = args->Visible;
+    m_windowVisible = args->Visible;
 }
 
 void RotatingCube::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 {
-	m_windowClosed = true;
+    m_windowClosed = true;
 }
 
 void RotatingCube::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
 {
-	// Insert your code here.
+    // Insert your code here.
 }
 
 void RotatingCube::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
 {
-	// Insert your code here.
+    // Insert your code here.
 }
 
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
 void RotatingCube::OnOrientationChanged(Platform::Object^ sender)
 {
-	m_cubeRenderer.OnOrientationChanged();
+    m_cubeRenderer.OnOrientationChanged();
 }
 #endif
 
 void RotatingCube::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
 {
-	CoreWindow::GetForCurrentThread()->Activate();
+    CoreWindow::GetForCurrentThread()->Activate();
 }
 
 void RotatingCube::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
 {
-	// Save app state asynchronously after requesting a deferral. Holding a deferral
-	// indicates that the application is busy performing suspending operations. Be
-	// aware that a deferral may not be held indefinitely. After about five seconds,
-	// the app will be forced to exit.
-	SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
+    // Save app state asynchronously after requesting a deferral. Holding a deferral
+    // indicates that the application is busy performing suspending operations. Be
+    // aware that a deferral may not be held indefinitely. After about five seconds,
+    // the app will be forced to exit.
+    SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
 
-	create_task([this, deferral]()
-	{
-		
+    create_task([this, deferral]()
+    {
+
 #if (_MSC_VER >= 1800)
         Microsoft::WRL::ComPtr<IDXGIDevice3> dxgiDevice;
         HRESULT result = m_eglWindow->GetAngleD3DDevice().As(&dxgiDevice);
@@ -192,15 +204,15 @@ void RotatingCube::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ a
             dxgiDevice->Trim();
         }
 #endif
-		deferral->Complete();
-	});
+        deferral->Complete();
+    });
 }
- 
+
 void RotatingCube::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 {
-	// Restore any data or state that was unloaded on suspend. By default, data
-	// and state are persisted when resuming from suspend. Note that this event
-	// does not occur if the app was previously terminated.
+    // Restore any data or state that was unloaded on suspend. By default, data
+    // and state are persisted when resuming from suspend. Note that this event
+    // does not occur if the app was previously terminated.
 }
 
 IFrameworkView^ Direct3DApplicationSource::CreateView()
@@ -211,7 +223,7 @@ IFrameworkView^ Direct3DApplicationSource::CreateView()
 [Platform::MTAThread]
 int main(Platform::Array<Platform::String^>^)
 {
-	auto direct3DApplicationSource = ref new Direct3DApplicationSource();
-	CoreApplication::Run(direct3DApplicationSource);
-	return 0;
+    auto direct3DApplicationSource = ref new Direct3DApplicationSource();
+    CoreApplication::Run(direct3DApplicationSource);
+    return 0;
 }
