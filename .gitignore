@@ -1,5 +1,7 @@
 Debug
 Release
+AppPackages
+SubmissionInfo
 *.sdf
 *.ncb
 *.suo
