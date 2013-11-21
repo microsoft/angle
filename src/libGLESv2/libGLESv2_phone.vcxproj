@@ -176,6 +176,7 @@
     <None Include="libGLESv2_phone.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\winrtplatform.h" />
     <ClInclude Include="..\common\winrtutils.h" />
     <ClInclude Include="..\common\winrtangle.h" />
     <ClInclude Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.h" />
@@ -222,6 +223,7 @@
     <ClInclude Include="renderer\VertexBuffer11.h" />
     <ClInclude Include="renderer\vertexconversion.h" />
     <ClInclude Include="renderer\VertexDataManager.h" />
+    <ClInclude Include="TLSWinrt.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\debug.cpp" />
@@ -270,6 +272,7 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TLSWinrt.cpp" />
     <ClCompile Include="Uniform.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>

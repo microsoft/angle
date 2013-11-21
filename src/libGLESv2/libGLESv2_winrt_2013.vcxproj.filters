@@ -191,6 +191,9 @@
     <ClCompile Include="..\common\winrtangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TLSWinrt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinaryStream.h">
@@ -425,6 +428,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\common\winrtangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TLSWinrt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\winrtplatform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
