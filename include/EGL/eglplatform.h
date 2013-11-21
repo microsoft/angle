@@ -78,28 +78,13 @@
 #if defined(WINAPI_FAMILY)
 #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
-#define ANGLE_PLATFORM_WINRT
-#endif
-#endif // !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#endif // #if defined(WINAPI_FAMILY)
-
-// check if Windows Phone 8
-#if defined(WINAPI_FAMILY)
-#if defined(WINAPI_PARTITION_PHONE) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
-#define ANGLE_PLATFORM_WP8
-#ifndef ANGLE_PLATFORM_WINRT
-#define ANGLE_PLATFORM_WINRT
-#endif
-#endif // #if defined(WINAPI_PARTITION_PHONE) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
-#endif // #if defined(WINAPI_FAMILY)
-
-
-#if defined(ANGLE_PLATFORM_WINRT)
 #include <wrl\client.h>
 #define WINRT_EGL_IUNKNOWN(x) reinterpret_cast<IUnknown *>(x)
 typedef Microsoft::WRL::ComPtr<IUnknown> EGLNativeWindowType;
 typedef EGLNativeWindowType EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
+#endif
+#endif // !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #else
 typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
