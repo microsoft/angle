@@ -23,17 +23,7 @@
 
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrtutils.h"
-#include <wrl/client.h>
-#include <wrl\implements.h>
-#include <wrl\module.h>
-#include <wrl\event.h>
-#include <wrl\wrappers\corewrappers.h>
-#include <windows.applicationmodel.core.h>
-
-using namespace ABI::Windows::UI::Core;
 #endif // #if defined(ANGLE_PLATFORM_WINRT)
-
-
 
 namespace egl
 {
