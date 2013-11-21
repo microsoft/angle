@@ -13,7 +13,7 @@
 #include "libGLESv2/Uniform.h"
 #include "libGLESv2/angletypes.h"
 
-#include "common\winrtplatform.h"
+#include "common/winrtplatform.h"
 
 #if defined(ANGLE_PLATFORM_WP8)
 #define D3DCOMPILE_OPTIMIZATION_LEVEL3            (1 << 15)
