@@ -152,7 +152,6 @@ Renderer11 *Renderer11::makeRenderer11(Renderer *renderer)
 
 static const D3D_FEATURE_LEVEL sfeatureLevels[] =
 {
-    D3D_FEATURE_LEVEL_11_1,
 	D3D_FEATURE_LEVEL_11_0,
     D3D_FEATURE_LEVEL_10_1,
     D3D_FEATURE_LEVEL_10_0,
@@ -223,9 +222,6 @@ EGLint Renderer11::initialize()
 		case ANGLE_D3D_FEATURE_LEVEL_ANY:
             maxFeatureLevel = sfeatureLevels[0];
             break;
-		case ANGLE_D3D_FEATURE_LEVEL_11_1:
-			maxFeatureLevel = D3D_FEATURE_LEVEL_11_1;
-			break;
 		case ANGLE_D3D_FEATURE_LEVEL_11_0:
 			maxFeatureLevel = D3D_FEATURE_LEVEL_11_0;
 			break;
@@ -2030,7 +2026,6 @@ bool Renderer11::testDeviceResettable()
 
     D3D_FEATURE_LEVEL featureLevels[] =
     {
-        D3D_FEATURE_LEVEL_11_1,
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_1,
         D3D_FEATURE_LEVEL_10_0,
@@ -2212,7 +2207,6 @@ float Renderer11::getTextureMaxAnisotropy() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
         return D3D11_MAX_MAXANISOTROPY;
       case D3D_FEATURE_LEVEL_10_1:
@@ -2238,7 +2232,6 @@ Range Renderer11::getViewportBounds() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
         return Range(D3D11_VIEWPORT_BOUNDS_MIN, D3D11_VIEWPORT_BOUNDS_MAX);
       case D3D_FEATURE_LEVEL_10_1:
@@ -2257,7 +2250,6 @@ unsigned int Renderer11::getMaxVertexTextureImageUnits() const
     META_ASSERT(MAX_TEXTURE_IMAGE_UNITS_VTF_SM4 <= gl::IMPLEMENTATION_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
@@ -2306,7 +2298,6 @@ unsigned int Renderer11::getMaxVaryingVectors() const
     META_ASSERT(gl::IMPLEMENTATION_MAX_VARYING_VECTORS == D3D11_VS_OUTPUT_REGISTER_COUNT);
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
         return D3D11_VS_OUTPUT_REGISTER_COUNT;
       case D3D_FEATURE_LEVEL_10_1:
@@ -2324,7 +2315,6 @@ bool Renderer11::getNonPower2TextureSupport() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
@@ -2341,7 +2331,6 @@ bool Renderer11::getOcclusionQuerySupport() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
@@ -2358,7 +2347,6 @@ bool Renderer11::getInstancingSupport() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
@@ -2384,7 +2372,6 @@ bool Renderer11::getDerivativeInstructionSupport() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
@@ -2407,7 +2394,6 @@ int Renderer11::getMajorShaderModel() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MAJOR_VERSION;   // 5
       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MAJOR_VERSION; // 4
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MAJOR_VERSION;   // 4
@@ -2422,7 +2408,6 @@ int Renderer11::getMinorShaderModel() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1: return 1;
       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MINOR_VERSION;   // 0
       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MINOR_VERSION; // 1
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MINOR_VERSION;   // 0
@@ -2449,7 +2434,6 @@ int Renderer11::getMaxViewportDimension() const
 
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
         return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 16384
       case D3D_FEATURE_LEVEL_10_1:
@@ -2469,7 +2453,6 @@ int Renderer11::getMaxTextureWidth() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 16384
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 8192
@@ -2486,7 +2469,6 @@ int Renderer11::getMaxTextureHeight() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 16384
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 8192
@@ -2503,7 +2485,6 @@ bool Renderer11::get32BitIndexSupport() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0: 
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_DRAWINDEXED_INDEX_COUNT_2_TO_EXP >= 32;   // true
@@ -2559,7 +2540,6 @@ unsigned int Renderer11::getMaxRenderTargets() const
 
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
         return D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;  // 8
       case D3D_FEATURE_LEVEL_10_1:
