@@ -23,6 +23,8 @@
 
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrtutils.h"
+#include "common/winrtangleutils.h"
+using namespace Microsoft::WRL;
 #endif // #if defined(ANGLE_PLATFORM_WINRT)
 
 namespace egl
@@ -102,7 +104,9 @@ bool Surface::resetSwapChain()
     if (mWindow)
     {
 #if defined(ANGLE_PLATFORM_WINRT)
-        winrt::getCurrentWindowDimensions(width, height);
+
+		winrtangleutils::getWindowSize(mWindow, width, height);
+
 #else
         RECT windowRect;
         if (!GetClientRect(getWindowHandle(), &windowRect))
@@ -318,7 +322,7 @@ bool Surface::checkForOutOfDateSwapChain()
 #if defined(ANGLE_PLATFORM_WINRT)
     int clientWidth = 0;
     int clientHeight = 0;
-    winrt::getCurrentWindowDimensions(clientWidth,clientHeight);
+	winrtangleutils::getWindowSize(mWindow, clientWidth, clientHeight);
 #else
     RECT client;
     if (!GetClientRect(getWindowHandle(), &client))
