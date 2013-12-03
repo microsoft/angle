@@ -2,6 +2,8 @@
 #include "CubeRenderer.h"
 #include "shader.h"
 
+using namespace DirectX;
+
 struct VertexPositionColor
 {
 	DirectX::XMFLOAT3 pos;
