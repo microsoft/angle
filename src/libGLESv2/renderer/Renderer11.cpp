@@ -32,6 +32,7 @@
 #if defined(ANGLE_PLATFORM_WINRT)
 #include "common/winrtutils.h"
 #include "common/winrtangle.h"
+#include "common/winrtangleutils.h"
 #include "third_party/winrt/ThreadEmulation/ThreadEmulation.h"
 using namespace Microsoft::WRL;
 using namespace ThreadEmulation;
@@ -175,14 +176,8 @@ static const D3D_FEATURE_LEVEL* getFeatureLevels(const D3D_FEATURE_LEVEL maxLeve
 	return NULL;
 }
 
-
-EGLint Renderer11::initialize()
+EGLint Renderer11::createDevice()
 {
-    if (!initializeCompiler())
-    {
-        return EGL_NOT_INITIALIZED;
-    }
-
 #if !defined(ANGLE_PLATFORM_WINRT)
     mDxgiModule = LoadLibrary(TEXT("dxgi.dll"));
     mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
@@ -208,38 +203,50 @@ EGLint Renderer11::initialize()
 	D3D_FEATURE_LEVEL maxFeatureLevel = sfeatureLevels[0];
 
 #if defined(ANGLE_PLATFORM_WINRT)
-
 	ComPtr<IWinrtEglWindow> iWinRTWindow;
-	result = mDc.As(&iWinRTWindow);
+	result = winrtangleutils::getIWinRTWindow(mDc, &iWinRTWindow);
     if (FAILED(result))
     {
         ERR("Invalid IWinrtEglWindow - aborting!\n");
         return EGL_NOT_INITIALIZED;
     }
 
-	switch(iWinRTWindow->GetAngleD3DFeatureLevel())
+	maxFeatureLevel = winrtangleutils::getD3DFeatureLevel(iWinRTWindow);
+
+	if(winrtangleutils::hasIPhoneXamlWindow(iWinRTWindow))
 	{
-		case ANGLE_D3D_FEATURE_LEVEL_ANY:
-            maxFeatureLevel = sfeatureLevels[0];
-            break;
-		case ANGLE_D3D_FEATURE_LEVEL_11_0:
-			maxFeatureLevel = D3D_FEATURE_LEVEL_11_0;
-			break;
-		case ANGLE_D3D_FEATURE_LEVEL_10_1:
-			maxFeatureLevel = D3D_FEATURE_LEVEL_10_1;
-			break;
-		case ANGLE_D3D_FEATURE_LEVEL_10_0:
-			maxFeatureLevel = D3D_FEATURE_LEVEL_10_0;
-			break;
-		case ANGLE_D3D_FEATURE_LEVEL_9_3:
-			maxFeatureLevel = D3D_FEATURE_LEVEL_9_3;
-			break;
-		case ANGLE_D3D_FEATURE_LEVEL_9_2:
-			maxFeatureLevel = D3D_FEATURE_LEVEL_9_2;
-			break;		
-		case ANGLE_D3D_FEATURE_LEVEL_9_1:
-			maxFeatureLevel = D3D_FEATURE_LEVEL_9_1;
-			break;
+		ComPtr<IWinPhone8XamlD3DWindow> iPhoneWindow;
+		result = winrtangleutils::getIPhoneXamlWindow(mDc, &iPhoneWindow);
+		if (SUCCEEDED(result))
+		{
+			ComPtr<ID3D11Device> device;
+			result = winrtangleutils::getID3D11Device(iPhoneWindow, &device);
+			if (SUCCEEDED(result))
+			{
+				mDevice = device.Get();
+			}
+
+			if (SUCCEEDED(result))
+			{
+				ComPtr<ID3D11DeviceContext> context;
+				result = winrtangleutils::getID3D11DeviceContext(iPhoneWindow, &context);
+				if (SUCCEEDED(result))
+				{
+					mDeviceContext = context.Get();
+				}
+			}
+	
+			mFeatureLevel = winrtangleutils::getD3DFeatureLevel(iWinRTWindow);
+
+		}
+
+		if(FAILED(result))
+		{
+			ERR("Invalid IWinPhone8XamlD3DWindow - aborting!\n");
+			return EGL_NOT_INITIALIZED;
+		}
+
+		return EGL_SUCCESS;
 	}
 #endif
 
@@ -284,8 +291,27 @@ EGLint Renderer11::initialize()
         }
     }
 
+#if defined(ANGLE_PLATFORM_WINRT)
+    iWinRTWindow->SetAngleD3DDevice(mDevice);
+#endif
+	return EGL_SUCCESS;
+}
+
+EGLint Renderer11::initialize()
+{
+    if (!initializeCompiler())
+    {
+        return EGL_NOT_INITIALIZED;
+    }
+
+	EGLint err = createDevice();
+	if(err != EGL_SUCCESS)
+	{
+		return err;
+	}
+
     IDXGIDevice *dxgiDevice = NULL;
-    result = mDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
+    HRESULT result = mDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
 
     if (FAILED(result))
     {
@@ -308,7 +334,6 @@ EGLint Renderer11::initialize()
     wcstombs(mDescription, mAdapterDescription.Description, sizeof(mDescription) - 1);
 
 #if defined(ANGLE_PLATFORM_WINRT)
-    iWinRTWindow->SetAngleD3DDevice(mDevice);
     result = mDxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&mDxgiFactory);
 #else
     result = mDxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&mDxgiFactory);
