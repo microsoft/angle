@@ -198,7 +198,13 @@ class Renderer11 : public Renderer
     virtual bool getLUID(LUID *adapterLuid) const;
 
   private:
+
+
+
     DISALLOW_COPY_AND_ASSIGN(Renderer11);
+
+	EGLint createDevice();
+
 
     void drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer);
     void drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer, int instances);
