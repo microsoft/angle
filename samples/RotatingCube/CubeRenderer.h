@@ -3,8 +3,6 @@
 #include "esUtil.h"
 #include <DirectXMath.h>
 
-using namespace DirectX;
-
 // This class renders a simple spinning cube.
 class CubeRenderer
 {
@@ -29,7 +27,7 @@ private:
     GLint a_positionColor;
     GLint a_colorColor;
     GLint u_mvpColor;
-    XMMATRIX m_projectionMatrix;
-    XMMATRIX m_viewMatrix;
-    XMMATRIX m_modelMatrix;
+    DirectX::XMMATRIX m_projectionMatrix;
+    DirectX::XMMATRIX m_viewMatrix;
+    DirectX::XMMATRIX m_modelMatrix;
 };
