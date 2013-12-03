@@ -265,6 +265,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\common\winrtangleutils.cpp" />
     <ClCompile Include="..\common\winrtutils.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="..\Common\debug.cpp" />
@@ -275,6 +276,7 @@
     <ClCompile Include="TLSWinrt.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\winrtangleutils.h" />
     <ClInclude Include="..\common\winrtplatform.h" />
     <ClInclude Include="..\common\winrtutils.h" />
     <ClInclude Include="..\common\winrt\ThreadEmulation.h" />

@@ -229,6 +229,7 @@
     <ClCompile Include="..\common\debug.cpp" />
     <ClCompile Include="..\common\event_tracer.cpp" />
     <ClCompile Include="..\common\RefCountObject.cpp" />
+    <ClCompile Include="..\common\winrtangleutils.cpp" />
     <ClCompile Include="..\common\winrtutils.cpp" />
     <ClCompile Include="..\common\winrtangle.cpp" />
     <ClCompile Include="..\third_party\murmurhash\MurmurHash3.cpp" />
