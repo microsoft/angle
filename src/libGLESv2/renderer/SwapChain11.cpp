@@ -478,7 +478,6 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 {
     ID3D11Device *device = mRenderer->getDevice();
     HRESULT result = S_OK;
-    bool hasBackBufferTexture = false;
 
     if (device == NULL)
     {
@@ -573,16 +572,11 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
                 mBackBufferTexture = backBuffer.Get();
                 mBackBufferTexture->AddRef();
 
-                d3d11::SetDebugName(mBackBufferTexture, "Back buffer texture");
-
                 ComPtr<ID3D11RenderTargetView> rtv;
                 result = winrtangleutils::getID3D11RenderTargetView(iPhoneWindow, &rtv);
                 ASSERT(SUCCEEDED(result));
                 mBackBufferRTView = rtv.Get();
                 mBackBufferRTView->AddRef();
-                d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
-
-                hasBackBufferTexture = true;
             }
             else
             {
@@ -665,16 +659,18 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
             }
         }
 
-        if(!hasBackBufferTexture)
+        if(mSwapChain)
         {
             result = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&mBackBufferTexture);
             ASSERT(SUCCEEDED(result));
-            d3d11::SetDebugName(mBackBufferTexture, "Back buffer texture");
 
             result = device->CreateRenderTargetView(mBackBufferTexture, NULL, &mBackBufferRTView);
             ASSERT(SUCCEEDED(result));
-            d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
         }
+
+        d3d11::SetDebugName(mBackBufferTexture, "Back buffer texture");
+        d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
+
     }
 
     // If we are resizing the swap chain, we don't wish to recreate all the static resources
