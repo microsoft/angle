@@ -1,1 +1,1 @@
-Release\glslPrecompiler.exe -o=shader.h -a=glProgram -v=shader.vert -f=shader.frag
+Debug\glslPrecompiler.exe -o=shader.h -a=gProgram -v=shader.vert -f=shader.frag
