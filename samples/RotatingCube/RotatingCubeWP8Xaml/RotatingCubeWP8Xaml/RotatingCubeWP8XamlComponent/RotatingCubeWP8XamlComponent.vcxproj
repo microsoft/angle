@@ -141,17 +141,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicTimer.h" />
-    <ClInclude Include="RotatingCubeWP8XamlComponent.h" />
+    <ClInclude Include="Direct3DContentProviderBase.h" />
+    <ClInclude Include="Direct3DInterop.h" />
+    <ClInclude Include="DirectXBase.h" />
+    <ClInclude Include="DirectXSample.h" />
     <ClInclude Include="CubeRenderer.h" />
     <ClInclude Include="DirectXHelper.h" />
-    <ClInclude Include="Direct3DBase.h" />
     <ClInclude Include="Direct3DContentProvider.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="RotatingCubeWP8XamlComponent.cpp" />
+    <ClCompile Include="Direct3DContentProviderBase.cpp" />
+    <ClCompile Include="Direct3DInterop.cpp" />
+    <ClCompile Include="DirectXBase.cpp" />
     <ClCompile Include="CubeRenderer.cpp" />
-    <ClCompile Include="Direct3DBase.cpp" />
     <ClCompile Include="Direct3DContentProvider.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

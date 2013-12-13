@@ -13,15 +13,17 @@ struct VertexPositionColor
 	XMFLOAT3 color;
 };
 
-CubeRenderer::CubeRenderer()
+CubeRenderer::CubeRenderer(): m_loadingComplete(false)
 {
-	m_timer = ref new BasicTimer();
 }
 
 void CubeRenderer::CreateDeviceResources()
 {
-	Direct3DBase::CreateDeviceResources();
+	DirectXBase::CreateDeviceResources();
+}
 
+void CubeRenderer::CreateAngleResources()
+{
     m_colorProgram = glCreateProgram();
     glProgramBinaryOES(m_colorProgram, GL_PROGRAM_BINARY_ANGLE, gProgram, sizeof(gProgram));
     a_positionColor = glGetAttribLocation(m_colorProgram, "a_position");
@@ -29,13 +31,27 @@ void CubeRenderer::CreateDeviceResources()
     u_mvpColor = glGetUniformLocation(m_colorProgram, "u_mvp");
 
 	//glViewport(0, 0, static_cast<UINT>(m_renderTargetSize.Width), static_cast<UINT>(m_renderTargetSize.Height));
-    //m_projectionMatrix = XMMatrixPerspectiveFovRH(70.0f * XM_PI / 180.0f, m_renderTargetSize.Width / m_renderTargetSize.Height, 0.01f, 100.0f);
     glEnable(GL_DEPTH_TEST);
+    m_loadingComplete = true;
+    UpdatePerspectiveMatrix();
 }
 
 void CubeRenderer::CreateWindowSizeDependentResources()
 {
-	Direct3DBase::CreateWindowSizeDependentResources();
+	DirectXBase::CreateWindowSizeDependentResources();
+    UpdatePerspectiveMatrix();
+}
+
+void CubeRenderer::UpdatePerspectiveMatrix()
+{
+	float fovAngleY = 70.0f * XM_PI / 180.0f;
+    m_projectionMatrix = XMMatrixPerspectiveFovRH(fovAngleY, m_aspectRatio, 0.01f, 100.0f);
+}
+
+void CubeRenderer::OnOrientationChanged(Windows::Graphics::Display::DisplayOrientations orientation)
+{
+	DirectXBase::OnOrientationChanged(orientation);
+    UpdatePerspectiveMatrix();
 }
 
 void CubeRenderer::Update(float timeTotal, float timeDelta)
@@ -48,16 +64,10 @@ void CubeRenderer::Update(float timeTotal, float timeDelta)
             
 	m_viewMatrix = XMMatrixLookAtRH(eye, at, up);
 	m_modelMatrix = XMMatrixRotationY(timeTotal * XM_PIDIV4);
-
-
 }
 
-void CubeRenderer::Render()
+void CubeRenderer::OnRender()
 {
-	m_timer->Update();
-
-	Update(m_timer->Total, m_timer->Delta);
-
     XMFLOAT4X4 mvp;
     XMStoreFloat4x4(&mvp, (XMMatrixMultiply(XMMatrixMultiply(m_modelMatrix, m_viewMatrix), m_projectionMatrix)));
 
@@ -100,7 +110,6 @@ void CubeRenderer::Render()
         1,7,5,
     };
 
-
     glEnableVertexAttribArray(a_positionColor);
     glEnableVertexAttribArray(a_colorColor);
     glVertexAttribPointer(a_positionColor, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPositionColor), cubeVertices);
@@ -108,32 +117,5 @@ void CubeRenderer::Render()
     glDrawElements(GL_TRIANGLES, ARRAYSIZE(cubeIndices), GL_UNSIGNED_SHORT, cubeIndices);
     glDisableVertexAttribArray(a_positionColor);
     glDisableVertexAttribArray(a_colorColor);
-
-	eglSwapBuffers(m_esContext.eglDisplay, m_esContext.eglSurface);
-
 }
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE)
-void CubeRenderer::OnOrientationChanged()
-{
-	float aspectRatio = m_windowBounds.Width / m_windowBounds.Height;
-	float fovAngleY = 70.0f * XM_PI / 180.0f;
-
-	XMMATRIX orientationCorrection;
-
-	if(aspectRatio <= 1.0)
-	{
-		orientationCorrection = XMMatrixIdentity();
-	}
-	else
-	{
-		orientationCorrection = XMMatrixRotationZ(-XM_PIDIV2);
-	}
-
-
-
-	aspectRatio = m_renderTargetSize.Width / m_renderTargetSize.Height;
-    m_projectionMatrix = XMMatrixPerspectiveFovRH(fovAngleY, aspectRatio, 0.01f, 100.0f);
-	m_projectionMatrix = XMMatrixMultiply(orientationCorrection, m_projectionMatrix);
-}
-#endif

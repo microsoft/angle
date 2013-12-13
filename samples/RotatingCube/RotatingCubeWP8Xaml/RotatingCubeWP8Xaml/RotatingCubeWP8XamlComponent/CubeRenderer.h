@@ -1,11 +1,10 @@
 ﻿#pragma once
 
-#include "Direct3DBase.h"
+#include "DirectXBase.h"
 #include <DirectXMath.h>
-#include "BasicTimer.h"
 
 // This class renders a simple spinning cube.
-ref class CubeRenderer sealed : public Direct3DBase
+ref class CubeRenderer sealed : public DirectXBase
 {
 public:
 	CubeRenderer();
@@ -13,12 +12,15 @@ public:
 	// Direct3DBase methods.
 	virtual void CreateDeviceResources() override;
 	virtual void CreateWindowSizeDependentResources() override;
-	virtual void Render() override;
 	void Update(float timeTotal, float timeDelta);
-	virtual void OnOrientationChanged() override;
+	virtual void OnOrientationChanged(Windows::Graphics::Display::DisplayOrientations orientation) override;
+	virtual void OnRender() override;
+    virtual void CreateAngleResources() override;
 
 private:
-    BasicTimer^ m_timer;
+    void UpdatePerspectiveMatrix();
+
+    bool m_loadingComplete;
     GLuint m_colorProgram;
     GLint a_positionColor;
     GLint a_colorColor;
