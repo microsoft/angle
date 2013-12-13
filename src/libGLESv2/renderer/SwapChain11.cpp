@@ -763,11 +763,10 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
             ASSERT(SUCCEEDED(result));
                 
             ComPtr<ID3D11Texture2D> backBuffer;
-
+            result = winrtangleutils::getBackBuffer(iPhoneWindow, &backBuffer);
+            ASSERT(SUCCEEDED(result));
             if(backBuffer.Get() != mBackBufferTexture)
             {
-                result = winrtangleutils::getBackBuffer(iPhoneWindow, &backBuffer);
-                ASSERT(SUCCEEDED(result));
                 mBackBufferTexture = backBuffer.Get();
                 d3d11::SetDebugName(mBackBufferTexture, "Back buffer texture");
 
