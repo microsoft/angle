@@ -64,21 +64,7 @@ void DirectXBase::UpdateDevice(ID3D11Device1* device, ID3D11DeviceContext1* cont
         CreateWindowSizeDependentResources();
     }
 
-#if 0
-    // Set the rendering viewport to target the entire window.
-    CD3D11_VIEWPORT viewport(
-        0.0f,
-        0.0f,
-        m_renderTargetSize.Width,
-        m_renderTargetSize.Height
-        );
-
-    m_d3dContext->RSSetViewports(1, &viewport);  
-#endif // 0
-
-    DirectXBase::OnOrientationChanged(DisplayOrientations::Portrait);
-
-   if(!m_bAngleInitialized)
+    if(!m_bAngleInitialized)
     {
         InitializeAngle();
         CreateAngleResources();
@@ -136,16 +122,6 @@ void DirectXBase::Render()
 {
     OnRender();
 	eglSwapBuffers(m_eglDisplay, m_eglSurface);
-#if 0
-    m_d3dContext->ResolveSubresource(
-        m_backBuffer.Get(),
-        0,
-        m_offscreenRenderTarget.Get(),
-        0,
-        DXGI_FORMAT_B8G8R8A8_UNORM
-        );  
-#endif // 0
-
 }
 
 void DirectXBase::CloseAngle()
