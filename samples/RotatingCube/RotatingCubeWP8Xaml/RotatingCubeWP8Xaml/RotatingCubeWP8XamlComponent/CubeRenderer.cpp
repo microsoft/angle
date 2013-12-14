@@ -22,7 +22,7 @@ void CubeRenderer::CreateDeviceResources()
 	DirectXBase::CreateDeviceResources();
 }
 
-void CubeRenderer::CreateAngleResources()
+void CubeRenderer::CreateGLResources()
 {
     m_colorProgram = glCreateProgram();
     glProgramBinaryOES(m_colorProgram, GL_PROGRAM_BINARY_ANGLE, gProgram, sizeof(gProgram));

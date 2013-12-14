@@ -21,7 +21,7 @@ internal:
     virtual void CreateWindowSizeDependentResources();
 	virtual void OnOrientationChanged(Windows::Graphics::Display::DisplayOrientations orientation);
 
-    virtual void CreateAngleResources() = 0;
+    virtual void CreateGLResources() = 0;
 
     void Render();
 

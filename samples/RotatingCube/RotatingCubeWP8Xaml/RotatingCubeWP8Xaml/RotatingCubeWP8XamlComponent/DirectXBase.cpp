@@ -67,7 +67,7 @@ void DirectXBase::UpdateDevice(ID3D11Device1* device, ID3D11DeviceContext1* cont
     if(!m_bAngleInitialized)
     {
         InitializeAngle();
-        CreateAngleResources();
+        CreateGLResources();
     }
     else
     {

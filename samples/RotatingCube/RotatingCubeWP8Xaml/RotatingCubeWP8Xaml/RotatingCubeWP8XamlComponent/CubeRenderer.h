@@ -15,7 +15,7 @@ public:
 	void Update(float timeTotal, float timeDelta);
 	virtual void OnOrientationChanged(Windows::Graphics::Display::DisplayOrientations orientation) override;
 	virtual void OnRender() override;
-    virtual void CreateAngleResources() override;
+    virtual void CreateGLResources() override;
 
 private:
     void UpdatePerspectiveMatrix();
