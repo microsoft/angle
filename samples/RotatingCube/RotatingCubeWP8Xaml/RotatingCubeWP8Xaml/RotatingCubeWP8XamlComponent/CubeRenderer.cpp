@@ -33,13 +33,11 @@ void CubeRenderer::CreateAngleResources()
 	//glViewport(0, 0, static_cast<UINT>(m_renderTargetSize.Width), static_cast<UINT>(m_renderTargetSize.Height));
     glEnable(GL_DEPTH_TEST);
     m_loadingComplete = true;
-    UpdatePerspectiveMatrix();
 }
 
 void CubeRenderer::CreateWindowSizeDependentResources()
 {
 	DirectXBase::CreateWindowSizeDependentResources();
-    UpdatePerspectiveMatrix();
 }
 
 void CubeRenderer::UpdatePerspectiveMatrix()
