@@ -11,6 +11,8 @@
 
 #include "libGLESv2/main.h"
 
+#if defined(WINAPI_FAMILY)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #define TLS_OUT_OF_INDEXES -1
 
 void* TlsGetValue(DWORD index);
@@ -19,5 +21,6 @@ void LocalFree(HLOCAL index);
 DWORD TlsAlloc();
 void TlsSetValue(DWORD currentTLS, gl::Current* current);
 void TlsFree(DWORD index);
-
+#endif
+#endif
 #endif // TLS_WINRT_H_
