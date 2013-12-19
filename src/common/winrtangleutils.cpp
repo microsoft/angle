@@ -10,7 +10,7 @@ bool hasIPhoneXamlWindow(ComPtr<IWinrtEglWindow> iWindow)
 {
 	ComPtr<IWinPhone8XamlD3DWindow> iPhoneXamlWindow;
 	ComPtr<IUnknown> iWindowInterface = iWindow.Get()->GetWindowInterface();
-	return iWindowInterface.As(&iPhoneXamlWindow) == S_OK;
+	return iWindowInterface == nullptr ? false : iWindowInterface.As(&iPhoneXamlWindow) == S_OK;
 }
 
 HRESULT getIWinRTWindow(ComPtr<IUnknown> iWindow, ComPtr<IWinrtEglWindow> *iWinRTWindow)
@@ -25,7 +25,7 @@ HRESULT getIPhoneXamlWindow(ComPtr<IUnknown> iWindow, ComPtr<IWinPhone8XamlD3DWi
     if (SUCCEEDED(result))
 	{
 		ComPtr<IUnknown> iWindowInterface = iWinRTWindow.Get()->GetWindowInterface();
-		result = iWindowInterface.As(iPhoneXamlWindow);
+		result = iWindowInterface.Get() == nullptr? S_FALSE : iWindowInterface.As(iPhoneXamlWindow);
 	}
 	return result;
 }
