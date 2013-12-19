@@ -179,7 +179,7 @@ void error(GLenum errorCode)
 }
 
 
-bool InitializeAngle(EGLDisplay& display, EGLContext& context)
+bool InitializeAngle(EGLDisplay& display, EGLContext& context, ANGLE_D3D_FEATURE_LEVEL featureLevel)
 {
 	// setup EGL
 	EGLint configAttribList[] = {
@@ -203,14 +203,7 @@ bool InitializeAngle(EGLDisplay& display, EGLContext& context)
 	EGLConfig config;
 	EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE, EGL_NONE };
 
-    // we need to select the correct DirectX feature level depending on the platform
-    // default is D3D_FEATURE_LEVEL_9_3 Windows Phone 8.0
-    ANGLE_D3D_FEATURE_LEVEL featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_9_3;
 
-#if (_MSC_VER >= 1800)
-    // WinRT on Windows 8.1 can compile shaders at run time so we don't care about the DirectX feature level
-    featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_ANY;
-#endif
 
     IUnknown* dummy = nullptr;
     Microsoft::WRL::ComPtr<IWinrtEglWindow> eglWindow;
@@ -288,41 +281,48 @@ GLuint createShader(GLenum shaderType, const char **source, unsigned sourceCount
 //
 void usage()
 {
-    printf("Usage: glslPrecompiler [-o=[file] -a=[variable]] -v=[vertex_shader_1] ... -v=[vertex_shader_1] -f=[fragment_shader_1] ... -f=[fragment_shader_n]\n"
+    printf("Usage: glslPrecompiler [-o=[file]  -p=[platform] -a=[variable]] -v=[vertex_shader_1] ... -v=[vertex_shader_1] -f=[fragment_shader_1] ... -f=[fragment_shader_n]\n"
         "Where: filename : filename ending in .frag or .vert\n"
         "       -o=[file] : output file\n"
+        "       -p=[platform] : wp8 or winrt\n"
         "       -v=[variable] : output to char array named [variable] in header file, omit for binary file\n");
 }
+
+// -p=wp8 -o=shader.h -a=gProgram -v=shader.vert -f=shader.frag
 
 [Platform::MTAThread]
 int __cdecl main(int argc, char* argv[])
 {
     EGLDisplay display = nullptr;
     EGLContext context = nullptr;
-    bool result = InitializeAngle(display, context);
 
     GLuint vertexShader = 0;
     GLuint fragmentShader = 0;
     bool usageFail = false;
     bool outputToHeaderFile = false;
-    char outputFile[1024] = "shader.file";
+    std::string outputFile = "shader.file";
     char variableName[1024];
     std::vector<std::string> vertexShaders;
     std::vector<std::string> fragmentShaders;
+    std::string platform = "";
 
     if (argc < 3)
         usageFail = TRUE;
     
-    GLuint program = glCreateProgram();
 
     argc--;
     argv++;
     for (; (argc >= 1) && !usageFail; argc--, argv++) {
         if (argv[0][0] == '-') {
             switch (argv[0][1]) {
+            case 'p':
+                if (argv[0][2] == '=' && strlen(argv[0] + 3)) {
+                    platform = argv[0] + 3;
+                }
+                break;
             case 'o':
                 if (argv[0][2] == '=' && strlen(argv[0] + 3)) {
-                    strcpy(outputFile, argv[0] + 3);
+                    outputFile = argv[0] + 3;
                 }
                 break;
             case 'a':
@@ -368,6 +368,41 @@ int __cdecl main(int argc, char* argv[])
         return -1;
     }
 
+    // we need to select the correct DirectX feature level depending on the platform
+    // default is D3D_FEATURE_LEVEL_9_3 Windows Phone 8.0
+    ANGLE_D3D_FEATURE_LEVEL featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_9_1;
+
+    if(platform == "winrt")
+    {
+#if (_MSC_VER >= 1800)
+    // WinRT on Windows 8.1 can compile shaders at run time so we don't care about the DirectX feature level
+        featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_ANY;
+        cout << "Compiling for WinRT at ANGLE_D3D_FEATURE_LEVEL_ANY" << endl;
+#else
+        featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_9_1;
+        cout << "Compiling for WinRT at ANGLE_D3D_FEATURE_LEVEL_9_1" << endl;
+#endif
+    }
+    else if(platform == "wp8")
+    {
+        featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_9_3;
+        cout << "Compiling for Windows Phone 8 at ANGLE_D3D_FEATURE_LEVEL_9_3" << endl;
+    }
+    else
+    {
+#if (_MSC_VER >= 1800)
+        cout << "Unknown target platform. Default to ANGLE_D3D_FEATURE_LEVEL_ANY" << endl;
+        cout << "Compiling for WinRT at ANGLE_D3D_FEATURE_LEVEL_ANY" << endl;
+#else
+        cout << "Unknown target platform. Default to ANGLE_D3D_FEATURE_LEVEL_9_1" << endl;
+#endif
+    }
+
+    if(!InitializeAngle(display, context, featureLevel))
+    {
+        return -1;
+    }
+
     std::vector<const char*> vertexSources;
     std::vector<const char*> fragmentSources;
     for(unsigned i = 0; i < vertexShaders.size(); ++i)
@@ -375,6 +410,7 @@ int __cdecl main(int argc, char* argv[])
     for(unsigned i = 0; i < fragmentShaders.size(); ++i)
         fragmentSources.push_back(fragmentShaders[i].c_str());
 
+    GLuint program = glCreateProgram();
     vertexShader = createShader(GL_VERTEX_SHADER, &vertexSources[0], vertexSources.size());
     if(!vertexShader)
         return 0;
@@ -406,7 +442,7 @@ int __cdecl main(int argc, char* argv[])
     glGetProgramBinaryOES(program, linkStatus, NULL, &binaryFormat, binary);
     if(outputToHeaderFile)
     {
-        FILE *fp = fopen(outputFile, "w");
+        FILE *fp = fopen(outputFile.c_str(), "w");
         fprintf(fp, "unsigned char %s[] = {\n", variableName);
         fprintf(fp, "%3i, ", binary[0]);
         for(int i = 1; i < linkStatus - 1; ++i)
@@ -422,7 +458,7 @@ int __cdecl main(int argc, char* argv[])
     }
     else
     {
-        FILE *fp = fopen(outputFile, "wb");
+        FILE *fp = fopen(outputFile.c_str(), "wb");
         fwrite(binary, linkStatus, 1, fp);
         fclose(fp);
     }
