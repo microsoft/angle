@@ -91,7 +91,11 @@ bool Renderer::initializeCompiler()
 #else
     // Load the version of the D3DCompiler DLL associated with the Direct3D version ANGLE was built with.
 #if defined(ANGLE_PLATFORM_WINRT)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+    mD3dCompilerModule = LoadLibrary(D3DCOMPILER_DLL);
+#else
     mD3dCompilerModule = LoadPackagedLibrary((LPCWSTR)D3DCOMPILER_DLL, 0);
+#endif
     if (!mD3dCompilerModule)
     {
         ERR("No D3D compiler module found - must use precompiled shaders\n");
