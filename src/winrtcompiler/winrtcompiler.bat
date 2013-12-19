@@ -1,0 +1,1 @@
+bin\winrtcompiler.exe -o=shader.h -a=gProgram -v=shader.vert -f=shader.frag

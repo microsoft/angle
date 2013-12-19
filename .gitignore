@@ -14,4 +14,6 @@ debug.txt
 *.opensdf
 *.orig
 *.rej
-
+*.exe
+*.ilk
+*.pdb
