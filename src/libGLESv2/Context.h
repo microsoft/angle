@@ -18,7 +18,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-#ifdef GL_APICALL
+#ifdef EGLAPI
 #undef EGLAPI
 #endif
 
