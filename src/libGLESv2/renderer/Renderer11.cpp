@@ -33,9 +33,11 @@
 #include "common/winrtutils.h"
 #include "common/winrtangle.h"
 #include "common/winrtangleutils.h"
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #include "third_party/winrt/ThreadEmulation/ThreadEmulation.h"
-using namespace Microsoft::WRL;
 using namespace ThreadEmulation;
+#endif
+using namespace Microsoft::WRL;
 #endif
 
 #include "libGLESv2/renderer/shaders/compiled/winrt/passthrough11vs.h"
