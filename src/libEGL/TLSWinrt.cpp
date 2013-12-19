@@ -8,6 +8,9 @@
 
 #include "TLSWinrt.h"
 
+#if defined(WINAPI_FAMILY)
+#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+
 __declspec( thread ) egl::Current glContext;
 __declspec( thread ) DWORD currentTLS = TLS_OUT_OF_INDEXES;
 
@@ -17,3 +20,6 @@ void LocalFree(HLOCAL index) {};
 DWORD TlsAlloc() { return 1; };
 void TlsSetValue(DWORD currentTLS, egl::Current* current) {};
 void TlsFree(DWORD index) {currentTLS = TLS_OUT_OF_INDEXES;};
+
+#endif
+#endif
