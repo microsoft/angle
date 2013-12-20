@@ -19,7 +19,7 @@ CubeRenderer::CubeRenderer(): m_loadingComplete(false)
 
 void CubeRenderer::CreateDeviceResources()
 {
-	DirectXBase::CreateDeviceResources();
+	AngleBase::CreateDeviceResources();
 }
 
 void CubeRenderer::CreateGLResources()
@@ -37,7 +37,7 @@ void CubeRenderer::CreateGLResources()
 
 void CubeRenderer::CreateWindowSizeDependentResources()
 {
-	DirectXBase::CreateWindowSizeDependentResources();
+	AngleBase::CreateWindowSizeDependentResources();
 }
 
 void CubeRenderer::UpdatePerspectiveMatrix()
@@ -48,7 +48,7 @@ void CubeRenderer::UpdatePerspectiveMatrix()
 
 void CubeRenderer::OnOrientationChanged(Windows::Graphics::Display::DisplayOrientations orientation)
 {
-	DirectXBase::OnOrientationChanged(orientation);
+	AngleBase::OnOrientationChanged(orientation);
     UpdatePerspectiveMatrix();
 }
 

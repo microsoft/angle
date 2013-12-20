@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "DirectXBase.h"
+#include "AngleBase.h"
 #include <DirectXMath.h>
 
 // This class renders a simple spinning cube.
-ref class CubeRenderer sealed : public DirectXBase
+ref class CubeRenderer sealed : public AngleBase
 {
 public:
 	CubeRenderer();

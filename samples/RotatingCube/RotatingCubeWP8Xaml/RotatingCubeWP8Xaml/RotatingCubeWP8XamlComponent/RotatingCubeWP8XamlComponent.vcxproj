@@ -143,32 +143,21 @@
     <ClInclude Include="BasicTimer.h" />
     <ClInclude Include="Direct3DContentProviderBase.h" />
     <ClInclude Include="Direct3DInterop.h" />
-    <ClInclude Include="DirectXBase.h" />
-    <ClInclude Include="DirectXSample.h" />
-    <ClInclude Include="CubeRenderer.h" />
+    <ClInclude Include="AngleBase.h" />
     <ClInclude Include="DirectXHelper.h" />
+    <ClInclude Include="CubeRenderer.h" />
     <ClInclude Include="Direct3DContentProvider.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Direct3DContentProviderBase.cpp" />
     <ClCompile Include="Direct3DInterop.cpp" />
-    <ClCompile Include="DirectXBase.cpp" />
+    <ClCompile Include="AngleBase.cpp" />
     <ClCompile Include="CubeRenderer.cpp" />
     <ClCompile Include="Direct3DContentProvider.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="SimplePixelShader.hlsl">
-      <ShaderType>Pixel</ShaderType>
-      <ShaderModel>4.0_level_9_3</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="SimpleVertexShader.hlsl">
-      <ShaderType>Vertex</ShaderType>
-      <ShaderModel>4.0_level_9_3</ShaderModel>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\src\libEGL\libEGL_phone.vcxproj">

@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "DirectXSample.h"
 
 // Helper class that initializes DirectX APIs for 3D rendering.
 class Direct3DContentProviderBase abstract
