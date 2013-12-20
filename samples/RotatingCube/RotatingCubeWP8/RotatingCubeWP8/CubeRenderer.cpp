@@ -18,6 +18,7 @@ CubeRenderer::CubeRenderer(): m_loadingComplete(false)
 {
 }
 
+// Set the device rotations your app supports
 void CubeRenderer::SetSupportedOrientations()
 {
     DisplayProperties::AutoRotationPreferences =
@@ -27,6 +28,7 @@ void CubeRenderer::SetSupportedOrientations()
     DisplayOrientations::PortraitFlipped;
 }
 
+// The GL Context is ready. Load your resources
 void CubeRenderer::CreateGLResources()
 {
     m_colorProgram = glCreateProgram();
@@ -42,9 +44,13 @@ void CubeRenderer::UpdatePerspectiveMatrix()
 {
 	float fovAngleY = 70.0f * XM_PI / 180.0f;
     m_projectionMatrix = XMMatrixPerspectiveFovRH(fovAngleY, m_aspectRatio, 0.01f, 100.0f);
+
+    // In Windows Phone 8.0 C++ apps, we need to rotate the projection matrix by the 
+    // device's current rotation matrix
 	m_projectionMatrix = XMMatrixMultiply(m_orientationMatrix, m_projectionMatrix);
 }
 
+// called when the device rotation has changed
 void CubeRenderer::OnOrientationChanged()
 {
 	AngleBase::OnOrientationChanged();
@@ -63,6 +69,7 @@ void CubeRenderer::Update(float timeTotal, float timeDelta)
 	m_modelMatrix = XMMatrixRotationY(timeTotal * XM_PIDIV4);
 }
 
+// render your OpenGL scene
 void CubeRenderer::OnRender()
 {
     XMFLOAT4X4 mvp;
