@@ -34,6 +34,13 @@ void CubeRenderer::CreateGLResources()
 void CubeRenderer::UpdatePerspectiveMatrix()
 {
 	float fovAngleY = 70.0f * XM_PI / 180.0f;
+
+	// This is a simple example of change that can be made when the app is in
+	// portrait or snapped view.
+	if (m_aspectRatio < 1.0f)
+	{
+		fovAngleY *= 2.0f;
+	}
     m_projectionMatrix = XMMatrixPerspectiveFovRH(fovAngleY, m_aspectRatio, 0.01f, 100.0f);
     glViewport(0, 0, static_cast<UINT>(m_renderTargetSize.Width), static_cast<UINT>(m_renderTargetSize.Height));
 }
