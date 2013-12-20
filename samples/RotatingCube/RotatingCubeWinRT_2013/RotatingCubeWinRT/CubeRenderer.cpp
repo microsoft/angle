@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "CubeRenderer.h"
-#include "..\..\..\shader.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -46,7 +45,6 @@ CubeRenderer::CubeRenderer(): m_loadingComplete(false)
 void CubeRenderer::CreateGLResources()
 {
     m_colorProgram = LoadProgram(g_colorVertexShader, g_colorFragmentShader);
-    glProgramBinaryOES(m_colorProgram, GL_PROGRAM_BINARY_ANGLE, gProgram, sizeof(gProgram));
     a_positionColor = glGetAttribLocation(m_colorProgram, "a_position");
     a_colorColor = glGetAttribLocation(m_colorProgram, "a_color");
     u_mvpColor = glGetUniformLocation(m_colorProgram, "u_mvp");
