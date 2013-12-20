@@ -16,6 +16,7 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <DrawingSurface x:Name="DrawingSurface" Loaded="DrawingSurface_Loaded" />
+        <TextBlock x:Name="SimpleTextBlock" HorizontalAlignment="Center" FontSize="42" Height="72" Text="Hello, XAML!" Margin="0,0,0,50"/>
     </Grid>
 
 </phone:PhoneApplicationPage>
