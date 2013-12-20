@@ -113,9 +113,10 @@ void RotatingCube::SetWindow(CoreWindow^ window)
         m_esContext.hWnd = m_eglWindow;
 
         //title, width, and height are unused, but included for backwards compatibility
-        esCreateWindow(&m_esContext, nullptr, 0, 0, ES_WINDOW_RGB | ES_WINDOW_DEPTH);
-
-        m_cubeRenderer.CreateResources();
+        if (esCreateWindow(&m_esContext, nullptr, 0, 0, ES_WINDOW_RGB | ES_WINDOW_DEPTH) == GL_TRUE)
+        {
+            m_cubeRenderer.CreateResources();
+        }
     }
 }
 

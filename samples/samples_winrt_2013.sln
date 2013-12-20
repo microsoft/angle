@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simple_Instancing_winrt", "angle\Simple_Instancing\Simple_Instancing_winrt\Simple_Instancing_winrt_2013.vcxproj", "{F625B38E-39AD-4624-A6FF-EC21FF8CFE5F}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simple_Instancing_winrt_2013", "angle\Simple_Instancing\Simple_Instancing_winrt\Simple_Instancing_winrt_2013.vcxproj", "{F625B38E-39AD-4624-A6FF-EC21FF8CFE5F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esUtil_winrt", "gles2_book\Common\esUtil_winrt_2013.vcxproj", "{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}"
 EndProject
@@ -15,7 +17,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "translator_hlsl_winrt", "..
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "preprocessor_winrt", "..\src\compiler\preprocessor\preprocessor_winrt_2013.vcxproj", "{E7B1D854-AD49-4662-8326-24579123F471}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RotatingCube", "RotatingCube\RotatingCube_2013.vcxproj", "{5B49B15D-3723-47FB-9926-187D5D1ED1ED}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RotatingCube_winrt_2013", "RotatingCube\RotatingCube_winrt_2013.vcxproj", "{5B49B15D-3723-47FB-9926-187D5D1ED1ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

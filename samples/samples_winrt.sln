@@ -15,7 +15,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "translator_hlsl_winrt", "..
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "preprocessor_winrt", "..\src\compiler\preprocessor\preprocessor_winrt.vcxproj", "{E7B1D854-AD49-4662-8326-24579123F471}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RotatingCube", "RotatingCube\RotatingCube.vcxproj", "{5B49B15D-3723-47FB-9926-187D5D1ED1ED}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RotatingCube_winrt", "RotatingCube\RotatingCube_winrt.vcxproj", "{5B49B15D-3723-47FB-9926-187D5D1ED1ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
