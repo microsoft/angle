@@ -1,5 +1,5 @@
-angleproject
-============
+Angle
+=====
 
 WinRT (Windows 8.0 and 8.1) and Windows Phone 8.0 contributions by Dale Stammen (https://github.com/stammen) and Steven Chith (https://github.com/steven-chith)
 
