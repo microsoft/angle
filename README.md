@@ -9,15 +9,17 @@ using Visual Studio 2012 and Windows 8.0 but this version will not be accepted i
 
 This version adds support for Windows Phone 8.0 and Windows 8.0 WinRT Store Apps using precompiled shaders. For sample code, see samples/RotatingCube
 
-samples/RotatingCube/RotatingCubeWinRT is a Windows 8.0 Store App in C++
-samples/RotatingCube/RotatingCubeWinRTXaml is a Windows 8.0 Store App in XAML/C++
-samples/RotatingCube/RotatingCubeWP8 is a Windows Phone 8.0 App in C++
-samples/RotatingCube/RotatingCubeWP8Xaml is a Windows Phone 8.0 App in Xaml/C++
+* samples/RotatingCube/RotatingCubeWinRT is a Windows 8.0 Store App in C++
+* samples/RotatingCube/RotatingCubeWinRTXaml is a Windows 8.0 Store App in XAML/C++
+* samples/RotatingCube/RotatingCubeWP8 is a Windows Phone 8.0 App in C++
+* samples/RotatingCube/RotatingCubeWP8Xaml is a Windows Phone 8.0 App in Xaml/C++
 
-Please note that you must precompile shaders for Windows 8.0 Store (WinRT) and Windows Phone 8.0 apps. There is a shader compiler for these versions in src/winrtcompiler. Please see the README file for usage. For WinRT Apps, the prefered platform is now Windows 8.1 with Visual Studio 2013. The Windows 8.1 versions do not require the shaders to be precompiled as runtime shader compilation is support. Please see the following samples:
+**Please note that you must precompile shaders for Windows 8.0 Store (WinRT) and Windows Phone 8.0 apps. There is a shader compiler for these versions in src/winrtcompiler. Please see the README file for usage.**
 
-samples/RotatingCube/RotatingCubeWinRT_2013 is a Windows 8.1 Store App in C++
-samples/RotatingCube/RotatingCubeWinRTXaml_2013 is a Windows 8.1 Store App in XAML/C++
+For WinRT Apps, the prefered platform is now Windows 8.1 with Visual Studio 2013. The Windows 8.1 versions do not require the shaders to be precompiled as runtime shader compilation is now supported. Please see the following samples:
+
+* samples/RotatingCube/RotatingCubeWinRT_2013 is a Windows 8.1 Store App in C++
+* samples/RotatingCube/RotatingCubeWinRTXaml_2013 is a Windows 8.1 Store App in XAML/C++
 
 
 ANGLE
