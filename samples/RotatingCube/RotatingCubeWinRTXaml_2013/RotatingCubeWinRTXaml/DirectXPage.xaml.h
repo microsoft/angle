@@ -30,9 +30,9 @@ namespace RotatingCubeWinRTXaml
 		void OnPointerMoved(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ args);
 		void OnPointerReleased(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ args);
 		void OnWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args);
-		void OnLogicalDpiChanged(Platform::Object^ sender);
-		void OnOrientationChanged(Platform::Object^ sender);
-		void OnDisplayContentsInvalidated(Platform::Object^ sender);
+        void OnDpiChanged(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
+        void OnOrientationChanged(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
+        void OnDisplayContentsInvalidated(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ arg);
 		void OnRendering(Object^ sender, Object^ args);
 
 		Windows::Foundation::EventRegistrationToken m_eventToken;

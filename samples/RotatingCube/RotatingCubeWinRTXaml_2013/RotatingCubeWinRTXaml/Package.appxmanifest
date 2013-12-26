@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="3a6c30fc-f639-4ef6-a278-6a1729d94b8b" Publisher="CN=dalestam" Version="1.1.0.1" />
+  <Identity Name="3a6c30fc-f639-4ef6-a278-6a1729d94b8b" Publisher="CN=dalestam" Version="1.1.0.2" />
   <Properties>
     <DisplayName>RotatingCubeWinRTXaml</DisplayName>
     <PublisherDisplayName>dalestam</PublisherDisplayName>

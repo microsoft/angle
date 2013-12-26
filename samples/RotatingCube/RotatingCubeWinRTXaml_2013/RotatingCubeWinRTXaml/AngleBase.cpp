@@ -66,7 +66,7 @@ void AngleBase::UpdateForWindowSizeChange()
     Windows::Foundation::Rect windowBounds = Windows::UI::Core::CoreWindow::GetForCurrentThread()->Bounds;
     if (windowBounds.Width  != m_windowBounds.Width ||
         windowBounds.Height != m_windowBounds.Height ||
-        m_orientation != Windows::Graphics::Display::DisplayProperties::CurrentOrientation)
+        m_orientation != DisplayInformation::GetForCurrentView()->CurrentOrientation)
     {
 		CreateWindowSizeDependentResources();
 	}
@@ -109,7 +109,7 @@ void AngleBase::Present()
 float AngleBase::ConvertDipsToPixels(float dips)
 {
 	static const float dipsPerInch = 96.0f;
-	return floor(dips * DisplayProperties::LogicalDpi / dipsPerInch + 0.5f); // Round to nearest integer.
+    return floor(dips * DisplayInformation::GetForCurrentView()->LogicalDpi / dipsPerInch + 0.5f); // Round to nearest integer.
 }
 
 void AngleBase::OnOrientationChanged()
@@ -118,7 +118,7 @@ void AngleBase::OnOrientationChanged()
 	m_renderTargetSize.Width = ConvertDipsToPixels(m_windowBounds.Width);
 	m_renderTargetSize.Height = ConvertDipsToPixels(m_windowBounds.Height);
     m_aspectRatio = m_renderTargetSize.Width / m_renderTargetSize.Height;
-    m_orientation = DisplayProperties::CurrentOrientation;
+    m_orientation = DisplayInformation::GetForCurrentView()->CurrentOrientation;
 
 	switch(m_orientation)
 	{

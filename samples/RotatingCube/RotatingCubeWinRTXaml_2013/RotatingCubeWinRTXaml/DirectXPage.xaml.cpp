@@ -33,20 +33,20 @@ DirectXPage::DirectXPage() :
 	m_renderer->Initialize(
 		Window::Current->CoreWindow,
 		SwapChainPanel,
-		DisplayProperties::LogicalDpi
+        DisplayInformation::GetForCurrentView()->LogicalDpi
 		);
 
 	Window::Current->CoreWindow->SizeChanged += 
 		ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &DirectXPage::OnWindowSizeChanged);
 
-	DisplayProperties::LogicalDpiChanged +=
-		ref new DisplayPropertiesEventHandler(this, &DirectXPage::OnLogicalDpiChanged);
+    DisplayInformation::GetForCurrentView()->DpiChanged +=
+        ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(this, &DirectXPage::OnDpiChanged);
 
-	DisplayProperties::OrientationChanged +=
-        ref new DisplayPropertiesEventHandler(this, &DirectXPage::OnOrientationChanged);
+    DisplayInformation::GetForCurrentView()->OrientationChanged +=
+        ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(this, &DirectXPage::OnOrientationChanged);
 
-	DisplayProperties::DisplayContentsInvalidated +=
-		ref new DisplayPropertiesEventHandler(this, &DirectXPage::OnDisplayContentsInvalidated);
+    DisplayInformation::DisplayContentsInvalidated +=
+        ref new TypedEventHandler<DisplayInformation^, Platform::Object^>(this, &DirectXPage::OnDisplayContentsInvalidated);
 	
 	m_eventToken = CompositionTarget::Rendering::add(ref new EventHandler<Object^>(this, &DirectXPage::OnRendering));
 
@@ -88,19 +88,19 @@ void DirectXPage::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEvent
 	m_renderNeeded = true;
 }
 
-void DirectXPage::OnLogicalDpiChanged(Object^ sender)
+void DirectXPage::OnDpiChanged(DisplayInformation^ sender, Platform::Object^ args)
 {
-	m_renderer->SetDpi(DisplayProperties::LogicalDpi);
+    m_renderer->SetDpi(sender->LogicalDpi);
 	m_renderNeeded = true;
 }
 
-void DirectXPage::OnOrientationChanged(Object^ sender)
+void DirectXPage::OnOrientationChanged(DisplayInformation^ sender, Platform::Object^ args)
 {
 	m_renderer->UpdateForWindowSizeChange();
 	m_renderNeeded = true;
 }
 
-void DirectXPage::OnDisplayContentsInvalidated(Object^ sender)
+void DirectXPage::OnDisplayContentsInvalidated(DisplayInformation^ sender, Platform::Object^ arg)
 {
 	m_renderer->ValidateDevice();
 	m_renderNeeded = true;
