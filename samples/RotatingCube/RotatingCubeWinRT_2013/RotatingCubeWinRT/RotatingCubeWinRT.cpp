@@ -119,6 +119,7 @@ void RotatingCubeWinRT::OnSuspending(Platform::Object^ sender, SuspendingEventAr
 	// aware that a deferral may not be held indefinitely. After about five seconds,
 	// the app will be forced to exit.
 	SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
+    m_renderer->Trim();
 
 	create_task([this, deferral]()
 	{

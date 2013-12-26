@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "AngleBase.h"
+#include <d3d11_2.h>
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -14,7 +15,6 @@ AngleBase::AngleBase()
     , m_eglSurface(nullptr)
     , m_eglContext(nullptr)
     , m_eglWindow(nullptr)
-    , m_eglPhoneWindow(nullptr)
     , m_orientation(DisplayOrientations::Portrait)
 {
 }
@@ -38,6 +38,30 @@ void AngleBase::HandleDeviceLost()
 
 	CreateDeviceResources();
 	UpdateForWindowSizeChange();
+}
+
+// releases device memory allocated by the graphics driver thereby reducing the app's memory profile while it is suspended.
+void AngleBase::Trim()
+{
+    ComPtr<IDXGIDevice3> dxgiDevice;
+    if (m_eglWindow && m_eglWindow.Get() != nullptr)
+    {
+        ComPtr<IUnknown> device = m_eglWindow.Get()->GetAngleD3DDevice();
+        if (device != nullptr)
+        {
+            ComPtr<ID3D11Device> d3dDevice;
+            HRESULT result = device.As(&d3dDevice);
+            if (SUCCEEDED(result))
+            {
+                ComPtr<IDXGIDevice3> dxgiDevice;
+                result = d3dDevice.As(&dxgiDevice);
+                if (SUCCEEDED(result))
+                {
+                    dxgiDevice->Trim();
+                }
+            }
+        }
+    }
 }
 
 // These are the resources that depend on the device.
@@ -143,7 +167,6 @@ void AngleBase::CloseAngle()
         m_eglDisplay = nullptr;
     }
 
-    m_eglPhoneWindow = nullptr;
     m_eglWindow = nullptr;
 
     m_bAngleInitialized = false;

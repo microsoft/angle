@@ -27,6 +27,9 @@ public:
 	virtual void Present();
 	virtual float ConvertDipsToPixels(float dips);
 
+    // releases device memory allocated by the graphics driver thereby reducing the app's memory profile while it is suspended.
+    virtual void Trim();
+
 protected:
     virtual void CreateGLResources() = 0;
 	virtual void OnRender() = 0;
@@ -44,7 +47,6 @@ protected private:
 	EGLContext m_eglContext;
 	EGLSurface m_eglSurface;
 	Microsoft::WRL::ComPtr<IWinrtEglWindow> m_eglWindow;
-	Microsoft::WRL::ComPtr<IWinPhone8XamlD3DWindow> m_eglPhoneWindow;
     DirectX::XMMATRIX m_orientationMatrix;
     Windows::Graphics::Display::DisplayOrientations m_orientation;
     float m_aspectRatio;
