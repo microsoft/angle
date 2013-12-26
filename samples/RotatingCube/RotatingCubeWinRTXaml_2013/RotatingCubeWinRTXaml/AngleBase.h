@@ -23,7 +23,7 @@ public:
 	virtual void UpdateForWindowSizeChange();
 	virtual void ReleaseResourcesForSuspending();
 	virtual void OnOrientationChanged();
-	virtual void SetDpi(float dpi);
+    virtual void SetDpi(float dpi);
 
 	virtual void Render();
 	virtual void Present();

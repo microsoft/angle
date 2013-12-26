@@ -147,6 +147,26 @@ void AngleBase::Render()
 
 void AngleBase::CloseAngle()
 {
+    ComPtr<IDXGIDevice3> dxgiDevice;
+    if (m_eglWindow && m_eglWindow.Get() != nullptr)
+    {
+        ComPtr<IUnknown> device = m_eglWindow.Get()->GetAngleD3DDevice();
+        if (device != nullptr)
+        {
+            ComPtr<ID3D11Device> d3dDevice;
+            HRESULT result = device.As(&d3dDevice);
+            if (SUCCEEDED(result))
+            {
+                ComPtr<IDXGIDevice3> dxgiDevice;
+                result = d3dDevice.As(&dxgiDevice);
+                if (SUCCEEDED(result))
+                {
+                    dxgiDevice->Trim();
+                }
+            }
+        }
+    }
+
 	if(m_eglDisplay && m_eglSurface)
     {
         eglDestroySurface(m_eglDisplay, m_eglSurface);

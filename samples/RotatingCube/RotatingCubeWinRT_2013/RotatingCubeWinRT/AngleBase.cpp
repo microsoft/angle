@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "AngleBase.h"
-#include <d3d11_2.h>
 
 using namespace DirectX;
 using namespace Microsoft::WRL;

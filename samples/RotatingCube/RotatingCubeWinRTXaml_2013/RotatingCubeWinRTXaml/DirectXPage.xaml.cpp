@@ -132,7 +132,7 @@ void DirectXPage::OnNextColorPressed(Object^ sender, RoutedEventArgs^ args)
 
 void DirectXPage::SaveInternalState(IPropertySet^ state)
 {
-	//m_renderer->SaveInternalState(state);
+    m_renderer->ReleaseResourcesForSuspending();
 }
 
 void DirectXPage::LoadInternalState(IPropertySet^ state)
