@@ -374,14 +374,8 @@ int __cdecl main(int argc, char* argv[])
 
     if(platform == "winrt")
     {
-#if (_MSC_VER >= 1800)
-    // WinRT on Windows 8.1 can compile shaders at run time so we don't care about the DirectX feature level
-        featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_ANY;
-        cout << "Compiling for WinRT at ANGLE_D3D_FEATURE_LEVEL_ANY" << endl;
-#else
         featureLevel = ANGLE_D3D_FEATURE_LEVEL::ANGLE_D3D_FEATURE_LEVEL_9_1;
         cout << "Compiling for WinRT at ANGLE_D3D_FEATURE_LEVEL_9_1" << endl;
-#endif
     }
     else if(platform == "wp8")
     {
