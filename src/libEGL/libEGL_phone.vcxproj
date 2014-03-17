@@ -62,20 +62,24 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -179,8 +183,6 @@
     <ClInclude Include="..\common\winrtangle.h" />
     <ClInclude Include="..\common\winrtangleutils.h" />
     <ClInclude Include="..\common\winrtplatform.h" />
-    <ClInclude Include="..\common\winrt\ThreadEmulation.h" />
-    <ClInclude Include="..\common\winrt\threadutils.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="main.h" />

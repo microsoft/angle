@@ -58,20 +58,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(WP80ToolSetPath)include;$(WindowsSDK_IncludePath);</IncludePath>
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <OutDir>$(SolutionDir)WP8\redist\vs2012\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WP8\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WP8\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
