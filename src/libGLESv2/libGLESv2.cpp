@@ -2652,7 +2652,7 @@ void __stdcall glGenerateMipmap(GLenum target)
                         return gl::error(GL_INVALID_OPERATION);
                     }
 
-                    if (context->getMajorShaderModel() > 2)
+                    //if (context->getMajorShaderModel() > 2)
                         tex2d->generateMipmaps();
                     break;
                 }
