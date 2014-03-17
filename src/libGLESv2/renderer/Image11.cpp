@@ -161,7 +161,7 @@ DXGI_FORMAT Image11::getDXGIFormat() const
     // this should only happen if the image hasn't been redefined first
     // which would be a bug by the caller
     ASSERT(mDXGIFormat != DXGI_FORMAT_UNKNOWN);
-    if (mRenderer->getFeatureLevel() < D3D_FEATURE_LEVEL_9_2 && mDXGIFormat == DXGI_FORMAT_A8_UNORM)
+    if (mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3 && mDXGIFormat == DXGI_FORMAT_A8_UNORM)
     {
         return DXGI_FORMAT_B8G8R8A8_UNORM;
     }
@@ -191,7 +191,7 @@ void Image11::loadData(GLint xoffset, GLint yoffset, GLsizei width, GLsizei heig
     switch (mInternalFormat)
     {
       case GL_ALPHA8_EXT:
-        if (mRenderer->getFeatureLevel() < D3D_FEATURE_LEVEL_9_2)
+        if (mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
             loadAlphaDataToBGRA(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
         else
             loadAlphaDataToNative(width, height, inputPitch, input, mappedImage.RowPitch, offsetMappedData);
@@ -393,7 +393,7 @@ void Image11::createStagingTexture()
     DXGI_FORMAT dxgiFormat = getDXGIFormat();
     ASSERT(!d3d11::IsDepthStencilFormat(dxgiFormat)); // We should never get here for depth textures
 
-    if (mRenderer->getFeatureLevel() < D3D_FEATURE_LEVEL_9_2 && dxgiFormat == DXGI_FORMAT_A8_UNORM)
+    if (mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3 && dxgiFormat == DXGI_FORMAT_A8_UNORM)
         dxgiFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
 
     if (mWidth != 0 && mHeight != 0)
