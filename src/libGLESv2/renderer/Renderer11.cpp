@@ -211,7 +211,7 @@ EGLint Renderer11::createDevice()
         return EGL_NOT_INITIALIZED;
     }
 
-	maxFeatureLevel = winrtangleutils::getD3DFeatureLevel(iWinRTWindow);
+	maxFeatureLevel = iWinRTWindow->getD3DFeatureLevel();
 
 	if(winrtangleutils::hasIPhoneXamlWindow(iWinRTWindow))
 	{
@@ -219,25 +219,11 @@ EGLint Renderer11::createDevice()
 		result = winrtangleutils::getIPhoneXamlWindow(mDc, &iPhoneWindow);
 		if (SUCCEEDED(result))
 		{
-			ComPtr<ID3D11Device> device;
-			result = winrtangleutils::getID3D11Device(iPhoneWindow, &device);
-			if (SUCCEEDED(result))
-			{
-				mDevice = device.Get();
-			}
-
-			if (SUCCEEDED(result))
-			{
-				ComPtr<ID3D11DeviceContext> context;
-				result = winrtangleutils::getID3D11DeviceContext(iPhoneWindow, &context);
-				if (SUCCEEDED(result))
-				{
-					mDeviceContext = context.Get();
-				}
-			}
-	
-			mFeatureLevel = winrtangleutils::getD3DFeatureLevel(iWinRTWindow);
-
+            SafeRelease(mDevice);
+			mDevice = iPhoneWindow->GetDevice();
+            SafeRelease(mDeviceContext);
+            mDeviceContext = iPhoneWindow->GetContext();
+			mFeatureLevel = iWinRTWindow->getD3DFeatureLevel();
 		}
 
 		if(FAILED(result))
@@ -291,9 +277,6 @@ EGLint Renderer11::createDevice()
         }
     }
 
-#if defined(ANGLE_PLATFORM_WINRT)
-    iWinRTWindow->SetAngleD3DDevice(mDevice);
-#endif
 	return EGL_SUCCESS;
 }
 
@@ -2127,6 +2110,8 @@ void Renderer11::release()
         FreeLibrary(mDxgiModule);
         mDxgiModule = NULL;
     }
+
+
 }
 
 bool Renderer11::resetDevice()

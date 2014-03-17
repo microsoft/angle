@@ -435,18 +435,14 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
             result = winrtangleutils::getIPhoneXamlWindow(mWindow, &iPhoneWindow);
             ASSERT(SUCCEEDED(result));
                 
-            ComPtr<ID3D11Texture2D> backBuffer;
-            result = winrtangleutils::getBackBuffer(iPhoneWindow, &backBuffer);
+            SafeRelease(mBackBufferTexture);
+            result = iPhoneWindow->getBackBuffer(&mBackBufferTexture);
             ASSERT(SUCCEEDED(result));
-            mBackBufferTexture = backBuffer.Get();
-            mBackBufferTexture->AddRef();
             d3d11::SetDebugName(mBackBufferTexture, "Back buffer texture");
 
-            ComPtr<ID3D11RenderTargetView> rtv;
-            result = winrtangleutils::getID3D11RenderTargetView(iPhoneWindow, &rtv);
-            ASSERT(SUCCEEDED(result));
-            mBackBufferRTView = rtv.Get();
-            mBackBufferRTView->AddRef();
+            // GetRenderTarget already calls AddRef()
+            SafeRelease(mBackBufferRTView);
+            mBackBufferRTView = iPhoneWindow->GetRenderTarget();
             d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
         }
     }
@@ -563,21 +559,17 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
                 result = winrtangleutils::getIPhoneXamlWindow(mWindow, &iPhoneWindow);
                 ASSERT(SUCCEEDED(result));
                 
-                ComPtr<ID3D11Texture2D> backBuffer;
-                result = winrtangleutils::getBackBuffer(iPhoneWindow, &backBuffer);
+                SafeRelease(mBackBufferTexture);
+                result = iPhoneWindow->getBackBuffer(&mBackBufferTexture);
                 ASSERT(SUCCEEDED(result));
-                mBackBufferTexture = backBuffer.Get();
-                mBackBufferTexture->AddRef();
 
-                ComPtr<ID3D11RenderTargetView> rtv;
-                result = winrtangleutils::getID3D11RenderTargetView(iPhoneWindow, &rtv);
-                ASSERT(SUCCEEDED(result));
-                mBackBufferRTView = rtv.Get();
-                mBackBufferRTView->AddRef();
+                // GetRenderTarget() already AddRefs
+                 SafeRelease(mBackBufferRTView);
+                mBackBufferRTView = iPhoneWindow->GetRenderTarget();
             }
             else
             {
-                IUnknown* iWindow = iWinRTWindow->GetWindowInterface().Get();
+                IUnknown* iWindow = iWinRTWindow->GetWindowInterface();
                 IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
                 DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
                 swapChainDesc.Width = static_cast<UINT>(backbufferWidth); // Match the size of the window.
@@ -759,19 +751,22 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
             result = winrtangleutils::getIPhoneXamlWindow(mWindow, &iPhoneWindow);
             ASSERT(SUCCEEDED(result));
                 
-            ComPtr<ID3D11Texture2D> backBuffer;
-            result = winrtangleutils::getBackBuffer(iPhoneWindow, &backBuffer);
+            ID3D11Texture2D* backBuffer;
+            result = iPhoneWindow->getBackBuffer(&backBuffer);
             ASSERT(SUCCEEDED(result));
-            if(backBuffer.Get() != mBackBufferTexture)
+            if(backBuffer != mBackBufferTexture)
             {
-                mBackBufferTexture = backBuffer.Get();
+                SafeRelease(mBackBufferTexture);
+                mBackBufferTexture = backBuffer;
                 d3d11::SetDebugName(mBackBufferTexture, "Back buffer texture");
 
-                ComPtr<ID3D11RenderTargetView> rtv;
-                result = winrtangleutils::getID3D11RenderTargetView(iPhoneWindow, &rtv);
-                ASSERT(SUCCEEDED(result));
-                mBackBufferRTView = rtv.Get();
+                SafeRelease(mBackBufferRTView);
+                mBackBufferRTView = iPhoneWindow->GetRenderTarget();
                 d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
+            }
+            else
+            {
+                SafeRelease(backBuffer);
             }
         }
     }
