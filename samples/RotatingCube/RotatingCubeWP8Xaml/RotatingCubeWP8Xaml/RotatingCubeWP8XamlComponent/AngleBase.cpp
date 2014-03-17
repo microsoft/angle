@@ -71,7 +71,7 @@ void AngleBase::UpdateDevice(ID3D11Device1* device, ID3D11DeviceContext1* contex
     }
     else
     {
-        m_eglPhoneWindow->Update(WINRT_EGL_IUNKNOWN(m_d3dDevice.Get()), WINRT_EGL_IUNKNOWN(m_d3dContext.Get()), WINRT_EGL_IUNKNOWN(m_d3dRenderTargetView.Get()));
+        m_eglPhoneWindow->Update(m_d3dDevice.Get(), m_d3dContext.Get(), m_d3dRenderTargetView.Get());
     }
 }
 
@@ -144,9 +144,15 @@ void AngleBase::CloseAngle()
         m_eglDisplay = nullptr;
     }
 
+    if(m_eglPhoneWindow != nullptr)
+    {
+         m_eglPhoneWindow->Update(nullptr, nullptr, nullptr);
+    }
+
+    eglMakeCurrent(NULL, NULL, NULL, NULL);
+
     m_eglPhoneWindow = nullptr;
     m_eglWindow = nullptr;
-
     m_bAngleInitialized = false;
 }
 
@@ -200,7 +206,7 @@ bool AngleBase::InitializeAngle()
         CreateWinPhone8XamlWindow(&m_eglPhoneWindow)
         );
 
-    m_eglPhoneWindow->Update(WINRT_EGL_IUNKNOWN(m_d3dDevice.Get()), WINRT_EGL_IUNKNOWN(m_d3dContext.Get()), WINRT_EGL_IUNKNOWN(m_d3dRenderTargetView.Get()));
+    m_eglPhoneWindow->Update(m_d3dDevice.Get(), m_d3dContext.Get(), m_d3dRenderTargetView.Get());
 
  	DX::ThrowIfFailed(
         CreateWinrtEglWindow(WINRT_EGL_IUNKNOWN(m_eglPhoneWindow.Get()), featureLevel, m_eglWindow.GetAddressOf())
