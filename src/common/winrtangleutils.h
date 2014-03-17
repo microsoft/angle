@@ -17,20 +17,11 @@
 
 namespace winrtangleutils
 {
+HRESULT getIWinRTWindow(Microsoft::WRL::ComPtr<IUnknown>& iWindow, Microsoft::WRL::ComPtr<IWinrtEglWindow> *iWinRTWindow);
+HRESULT getIPhoneXamlWindow(Microsoft::WRL::ComPtr<IUnknown>& iWindow, Microsoft::WRL::ComPtr<IWinPhone8XamlD3DWindow> *iPhoneXamlWindow);
+HRESULT getWindowSize(Microsoft::WRL::ComPtr<IUnknown>& iWindow, int& width, int& height);
 
-HRESULT getIWinRTWindow(Microsoft::WRL::ComPtr<IUnknown> iWindow, Microsoft::WRL::ComPtr<IWinrtEglWindow> *iWinRTWindow);
-HRESULT getIPhoneXamlWindow(Microsoft::WRL::ComPtr<IUnknown> iWindow, Microsoft::WRL::ComPtr<IWinPhone8XamlD3DWindow> *iPhoneXamlWindow);
-HRESULT getWindowSize(Microsoft::WRL::ComPtr<IUnknown> iWindow, int& width, int& height);
-
-HRESULT getID3D11Device(Microsoft::WRL::ComPtr<IWinPhone8XamlD3DWindow> iWindow, Microsoft::WRL::ComPtr<ID3D11Device>* idevice);
-HRESULT getID3D11DeviceContext(Microsoft::WRL::ComPtr<IWinPhone8XamlD3DWindow> iWindow, Microsoft::WRL::ComPtr<ID3D11DeviceContext>* iContext);
-HRESULT getID3D11RenderTargetView(Microsoft::WRL::ComPtr<IWinPhone8XamlD3DWindow> iWindow, Microsoft::WRL::ComPtr<ID3D11RenderTargetView>* iRtv);
-
-HRESULT getBackBuffer(Microsoft::WRL::ComPtr<IWinPhone8XamlD3DWindow> iWindow, Microsoft::WRL::ComPtr<ID3D11Texture2D>* backBuffer);
-
-D3D_FEATURE_LEVEL getD3DFeatureLevel(Microsoft::WRL::ComPtr<IWinrtEglWindow> iWindow);
-
-bool hasIPhoneXamlWindow(Microsoft::WRL::ComPtr<IWinrtEglWindow> iWindow);
+bool hasIPhoneXamlWindow(Microsoft::WRL::ComPtr<IWinrtEglWindow>& iWindow);
 
 } //namespace winrtangleutils 
 
