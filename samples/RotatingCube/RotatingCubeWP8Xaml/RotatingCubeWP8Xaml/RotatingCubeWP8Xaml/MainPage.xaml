@@ -14,9 +14,16 @@
     shell:SystemTray.IsVisible="False" OrientationChanged="PhoneApplicationPage_OrientationChanged">
 
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="Transparent">
-        <DrawingSurface x:Name="DrawingSurface" Loaded="DrawingSurface_Loaded" />
+    <DrawingSurfaceBackgroundGrid x:Name="DrawingSurfaceBackground" Loaded="DrawingSurfaceBackground_Loaded">
+        <StackPanel Orientation="Horizontal" Margin="10,0,0,0" Height="30" VerticalAlignment="Top">
+            <TextBlock Text="Memory: "/>
+            <TextBlock x:Name="MemoryTextBlock"/>
+            <TextBlock Text=" MB"/>
+            <TextBlock Text="  Peak: "/>
+            <TextBlock x:Name="PeakMemoryTextBlock"/>
+            <TextBlock Text=" MB"/>
+        </StackPanel>
         <TextBlock x:Name="SimpleTextBlock" HorizontalAlignment="Center" FontSize="42" Height="72" Text="Hello, XAML!" Margin="0,0,0,50"/>
-    </Grid>
+    </DrawingSurfaceBackgroundGrid>
 
 </phone:PhoneApplicationPage>

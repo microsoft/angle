@@ -42,8 +42,12 @@ void CubeRenderer::CreateWindowSizeDependentResources()
 
 void CubeRenderer::UpdatePerspectiveMatrix()
 {
-	float fovAngleY = 70.0f * XM_PI / 180.0f;
+    float fovAngleY = 70.0f * XM_PI / 180.0f;
     m_projectionMatrix = XMMatrixPerspectiveFovRH(fovAngleY, m_aspectRatio, 0.01f, 100.0f);
+
+    // In Windows Phone 8.0 C++ apps, we need to rotate the projection matrix by the 
+    // device's current rotation matrix
+    m_projectionMatrix = XMMatrixMultiply(m_orientationMatrix, m_projectionMatrix);
 }
 
 void CubeRenderer::OnOrientationChanged(Windows::Graphics::Display::DisplayOrientations orientation)

@@ -94,26 +94,24 @@ void AngleBase::CreateWindowSizeDependentResources()
 
 void AngleBase::OnOrientationChanged(DisplayOrientations orientation)
 {
+    m_aspectRatio = m_renderTargetSize.Width / m_renderTargetSize.Height;
+
 	switch(orientation)
 	{
 		case DisplayOrientations::Portrait:
 			m_orientationMatrix = XMMatrixIdentity();
-            m_aspectRatio = m_renderTargetSize.Width / m_renderTargetSize.Height;
 			break;
 
 		case DisplayOrientations::PortraitFlipped:
 			m_orientationMatrix = XMMatrixRotationZ(XM_PI);
-            m_aspectRatio = m_renderTargetSize.Width / m_renderTargetSize.Height;
 			break;
 
 		case DisplayOrientations::Landscape:
 			m_orientationMatrix = XMMatrixRotationZ(-XM_PIDIV2);
-            m_aspectRatio = m_renderTargetSize.Height / m_renderTargetSize.Width;
 			break;
 			
 		case DisplayOrientations::LandscapeFlipped:
 			m_orientationMatrix = XMMatrixRotationZ(XM_PIDIV2);
-            m_aspectRatio = m_renderTargetSize.Height / m_renderTargetSize.Width;
 			break;
 	}
 }
@@ -151,8 +149,7 @@ void AngleBase::CloseAngle()
 
     eglMakeCurrent(NULL, NULL, NULL, NULL);
 
-    m_eglPhoneWindow = nullptr;
-    m_eglWindow = nullptr;
+
     m_bAngleInitialized = false;
 }
 
@@ -202,17 +199,24 @@ bool AngleBase::InitializeAngle()
 		break;
 	}		
 
-	DX::ThrowIfFailed(
-        CreateWinPhone8XamlWindow(&m_eglPhoneWindow)
-        );
+    if (m_eglPhoneWindow == nullptr)
+    {
+	    DX::ThrowIfFailed(
+            CreateWinPhone8XamlWindow(&m_eglPhoneWindow)
+            );
+    }
+
 
     m_eglPhoneWindow->Update(m_d3dDevice.Get(), m_d3dContext.Get(), m_d3dRenderTargetView.Get());
 
- 	DX::ThrowIfFailed(
-        CreateWinrtEglWindow(WINRT_EGL_IUNKNOWN(m_eglPhoneWindow.Get()), featureLevel, m_eglWindow.GetAddressOf())
-        );
+    if (m_eglWindow == nullptr)
+    {
+ 	    DX::ThrowIfFailed(
+            CreateWinrtEglWindow(WINRT_EGL_IUNKNOWN(m_eglPhoneWindow.Get()), featureLevel, m_eglWindow.GetAddressOf())
+            );
+    }
 
-	display = eglGetDisplay(m_eglWindow);
+    display = eglGetDisplay(m_eglWindow);
 	if(display == EGL_NO_DISPLAY){
 		//ofLogError("ofAppWinRTWindow") << "couldn't get EGL display";
 		return false;

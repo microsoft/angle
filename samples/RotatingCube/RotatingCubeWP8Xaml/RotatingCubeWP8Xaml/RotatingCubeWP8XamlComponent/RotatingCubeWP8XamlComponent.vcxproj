@@ -141,7 +141,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicTimer.h" />
-    <ClInclude Include="Direct3DContentProviderBase.h" />
     <ClInclude Include="Direct3DInterop.h" />
     <ClInclude Include="AngleBase.h" />
     <ClInclude Include="DirectXHelper.h" />
@@ -150,7 +149,6 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Direct3DContentProviderBase.cpp" />
     <ClCompile Include="Direct3DInterop.cpp" />
     <ClCompile Include="AngleBase.cpp" />
     <ClCompile Include="CubeRenderer.cpp" />

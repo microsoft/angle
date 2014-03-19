@@ -30,10 +30,10 @@ Direct3DInterop::Direct3DInterop()
 
 
 
-IDrawingSurfaceContentProvider^ Direct3DInterop::CreateContentProvider()
+IDrawingSurfaceBackgroundContentProvider^ Direct3DInterop::CreateContentProvider()
 {
     ComPtr<Direct3DContentProvider> provider = Make<Direct3DContentProvider>(this);
-    return reinterpret_cast<IDrawingSurfaceContentProvider^>(provider.Get());
+    return reinterpret_cast<IDrawingSurfaceBackgroundContentProvider^>(provider.Get());
 }
 
 
@@ -100,24 +100,27 @@ void Direct3DInterop::OnPointerReleased(DrawingSurfaceManipulationHost^ sender, 
 }
 
 // Interface With Direct3DContentProvider
-void Direct3DInterop::Connect()
+HRESULT Direct3DInterop::Connect(_In_ IDrawingSurfaceRuntimeHostNative* host, _In_ ID3D11Device1* device)
 {
     // Restart timer after renderer has finished initializing.
     m_timer->Reset();
+    return S_OK;
 }
 
 void Direct3DInterop::Disconnect()
 {
 }
 
-void Direct3DInterop::PrepareResources(LARGE_INTEGER presentTargetTime)
+HRESULT Direct3DInterop::PrepareResources(_In_ const LARGE_INTEGER* presentTargetTime, _Inout_ DrawingSurfaceSizeF* desiredRenderTargetSize)
 {
     //Profiler::FrameStart();
     m_timer->Update();
     m_renderer->Update(m_timer->Total, m_timer->Delta);
+    return S_OK;
+
 }
 
-void Direct3DInterop::Draw(_In_ ID3D11Device1* device, _In_ ID3D11DeviceContext1* context, _In_ ID3D11RenderTargetView* renderTargetView)
+HRESULT Direct3DInterop::Draw(_In_ ID3D11Device1* device, _In_ ID3D11DeviceContext1* context, _In_ ID3D11RenderTargetView* renderTargetView)
 {
     m_renderer->UpdateDevice(device, context, renderTargetView);
 
@@ -128,6 +131,9 @@ void Direct3DInterop::Draw(_In_ ID3D11Device1* device, _In_ ID3D11DeviceContext1
     }
 
     m_renderer->Render();
+    RequestAdditionalFrame();
+
+    return S_OK;
 
     //Profiler::Render(device, context);
 }

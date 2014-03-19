@@ -3,9 +3,13 @@
 #include "pch.h"
 #include "BasicTimer.h"
 #include "CubeRenderer.h"
+#include <DrawingSurfaceNative.h>
 
 namespace PhoneDirect3DXamlAppComponent
 {
+
+public delegate void RequestAdditionalFrameHandler();
+
 
 [Windows::Foundation::Metadata::WebHostHidden]
 public ref class Direct3DInterop sealed : public Windows::Phone::Input::Interop::IDrawingSurfaceManipulationHandler
@@ -13,10 +17,13 @@ public ref class Direct3DInterop sealed : public Windows::Phone::Input::Interop:
 public:
     Direct3DInterop();
 
-    Windows::Phone::Graphics::Interop::IDrawingSurfaceContentProvider^ CreateContentProvider();
+	Windows::Phone::Graphics::Interop::IDrawingSurfaceBackgroundContentProvider^ CreateContentProvider();
 
     // IDrawingSurfaceManipulationHandler
     virtual void SetManipulationHost(Windows::Phone::Input::Interop::DrawingSurfaceManipulationHost^ manipulationHost);
+
+	event RequestAdditionalFrameHandler^ RequestAdditionalFrame;
+
 
     void UpdateForWindowSizeChange(float width, float height);
     void OnFocusChange(bool active);
@@ -36,10 +43,10 @@ protected:
     void OnPointerReleased(Windows::Phone::Input::Interop::DrawingSurfaceManipulationHost^ sender, Windows::UI::Core::PointerEventArgs^ args);
 
 internal:
-    void Connect();
+	HRESULT Connect(_In_ IDrawingSurfaceRuntimeHostNative* host, _In_ ID3D11Device1* device);
     void Disconnect();
-    void PrepareResources(LARGE_INTEGER presentTargetTime);
-    void Draw(_In_ ID3D11Device1* device, _In_ ID3D11DeviceContext1* context, _In_ ID3D11RenderTargetView* renderTargetView);
+	HRESULT PrepareResources(_In_ const LARGE_INTEGER* presentTargetTime, _Inout_ DrawingSurfaceSizeF* desiredRenderTargetSize);
+    HRESULT Draw(_In_ ID3D11Device1* device, _In_ ID3D11DeviceContext1* context, _In_ ID3D11RenderTargetView* renderTargetView);
 
 private:
     CubeRenderer^ m_renderer;
