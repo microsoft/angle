@@ -96,37 +96,37 @@
     <GenerateManifest>false</GenerateManifest>
     <TargetName>preprocessor</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>preprocessor</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>preprocessor</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>preprocessor</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>preprocessor</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateManifest>false</GenerateManifest>
     <TargetName>preprocessor</TargetName>
     <OutDir>$(SolutionDir)WinRT\redist\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
-    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>WinRT\vs2013\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -277,6 +277,10 @@ EGLint Renderer11::createDevice()
         }
     }
 
+#if defined(ANGLE_PLATFORM_WINRT)
+    iWinRTWindow.Get()->SetAngleD3DDevice(mDevice);
+#endif
+
 	return EGL_SUCCESS;
 }
 

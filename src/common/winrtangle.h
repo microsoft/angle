@@ -28,6 +28,8 @@ struct __declspec(uuid("736E7573-FD24-433F-811E-893B36B7A078")) IWinrtEglWindow 
     virtual ANGLE_D3D_FEATURE_LEVEL __stdcall GetAngleD3DFeatureLevel() const = 0;
     virtual D3D_FEATURE_LEVEL __stdcall getD3DFeatureLevel() const = 0;
     virtual IUnknown* __stdcall GetWindowInterface() const = 0;
+    virtual ID3D11Device* __stdcall GetAngleD3DDevice() const = 0;
+    virtual void __stdcall SetAngleD3DDevice(ID3D11Device* device) = 0;
 };
 
 struct __declspec(uuid("6B70903A-0D55-45BA-A10E-CA2D428E4867")) IWinPhone8XamlD3DWindow : IUnknown

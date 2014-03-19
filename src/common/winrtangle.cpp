@@ -144,6 +144,7 @@ public:
     WinrtEglWindow(IUnknown* windowInterface, ANGLE_D3D_FEATURE_LEVEL featureLevel) 
         : m_featureLevel(featureLevel)
         , m_windowInterface(NULL)
+        , m_device(NULL)
     {
         windowInterface->AddRef();
         m_windowInterface = windowInterface;
@@ -160,25 +161,32 @@ public:
     void release()
     {
         SafeRelease(m_windowInterface);
+        SafeRelease(m_device);
     }
 
     //
     // IWinrtEglWindow
     //
 
-#if 0
-    STDMETHOD_(ULONG, AddRef)()override
+    virtual void __stdcall SetAngleD3DDevice(ID3D11Device* device) override
     {
-        return RuntimeClass::AddRef();
+        SafeRelease(m_device);
+        if (device)
+        {
+            device->AddRef();
+            m_device = device;
+        }
     }
 
-    STDMETHOD_(ULONG, Release)()override
+    virtual ID3D11Device* __stdcall GetAngleD3DDevice() const override
     {
-        return RuntimeClass::Release();
-    }  
-#endif // 0
+        if (m_device)
+        {
+            m_device->AddRef();
+        }
 
-
+        return m_device;
+    }
 
     virtual ANGLE_D3D_FEATURE_LEVEL __stdcall GetAngleD3DFeatureLevel() const override
     {
@@ -227,6 +235,7 @@ public:
 private:
     ANGLE_D3D_FEATURE_LEVEL m_featureLevel;
     IUnknown* m_windowInterface;
+    ID3D11Device* m_device;
 };
 
 HRESULT __stdcall CreateWinrtEglWindow(IUnknown* windowInterface, ANGLE_D3D_FEATURE_LEVEL featureLevel, IWinrtEglWindow ** result)

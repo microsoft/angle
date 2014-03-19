@@ -598,7 +598,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         result = mWindow.As(&iWinRTWindow);
         if(SUCCEEDED(result))
         {
-            IUnknown* iWindow = iWinRTWindow->GetWindowInterface().Get();
+            IUnknown* iWindow = iWinRTWindow->GetWindowInterface();
             bool isPanel = winrt::isSwapChainBackgroundPanel(iWindow);
             IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
             DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
@@ -615,8 +615,8 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
             if (isPanel)
             {
                 ComPtr<ISwapChainBackgroundPanelNative> panelNative;
-
-                result = iWinRTWindow->GetWindowInterface().As(&panelNative);
+                ComPtr<IUnknown> iWindow = iWinRTWindow->GetWindowInterface();
+                result = iWindow.As(&panelNative);
                 if SUCCEEDED(result)
                 {
                     result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
