@@ -67,12 +67,6 @@
     <ClInclude Include="..\common\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\winrt\ThreadEmulation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\winrt\threadutils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\common\winrtutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>

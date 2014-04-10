@@ -279,8 +279,6 @@
     <ClInclude Include="..\common\winrtangleutils.h" />
     <ClInclude Include="..\common\winrtplatform.h" />
     <ClInclude Include="..\common\winrtutils.h" />
-    <ClInclude Include="..\common\winrt\ThreadEmulation.h" />
-    <ClInclude Include="..\common\winrt\threadutils.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="..\..\include\EGL\egl.h" />

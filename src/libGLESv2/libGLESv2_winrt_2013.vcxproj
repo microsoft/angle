@@ -378,8 +378,6 @@
     <ClInclude Include="..\common\winrtangleutils.h" />
     <ClInclude Include="..\common\winrtplatform.h" />
     <ClInclude Include="..\common\winrtutils.h" />
-    <ClInclude Include="..\common\winrt\ThreadEmulation.h" />
-    <ClInclude Include="..\common\winrt\threadutils.h" />
     <ClInclude Include="..\third_party\murmurhash\MurmurHash3.h" />
     <ClInclude Include="..\third_party\winrt\ThreadEmulation\ThreadEmulation.h" />
     <ClInclude Include="angletypes.h" />

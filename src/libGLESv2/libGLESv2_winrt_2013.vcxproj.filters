@@ -415,12 +415,6 @@
     <ClInclude Include="precompiled.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\winrt\ThreadEmulation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\winrt\threadutils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="renderer\IndexRangeCache.h">
       <Filter>Header Files\Renderer11</Filter>
     </ClInclude>
