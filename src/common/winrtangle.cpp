@@ -146,8 +146,11 @@ public:
         , m_windowInterface(NULL)
         , m_device(NULL)
     {
-        windowInterface->AddRef();
-        m_windowInterface = windowInterface;
+		if (windowInterface)
+		{
+			windowInterface->AddRef ();
+			m_windowInterface = windowInterface;
+		}
 
         TRACE((LPCWSTR)"WinrtEglWindow()\n");
     }
