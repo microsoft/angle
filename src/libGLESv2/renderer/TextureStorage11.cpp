@@ -288,10 +288,6 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, int levels, GLenum 
         else
             desc.MipLevels = (levels > 0) ? levels + mLodOffset : 0;
 
-#if defined(ANGLE_PLATFORM_WP8)
-        desc.MipLevels = 1;
-#endif
-
         desc.ArraySize = 1;
         desc.Format = mTextureFormat;
         desc.SampleDesc.Count = 1;
