@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "translator_common_winrt", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "translator_hlsl_winrt", "compiler\translator_hlsl_winrt.vcxproj", "{F7CC3484-9BCF-4063-B842-02C0C621FC1B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esUtil_winrt", "..\samples\gles2_book\Common\esUtil_winrt.vcxproj", "{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -89,6 +91,18 @@ Global
 		{F7CC3484-9BCF-4063-B842-02C0C621FC1B}.Release|Win32.Build.0 = Release|Win32
 		{F7CC3484-9BCF-4063-B842-02C0C621FC1B}.Release|x64.ActiveCfg = Release|x64
 		{F7CC3484-9BCF-4063-B842-02C0C621FC1B}.Release|x64.Build.0 = Release|x64
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|ARM.ActiveCfg = Debug|ARM
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|ARM.Build.0 = Debug|ARM
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|Win32.Build.0 = Debug|Win32
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|x64.ActiveCfg = Debug|x64
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|x64.Build.0 = Debug|x64
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|ARM.ActiveCfg = Release|ARM
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|ARM.Build.0 = Release|ARM
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|Win32.ActiveCfg = Release|Win32
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|Win32.Build.0 = Release|Win32
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|x64.ActiveCfg = Release|x64
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

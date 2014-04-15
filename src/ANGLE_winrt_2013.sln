@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.20617.1 PREVIEW
+VisualStudioVersion = 12.0.30324.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libEGL_winrt", "libEGL\libEGL_winrt_2013.vcxproj", "{CD5990D7-2D62-490E-8436-CCD388893139}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "translator_hlsl_winrt", "compiler\translator_hlsl_winrt_2013.vcxproj", "{F7CC3484-9BCF-4063-B842-02C0C621FC1B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "preprocessor_winrt", "compiler\preprocessor\preprocessor_winrt_2013.vcxproj", "{E7B1D854-AD49-4662-8326-24579123F471}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esUtil_winrt", "..\samples\gles2_book\Common\esUtil_winrt_2013.vcxproj", "{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +85,18 @@ Global
 		{E7B1D854-AD49-4662-8326-24579123F471}.Release|Win32.Build.0 = Release|Win32
 		{E7B1D854-AD49-4662-8326-24579123F471}.Release|x64.ActiveCfg = Release|x64
 		{E7B1D854-AD49-4662-8326-24579123F471}.Release|x64.Build.0 = Release|x64
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|ARM.ActiveCfg = Debug|ARM
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|ARM.Build.0 = Debug|ARM
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|Win32.Build.0 = Debug|Win32
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|x64.ActiveCfg = Debug|x64
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Debug|x64.Build.0 = Debug|x64
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|ARM.ActiveCfg = Release|ARM
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|ARM.Build.0 = Release|ARM
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|Win32.ActiveCfg = Release|Win32
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|Win32.Build.0 = Release|Win32
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|x64.ActiveCfg = Release|x64
+		{44EEDAD2-D9AD-45DC-83B0-E5F50BD4377B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

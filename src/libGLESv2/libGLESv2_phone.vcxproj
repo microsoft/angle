@@ -109,12 +109,13 @@
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)/..;$(ProjectDir)/../../external/include;$(ProjectDir)/../../include;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4451;4512;4702;4718;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;PhoneAppModelHost.lib;RuntimeObject.lib</AdditionalDependencies>
       <ModuleDefinitionFile>libGLESv2_phone.def</ModuleDefinitionFile>
       <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
@@ -152,12 +153,13 @@
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)/..;$(ProjectDir)/../../external/include;$(ProjectDir)/../../include;$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4100;4127;4189;4239;4244;4245;4451;4512;4702;4718;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>windowsphonecore.lib;d3d11.lib;dxguid.lib;PhoneAppModelHost.lib;RuntimeObject.lib</AdditionalDependencies>
       <ModuleDefinitionFile>libGLESv2_phone.def</ModuleDefinitionFile>
       <IgnoreSpecificDefaultLibraries>ole32.lib;libcmtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries) </IgnoreSpecificDefaultLibraries>
