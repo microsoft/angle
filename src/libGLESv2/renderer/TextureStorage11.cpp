@@ -159,7 +159,7 @@ bool TextureStorage11::updateSubresourceLevel(ID3D11Texture2D *srcTexture, unsig
         ID3D11DeviceContext *context = mRenderer->getDeviceContext();
         
         ASSERT(getBaseTexture());
-#if defined(ANGLE_PLATFORM_WINRT)
+#if defined(ANGLE_PLATFORM_WINRT) || defined(ANGLE_PLATFORM_WP8)
         if (!mipped)
         {
             D3D11_TEXTURE2D_DESC texDesc;
@@ -287,10 +287,6 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, int levels, GLenum 
             desc.MipLevels = 1;
         else
             desc.MipLevels = (levels > 0) ? levels + mLodOffset : 0;
-
-#if defined(ANGLE_PLATFORM_WP8)
-        desc.MipLevels = 1;
-#endif
 
         desc.ArraySize = 1;
         desc.Format = mTextureFormat;
