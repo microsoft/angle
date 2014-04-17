@@ -177,7 +177,15 @@ void Image11::loadData(GLint xoffset, GLint yoffset, GLsizei width, GLsizei heig
                        GLint unpackAlignment, const void *input)
 {
     D3D11_MAPPED_SUBRESOURCE mappedImage;
-    HRESULT result = map(D3D11_MAP_WRITE, &mappedImage);
+
+    ID3D11DeviceContext *dxContext = mRenderer->getDeviceContext();
+    D3D11_MAP mapType = D3D11_MAP_WRITE;
+    if (dxContext->GetType() == D3D11_DEVICE_CONTEXT_DEFERRED)
+    {
+        mapType = D3D11_MAP_WRITE_DISCARD;
+    }
+
+    HRESULT result = map(mapType, &mappedImage);
     if (FAILED(result))
     {
         ERR("Could not map image for loading.");
@@ -263,7 +271,14 @@ void Image11::loadCompressedData(GLint xoffset, GLint yoffset, GLsizei width, GL
     ASSERT(yoffset % 4 == 0);
 
     D3D11_MAPPED_SUBRESOURCE mappedImage;
-    HRESULT result = map(D3D11_MAP_WRITE, &mappedImage);
+    ID3D11DeviceContext *dxContext = mRenderer->getDeviceContext();
+    D3D11_MAP mapType = D3D11_MAP_WRITE;
+    if (dxContext->GetType() == D3D11_DEVICE_CONTEXT_DEFERRED)
+    {
+        mapType = D3D11_MAP_WRITE_DISCARD;
+    }
+
+    HRESULT result = map(mapType, &mappedImage);
     if (FAILED(result))
     {
         ERR("Could not map image for loading.");
@@ -353,7 +368,14 @@ void Image11::copy(GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width
     {
         // This format requires conversion, so we must copy the texture to staging and manually convert via readPixels
         D3D11_MAPPED_SUBRESOURCE mappedImage;
-        HRESULT result = map(D3D11_MAP_WRITE, &mappedImage);
+        ID3D11DeviceContext *dxContext = mRenderer->getDeviceContext();
+        D3D11_MAP mapType = D3D11_MAP_WRITE;
+        if (dxContext->GetType() == D3D11_DEVICE_CONTEXT_DEFERRED)
+        {
+            mapType = D3D11_MAP_WRITE_DISCARD;
+        }
+
+        HRESULT result = map(mapType, &mappedImage);
 
         // determine the offset coordinate into the destination buffer
         GLsizei rowOffset = gl::ComputePixelSize(mActualFormat) * xoffset;

@@ -86,7 +86,12 @@ bool VertexBuffer11::storeVertexAttributes(const gl::VertexAttribute &attrib, GL
         ID3D11DeviceContext *dxContext = mRenderer->getDeviceContext();
 
         D3D11_MAPPED_SUBRESOURCE mappedResource;
-        HRESULT result = dxContext->Map(mBuffer, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &mappedResource);
+        D3D11_MAP mapType = D3D11_MAP_WRITE_NO_OVERWRITE;
+        if (dxContext->GetType() == D3D11_DEVICE_CONTEXT_DEFERRED)
+        {
+            mapType = D3D11_MAP_WRITE_DISCARD;
+        }
+        HRESULT result = dxContext->Map(mBuffer, 0, mapType, 0, &mappedResource);
         if (FAILED(result))
         {
             ERR("Vertex buffer map failed with error 0x%08x", result);
@@ -131,7 +136,13 @@ bool VertexBuffer11::storeRawData(const void* data, unsigned int size, unsigned 
         ID3D11DeviceContext *dxContext = mRenderer->getDeviceContext();
 
         D3D11_MAPPED_SUBRESOURCE mappedResource;
-        HRESULT result = dxContext->Map(mBuffer, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &mappedResource);
+        D3D11_MAP mapType = D3D11_MAP_WRITE_NO_OVERWRITE;
+        if (dxContext->GetType() == D3D11_DEVICE_CONTEXT_DEFERRED)
+        {
+            mapType = D3D11_MAP_WRITE_DISCARD;
+        }
+
+        HRESULT result = dxContext->Map(mBuffer, 0, mapType, 0, &mappedResource);
         if (FAILED(result))
         {
             ERR("Vertex buffer map failed with error 0x%08x", result);

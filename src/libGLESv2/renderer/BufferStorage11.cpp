@@ -184,7 +184,14 @@ void BufferStorage11::setData(const void* data, unsigned int size, unsigned int 
         else if (data)
         {
             D3D11_MAPPED_SUBRESOURCE mappedResource;
-            result = context->Map(mStagingBuffer, 0, D3D11_MAP_WRITE, 0, &mappedResource);
+            ID3D11DeviceContext *dxContext = mRenderer->getDeviceContext();
+            D3D11_MAP mapType = D3D11_MAP_WRITE;
+            if (dxContext->GetType() == D3D11_DEVICE_CONTEXT_DEFERRED)
+            {
+                mapType = D3D11_MAP_WRITE_DISCARD;
+            }
+
+            result = context->Map(mStagingBuffer, 0, mapType, 0, &mappedResource);
             if (FAILED(result))
             {
                 return gl::error(GL_OUT_OF_MEMORY);
