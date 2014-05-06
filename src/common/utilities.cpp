@@ -13,6 +13,10 @@
 #include <windows.h>
 #endif
 
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+#include "common/winrt/winrtutils.h"
+#endif // defined(ANGLE_ENABLE_WINDOWS_STORE)
+
 #include <set>
 
 namespace gl
@@ -437,6 +441,11 @@ bool IsTriangleMode(GLenum drawMode)
 std::string getTempPath()
 {
 #if defined (_WIN32)
+
+#if defined (ANGLE_ENABLE_WINDOWS_STORE)
+    return winrt::getTempPath();
+#else
+
     char path[MAX_PATH];
     DWORD pathLen = GetTempPathA(sizeof(path) / sizeof(path[0]), path);
     if (pathLen == 0)
@@ -453,6 +462,7 @@ std::string getTempPath()
     }
 
     return path;
+#endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
 #else
     UNIMPLEMENTED();
     return "";

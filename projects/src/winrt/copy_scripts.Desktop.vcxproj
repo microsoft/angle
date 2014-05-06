@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{63FB0B97-D1D9-5158-8E85-7F5B1E403817}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>copy_scripts</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <CharacterSet>Unicode</CharacterSet>
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\obj\</IntDir>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemGroup>
+    <None Include="..\..\..\src\angle.gyp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="$(SolutionDir)..\..\..\src\commit_id.py">
+      <FileType>Document</FileType>
+      <Command>call mkdir "$(SolutionDir)global_intermediate" 2&gt;nul &amp; set ERRORLEVEL=0 &amp; copy /Y "$(SolutionDir)..\..\..\src\commit_id.py" "$(SolutionDir)global_intermediate\commit_id.py"</Command>
+      <Message>Copying commit_id.py to $(SolutionDir)global_intermediate\commit_id.py</Message>
+      <Outputs>$(OutDir)obj\global_intermediate\commit_id.py</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="$(SolutionDir)..\..\..\src\commit_id.bat">
+      <FileType>Document</FileType>
+      <Command>call mkdir "$(SolutionDir)global_intermediate" 2&gt;nul &amp; set ERRORLEVEL=0 &amp; copy /Y "$(SolutionDir)..\..\..\src\commit_id.bat" "$(SolutionDir)global_intermediate\commit_id.bat"</Command>
+      <Message>Copying commit_id.bat to $(SolutionDir)global_intermediate\commit_id.bat</Message>
+      <Outputs>$(OutDir)obj\global_intermediate\commit_id.bat</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="$(SolutionDir)..\..\..\src\copy_compiler_dll.bat">
+      <FileType>Document</FileType>
+      <Command>call mkdir "$(SolutionDir)global_intermediate" 2&gt;nul &amp; set ERRORLEVEL=0 &amp; copy /Y "$(SolutionDir)..\..\..\src\copy_compiler_dll.bat" "$(SolutionDir)global_intermediate\copy_compiler_dll.bat"</Command>
+      <Message>Copying copy_compiler_dll.bat to $(SolutionDir)global_intermediate\copy_compiler_dll.bat</Message>
+      <Outputs>$(OutDir)obj\global_intermediate\copy_compiler_dll.bat</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

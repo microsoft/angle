@@ -15,12 +15,14 @@
 #include "libGLESv2/renderer/d3d11/shaders/compiled/passthrough2d11vs.h"
 #include "libGLESv2/renderer/d3d11/shaders/compiled/passthroughrgba2d11ps.h"
 
+#include "common/surfacehost.h"
+
 namespace rx
 {
 
-SwapChain11::SwapChain11(Renderer11 *renderer, HWND window, HANDLE shareHandle,
+    SwapChain11::SwapChain11(Renderer11 *renderer, rx::SurfaceHost host, HANDLE shareHandle,
                          GLenum backBufferFormat, GLenum depthBufferFormat)
-    : mRenderer(renderer), SwapChain(window, shareHandle, backBufferFormat, depthBufferFormat)
+    : mRenderer(renderer), SwapChain(host, shareHandle, backBufferFormat, depthBufferFormat)
 {
     mSwapChain = NULL;
     mBackBufferTexture = NULL;
@@ -143,7 +145,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     }
     else
     {
-        const bool useSharedResource = !mWindow && mRenderer->getShareHandleSupport();
+        const bool useSharedResource = !mHost.getNativeWindowType() && mRenderer->getShareHandleSupport();
 
         D3D11_TEXTURE2D_DESC offscreenTextureDesc = {0};
         offscreenTextureDesc.Width = backbufferWidth;
@@ -389,27 +391,12 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         return EGL_SUCCESS;
     }
 
-    if (mWindow)
+    if (mHost.getNativeWindowType())
     {
-        IDXGIFactory *factory = mRenderer->getDxgiFactory();
-
-        DXGI_SWAP_CHAIN_DESC swapChainDesc = {0};
-        swapChainDesc.BufferCount = 2;
-        swapChainDesc.BufferDesc.Format = gl_d3d11::GetTexFormat(mBackBufferFormat, mRenderer->getCurrentClientVersion());
-        swapChainDesc.BufferDesc.Width = backbufferWidth;
-        swapChainDesc.BufferDesc.Height = backbufferHeight;
-        swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-        swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-        swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-        swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.Flags = 0;
-        swapChainDesc.OutputWindow = mWindow;
-        swapChainDesc.SampleDesc.Count = 1;
-        swapChainDesc.SampleDesc.Quality = 0;
-        swapChainDesc.Windowed = TRUE;
-
-        HRESULT result = factory->CreateSwapChain(device, &swapChainDesc, &mSwapChain);
+        HRESULT result = mHost.createSwapChain(
+            device, mRenderer->getDxgiFactory(), 
+            gl_d3d11::GetTexFormat(mBackBufferFormat, mRenderer->getCurrentClientVersion()), 
+            backbufferWidth, backbufferHeight, &mSwapChain);
 
         if (FAILED(result))
         {

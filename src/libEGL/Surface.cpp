@@ -22,11 +22,13 @@
 #include "libEGL/main.h"
 #include "libEGL/Display.h"
 
+#include "common/surfacehost.h"
+
 namespace egl
 {
 
-Surface::Surface(Display *display, const Config *config, HWND window, EGLint fixedSize, EGLint width, EGLint height, EGLint postSubBufferSupported) 
-    : mDisplay(display), mConfig(config), mWindow(window), mPostSubBufferSupported(postSubBufferSupported)
+Surface::Surface(Display *display, const Config *config, EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height, EGLint postSubBufferSupported) 
+    : mDisplay(display), mConfig(config), mPostSubBufferSupported(postSubBufferSupported), mHost(window)
 {
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
@@ -48,7 +50,8 @@ Surface::Surface(Display *display, const Config *config, HWND window, EGLint fix
 }
 
 Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType)
-    : mDisplay(display), mWindow(NULL), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
+    : mDisplay(display), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE),
+      mHost(nullptr)
 {
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
@@ -74,8 +77,18 @@ Surface::~Surface()
 
 bool Surface::initialize()
 {
+    if (mHost.getNativeWindowType())
+    {
+        if (!mHost.initialize())
+        {
+            return false;
+        }
+    }
+
     if (!resetSwapChain())
-      return false;
+    {
+        return false;
+    }
 
     return true;
 }
@@ -102,7 +115,7 @@ bool Surface::resetSwapChain()
     if (!mFixedSize)
     {
         RECT windowRect;
-        if (!GetClientRect(getWindowHandle(), &windowRect))
+        if (!mHost.getClientRect(&windowRect))
         {
             ASSERT(false);
 
@@ -120,7 +133,7 @@ bool Surface::resetSwapChain()
         height = mHeight;
     }
 
-    mSwapChain = mRenderer->createSwapChain(mWindow, mShareHandle,
+    mSwapChain = mRenderer->createSwapChain(mHost, mShareHandle,
                                             mConfig->mRenderTargetFormat,
                                             mConfig->mDepthStencilFormat);
     if (!mSwapChain)
@@ -224,54 +237,62 @@ bool Surface::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     return true;
 }
 
-HWND Surface::getWindowHandle()
+EGLNativeWindowType Surface::getWindowHandle()
 {
-    return mWindow;
+    return mHost.getNativeWindowType();
 }
 
 
 #define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
 #define kParentWndProc _TEXT("Egl::SurfaceParentWndProc")
 
+#if !defined(ANGLE_ENABLE_WINDOWS_STORE)
 static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
-  if (message == WM_SIZE)
-  {
-      Surface* surf = reinterpret_cast<Surface*>(GetProp(hwnd, kSurfaceProperty));
-      if(surf)
-      {
-          surf->checkForOutOfDateSwapChain();
-      }
-  }
-  WNDPROC prevWndFunc = reinterpret_cast<WNDPROC >(GetProp(hwnd, kParentWndProc));
-  return CallWindowProc(prevWndFunc, hwnd, message, wparam, lparam);
+    if (message == WM_SIZE)
+    {
+        Surface* surf = reinterpret_cast<Surface*>(GetProp(hwnd, kSurfaceProperty));
+        if(surf)
+        {
+            surf->checkForOutOfDateSwapChain();
+        }
+    }
+    WNDPROC prevWndFunc = reinterpret_cast<WNDPROC >(GetProp(hwnd, kParentWndProc));
+    return CallWindowProc(prevWndFunc, hwnd, message, wparam, lparam);
 }
+#endif // !defined(ANGLE_ENABLE_WINDOWS_STORE)
 
 void Surface::subclassWindow()
 {
-    if (!mWindow)
+    if (!mHost.getNativeWindowType())
     {
         return;
     }
 
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    mWindowSubclassed = false;
+    return;
+#else
     DWORD processId;
-    DWORD threadId = GetWindowThreadProcessId(mWindow, &processId);
+    EGLNativeWindowType window = mHost.getNativeWindowType();
+    DWORD threadId = GetWindowThreadProcessId(window, &processId);
     if (processId != GetCurrentProcessId() || threadId != GetCurrentThreadId())
     {
         return;
     }
 
     SetLastError(0);
-    LONG_PTR oldWndProc = SetWindowLongPtr(mWindow, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(SurfaceWindowProc));
+    LONG_PTR oldWndProc = SetWindowLongPtr(window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(SurfaceWindowProc));
     if(oldWndProc == 0 && GetLastError() != ERROR_SUCCESS)
     {
         mWindowSubclassed = false;
         return;
     }
 
-    SetProp(mWindow, kSurfaceProperty, reinterpret_cast<HANDLE>(this));
-    SetProp(mWindow, kParentWndProc, reinterpret_cast<HANDLE>(oldWndProc));
+    SetProp(window, kSurfaceProperty, reinterpret_cast<HANDLE>(this));
+    SetProp(window, kParentWndProc, reinterpret_cast<HANDLE>(oldWndProc));
     mWindowSubclassed = true;
+#endif  // defined(ANGLE_ENABLE_WINDOWS_STORE)
 }
 
 void Surface::unsubclassWindow()
@@ -281,8 +302,12 @@ void Surface::unsubclassWindow()
         return;
     }
 
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    return;
+#else 
     // un-subclass
-    LONG_PTR parentWndFunc = reinterpret_cast<LONG_PTR>(GetProp(mWindow, kParentWndProc));
+    EGLNativeWindowType window = mHost.getNativeWindowType();
+    LONG_PTR parentWndFunc = reinterpret_cast<LONG_PTR>(GetProp(window, kParentWndProc));
 
     // Check the windowproc is still SurfaceWindowProc.
     // If this assert fails, then it is likely the application has subclassed the
@@ -291,13 +316,14 @@ void Surface::unsubclassWindow()
     // EGL context, or to unsubclass before destroying the EGL context.
     if(parentWndFunc)
     {
-        LONG_PTR prevWndFunc = SetWindowLongPtr(mWindow, GWLP_WNDPROC, parentWndFunc);
+        LONG_PTR prevWndFunc = SetWindowLongPtr(window, GWLP_WNDPROC, parentWndFunc);
         ASSERT(prevWndFunc == reinterpret_cast<LONG_PTR>(SurfaceWindowProc));
     }
 
-    RemoveProp(mWindow, kSurfaceProperty);
-    RemoveProp(mWindow, kParentWndProc);
+    RemoveProp(window, kSurfaceProperty);
+    RemoveProp(window, kParentWndProc);
     mWindowSubclassed = false;
+#endif // defined(ANGLE_ENABLE_WINDOWS_STORE)
 }
 
 bool Surface::checkForOutOfDateSwapChain()
@@ -306,11 +332,11 @@ bool Surface::checkForOutOfDateSwapChain()
     int clientWidth = getWidth();
     int clientHeight = getHeight();
     bool sizeDirty = false;
-    if (!mFixedSize && !IsIconic(getWindowHandle()))
+    if (!mFixedSize && !mHost.isIconic())
     {
         // The window is automatically resized to 150x22 when it's minimized, but the swapchain shouldn't be resized
         // because that's not a useful size to render to.
-        if (!GetClientRect(getWindowHandle(), &client))
+        if (!mHost.getClientRect(&client))
         {
             ASSERT(false);
             return false;

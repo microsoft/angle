@@ -19,7 +19,7 @@ class Renderer11;
 class SwapChain11 : public SwapChain
 {
   public:
-    SwapChain11(Renderer11 *renderer, HWND window, HANDLE shareHandle,
+    SwapChain11(Renderer11 *renderer, rx::SurfaceHost host, HANDLE shareHandle,
                 GLenum backBufferFormat, GLenum depthBufferFormat);
     virtual ~SwapChain11();
 
@@ -56,7 +56,7 @@ class SwapChain11 : public SwapChain
     unsigned int mSwapInterval;
     bool mPassThroughResourcesInit;
 
-    IDXGISwapChain *mSwapChain;
+    DXGISwapChain *mSwapChain;
 
     ID3D11Texture2D *mBackBufferTexture;
     ID3D11RenderTargetView *mBackBufferRTView;

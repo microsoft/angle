@@ -75,7 +75,13 @@
 
 typedef HDC     EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
+
+#if defined(WINAPI_FAMILY) && !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#include <inspectable.h>
+typedef IInspectable* EGLNativeWindowType;
+#else
 typedef HWND    EGLNativeWindowType;
+#endif // defined(WINAPI_FAMILY) && !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 
 #elif defined(__WINSCW__) || defined(__SYMBIAN32__)  /* Symbian */
 

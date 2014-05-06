@@ -12,9 +12,17 @@
 #include <fstream>
 #include <cstdio>
 
+#if defined(ANGLE_ENABLE_PERF) && defined(ANGLE_ENABLE_WINDOWS_STORE)
+#undef ANGLE_ENABLE_PERF
+#endif
+
+#if !defined(ANGLE_ENABLE_WINDOWS_STORE)
+
 #if defined(ANGLE_ENABLE_PERF)
 #include <d3d9.h>
 #endif
+
+#endif // !defined(ANGLE_ENABLE_WINDOWS_STORE)
 
 namespace gl
 {

@@ -23,6 +23,10 @@
 #include "libEGL/main.h"
 #include "libEGL/Surface.h"
 
+#if defined (ANGLE_ENABLE_WINDOWS_STORE)
+#include "common/winrt/winrtutils.h"
+#endif
+
 namespace egl
 {
 namespace
@@ -186,7 +190,7 @@ bool Display::getConfigAttrib(EGLConfig config, EGLint attribute, EGLint *value)
 
 
 
-EGLSurface Display::createWindowSurface(HWND window, EGLConfig config, const EGLint *attribList)
+EGLSurface Display::createWindowSurface(EGLNativeWindowType window, EGLConfig config, const EGLint *attribList)
 {
     const Config *configuration = mConfigSet.get(config);
     EGLint postSubBufferSupported = EGL_FALSE;
@@ -487,7 +491,7 @@ bool Display::isValidSurface(egl::Surface *surface)
     return mSurfaceSet.find(surface) != mSurfaceSet.end();
 }
 
-bool Display::hasExistingWindowSurface(HWND window)
+bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
 {
     for (SurfaceSet::iterator surface = mSurfaceSet.begin(); surface != mSurfaceSet.end(); surface++)
     {
@@ -502,6 +506,12 @@ bool Display::hasExistingWindowSurface(HWND window)
 
 void Display::initExtensionString()
 {
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    HMODULE swiftShader = nullptr;
+#else
+    HMODULE swiftShader = GetModuleHandle(TEXT("swiftshader_d3d9.dll"));
+#endif
+
     bool shareHandleSupported = mRenderer->getShareHandleSupport();
 
     mExtensionString = "";

@@ -24,6 +24,13 @@ HLSLCompiler::~HLSLCompiler()
 bool HLSLCompiler::initialize()
 {
     TRACE_EVENT0("gpu", "initializeCompiler");
+
+#if defined (ANGLE_ENABLE_WINDOWS_STORE)
+    mD3DCompilerModule = NULL;
+    mD3DCompileFunc = reinterpret_cast<CompileFuncPtr>(D3DCompile);
+    return true;
+#else
+
 #if defined(ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES)
     // Find a D3DCompiler module that had already been loaded based on a predefined list of versions.
     static TCHAR* d3dCompilerNames[] = ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES;
@@ -52,6 +59,8 @@ bool HLSLCompiler::initialize()
     mD3DCompileFunc = reinterpret_cast<CompileFuncPtr>(GetProcAddress(mD3DCompilerModule, "D3DCompile"));
     ASSERT(mD3DCompileFunc);
 
+#endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
+
     return mD3DCompileFunc != NULL;
 }
 
@@ -68,7 +77,10 @@ void HLSLCompiler::release()
 ShaderBlob *HLSLCompiler::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, const char *profile,
                                           const UINT optimizationFlags[], const char *flagNames[], int attempts) const
 {
-    ASSERT(mD3DCompilerModule && mD3DCompileFunc);
+    ASSERT(mD3DCompileFunc);
+#if !defined(ANGLE_ENABLE_WINDOWS_STORE)
+    ASSERT(mD3DCompilerModule);
+#endif // !defined(ANGLE_ENABLE_WINDOWS_STORE)
 
     if (!hlsl)
     {

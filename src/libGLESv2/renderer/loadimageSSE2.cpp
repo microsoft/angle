@@ -18,6 +18,12 @@ namespace rx
         const void *input, unsigned int inputRowPitch, unsigned int inputDepthPitch,
         void *output, unsigned int outputRowPitch, unsigned int outputDepthPitch)
     {
+#if defined(_M_ARM)
+        // Ensure that this function is reported as not implemented for ARM builds because
+        // the instructions below are not present for that architecture.
+        UNIMPLEMENTED();
+        return;
+#else
         const unsigned char *source = NULL;
         unsigned int *dest = NULL;
         __m128i zeroWide = _mm_setzero_si128();
@@ -56,12 +62,19 @@ namespace rx
                 }
             }
         }
+#endif // defined(_M_ARM)
     }
 
     void loadRGBAUByteDataToBGRASSE2(int width, int height, int depth,
         const void *input, unsigned int inputRowPitch, unsigned int inputDepthPitch,
         void *output, unsigned int outputRowPitch, unsigned int outputDepthPitch)
     {
+#if defined(_M_ARM)
+        // Ensure that this function is reported as not implemented for ARM builds because
+        // the instructions below are not present for that architecture.
+        UNIMPLEMENTED();
+        return;
+#else
         const unsigned int *source = NULL;
         unsigned int *dest = NULL;
         __m128i brMask = _mm_set1_epi32(0x00ff00ff);
@@ -102,6 +115,6 @@ namespace rx
                 }
             }
         }
+#endif // defined(_M_ARM)
     }
-
 }

@@ -10,6 +10,9 @@
     <Filter Include="src\common">
       <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\common\win32">
+      <UniqueIdentifier>{3826397b-56ea-4db9-a90e-884cb8478b75}</UniqueIdentifier>
+    </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{57CA55B8-BCC5-4000-CE3A-58972F82E9CB}</UniqueIdentifier>
     </Filter>
@@ -146,6 +149,12 @@
     </ClInclude>
     <ClInclude Include="..\..\include\EGL\egl.h">
       <Filter>include\EGL</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\src\common\win32\hwndhost.cpp">
+      <Filter>src\common\win32</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\common\surfacehost.h">
+      <Filter>src\common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -57,7 +57,7 @@ class Renderer11 : public Renderer
 
     virtual void sync(bool block);
 
-    virtual SwapChain *createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
+    virtual SwapChain *createSwapChain(rx::SurfaceHost host, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
 
     virtual void generateSwizzle(gl::Texture *texture);
     virtual void setSamplerState(gl::SamplerType type, int index, const gl::SamplerState &sampler);
@@ -220,7 +220,7 @@ class Renderer11 : public Renderer
     // D3D11-renderer specific methods
     ID3D11Device *getDevice() { return mDevice; }
     ID3D11DeviceContext *getDeviceContext() { return mDeviceContext; };
-    IDXGIFactory *getDxgiFactory() { return mDxgiFactory; };
+    DXGIFactory *getDxgiFactory() { return mDxgiFactory; };
 
     Blit11 *getBlitter() { return mBlit; }
 
@@ -405,7 +405,7 @@ class Renderer11 : public Renderer
     IDXGIAdapter *mDxgiAdapter;
     DXGI_ADAPTER_DESC mAdapterDescription;
     char mDescription[128];
-    IDXGIFactory *mDxgiFactory;
+    DXGIFactory *mDxgiFactory;
 
     // Cached device caps
     bool mBGRATextureSupport;

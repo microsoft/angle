@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>81daaa9b-2db3-4257-97d9-abf432972902</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>2e927867-ed73-4e49-9d78-c6f94d54ff67</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>4252fde8-1f3c-42d3-802f-488107cb8080</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Package">
+      <UniqueIdentifier>9262a6c3-3bcb-4798-9921-c2d06c0c0d5f</UniqueIdentifier>
+      <Extensions>appxmanifest;tile;settings</Extensions>
+    </Filter>
+    <Filter Include="ANGLE Code">
+      <UniqueIdentifier>{91706da0-c33d-4f28-8d0b-2ad671ae1081}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\MockCoreWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\GenericInterfaces.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\winrt\corewindowhost.h">
+      <Filter>ANGLE Code</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\winrt\winrtutils.h">
+      <Filter>ANGLE Code</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\winrt\iinspectablehost.h">
+      <Filter>ANGLE Code</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\surfacehosttest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\common\winrt\corewindowhost.cpp">
+      <Filter>ANGLE Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\common\winrt\winrtutils.cpp">
+      <Filter>ANGLE Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\common\winrt\iinspectablehost.cpp">
+      <Filter>ANGLE Code</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\UnitTestLogo.scale-100.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\UnitTestSmallLogo.scale-100.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\UnitTestSplashScreen.scale-100.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\UnitTestStoreLogo.scale-100.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\Package.appxmanifest">
+      <Filter>Package</Filter>
+    </AppxManifest>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\angle.test.surfacehost_TemporaryKey.pfx" />
+  </ItemGroup>
+</Project>

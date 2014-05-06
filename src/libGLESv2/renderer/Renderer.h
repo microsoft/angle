@@ -12,6 +12,7 @@
 
 #include "libGLESv2/Uniform.h"
 #include "libGLESv2/angletypes.h"
+#include "common/surfacehost.h"
 
 #if !defined(ANGLE_COMPILE_OPTIMIZATION_LEVEL)
 // WARNING: D3DCOMPILE_OPTIMIZATION_LEVEL3 may lead to a DX9 shader compiler hang.
@@ -19,18 +20,29 @@
 #define ANGLE_COMPILE_OPTIMIZATION_LEVEL D3DCOMPILE_OPTIMIZATION_LEVEL1
 #endif
 
-const int versionWindowsVista = MAKEWORD(0x00, 0x06);
-const int versionWindows7 = MAKEWORD(0x01, 0x06);
-
-// Return the version of the operating system in a format suitable for ordering
-// comparison.
-inline int getComparableOSVersion()
+#if !defined (ANGLE_ENABLE_WINDOWS_STORE)
+inline bool IsWindowsVersionOrGreater(unsigned short wMajorVersion, unsigned short wMinorVersion, unsigned  wServicePackMajor)
 {
-    DWORD version = GetVersion();
-    int majorVersion = LOBYTE(LOWORD(version));
-    int minorVersion = HIBYTE(LOWORD(version));
-    return MAKEWORD(minorVersion, majorVersion);
+    OSVERSIONINFOEXW osvi = { sizeof(osvi), 0, 0, 0, 0, { 0 }, 0, 0 };
+    unsigned long long const dwlConditionMask = VerSetConditionMask(
+        VerSetConditionMask(
+        VerSetConditionMask(
+        0, VER_MAJORVERSION, VER_GREATER_EQUAL),
+        VER_MINORVERSION, VER_GREATER_EQUAL),
+        VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+
+    osvi.dwMajorVersion = wMajorVersion;
+    osvi.dwMinorVersion = wMinorVersion;
+    osvi.wServicePackMajor = wServicePackMajor;
+
+    return VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
 }
+
+inline bool IsWindowsVistaOrGreater()
+{
+    return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_VISTA), LOBYTE(_WIN32_WINNT_VISTA), 0);
+}
+#endif // !defined (ANGLE_ENABLE_WINDOWS_STORE)
 
 namespace egl
 {
@@ -111,7 +123,7 @@ class Renderer
 
     virtual void sync(bool block) = 0;
 
-    virtual SwapChain *createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;
+    virtual SwapChain *createSwapChain(rx::SurfaceHost host, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;
 
     virtual void generateSwizzle(gl::Texture *texture) = 0;
     virtual void setSamplerState(gl::SamplerType type, int index, const gl::SamplerState &sampler) = 0;

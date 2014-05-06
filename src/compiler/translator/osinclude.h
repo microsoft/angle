@@ -26,15 +26,17 @@
 #endif
 
 #if defined(ANGLE_OS_WIN)
+#ifndef STRICT
 #define STRICT
+#endif
 #define VC_EXTRALEAN 1
 #include <windows.h>
+#include "common\angleutils.h"
 #elif defined(ANGLE_OS_POSIX)
 #include <pthread.h>
 #include <semaphore.h>
 #include <errno.h>
 #endif  // ANGLE_OS_WIN
-
 
 #include "compiler/translator/compilerdebug.h"
 

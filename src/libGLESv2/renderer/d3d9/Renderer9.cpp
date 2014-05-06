@@ -266,7 +266,7 @@ EGLint Renderer9::initialize()
     mSupportsNonPower2Textures = !(mDeviceCaps.TextureCaps & D3DPTEXTURECAPS_POW2) &&
         !(mDeviceCaps.TextureCaps & D3DPTEXTURECAPS_CUBEMAP_POW2) &&
         !(mDeviceCaps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL) &&
-        !(getComparableOSVersion() < versionWindowsVista && mAdapterIdentifier.VendorId == VENDOR_ID_AMD);
+        !(!IsWindowsVistaOrGreater() && mAdapterIdentifier.VendorId == VENDOR_ID_AMD);
 
     // Must support a minimum of 2:1 anisotropy for max anisotropy to be considered supported, per the spec
     mSupportsTextureFilterAnisotropy = ((mDeviceCaps.RasterCaps & D3DPRASTERCAPS_ANISOTROPY) && (mDeviceCaps.MaxAnisotropy >= 2));
@@ -663,9 +663,9 @@ void Renderer9::sync(bool block)
     }
 }
 
-SwapChain *Renderer9::createSwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
+SwapChain *Renderer9::createSwapChain(rx::SurfaceHost host, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
 {
-    return new rx::SwapChain9(this, window, shareHandle, backBufferFormat, depthBufferFormat);
+    return new rx::SwapChain9(this, host, shareHandle, backBufferFormat, depthBufferFormat);
 }
 
 IDirect3DQuery9* Renderer9::allocateEventQuery()

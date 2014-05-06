@@ -157,7 +157,7 @@ D3D11_STENCIL_OP ConvertStencilOp(GLenum stencilOp)
 
 D3D11_FILTER ConvertFilter(GLenum minFilter, GLenum magFilter, float maxAnisotropy, GLenum comparisonMode)
 {
-    bool comparison = comparisonMode != GL_NONE;
+    int comparison = comparisonMode != GL_NONE;
 
     if (maxAnisotropy > 1.0f)
     {

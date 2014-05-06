@@ -11,6 +11,7 @@
 #define LIBGLESV2_RENDERER_SWAPCHAIN_H_
 
 #include "common/angleutils.h"
+#include "common/surfacehost.h"
 
 #if !defined(ANGLE_FORCE_VSYNC_OFF)
 #define ANGLE_FORCE_VSYNC_OFF 0
@@ -22,8 +23,8 @@ namespace rx
 class SwapChain
 {
   public:
-    SwapChain(HWND window, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
-        : mWindow(window), mShareHandle(shareHandle), mBackBufferFormat(backBufferFormat), mDepthBufferFormat(depthBufferFormat)
+    SwapChain(rx::SurfaceHost host, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
+        : mShareHandle(shareHandle), mBackBufferFormat(backBufferFormat), mDepthBufferFormat(depthBufferFormat), mHost(host)
     {
     }
 
@@ -37,9 +38,9 @@ class SwapChain
     virtual HANDLE getShareHandle() {return mShareHandle;};
 
   protected:
-    const HWND mWindow;            // Window that the surface is created for.
     const GLenum mBackBufferFormat;
     const GLenum mDepthBufferFormat;
+    rx::SurfaceHost mHost;
 
     HANDLE mShareHandle;
 };

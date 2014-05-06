@@ -112,7 +112,7 @@ inline unsigned int unorm(float x)
 
 inline bool supportsSSE2()
 {
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(_M_ARM)
     static bool checked = false;
     static bool supports = false;
 
