@@ -905,14 +905,17 @@ EGLBoolean __stdcall eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface 
         if (dpy != EGL_NO_DISPLAY)
         {
             rx::Renderer *renderer = display->getRenderer();
-            if (renderer->testDeviceLost(true))
+            if (renderer != NULL)
             {
-                return EGL_FALSE;
-            }
+                if (renderer->testDeviceLost(true))
+                {
+                    return EGL_FALSE;
+                }
 
-            if (renderer->isDeviceLost())
-            {
-                return egl::error(EGL_CONTEXT_LOST, EGL_FALSE);
+                if (renderer->isDeviceLost())
+                {
+                    return egl::error(EGL_CONTEXT_LOST, EGL_FALSE);
+                }
             }
         }
 
