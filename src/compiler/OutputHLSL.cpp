@@ -2023,11 +2023,7 @@ bool OutputHLSL::visitLoop(Visit visit, TIntermLoop *node)
     }
     else
     {
-#if (_MSC_VER < 1800) && (defined(ANGLE_PLATFORM_WINRT) || defined(ANGLE_PLATFORM_WP8))
-        out << "{[fastopt] [loop] for(";
-#else
         out << "{for(";
-#endif
         if (node->getInit())
         {
             node->getInit()->traverse(this);
@@ -2319,11 +2315,7 @@ bool OutputHLSL::handleExcessiveLoop(TIntermLoop *node)
                 
                 // for(int index = initial; index < clampedLimit; index += increment)
 
-#if (_MSC_VER < 1800) && (defined(ANGLE_PLATFORM_WINRT) || defined(ANGLE_PLATFORM_WP8))
-                out << "[fastopt] [loop] for(";
-#else
                 out << "for(";
-#endif
                 out << "for(";
                 index->traverse(this);
                 out << " = ";
