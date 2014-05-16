@@ -1,0 +1,15 @@
+These Visual Studio 2013 templates demonstrate how to use OpenGL ES in different types of Windows applications.
+
+To add these templates to your installation of Visual Studio 2013:
+    1)  Browse to your Visual Studio 2013 custom project templates folder. By default, this is located here:
+            %userprofile%\Documents\Visual Studio 2013\Templates\ProjectTemplates
+    2)  Create a new subdirectory called "OpenGL ES".
+    3)  Copy the templates (as found in this README's directory) into the new "OpenGL ES" subdirectory.
+    4)  Restart/Launch Visual Studio 2013. Then go File -> New Project -> Visual C++ -> OpenGL ES, and create your project.
+
+Before you can build a project based on these templates, you must:
+    1)  Clone an ANGLE repository that includes WinRT support (if you haven't already done so).
+    2)  Set the 'AngleRootPath' system environment variable to the location of your ANGLE source.
+    3)  Open the following solution file:
+            $(AngleRootPath)\projects\src\winrt\angle.universal.sln
+        and build the flavors of ANGLE that you wish to use in your project created above, e.g. Release/ARM/WindowsPhone.
