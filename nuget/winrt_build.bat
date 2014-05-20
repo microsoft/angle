@@ -36,13 +36,22 @@ echo.
 
 call %VSVARS%
 if %FOUND_VC%==1 (
-    msbuild  ..\src\ANGLE_winrt.sln /t:Clean
-    msbuild  ..\src\ANGLE_winrt.sln /p:Configuration="Debug" /p:Platform="Win32"
-    msbuild  ..\src\ANGLE_winrt.sln /p:Configuration="Release" /p:Platform="Win32"
-    msbuild  ..\src\ANGLE_winrt.sln /p:Configuration="Debug" /p:Platform="ARM"
-    msbuild  ..\src\ANGLE_winrt.sln /p:Configuration="Release" /p:Platform="ARM"
-    msbuild  ..\src\ANGLE_winrt.sln /p:Configuration="Debug-Console" /p:Platform="Win32"
-    msbuild  ..\src\ANGLE_winrt.sln /p:Configuration="Release-Console" /p:Platform="Win32"
+
+    msbuild  ..\src\ANGLE_winrt.sln /p:Configuration="Debug" /p:Platform="Win32" /t:Clean,Build
+    msbuild  ..\src\ANGLE_winrt.sln /p:Configuration="Release" /p:Platform="Win32" /t:Clean,Build
+    msbuild  ..\src\ANGLE_winrt.sln /p:Configuration="Debug" /p:Platform="ARM" /t:Clean,Build
+    msbuild  ..\src\ANGLE_winrt.sln /p:Configuration="Release" /p:Platform="ARM" /t:Clean,Build
+
+    xcopy "..\src\WinRT\redist\vs2012\Win32\Debug\libEGL_winrt\libEGL.dll" "..\src\WinRT\redist\vs2012\Win32\Debug\libEGL_winrt\Desktop\" /iycq
+    xcopy "..\src\WinRT\redist\vs2012\Win32\Debug\libGLESv2_winrt\libGLESv2.dll" "..\src\WinRT\redist\vs2012\Win32\Debug\libGLESv2_winrt\Desktop\" /iycq
+    xcopy "..\src\WinRT\redist\vs2012\Win32\Release\libEGL_winrt\libEGL.dll" "..\src\WinRT\redist\vs2012\Win32\Release\libEGL_winrt\Desktop\" /iycq
+    xcopy "..\src\WinRT\redist\vs2012\Win32\Release\libGLESv2_winrt\libGLESv2.dll" "..\src\WinRT\redist\vs2012\Win32\Release\libGLESv2_winrt\Desktop\" /iycq
+
+    link.exe /edit /appcontainer:NO ..\src\WinRT\redist\vs2012\Win32\Debug\libEGL_winrt\Desktop\libEGL.dll
+    link.exe /edit /appcontainer:NO ..\src\WinRT\redist\vs2012\Win32\Debug\libGLESv2_winrt\Desktop\libGLESv2.dll
+    link.exe /edit /appcontainer:NO ..\src\WinRT\redist\vs2012\Win32\Release\libEGL_winrt\Desktop\libEGL.dll
+    link.exe /edit /appcontainer:NO ..\src\WinRT\redist\vs2012\Win32\Release\libGLESv2_winrt\Desktop\libGLESv2.dl
+	
 ) else (
     echo Script error.
     goto ERROR
