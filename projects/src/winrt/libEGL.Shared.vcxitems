@@ -31,6 +31,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\corewindowhost.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\iinspectablehost.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\winrtutils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libEGL\Surface.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libEGL\resource.h" />
@@ -60,6 +61,7 @@
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\corewindowhost.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\iinspectablehost.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\winrtutils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\libEGL\Surface.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\libEGL\Config.cpp" />

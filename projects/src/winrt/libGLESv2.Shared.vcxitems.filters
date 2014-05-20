@@ -291,6 +291,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\iinspectablehost.cpp">
       <Filter>src\common\winrt</Filter>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.cpp">
+      <Filter>src\common\winrt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\include\EGL\egl.h">
@@ -729,6 +732,9 @@
       <Filter>src\third_party\threademulation</Filter>
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\iinspectablehost.h">
+      <Filter>src\common\winrt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.h">
       <Filter>src\common\winrt</Filter>
     </ClInclude>
   </ItemGroup>

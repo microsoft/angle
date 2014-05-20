@@ -43,6 +43,21 @@
     <ClInclude Include="..\..\..\src\common\winrt\iinspectablehost.h">
       <Filter>ANGLE Code</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\common\winrt\swapchainpanelhost.h">
+      <Filter>ANGLE Code</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\MockSwapChainPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\MockD3DDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\MockDXGIFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\MockDXGISwapChain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\pch.cpp">
@@ -58,6 +73,9 @@
       <Filter>ANGLE Code</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\winrt\iinspectablehost.cpp">
+      <Filter>ANGLE Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\common\winrt\swapchainpanelhost.cpp">
       <Filter>ANGLE Code</Filter>
     </ClCompile>
   </ItemGroup>

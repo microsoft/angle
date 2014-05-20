@@ -7,6 +7,7 @@
 // iinspectablehost.cpp: Host for managing IInspectable native window types.
 
 #include "common/winrt/corewindowhost.h"
+#include "common/winrt/swapchainpanelhost.h"
 
 namespace rx
 {
@@ -24,10 +25,22 @@ bool SurfaceHost::initialize()
 {
     try
     {
+        // If the native window is a ICoreWindow, initialize a CoreWindowHost
         ComPtr<ABI::Windows::UI::Core::ICoreWindow> coreWindow;
         if (isCoreWindow(mWindow, &coreWindow))
         {
             mImpl = std::make_shared<CoreWindowHost>();
+            if (mImpl)
+            {
+                return mImpl->initialize(mWindow);
+            }
+        }
+
+        // If the native window is a ISwapChainPanel, initialize a SwapChainPanelHost
+        ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> swapChainPanel;
+        if (isSwapChainPanel(mWindow, &swapChainPanel))
+        {
+            mImpl = std::make_shared<SwapChainPanelHost>();
             if (mImpl)
             {
                 return mImpl->initialize(mWindow);
@@ -90,7 +103,28 @@ bool isCoreWindow(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Core::ICo
     return false;
 }
 
+bool isSwapChainPanel(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel>* swapChainPanel)
+{
+    if (!window)
+    {
+        return false;
+    }
+
+    ComPtr<IInspectable> win = window;
+    ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> panel;
+    if (SUCCEEDED(win.As(&panel)))
+    {
+        if (swapChainPanel != nullptr)
+        {
+            *swapChainPanel = panel.Detach();
+        }
+        return true;
+    }
+
+    return false;
+}
+
 bool isValid(EGLNativeWindowType window)
 {
-    return isCoreWindow(window);
+    return isCoreWindow(window) || isSwapChainPanel(window);
 }

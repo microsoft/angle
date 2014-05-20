@@ -16,31 +16,34 @@ CoreWindowHost::~CoreWindowHost()
 bool CoreWindowHost::initialize(EGLNativeWindowType window)
 {
     ComPtr<IInspectable> win = window;
-    if (SUCCEEDED(win.As(&mCoreWindow)))
+    HRESULT result = win.As(&mCoreWindow);
+    if (SUCCEEDED(result))
     {
-        if (SUCCEEDED(getCoreWindowSizeInPixels(mCoreWindow, &mClientRect)))
-        {
-            mNewClientRect = mClientRect;
-            mClientRectChanged = false;
-            return registerForSizeChangeEvents();
-        }
-        else
-        {
-            return false;
-        }
+        result = getCoreWindowSizeInPixels(mCoreWindow, &mClientRect);
     }
+
+    if (SUCCEEDED(result))
+    {
+        mNewClientRect = mClientRect;
+        mClientRectChanged = false;
+        return registerForSizeChangeEvents();
+    }
+
     return false;
 }
 
 bool CoreWindowHost::registerForSizeChangeEvents()
 {
     ComPtr<IWindowSizeChangedEventHandler> sizeChangedHandler;
-    if (SUCCEEDED(Microsoft::WRL::MakeAndInitialize<CoreWindowSizeChangedHandler>(sizeChangedHandler.ReleaseAndGetAddressOf(), this->shared_from_this())))
+    HRESULT result = Microsoft::WRL::MakeAndInitialize<CoreWindowSizeChangedHandler>(sizeChangedHandler.ReleaseAndGetAddressOf(), this->shared_from_this());
+    if (SUCCEEDED(result))
     {
-        if (SUCCEEDED(mCoreWindow->add_SizeChanged(sizeChangedHandler.Get(), &mSizeChangedEventToken)))
-        {
-            return true;
-        }
+        result = mCoreWindow->add_SizeChanged(sizeChangedHandler.Get(), &mSizeChangedEventToken);
+    }
+
+    if (SUCCEEDED(result))
+    {
+        return true;
     }
 
     return false;
@@ -54,7 +57,11 @@ void CoreWindowHost::unregisterForSizeChangeEvents()
 
 HRESULT CoreWindowHost::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
 {
-    HRESULT result = S_OK;
+    if (device == NULL || factory == NULL || swapChain == NULL || width == 0 || height == 0)
+    {
+        return E_INVALIDARG;
+    }
+
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
     swapChainDesc.Width = width;
     swapChainDesc.Height = height;
@@ -67,8 +74,10 @@ HRESULT CoreWindowHost::createSwapChain(ID3D11Device* device, DXGIFactory* facto
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
     swapChainDesc.Scaling = DXGI_SCALING_NONE;
 
+    *swapChain = nullptr;
+
     ComPtr<IDXGISwapChain1> newSwapChain;
-    result = factory->CreateSwapChainForCoreWindow(device, mCoreWindow.Get(), &swapChainDesc, nullptr, newSwapChain.ReleaseAndGetAddressOf());
+    HRESULT result = factory->CreateSwapChainForCoreWindow(device, mCoreWindow.Get(), &swapChainDesc, nullptr, newSwapChain.ReleaseAndGetAddressOf());
     if (SUCCEEDED(result))
     {
 
@@ -95,10 +104,8 @@ HRESULT CoreWindowHost::createSwapChain(ID3D11Device* device, DXGIFactory* facto
 
 HRESULT getCoreWindowSizeInPixels(ComPtr<ABI::Windows::UI::Core::ICoreWindow> coreWindow, RECT* windowSize)
 {
-    HRESULT result = S_OK;
-
     ABI::Windows::Foundation::Rect bounds;
-    result = coreWindow->get_Bounds(&bounds);
+    HRESULT result = coreWindow->get_Bounds(&bounds);
     if (SUCCEEDED(result))
     {
         *windowSize = { 0, 0, (LONG)winrt::convertDipsToPixels(bounds.Width), (LONG)winrt::convertDipsToPixels(bounds.Height) };

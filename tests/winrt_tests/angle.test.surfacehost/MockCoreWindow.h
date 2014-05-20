@@ -17,7 +17,7 @@ public:
     }
 
     HRESULT STDMETHODCALLTYPE get_Size(
-        /* [out][retval] */ __RPC__out ABI::Windows::Foundation::Size *value)
+         ABI::Windows::Foundation::Size *value)
     {
         *value = mBounds;
         return S_OK;
@@ -62,14 +62,14 @@ public:
 
     // ICoreWindow
     STDMETHODIMP get_AutomationHostProvider(
-        /* [out][retval] */ __RPC__deref_out_opt IInspectable **value)
+         IInspectable **value)
     {
         Assert::Fail(L"Unexpected call to get_AutomationHostProvider");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP get_Bounds(
-        /* [out][retval] */ __RPC__out ABI::Windows::Foundation::Rect *value)
+         ABI::Windows::Foundation::Rect *value)
     {
         mBoundsQueryCount++;
         *value = mBounds;
@@ -78,70 +78,70 @@ public:
     }
 
     STDMETHODIMP get_CustomProperties(
-        /* [out][retval] */ __RPC__deref_out_opt ABI::Windows::Foundation::Collections::IPropertySet **value)
+         ABI::Windows::Foundation::Collections::IPropertySet **value)
     {
         Assert::Fail(L"Unexpected call to get_CustomProperties");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP get_Dispatcher(
-        /* [out][retval] */ __RPC__deref_out_opt ABI::Windows::UI::Core::ICoreDispatcher **value)
+         ABI::Windows::UI::Core::ICoreDispatcher **value)
     {
         Assert::Fail(L"Unexpected call to get_WindowHandle");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP get_FlowDirection(
-        /* [out][retval] */ __RPC__out ABI::Windows::UI::Core::CoreWindowFlowDirection *value)
+         ABI::Windows::UI::Core::CoreWindowFlowDirection *value)
     {
         Assert::Fail(L"Unexpected call to get_FlowDirection");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP STDMETHODCALLTYPE put_FlowDirection(
-        /* [in] */ ABI::Windows::UI::Core::CoreWindowFlowDirection value)
+         ABI::Windows::UI::Core::CoreWindowFlowDirection value)
     {
         Assert::Fail(L"Unexpected call to put_FlowDirection");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP get_IsInputEnabled(
-        /* [out][retval] */ __RPC__out boolean *value)
+         boolean *value)
     {
         Assert::Fail(L"Unexpected call to get_IsInputEnabled");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP put_IsInputEnabled(
-        /* [in] */ boolean value)
+         boolean value)
     {
         Assert::Fail(L"Unexpected call to put_IsInputEnabled");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP get_PointerCursor(
-        /* [out][retval] */ __RPC__deref_out_opt ABI::Windows::UI::Core::ICoreCursor **value)
+         ABI::Windows::UI::Core::ICoreCursor **value)
     {
         Assert::Fail(L"Unexpected call to get_PointerCursor");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP put_PointerCursor(
-        /* [in] */ __RPC__in_opt ABI::Windows::UI::Core::ICoreCursor *value)
+          ABI::Windows::UI::Core::ICoreCursor *value)
     {
         Assert::Fail(L"Unexpected call to get_WindowHandle");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP get_PointerPosition(
-        /* [out][retval] */ __RPC__out ABI::Windows::Foundation::Point *value)
+         ABI::Windows::Foundation::Point *value)
     {
         Assert::Fail(L"Unexpected call to get_PointerPosition");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP get_Visible(
-        /* [out][retval] */ __RPC__out boolean *value)
+         boolean *value)
     {
         Assert::Fail(L"Unexpected call to get_Visible");
         return E_NOTIMPL;
@@ -160,16 +160,16 @@ public:
     }
 
     STDMETHODIMP GetAsyncKeyState(
-        /* [in] */ ABI::Windows::System::VirtualKey virtualKey,
-        /* [out][retval] */ __RPC__out ABI::Windows::UI::Core::CoreVirtualKeyStates *KeyState)
+         ABI::Windows::System::VirtualKey virtualKey,
+         ABI::Windows::UI::Core::CoreVirtualKeyStates *KeyState)
     {
         Assert::Fail(L"Unexpected call to GetAsyncKeyState");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP GetKeyState(
-        /* [in] */ ABI::Windows::System::VirtualKey virtualKey,
-        /* [out][retval] */ __RPC__out ABI::Windows::UI::Core::CoreVirtualKeyStates *KeyState)
+         ABI::Windows::System::VirtualKey virtualKey,
+         ABI::Windows::UI::Core::CoreVirtualKeyStates *KeyState)
     {
         Assert::Fail(L"Unexpected call to GetKeyState");
         return E_NOTIMPL;
@@ -188,233 +188,233 @@ public:
     }
 
     STDMETHODIMP add_Activated(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CWindowActivatedEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *pCookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CWindowActivatedEventArgs *handler,
+         EventRegistrationToken *pCookie)
     {
         Assert::Fail(L"Unexpected call to add_Activated");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_Activated(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_Activated");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_AutomationProviderRequested(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CAutomationProviderRequestedEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *cookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CAutomationProviderRequestedEventArgs *handler,
+         EventRegistrationToken *cookie)
     {
         Assert::Fail(L"Unexpected call to add_AutomationProviderRequested");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_AutomationProviderRequested(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_AutomationProviderRequested");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_CharacterReceived(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CCharacterReceivedEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *pCookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CCharacterReceivedEventArgs *handler,
+         EventRegistrationToken *pCookie)
     {
         Assert::Fail(L"Unexpected call to add_CharacterReceived");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_CharacterReceived(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_CharacterReceived");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_Closed(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CCoreWindowEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *pCookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CCoreWindowEventArgs *handler,
+         EventRegistrationToken *pCookie)
     {
         Assert::Fail(L"Unexpected call to add_Closed");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_Closed(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_Closed");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_InputEnabled(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CInputEnabledEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *pCookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CInputEnabledEventArgs *handler,
+         EventRegistrationToken *pCookie)
     {
         Assert::Fail(L"Unexpected call to add_InputEnabled");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_InputEnabled(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_InputEnabled");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_KeyDown(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CKeyEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *pCookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CKeyEventArgs *handler,
+         EventRegistrationToken *pCookie)
     {
         Assert::Fail(L"Unexpected call to add_KeyDown");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_KeyDown(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_KeyDown");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_KeyUp(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CKeyEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *pCookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CKeyEventArgs *handler,
+         EventRegistrationToken *pCookie)
     {
         Assert::Fail(L"Unexpected call to add_KeyUp");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_KeyUp(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_KeyUp");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_PointerCaptureLost(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *cookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
+         EventRegistrationToken *cookie)
     {
         Assert::Fail(L"Unexpected call to add_PointerCaptureLost");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_PointerCaptureLost(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_PointerCaptureLost");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_PointerEntered(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *cookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
+         EventRegistrationToken *cookie)
     {
         Assert::Fail(L"Unexpected call to add_PointerEntered");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_PointerEntered(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_PointerEntered");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_PointerExited(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *cookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
+         EventRegistrationToken *cookie)
     {
         Assert::Fail(L"Unexpected call to add_PointerExited");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_PointerExited(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_PointerExited");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_PointerMoved(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *cookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
+         EventRegistrationToken *cookie)
     {
         Assert::Fail(L"Unexpected call to add_PointerMoved");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_PointerMoved(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_PointerMoved");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_PointerPressed(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *cookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
+         EventRegistrationToken *cookie)
     {
         Assert::Fail(L"Unexpected call to add_PointerPressed");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_PointerPressed(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_PointerPressed");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_PointerReleased(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *cookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
+         EventRegistrationToken *cookie)
     {
         Assert::Fail(L"Unexpected call to add_PointerReleased");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_PointerReleased(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_PointerReleased");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_TouchHitTesting(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CTouchHitTestingEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *pCookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CTouchHitTestingEventArgs *handler,
+         EventRegistrationToken *pCookie)
     {
         Assert::Fail(L"Unexpected call to add_TouchHitTesting");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_TouchHitTesting(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_TouchHitTesting");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_PointerWheelChanged(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *cookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs *handler,
+         EventRegistrationToken *cookie)
     {
         Assert::Fail(L"Unexpected call to add_PointerWheelChanged");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_PointerWheelChanged(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_PointerWheelChanged");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP add_SizeChanged(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CWindowSizeChangedEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *pCookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CWindowSizeChangedEventArgs *handler,
+         EventRegistrationToken *pCookie)
     {
         mSizeChangeHandlers[mNextSizeChangedEventRegistrationToken] = handler;
         pCookie->value = mNextSizeChangedEventRegistrationToken;
@@ -423,22 +423,22 @@ public:
     }
 
     STDMETHODIMP remove_SizeChanged(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         mSizeChangeHandlers.erase(cookie.value);
         return S_OK;
     }
 
     STDMETHODIMP add_VisibilityChanged(
-        /* [in] */ __RPC__in_opt __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CVisibilityChangedEventArgs *handler,
-        /* [out][retval] */ __RPC__out EventRegistrationToken *pCookie)
+          __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CVisibilityChangedEventArgs *handler,
+         EventRegistrationToken *pCookie)
     {
         Assert::Fail(L"Unexpected call to add_VisibilityChanged");
         return E_NOTIMPL;
     }
 
     STDMETHODIMP remove_VisibilityChanged(
-        /* [in] */ EventRegistrationToken cookie)
+         EventRegistrationToken cookie)
     {
         Assert::Fail(L"Unexpected call to remove_VisibilityChanged");
         return E_NOTIMPL;

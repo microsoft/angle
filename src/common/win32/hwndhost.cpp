@@ -29,6 +29,11 @@ SurfaceHost::~SurfaceHost()
 
 HRESULT SurfaceHost::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
 {
+    if (device == NULL || factory == NULL || swapChain == NULL || width == 0 || height == 0)
+    {
+        return E_INVALIDARG;
+    }
+
     DXGI_SWAP_CHAIN_DESC swapChainDesc = { 0 };
     swapChainDesc.BufferCount = 2;
     swapChainDesc.BufferDesc.Format = format;

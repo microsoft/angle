@@ -224,15 +224,21 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\common\winrt\corewindowhost.h" />
     <ClInclude Include="..\..\..\src\common\winrt\iinspectablehost.h" />
+    <ClInclude Include="..\..\..\src\common\winrt\swapchainpanelhost.h" />
     <ClInclude Include="..\..\..\src\common\winrt\winrtutils.h" />
     <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\GenericInterfaces.h" />
     <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\MockCoreWindow.h" />
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\MockD3DDevice.h" />
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\MockDXGIFactory.h" />
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\MockDXGISwapChain.h" />
+    <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\MockSwapChainPanel.h" />
     <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\pch.h" />
     <ClInclude Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\common\winrt\corewindowhost.cpp" />
     <ClCompile Include="..\..\..\src\common\winrt\iinspectablehost.cpp" />
+    <ClCompile Include="..\..\..\src\common\winrt\swapchainpanelhost.cpp" />
     <ClCompile Include="..\..\..\src\common\winrt\winrtutils.cpp" />
     <ClCompile Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

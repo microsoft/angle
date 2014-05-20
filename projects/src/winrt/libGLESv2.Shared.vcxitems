@@ -39,6 +39,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\corewindowhost.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\iinspectablehost.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\winrtutils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\Shader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\BinaryStream.h" />
@@ -187,6 +188,7 @@
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\corewindowhost.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\iinspectablehost.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\winrtutils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\validationES2.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\precompiled.cpp" />

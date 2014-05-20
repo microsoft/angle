@@ -13,6 +13,8 @@
 #include <wrl.h>
 #include <wrl/wrappers/corewrappers.h>
 #include <windows.applicationmodel.core.h>
+#include <windows.ui.xaml.h>
+#include <windows.ui.xaml.media.dxinterop.h>
 #include "common/winrt/winrtutils.h"
 #include "common/surfaceHost.h"
 
@@ -70,5 +72,6 @@ protected:
 };
 
 bool isCoreWindow(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Core::ICoreWindow>* coreWindow = nullptr);
+bool isSwapChainPanel(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel>* swapChainPanel = nullptr);
 
 #endif // COMMON_IINSPECTABLEHOST_H_
