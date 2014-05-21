@@ -132,6 +132,18 @@ void Display::terminate()
 
     glDestroyRenderer(mRenderer);
     mRenderer = NULL;
+
+#if defined(ANGLE_PLATFORM_WINRT)
+    DisplayMap::iterator thisDisplay = displays.find(mDisplayId);
+    
+    if (thisDisplay != displays.end())
+    {
+        displays.erase(thisDisplay);
+    }
+
+    mDisplayId = nullptr;
+    mDc = nullptr;
+#endif
 }
 
 bool Display::getConfigs(EGLConfig *configs, const EGLint *attribList, EGLint configSize, EGLint *numConfig)
