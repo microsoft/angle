@@ -9,8 +9,9 @@ namespace winrtangleutils
 bool hasIPhoneXamlWindow(ComPtr<IWinrtEglWindow>& iWindow)
 {
 	ComPtr<IWinPhone8XamlD3DWindow> iPhoneXamlWindow;
-	ComPtr<IUnknown> iWindowInterface = iWindow.Get()->GetWindowInterface();
-	return iWindowInterface == nullptr ? false : iWindowInterface.As(&iPhoneXamlWindow) == S_OK;
+    ComPtr<IUnknown> iWindowInterface;
+	iWindowInterface.Attach(iWindow.Get()->GetWindowInterface());
+	return iWindowInterface.Get() == nullptr ? false : iWindowInterface.As(&iPhoneXamlWindow) == S_OK;
 }
 
 HRESULT getIWinRTWindow(ComPtr<IUnknown>& iWindow, ComPtr<IWinrtEglWindow> *iWinRTWindow)
@@ -24,8 +25,10 @@ HRESULT getIPhoneXamlWindow(ComPtr<IUnknown>& iWindow, ComPtr<IWinPhone8XamlD3DW
 	HRESULT result = getIWinRTWindow(iWindow, &iWinRTWindow);
     if (SUCCEEDED(result))
 	{
-		ComPtr<IUnknown> iWindowInterface = iWinRTWindow.Get()->GetWindowInterface();
+		ComPtr<IUnknown> iWindowInterface;
+        iWindowInterface.Attach(iWinRTWindow.Get()->GetWindowInterface());
 		result = iWindowInterface.Get() == nullptr? S_FALSE : iWindowInterface.As(iPhoneXamlWindow);
+
 	}
 	return result;
 }
