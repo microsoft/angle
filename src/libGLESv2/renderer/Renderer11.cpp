@@ -2091,17 +2091,19 @@ void Renderer11::release()
 
     if (mDeviceContext)
     {
+#if !defined(ANGLE_PLATFORM_WP8)       
         mDeviceContext->ClearState();
+#endif
         mDeviceContext->Flush();
         mDeviceContext->Release();
         mDeviceContext = NULL;
-    }
+    }  
 
     if (mDevice)
     {
         mDevice->Release();
         mDevice = NULL;
-    }
+    }  
 
     if (mD3d11Module)
     {
@@ -2114,8 +2116,6 @@ void Renderer11::release()
         FreeLibrary(mDxgiModule);
         mDxgiModule = NULL;
     }
-
-
 }
 
 bool Renderer11::resetDevice()
