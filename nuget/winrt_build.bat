@@ -50,7 +50,7 @@ if %FOUND_VC%==1 (
     link.exe /edit /appcontainer:NO ..\src\WinRT\redist\vs2012\Win32\Debug\libEGL_winrt\Desktop\libEGL.dll
     link.exe /edit /appcontainer:NO ..\src\WinRT\redist\vs2012\Win32\Debug\libGLESv2_winrt\Desktop\libGLESv2.dll
     link.exe /edit /appcontainer:NO ..\src\WinRT\redist\vs2012\Win32\Release\libEGL_winrt\Desktop\libEGL.dll
-    link.exe /edit /appcontainer:NO ..\src\WinRT\redist\vs2012\Win32\Release\libGLESv2_winrt\Desktop\libGLESv2.dl
+    link.exe /edit /appcontainer:NO ..\src\WinRT\redist\vs2012\Win32\Release\libGLESv2_winrt\Desktop\libGLESv2.dll
 	
 ) else (
     echo Script error.
