@@ -74,7 +74,7 @@ class Display
     bool restoreLostDevice();
 
     EGLNativeDisplayType mDisplayId;
-    const AngleNativeWindowHDC mDc;
+    AngleNativeWindowHDC mDc;
 
     bool mSoftwareDevice;
     
