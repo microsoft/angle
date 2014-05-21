@@ -569,7 +569,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
             }
             else
             {
-                IUnknown* iWindow = iWinRTWindow->GetWindowInterface();
+                ComPtr<IUnknown> iWindow = iWinRTWindow->GetWindowInterface();
                 IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
                 DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
                 swapChainDesc.Width = static_cast<UINT>(backbufferWidth); // Match the size of the window.
@@ -586,7 +586,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
                 result = factory->CreateSwapChainForCoreWindow(
                     device,
-                    iWindow,
+                    iWindow.Get(),
                     &swapChainDesc,
                     nullptr, // Allow on all displays.
                     &mSwapChain
@@ -598,8 +598,8 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         result = mWindow.As(&iWinRTWindow);
         if(SUCCEEDED(result))
         {
-            IUnknown* iWindow = iWinRTWindow->GetWindowInterface();
-            bool isPanel = winrt::isSwapChainBackgroundPanel(iWindow);
+            ComPtr<IUnknown> iWindow = iWinRTWindow->GetWindowInterface();
+            bool isPanel = winrt::isSwapChainBackgroundPanel(iWindow.Get());
             IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
             DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
             swapChainDesc.Width = backbufferWidth;
