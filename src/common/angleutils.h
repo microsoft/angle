@@ -33,13 +33,16 @@ void SafeRelease(T (&resourceBlock)[N])
 }
 
 template <typename T>
-void SafeRelease(T& resource)
+int SafeRelease(T& resource)
 {
+    int count = 0;
     if (resource)
     {
-        resource->Release();
+        count = resource->Release();
         resource = NULL;
     }
+
+    return count;
 }
 
 #if defined(_MSC_VER)
