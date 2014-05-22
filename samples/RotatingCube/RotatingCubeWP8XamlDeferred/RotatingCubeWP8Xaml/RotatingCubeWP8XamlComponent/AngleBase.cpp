@@ -18,6 +18,11 @@ AngleBase::AngleBase()
 {
 }
 
+AngleBase::~AngleBase()
+{
+    CloseAngle();
+}
+
 // Initialize the Direct3D resources required to run.
 void AngleBase::Initialize()
 {
@@ -164,7 +169,8 @@ void AngleBase::CloseAngle()
     }
 
     eglMakeCurrent(NULL, NULL, NULL, NULL);
-
+    m_eglPhoneWindow = nullptr;
+    m_eglWindow = nullptr;
 
     m_bAngleInitialized = false;
 }

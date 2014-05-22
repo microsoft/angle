@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{ee4df69d-b60c-4993-8ca7-01e866ab4813}</ProjectGuid>
+    <ProjectGuid>{ABD887A4-6D6F-4D5B-A2B0-76A390CFE9D0}</ProjectGuid>
     <RootNamespace>PhoneDirect3DXamlAppComponent</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>

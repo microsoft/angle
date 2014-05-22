@@ -31,6 +31,8 @@ protected:
     void CloseAngle();
 
 protected private:
+    ~AngleBase();
+
     // Direct3D Objects.
     Microsoft::WRL::ComPtr<ID3D11Device1> m_d3dDevice;
     Microsoft::WRL::ComPtr<ID3D11DeviceContext1> m_d3dContext;
@@ -51,4 +53,7 @@ protected private:
 	Microsoft::WRL::ComPtr<IWinPhone8XamlD3DWindow> m_eglPhoneWindow;
     DirectX::XMMATRIX m_orientationMatrix;
     float m_aspectRatio;
+
+private:
+
 };

@@ -144,7 +144,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RotatingCubeWP8XamlComponent\RotatingCubeWP8XamlComponent.vcxproj">
-      <Name>RotatingCubeWP8XamlComponent</Name>
+      <Name>RotatingCubeWP8XamlComponent %28RotatingCubeWP8Xaml\RotatingCubeWP8XamlComponent%29</Name>
+      <Project>{EE4DF69D-B60C-4993-8CA7-01E866AB4813}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{42A03D60-76BB-4916-895A-12050EDCCFF0}</ProjectGuid>
+    <ProjectGuid>{DAC17563-E58D-4F2D-86A5-00610F6FD101}</ProjectGuid>
     <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -144,7 +144,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RotatingCubeWP8XamlComponent\RotatingCubeWP8XamlComponent.vcxproj">
-      <Name>RotatingCubeWP8XamlComponent</Name>
+      <Name>RotatingCubeWP8XamlComponent %28RotatingCubeWP8XamlDeferred\RotatingCubeWP8XamlComponent%29</Name>
+      <Project>{ABD887A4-6D6F-4D5B-A2B0-76A390CFE9D0}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

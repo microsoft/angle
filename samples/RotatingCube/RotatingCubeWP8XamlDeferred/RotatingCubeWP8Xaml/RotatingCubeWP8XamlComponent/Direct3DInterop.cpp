@@ -109,6 +109,7 @@ HRESULT Direct3DInterop::Connect(_In_ IDrawingSurfaceRuntimeHostNative* host, _I
 
 void Direct3DInterop::Disconnect()
 {
+    m_renderer = nullptr;
 }
 
 HRESULT Direct3DInterop::PrepareResources(_In_ const LARGE_INTEGER* presentTargetTime, _Inout_ DrawingSurfaceSizeF* desiredRenderTargetSize)
