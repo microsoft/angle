@@ -1,3 +1,5 @@
+echo "building Angle projects and nuget packages..."
+rm *.nupkg
 echo "building WinRT Angle..."
 Start-Process .\winrt_build.bat -wait
 Write-NuGetPackage .\angle_winrt.autopkg
