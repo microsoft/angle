@@ -12,8 +12,8 @@ nuget {
 		summary: ANGLE for Windows Phone 8.0;
 		
 		// if you need to span several lines you can prefix a string with an @ symbol (exactly like c# does).
-		description: @"prebuilt libaries for for Windows Phone 8.0; version of ANGLE"";
-		releaseNotes: "prebuilt libaries for for Windows Phone 8.0; version of ANGLE";
+		description: @"prebuilt libaries for Windows Phone 8.0 version of ANGLE";
+		releaseNotes: "prebuilt libaries for Windows Phone 8.0 version of ANGLE";
 		copyright: "Copyright Microsoft Open Technologies, Inc";
 		tags: { native, angle, angleproject, WP8, opengl, Windows Phone 8.0, opengles, directx };
 	};
@@ -32,8 +32,8 @@ nuget {
 		include: 
 		{ 
 			".\${INCLUDE}\**\*";
-			".\${SRC}\common\winrtangle.h";
-			".\${SRC}\samples\gles2_book\Common\esUtil.h";
+			"..\src\common\winrtangle.h";
+			"..\samples\gles2_book\Common\esUtil.h";
 		}
 					
 		[win32,v110,debug] 

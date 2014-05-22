@@ -1,6 +1,6 @@
 nuget {
 	nuspec {
-		id = ds_angle_winrt;
+		id = angle_winrt;
 		version : 0.0.0.1;
 		title: ANGLE for WinRT (Windows Store Apps);
 		authors: {Microsoft Open Technologies, Inc.};
@@ -23,7 +23,8 @@ nuget {
 	
 		#defines 
 		{
-			PATH	=  ..\src\WinRT\redist\vs2012;
+			VS2012	=  ..\src\WinRT\redist\vs2012;
+			VS2013	=  ..\src\WinRT\redist\vs2013;
 			INCLUDE	=  ..\include;
 		}
 	
@@ -33,20 +34,21 @@ nuget {
 			"..\src\common\winrtangle.h";
 			"..\samples\gles2_book\Common\esUtil.h";
 		}
-					
+
+		// VS2012
 		[win32,v110,debug,winrt] 
 		{
 			lib:
 			{
-				${PATH}\Win32\Debug\esUtil_winrt\esUtil.lib;
-				${PATH}\Win32\Debug\libEGL_winrt\libEGL.lib;
-				${PATH}\Win32\Debug\libGLESv2_winrt\libGLESv2.lib;
+				${VS2012}\Win32\Debug\esUtil_winrt\esUtil.lib;
+				${VS2012}\Win32\Debug\libEGL_winrt\libEGL.lib;
+				${VS2012}\Win32\Debug\libGLESv2_winrt\libGLESv2.lib;
 			}
 
 			bin: 
 			{
-				${PATH}\Win32\Debug\libEGL_winrt\libEGL.dll;
-				${PATH}\Win32\Debug\libGLESv2_winrt\libGLESv2.dll;
+				${VS2012}\Win32\Debug\libEGL_winrt\libEGL.dll;
+				${VS2012}\Win32\Debug\libGLESv2_winrt\libGLESv2.dll;
 			}
 		};
 
@@ -54,15 +56,15 @@ nuget {
 		{
 			lib:
 			{
-				${PATH}\Win32\Release\esUtil_winrt\esUtil.lib;
-				${PATH}\Win32\Release\libEGL_winrt\libEGL.lib;
-				${PATH}\Win32\Release\libGLESv2_winrt\libGLESv2.lib;
+				${VS2012}\Win32\Release\esUtil_winrt\esUtil.lib;
+				${VS2012}\Win32\Release\libEGL_winrt\libEGL.lib;
+				${VS2012}\Win32\Release\libGLESv2_winrt\libGLESv2.lib;
 			}
 
 			bin: 
 			{
-				${PATH}\Win32\Release\libEGL_winrt\libEGL.dll;
-				${PATH}\Win32\Release\libGLESv2_winrt\libGLESv2.dll;
+				${VS2012}\Win32\Release\libEGL_winrt\libEGL.dll;
+				${VS2012}\Win32\Release\libGLESv2_winrt\libGLESv2.dll;
 			}
 		};
 		
@@ -70,15 +72,15 @@ nuget {
 		{
 			lib:
 			{
-				${PATH}\ARM\Debug\esUtil_winrt\esUtil.lib;
-				${PATH}\ARM\Debug\libEGL_winrt\libEGL.lib;
-				${PATH}\ARM\Debug\libGLESv2_winrt\libGLESv2.lib;
+				${VS2012}\ARM\Debug\esUtil_winrt\esUtil.lib;
+				${VS2012}\ARM\Debug\libEGL_winrt\libEGL.lib;
+				${VS2012}\ARM\Debug\libGLESv2_winrt\libGLESv2.lib;
 			}
 
 			bin: 
 			{
-				${PATH}\ARM\Debug\libEGL_winrt\libEGL.dll;
-				${PATH}\ARM\Debug\libGLESv2_winrt\libGLESv2.dll;
+				${VS2012}\ARM\Debug\libEGL_winrt\libEGL.dll;
+				${VS2012}\ARM\Debug\libGLESv2_winrt\libGLESv2.dll;
 			}
 		};
 
@@ -86,15 +88,15 @@ nuget {
 		{
 			lib:
 			{
-				${PATH}\ARM\Release\esUtil_winrt\esUtil.lib;
-				${PATH}\ARM\Release\libEGL_winrt\libEGL.lib;
-				${PATH}\ARM\Release\libGLESv2_winrt\libGLESv2.lib;
+				${VS2012}\ARM\Release\esUtil_winrt\esUtil.lib;
+				${VS2012}\ARM\Release\libEGL_winrt\libEGL.lib;
+				${VS2012}\ARM\Release\libGLESv2_winrt\libGLESv2.lib;
 			}
 
 			bin: 
 			{
-				${PATH}\ARM\Release\libEGL_winrt\libEGL.dll;
-				${PATH}\ARM\Release\libGLESv2_winrt\libGLESv2.dll;
+				${VS2012}\ARM\Release\libEGL_winrt\libEGL.dll;
+				${VS2012}\ARM\Release\libGLESv2_winrt\libGLESv2.dll;
 			}
 		};	
 
@@ -102,15 +104,15 @@ nuget {
 		{
 			lib:
 			{
-				${PATH}\Win32\Debug\esUtil_winrt\esUtil.lib;
-				${PATH}\Win32\Debug\libEGL_winrt\libEGL.lib;
-				${PATH}\Win32\Debug\libGLESv2_winrt\libGLESv2.lib;
+				${VS2012}\Win32\Debug\esUtil_winrt\esUtil.lib;
+				${VS2012}\Win32\Debug\libEGL_winrt\libEGL.lib;
+				${VS2012}\Win32\Debug\libGLESv2_winrt\libGLESv2.lib;
 			}
 
 			bin: 
 			{
-				${PATH}\Win32\Debug\libEGL_winrt\Desktop\libEGL.dll;
-				${PATH}\Win32\Debug\libGLESv2_winrt\Desktop\libGLESv2.dll;
+				${VS2012}\Win32\Debug\libEGL_winrt\Desktop\libEGL.dll;
+				${VS2012}\Win32\Debug\libGLESv2_winrt\Desktop\libGLESv2.dll;
 			}
 		};
 
@@ -118,15 +120,112 @@ nuget {
 		{
 			lib:
 			{
-				${PATH}\Win32\Release\esUtil_winrt\esUtil.lib;
-				${PATH}\Win32\Release\libEGL_winrt\libEGL.lib;
-				${PATH}\Win32\Release\libGLESv2_winrt\libGLESv2.lib;
+				${VS2012}\Win32\Release\esUtil_winrt\esUtil.lib;
+				${VS2012}\Win32\Release\libEGL_winrt\libEGL.lib;
+				${VS2012}\Win32\Release\libGLESv2_winrt\libGLESv2.lib;
 			}
 
 			bin: 
 			{
-				${PATH}\Win32\Release\libEGL_winrt\Desktop\libEGL.dll;
-				${PATH}\Win32\Release\libGLESv2_winrt\Desktop\libGLESv2.dll;
+				${VS2012}\Win32\Release\libEGL_winrt\Desktop\libEGL.dll;
+				${VS2012}\Win32\Release\libGLESv2_winrt\Desktop\libGLESv2.dll;
+			}
+		};
+
+		// VS2013
+		[win32,v120,debug,winrt] 
+		{
+			lib:
+			{
+				${VS2013}\Win32\Debug\esUtil_winrt_2013\esUtil.lib;
+				${VS2013}\Win32\Debug\libEGL_winrt_2013\libEGL.lib;
+				${VS2013}\Win32\Debug\libGLESv2_winrt_2013\libGLESv2.lib;
+			}
+
+			bin: 
+			{
+				${VS2013}\Win32\Debug\libEGL_winrt_2013\libEGL.dll;
+				${VS2013}\Win32\Debug\libGLESv2_winrt_2013\libGLESv2.dll;
+			}
+		};
+
+		[win32,v120,release,winrt] 
+		{
+			lib:
+			{
+				${VS2013}\Win32\Release\esUtil_winrt_2013\esUtil.lib;
+				${VS2013}\Win32\Release\libEGL_winrt_2013\libEGL.lib;
+				${VS2013}\Win32\Release\libGLESv2_winrt_2013\libGLESv2.lib;
+			}
+
+			bin: 
+			{
+				${VS2013}\Win32\Release\libEGL_winrt_2013\libEGL.dll;
+				${VS2013}\Win32\Release\libGLESv2_winrt_2013\libGLESv2.dll;
+			}
+		};
+		
+		[arm,v120,debug,winrt] 
+		{
+			lib:
+			{
+				${VS2013}\ARM\Debug\esUtil_winrt_2013\esUtil.lib;
+				${VS2013}\ARM\Debug\libEGL_winrt_2013\libEGL.lib;
+				${VS2013}\ARM\Debug\libGLESv2_winrt_2013\libGLESv2.lib;
+			}
+
+			bin: 
+			{
+				${VS2013}\ARM\Debug\libEGL_winrt_2013\libEGL.dll;
+				${VS2013}\ARM\Debug\libGLESv2_winrt_2013\libGLESv2.dll;
+			}
+		};
+
+		[arm,v120,release,winrt] 
+		{
+			lib:
+			{
+				${VS2013}\ARM\Release\esUtil_winrt_2013\esUtil.lib;
+				${VS2013}\ARM\Release\libEGL_winrt_2013\libEGL.lib;
+				${VS2013}\ARM\Release\libGLESv2_winrt_2013\libGLESv2.lib;
+			}
+
+			bin: 
+			{
+				${VS2013}\ARM\Release\libEGL_winrt_2013\libEGL.dll;
+				${VS2013}\ARM\Release\libGLESv2_winrt_2013\libGLESv2.dll;
+			}
+		};	
+
+		[win32,v120,debug,desktop] 
+		{
+			lib:
+			{
+				${VS2013}\Win32\Debug\esUtil_winrt_2013\esUtil.lib;
+				${VS2013}\Win32\Debug\libEGL_winrt_2013\libEGL.lib;
+				${VS2013}\Win32\Debug\libGLESv2_winrt_2013\libGLESv2.lib;
+			}
+
+			bin: 
+			{
+				${VS2013}\Win32\Debug\libEGL_winrt_2013\Desktop\libEGL.dll;
+				${VS2013}\Win32\Debug\libGLESv2_winrt_2013\Desktop\libGLESv2.dll;
+			}
+		};
+
+		[win32,v120,release,desktop] 
+		{
+			lib:
+			{
+				${VS2013}\Win32\Release\esUtil_winrt_2013\esUtil.lib;
+				${VS2013}\Win32\Release\libEGL_winrt_2013\libEGL.lib;
+				${VS2013}\Win32\Release\libGLESv2_winrt_2013\libGLESv2.lib;
+			}
+
+			bin: 
+			{
+				${VS2013}\Win32\Release\libEGL_winrt_2013\Desktop\libEGL.dll;
+				${VS2013}\Win32\Release\libGLESv2_winrt_2013\Desktop\libGLESv2.dll;
 			}
 		};
 

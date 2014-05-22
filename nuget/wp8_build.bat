@@ -29,6 +29,8 @@ if not defined VSVARS (
     goto ERROR
 )
 
+rmdir .\..\src\WP8 /s/q
+
 echo./*
 echo. * Building libraries...
 echo. */
