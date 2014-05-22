@@ -628,7 +628,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
             }
             else
             {
-                result = factory->CreateSwapChainForCoreWindow(device, iWindow, &swapChainDesc, nullptr, &mSwapChain);
+                result = factory->CreateSwapChainForCoreWindow(device, iWindow.Get(), &swapChainDesc, nullptr, &mSwapChain);
             }
         }
 #endif // #if !defined(ANGLE_PLATFORM_WINRT)
