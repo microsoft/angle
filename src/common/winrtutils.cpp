@@ -81,6 +81,15 @@ bool isSwapChainBackgroundPanel(ComPtr<IUnknown> window)
 #endif // #if defined(ANGLE_PLATFORM_WP8)
 }
 
+bool isSwapChainPanel(Microsoft::WRL::ComPtr<IUnknown> window){
+#if defined(ANGLE_PLATFORM_WP8)
+	return FALSE;
+#else
+	ComPtr<ISwapChainPanelNative> panelNative;
+	return S_OK == (window.As(&panelNative));
+#endif // #if defined(ANGLE_PLATFORM_WP8)
+}
+
 
 ComPtr<ICoreWindow> getCurrentWindowForThread()
 {

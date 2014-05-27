@@ -109,6 +109,11 @@ EGLDisplay __stdcall eglGetDisplay(EGLNativeDisplayType display_id)
     }
 }
 
+EGLDisplay __stdcall eglGetDisplay_c(EGLNativeDisplayCType display_id)
+{
+	return eglGetDisplay(EGLNativeDisplayType(display_id));
+}
+
 EGLBoolean __stdcall eglInitialize(EGLDisplay dpy, EGLint *major, EGLint *minor)
 {
     EVENT("(EGLDisplay dpy = 0x%0.8p, EGLint *major = 0x%0.8p, EGLint *minor = 0x%0.8p)",
@@ -325,6 +330,12 @@ EGLSurface __stdcall eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EG
     {
         return egl::error(EGL_BAD_ALLOC, EGL_NO_SURFACE);
     }
+}
+
+EGLSurface __stdcall eglCreateWindowSurface_c(EGLDisplay dpy, EGLConfig config,
+	EGLNativeWindowCType win,
+	const EGLint *attrib_list){
+	return eglCreateWindowSurface(dpy, config, EGLNativeWindowType(win), attrib_list);
 }
 
 EGLSurface __stdcall eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig config, const EGLint *attrib_list)

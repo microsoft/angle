@@ -249,6 +249,7 @@ typedef void *EGLClientBuffer;
 EGLAPI EGLint EGLAPIENTRY eglGetError(void);
 
 EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay(EGLNativeDisplayType display_id);
+EGLAPI EGLDisplay EGLAPIENTRY eglGetDisplay_c(EGLNativeDisplayCType display_id);
 EGLAPI EGLBoolean EGLAPIENTRY eglInitialize(EGLDisplay dpy, EGLint *major, EGLint *minor);
 EGLAPI EGLBoolean EGLAPIENTRY eglTerminate(EGLDisplay dpy);
 
@@ -265,6 +266,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglGetConfigAttrib(EGLDisplay dpy, EGLConfig confi
 EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config,
 				  EGLNativeWindowType win,
 				  const EGLint *attrib_list);
+EGLAPI EGLSurface EGLAPIENTRY eglCreateWindowSurface_c(EGLDisplay dpy, EGLConfig config,
+	EGLNativeWindowCType win, const EGLint * attrib_list);
 EGLAPI EGLSurface EGLAPIENTRY eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig config,
 				   const EGLint *attrib_list);
 EGLAPI EGLSurface EGLAPIENTRY eglCreatePixmapSurface(EGLDisplay dpy, EGLConfig config,

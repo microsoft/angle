@@ -9,6 +9,7 @@ EXPORTS
 	eglCreatePbufferSurface         @10
 	eglCreatePixmapSurface          @11
 	eglCreateWindowSurface          @9
+	eglCreateWindowSurface_c		@36
 	eglDestroyContext               @24
 	eglDestroySurface               @12
 	eglGetConfigAttrib              @8
@@ -17,6 +18,7 @@ EXPORTS
 	eglGetCurrentDisplay            @28
 	eglGetCurrentSurface            @27
 	eglGetDisplay                   @2
+	eglGetDisplay_c					@35
 	eglGetError                     @1
 	eglGetProcAddress               @34
 	eglInitialize                   @3
