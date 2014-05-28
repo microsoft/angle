@@ -40,7 +40,7 @@ public:
     }
 
     // MockCoreWindow
-    int GetSizeChangeRegistrationCount() { return mSizeChangeHandlers.size(); }
+    int GetSizeChangeRegistrationCount() { return static_cast<int>(mSizeChangeHandlers.size()); }
     int GetBoundsQueryCount() { return mBoundsQueryCount; }
     void SetExpectedBounds(ABI::Windows::Foundation::Rect newBounds) { mBounds = newBounds; }
     void UpdateSizeAndSignalChangedEvent(ABI::Windows::Foundation::Rect newBounds)

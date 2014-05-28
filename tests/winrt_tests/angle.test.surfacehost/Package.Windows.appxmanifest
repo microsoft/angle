@@ -1,26 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  
   <Identity Name="22df239c-6b62-4595-b307-0675d7c798f4"
-            Publisher="CN=coopp"
+            Publisher="CN=ANGLE"
             Version="1.0.0.0" />
-  
   <Properties>
     <DisplayName>angle_test_surfacehost</DisplayName>
-    <PublisherDisplayName>coopp</PublisherDisplayName>
+    <PublisherDisplayName>ANGLE</PublisherDisplayName>
     <Logo>UnitTestStoreLogo.png</Logo>
     <Description>angle_test_surfacehost</Description>
   </Properties>
-  
   <Prerequisites>
     <OSMinVersion>6.3.0</OSMinVersion>
     <OSMaxVersionTested>6.3.0</OSMaxVersionTested>
   </Prerequisites>
-  
   <Resources>
     <Resource Language="x-generate"/>
   </Resources>
-  
   <Applications>
     <Application Id="vstest.executionengine.App" 
         Executable="vstest.executionengine.appcontainer.exe" 
