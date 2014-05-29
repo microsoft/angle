@@ -45,8 +45,6 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
     mHeight = height;
     setSwapInterval(1);
     mFixedSize = fixedSize;
-
-    subclassWindow();
 }
 
 Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType)
@@ -55,7 +53,6 @@ Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGL
 {
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
-    mWindowSubclassed = false;
     mTexture = NULL;
     mTextureFormat = textureFormat;
     mTextureTarget = textureType;
@@ -71,7 +68,6 @@ Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGL
 
 Surface::~Surface()
 {
-    unsubclassWindow();
     release();
 }
 
@@ -240,90 +236,6 @@ bool Surface::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 EGLNativeWindowType Surface::getWindowHandle()
 {
     return mHost.getNativeWindowType();
-}
-
-
-#define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
-#define kParentWndProc _TEXT("Egl::SurfaceParentWndProc")
-
-#if !defined(ANGLE_ENABLE_WINDOWS_STORE)
-static LRESULT CALLBACK SurfaceWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
-{
-    if (message == WM_SIZE)
-    {
-        Surface* surf = reinterpret_cast<Surface*>(GetProp(hwnd, kSurfaceProperty));
-        if(surf)
-        {
-            surf->checkForOutOfDateSwapChain();
-        }
-    }
-    WNDPROC prevWndFunc = reinterpret_cast<WNDPROC >(GetProp(hwnd, kParentWndProc));
-    return CallWindowProc(prevWndFunc, hwnd, message, wparam, lparam);
-}
-#endif // !defined(ANGLE_ENABLE_WINDOWS_STORE)
-
-void Surface::subclassWindow()
-{
-    if (!mHost.getNativeWindowType())
-    {
-        return;
-    }
-
-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
-    mWindowSubclassed = false;
-    return;
-#else
-    DWORD processId;
-    EGLNativeWindowType window = mHost.getNativeWindowType();
-    DWORD threadId = GetWindowThreadProcessId(window, &processId);
-    if (processId != GetCurrentProcessId() || threadId != GetCurrentThreadId())
-    {
-        return;
-    }
-
-    SetLastError(0);
-    LONG_PTR oldWndProc = SetWindowLongPtr(window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(SurfaceWindowProc));
-    if(oldWndProc == 0 && GetLastError() != ERROR_SUCCESS)
-    {
-        mWindowSubclassed = false;
-        return;
-    }
-
-    SetProp(window, kSurfaceProperty, reinterpret_cast<HANDLE>(this));
-    SetProp(window, kParentWndProc, reinterpret_cast<HANDLE>(oldWndProc));
-    mWindowSubclassed = true;
-#endif  // defined(ANGLE_ENABLE_WINDOWS_STORE)
-}
-
-void Surface::unsubclassWindow()
-{
-    if(!mWindowSubclassed)
-    {
-        return;
-    }
-
-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
-    return;
-#else 
-    // un-subclass
-    EGLNativeWindowType window = mHost.getNativeWindowType();
-    LONG_PTR parentWndFunc = reinterpret_cast<LONG_PTR>(GetProp(window, kParentWndProc));
-
-    // Check the windowproc is still SurfaceWindowProc.
-    // If this assert fails, then it is likely the application has subclassed the
-    // hwnd as well and did not unsubclass before destroying its EGL context. The
-    // application should be modified to either subclass before initializing the
-    // EGL context, or to unsubclass before destroying the EGL context.
-    if(parentWndFunc)
-    {
-        LONG_PTR prevWndFunc = SetWindowLongPtr(window, GWLP_WNDPROC, parentWndFunc);
-        ASSERT(prevWndFunc == reinterpret_cast<LONG_PTR>(SurfaceWindowProc));
-    }
-
-    RemoveProp(window, kSurfaceProperty);
-    RemoveProp(window, kParentWndProc);
-    mWindowSubclassed = false;
-#endif // defined(ANGLE_ENABLE_WINDOWS_STORE)
 }
 
 bool Surface::checkForOutOfDateSwapChain()

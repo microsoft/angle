@@ -76,14 +76,11 @@ private:
     HANDLE mShareHandle;
     rx::SwapChain *mSwapChain;
 
-    void subclassWindow();
-    void unsubclassWindow();
     bool resizeSwapChain(int backbufferWidth, int backbufferHeight);
     bool resetSwapChain(int backbufferWidth, int backbufferHeight);
     bool swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
 
     rx::SurfaceHost mHost;         // Host for the native window type
-    bool mWindowSubclassed;        // Indicates whether we successfully subclassed mWindow for WM_RESIZE hooking
     const egl::Config *mConfig;    // EGL config surface was created with
     EGLint mHeight;                // Height of surface
     EGLint mWidth;                 // Width of surface
