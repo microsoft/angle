@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
       <Configuration>Debug</Configuration>
@@ -27,7 +26,6 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DE028AD1-BCF4-4F06-9F2C-2F8FE694B14F}</ProjectGuid>
     <RootNamespace>angle_test_surfacehost</RootNamespace>
@@ -42,32 +40,25 @@
     <ApplicationTypeRevision>8.1</ApplicationTypeRevision>
     <AppxBundle>Never</AppxBundle>
   </PropertyGroup>
-  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
-  
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
-  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  
   <PropertyGroup>
     <PackageCertificateKeyFile>..\..\..\tests\winrt_tests\angle.test.surfacehost\angle.test.surfacehost_TemporaryKey.pfx</PackageCertificateKeyFile>
   </PropertyGroup>
-    
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\src\common;..\..\..\tests\winrt_tests\angle.test.common;..\..\..\tests\winrt_tests\angle.test.surfacehost;..\..\..\include;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -76,19 +67,16 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemDefinitionGroup>
-  
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-     
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -97,7 +85,6 @@
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
- 
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
     <ClCompile>
       <PreprocessorDefinitions>WIN64;x64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -106,7 +93,6 @@
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;$(VCInstallDir)UnitTest\amd64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  
   <ItemDefinitionGroup Condition="'$(Platform)'=='ARM'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;ARM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -115,26 +101,22 @@
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;$(VCInstallDir)UnitTest\ARM\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-    
   <ItemGroup>
     <SDKReference Include="CppUnitTestFramework, Version=11.0" />
     <SDKReference Include="TestPlatform, Version=11.0" />
   </ItemGroup>
-  
   <ItemGroup>
     <AppxManifest Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\Package.Windows.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\angle.test.surfacehost_TemporaryKey.pfx" />
   </ItemGroup>
-  
   <ItemGroup>
     <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\UnitTestLogo.scale-100.png" />
     <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\UnitTestSmallLogo.scale-100.png" />
     <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\UnitTestSplashScreen.scale-100.png" />
     <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\UnitTestStoreLogo.scale-100.png" />
   </ItemGroup>
-  
   <ItemGroup>
     <ProjectReference Include="..\..\..\projects\src\winrt\libEGL.Windows.vcxproj">
       <Project>{ae7eaa1d-1b1c-400b-ab9b-6bef4afc0143}</Project>
@@ -143,22 +125,15 @@
       <Project>{090ae338-d52d-4212-a99b-977f55ac2b7e}</Project>
     </ProjectReference>
   </ItemGroup>
-  
   <PropertyGroup>
     <_DefineDefaultConvergedProjectType>False</_DefineDefaultConvergedProjectType>
   </PropertyGroup>
-  
   <PropertyGroup>
     <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
     <IntDir>$(SolutionDir)$(PlatformName)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
-  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  
   <Import Project="angle.test.surfacehost.Shared.vcxitems" Label="Shared" />
-  
   <ImportGroup Label="ExtensionTargets" />
-  
   <Import Project="$(VCInstallDir)\..\Common7\IDE\CommonExtensions\Microsoft\TestWindow\Microsoft.TestTools.Cpp.targets" Condition="Exists('$(VCInstallDir)\..\Common7\IDE\CommonExtensions\Microsoft\TestWindow\Microsoft.TestTools.Cpp.targets')" />
-  
 </Project>

@@ -16,6 +16,7 @@
 #include "libGLESv2/Fence.h"
 #include "libGLESv2/Framebuffer.h"
 #include "libGLESv2/Renderbuffer.h"
+#include "libGLESv2/renderer/Renderer.h"
 #include "libGLESv2/Program.h"
 #include "libGLESv2/ProgramBinary.h"
 #include "libGLESv2/Texture.h"
@@ -213,6 +214,11 @@ void __stdcall glBindBuffer(GLenum target, GLuint buffer)
                 context->bindGenericUniformBuffer(buffer);
                 return;
               case GL_TRANSFORM_FEEDBACK_BUFFER:
+                if (!context->supportsTransformFeedback())
+                {
+                    // Transform feedback isn't supported on feature level 9 hardware.
+                    return gl::error(GL_INVALID_OPERATION);
+                }
                 context->bindGenericTransformFeedbackBuffer(buffer);
                 return;
               default:
@@ -3007,6 +3013,18 @@ void __stdcall glGetProgramiv(GLuint program, GLenum pname, GLint* params)
                   case GL_TRANSFORM_FEEDBACK_VARYINGS:
                   case GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH:
                     return gl::error(GL_INVALID_ENUM);
+                }
+            }
+
+            if (!context->supportsTransformFeedback())
+            {
+                // Transform feedback isn't supported on Feature Level 9 hardware.
+                switch (pname)
+                {
+                case GL_TRANSFORM_FEEDBACK_BUFFER_MODE:
+                case GL_TRANSFORM_FEEDBACK_VARYINGS:
+                case GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH:
+                    return gl::error(GL_INVALID_OPERATION);
                 }
             }
 
@@ -7324,6 +7342,17 @@ void __stdcall glGetIntegeri_v(GLenum target, GLuint index, GLint* data)
                 return gl::error(GL_INVALID_OPERATION);
             }
 
+            if (!context->supportsTransformFeedback())
+            {
+                switch (target)
+                {
+                    case GL_TRANSFORM_FEEDBACK_BUFFER_START:
+                    case GL_TRANSFORM_FEEDBACK_BUFFER_SIZE:
+                    case GL_TRANSFORM_FEEDBACK_BUFFER_BINDING:
+                        return gl::error(GL_INVALID_OPERATION);
+                }
+            }
+
             switch (target)
             {
               case GL_TRANSFORM_FEEDBACK_BUFFER_START:
@@ -7396,6 +7425,12 @@ void __stdcall glBeginTransformFeedback(GLenum primitiveMode)
                 return gl::error(GL_INVALID_OPERATION);
             }
 
+            // Transform Feedback is not supported on Feature Level 9 hardware.
+            if (!context->supportsTransformFeedback())
+            {
+                return gl::error(GL_INVALID_OPERATION);
+            }
+
             switch (primitiveMode)
             {
               case GL_TRIANGLES:
@@ -7441,6 +7476,11 @@ void __stdcall glEndTransformFeedback(void)
         if (context)
         {
             if (context->getClientVersion() < 3)
+            {
+                return gl::error(GL_INVALID_OPERATION);
+            }
+
+            if (!context->supportsTransformFeedback())
             {
                 return gl::error(GL_INVALID_OPERATION);
             }
@@ -7556,6 +7596,14 @@ void __stdcall glBindBufferBase(GLenum target, GLuint index, GLuint buffer)
                 return gl::error(GL_INVALID_OPERATION);
             }
 
+            if (!context->supportsTransformFeedback())
+            {
+                if (target == GL_TRANSFORM_FEEDBACK_BUFFER)
+                {
+                    return gl::error(GL_INVALID_OPERATION);
+                }
+            }
+
             switch (target)
             {
               case GL_TRANSFORM_FEEDBACK_BUFFER:
@@ -7615,6 +7663,11 @@ void __stdcall glTransformFeedbackVaryings(GLuint program, GLsizei count, const 
                 return gl::error(GL_INVALID_OPERATION);
             }
 
+            if (!context->supportsTransformFeedback())
+            {
+                return gl::error(GL_INVALID_OPERATION);
+            }
+
             if (count < 0)
             {
                 return gl::error(GL_INVALID_VALUE);
@@ -7664,6 +7717,11 @@ void __stdcall glGetTransformFeedbackVarying(GLuint program, GLuint index, GLsiz
         if (context)
         {
             if (context->getClientVersion() < 3)
+            {
+                return gl::error(GL_INVALID_OPERATION);
+            }
+
+            if (!context->supportsTransformFeedback())
             {
                 return gl::error(GL_INVALID_OPERATION);
             }
@@ -9162,6 +9220,17 @@ void __stdcall glGetInteger64i_v(GLenum target, GLuint index, GLint64* data)
                 return gl::error(GL_INVALID_OPERATION);
             }
 
+            if (!context->supportsTransformFeedback())
+            {
+                switch (target)
+                {
+                    case GL_TRANSFORM_FEEDBACK_BUFFER_START:
+                    case GL_TRANSFORM_FEEDBACK_BUFFER_SIZE:
+                    case GL_TRANSFORM_FEEDBACK_BUFFER_BINDING:
+                        return gl::error(GL_INVALID_OPERATION);
+                }
+            }
+
             switch (target)
             {
               case GL_TRANSFORM_FEEDBACK_BUFFER_START:
@@ -9604,6 +9673,11 @@ void __stdcall glBindTransformFeedback(GLenum target, GLuint id)
                 return gl::error(GL_INVALID_OPERATION);
             }
 
+            if (!context->supportsTransformFeedback())
+            {
+                return gl::error(GL_INVALID_OPERATION);
+            }
+
             switch (target)
             {
               case GL_TRANSFORM_FEEDBACK:
@@ -9651,6 +9725,11 @@ void __stdcall glDeleteTransformFeedbacks(GLsizei n, const GLuint* ids)
                 return gl::error(GL_INVALID_OPERATION);
             }
 
+            if (!context->supportsTransformFeedback())
+            {
+                return gl::error(GL_INVALID_OPERATION);
+            }
+
             for (int i = 0; i < n; i++)
             {
                 context->deleteTransformFeedback(ids[i]);
@@ -9674,6 +9753,11 @@ void __stdcall glGenTransformFeedbacks(GLsizei n, GLuint* ids)
         if (context)
         {
             if (context->getClientVersion() < 3)
+            {
+                return gl::error(GL_INVALID_OPERATION);
+            }
+
+            if (!context->supportsTransformFeedback())
             {
                 return gl::error(GL_INVALID_OPERATION);
             }
@@ -9731,6 +9815,11 @@ void __stdcall glPauseTransformFeedback(void)
                 return gl::error(GL_INVALID_OPERATION);
             }
 
+            if (!context->supportsTransformFeedback())
+            {
+                return gl::error(GL_INVALID_OPERATION);
+            }
+
             gl::TransformFeedback *transformFeedback = context->getCurrentTransformFeedback();
             ASSERT(transformFeedback != NULL);
 
@@ -9760,6 +9849,11 @@ void __stdcall glResumeTransformFeedback(void)
         if (context)
         {
             if (context->getClientVersion() < 3)
+            {
+                return gl::error(GL_INVALID_OPERATION);
+            }
+
+            if (!context->supportsTransformFeedback())
             {
                 return gl::error(GL_INVALID_OPERATION);
             }

@@ -704,6 +704,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearfloat11ps.h">
       <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearfloat11_fl9ps.h">
+      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearfloat11vs.h">
       <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
     </ClInclude>

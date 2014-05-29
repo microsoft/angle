@@ -153,6 +153,7 @@ EGLint Renderer11::initialize()
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_1,
         D3D_FEATURE_LEVEL_10_0,
+        D3D_FEATURE_LEVEL_9_3,
     };
 
     HRESULT result = S_OK;
@@ -246,7 +247,34 @@ EGLint Renderer11::initialize()
 
     SafeRelease(dxgiDevice);
 
-    mDxgiAdapter->GetDesc(&mAdapterDescription);
+    IDXGIAdapter2* dxgiAdapter2 = NULL;
+    result = mDxgiAdapter->QueryInterface(__uuidof(IDXGIAdapter2), (void**)&dxgiAdapter2);
+
+    // On D3D_FEATURE_LEVEL_9_*, IDXGIAdapter::GetDesc returns "Software Adapter" for the description string.
+    // If DXGI1.2 is available then IDXGIAdapter2::GetDesc2 can be used to get the actual hardware values.
+    if (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3 && SUCCEEDED(result))
+    {
+        DXGI_ADAPTER_DESC2 adapterDesc2 = {0};
+        dxgiAdapter2->GetDesc2(&adapterDesc2);
+
+        // Copy the contents of the DXGI_ADAPTER_DESC2 into mAdapterDescription (a DXGI_ADAPTER_DESC).
+        memcpy(mAdapterDescription.Description, adapterDesc2.Description, sizeof(mAdapterDescription.Description));
+        mAdapterDescription.VendorId = adapterDesc2.VendorId;
+        mAdapterDescription.DeviceId = adapterDesc2.DeviceId;
+        mAdapterDescription.SubSysId = adapterDesc2.SubSysId;
+        mAdapterDescription.Revision = adapterDesc2.Revision;
+        mAdapterDescription.DedicatedVideoMemory = adapterDesc2.DedicatedVideoMemory;
+        mAdapterDescription.DedicatedSystemMemory = adapterDesc2.DedicatedSystemMemory;
+        mAdapterDescription.SharedSystemMemory = adapterDesc2.SharedSystemMemory;
+        mAdapterDescription.AdapterLuid = adapterDesc2.AdapterLuid;
+    }
+    else
+    {
+        mDxgiAdapter->GetDesc(&mAdapterDescription);
+    }
+
+    SafeRelease(dxgiAdapter2);
+
     memset(mDescription, 0, sizeof(mDescription));
     wcstombs(mDescription, mAdapterDescription.Description, sizeof(mDescription) - 1);
 
@@ -461,7 +489,12 @@ void Renderer11::initializeDevice()
     mClear = new Clear11(this);
 
     ASSERT(!mPixelTransfer);
-    mPixelTransfer = new PixelTransfer11(this);
+
+    // Fast copy buffer to texture isn't supported on D3D_FEATURE_LEVEL_9_*.
+    if (!isFeatureLevel9())
+    {
+        mPixelTransfer = new PixelTransfer11(this);
+    }
 
     markAllStateDirty();
 }
@@ -1507,6 +1540,13 @@ void Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indic
 
 void Renderer11::applyShaders(gl::ProgramBinary *programBinary, bool rasterizerDiscard, bool transformFeedbackActive, const gl::VertexFormat inputLayout[])
 {
+
+    // D3D_FEATURE_LEVEL_9_* doesn't support transform feedback (due to the lack of Geometry Shaders).
+    if (isFeatureLevel9())
+    {
+        ASSERT(!transformFeedbackActive);
+    }
+
     ShaderExecutable *vertexExe = programBinary->getVertexExecutableForInputLayout(inputLayout);
     ShaderExecutable *pixelExe = programBinary->getPixelExecutable();
     ShaderExecutable *geometryExe = programBinary->getGeometryExecutable();
@@ -1712,11 +1752,14 @@ void Renderer11::applyUniforms(const gl::ProgramBinary &programBinary)
         memcpy(&mAppliedPixelConstants, &mPixelConstants, sizeof(dx_PixelConstants));
     }
 
-    // needed for the point sprite geometry shader
-    if (mCurrentGeometryConstantBuffer != mDriverConstantBufferPS)
+    if (getPointSpriteSupport())
     {
-        mDeviceContext->GSSetConstantBuffers(0, 1, &mDriverConstantBufferPS);
-        mCurrentGeometryConstantBuffer = mDriverConstantBufferPS;
+        // needed for the point sprite geometry shader
+        if (mCurrentGeometryConstantBuffer != mDriverConstantBufferPS)
+        {
+            mDeviceContext->GSSetConstantBuffers(0, 1, &mDriverConstantBufferPS);
+            mCurrentGeometryConstantBuffer = mDriverConstantBufferPS;
+        }
     }
 }
 
@@ -1863,6 +1906,7 @@ bool Renderer11::testDeviceResettable()
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_1,
         D3D_FEATURE_LEVEL_10_0,
+        D3D_FEATURE_LEVEL_9_3,
     };
 
     ID3D11Device* dummyDevice;
@@ -1955,8 +1999,8 @@ std::string Renderer11::getRendererDescription() const
     rendererString << mDescription;
     rendererString << " Direct3D11";
 
-    rendererString << " vs_" << getMajorShaderModel() << "_" << getMinorShaderModel();
-    rendererString << " ps_" << getMajorShaderModel() << "_" << getMinorShaderModel();
+    rendererString << " vs_" << getMajorShaderModel() << "_" << getMinorShaderModel() << getShaderModelSuffix();
+    rendererString << " ps_" << getMajorShaderModel() << "_" << getMinorShaderModel() << getShaderModelSuffix();
 
     return rendererString.str();
 }
@@ -2065,6 +2109,8 @@ float Renderer11::getTextureMaxAnisotropy() const
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
         return D3D10_MAX_MAXANISOTROPY;
+      case D3D_FEATURE_LEVEL_9_3:
+        return D3D11_MAX_MAXANISOTROPY;
       default: UNREACHABLE();
         return 0;
     }
@@ -2084,6 +2130,9 @@ Range Renderer11::getViewportBounds() const
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
         return Range(D3D10_VIEWPORT_BOUNDS_MIN, D3D10_VIEWPORT_BOUNDS_MAX);
+      case D3D_FEATURE_LEVEL_9_3:
+          // D3D_FEATURE_LEVEL_9_* don't support negative viewports. Also, restrict the upper bound to D3D10_VIEWPORT_BOUNDS_MAX to be safe.
+          return Range(0, D3D10_VIEWPORT_BOUNDS_MAX);
       default: UNREACHABLE();
         return Range(0, 0);
     }
@@ -2097,6 +2146,7 @@ unsigned int Renderer11::getMaxVertexTextureImageUnits() const
       case D3D_FEATURE_LEVEL_11_0:
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
+      case D3D_FEATURE_LEVEL_9_3:
         return MAX_TEXTURE_IMAGE_UNITS_VTF_SM4;
       default: UNREACHABLE();
         return 0;
@@ -2121,14 +2171,16 @@ unsigned int Renderer11::getReservedFragmentUniformVectors() const
 unsigned int Renderer11::getMaxVertexUniformVectors() const
 {
     META_ASSERT(MAX_VERTEX_UNIFORM_VECTORS_D3D11 <= D3D10_REQ_CONSTANT_BUFFER_ELEMENT_COUNT);
-    ASSERT(mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
+    // On D3D_FEATURE_LEVEL_9_3, the runtime will emulate constant buffers up to 4096 in size, even if the driver doesn't support it.
+    ASSERT(mFeatureLevel >= D3D_FEATURE_LEVEL_9_3);
     return MAX_VERTEX_UNIFORM_VECTORS_D3D11;
 }
 
 unsigned int Renderer11::getMaxFragmentUniformVectors() const
 {
     META_ASSERT(MAX_FRAGMENT_UNIFORM_VECTORS_D3D11 <= D3D10_REQ_CONSTANT_BUFFER_ELEMENT_COUNT);
-    ASSERT(mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
+    // On D3D_FEATURE_LEVEL_9_3, the runtime will emulate constant buffers up to 4096 in size, even if the driver doesn't support it.
+    ASSERT(mFeatureLevel >= D3D_FEATURE_LEVEL_9_3);
     return MAX_FRAGMENT_UNIFORM_VECTORS_D3D11;
 }
 
@@ -2137,14 +2189,23 @@ unsigned int Renderer11::getMaxVaryingVectors() const
     META_ASSERT(gl::IMPLEMENTATION_MAX_VARYING_VECTORS == D3D11_VS_OUTPUT_REGISTER_COUNT);
     META_ASSERT(D3D11_VS_OUTPUT_REGISTER_COUNT <= D3D11_PS_INPUT_REGISTER_COUNT);
     META_ASSERT(D3D10_VS_OUTPUT_REGISTER_COUNT <= D3D10_PS_INPUT_REGISTER_COUNT);
+
     switch (mFeatureLevel)
     {
       case D3D_FEATURE_LEVEL_11_0:
-        return D3D11_VS_OUTPUT_REGISTER_COUNT - getReservedVaryings();
+        return D3D11_VS_OUTPUT_REGISTER_COUNT - getReservedVaryings();    // 32 - getReservedVaryings
       case D3D_FEATURE_LEVEL_10_1:
-        return D3D10_1_VS_OUTPUT_REGISTER_COUNT - getReservedVaryings();
+        return D3D10_1_VS_OUTPUT_REGISTER_COUNT - getReservedVaryings();  // 32 - getReservedVaryings
       case D3D_FEATURE_LEVEL_10_0:
-        return D3D10_VS_OUTPUT_REGISTER_COUNT - getReservedVaryings();
+        return D3D10_VS_OUTPUT_REGISTER_COUNT - getReservedVaryings();    // 16 - getReservedVaryings
+      case D3D_FEATURE_LEVEL_9_3:
+        // OpenGL ES 2.0 requires 8 four-component varying vectors, excuding the ones reserved by ANGLE.
+        // Chrome disables WebGL if 8 four-component varying vectors are not available. 
+        // Shader Model 2.x, similar to Shader Model 4_0_level_9_3, supports between 8 and 11 four-component output registers.
+        // This is not enough, since ANGLE currently reserves 4 four-component registers (as of 5-29-2014).
+        // To enable WebGL on 9_3, we say that D3D_FEATURE_LEVEL_9_3 supports 8 four-component varying vectors.
+        // TODO: Investigate a better solution to this problem.
+        return 8; // 11 - getReservedVaryings();
       default: UNREACHABLE();
         return 0;
     }
@@ -2158,10 +2219,12 @@ unsigned int Renderer11::getMaxVertexShaderUniformBuffers() const
     switch (mFeatureLevel)
     {
       case D3D_FEATURE_LEVEL_11_0:
-        return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedVertexUniformBuffers();
+        return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedVertexUniformBuffers(); // 14 - getReservedVertexUniformBuffers
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
-        return D3D10_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedVertexUniformBuffers();
+        return D3D10_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedVertexUniformBuffers(); // 14 - getReservedVertexUniformBuffers
+      case D3D_FEATURE_LEVEL_9_3:
+        return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedVertexUniformBuffers(); // 14 - getReservedVertexUniformBuffers
       default: UNREACHABLE();
         return 0;
     }
@@ -2175,10 +2238,12 @@ unsigned int Renderer11::getMaxFragmentShaderUniformBuffers() const
     switch (mFeatureLevel)
     {
       case D3D_FEATURE_LEVEL_11_0:
-        return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedFragmentUniformBuffers();
+        return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedFragmentUniformBuffers(); // 14 - getReservedFragmentUniformBuffers
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
-        return D3D10_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedFragmentUniformBuffers();
+        return D3D10_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedFragmentUniformBuffers(); // 14 - getReservedFragmentUniformBuffers
+      case D3D_FEATURE_LEVEL_9_3:
+        return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedFragmentUniformBuffers(); // 14 - getReservedFragmentUniformBuffers
       default: UNREACHABLE();
         return 0;
     }
@@ -2216,6 +2281,9 @@ unsigned int Renderer11::getMaxTransformFeedbackBuffers() const
         return D3D10_1_SO_BUFFER_SLOT_COUNT;
       case D3D_FEATURE_LEVEL_10_0:
         return D3D10_SO_BUFFER_SLOT_COUNT;
+      case D3D_FEATURE_LEVEL_9_3:
+        // Transform feedback is a Feature Level 10_0+ feature.
+        return 0;
       default: UNREACHABLE();
         return 0;
     }
@@ -2232,6 +2300,9 @@ unsigned int Renderer11::getMaxTransformFeedbackSeparateComponents() const
         // D3D 10 and 10.1 only allow one output per output slot if an output slot other than zero
         // is used.
         return 4;
+      case D3D_FEATURE_LEVEL_9_3:
+        // Transform feedback is a Feature Level 10_0+ feature.
+        return 0;
       default: UNREACHABLE();
         return 0;
     }
@@ -2250,10 +2321,12 @@ unsigned int Renderer11::getMaxUniformBufferSize() const
     switch (mFeatureLevel)
     {
       case D3D_FEATURE_LEVEL_11_0:
-        return D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT * bytesPerComponent;
+        return D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT * bytesPerComponent; // Equals 4096 * 4
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
-        return D3D10_REQ_CONSTANT_BUFFER_ELEMENT_COUNT * bytesPerComponent;
+        return D3D10_REQ_CONSTANT_BUFFER_ELEMENT_COUNT * bytesPerComponent; // Equals 4096 * 4
+      case D3D_FEATURE_LEVEL_9_3:
+        return D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT * bytesPerComponent; // Equals 4096 * 4
       default: UNREACHABLE();
         return 0;
     }
@@ -2267,6 +2340,13 @@ bool Renderer11::getNonPower2TextureSupport() const
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
         return true;
+      case D3D_FEATURE_LEVEL_9_3:
+        // D3D_FEATURE_LEVEL_9_3 supports non-power-of-2 textures under two conditions:
+        //   1) Only one mipmap level can be created for each texture
+        //   2) Wrap sampler modes can't be used
+        // These are difficult to enforce in ANGLE, so we disable non-power-of-2 textures entirely. 
+        // TODO: Add limited support for non-power-of-2 textures on 9_3.
+        return false;
       default: UNREACHABLE();
         return false;
     }
@@ -2279,6 +2359,7 @@ bool Renderer11::getOcclusionQuerySupport() const
       case D3D_FEATURE_LEVEL_11_0:
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
+      case D3D_FEATURE_LEVEL_9_3:
         return true;
       default: UNREACHABLE();
         return false;
@@ -2293,6 +2374,11 @@ bool Renderer11::getInstancingSupport() const
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
         return true;
+      case D3D_FEATURE_LEVEL_9_3:
+        // D3D_FEATURE_LEVEL_9_3 supports instancing, but the first input slot in the input layout must contain per-vertex data.
+        // This is difficult to enforce in ANGLE, so we disable instancing entirely. 
+        // TODO: Add support for instancing on 9_3.
+        return false;
       default: UNREACHABLE();
         return false;
     }
@@ -2308,11 +2394,13 @@ bool Renderer11::getShareHandleSupport() const
 
 bool Renderer11::getDerivativeInstructionSupport() const
 {
+    // Examples of derivative instructions in HLSL are the ddx/ddy instrinsics.
     switch (mFeatureLevel)
     {
       case D3D_FEATURE_LEVEL_11_0:
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0:
+      case D3D_FEATURE_LEVEL_9_3:
         return true;
       default: UNREACHABLE();
         return false;
@@ -2331,6 +2419,8 @@ int Renderer11::getMaxRecommendedElementsIndices() const
     META_ASSERT(D3D10_REQ_DRAWINDEXED_INDEX_COUNT_2_TO_EXP == 32);
 
     // D3D11 allows up to 2^32 elements, but we report max signed int for convenience.
+    // Also, on FL 9_3 the start index location must be positive when reinterpreted as a signed integer. 
+    // This helps enforce that restriction.
     return std::numeric_limits<GLint>::max();
 }
 
@@ -2343,6 +2433,53 @@ int Renderer11::getMaxRecommendedElementsVertices() const
     return std::numeric_limits<GLint>::max();
 }
 
+bool Renderer11::getDisableDepthClipSupport() const
+{
+    switch (mFeatureLevel)
+    {
+    case D3D_FEATURE_LEVEL_11_0:
+    case D3D_FEATURE_LEVEL_10_1:
+    case D3D_FEATURE_LEVEL_10_0:
+        return true;
+    case D3D_FEATURE_LEVEL_9_3:
+        return false;
+    default: UNREACHABLE();
+        return false;
+    }
+}
+
+bool Renderer11::getPointSpriteSupport() const
+{
+    switch (mFeatureLevel)
+    {
+    case D3D_FEATURE_LEVEL_11_0:
+    case D3D_FEATURE_LEVEL_10_1:
+    case D3D_FEATURE_LEVEL_10_0:
+        return true;
+    case D3D_FEATURE_LEVEL_9_3:
+        // Geometry shaders are Feature Level 10_0+. ANGLE uses geometry shaders for point sprite emulation.
+        return false;
+    default: UNREACHABLE();
+        return false;
+    }
+}
+
+bool Renderer11::getTransformFeedbackSupport() const
+{
+    switch (mFeatureLevel)
+    {
+    case D3D_FEATURE_LEVEL_11_0:
+    case D3D_FEATURE_LEVEL_10_1:
+    case D3D_FEATURE_LEVEL_10_0:
+        return true;
+    case D3D_FEATURE_LEVEL_9_3:
+        // Geometry shaders are Feature Level 10_0+. ANGLE uses geometry shaders for transform feedback.
+        return false;
+    default: UNREACHABLE();
+        return false;
+    }
+}
+
 int Renderer11::getMajorShaderModel() const
 {
     switch (mFeatureLevel)
@@ -2350,6 +2487,7 @@ int Renderer11::getMajorShaderModel() const
       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MAJOR_VERSION;   // 5
       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MAJOR_VERSION; // 4
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MAJOR_VERSION;   // 4
+      case D3D_FEATURE_LEVEL_9_3:  return D3D10_SHADER_MAJOR_VERSION;   // 4
       default: UNREACHABLE();      return 0;
     }
 }
@@ -2361,7 +2499,23 @@ int Renderer11::getMinorShaderModel() const
       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MINOR_VERSION;   // 0
       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MINOR_VERSION; // 1
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MINOR_VERSION;   // 0
+      case D3D_FEATURE_LEVEL_9_3:  return D3D10_SHADER_MINOR_VERSION;   // 0
       default: UNREACHABLE();      return 0;
+    }
+}
+
+std::string Renderer11::getShaderModelSuffix() const
+{
+    switch (mFeatureLevel)
+    {
+    case D3D_FEATURE_LEVEL_11_0:
+    case D3D_FEATURE_LEVEL_10_1:
+    case D3D_FEATURE_LEVEL_10_0:
+      return "";
+    case D3D_FEATURE_LEVEL_9_3:  
+      return "_level_9_3";
+    default: UNREACHABLE();      
+      return 0;
     }
 }
 
@@ -2369,7 +2523,18 @@ float Renderer11::getMaxPointSize() const
 {
     // choose a reasonable maximum. we enforce this in the shader.
     // (nb: on a Radeon 2600xt, DX9 reports a 256 max point size)
-    return 1024.0f;
+    switch(mFeatureLevel)
+    {
+      case D3D_FEATURE_LEVEL_11_0:
+      case D3D_FEATURE_LEVEL_10_1:
+      case D3D_FEATURE_LEVEL_10_0:
+        return 1024.0f;
+      case D3D_FEATURE_LEVEL_9_3:
+        // Point sprites aren't supported on D3D_FEATURE_LEVEL_9_3 due to their Geometry Shader usage.
+        return 0.0f; 
+      default: UNREACHABLE();
+          return 0;
+    }
 }
 
 int Renderer11::getMaxViewportDimension() const
@@ -2378,14 +2543,17 @@ int Renderer11::getMaxViewportDimension() const
     // In our case return the maximum texture size, which is the maximum render buffer size.
     META_ASSERT(D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION * 2 - 1 <= D3D11_VIEWPORT_BOUNDS_MAX);
     META_ASSERT(D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION * 2 - 1 <= D3D10_VIEWPORT_BOUNDS_MAX);
+    META_ASSERT(D3D_FL9_3_REQ_TEXTURE2D_U_OR_V_DIMENSION <= D3D11_VIEWPORT_BOUNDS_MAX); // D3D_FEATURE_LEVEL_9_3 doesn't support negative viewport dimensions.
 
     switch (mFeatureLevel)
     {
       case D3D_FEATURE_LEVEL_11_0: 
-        return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 16384
+        return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;       // 16384
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0: 
-        return D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 8192
+        return D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;       // 8192
+      case D3D_FEATURE_LEVEL_9_3: 
+        return D3D_FL9_3_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 4096
       default: UNREACHABLE();      
         return 0;
     }
@@ -2395,9 +2563,10 @@ int Renderer11::getMaxTextureWidth() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 16384
+      case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;     // 16384
       case D3D_FEATURE_LEVEL_10_1:
-      case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 8192
+      case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;     // 8192
+      case D3D_FEATURE_LEVEL_9_3:  return D3D_FL9_3_REQ_TEXTURE2D_U_OR_V_DIMENSION; // 4096
       default: UNREACHABLE();      return 0;
     }
 }
@@ -2406,9 +2575,10 @@ int Renderer11::getMaxTextureHeight() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 16384
+      case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;     // 16384
       case D3D_FEATURE_LEVEL_10_1:
-      case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;   // 8192
+      case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;     // 8192
+      case D3D_FEATURE_LEVEL_9_3:  return D3D_FL9_3_REQ_TEXTURE2D_U_OR_V_DIMENSION; // 4096
       default: UNREACHABLE();      return 0;
     }
 }
@@ -2417,9 +2587,10 @@ int Renderer11::getMaxTextureDepth() const
 {
     switch (mFeatureLevel)
     {
-      case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;   // 2048
+      case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;     // 2048
       case D3D_FEATURE_LEVEL_10_1:
-      case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;   // 2048
+      case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;     // 2048
+      case D3D_FEATURE_LEVEL_9_3:  return D3D_FL9_1_REQ_TEXTURE3D_U_V_OR_W_DIMENSION; // 256
       default: UNREACHABLE();      return 0;
     }
 }
@@ -2431,6 +2602,7 @@ int Renderer11::getMaxTextureArrayLayers() const
       case D3D_FEATURE_LEVEL_11_0: return D3D11_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION;   // 2048
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION;   // 512
+      case D3D_FEATURE_LEVEL_9_3:  return 0;  // Resource arrays aren't supported on 9_3
       default: UNREACHABLE();      return 0;
     }
 }
@@ -2441,7 +2613,8 @@ bool Renderer11::get32BitIndexSupport() const
     {
       case D3D_FEATURE_LEVEL_11_0: 
       case D3D_FEATURE_LEVEL_10_1:
-      case D3D_FEATURE_LEVEL_10_0: return D3D10_REQ_DRAWINDEXED_INDEX_COUNT_2_TO_EXP >= 32;   // true
+      case D3D_FEATURE_LEVEL_10_0:
+      case D3D_FEATURE_LEVEL_9_3:  return D3D10_REQ_DRAWINDEXED_INDEX_COUNT_2_TO_EXP >= 32;   // true
       default: UNREACHABLE();      return false;
     }
 }
@@ -2559,10 +2732,19 @@ unsigned int Renderer11::getMaxRenderTargets() const
         // outputs to multiple RTs that are not bound.
         // TODO: Remove pixel shader outputs for render targets that are not bound.
         return 1;
+      case D3D_FEATURE_LEVEL_9_3:
+        // TODO: Does the perf issue on 10.0 and 10.1 cards impact 9_3?
+        // For now, set this to be 1.
+        return 1;
       default:
         UNREACHABLE();
         return 1;
     }
+}
+
+bool Renderer11::isFeatureLevel9() const
+{
+    return mFeatureLevel <= D3D_FEATURE_LEVEL_9_3;
 }
 
 bool Renderer11::copyToRenderTarget(TextureStorageInterface2D *dest, TextureStorageInterface2D *source)
@@ -2965,6 +3147,7 @@ ShaderExecutable *Renderer11::loadExecutable(const void *function, size_t length
                     }
                 }
 
+                ASSERT(!isFeatureLevel9());
                 result = mDevice->CreateGeometryShaderWithStreamOutput(function, length, soDeclaration.data(), soDeclaration.size(),
                                                                        NULL, 0, 0, NULL, &streamOutShader);
                 ASSERT(SUCCEEDED(result));
@@ -2991,6 +3174,8 @@ ShaderExecutable *Renderer11::loadExecutable(const void *function, size_t length
         break;
       case rx::SHADER_GEOMETRY:
         {
+            ASSERT(!isFeatureLevel9());
+
             ID3D11GeometryShader *geometryShader = NULL;
 
             result = mDevice->CreateGeometryShader(function, length, NULL, &geometryShader);
@@ -3031,25 +3216,8 @@ ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const ch
         return NULL;
     }
 
-    const char *profileVersion = NULL;
-    switch (mFeatureLevel)
-    {
-      case D3D_FEATURE_LEVEL_11_0:
-        profileVersion = "5_0";
-        break;
-      case D3D_FEATURE_LEVEL_10_1:
-        profileVersion = "4_1";
-        break;
-      case D3D_FEATURE_LEVEL_10_0:
-        profileVersion = "4_0";
-        break;
-      default:
-        UNREACHABLE();
-        return NULL;
-    }
-
     char profile[32];
-    snprintf(profile, ArraySize(profile), "%s_%s", profileType, profileVersion);
+    snprintf(profile, ArraySize(profile), "%s_%d_%d%s", profileType, getMajorShaderModel(), getMinorShaderModel(), getShaderModelSuffix().c_str());
 
     UINT flags = D3DCOMPILE_OPTIMIZATION_LEVEL0;
 
@@ -3133,6 +3301,14 @@ bool Renderer11::supportsFastCopyBufferToTexture(GLenum internalFormat) const
 
     // We only support buffer to texture copies in ES3
     if (clientVersion <= 2)
+    {
+        return false;
+    }
+
+    // D3D_FEATURE_LEVEL_9_* doesn't support FastCopyBufferToTexture since PixelTransfer uses
+    // Geometry Shaders and int types in its PS/VS shaders.
+    // TODO: Add limited support for FastCopyBufferToTexture on D3D_FEATURE_LEVEL_9_3.
+    if (isFeatureLevel9())
     {
         return false;
     }
@@ -3846,6 +4022,13 @@ Renderer11::MultisampleSupportInfo Renderer11::getMultisampleSupportInfo(DXGI_FO
             else
             {
                 supportInfo.qualityLevels[i - 1] = 0;
+            }
+
+            if (isFeatureLevel9() && i == 1)
+            {
+                // D3D_FEATURE_LEVEL_9_* doesn't support MSAA textures, but CheckMultisampleQualityLevels doesn't always reflect this.
+                // We therefore break out of this loop after the first iteration.
+                break;
             }
         }
     }

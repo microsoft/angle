@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <CodeSharingProject>9a3914c0-6596-4fbf-a103-e607cc42308c</CodeSharingProject>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>f7f6fbb7-320f-439e-8c60-af5fe4be3f50</SharedGUID>
+    <ItemsProjectGuid>{BBF25CAB-922E-4383-BA97-FC84C97F20A5}</ItemsProjectGuid>
+    <ItemsRootNamespace>angle_test_fl9</ItemsRootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.common\EGLWrapper.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.common\shaderhelper.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.common\targetver.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.fl9\pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.common\EGLWrapper.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.fl9\fl9test.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.fl9\pch.cpp" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+</Project>

@@ -1586,11 +1586,19 @@ bool ProgramBinary::link(InfoLog &infoLog, const AttributeBindings &attributeBin
 
         if (usesGeometryShader())
         {
-            std::string geometryHLSL = mDynamicHLSL->generateGeometryShaderHLSL(registers, fragmentShader, vertexShader);
-            mGeometryExecutable = mRenderer->compileToExecutable(infoLog, geometryHLSL.c_str(), rx::SHADER_GEOMETRY,
-                                                                 mTransformFeedbackLinkedVaryings,
-                                                                 (mTransformFeedbackBufferMode == GL_SEPARATE_ATTRIBS),
-                                                                 rx::ANGLE_D3D_WORKAROUND_NONE);
+            if (mRenderer->isFeatureLevel9())
+            {
+                infoLog.append("Requested shaders require Geometry Shaders, which aren't supported on current hardware.");
+                success = false;
+            }
+            else
+            {
+                std::string geometryHLSL = mDynamicHLSL->generateGeometryShaderHLSL(registers, fragmentShader, vertexShader);
+                mGeometryExecutable = mRenderer->compileToExecutable(infoLog, geometryHLSL.c_str(), rx::SHADER_GEOMETRY,
+                                                                     mTransformFeedbackLinkedVaryings,
+                                                                     (mTransformFeedbackBufferMode == GL_SEPARATE_ATTRIBS),
+                                                                     rx::ANGLE_D3D_WORKAROUND_NONE);
+            }
         }
 
         if (!defaultVertexExecutable || !mPixelExecutable || (usesGeometryShader() && !mGeometryExecutable))

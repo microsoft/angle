@@ -201,6 +201,7 @@
     <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrg2d11ps.h" />
     <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthrough3d11gs.h" />
     <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearfloat11ps.h" />
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearfloat11_fl9ps.h" />
     <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughr3di11ps.h" />
     <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzlei2darrayps.h" />
     <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughlumalpha2d11ps.h" />

@@ -204,7 +204,9 @@ Context::Context(int clientVersion, const gl::Context *shareContext, rx::Rendere
     mCurrentProgramBinary.set(NULL);
 
     mCombinedExtensionsString = NULL;
+
     mRendererString = NULL;
+    initRendererString();
 
     mInvalidEnum = false;
     mInvalidValue = false;
@@ -330,6 +332,7 @@ void Context::makeCurrent(egl::Surface *surface)
         mSupportsVertexTexture = mRenderer->getVertexTextureSupport();
         mSupportsNonPower2Texture = mRenderer->getNonPower2TextureSupport();
         mSupportsInstancing = mRenderer->getInstancingSupport();
+        mSupportsTransformFeedback = mRenderer->getTransformFeedbackSupport();
 
         mMaxViewportDimension = mRenderer->getMaxViewportDimension();
         mMax2DTextureDimension = std::min(std::min(mRenderer->getMaxTextureWidth(), mRenderer->getMaxTextureHeight()),
@@ -386,7 +389,6 @@ void Context::makeCurrent(egl::Surface *surface)
         }
 
         initExtensionString();
-        initRendererString();
 
         mState.viewport.x = 0;
         mState.viewport.y = 0;
@@ -3386,6 +3388,11 @@ bool Context::supportsTextureFilterAnisotropy() const
 bool Context::supportsPBOs() const
 {
     return mSupportsPBOs;
+}
+
+bool Context::supportsTransformFeedback() const
+{
+    return mSupportsTransformFeedback;
 }
 
 float Context::getTextureMaxAnisotropy() const

@@ -59,7 +59,7 @@ PixelTransfer11::PixelTransfer11(Renderer11 *renderer)
     ASSERT(SUCCEEDED(result));
 
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-    depthStencilDesc.DepthEnable = true;
+    depthStencilDesc.DepthEnable = TRUE;
     depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
     depthStencilDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
     depthStencilDesc.StencilEnable = FALSE;

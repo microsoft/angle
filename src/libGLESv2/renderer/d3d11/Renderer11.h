@@ -146,6 +146,9 @@ class Renderer11 : public Renderer
     virtual bool getPostSubBufferSupport() const;
     virtual int getMaxRecommendedElementsIndices() const;
     virtual int getMaxRecommendedElementsVertices() const;
+    virtual bool getDisableDepthClipSupport() const;
+    virtual bool getPointSpriteSupport() const;
+    virtual bool getTransformFeedbackSupport() const;
 
     virtual int getMajorShaderModel() const;
     virtual float getMaxPointSize() const;
@@ -165,6 +168,8 @@ class Renderer11 : public Renderer
     int getNearestSupportedSamples(DXGI_FORMAT format, unsigned int requested) const;
 
     virtual unsigned int getMaxRenderTargets() const;
+
+    virtual bool isFeatureLevel9() const;
 
     // Pixel operations
     virtual bool copyToRenderTarget(TextureStorageInterface2D *dest, TextureStorageInterface2D *source);
@@ -268,8 +273,10 @@ class Renderer11 : public Renderer
 
     void initializeDevice();
     void releaseDeviceResources();
-    int getMinorShaderModel() const;
     void release();
+
+    int getMinorShaderModel() const;
+    std::string getShaderModelSuffix() const;
 
     RenderStateCache mStateCache;
 

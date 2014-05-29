@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>b00e4537-dd76-41a9-81ee-20f1328a7cb3</UniqueIdentifier>
+      <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
+    </Filter>
+    <Filter Include="Package">
+      <UniqueIdentifier>{0bfecb7e-c2d0-470e-9ab3-b8647ec8fb6c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\Logo.scale-240.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\SmallLogo.scale-240.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\SplashScreen.scale-240.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\Square71x71Logo.scale-240.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\StoreLogo.scale-240.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\WideLogo.scale-240.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\tests\winrt_tests\angle.test.fl9\angle.test.fl9.WindowsPhone_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="..\..\..\tests\winrt_tests\angle.test.fl9\Package.WindowsPhone.appxmanifest">
+      <Filter>Package</Filter>
+    </AppxManifest>
+  </ItemGroup>
+</Project>

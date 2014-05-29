@@ -18,6 +18,7 @@
 
 #include "libGLESv2/renderer/d3d11/shaders/compiled/clearfloat11vs.h"
 #include "libGLESv2/renderer/d3d11/shaders/compiled/clearfloat11ps.h"
+#include "libGLESv2/renderer/d3d11/shaders/compiled/clearfloat11_fl9ps.h"
 
 #include "libGLESv2/renderer/d3d11/shaders/compiled/clearuint11vs.h"
 #include "libGLESv2/renderer/d3d11/shaders/compiled/clearuint11ps.h"
@@ -105,7 +106,7 @@ Clear11::Clear11(Renderer11 *renderer)
     rsDesc.DepthBias = 0;
     rsDesc.DepthBiasClamp = 0.0f;
     rsDesc.SlopeScaledDepthBias = 0.0f;
-    rsDesc.DepthClipEnable = FALSE;
+    rsDesc.DepthClipEnable = !mRenderer->getDisableDepthClipSupport(); // Disable depth clip if we can
     rsDesc.ScissorEnable = FALSE;
     rsDesc.MultisampleEnable = FALSE;
     rsDesc.AntialiasedLineEnable = FALSE;
@@ -114,9 +115,17 @@ Clear11::Clear11(Renderer11 *renderer)
     ASSERT(SUCCEEDED(result));
     d3d11::SetDebugName(mRasterizerState, "Clear11 masked clear rasterizer state");
 
-    mFloatClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_FLOAT, g_VS_ClearFloat, g_PS_ClearFloat);
-    mUintClearShader  = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_UINT,  g_VS_ClearUint,  g_PS_ClearUint );
-    mIntClearShader   = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_SINT,  g_VS_ClearSint,  g_PS_ClearSint );
+    if (mRenderer->isFeatureLevel9())
+    {
+        mFloatClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_FLOAT, g_VS_ClearFloat, g_PS_ClearFloat_FL9);
+        // There aren't D3D_FEATURE_LEVEL_9_* equivalents to the uint and int Clear shaders, since they aren't supported.
+    }
+    else
+    {
+        mFloatClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_FLOAT, g_VS_ClearFloat, g_PS_ClearFloat);
+        mUintClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_UINT, g_VS_ClearUint, g_PS_ClearUint);
+        mIntClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_SINT, g_VS_ClearSint, g_PS_ClearSint);
+    }
 }
 
 Clear11::~Clear11()
@@ -131,13 +140,17 @@ Clear11::~Clear11()
     SafeRelease(mFloatClearShader.vertexShader);
     SafeRelease(mFloatClearShader.pixelShader);
 
-    SafeRelease(mUintClearShader.inputLayout);
-    SafeRelease(mUintClearShader.vertexShader);
-    SafeRelease(mUintClearShader.pixelShader);
+    if (!mRenderer->isFeatureLevel9())
+    {
+        // The uint and int Clear shaders aren't supported on D3D_FEATURE_LEVEL_9_*
+        SafeRelease(mUintClearShader.inputLayout);
+        SafeRelease(mUintClearShader.vertexShader);
+        SafeRelease(mUintClearShader.pixelShader);
 
-    SafeRelease(mIntClearShader.inputLayout);
-    SafeRelease(mIntClearShader.vertexShader);
-    SafeRelease(mIntClearShader.pixelShader);
+        SafeRelease(mIntClearShader.inputLayout);
+        SafeRelease(mIntClearShader.vertexShader);
+        SafeRelease(mIntClearShader.pixelShader);
+    }
 
     for (ClearDepthStencilStateMap::iterator i = mClearDepthStencilStates.begin(); i != mClearDepthStencilStates.end(); i++)
     {

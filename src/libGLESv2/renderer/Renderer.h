@@ -212,6 +212,9 @@ class Renderer
     virtual bool getPostSubBufferSupport() const = 0;
     virtual int getMaxRecommendedElementsIndices() const = 0;
     virtual int getMaxRecommendedElementsVertices() const = 0;
+    virtual bool getDisableDepthClipSupport() const = 0;
+    virtual bool getPointSpriteSupport() const = 0;
+    virtual bool getTransformFeedbackSupport() const = 0;
 
     virtual int getMajorShaderModel() const = 0;
     virtual float getMaxPointSize() const = 0;
@@ -230,6 +233,8 @@ class Renderer
     virtual void getSampleCounts(GLenum internalFormat, GLsizei bufSize, GLint *params) const = 0;
 
     virtual unsigned int getMaxRenderTargets() const = 0;
+
+    virtual bool isFeatureLevel9() const = 0;
 
     // Pixel operations
     virtual bool copyToRenderTarget(TextureStorageInterface2D *dest, TextureStorageInterface2D *source) = 0;

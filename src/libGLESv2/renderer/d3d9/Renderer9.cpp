@@ -2594,6 +2594,23 @@ int Renderer9::getMaxRecommendedElementsVertices() const
     return 0;
 }
 
+bool Renderer9::getDisableDepthClipSupport() const
+{
+    return false;
+}
+
+bool Renderer9::getPointSpriteSupport() const
+{
+    return true;
+}
+
+bool Renderer9::getTransformFeedbackSupport() const
+{
+    // ES3 only
+    UNREACHABLE();
+    return false;
+}
+
 int Renderer9::getMajorShaderModel() const
 {
     return D3DSHADER_VERSION_MAJOR(mDeviceCaps.PixelShaderVersion);
@@ -2736,6 +2753,14 @@ unsigned int Renderer9::getMaxRenderTargets() const
 {
     // we do not support MRT in d3d9
     return 1;
+}
+
+
+bool Renderer9::isFeatureLevel9() const
+{
+    // This is only meant to be called on the 11 renderer.
+    UNREACHABLE();
+    return false;
 }
 
 D3DFORMAT Renderer9::ConvertTextureInternalFormat(GLenum internalformat)

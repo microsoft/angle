@@ -62,7 +62,17 @@ Texture::Texture(rx::Renderer *renderer, GLuint id, GLenum target) : RefCountObj
     mSamplerState.baseLevel = 0;
     mSamplerState.maxLevel = 1000;
     mSamplerState.minLod = -1000.0f;
-    mSamplerState.maxLod = 1000.0f;
+
+    if (renderer->isFeatureLevel9())
+    {
+        // D3D_FEATURE_LEVEL_9_* requires MaxLod to equal FLT_MAX.
+        mSamplerState.maxLod = FLT_MAX;
+    }
+    else
+    {
+        mSamplerState.maxLod = 1000.0f;
+    }
+
     mSamplerState.compareMode = GL_NONE;
     mSamplerState.compareFunc = GL_LEQUAL;
     mSamplerState.swizzleRed = GL_RED;

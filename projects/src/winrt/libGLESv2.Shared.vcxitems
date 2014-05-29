@@ -138,6 +138,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearsint11ps.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzleui3dps.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearfloat11ps.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearfloat11_fl9ps.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgb3di11ps.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzlei2dps.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgba3d11ps.h" />
