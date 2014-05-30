@@ -55,9 +55,10 @@ rx::Renderer *glCreateRenderer(egl::Display *display, HDC hDc, EGLNativeDisplayT
 #if defined(ANGLE_ENABLE_D3D11)
     if (ANGLE_DEFAULT_D3D11 ||
         displayId == EGL_D3D11_ELSE_D3D9_DISPLAY_ANGLE ||
-        displayId == EGL_D3D11_ONLY_DISPLAY_ANGLE)
+        displayId == EGL_D3D11_ONLY_DISPLAY_ANGLE ||
+        displayId == EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE)
     {
-        rx::Renderer11 *renderer = new rx::Renderer11(display, hDc);
+        rx::Renderer11 *renderer = new rx::Renderer11(display, hDc, displayId);
         if (renderer->initialize() == EGL_SUCCESS)
         {
             return renderer;
@@ -71,7 +72,8 @@ rx::Renderer *glCreateRenderer(egl::Display *display, HDC hDc, EGLNativeDisplayT
 #endif
 
 #if defined(ANGLE_ENABLE_D3D9)
-    if (displayId != EGL_D3D11_ONLY_DISPLAY_ANGLE)
+    if (displayId != EGL_D3D11_ONLY_DISPLAY_ANGLE &&
+        displayId != EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE)
     {
         rx::Renderer9 *renderer = new rx::Renderer9(display, hDc);
         if (renderer->initialize() == EGL_SUCCESS)

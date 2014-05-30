@@ -9,6 +9,7 @@
 #ifndef LIBGLESV2_RENDERER_RENDERER11_H_
 #define LIBGLESV2_RENDERER_RENDERER11_H_
 
+#include <EGL/eglext.h>
 #include "common/angleutils.h"
 #include "libGLESv2/angletypes.h"
 #include "common/mathutil.h"
@@ -44,7 +45,7 @@ enum
 class Renderer11 : public Renderer
 {
   public:
-    Renderer11(egl::Display *display, HDC hDc);
+    Renderer11(egl::Display *display, HDC hDc, EGLNativeDisplayType displayType);
     virtual ~Renderer11();
 
     static Renderer11 *makeRenderer11(Renderer *renderer);
@@ -416,6 +417,9 @@ class Renderer11 : public Renderer
 
     // Cached device caps
     bool mBGRATextureSupport;
+
+    // Requested Display Type
+    EGLNativeDisplayType mRequestedDisplayType;
 };
 
 }

@@ -11,7 +11,7 @@ class EGLWrapper
 {
 public:
     EGLWrapper();
-    void InitializeSurfacelessEGL();
+    void InitializeSurfacelessEGL(EGLNativeDisplayType displayId);
     void CleanupEGL();
 
 private:

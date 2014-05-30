@@ -61,7 +61,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\src;..\..\..\src\common;..\..\..\tests\winrt_tests\angle.test.common;..\..\..\tests\winrt_tests\angle.test.surfacehost;..\..\..\include;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src;..\..\..\src\common;..\..\..\tests\winrt_tests\angle.test.common;..\..\..\tests\winrt_tests\angle.test.fl9;..\..\..\include;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ANGLE_ENABLE_WINDOWS_STORE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>

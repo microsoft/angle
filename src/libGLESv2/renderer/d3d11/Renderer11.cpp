@@ -65,7 +65,7 @@ enum
     MAX_TEXTURE_IMAGE_UNITS_VTF_SM4 = 16
 };
 
-Renderer11::Renderer11(egl::Display *display, HDC hDc) : Renderer(display), mDc(hDc)
+Renderer11::Renderer11(egl::Display *display, HDC hDc, EGLNativeDisplayType displayType) : Renderer(display), mDc(hDc), mRequestedDisplayType(displayType)
 {
     mVertexDataManager = NULL;
     mIndexDataManager = NULL;
@@ -148,13 +148,29 @@ EGLint Renderer11::initialize()
 
 #endif // !defined(ANGLE_ENABLE_WINDOWS_STORE)
 
-    D3D_FEATURE_LEVEL featureLevels[] =
+    D3D_FEATURE_LEVEL defaultFeatureLevels[] = 
     {
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_1,
         D3D_FEATURE_LEVEL_10_0,
         D3D_FEATURE_LEVEL_9_3,
     };
+
+    D3D_FEATURE_LEVEL fl9_3 = D3D_FEATURE_LEVEL_9_3;
+
+    D3D_FEATURE_LEVEL *featureLevels = NULL;
+    UINT featureLevelCount = 0; 
+    
+    if (mRequestedDisplayType == EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE)
+    {
+        featureLevels = &fl9_3;
+        featureLevelCount = 1;
+    }
+    else
+    {
+        featureLevels = defaultFeatureLevels;
+        featureLevelCount = ArraySize(defaultFeatureLevels);
+    }
 
     HRESULT result = S_OK;
 
@@ -164,7 +180,7 @@ EGLint Renderer11::initialize()
                                NULL,
                                D3D11_CREATE_DEVICE_DEBUG,
                                featureLevels,
-                               ArraySize(featureLevels),
+                               featureLevelCount,
                                D3D11_SDK_VERSION,
                                &mDevice,
                                &mFeatureLevel,
@@ -183,7 +199,7 @@ EGLint Renderer11::initialize()
                                    NULL,
                                    0,
                                    featureLevels,
-                                   ArraySize(featureLevels),
+                                   featureLevelCount,
                                    D3D11_SDK_VERSION,
                                    &mDevice,
                                    &mFeatureLevel,
@@ -1901,13 +1917,29 @@ bool Renderer11::testDeviceResettable()
         return false;
     }
 
-    D3D_FEATURE_LEVEL featureLevels[] =
+    D3D_FEATURE_LEVEL defaultFeatureLevels[] =
     {
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_1,
         D3D_FEATURE_LEVEL_10_0,
         D3D_FEATURE_LEVEL_9_3,
     };
+
+    D3D_FEATURE_LEVEL fl9_3 = D3D_FEATURE_LEVEL_9_3;
+
+    D3D_FEATURE_LEVEL *featureLevels = NULL;
+    UINT featureLevelCount = 0;
+
+    if (mRequestedDisplayType == EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE)
+    {
+        featureLevels = &fl9_3;
+        featureLevelCount = 1;
+    }
+    else
+    {
+        featureLevels = defaultFeatureLevels;
+        featureLevelCount = ArraySize(defaultFeatureLevels);
+    }
 
     ID3D11Device* dummyDevice;
     D3D_FEATURE_LEVEL dummyFeatureLevel;
@@ -1922,7 +1954,7 @@ bool Renderer11::testDeviceResettable()
                                        0,
                                        #endif
                                        featureLevels,
-                                       ArraySize(featureLevels),
+                                       featureLevelCount,
                                        D3D11_SDK_VERSION,
                                        &dummyDevice,
                                        &dummyFeatureLevel,

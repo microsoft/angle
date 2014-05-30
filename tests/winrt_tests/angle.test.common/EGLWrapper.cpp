@@ -14,7 +14,7 @@ EGLWrapper::EGLWrapper()
 {
 }
 
-void EGLWrapper::InitializeSurfacelessEGL()
+void EGLWrapper::InitializeSurfacelessEGL(EGLNativeDisplayType displayId)
 {
     EGLint configAttribList[] = {
         EGL_RED_SIZE, 8,
@@ -35,7 +35,7 @@ void EGLWrapper::InitializeSurfacelessEGL()
     EGLConfig config = nullptr;
     EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE, EGL_NONE };
 
-    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    display = eglGetDisplay(displayId);
     if (display == EGL_NO_DISPLAY)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to get default EGL display.");

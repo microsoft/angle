@@ -58,7 +58,7 @@
     <ClCompile>
       <PreprocessorDefinitions>ANGLE_ENABLE_WINDOWS_STORE;PSAPI_VERSION=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\..\..\src;..\..\..\src\common;..\..\..\tests\winrt_tests\angle.test.common;..\..\..\tests\winrt_tests\angle.test.surfacehost;..\..\..\include;$(VCInstallDir)UnitTest\include;$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\src;..\..\..\src\common;..\..\..\tests\winrt_tests\angle.test.common;..\..\..\tests\winrt_tests\angle.test.fl9;..\..\..\include;$(VCInstallDir)UnitTest\include;$(ProjectDir);$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
       <UseFullPaths>true</UseFullPaths>
     </ClCompile>
