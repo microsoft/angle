@@ -483,7 +483,7 @@ void setBlockLayout(gl::InterfaceBlock *interfaceBlock, gl::BlockLayoutType newL
       case gl::BLOCKLAYOUT_SHARED:
       case gl::BLOCKLAYOUT_PACKED:
         {
-            gl::HLSLBlockEncoder hlslEncoder(&interfaceBlock->blockInfo);
+            gl::HLSLBlockEncoder hlslEncoder(&interfaceBlock->blockInfo, gl::HLSLBlockEncoder::ENCODE_PACKED);
             hlslEncoder.encodeInterfaceBlockFields(interfaceBlock->fields);
             interfaceBlock->dataSize = hlslEncoder.getBlockSize();
         }
@@ -3303,7 +3303,7 @@ TString OutputHLSL::qualifierString(TQualifier qualifier)
     switch(qualifier)
     {
       case EvqIn:            return "in";
-      case EvqOut:           return "out";
+      case EvqOut:           return "inout"; // 'out' results in an HLSL error if not all fields are written, for GLSL it's undefined
       case EvqInOut:         return "inout";
       case EvqConstReadOnly: return "const";
       default: UNREACHABLE();
@@ -3537,7 +3537,7 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
         return;   // Nameless structures don't have constructors
     }
 
-    if (type.getStruct() && mStructNames.find(decorate(name)) != mStructNames.end())
+    if (type.getStruct() && mStructNames.find(name) != mStructNames.end())
     {
         return;   // Already added
     }
@@ -3547,15 +3547,13 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
     ctorType.setPrecision(EbpHigh);
     ctorType.setQualifier(EvqTemporary);
 
-    TString ctorName = type.getStruct() ? decorate(name) : name;
-
     typedef std::vector<TType> ParameterArray;
     ParameterArray ctorParameters;
 
     const TStructure* structure = type.getStruct();
     if (structure)
     {
-        mStructNames.insert(decorate(name));
+        mStructNames.insert(name);
 
         const TString &structString = structureString(*structure, false, false);
 
@@ -3596,11 +3594,11 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
 
     if (ctorType.getStruct())
     {
-        constructor += ctorName + " " + ctorName + "_ctor(";
+        constructor += name + " " + name + "_ctor(";
     }
     else   // Built-in type
     {
-        constructor += typeString(ctorType) + " " + ctorName + "(";
+        constructor += typeString(ctorType) + " " + name + "(";
     }
 
     for (unsigned int parameter = 0; parameter < ctorParameters.size(); parameter++)
@@ -3620,7 +3618,7 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
 
     if (ctorType.getStruct())
     {
-        constructor += "    " + ctorName + " structure = {";
+        constructor += "    " + name + " structure = {";
     }
     else
     {
@@ -3814,10 +3812,10 @@ TString OutputHLSL::scopeString(unsigned int depthLimit)
 
     for (unsigned int i = 0; i < mScopeBracket.size() && i < depthLimit; i++)
     {
-        string += "_" + str(mScopeBracket[i]);
+        string += str(mScopeBracket[i]) + "_";
     }
 
-    return string;
+    return "ss_" + string;
 }
 
 TString OutputHLSL::scopedStruct(const TString &typeName)
@@ -3827,14 +3825,14 @@ TString OutputHLSL::scopedStruct(const TString &typeName)
         return typeName;
     }
 
-    return typeName + scopeString(mScopeDepth);
+    return scopeString(mScopeDepth) + typeName;
 }
 
 TString OutputHLSL::structLookup(const TString &typeName)
 {
     for (int depth = mScopeDepth; depth >= 0; depth--)
     {
-        TString scopedName = decorate(typeName + scopeString(depth));
+        TString scopedName = scopeString(depth) + typeName;
 
         for (StructNames::iterator structName = mStructNames.begin(); structName != mStructNames.end(); structName++)
         {
@@ -3940,7 +3938,7 @@ gl::Uniform OutputHLSL::declareUniformToList(const TType &type, const TString &n
         }
 
         // assign register offset information -- this will override the information in any sub-structures.
-        HLSLVariableGetRegisterInfo(registerIndex, &structUniform);
+        HLSLVariableGetRegisterInfo(registerIndex, &structUniform, mOutputType);
 
         output.push_back(structUniform);
 
@@ -4008,11 +4006,11 @@ int OutputHLSL::declareUniformAndAssignRegister(const TType &type, const TString
 
     if (IsSampler(type.getBasicType()))
     {
-        mSamplerRegister += gl::HLSLVariableRegisterCount(uniform);
+        mSamplerRegister += gl::HLSLVariableRegisterCount(uniform, mOutputType);
     }
     else
     {
-        mUniformRegister += gl::HLSLVariableRegisterCount(uniform);
+        mUniformRegister += gl::HLSLVariableRegisterCount(uniform, mOutputType);
     }
 
     return registerIndex;

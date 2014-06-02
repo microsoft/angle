@@ -12,7 +12,6 @@
 #ifndef LIBGLESV2_SHADER_H_
 #define LIBGLESV2_SHADER_H_
 
-#define GL_APICALL
 #include <GLES3/gl3.h>
 #include <GLES2/gl2.h>
 #include <string>
@@ -22,6 +21,7 @@
 #include "common/shadervars.h"
 #include "common/angleutils.h"
 #include "libGLESv2/angletypes.h"
+#include "GLSLANG/ShaderLang.h"
 
 namespace rx
 {
@@ -87,6 +87,7 @@ class Shader
     void resetVaryingsRegisterAssignment();
 
     static void releaseCompiler();
+    static ShShaderOutput getCompilerOutputType(GLenum shader);
 
     bool usesDepthRange() const { return mUsesDepthRange; }
     bool usesPointSize() const { return mUsesPointSize; }

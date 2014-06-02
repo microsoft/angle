@@ -35,7 +35,7 @@ HRESULT SurfaceHost::createSwapChain(ID3D11Device* device, DXGIFactory* factory,
     }
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc = { 0 };
-    swapChainDesc.BufferCount = 2;
+    swapChainDesc.BufferCount = 1;
     swapChainDesc.BufferDesc.Format = format;
     swapChainDesc.BufferDesc.Width = width;
     swapChainDesc.BufferDesc.Height = height;
@@ -49,7 +49,8 @@ HRESULT SurfaceHost::createSwapChain(ID3D11Device* device, DXGIFactory* factory,
     swapChainDesc.SampleDesc.Count = 1;
     swapChainDesc.SampleDesc.Quality = 0;
     swapChainDesc.Windowed = TRUE;
-
+    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+        
     return factory->CreateSwapChain(device, &swapChainDesc, swapChain);
 }
 };

@@ -12,7 +12,6 @@
 #ifndef LIBGLESV2_RENDERBUFFER_H_
 #define LIBGLESV2_RENDERBUFFER_H_
 
-#define GL_APICALL
 #include <GLES3/gl3.h>
 #include <GLES2/gl2.h>
 
@@ -58,6 +57,8 @@ class RenderbufferInterface
     virtual GLsizei getSamples() const = 0;
 
     virtual unsigned int getSerial() const = 0;
+
+    virtual bool isTexture() const = 0;
     virtual unsigned int getTextureSerial() const = 0;
 
   private:
@@ -85,6 +86,8 @@ class RenderbufferTexture2D : public RenderbufferInterface
     virtual GLsizei getSamples() const;
 
     virtual unsigned int getSerial() const;
+
+    virtual bool isTexture() const;
     virtual unsigned int getTextureSerial() const;
 
   private:
@@ -115,6 +118,8 @@ class RenderbufferTextureCubeMap : public RenderbufferInterface
     virtual GLsizei getSamples() const;
 
     virtual unsigned int getSerial() const;
+
+    virtual bool isTexture() const;
     virtual unsigned int getTextureSerial() const;
 
   private:
@@ -146,6 +151,8 @@ public:
     virtual GLsizei getSamples() const;
 
     virtual unsigned int getSerial() const;
+
+    virtual bool isTexture() const;
     virtual unsigned int getTextureSerial() const;
 
 private:
@@ -177,6 +184,8 @@ public:
     virtual GLsizei getSamples() const;
 
     virtual unsigned int getSerial() const;
+
+    virtual bool isTexture() const;
     virtual unsigned int getTextureSerial() const;
 
 private:
@@ -208,7 +217,9 @@ class RenderbufferStorage : public RenderbufferInterface
     virtual GLsizei getSamples() const;
 
     virtual unsigned int getSerial() const;
-    virtual unsigned int getTextureSerial() const { return 0; }
+
+    virtual bool isTexture() const;
+    virtual unsigned int getTextureSerial() const;
 
     static unsigned int issueSerials(GLuint count);
 
@@ -263,6 +274,8 @@ class Renderbuffer : public RefCountObject
     GLsizei getSamples() const;
 
     unsigned int getSerial() const;
+
+    bool isTexture() const;
     unsigned int getTextureSerial() const;
 
     void setStorage(RenderbufferStorage *newStorage);

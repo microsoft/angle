@@ -388,7 +388,7 @@ bool Win32Window::initialize(const std::string &name, size_t width, size_t heigh
     windowClass.cbWndExtra = 0;
     windowClass.hInstance = GetModuleHandle(NULL);
     windowClass.hIcon = NULL;
-    windowClass.hCursor = LoadCursorW(NULL, IDC_ARROW);
+    windowClass.hCursor = LoadCursorA(NULL, IDC_ARROW);
     windowClass.hbrBackground = 0;
     windowClass.lpszMenuName = NULL;
     windowClass.lpszClassName = mClassName.c_str();
@@ -453,6 +453,7 @@ void Win32Window::destroy()
     {
         eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         eglTerminate(mDisplay);
+        mDisplay = EGL_NO_DISPLAY;
     }
 
     if (mNativeDisplay)

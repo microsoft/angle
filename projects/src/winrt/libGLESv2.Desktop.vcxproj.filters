@@ -61,6 +61,9 @@
     <Filter Include="include\EGL">
       <UniqueIdentifier>{79AE79DD-7922-70CC-3439-C9B3586338EF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\third_party\systeminfo">
+      <UniqueIdentifier>{94887017-bb03-48ae-8c61-c3a41aeac0a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\angle.gyp">
@@ -343,6 +346,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\libGLESv2\VertexArray.cpp">
       <Filter>src\libGLESv2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\third_party\systeminfo\SystemInfo.cpp">
+      <Filter>src\third_party\systeminfo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -840,6 +846,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\libGLESv2\VertexAttribute.h">
       <Filter>src\libGLESv2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\third_party\systeminfo\SystemInfo.h">
+      <Filter>src\third_party\systeminfo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

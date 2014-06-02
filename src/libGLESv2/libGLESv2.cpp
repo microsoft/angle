@@ -2456,12 +2456,10 @@ void __stdcall glGetBooleanv(GLenum pname, GLboolean* params)
         {
             GLenum nativeType;
             unsigned int numParams = 0;
-            if (!context->getQueryParameterInfo(pname, &nativeType, &numParams))
-                return gl::error(GL_INVALID_ENUM);
-
-            // pname is valid, but there are no parameters to return
-            if (numParams == 0)
+            if (!ValidateStateQuery(context, pname, &nativeType, &numParams))
+            {
                 return;
+            }
 
             if (nativeType == GL_BOOL)
             {
@@ -2604,12 +2602,10 @@ void __stdcall glGetFloatv(GLenum pname, GLfloat* params)
         {
             GLenum nativeType;
             unsigned int numParams = 0;
-            if (!context->getQueryParameterInfo(pname, &nativeType, &numParams))
-                return gl::error(GL_INVALID_ENUM);
-
-            // pname is valid, but that there are no parameters to return.
-            if (numParams == 0)
+            if (!ValidateStateQuery(context, pname, &nativeType, &numParams))
+            {
                 return;
+            }
 
             if (nativeType == GL_FLOAT)
             {
@@ -2963,12 +2959,11 @@ void __stdcall glGetIntegerv(GLenum pname, GLint* params)
         {
             GLenum nativeType;
             unsigned int numParams = 0;
-            if (!context->getQueryParameterInfo(pname, &nativeType, &numParams))
-                return gl::error(GL_INVALID_ENUM);
 
-            // pname is valid, but there are no parameters to return
-            if (numParams == 0)
+            if (!ValidateStateQuery(context, pname, &nativeType, &numParams))
+            {
                 return;
+            }
 
             if (nativeType == GL_INT)
             {
@@ -5246,30 +5241,17 @@ void __stdcall glUniform1fv(GLint location, GLsizei count, const GLfloat* v)
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
+            if (!ValidateUniform(context, GL_FLOAT, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
-            if (!programBinary->setUniform1fv(location, count, v))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
+            programBinary->setUniform1fv(location, count, v);
         }
     }
     catch (...)
@@ -5289,30 +5271,17 @@ void __stdcall glUniform1iv(GLint location, GLsizei count, const GLint* v)
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
+            if (!ValidateUniform(context, GL_INT, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
-            if (!programBinary->setUniform1iv(location, count, v))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
+            programBinary->setUniform1iv(location, count, v);
         }
     }
     catch (...)
@@ -5334,30 +5303,17 @@ void __stdcall glUniform2fv(GLint location, GLsizei count, const GLfloat* v)
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-        
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
+            if (!ValidateUniform(context, GL_FLOAT_VEC2, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
-            if (!programBinary->setUniform2fv(location, count, v))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
+            programBinary->setUniform2fv(location, count, v);
         }
     }
     catch (...)
@@ -5379,30 +5335,17 @@ void __stdcall glUniform2iv(GLint location, GLsizei count, const GLint* v)
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
+            if (!ValidateUniform(context, GL_INT_VEC2, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
-            if (!programBinary->setUniform2iv(location, count, v))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
+            programBinary->setUniform2iv(location, count, v);
         }
     }
     catch (...)
@@ -5424,30 +5367,17 @@ void __stdcall glUniform3fv(GLint location, GLsizei count, const GLfloat* v)
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
+            if (!ValidateUniform(context, GL_FLOAT_VEC3, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
-            if (!programBinary->setUniform3fv(location, count, v))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
+            programBinary->setUniform3fv(location, count, v);
         }
     }
     catch (...)
@@ -5469,30 +5399,17 @@ void __stdcall glUniform3iv(GLint location, GLsizei count, const GLint* v)
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
+            if (!ValidateUniform(context, GL_INT_VEC3, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
-            if (!programBinary->setUniform3iv(location, count, v))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
+            programBinary->setUniform3iv(location, count, v);
         }
     }
     catch (...)
@@ -5514,30 +5431,17 @@ void __stdcall glUniform4fv(GLint location, GLsizei count, const GLfloat* v)
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
+            if (!ValidateUniform(context, GL_FLOAT_VEC4, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
-            if (!programBinary->setUniform4fv(location, count, v))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
+            programBinary->setUniform4fv(location, count, v);
         }
     }
     catch (...)
@@ -5559,30 +5463,17 @@ void __stdcall glUniform4iv(GLint location, GLsizei count, const GLint* v)
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
+            if (!ValidateUniform(context, GL_INT_VEC4, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
-            if (!programBinary->setUniform4iv(location, count, v))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
+            programBinary->setUniform4iv(location, count, v);
         }
     }
     catch (...)
@@ -5598,35 +5489,17 @@ void __stdcall glUniformMatrix2fv(GLint location, GLsizei count, GLboolean trans
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            if (transpose != GL_FALSE && context->getClientVersion() < 3)
+            if (!ValidateUniformMatrix(context, GL_FLOAT_MAT2, location, count, transpose))
             {
-                return gl::error(GL_INVALID_VALUE);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniformMatrix2fv(location, count, transpose, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniformMatrix2fv(location, count, transpose, value);
         }
     }
     catch (...)
@@ -5642,35 +5515,17 @@ void __stdcall glUniformMatrix3fv(GLint location, GLsizei count, GLboolean trans
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            if (transpose != GL_FALSE && context->getClientVersion() < 3)
+            if (!ValidateUniformMatrix(context, GL_FLOAT_MAT3, location, count, transpose))
             {
-                return gl::error(GL_INVALID_VALUE);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniformMatrix3fv(location, count, transpose, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniformMatrix3fv(location, count, transpose, value);
         }
     }
     catch (...)
@@ -5686,35 +5541,17 @@ void __stdcall glUniformMatrix4fv(GLint location, GLsizei count, GLboolean trans
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            if (transpose != GL_FALSE && context->getClientVersion() < 3)
+            if (!ValidateUniformMatrix(context, GL_FLOAT_MAT4, location, count, transpose))
             {
-                return gl::error(GL_INVALID_VALUE);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniformMatrix4fv(location, count, transpose, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniformMatrix4fv(location, count, transpose, value);
         }
     }
     catch (...)
@@ -6772,35 +6609,17 @@ void __stdcall glUniformMatrix2x3fv(GLint location, GLsizei count, GLboolean tra
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            if (context->getClientVersion() < 3)
+            if (!ValidateUniformMatrix(context, GL_FLOAT_MAT2x3, location, count, transpose))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniformMatrix2x3fv(location, count, transpose, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniformMatrix2x3fv(location, count, transpose, value);
         }
     }
     catch (...)
@@ -6816,35 +6635,17 @@ void __stdcall glUniformMatrix3x2fv(GLint location, GLsizei count, GLboolean tra
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            if (context->getClientVersion() < 3)
+            if (!ValidateUniformMatrix(context, GL_FLOAT_MAT3x2, location, count, transpose))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniformMatrix3x2fv(location, count, transpose, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniformMatrix3x2fv(location, count, transpose, value);
         }
     }
     catch (...)
@@ -6860,35 +6661,17 @@ void __stdcall glUniformMatrix2x4fv(GLint location, GLsizei count, GLboolean tra
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            if (context->getClientVersion() < 3)
+            if (!ValidateUniformMatrix(context, GL_FLOAT_MAT2x4, location, count, transpose))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniformMatrix2x4fv(location, count, transpose, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniformMatrix2x4fv(location, count, transpose, value);
         }
     }
     catch (...)
@@ -6904,35 +6687,17 @@ void __stdcall glUniformMatrix4x2fv(GLint location, GLsizei count, GLboolean tra
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            if (context->getClientVersion() < 3)
+            if (!ValidateUniformMatrix(context, GL_FLOAT_MAT4x2, location, count, transpose))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniformMatrix4x2fv(location, count, transpose, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniformMatrix4x2fv(location, count, transpose, value);
         }
     }
     catch (...)
@@ -6948,35 +6713,17 @@ void __stdcall glUniformMatrix3x4fv(GLint location, GLsizei count, GLboolean tra
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            if (context->getClientVersion() < 3)
+            if (!ValidateUniformMatrix(context, GL_FLOAT_MAT3x4, location, count, transpose))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniformMatrix3x4fv(location, count, transpose, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniformMatrix3x4fv(location, count, transpose, value);
         }
     }
     catch (...)
@@ -6992,35 +6739,17 @@ void __stdcall glUniformMatrix4x3fv(GLint location, GLsizei count, GLboolean tra
 
     try
     {
-        if (count < 0)
-        {
-            return gl::error(GL_INVALID_VALUE);
-        }
-
-        if (location == -1)
-        {
-            return;
-        }
-
         gl::Context *context = gl::getNonLostContext();
 
         if (context)
         {
-            if (context->getClientVersion() < 3)
+            if (!ValidateUniformMatrix(context, GL_FLOAT_MAT4x3, location, count, transpose))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniformMatrix4x3fv(location, count, transpose, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniformMatrix4x3fv(location, count, transpose, value);
         }
     }
     catch (...)
@@ -8167,21 +7896,13 @@ void __stdcall glUniform1uiv(GLint location, GLsizei count, const GLuint* value)
 
         if (context)
         {
-            if (context->getClientVersion() < 3)
+            if (!ValidateUniform(context, GL_UNSIGNED_INT, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniform1uiv(location, count, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniform1uiv(location, count, value);
         }
     }
     catch (...)
@@ -8201,21 +7922,13 @@ void __stdcall glUniform2uiv(GLint location, GLsizei count, const GLuint* value)
 
         if (context)
         {
-            if (context->getClientVersion() < 3)
+            if (!ValidateUniform(context, GL_UNSIGNED_INT_VEC2, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniform2uiv(location, count, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniform2uiv(location, count, value);
         }
     }
     catch (...)
@@ -8235,21 +7948,13 @@ void __stdcall glUniform3uiv(GLint location, GLsizei count, const GLuint* value)
 
         if (context)
         {
-            if (context->getClientVersion() < 3)
+            if (!ValidateUniform(context, GL_UNSIGNED_INT_VEC3, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniform3uiv(location, count, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniform3uiv(location, count, value);
         }
     }
     catch (...)
@@ -8269,21 +7974,13 @@ void __stdcall glUniform4uiv(GLint location, GLsizei count, const GLuint* value)
 
         if (context)
         {
-            if (context->getClientVersion() < 3)
+            if (!ValidateUniform(context, GL_UNSIGNED_INT_VEC4, location, count))
             {
-                return gl::error(GL_INVALID_OPERATION);
+                return;
             }
 
             gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
-            if (!programBinary)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
-            if (!programBinary->setUniform4uiv(location, count, value))
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
+            programBinary->setUniform4uiv(location, count, value);
         }
     }
     catch (...)
@@ -9135,12 +8832,10 @@ void __stdcall glGetInteger64v(GLenum pname, GLint64* params)
 
             GLenum nativeType;
             unsigned int numParams = 0;
-            if (!context->getQueryParameterInfo(pname, &nativeType, &numParams))
-                return gl::error(GL_INVALID_ENUM);
-
-            // pname is valid, but that there are no parameters to return.
-            if (numParams == 0)
+            if (!ValidateStateQuery(context, pname, &nativeType, &numParams))
+            {
                 return;
+            }
 
             if (nativeType == GL_INT_64_ANGLEX)
             {

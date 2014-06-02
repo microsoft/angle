@@ -17,6 +17,7 @@
 #include "libGLESv2/formatutils.h"
 #include "libGLESv2/main.h"
 #include "libGLESv2/Query.h"
+#include "libGLESv2/ProgramBinary.h"
 
 #include "common/mathutil.h"
 #include "common/utilities.h"
@@ -828,6 +829,7 @@ bool ValidateReadPixelsParameters(gl::Context *context, GLint x, GLint y, GLsize
                                   GLenum format, GLenum type, GLsizei *bufSize, GLvoid *pixels)
 {
     gl::Framebuffer *framebuffer = context->getReadFramebuffer();
+    ASSERT(framebuffer);
 
     if (framebuffer->completeness() != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -839,16 +841,15 @@ bool ValidateReadPixelsParameters(gl::Context *context, GLint x, GLint y, GLsize
         return gl::error(GL_INVALID_OPERATION, false);
     }
 
+    if (!framebuffer->getReadColorbuffer())
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
     GLenum currentInternalFormat, currentFormat, currentType;
     int clientVersion = context->getClientVersion();
 
-    // Failure in getCurrentReadFormatType indicates that no color attachment is currently bound,
-    // and attempting to read back if that's the case is an error. The error will be registered
-    // by getCurrentReadFormat.
-    // Note: we need to explicitly check for framebuffer completeness here, before we call
-    // getCurrentReadFormatType, because it generates a different (wrong) error for incomplete FBOs
-    if (!context->getCurrentReadFormatType(&currentInternalFormat, &currentFormat, &currentType))
-        return false;
+    context->getCurrentReadFormatType(&currentInternalFormat, &currentFormat, &currentType);
 
     bool validReadFormat = (clientVersion < 3) ? ValidES2ReadFormatType(context, format, type) :
                                                  ValidES3ReadFormatType(context, currentInternalFormat, format, type);
@@ -941,6 +942,157 @@ bool ValidateEndQuery(gl::Context *context, GLenum target)
     if (!queryObject->isStarted())
     {
         return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    return true;
+}
+
+static bool ValidateUniformCommonBase(gl::Context *context, GLenum targetUniformType,
+                                      GLint location, GLsizei count, LinkedUniform **uniformOut)
+{
+    if (count < 0)
+    {
+        return gl::error(GL_INVALID_VALUE, false);
+    }
+
+    gl::ProgramBinary *programBinary = context->getCurrentProgramBinary();
+    if (!programBinary)
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    if (location == -1)
+    {
+        // Silently ignore the uniform command
+        return false;
+    }
+
+    if (!programBinary->isValidUniformLocation(location))
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    LinkedUniform *uniform = programBinary->getUniformByLocation(location);
+
+    // attempting to write an array to a non-array uniform is an INVALID_OPERATION
+    if (uniform->elementCount() == 1 && count > 1)
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    *uniformOut = uniform;
+    return true;
+}
+
+bool ValidateUniform(gl::Context *context, GLenum uniformType, GLint location, GLsizei count)
+{
+    // Check for ES3 uniform entry points
+    if (UniformComponentType(uniformType) == GL_UNSIGNED_INT && context->getClientVersion() < 3)
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    LinkedUniform *uniform = NULL;
+    if (!ValidateUniformCommonBase(context, uniformType, location, count, &uniform))
+    {
+        return false;
+    }
+
+    GLenum targetBoolType = UniformBoolVectorType(uniformType);
+    bool samplerUniformCheck = (IsSampler(uniform->type) && uniformType == GL_INT);
+    if (!samplerUniformCheck && uniformType != uniform->type && targetBoolType != uniform->type)
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    return true;
+}
+
+bool ValidateUniformMatrix(gl::Context *context, GLenum matrixType, GLint location, GLsizei count,
+                           GLboolean transpose)
+{
+    // Check for ES3 uniform entry points
+    int rows = VariableRowCount(matrixType);
+    int cols = VariableColumnCount(matrixType);
+    if (rows != cols && context->getClientVersion() < 3)
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    if (transpose != GL_FALSE && context->getClientVersion() < 3)
+    {
+        return gl::error(GL_INVALID_VALUE, false);
+    }
+
+    LinkedUniform *uniform = NULL;
+    if (!ValidateUniformCommonBase(context, matrixType, location, count, &uniform))
+    {
+        return false;
+    }
+
+    if (uniform->type != matrixType)
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    return true;
+}
+
+bool ValidateStateQuery(gl::Context *context, GLenum pname, GLenum *nativeType, unsigned int *numParams)
+{
+    if (!context->getQueryParameterInfo(pname, nativeType, numParams))
+    {
+        return gl::error(GL_INVALID_ENUM, false);
+    }
+
+    if (pname >= GL_DRAW_BUFFER0 && pname <= GL_DRAW_BUFFER15)
+    {
+        unsigned int colorAttachment = (pname - GL_DRAW_BUFFER0);
+
+        if (colorAttachment >= context->getMaximumRenderTargets())
+        {
+            return gl::error(GL_INVALID_OPERATION, false);
+        }
+    }
+
+    switch (pname)
+    {
+      case GL_TEXTURE_BINDING_2D:
+      case GL_TEXTURE_BINDING_CUBE_MAP:
+      case GL_TEXTURE_BINDING_3D:
+      case GL_TEXTURE_BINDING_2D_ARRAY:
+        if (context->getActiveSampler() >= context->getMaximumCombinedTextureImageUnits())
+        {
+            return gl::error(GL_INVALID_OPERATION, false);
+        }
+        break;
+
+      case GL_IMPLEMENTATION_COLOR_READ_TYPE:
+      case GL_IMPLEMENTATION_COLOR_READ_FORMAT:
+        {
+            Framebuffer *framebuffer = context->getReadFramebuffer();
+            ASSERT(framebuffer);
+            if (framebuffer->completeness() != GL_FRAMEBUFFER_COMPLETE)
+            {
+                return gl::error(GL_INVALID_OPERATION, false);
+            }
+
+            Renderbuffer *renderbuffer = framebuffer->getReadColorbuffer();
+            if (!renderbuffer)
+            {
+                return gl::error(GL_INVALID_OPERATION, false);
+            }
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    // pname is valid, but there are no parameters to return
+    if (numParams == 0)
+    {
+        return false;
     }
 
     return true;

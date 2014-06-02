@@ -184,6 +184,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\include\EGL\eglext.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\include\EGL\egl.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\include\EGL\eglplatform.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\systeminfo\SystemInfo.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\threademulation\ThreadEmulation.h" />
   </ItemGroup>
   <ItemGroup>
@@ -257,6 +258,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\mathutil.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\debug.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\murmurhash\MurmurHash3.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\systeminfo\SystemInfo.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\threademulation\ThreadEmulation.cpp" />
   </ItemGroup>
   <ItemGroup>

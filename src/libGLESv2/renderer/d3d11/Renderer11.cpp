@@ -1666,6 +1666,7 @@ void Renderer11::applyUniforms(const gl::ProgramBinary &programBinary)
     {
         D3D11_MAPPED_SUBRESOURCE map = {0};
         HRESULT result = mDeviceContext->Map(vertexConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+        UNUSED_ASSERTION_VARIABLE(result);
         ASSERT(SUCCEEDED(result));
         mapVS = (float(*)[4])map.pData;
     }
@@ -1674,6 +1675,7 @@ void Renderer11::applyUniforms(const gl::ProgramBinary &programBinary)
     {
         D3D11_MAPPED_SUBRESOURCE map = {0};
         HRESULT result = mDeviceContext->Map(pixelConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+        UNUSED_ASSERTION_VARIABLE(result);
         ASSERT(SUCCEEDED(result));
         mapPS = (float(*)[4])map.pData;
     }
@@ -1735,6 +1737,7 @@ void Renderer11::applyUniforms(const gl::ProgramBinary &programBinary)
         constantBufferDescription.StructureByteStride = 0;
 
         HRESULT result = mDevice->CreateBuffer(&constantBufferDescription, NULL, &mDriverConstantBufferVS);
+        UNUSED_ASSERTION_VARIABLE(result);
         ASSERT(SUCCEEDED(result));
 
         mDeviceContext->VSSetConstantBuffers(1, 1, &mDriverConstantBufferVS);
@@ -1751,6 +1754,7 @@ void Renderer11::applyUniforms(const gl::ProgramBinary &programBinary)
         constantBufferDescription.StructureByteStride = 0;
 
         HRESULT result = mDevice->CreateBuffer(&constantBufferDescription, NULL, &mDriverConstantBufferPS);
+        UNUSED_ASSERTION_VARIABLE(result);
         ASSERT(SUCCEEDED(result));
 
         mDeviceContext->PSSetConstantBuffers(1, 1, &mDriverConstantBufferPS);
@@ -3662,6 +3666,7 @@ void Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams
 
     D3D11_MAPPED_SUBRESOURCE mapping;
     HRESULT hr = mDeviceContext->Map(readTexture, 0, D3D11_MAP_READ, 0, &mapping);
+    UNUSED_ASSERTION_VARIABLE(hr);
     ASSERT(SUCCEEDED(hr));
 
     unsigned char *source;

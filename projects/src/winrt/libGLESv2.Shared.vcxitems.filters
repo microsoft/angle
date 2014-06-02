@@ -55,6 +55,9 @@
     <Filter Include="src\third_party\threademulation">
       <UniqueIdentifier>{653f48b2-2d57-4832-8183-a36eb2013374}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\third_party\systeminfo">
+      <UniqueIdentifier>{9510dc02-ab20-4edb-8bcb-a7f3e8c7076d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)..\..\..\src\angle.gyp" />
@@ -293,6 +296,9 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.cpp">
       <Filter>src\common\winrt</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\systeminfo\SystemInfo.cpp">
+      <Filter>src\third_party\systeminfo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -739,6 +745,9 @@
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.h">
       <Filter>src\common\winrt</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\systeminfo\SystemInfo.h">
+      <Filter>src\third_party\systeminfo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

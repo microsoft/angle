@@ -1,6 +1,6 @@
 #include "precompiled.h"
 //
-// Copyright (c) 2012-2013 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2012-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -327,8 +327,10 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
     SafeRelease(mBackBufferRTView);
 
     // Resize swap chain
+    DXGI_SWAP_CHAIN_DESC desc;
+    mSwapChain->GetDesc(&desc);
     DXGI_FORMAT backbufferDXGIFormat = gl_d3d11::GetTexFormat(mBackBufferFormat, mRenderer->getCurrentClientVersion());
-    HRESULT result = mSwapChain->ResizeBuffers(2, backbufferWidth, backbufferHeight, backbufferDXGIFormat, 0);
+    HRESULT result = mSwapChain->ResizeBuffers(desc.BufferCount, backbufferWidth, backbufferHeight, backbufferDXGIFormat, 0);
 
     if (FAILED(result))
     {
@@ -579,6 +581,7 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     if (result == DXGI_ERROR_DEVICE_REMOVED)
     {
         HRESULT removedReason = device->GetDeviceRemovedReason();
+        UNUSED_ASSERTION_VARIABLE(removedReason);
         ERR("Present failed: the D3D11 device was removed: 0x%08X", removedReason);
         return EGL_CONTEXT_LOST;
     }

@@ -35,6 +35,7 @@
 #include "libEGL/Display.h"
 
 #include "third_party/trace_event/trace_event.h"
+#include "third_party/systeminfo/SystemInfo.h"
 
 // Can also be enabled by defining FORCE_REF_RAST in the project's predefined macros
 #define REF_RAST 0
@@ -131,6 +132,7 @@ Renderer9::Renderer9(egl::Display *display, HDC hDc) : Renderer(display), mDc(hD
 
     mAppliedVertexShader = NULL;
     mAppliedPixelShader = NULL;
+    mAppliedProgramSerial = 0;
 }
 
 Renderer9::~Renderer9()
@@ -675,6 +677,7 @@ IDirect3DQuery9* Renderer9::allocateEventQuery()
     if (mEventQueryPool.empty())
     {
         HRESULT result = mDevice->CreateQuery(D3DQUERYTYPE_EVENT, &query);
+        UNUSED_ASSERTION_VARIABLE(result);
         ASSERT(SUCCEEDED(result));
     }
     else
@@ -1736,25 +1739,29 @@ void Renderer9::applyShaders(gl::ProgramBinary *programBinary, bool rasterizerDi
     IDirect3DVertexShader9 *vertexShader = (vertexExe ? ShaderExecutable9::makeShaderExecutable9(vertexExe)->getVertexShader() : NULL);
     IDirect3DPixelShader9 *pixelShader = (pixelExe ? ShaderExecutable9::makeShaderExecutable9(pixelExe)->getPixelShader() : NULL);
 
-    bool dirtyUniforms = false;
-
     if (vertexShader != mAppliedVertexShader)
     {
         mDevice->SetVertexShader(vertexShader);
         mAppliedVertexShader = vertexShader;
-        dirtyUniforms = true;
     }
 
     if (pixelShader != mAppliedPixelShader)
     {
         mDevice->SetPixelShader(pixelShader);
         mAppliedPixelShader = pixelShader;
-        dirtyUniforms = true;
     }
 
-    if (dirtyUniforms)
+    // D3D9 has a quirk where creating multiple shaders with the same content
+    // can return the same shader pointer. Because GL programs store different data
+    // per-program, checking the program serial guarantees we upload fresh
+    // uniform data even if our shader pointers are the same.
+    // https://code.google.com/p/angleproject/issues/detail?id=661
+    unsigned int programSerial = programBinary->getSerial();
+    if (programSerial != mAppliedProgramSerial)
     {
         programBinary->dirtyAllUniforms();
+        mDxUniformsDirty = true;
+        mAppliedProgramSerial = programSerial;
     }
 }
 
@@ -2112,6 +2119,7 @@ void Renderer9::markAllStateDirty()
     mAppliedIBSerial = 0;
     mAppliedVertexShader = NULL;
     mAppliedPixelShader = NULL;
+    mAppliedProgramSerial = 0;
     mDxUniformsDirty = true;
 
     mVertexDeclarationCache.markStateDirty();
