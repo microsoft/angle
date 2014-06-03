@@ -81,7 +81,7 @@ std::string getTempPath()
 static float GetLogicalDpi()
 {
     ComPtr<ABI::Windows::Graphics::Display::IDisplayPropertiesStatics> displayProperties;
-    float dpi = 1.0f;
+    float dpi = 96.0f;
 
     if (SUCCEEDED(GetActivationFactory(HStringReference(RuntimeClass_Windows_Graphics_Display_DisplayProperties).Get(), displayProperties.GetAddressOf())))
     {
@@ -90,7 +90,7 @@ static float GetLogicalDpi()
             return dpi;
         }
     }
-    return 1.0f;
+    return dpi;
 }
 
 float convertDipsToPixels(float dips)

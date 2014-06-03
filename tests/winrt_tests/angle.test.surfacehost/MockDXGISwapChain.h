@@ -109,6 +109,11 @@ public:
         DXGI_FORMAT NewFormat,
         UINT SwapChainFlags)
     {
+        // This Mock when compiled for Windows Phone, should fail the ResizeBuffers( ) call with
+        // DXGI_ERROR_UNSUPPORTED to ensure the behavior matches the real device.
+#if (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+        return DXGI_ERROR_UNSUPPORTED;
+#endif
         Assert::Fail(L"Unexpected call to ResizeBuffers");
         return E_NOTIMPL;
     }
