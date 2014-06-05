@@ -101,10 +101,15 @@ Renderer11::Renderer11(egl::Display *display, HDC hDc, EGLNativeDisplayType disp
     mAppliedGeometryShader = NULL;
     mCurPointGeometryShader = NULL;
     mAppliedPixelShader = NULL;
+
+#if defined (ANGLE_ENABLE_WINDOWS_STORE)
+    mSuspendedEventToken.value = 0;
+#endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
 }
 
 Renderer11::~Renderer11()
 {
+    unregisterForRendererTrimRequest();
     release();
 }
 
@@ -120,6 +125,11 @@ Renderer11 *Renderer11::makeRenderer11(Renderer *renderer)
 
 EGLint Renderer11::initialize()
 {
+    if (!registerForRendererTrimRequest())
+    {
+        return EGL_NOT_INITIALIZED;
+    }
+
     if (!mCompiler.initialize())
     {
         return EGL_NOT_INITIALIZED;
@@ -2021,6 +2031,25 @@ bool Renderer11::resetDevice()
     mDeviceLost = false;
 
     return true;
+}
+
+void Renderer11::trim()
+{
+    if (!mDevice)
+    {
+        return;
+    }
+#if defined (ANGLE_ENABLE_WINDOWS_STORE)
+    // IDXGIDevice3 is only supported on Windows Phone 8.1 and above, and Windows 8.1 desktop/store applications.
+    IDXGIDevice3 *dxgiDevice3 = NULL;
+    HRESULT result = mDevice->QueryInterface(__uuidof(IDXGIDevice3), (void**)&dxgiDevice3);
+    if (SUCCEEDED(result))
+    {
+        dxgiDevice3->Trim();
+    }
+
+    SafeRelease(dxgiDevice3);
+#endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
 }
 
 DWORD Renderer11::getAdapterVendor() const
@@ -4071,6 +4100,56 @@ Renderer11::MultisampleSupportInfo Renderer11::getMultisampleSupportInfo(DXGI_FO
     }
 
     return supportInfo;
+}
+
+bool Renderer11::registerForRendererTrimRequest()
+{
+#if defined (ANGLE_ENABLE_WINDOWS_STORE)
+    using namespace ABI::Windows::Foundation;
+    using namespace ABI::Windows::ApplicationModel;
+    using namespace ABI::Windows::ApplicationModel::Core;
+    ComPtr<ICoreApplication> coreApplication;
+    HRESULT result = GetActivationFactory(HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &coreApplication);
+    if (SUCCEEDED(result))
+    {
+        auto suspendHandler = Callback<IEventHandler<SuspendingEventArgs*>>(
+            [=](IInspectable*, ISuspendingEventArgs*) -> HRESULT
+        {
+            trim();
+            return S_OK;
+        });
+
+        result = coreApplication->add_Suspending(suspendHandler.Get(), &mSuspendedEventToken);
+    }
+
+    if (FAILED(result))
+    {
+        return false;
+    }
+#endif // #if defined (ANGLE_ENABLE_WINDOWS_STORE)
+
+    return true;
+}
+
+void Renderer11::unregisterForRendererTrimRequest()
+{
+#if defined (ANGLE_ENABLE_WINDOWS_STORE)
+    using namespace ABI::Windows::Foundation;
+    using namespace ABI::Windows::ApplicationModel;
+    using namespace ABI::Windows::ApplicationModel::Core;
+    // Unregister the application suspending event because the
+    // renderer attached to this display is being destroyed.
+    if (mSuspendedEventToken.value != 0)
+    {
+        ComPtr<ICoreApplication> coreApplication;
+        HRESULT result = GetActivationFactory(HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &coreApplication);
+        if (SUCCEEDED(result))
+        {
+            coreApplication->remove_Suspending(mSuspendedEventToken);
+        }
+        mSuspendedEventToken.value = 0;
+    }
+#endif // #if defined (ANGLE_ENABLE_WINDOWS_STORE)
 }
 
 }

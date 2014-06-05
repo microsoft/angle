@@ -420,6 +420,15 @@ class Renderer11 : public Renderer
 
     // Requested Display Type
     EGLNativeDisplayType mRequestedDisplayType;
+
+    // Trim support for Windows/Windows Phone 8.1 and above
+    void trim();
+    bool registerForRendererTrimRequest();
+    void unregisterForRendererTrimRequest();
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    EventRegistrationToken mSuspendedEventToken;
+#endif // defined(ANGLE_ENABLE_WINDOWS_STORE)
+
 };
 
 }
