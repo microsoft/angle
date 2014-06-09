@@ -506,12 +506,6 @@ bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
 
 void Display::initExtensionString()
 {
-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
-    HMODULE swiftShader = nullptr;
-#else
-    HMODULE swiftShader = GetModuleHandle(TEXT("swiftshader_d3d9.dll"));
-#endif
-
     bool shareHandleSupported = mRenderer->getShareHandleSupport();
 
     mExtensionString = "";
