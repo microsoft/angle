@@ -23,7 +23,8 @@
                     [
                         '<!@(python <(angle_path)/enumerate_files.py \
                              -dirs common libEGL ../include \
-                             -types *.cpp *.h *.def *.rc)',
+                             -types *.cpp *.h *.def *.rc \
+                             -excludes */winrt/*)',
                     ],
                     'defines':
                     [

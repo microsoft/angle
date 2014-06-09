@@ -25,7 +25,7 @@
             [
                 '<!@(python <(angle_path)/enumerate_files.py \
                      -dirs compiler/translator third_party/compiler common ../include \
-                     -excludes compiler/translator/ShaderLang.cpp \
+                     -excludes compiler/translator/ShaderLang.cpp */winrt/* \
                      -types *.cpp *.h *.y *.l)',
             ],
             'conditions':

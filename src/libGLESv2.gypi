@@ -38,7 +38,7 @@
                         '<!@(python <(angle_path)/enumerate_files.py \
                              -dirs common libGLESv2 third_party/murmurhash ../include third_party/systeminfo \
                              -types *.cpp *.h *.hlsl *.vs *.ps *.bat *.def *.rc \
-                             -excludes */d3d/* */d3d9/* */d3d11/*)',
+                             -excludes */d3d/* */d3d9/* */d3d11/* */winrt/*)',
                     ],
                     'defines':
                     [
