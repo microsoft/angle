@@ -82,7 +82,6 @@
                             'defines':
                             [
                                 'ANGLE_ENABLE_D3D11',
-                                'ANGLE_DEFAULT_D3D11'
                             ],
                             'msvs_settings':
                             {

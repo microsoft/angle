@@ -46,7 +46,7 @@ bool ANGLETest::InitTestWindow()
     SetWindowLong(mNativeWindow, GWL_STYLE, 0);
     ShowWindow(mNativeWindow, SW_SHOW);
 
-    mNativeDisplay = GetDC(mNativeWindow);
+    mNativeDisplay = EGL_D3D11_ONLY_DISPLAY_ANGLE;
     if (!mNativeDisplay)
     {
         DestroyTestWindow();
