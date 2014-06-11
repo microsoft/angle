@@ -44,7 +44,7 @@ class ANGLETest : public testing::Test
     ANGLETest();
 
   public:
-    static bool InitTestWindow();
+    static bool InitTestWindow(EGLNativeDisplayType nativeDisplayType = EGL_D3D11_ONLY_DISPLAY_ANGLE);
     static bool DestroyTestWindow();
     static bool ReizeWindow(int width, int height);
 

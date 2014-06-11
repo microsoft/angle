@@ -33,7 +33,7 @@ void EGLWrapper::InitializeSurfacelessEGL(EGLNativeDisplayType displayId)
     EGLDisplay display = EGL_NO_DISPLAY;
     EGLContext context = EGL_NO_CONTEXT;
     EGLConfig config = nullptr;
-    EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE, EGL_NONE };
+    EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE, EGL_NONE };
 
     display = eglGetDisplay(displayId);
     if (display == EGL_NO_DISPLAY)

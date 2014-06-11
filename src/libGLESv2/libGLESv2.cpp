@@ -7148,12 +7148,6 @@ void __stdcall glBeginTransformFeedback(GLenum primitiveMode)
                 return gl::error(GL_INVALID_OPERATION);
             }
 
-            // Transform Feedback is not supported on Feature Level 9 hardware.
-            if (!context->supportsTransformFeedback())
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
             switch (primitiveMode)
             {
               case GL_TRIANGLES:
@@ -7162,6 +7156,12 @@ void __stdcall glBeginTransformFeedback(GLenum primitiveMode)
                 break;
               default:
                 return gl::error(GL_INVALID_ENUM);
+            }
+
+            // Transform Feedback is not supported on Feature Level 9 hardware.
+            if (!context->supportsTransformFeedback())
+            {
+                return gl::error(GL_INVALID_OPERATION);
             }
 
             gl::TransformFeedback *transformFeedback = context->getCurrentTransformFeedback();
@@ -7386,11 +7386,6 @@ void __stdcall glTransformFeedbackVaryings(GLuint program, GLsizei count, const 
                 return gl::error(GL_INVALID_OPERATION);
             }
 
-            if (!context->supportsTransformFeedback())
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
             if (count < 0)
             {
                 return gl::error(GL_INVALID_VALUE);
@@ -7408,6 +7403,11 @@ void __stdcall glTransformFeedbackVaryings(GLuint program, GLsizei count, const 
                 break;
               default:
                 return gl::error(GL_INVALID_ENUM);
+            }
+
+            if (!context->supportsTransformFeedback())
+            {
+                return gl::error(GL_INVALID_OPERATION);
             }
 
             if (!gl::ValidProgram(context, program))
@@ -9362,15 +9362,15 @@ void __stdcall glBindTransformFeedback(GLenum target, GLuint id)
                 return gl::error(GL_INVALID_OPERATION);
             }
 
-            if (!context->supportsTransformFeedback())
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-
             switch (target)
             {
               case GL_TRANSFORM_FEEDBACK:
                 {
+                    if (!context->supportsTransformFeedback())
+                    {
+                        return gl::error(GL_INVALID_OPERATION);
+                    }
+
                     // Cannot bind a transform feedback object if the current one is started and not paused (3.0.2 pg 85 section 2.14.1)
                     gl::TransformFeedback *curTransformFeedback = context->getCurrentTransformFeedback();
                     if (curTransformFeedback && curTransformFeedback->isStarted() && !curTransformFeedback->isPaused())

@@ -22,7 +22,7 @@ static const PTCHAR GetTestWindowName()
     return TEXT("ANGLE_TEST");
 }
 
-bool ANGLETest::InitTestWindow()
+bool ANGLETest::InitTestWindow(EGLNativeDisplayType nativeDisplayType)
 {
     WNDCLASS sWC;
     sWC.style = CS_OWNDC;
@@ -46,7 +46,15 @@ bool ANGLETest::InitTestWindow()
     SetWindowLong(mNativeWindow, GWL_STYLE, 0);
     ShowWindow(mNativeWindow, SW_SHOW);
 
-    mNativeDisplay = EGL_D3D11_ONLY_DISPLAY_ANGLE;
+    if (nativeDisplayType == EGL_DEFAULT_DISPLAY)
+    {
+        mNativeDisplay = GetDC(mNativeWindow);
+    }
+    else
+    {
+        mNativeDisplay = nativeDisplayType;
+    }
+
     if (!mNativeDisplay)
     {
         DestroyTestWindow();
@@ -56,7 +64,7 @@ bool ANGLETest::InitTestWindow()
     mDisplay = eglGetDisplay(mNativeDisplay);
     if(mDisplay == EGL_NO_DISPLAY)
     {
-         mDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY);
+        mDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY);
     }
 
     EGLint majorVersion, minorVersion;
@@ -83,7 +91,14 @@ bool ANGLETest::DestroyTestWindow()
 
     if (mNativeDisplay)
     {
-        ReleaseDC(mNativeWindow, mNativeDisplay);
+        // Only call ReleaseDC on a native display that is actually a DC
+        if ((mNativeDisplay != EGL_SOFTWARE_DISPLAY_ANGLE) &&
+            (mNativeDisplay != EGL_D3D11_ELSE_D3D9_DISPLAY_ANGLE) &&
+            (mNativeDisplay != EGL_D3D11_ONLY_DISPLAY_ANGLE) &&
+            (mNativeDisplay != EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE))
+        {
+            ReleaseDC(mNativeWindow, mNativeDisplay);
+        }
         mNativeDisplay = 0;
     }
 
