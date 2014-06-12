@@ -57,7 +57,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;_WINDOWS;WIN32;WIN32_LEAN_AND_MEAN;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT("d3dcompiler_47.dll") };NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_PLATFORM_WINDOWS;;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;_WINDOWS;WIN32;WIN32_LEAN_AND_MEAN;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT("d3dcompiler_47.dll") };NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -93,7 +93,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;_WINDOWS;WIN32;WIN32_LEAN_AND_MEAN;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT("d3dcompiler_47.dll") };NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_PLATFORM_WINDOWS;;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;_WINDOWS;WIN32;WIN32_LEAN_AND_MEAN;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT("d3dcompiler_47.dll") };NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -121,10 +121,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\..\..\src\angle.gyp" />
+    <None Include="..\..\..\src\compiler\translator\generate_parser.sh" />
     <None Include="..\..\..\src\compiler\translator\glslang.y" />
     <None Include="..\..\..\src\compiler\translator\glslang.l" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\common\platform.h" />
+    <ClInclude Include="..\..\..\src\common\surfacehost.h" />
+    <ClInclude Include="..\..\..\src\common\tls.h" />
     <ClInclude Include="..\..\..\src\third_party\compiler\ArrayBoundsClamper.h" />
     <ClInclude Include="..\..\..\src\common\shadervars.h" />
     <ClInclude Include="..\..\..\src\common\RefCountObject.h" />
@@ -151,7 +155,6 @@
     <ClInclude Include="..\..\..\src\compiler\translator\TranslatorGLSL.h" />
     <ClInclude Include="..\..\..\src\compiler\translator\SymbolTable.h" />
     <ClInclude Include="..\..\..\src\compiler\translator\InitializeGlobals.h" />
-    <ClInclude Include="..\..\..\src\compiler\translator\osinclude.h" />
     <ClInclude Include="..\..\..\src\compiler\translator\Initialize.h" />
     <ClInclude Include="..\..\..\src\compiler\translator\QualifierAlive.h" />
     <ClInclude Include="..\..\..\src\compiler\translator\ConstantUnion.h" />
@@ -207,6 +210,7 @@
     <ClInclude Include="..\..\..\include\EGL\eglplatform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\common\tls.cpp" />
     <ClCompile Include="..\..\..\src\compiler\translator\Types.cpp" />
     <ClCompile Include="..\..\..\src\third_party\compiler\ArrayBoundsClamper.cpp" />
     <ClCompile Include="..\..\..\src\common\event_tracer.cpp" />
@@ -228,7 +232,6 @@
     <ClCompile Include="..\..\..\src\compiler\translator\InitializeVariables.cpp" />
     <ClCompile Include="..\..\..\src\compiler\translator\InitializeDll.cpp" />
     <ClCompile Include="..\..\..\src\compiler\translator\PoolAlloc.cpp" />
-    <ClCompile Include="..\..\..\src\compiler\translator\ossource_win.cpp" />
     <ClCompile Include="..\..\..\src\compiler\translator\RewriteElseBlocks.cpp" />
     <ClCompile Include="..\..\..\src\compiler\translator\Diagnostics.cpp" />
     <ClCompile Include="..\..\..\src\compiler\translator\QualifierAlive.cpp" />

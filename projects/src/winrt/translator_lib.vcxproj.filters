@@ -57,6 +57,9 @@
     <None Include="..\..\..\src\compiler\translator\glslang.y">
       <Filter>src\compiler\translator</Filter>
     </None>
+    <None Include="..\..\..\src\compiler\translator\generate_parser.sh">
+      <Filter>src\compiler\translator</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\third_party\compiler\ArrayBoundsClamper.cpp">
@@ -164,9 +167,6 @@
     <ClCompile Include="..\..\..\src\compiler\translator\LoopInfo.cpp">
       <Filter>src\compiler\translator</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\compiler\translator\ossource_win.cpp">
-      <Filter>src\compiler\translator</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\compiler\translator\OutputESSL.cpp">
       <Filter>src\compiler\translator</Filter>
     </ClCompile>
@@ -238,6 +238,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\compiler\translator\Types.cpp">
       <Filter>src\compiler\translator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\common\tls.cpp">
+      <Filter>src\common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -400,9 +403,6 @@
     <ClInclude Include="..\..\..\src\compiler\translator\NodeSearch.h">
       <Filter>src\compiler\translator</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\compiler\translator\osinclude.h">
-      <Filter>src\compiler\translator</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\compiler\translator\OutputESSL.h">
       <Filter>src\compiler\translator</Filter>
     </ClInclude>
@@ -480,6 +480,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\compiler\translator\VersionGLSL.h">
       <Filter>src\compiler\translator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\platform.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\surfacehost.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\tls.h">
+      <Filter>src\common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

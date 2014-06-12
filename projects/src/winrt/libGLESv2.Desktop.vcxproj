@@ -125,7 +125,11 @@
     <None Include="..\..\..\src\libGLESv2\renderer\d3d9\shaders\generate_shaders.bat" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\common\platform.h" />
+    <ClInclude Include="..\..\..\src\common\surfacehost.h" />
+    <ClInclude Include="..\..\..\src\common\tls.h" />
     <ClInclude Include="..\..\..\src\common\win32\hwndhost.h" />
+    <ClInclude Include="..\..\..\src\libGLESv2\FramebufferAttachment.h" />
     <ClInclude Include="..\..\..\src\libGLESv2\Shader.h" />
     <ClInclude Include="..\..\..\src\libGLESv2\BinaryStream.h" />
     <ClInclude Include="..\..\..\src\libGLESv2\resource.h" />
@@ -293,7 +297,9 @@
     <ClInclude Include="..\..\..\src\third_party\systeminfo\SystemInfo.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\common\tls.cpp" />
     <ClCompile Include="..\..\..\src\common\win32\hwndhost.cpp" />
+    <ClCompile Include="..\..\..\src\libGLESv2\FramebufferAttachment.cpp" />
     <ClCompile Include="..\..\..\src\libGLESv2\validationES2.cpp" />
     <ClCompile Include="..\..\..\src\libGLESv2\precompiled.cpp" />
     <ClCompile Include="..\..\..\src\libGLESv2\DynamicHLSL.cpp" />

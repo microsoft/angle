@@ -156,6 +156,9 @@
     <ClInclude Include="..\..\src\libGLESv2\Buffer.h">
       <Filter>src\libGLESv2</Filter>
     </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\FramebufferAttachment.cpp">
+      <Filter>src\libGLESv2</Filter>
+    </ClCompile>
     <ClInclude Include="..\..\src\libGLESv2\RenderbufferProxySet.h">
       <Filter>src\libGLESv2</Filter>
     </ClInclude>
@@ -234,6 +237,9 @@
     <ClCompile Include="..\..\src\libGLESv2\ProgramBinary.cpp">
       <Filter>src\libGLESv2</Filter>
     </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\FramebufferAttachment.h">
+      <Filter>src\libGLESv2</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\src\libGLESv2\Sampler.cpp">
       <Filter>src\libGLESv2</Filter>
     </ClCompile>
@@ -753,6 +759,9 @@
     <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\shaders\compiled\standardvs.h">
       <Filter>src\libGLESv2\renderer\d3d9\shaders\compiled</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\common\tls.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\common\mathutil.h">
       <Filter>src\common</Filter>
     </ClInclude>
@@ -762,6 +771,9 @@
     <ClInclude Include="..\..\src\common\blocklayout.h">
       <Filter>src\common</Filter>
     </ClInclude>
+    <ClCompile Include="..\..\src\common\tls.cpp">
+      <Filter>src\common</Filter>
+    </ClCompile>
     <ClInclude Include="..\..\src\common\debug.h">
       <Filter>src\common</Filter>
     </ClInclude>
@@ -801,6 +813,9 @@
     <ClCompile Include="..\..\src\common\debug.cpp">
       <Filter>src\common</Filter>
     </ClCompile>
+    <ClInclude Include="..\..\src\common\platform.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\common\version.h">
       <Filter>src\common</Filter>
     </ClInclude>

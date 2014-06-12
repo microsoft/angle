@@ -29,6 +29,11 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\..\src\libEGL\libEGL.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\blocklayout.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\platform.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\shadervars.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\surfacehost.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\tls.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\corewindowhost.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\iinspectablehost.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.h" />
@@ -59,6 +64,8 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\threademulation\ThreadEmulation.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\blocklayout.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\tls.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\corewindowhost.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\iinspectablehost.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.cpp" />

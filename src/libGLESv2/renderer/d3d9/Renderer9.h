@@ -19,7 +19,7 @@
 
 namespace gl
 {
-class Renderbuffer;
+class FramebufferAttachment;
 }
 
 namespace rx
@@ -254,7 +254,7 @@ class Renderer9 : public Renderer
     void drawIndexedPoints(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer);
 
     bool copyToRenderTarget(IDirect3DSurface9 *dest, IDirect3DSurface9 *source, bool fromManaged);
-    gl::Renderbuffer *getNullColorbuffer(gl::Renderbuffer *depthbuffer);
+    gl::FramebufferAttachment *getNullColorbuffer(gl::FramebufferAttachment *depthbuffer);
 
     D3DPOOL getBufferPool(DWORD usage) const;
 
@@ -406,7 +406,7 @@ class Renderer9 : public Renderer
         UINT lruCount;
         int width;
         int height;
-        gl::Renderbuffer *buffer;
+        gl::FramebufferAttachment *buffer;
     } mNullColorbufferCache[NUM_NULL_COLORBUFFER_CACHE_ENTRIES];
     UINT mMaxNullColorbufferLRU;
 

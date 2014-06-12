@@ -67,6 +67,7 @@ bool ValidTextureTarget(const Context *context, GLenum target)
 // This function differs from ValidTextureTarget in that the target must be
 // usable as the destination of a 2D operation-- so a cube face is valid, but
 // GL_TEXTURE_CUBE_MAP is not.
+// Note: duplicate of IsInternalTextureTarget
 bool ValidTexture2DDestinationTarget(const Context *context, GLenum target)
 {
     switch (target)
@@ -374,7 +375,7 @@ bool ValidateFramebufferRenderbufferParameters(gl::Context *context, GLenum targ
     return true;
 }
 
-static bool IsPartialBlit(gl::Context *context, gl::Renderbuffer *readBuffer, gl::Renderbuffer *writeBuffer,
+static bool IsPartialBlit(gl::Context *context, gl::FramebufferAttachment *readBuffer, gl::FramebufferAttachment *writeBuffer,
                           GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
                           GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1)
 {
@@ -471,8 +472,8 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
 
     if (mask & GL_COLOR_BUFFER_BIT)
     {
-        gl::Renderbuffer *readColorBuffer = readFramebuffer->getReadColorbuffer();
-        gl::Renderbuffer *drawColorBuffer = drawFramebuffer->getFirstColorbuffer();
+        gl::FramebufferAttachment *readColorBuffer = readFramebuffer->getReadColorbuffer();
+        gl::FramebufferAttachment *drawColorBuffer = drawFramebuffer->getFirstColorbuffer();
 
         if (readColorBuffer && drawColorBuffer)
         {
@@ -554,8 +555,8 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
 
     if (mask & GL_DEPTH_BUFFER_BIT)
     {
-        gl::Renderbuffer *readDepthBuffer = readFramebuffer->getDepthbuffer();
-        gl::Renderbuffer *drawDepthBuffer = drawFramebuffer->getDepthbuffer();
+        gl::FramebufferAttachment *readDepthBuffer = readFramebuffer->getDepthbuffer();
+        gl::FramebufferAttachment *drawDepthBuffer = drawFramebuffer->getDepthbuffer();
 
         if (readDepthBuffer && drawDepthBuffer)
         {
@@ -588,8 +589,8 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
 
     if (mask & GL_STENCIL_BUFFER_BIT)
     {
-        gl::Renderbuffer *readStencilBuffer = readFramebuffer->getStencilbuffer();
-        gl::Renderbuffer *drawStencilBuffer = drawFramebuffer->getStencilbuffer();
+        gl::FramebufferAttachment *readStencilBuffer = readFramebuffer->getStencilbuffer();
+        gl::FramebufferAttachment *drawStencilBuffer = drawFramebuffer->getStencilbuffer();
 
         if (readStencilBuffer && drawStencilBuffer)
         {
@@ -1077,8 +1078,8 @@ bool ValidateStateQuery(gl::Context *context, GLenum pname, GLenum *nativeType, 
                 return gl::error(GL_INVALID_OPERATION, false);
             }
 
-            Renderbuffer *renderbuffer = framebuffer->getReadColorbuffer();
-            if (!renderbuffer)
+            FramebufferAttachment *attachment = framebuffer->getReadColorbuffer();
+            if (!attachment)
             {
                 return gl::error(GL_INVALID_OPERATION, false);
             }
@@ -1095,6 +1096,195 @@ bool ValidateStateQuery(gl::Context *context, GLenum pname, GLenum *nativeType, 
         return false;
     }
 
+    return true;
+}
+
+bool ValidateCopyTexImageParametersBase(gl::Context* context, GLenum target, GLint level, GLenum internalformat, bool isSubImage,
+                                        GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height,
+                                        GLint border, GLenum *textureFormatOut)
+{
+
+    if (!ValidTexture2DDestinationTarget(context, target))
+    {
+        return gl::error(GL_INVALID_ENUM, false);
+    }
+
+    if (level < 0 || xoffset < 0 || yoffset < 0 || zoffset < 0 || width < 0 || height < 0)
+    {
+        return gl::error(GL_INVALID_VALUE, false);
+    }
+
+    if (std::numeric_limits<GLsizei>::max() - xoffset < width || std::numeric_limits<GLsizei>::max() - yoffset < height)
+    {
+        return gl::error(GL_INVALID_VALUE, false);
+    }
+
+    if (border != 0)
+    {
+        return gl::error(GL_INVALID_VALUE, false);
+    }
+
+    if (!ValidMipLevel(context, target, level))
+    {
+        return gl::error(GL_INVALID_VALUE, false);
+    }
+
+    gl::Framebuffer *framebuffer = context->getReadFramebuffer();
+    if (framebuffer->completeness() != GL_FRAMEBUFFER_COMPLETE)
+    {
+        return gl::error(GL_INVALID_FRAMEBUFFER_OPERATION, false);
+    }
+
+    if (context->getReadFramebufferHandle() != 0 && framebuffer->getSamples() != 0)
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    gl::Texture *texture = NULL;
+    GLenum textureInternalFormat = GL_NONE;
+    bool textureCompressed = false;
+    bool textureIsDepth = false;
+    GLint textureLevelWidth = 0;
+    GLint textureLevelHeight = 0;
+    GLint textureLevelDepth = 0;
+    int maxDimension = 0;
+
+    switch (target)
+    {
+      case GL_TEXTURE_2D:
+        {
+            gl::Texture2D *texture2d = context->getTexture2D();
+            if (texture2d)
+            {
+                textureInternalFormat = texture2d->getInternalFormat(level);
+                textureCompressed = texture2d->isCompressed(level);
+                textureIsDepth = texture2d->isDepth(level);
+                textureLevelWidth = texture2d->getWidth(level);
+                textureLevelHeight = texture2d->getHeight(level);
+                textureLevelDepth = 1;
+                texture = texture2d;
+                maxDimension = context->getMaximum2DTextureDimension();
+            }
+        }
+        break;
+
+      case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+      case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+      case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+      case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+      case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
+      case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
+        {
+            gl::TextureCubeMap *textureCube = context->getTextureCubeMap();
+            if (textureCube)
+            {
+                textureInternalFormat = textureCube->getInternalFormat(target, level);
+                textureCompressed = textureCube->isCompressed(target, level);
+                textureIsDepth = false;
+                textureLevelWidth = textureCube->getWidth(target, level);
+                textureLevelHeight = textureCube->getHeight(target, level);
+                textureLevelDepth = 1;
+                texture = textureCube;
+                maxDimension = context->getMaximumCubeTextureDimension();
+            }
+        }
+        break;
+
+      case GL_TEXTURE_2D_ARRAY:
+        {
+            gl::Texture2DArray *texture2dArray = context->getTexture2DArray();
+            if (texture2dArray)
+            {
+                textureInternalFormat = texture2dArray->getInternalFormat(level);
+                textureCompressed = texture2dArray->isCompressed(level);
+                textureIsDepth = texture2dArray->isDepth(level);
+                textureLevelWidth = texture2dArray->getWidth(level);
+                textureLevelHeight = texture2dArray->getHeight(level);
+                textureLevelDepth = texture2dArray->getLayers(level);
+                texture = texture2dArray;
+                maxDimension = context->getMaximum2DTextureDimension();
+            }
+        }
+        break;
+
+      case GL_TEXTURE_3D:
+        {
+            gl::Texture3D *texture3d = context->getTexture3D();
+            if (texture3d)
+            {
+                textureInternalFormat = texture3d->getInternalFormat(level);
+                textureCompressed = texture3d->isCompressed(level);
+                textureIsDepth = texture3d->isDepth(level);
+                textureLevelWidth = texture3d->getWidth(level);
+                textureLevelHeight = texture3d->getHeight(level);
+                textureLevelDepth = texture3d->getDepth(level);
+                texture = texture3d;
+                maxDimension = context->getMaximum3DTextureDimension();
+            }
+        }
+        break;
+
+      default:
+        return gl::error(GL_INVALID_ENUM, false);
+    }
+
+    if (!texture)
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    if (texture->isImmutable() && !isSubImage)
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    if (textureIsDepth)
+    {
+        return gl::error(GL_INVALID_OPERATION, false);
+    }
+
+    if (textureCompressed)
+    {
+        int clientVersion = context->getClientVersion();
+        GLint blockWidth = GetCompressedBlockWidth(textureInternalFormat, clientVersion);
+        GLint blockHeight = GetCompressedBlockHeight(textureInternalFormat, clientVersion);
+
+        if (((width % blockWidth) != 0 && width != textureLevelWidth) ||
+            ((height % blockHeight) != 0 && height != textureLevelHeight))
+        {
+            return gl::error(GL_INVALID_OPERATION, false);
+        }
+    }
+
+    if (isSubImage)
+    {
+        if (xoffset + width > textureLevelWidth ||
+            yoffset + height > textureLevelHeight ||
+            zoffset >= textureLevelDepth)
+        {
+            return gl::error(GL_INVALID_VALUE, false);
+        }
+    }
+    else
+    {
+        if (IsCubemapTextureTarget(target) && width != height)
+        {
+            return gl::error(GL_INVALID_VALUE, false);
+        }
+
+        if (!IsValidInternalFormat(internalformat, context))
+        {
+            return gl::error(GL_INVALID_ENUM, false);
+        }
+
+        int maxLevelDimension = (maxDimension >> level);
+        if (static_cast<int>(width) > maxLevelDimension || static_cast<int>(height) > maxLevelDimension)
+        {
+            return gl::error(GL_INVALID_VALUE, false);
+        }
+    }
+
+    *textureFormatOut = textureInternalFormat;
     return true;
 }
 

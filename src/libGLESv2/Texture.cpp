@@ -97,12 +97,12 @@ GLenum Texture::getTarget() const
     return mTarget;
 }
 
-void Texture::addProxyRef(const Renderbuffer *proxy)
+void Texture::addProxyRef(const FramebufferAttachment *proxy)
 {
     mRenderbufferProxies.addRef(proxy);
 }
 
-void Texture::releaseProxy(const Renderbuffer *proxy)
+void Texture::releaseProxy(const FramebufferAttachment *proxy)
 {
     mRenderbufferProxies.release(proxy);
 }
@@ -708,11 +708,6 @@ void Texture2D::copyImage(GLint level, GLenum format, GLint x, GLint y, GLsizei 
 
 void Texture2D::copySubImage(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height, Framebuffer *source)
 {
-    if (xoffset + width > mImageArray[level]->getWidth() || yoffset + height > mImageArray[level]->getHeight() || zoffset != 0)
-    {
-        return gl::error(GL_INVALID_VALUE);
-    }
-
     // can only make our texture storage to a render target if level 0 is defined (with a width & height) and
     // the current level we're copying to is defined (with appropriate format, width & height)
     bool canCreateRenderTarget = isLevelComplete(level) && isLevelComplete(0);
@@ -1042,16 +1037,16 @@ rx::TextureStorageInterface *Texture2D::getBaseLevelStorage()
     return mTexStorage;
 }
 
-Renderbuffer *Texture2D::getRenderbuffer(GLint level)
+FramebufferAttachment *Texture2D::getAttachment(GLint level)
 {
-    Renderbuffer *renderBuffer = mRenderbufferProxies.get(level, 0);
-    if (!renderBuffer)
+    FramebufferAttachment *attachment = mRenderbufferProxies.get(level, 0);
+    if (!attachment)
     {
-        renderBuffer = new Renderbuffer(mRenderer, id(), new RenderbufferTexture2D(this, level));
-        mRenderbufferProxies.add(level, 0, renderBuffer);
+        attachment = new FramebufferAttachment(mRenderer, id(), new Texture2DAttachment(this, level));
+        mRenderbufferProxies.add(level, 0, attachment);
     }
 
-    return renderBuffer;
+    return attachment;
 }
 
 unsigned int Texture2D::getRenderTargetSerial(GLint level)
@@ -1572,13 +1567,6 @@ void TextureCubeMap::copySubImage(GLenum target, GLint level, GLint xoffset, GLi
 {
     int faceIndex = targetToIndex(target);
 
-    GLsizei size = mImageArray[faceIndex][level]->getWidth();
-
-    if (xoffset + width > size || yoffset + height > size || zoffset != 0)
-    {
-        return gl::error(GL_INVALID_VALUE);
-    }
-
     // We can only make our texture storage to a render target if the level we're copying *to* is complete
     // and the base level is cube-complete. The base level must be cube complete (common case) because we cannot
     // rely on the "getBaseLevel*" methods reliably otherwise.
@@ -1684,23 +1672,19 @@ rx::TextureStorageInterface *TextureCubeMap::getBaseLevelStorage()
     return mTexStorage;
 }
 
-Renderbuffer *TextureCubeMap::getRenderbuffer(GLenum target, GLint level)
+FramebufferAttachment *TextureCubeMap::getAttachment(GLenum target, GLint level)
 {
-    if (!IsCubemapTextureTarget(target))
-    {
-        return gl::error(GL_INVALID_OPERATION, (Renderbuffer *)NULL);
-    }
-
+    ASSERT(!IsCubemapTextureTarget(target));
     int faceIndex = targetToIndex(target);
 
-    Renderbuffer *renderBuffer = mRenderbufferProxies.get(level, faceIndex);
-    if (!renderBuffer)
+    FramebufferAttachment *attachment = mRenderbufferProxies.get(level, faceIndex);
+    if (!attachment)
     {
-        renderBuffer = new Renderbuffer(mRenderer, id(), new RenderbufferTextureCubeMap(this, target, level));
-        mRenderbufferProxies.add(level, faceIndex, renderBuffer);
+        attachment = new FramebufferAttachment(mRenderer, id(), new TextureCubeMapAttachment(this, target, level));
+        mRenderbufferProxies.add(level, faceIndex, attachment);
     }
 
-    return renderBuffer;
+    return attachment;
 }
 
 unsigned int TextureCubeMap::getRenderTargetSerial(GLenum target, GLint level)
@@ -1945,11 +1929,6 @@ rx::TextureStorageInterface *Texture3D::getBaseLevelStorage()
 
 void Texture3D::copySubImage(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height, Framebuffer *source)
 {
-    if (xoffset + width > mImageArray[level]->getWidth() || yoffset + height > mImageArray[level]->getHeight() || zoffset >= mImageArray[level]->getDepth())
-    {
-        return gl::error(GL_INVALID_VALUE);
-    }
-
     // can only make our texture storage to a render target if level 0 is defined (with a width & height) and
     // the current level we're copying to is defined (with appropriate format, width & height)
     bool canCreateRenderTarget = isLevelComplete(level) && isLevelComplete(0);
@@ -2073,16 +2052,16 @@ bool Texture3D::isLevelComplete(int level) const
     return true;
 }
 
-Renderbuffer *Texture3D::getRenderbuffer(GLint level, GLint layer)
+FramebufferAttachment *Texture3D::getAttachment(GLint level, GLint layer)
 {
-    Renderbuffer *renderBuffer = mRenderbufferProxies.get(level, layer);
-    if (!renderBuffer)
+    FramebufferAttachment *attachment = mRenderbufferProxies.get(level, layer);
+    if (!attachment)
     {
-        renderBuffer = new Renderbuffer(mRenderer, id(), new RenderbufferTexture3DLayer(this, level, layer));
-        mRenderbufferProxies.add(level, 0, renderBuffer);
+        attachment = new FramebufferAttachment(mRenderer, id(), new Texture3DAttachment(this, level, layer));
+        mRenderbufferProxies.add(level, 0, attachment);
     }
 
-    return renderBuffer;
+    return attachment;
 }
 
 unsigned int Texture3D::getRenderTargetSerial(GLint level, GLint layer)
@@ -2504,11 +2483,6 @@ rx::TextureStorageInterface *Texture2DArray::getBaseLevelStorage()
 
 void Texture2DArray::copySubImage(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height, Framebuffer *source)
 {
-    if (xoffset + width > getWidth(level) || yoffset + height > getHeight(level) || zoffset >= getLayers(level) || getLayers(level) == 0)
-    {
-        return gl::error(GL_INVALID_VALUE);
-    }
-
     // can only make our texture storage to a render target if level 0 is defined (with a width & height) and
     // the current level we're copying to is defined (with appropriate format, width & height)
     bool canCreateRenderTarget = isLevelComplete(level) && isLevelComplete(0);
@@ -2629,16 +2603,16 @@ bool Texture2DArray::isLevelComplete(int level) const
     return true;
 }
 
-Renderbuffer *Texture2DArray::getRenderbuffer(GLint level, GLint layer)
+FramebufferAttachment *Texture2DArray::getAttachment(GLint level, GLint layer)
 {
-    Renderbuffer *renderBuffer = mRenderbufferProxies.get(level, layer);
-    if (!renderBuffer)
+    FramebufferAttachment *attachment = mRenderbufferProxies.get(level, layer);
+    if (!attachment)
     {
-        renderBuffer = new Renderbuffer(mRenderer, id(), new RenderbufferTexture2DArrayLayer(this, level, layer));
-        mRenderbufferProxies.add(level, 0, renderBuffer);
+        attachment = new FramebufferAttachment(mRenderer, id(), new Texture2DArrayAttachment(this, level, layer));
+        mRenderbufferProxies.add(level, 0, attachment);
     }
 
-    return renderBuffer;
+    return attachment;
 }
 
 unsigned int Texture2DArray::getRenderTargetSerial(GLint level, GLint layer)

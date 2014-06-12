@@ -19,6 +19,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)..\..\..\src\angle.gyp" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\generate_parser.sh" />
     <None Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\glslang.y" />
     <None Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\glslang.l" />
   </ItemGroup>
@@ -47,7 +48,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\TranslatorGLSL.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\InitializeDll.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\InitializeGlobals.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\osinclude.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\Initialize.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\QualifierAlive.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\ConstantUnion.h" />
@@ -124,7 +124,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\InitializeVariables.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\InitializeDll.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\PoolAlloc.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\ossource_win.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\RewriteElseBlocks.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\Diagnostics.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\compiler\translator\QualifierAlive.cpp" />

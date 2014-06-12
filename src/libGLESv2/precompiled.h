@@ -33,19 +33,3 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#if defined(ANGLE_ENABLE_D3D9)
-#include <d3d9.h>
-#include <d3dcompiler.h>
-#endif // ANGLE_ENABLE_D3D9
-
-#if defined(ANGLE_ENABLE_D3D11)
-#include <d3d10_1.h>
-#include <d3d11.h>
-#include <dxgi.h>
-#include <dxgi1_2.h>
-#if defined (ANGLE_ENABLE_WINDOWS_STORE)
-#include <dxgi1_3.h>
-#endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
-#include <d3dcompiler.h>
-#endif // ANGLE_ENABLE_D3D11

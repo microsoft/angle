@@ -71,12 +71,12 @@ class OutputHLSL : public TIntermTraverser
     TString argumentString(const TIntermSymbol *symbol);
     int vectorSize(const TType &type) const;
 
+    void outputConstructor(Visit visit, const TType &type, const TString &name, const TIntermSequence *parameters);
     void addConstructor(const TType &type, const TString &name, const TIntermSequence *parameters);
+    void storeStd140ElementIndex(const TStructure &structure, bool useHLSLRowMajorPacking);
     const ConstantUnion *writeConstantUnion(const TType &type, const ConstantUnion *constUnion);
 
-    TString scopeString(unsigned int depthLimit);
-    TString scopedStruct(const TString &typeName);
-    TString structLookup(const TString &typeName);
+    TString structNameString(const TStructure &structure);
 
     TParseContext &mContext;
     const ShShaderOutput mOutputType;
@@ -161,10 +161,6 @@ class OutputHLSL : public TIntermTraverser
 
     typedef std::list<TString> StructDeclarations;
     StructDeclarations mStructDeclarations;
-
-    typedef std::vector<int> ScopeBracket;
-    ScopeBracket mScopeBracket;
-    unsigned int mScopeDepth;
 
     int mUniqueIndex;   // For creating unique names
 

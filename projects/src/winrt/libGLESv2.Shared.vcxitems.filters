@@ -300,6 +300,12 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\systeminfo\SystemInfo.cpp">
       <Filter>src\third_party\systeminfo</Filter>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\tls.cpp">
+      <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\FramebufferAttachment.cpp">
+      <Filter>src\libGLESv2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\include\EGL\egl.h">
@@ -748,6 +754,18 @@
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\systeminfo\SystemInfo.h">
       <Filter>src\third_party\systeminfo</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\platform.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\surfacehost.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\tls.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\FramebufferAttachment.h">
+      <Filter>src\libGLESv2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

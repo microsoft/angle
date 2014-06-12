@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="src">
@@ -81,6 +81,9 @@
     <ClInclude Include="..\..\src\common\RefCountObject.h">
       <Filter>src\common</Filter>
     </ClInclude>
+    <ClCompile Include="..\..\src\common\tls.cpp">
+      <Filter>src\common</Filter>
+    </ClCompile>
     <ClInclude Include="..\..\src\common\debug.h">
       <Filter>src\common</Filter>
     </ClInclude>
@@ -93,6 +96,9 @@
     <ClInclude Include="..\..\src\common\event_tracer.h">
       <Filter>src\common</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\common\platform.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\common\version.h">
       <Filter>src\common</Filter>
     </ClInclude>
@@ -102,6 +108,9 @@
     <ClCompile Include="..\..\src\common\event_tracer.cpp">
       <Filter>src\common</Filter>
     </ClCompile>
+    <ClInclude Include="..\..\src\common\tls.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\src\common\utilities.cpp">
       <Filter>src\common</Filter>
     </ClCompile>
@@ -150,11 +159,13 @@
     <ClInclude Include="..\..\include\EGL\egl.h">
       <Filter>include\EGL</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\common\win32\hwndhost.cpp">
-      <Filter>src\common\win32</Filter>
-    </ClCompile>
     <ClInclude Include="..\..\src\common\surfacehost.h">
       <Filter>src\common</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\common\win32\hwndhost.cpp">
+      <Filter>src\common\win32</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

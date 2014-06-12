@@ -136,8 +136,6 @@ OutputHLSL::OutputHLSL(TParseContext &context, const ShBuiltInResources& resourc
 
     mNumRenderTargets = resources.EXT_draw_buffers ? resources.MaxDrawBuffers : 1;
 
-    mScopeDepth = 0;
-
     mUniqueIndex = 0;
 
     mContainsLoopDiscontinuity = false;
@@ -2257,17 +2255,6 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
             {
                 outputLineDirective(node->getLine().first_line);
                 out << "{\n";
-
-                mScopeDepth++;
-
-                if (mScopeBracket.size() < mScopeDepth)
-                {
-                    mScopeBracket.push_back(0);   // New scope level
-                }
-                else
-                {
-                    mScopeBracket[mScopeDepth - 1]++;   // New scope at existing level
-                }
             }
 
             for (TIntermSequence::iterator sit = node->getSequence().begin(); sit != node->getSequence().end(); sit++)
@@ -2283,8 +2270,6 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
             {
                 outputLineDirective(node->getLine().last_line);
                 out << "}\n";
-
-                mScopeDepth--;
             }
 
             return false;
@@ -2299,7 +2284,7 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
             {
                 if (variable->getType().getStruct())
                 {
-                    addConstructor(variable->getType(), scopedStruct(variable->getType().getStruct()->name()), NULL);
+                    addConstructor(variable->getType(), structNameString(*variable->getType().getStruct()), NULL);
                 }
 
                 if (!variable->getAsSymbolNode() || variable->getAsSymbolNode()->getSymbol() != "")   // Variable declaration
@@ -2426,7 +2411,7 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
                 {
                     if (symbol->getType().getStruct())
                     {
-                        addConstructor(symbol->getType(), scopedStruct(symbol->getType().getStruct()->name()), NULL);
+                        addConstructor(symbol->getType(), structNameString(*symbol->getType().getStruct()), NULL);
                     }
 
                     out << argumentString(symbol);
@@ -2616,86 +2601,32 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
             return false;
         }
         break;
-      case EOpParameters:       outputTriplet(visit, "(", ", ", ")\n{\n");             break;
-      case EOpConstructFloat:
-        addConstructor(node->getType(), "vec1", &node->getSequence());
-        outputTriplet(visit, "vec1(", "", ")");
-        break;
-      case EOpConstructVec2:
-        addConstructor(node->getType(), "vec2", &node->getSequence());
-        outputTriplet(visit, "vec2(", ", ", ")");
-        break;
-      case EOpConstructVec3:
-        addConstructor(node->getType(), "vec3", &node->getSequence());
-        outputTriplet(visit, "vec3(", ", ", ")");
-        break;
-      case EOpConstructVec4:
-        addConstructor(node->getType(), "vec4", &node->getSequence());
-        outputTriplet(visit, "vec4(", ", ", ")");
-        break;
-      case EOpConstructBool:
-        addConstructor(node->getType(), "bvec1", &node->getSequence());
-        outputTriplet(visit, "bvec1(", "", ")");
-        break;
-      case EOpConstructBVec2:
-        addConstructor(node->getType(), "bvec2", &node->getSequence());
-        outputTriplet(visit, "bvec2(", ", ", ")");
-        break;
-      case EOpConstructBVec3:
-        addConstructor(node->getType(), "bvec3", &node->getSequence());
-        outputTriplet(visit, "bvec3(", ", ", ")");
-        break;
-      case EOpConstructBVec4:
-        addConstructor(node->getType(), "bvec4", &node->getSequence());
-        outputTriplet(visit, "bvec4(", ", ", ")");
-        break;
-      case EOpConstructInt:
-        addConstructor(node->getType(), "ivec1", &node->getSequence());
-        outputTriplet(visit, "ivec1(", "", ")");
-        break;
-      case EOpConstructIVec2:
-        addConstructor(node->getType(), "ivec2", &node->getSequence());
-        outputTriplet(visit, "ivec2(", ", ", ")");
-        break;
-      case EOpConstructIVec3:
-        addConstructor(node->getType(), "ivec3", &node->getSequence());
-        outputTriplet(visit, "ivec3(", ", ", ")");
-        break;
-      case EOpConstructIVec4:
-        addConstructor(node->getType(), "ivec4", &node->getSequence());
-        outputTriplet(visit, "ivec4(", ", ", ")");
-        break;
-      case EOpConstructUInt:
-        addConstructor(node->getType(), "uvec1", &node->getSequence());
-        outputTriplet(visit, "uvec1(", "", ")");
-        break;
-      case EOpConstructUVec2:
-        addConstructor(node->getType(), "uvec2", &node->getSequence());
-        outputTriplet(visit, "uvec2(", ", ", ")");
-        break;
-      case EOpConstructUVec3:
-        addConstructor(node->getType(), "uvec3", &node->getSequence());
-        outputTriplet(visit, "uvec3(", ", ", ")");
-        break;
-      case EOpConstructUVec4:
-        addConstructor(node->getType(), "uvec4", &node->getSequence());
-        outputTriplet(visit, "uvec4(", ", ", ")");
-        break;
-      case EOpConstructMat2:
-        addConstructor(node->getType(), "mat2", &node->getSequence());
-        outputTriplet(visit, "mat2(", ", ", ")");
-        break;
-      case EOpConstructMat3:
-        addConstructor(node->getType(), "mat3", &node->getSequence());
-        outputTriplet(visit, "mat3(", ", ", ")");
-        break;
-      case EOpConstructMat4: 
-        addConstructor(node->getType(), "mat4", &node->getSequence());
-        outputTriplet(visit, "mat4(", ", ", ")");
-        break;
+      case EOpParameters:       outputTriplet(visit, "(", ", ", ")\n{\n");                                break;
+      case EOpConstructFloat:   outputConstructor(visit, node->getType(), "vec1", &node->getSequence());  break;
+      case EOpConstructVec2:    outputConstructor(visit, node->getType(), "vec2", &node->getSequence());  break;
+      case EOpConstructVec3:    outputConstructor(visit, node->getType(), "vec3", &node->getSequence());  break;
+      case EOpConstructVec4:    outputConstructor(visit, node->getType(), "vec4", &node->getSequence());  break;
+      case EOpConstructBool:    outputConstructor(visit, node->getType(), "bvec1", &node->getSequence()); break;
+      case EOpConstructBVec2:   outputConstructor(visit, node->getType(), "bvec2", &node->getSequence()); break;
+      case EOpConstructBVec3:   outputConstructor(visit, node->getType(), "bvec3", &node->getSequence()); break;
+      case EOpConstructBVec4:   outputConstructor(visit, node->getType(), "bvec4", &node->getSequence()); break;
+      case EOpConstructInt:     outputConstructor(visit, node->getType(), "ivec1", &node->getSequence()); break;
+      case EOpConstructIVec2:   outputConstructor(visit, node->getType(), "ivec2", &node->getSequence()); break;
+      case EOpConstructIVec3:   outputConstructor(visit, node->getType(), "ivec3", &node->getSequence()); break;
+      case EOpConstructIVec4:   outputConstructor(visit, node->getType(), "ivec4", &node->getSequence()); break;
+      case EOpConstructUInt:    outputConstructor(visit, node->getType(), "uvec1", &node->getSequence()); break;
+      case EOpConstructUVec2:   outputConstructor(visit, node->getType(), "uvec2", &node->getSequence()); break;
+      case EOpConstructUVec3:   outputConstructor(visit, node->getType(), "uvec3", &node->getSequence()); break;
+      case EOpConstructUVec4:   outputConstructor(visit, node->getType(), "uvec4", &node->getSequence()); break;
+      case EOpConstructMat2:    outputConstructor(visit, node->getType(), "mat2", &node->getSequence());  break;
+      case EOpConstructMat3:    outputConstructor(visit, node->getType(), "mat3", &node->getSequence());  break;
+      case EOpConstructMat4:    outputConstructor(visit, node->getType(), "mat4", &node->getSequence());  break;
       case EOpConstructStruct:
-        addConstructor(node->getType(), scopedStruct(node->getType().getStruct()->name()), &node->getSequence());
-        outputTriplet(visit, structLookup(node->getType().getStruct()->name()) + "_ctor(", ", ", ")");
+        {
+            const TString &structName = structNameString(*node->getType().getStruct());
+            addConstructor(node->getType(), structName, &node->getSequence());
+            outputTriplet(visit, structName + "_ctor(", ", ", ")");
+        }
         break;
       case EOpLessThan:         outputTriplet(visit, "(", " < ", ")");                 break;
       case EOpGreaterThan:      outputTriplet(visit, "(", " > ", ")");                 break;
@@ -3320,7 +3251,7 @@ TString OutputHLSL::typeString(const TType &type)
         const TString& typeName = structure->name();
         if (typeName != "")
         {
-            return structLookup(typeName);
+            return structNameString(*type.getStruct());
         }
         else   // Nameless structure, define in place
         {
@@ -3495,12 +3426,6 @@ TString OutputHLSL::structureString(const TStructure &structure, bool useHLSLRow
     // Nameless structs do not finish with a semicolon and newline, to leave room for an instance variable
     string += (isNameless ? "} " : "};\n");
 
-    // Add remaining element index to the global map, for use with nested structs in standard layouts
-    if (useStd140Packing)
-    {
-        mStd140StructElementIndexes[structName] = elementIndex;
-    }
-
     return string;
 }
 
@@ -3527,7 +3452,27 @@ TString OutputHLSL::structureTypeName(const TStructure &structure, bool useHLSLR
         prefix += "rm";
     }
 
-    return prefix + structLookup(structure.name());
+    return prefix + structNameString(structure);
+}
+
+void OutputHLSL::outputConstructor(Visit visit, const TType &type, const TString &name, const TIntermSequence *parameters)
+{
+    TInfoSinkBase &out = mBody;
+
+    if (visit == PreVisit)
+    {
+        addConstructor(type, name, parameters);
+
+        out << name + "(";
+    }
+    else if (visit == InVisit)
+    {
+        out << ", ";
+    }
+    else if (visit == PostVisit)
+    {
+        out << ")";
+    }
 }
 
 void OutputHLSL::addConstructor(const TType &type, const TString &name, const TIntermSequence *parameters)
@@ -3554,6 +3499,10 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
     if (structure)
     {
         mStructNames.insert(name);
+
+        // Add element index
+        storeStd140ElementIndex(*structure, false);
+        storeStd140ElementIndex(*structure, true);
 
         const TString &structString = structureString(*structure, false, false);
 
@@ -3654,7 +3603,7 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
                 {
                     if (row < parameter.getRows() && col < parameter.getCols())
                     {
-                        constructor += TString("x0") + "[" + str(row) + "]" + "[" + str(col) + "]";
+                        constructor += TString("x0") + "[" + str(row) + "][" + str(col) + "]";
                     }
                     else
                     {
@@ -3683,7 +3632,14 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
 
             constructor += "x" + str(parameterIndex);
 
-            if (parameter.isScalar())
+            if (ctorType.getStruct())
+            {
+                ASSERT(remainingComponents == parameterSize || moreParameters);
+                ASSERT(parameterSize <= remainingComponents);
+
+                remainingComponents -= parameterSize;
+            }
+            else if (parameter.isScalar())
             {
                 remainingComponents -= parameter.getObjectSize();
             }
@@ -3709,12 +3665,37 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
                 }
                 else UNREACHABLE();
             }
-            else if (parameter.isMatrix() || parameter.getStruct())
+            else if (parameter.isMatrix())
             {
-                ASSERT(remainingComponents == parameterSize || moreParameters);
-                ASSERT(parameterSize <= remainingComponents);
-                
-                remainingComponents -= parameterSize;
+                int column = 0;
+                while (remainingComponents > 0 && column < parameter.getCols())
+                {
+                    constructor += "[" + str(column) + "]";
+
+                    if (remainingComponents < static_cast<size_t>(parameter.getRows()))
+                    {
+                        switch (remainingComponents)
+                        {
+                          case 1:  constructor += ".x";    break;
+                          case 2:  constructor += ".xy";   break;
+                          case 3:  constructor += ".xyz";  break;
+                          default: UNREACHABLE();
+                        }
+
+                        remainingComponents = 0;
+                    }
+                    else
+                    {
+                        remainingComponents -= parameter.getRows();
+
+                        if (remainingComponents > 0)
+                        {
+                            constructor += ", x" + str(parameterIndex);
+                        }
+                    }
+
+                    column++;
+                }
             }
             else UNREACHABLE();
 
@@ -3745,6 +3726,21 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
     mConstructors.insert(constructor);
 }
 
+void OutputHLSL::storeStd140ElementIndex(const TStructure &structure, bool useHLSLRowMajorPacking)
+{
+    int elementIndex = 0;
+    const TFieldList &fields = structure.fields();
+
+    for (unsigned int i = 0; i < fields.size(); i++)
+    {
+        std140PrePaddingString(*fields[i]->type(), &elementIndex);
+    }
+
+    // Add remaining element index to the global map, for use with nested structs in standard layouts
+    const TString &structName = structureTypeName(structure, useHLSLRowMajorPacking, true);
+    mStd140StructElementIndexes[structName] = elementIndex;
+}
+
 const ConstantUnion *OutputHLSL::writeConstantUnion(const TType &type, const ConstantUnion *constUnion)
 {
     TInfoSinkBase &out = mBody;
@@ -3752,7 +3748,7 @@ const ConstantUnion *OutputHLSL::writeConstantUnion(const TType &type, const Con
     const TStructure* structure = type.getStruct();
     if (structure)
     {
-        out << structLookup(structure->name()) + "_ctor(";
+        out << structNameString(*structure) + "_ctor(";
         
         const TFieldList& fields = structure->fields();
 
@@ -3806,46 +3802,14 @@ const ConstantUnion *OutputHLSL::writeConstantUnion(const TType &type, const Con
     return constUnion;
 }
 
-TString OutputHLSL::scopeString(unsigned int depthLimit)
+TString OutputHLSL::structNameString(const TStructure &structure)
 {
-    TString string;
-
-    for (unsigned int i = 0; i < mScopeBracket.size() && i < depthLimit; i++)
+    if (structure.name().empty())
     {
-        string += str(mScopeBracket[i]) + "_";
+        return "";
     }
 
-    return "ss_" + string;
-}
-
-TString OutputHLSL::scopedStruct(const TString &typeName)
-{
-    if (typeName == "")
-    {
-        return typeName;
-    }
-
-    return scopeString(mScopeDepth) + typeName;
-}
-
-TString OutputHLSL::structLookup(const TString &typeName)
-{
-    for (int depth = mScopeDepth; depth >= 0; depth--)
-    {
-        TString scopedName = scopeString(depth) + typeName;
-
-        for (StructNames::iterator structName = mStructNames.begin(); structName != mStructNames.end(); structName++)
-        {
-            if (*structName == scopedName)
-            {
-                return scopedName;
-            }
-        }
-    }
-
-    UNREACHABLE();   // Should have found a matching constructor
-
-    return typeName;
+    return "ss_" + str(structure.uniqueId()) + structure.name();
 }
 
 TString OutputHLSL::decorate(const TString &string)

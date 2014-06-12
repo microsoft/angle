@@ -37,10 +37,14 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\renderer\d3d11\shaders\Clear11.hlsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\platform.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\surfacehost.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\tls.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\corewindowhost.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\iinspectablehost.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\winrtutils.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\FramebufferAttachment.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\Shader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\BinaryStream.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\resource.h" />
@@ -188,10 +192,12 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\third_party\threademulation\ThreadEmulation.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\tls.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\corewindowhost.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\iinspectablehost.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\swapchainpanelhost.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\winrtutils.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\FramebufferAttachment.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\validationES2.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\precompiled.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\libGLESv2\DynamicHLSL.cpp" />

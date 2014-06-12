@@ -350,6 +350,12 @@
     <ClCompile Include="..\..\..\src\third_party\systeminfo\SystemInfo.cpp">
       <Filter>src\third_party\systeminfo</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\common\tls.cpp">
+      <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\libGLESv2\FramebufferAttachment.cpp">
+      <Filter>src\libGLESv2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\libGLESv2\renderer\BufferStorage.h">
@@ -849,6 +855,18 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\third_party\systeminfo\SystemInfo.h">
       <Filter>src\third_party\systeminfo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\platform.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\surfacehost.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\tls.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libGLESv2\FramebufferAttachment.h">
+      <Filter>src\libGLESv2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -155,10 +155,22 @@
     <ClCompile Include="..\..\..\src\common\win32\hwndhost.cpp">
       <Filter>src\common\win32</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\common\tls.cpp">
+      <Filter>src\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\common\win32\hwndhost.h">
       <Filter>src\common\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\platform.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\surfacehost.h">
+      <Filter>src\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\common\tls.h">
+      <Filter>src\common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

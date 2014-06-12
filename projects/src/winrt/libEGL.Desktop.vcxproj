@@ -89,7 +89,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;_WINDOWS;WIN32;WIN32_LEAN_AND_MEAN;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT("d3dcompiler_47.dll") };NOMINMAX;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_PLATFORM_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;_WINDOWS;WIN32;WIN32_LEAN_AND_MEAN;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT("d3dcompiler_47.dll") };NOMINMAX;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -116,6 +116,9 @@
     <None Include="..\..\..\src\libEGL\libEGL.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\common\platform.h" />
+    <ClInclude Include="..\..\..\src\common\surfacehost.h" />
+    <ClInclude Include="..\..\..\src\common\tls.h" />
     <ClInclude Include="..\..\..\src\common\win32\hwndhost.h" />
     <ClInclude Include="..\..\..\src\libEGL\Surface.h" />
     <ClInclude Include="..\..\..\src\libEGL\resource.h" />
@@ -144,6 +147,7 @@
     <ClInclude Include="..\..\..\include\EGL\egl.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\common\tls.cpp" />
     <ClCompile Include="..\..\..\src\common\win32\hwndhost.cpp" />
     <ClCompile Include="..\..\..\src\libEGL\Surface.cpp" />
     <ClCompile Include="..\..\..\src\libEGL\Config.cpp" />

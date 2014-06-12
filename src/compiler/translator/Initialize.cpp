@@ -558,12 +558,12 @@ void InsertBuiltInFunctions(ShShaderType type, ShShaderSpec spec, const ShBuiltI
     //
     TFieldList *fields = NewPoolTFieldList();
     TSourceLoc zeroSourceLoc = {0, 0, 0, 0};
-    TField *near = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("near"), zeroSourceLoc);
-    TField *far = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("far"), zeroSourceLoc);
-    TField *diff = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("diff"), zeroSourceLoc);
-    fields->push_back(near);
-    fields->push_back(far);
-    fields->push_back(diff);
+    TField *near_tfield = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("near"), zeroSourceLoc);
+    TField *far_tfield = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("far"), zeroSourceLoc);
+    TField *diff_tfield = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("diff"), zeroSourceLoc);
+    fields->push_back(near_tfield);
+    fields->push_back(far_tfield);
+    fields->push_back(diff_tfield);
     TStructure *depthRangeStruct = new TStructure(NewPoolTString("gl_DepthRangeParameters"), fields);
     TVariable *depthRangeParameters = new TVariable(&depthRangeStruct->name(), depthRangeStruct, true);
     symbolTable.insert(COMMON_BUILTINS, *depthRangeParameters);

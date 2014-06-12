@@ -8,10 +8,7 @@
 
 #include "common/utilities.h"
 #include "common/mathutil.h"
-
-#if defined(_WIN32)
-#include <windows.h>
-#endif
+#include "common/platform.h"
 
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
 #include "common/winrt/winrtutils.h"
@@ -440,12 +437,10 @@ bool IsTriangleMode(GLenum drawMode)
 
 std::string getTempPath()
 {
-#if defined (_WIN32)
-
+#if ANGLE_PLATFORM_WINDOWS
 #if defined (ANGLE_ENABLE_WINDOWS_STORE)
     return winrt::getTempPath();
 #else
-
     char path[MAX_PATH];
     DWORD pathLen = GetTempPathA(sizeof(path) / sizeof(path[0]), path);
     if (pathLen == 0)
