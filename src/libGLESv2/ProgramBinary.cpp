@@ -1541,7 +1541,7 @@ bool ProgramBinary::link(InfoLog &infoLog, const AttributeBindings &attributeBin
 
         if (usesGeometryShader())
         {
-            if (mRenderer->isFeatureLevel9())
+            if (mRenderer->isD3D11FeatureLevel9())
             {
                 infoLog.append("Requested shaders require Geometry Shaders, which aren't supported on current hardware.");
                 success = false;

@@ -586,7 +586,7 @@ ID3D11ShaderResourceView *TextureStorage11_2D::createSRV(int baseLevel, int mipL
     HRESULT result = S_OK;
 
     // On D3D_FEATURE_LEVEL_9_*, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-    if (texture != NULL && mRenderer->isFeatureLevel9())
+    if (texture != NULL && mRenderer->isD3D11FeatureLevel9())
     {
             D3D11_TEXTURE2D_DESC desc;
             ID3D11Texture2D* texture2D = NULL;
@@ -807,7 +807,7 @@ RenderTarget *TextureStorage11_Cube::getRenderTargetFace(GLenum faceTarget, int 
             srvDesc.Texture2DArray.ArraySize = 1;
 
             // On D3D_FEATURE_LEVEL_9_*, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-            if (mRenderer->isFeatureLevel9())
+            if (mRenderer->isD3D11FeatureLevel9())
             {
                 D3D11_TEXTURE2D_DESC desc;
                 mTexture->GetDesc(&desc);
@@ -911,7 +911,7 @@ ID3D11ShaderResourceView *TextureStorage11_Cube::createSRV(int baseLevel, int mi
     }
 
     // On D3D_FEATURE_LEVEL_9_*, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-    if (mRenderer->isFeatureLevel9())
+    if (mRenderer->isD3D11FeatureLevel9())
     {
         D3D11_TEXTURE2D_DESC desc;
         mTexture->GetDesc(&desc);
@@ -1128,7 +1128,7 @@ ID3D11ShaderResourceView *TextureStorage11_3D::createSRV(int baseLevel, int mipL
     HRESULT result = S_OK;
 
     // On D3D_FEATURE_LEVEL_9_*, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-    if (texture != NULL && mRenderer->isFeatureLevel9())
+    if (texture != NULL && mRenderer->isD3D11FeatureLevel9())
     {
         D3D11_TEXTURE3D_DESC desc;
         ID3D11Texture3D* texture3D = NULL;
@@ -1454,7 +1454,7 @@ ID3D11ShaderResourceView *TextureStorage11_2DArray::createSRV(int baseLevel, int
     HRESULT result = S_OK;
 
     // On D3D_FEATURE_LEVEL_9_*, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-    if (texture != NULL && mRenderer->isFeatureLevel9())
+    if (texture != NULL && mRenderer->isD3D11FeatureLevel9())
     {
         D3D11_TEXTURE2D_DESC desc;
         ID3D11Texture2D* texture2D = NULL;
@@ -1499,7 +1499,7 @@ RenderTarget *TextureStorage11_2DArray::getRenderTargetLayer(int mipLevel, int l
             srvDesc.Texture2DArray.ArraySize = 1;
 
             // On D3D_FEATURE_LEVEL_9_*, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-            if (mTexture != NULL && mRenderer->isFeatureLevel9())
+            if (mTexture != NULL && mRenderer->isD3D11FeatureLevel9())
             {
                 D3D11_TEXTURE2D_DESC desc;
                 mTexture->GetDesc(&desc);

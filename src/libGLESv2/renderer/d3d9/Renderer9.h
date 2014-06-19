@@ -171,7 +171,7 @@ class Renderer9 : public Renderer
     
     virtual unsigned int getMaxRenderTargets() const;
 
-    virtual bool isFeatureLevel9() const;
+    virtual bool isD3D11FeatureLevel9() const;
 
     D3DFORMAT ConvertTextureInternalFormat(GLenum internalformat);
 

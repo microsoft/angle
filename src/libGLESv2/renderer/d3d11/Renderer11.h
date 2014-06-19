@@ -170,7 +170,7 @@ class Renderer11 : public Renderer
 
     virtual unsigned int getMaxRenderTargets() const;
 
-    virtual bool isFeatureLevel9() const;
+    virtual bool isD3D11FeatureLevel9() const;
 
     // Pixel operations
     virtual bool copyToRenderTarget(TextureStorageInterface2D *dest, TextureStorageInterface2D *source);

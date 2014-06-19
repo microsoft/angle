@@ -2614,8 +2614,6 @@ bool Renderer9::getPointSpriteSupport() const
 
 bool Renderer9::getTransformFeedbackSupport() const
 {
-    // ES3 only
-    UNREACHABLE();
     return false;
 }
 
@@ -2764,10 +2762,8 @@ unsigned int Renderer9::getMaxRenderTargets() const
 }
 
 
-bool Renderer9::isFeatureLevel9() const
+bool Renderer9::isD3D11FeatureLevel9() const
 {
-    // This is only meant to be called on the 11 renderer.
-    UNREACHABLE();
     return false;
 }
 

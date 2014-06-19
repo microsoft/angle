@@ -211,7 +211,7 @@ Blit11::Blit11(rx::Renderer11 *renderer)
     pointSamplerDesc.BorderColor[3] = 0.0f;
     pointSamplerDesc.MinLOD = 0.0f;
 
-    if (mRenderer->isFeatureLevel9())
+    if (mRenderer->isD3D11FeatureLevel9())
     {
         // D3D_FEATURE_LEVEL_9_* requires MaxLod to equal FLT_MAX.
         pointSamplerDesc.MaxLOD = FLT_MAX;
@@ -239,7 +239,7 @@ Blit11::Blit11(rx::Renderer11 *renderer)
     linearSamplerDesc.BorderColor[3] = 0.0f;
     linearSamplerDesc.MinLOD = 0.0f;
 
-    if (mRenderer->isFeatureLevel9())
+    if (mRenderer->isD3D11FeatureLevel9())
     {
         // D3D_FEATURE_LEVEL_9_* requires MaxLod to equal FLT_MAX.
         linearSamplerDesc.MaxLOD = FLT_MAX;
@@ -309,7 +309,7 @@ Blit11::Blit11(rx::Renderer11 *renderer)
     ASSERT(SUCCEEDED(result));
     d3d11::SetDebugName(mQuad2DVS, "Blit11 2D vertex shader");
 
-    if (!mRenderer->isFeatureLevel9())
+    if (!mRenderer->isD3D11FeatureLevel9())
     {
         result = device->CreatePixelShader(g_PS_PassthroughDepth2D, ArraySize(g_PS_PassthroughDepth2D), NULL, &mDepthPS);
         ASSERT(SUCCEEDED(result));
@@ -1003,7 +1003,7 @@ void Blit11::buildShaderMap()
     }
 
     // These are the 2D shaders that won't compile for D3D_FEATURE_LEVEL_9_3 (e.g. due to uint/int usage).
-    if (!mRenderer->isFeatureLevel9())
+    if (!mRenderer->isD3D11FeatureLevel9())
     {
         add2DBlitShaderToMap(GL_RGBA_INTEGER,    false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2DUI,   "Blit11 2D RGBA UI pixel shader"        ));
         add2DBlitShaderToMap(GL_RGBA_INTEGER,    true,  d3d11::CompilePS(device, g_PS_PassthroughRGBA2DI,    "Blit11 2D RGBA I pixel shader"         ));
@@ -1016,7 +1016,7 @@ void Blit11::buildShaderMap()
     }
 
     // These 3D shaders won't compile for D3D_FEATURE_LEVEL_9_3 due to SV_RENDERTARGETARRAYINDEX usage.
-    if (!mRenderer->isFeatureLevel9())
+    if (!mRenderer->isD3D11FeatureLevel9())
     {
         add3DBlitShaderToMap(GL_RGBA,            false, d3d11::CompilePS(device, g_PS_PassthroughRGBA3D,     "Blit11 3D RGBA pixel shader"           ));
         add3DBlitShaderToMap(GL_RGBA_INTEGER,    false, d3d11::CompilePS(device, g_PS_PassthroughRGBA3DUI,   "Blit11 3D UI RGBA pixel shader"        ));
@@ -1037,7 +1037,7 @@ void Blit11::buildShaderMap()
     }
 
     // These shaders won't compile on D3D_FEATURE_LEVEL_9_3 due to uint and SV_RENDERTARGETARRAYINDEX usage.
-    if (!mRenderer->isFeatureLevel9())
+    if (!mRenderer->isD3D11FeatureLevel9())
     {
         addSwizzleShaderToMap(GL_FLOAT,        D3D_SRV_DIMENSION_TEXTURE2D,      d3d11::CompilePS(device, g_PS_SwizzleF2D,       "Blit11 2D F swizzle pixel shader" ));
         addSwizzleShaderToMap(GL_UNSIGNED_INT, D3D_SRV_DIMENSION_TEXTURE2D,      d3d11::CompilePS(device, g_PS_SwizzleUI2D,      "Blit11 2D UI swizzle pixel shader"));

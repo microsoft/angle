@@ -685,7 +685,7 @@ void BufferStorage11::NativeBuffer11::fillBufferDesc(D3D11_BUFFER_DESC* bufferDe
         bufferDesc->Usage = D3D11_USAGE_DEFAULT;
 
         // D3D_FEATURE_LEVEL_9_3 doesn't support TRANSFORM_FEEDBACK.
-        if (renderer->isFeatureLevel9())
+        if (renderer->isD3D11FeatureLevel9())
         {
             bufferDesc->BindFlags = D3D11_BIND_VERTEX_BUFFER;
         }

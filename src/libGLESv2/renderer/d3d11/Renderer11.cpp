@@ -517,7 +517,7 @@ void Renderer11::initializeDevice()
     ASSERT(!mPixelTransfer);
 
     // Fast copy buffer to texture isn't supported on D3D_FEATURE_LEVEL_9_*.
-    if (!isFeatureLevel9())
+    if (!isD3D11FeatureLevel9())
     {
         mPixelTransfer = new PixelTransfer11(this);
     }
@@ -1568,7 +1568,7 @@ void Renderer11::applyShaders(gl::ProgramBinary *programBinary, bool rasterizerD
 {
 
     // D3D_FEATURE_LEVEL_9_* doesn't support transform feedback (due to the lack of Geometry Shaders).
-    if (isFeatureLevel9())
+    if (isD3D11FeatureLevel9())
     {
         ASSERT(!transformFeedbackActive);
     }
@@ -2807,7 +2807,7 @@ unsigned int Renderer11::getMaxRenderTargets() const
     }
 }
 
-bool Renderer11::isFeatureLevel9() const
+bool Renderer11::isD3D11FeatureLevel9() const
 {
     return mFeatureLevel <= D3D_FEATURE_LEVEL_9_3;
 }
@@ -3212,7 +3212,7 @@ ShaderExecutable *Renderer11::loadExecutable(const void *function, size_t length
                     }
                 }
 
-                ASSERT(!isFeatureLevel9());
+                ASSERT(!isD3D11FeatureLevel9());
                 result = mDevice->CreateGeometryShaderWithStreamOutput(function, length, soDeclaration.data(), soDeclaration.size(),
                                                                        NULL, 0, 0, NULL, &streamOutShader);
                 ASSERT(SUCCEEDED(result));
@@ -3239,7 +3239,7 @@ ShaderExecutable *Renderer11::loadExecutable(const void *function, size_t length
         break;
       case rx::SHADER_GEOMETRY:
         {
-            ASSERT(!isFeatureLevel9());
+            ASSERT(!isD3D11FeatureLevel9());
 
             ID3D11GeometryShader *geometryShader = NULL;
 
@@ -3373,7 +3373,7 @@ bool Renderer11::supportsFastCopyBufferToTexture(GLenum internalFormat) const
     // D3D_FEATURE_LEVEL_9_* doesn't support FastCopyBufferToTexture since PixelTransfer uses
     // Geometry Shaders and int types in its PS/VS shaders.
     // TODO: Add limited support for FastCopyBufferToTexture on D3D_FEATURE_LEVEL_9_3.
-    if (isFeatureLevel9())
+    if (isD3D11FeatureLevel9())
     {
         return false;
     }
@@ -4091,7 +4091,7 @@ Renderer11::MultisampleSupportInfo Renderer11::getMultisampleSupportInfo(DXGI_FO
                 supportInfo.qualityLevels[i - 1] = 0;
             }
 
-            if (isFeatureLevel9() && i == 1)
+            if (isD3D11FeatureLevel9() && i == 1)
             {
                 // D3D_FEATURE_LEVEL_9_* doesn't support MSAA textures, but CheckMultisampleQualityLevels doesn't always reflect this.
                 // We therefore break out of this loop after the first iteration.

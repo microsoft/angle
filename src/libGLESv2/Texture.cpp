@@ -63,7 +63,7 @@ Texture::Texture(rx::Renderer *renderer, GLuint id, GLenum target) : RefCountObj
     mSamplerState.maxLevel = 1000;
     mSamplerState.minLod = -1000.0f;
 
-    if (renderer->isFeatureLevel9())
+    if (renderer->isD3D11FeatureLevel9())
     {
         // D3D_FEATURE_LEVEL_9_* requires MaxLod to equal FLT_MAX.
         mSamplerState.maxLod = FLT_MAX;
