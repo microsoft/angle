@@ -50,8 +50,11 @@ namespace rx
 static const DXGI_FORMAT RenderTargetFormats[] =
     {
         DXGI_FORMAT_B8G8R8A8_UNORM,
-        DXGI_FORMAT_R8G8B8A8_UNORM
-    };
+        DXGI_FORMAT_R8G8B8A8_UNORM,
+        DXGI_FORMAT_B5G6R5_UNORM,
+        DXGI_FORMAT_B5G5R5A1_UNORM,
+        DXGI_FORMAT_B4G4R4A4_UNORM
+};
 
 static const DXGI_FORMAT DepthStencilFormats[] =
     {

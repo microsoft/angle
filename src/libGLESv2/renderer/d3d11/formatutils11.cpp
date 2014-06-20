@@ -626,6 +626,10 @@ static DXGIToESFormatMap BuildCommonDXGIToESFormatMap()
     AddDXGIToESEntry(&map, DXGI_FORMAT_BC2_UNORM,                GL_COMPRESSED_RGBA_S3TC_DXT3_ANGLE);
     AddDXGIToESEntry(&map, DXGI_FORMAT_BC3_UNORM,                GL_COMPRESSED_RGBA_S3TC_DXT5_ANGLE);
 
+    AddDXGIToESEntry(&map, DXGI_FORMAT_B5G6R5_UNORM,             GL_RGB565);
+    AddDXGIToESEntry(&map, DXGI_FORMAT_B5G5R5A1_UNORM,           GL_RGB5_A1);
+    AddDXGIToESEntry(&map, DXGI_FORMAT_B4G4R4A4_UNORM,           GL_RGBA4);
+
     return map;
 }
 
