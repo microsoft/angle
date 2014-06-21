@@ -78,7 +78,15 @@ static void output(bool traceFileDebugOnly, PerfOutputFunction perfFunc, const c
         file.flush();
     }
 
+#if defined(ANGLE_ENABLE_TRACE_OUTPUT)
+// Only output to the debugger window for debug builds only
+#ifdef _DEBUG
+    OutputDebugStringA(&asciiMessageBuffer[0]);
+#endif // _DEBUG
+#endif // ANGLE_ENABLE_TRACE_OUTPUT
+
 #endif // ANGLE_ENABLE_TRACE
+
 }
 
 void trace(bool traceFileDebugOnly, const char *format, ...)
