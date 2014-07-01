@@ -20,6 +20,7 @@ class RenderTarget11;
 class Renderer;
 class Renderer11;
 class SwapChain11;
+class Image11;
 
 class TextureStorage11 : public TextureStorage
 {
@@ -152,6 +153,15 @@ class TextureStorage11_2D : public TextureStorage11
 
     virtual void generateMipmap(int level);
 
+    bool associateImage(Image11* image, int level);
+    bool disassociateImage(int level, Image11* expectedImage);
+    bool isAssociatedImageValid(int level, Image11* expectedImage) const;
+    bool releaseAssociatedImage(int level, Image11* incomingImage);
+
+    bool copySubresourceLevel(ID3D11Resource* dstTexture, unsigned int dstSubresource,
+                              int level, int layerTarget, GLint xoffset, GLint yoffset, GLint zoffset,
+                              GLsizei width, GLsizei height, GLsizei depth);
+
   protected:
     virtual ID3D11Resource *getSwizzleTexture();
     virtual ID3D11RenderTargetView *getSwizzleRenderTarget(int mipLevel);
@@ -168,6 +178,8 @@ class TextureStorage11_2D : public TextureStorage11
 
     ID3D11Texture2D *mSwizzleTexture;
     ID3D11RenderTargetView *mSwizzleRenderTargets[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
+
+    Image11 *mAssociatedImages[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 };
 
 class TextureStorage11_Cube : public TextureStorage11

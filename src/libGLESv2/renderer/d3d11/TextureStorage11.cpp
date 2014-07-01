@@ -16,6 +16,7 @@
 #include "libGLESv2/renderer/d3d11/renderer11_utils.h"
 #include "libGLESv2/renderer/d3d11/Blit11.h"
 #include "libGLESv2/renderer/d3d11/formatutils11.h"
+#include "libGLESv2/renderer/d3d11/Image11.h"
 
 #include "common/utilities.h"
 #include "libGLESv2/main.h"
@@ -379,6 +380,7 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, SwapChain11 *swapch
 
     for (unsigned int i = 0; i < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS; i++)
     {
+        mAssociatedImages[i] = NULL;
         mRenderTarget[i] = NULL;
         mSwizzleRenderTargets[i] = NULL;
     }
@@ -417,6 +419,7 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, GLenum internalform
 
     for (unsigned int i = 0; i < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS; i++)
     {
+        mAssociatedImages[i] = NULL;
         mRenderTarget[i] = NULL;
         mSwizzleRenderTargets[i] = NULL;
     }
@@ -480,6 +483,21 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, GLenum internalform
 
 TextureStorage11_2D::~TextureStorage11_2D()
 {
+    for (unsigned i = 0; i < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS; i++)
+    {
+        if (mAssociatedImages[i] != NULL)
+        {
+            bool imageAssociationCorrect = mAssociatedImages[i]->isAssociatedStorageValid(this);
+            ASSERT(imageAssociationCorrect);
+
+            if (imageAssociationCorrect)
+            {
+                // We must let the Images recover their data before we delete it from the TextureStorage.
+                mAssociatedImages[i]->recoverFromAssociatedStorage();
+            }
+        }
+    }
+
     SafeRelease(mTexture);
     SafeRelease(mSwizzleTexture);
 
@@ -494,6 +512,95 @@ TextureStorage11_2D *TextureStorage11_2D::makeTextureStorage11_2D(TextureStorage
 {
     ASSERT(HAS_DYNAMIC_TYPE(TextureStorage11_2D*, storage));
     return static_cast<TextureStorage11_2D*>(storage);
+}
+
+bool TextureStorage11_2D::associateImage(Image11* image, int level)
+{
+    if (0 <= level && level < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS)
+    {
+        mAssociatedImages[level] = image;
+        return true;
+    }
+
+    return false;
+}
+
+bool TextureStorage11_2D::isAssociatedImageValid(int level, Image11* expectedImage) const
+{
+    if (0 <= level && level < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS)
+    {
+        // This validation check should never return false. It means the Image/TextureStorage association is broken.
+        bool retValue = (mAssociatedImages[level] == expectedImage);
+        ASSERT(retValue);
+        return retValue;
+    }
+
+    return false;
+}
+
+// disassociateImage allows an Image to end its association with a Storage.
+bool TextureStorage11_2D::disassociateImage(int level, Image11* expectedImage)
+{
+    if (0 <= level && level < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS)
+    {
+        ASSERT(mAssociatedImages[level] == expectedImage);
+        if (mAssociatedImages[level] == expectedImage)
+        {
+            mAssociatedImages[level] = NULL;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// releaseAssociatedImage prepares the Storage for a new Image association. It lets the old Image recover its data before ending the association.
+bool TextureStorage11_2D::releaseAssociatedImage(int level, Image11* incomingImage)
+{
+    // No need to let the old Image recover its data, if it is also the incoming Image.
+    if ((0 <= level && level < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS) && mAssociatedImages[level] != incomingImage)
+    {
+        if (mAssociatedImages[level] == NULL)
+        {
+            return true;
+        }
+        else
+        {
+            // Ensure that the Image is still associated with this TextureStorage. This should be true.
+            bool imageAssociationCorrect = mAssociatedImages[level]->isAssociatedStorageValid(this);
+            ASSERT(imageAssociationCorrect);
+
+            if (imageAssociationCorrect)
+            {
+                // Force the image to recover from storage before its data is overwritten.
+                // This will reset mAssociatedImages[level] to NULL too.
+                mAssociatedImages[level]->recoverFromAssociatedStorage();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool TextureStorage11_2D::copySubresourceLevel(ID3D11Resource* dstTexture, unsigned int dstSubresource,
+                                               int level, int layerTarget, GLint xoffset, GLint yoffset, GLint zoffset,
+                                               GLsizei width, GLsizei height, GLsizei depth)
+{
+    if (dstTexture == NULL)
+    {
+        return false;
+    }
+
+    ID3D11Resource *srcTexture = getResource();
+    unsigned int srcSubresource = getSubresourceIndex(level + mTopLevel, layerTarget);
+
+    ASSERT(srcTexture);
+
+    ID3D11DeviceContext *context = mRenderer->getDeviceContext();
+
+    context->CopySubresourceRegion(dstTexture, dstSubresource, xoffset, yoffset, zoffset,
+                                   srcTexture, srcSubresource, NULL);
+    return true;
 }
 
 ID3D11Resource *TextureStorage11_2D::getResource() const

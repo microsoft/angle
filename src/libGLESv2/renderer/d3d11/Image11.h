@@ -25,6 +25,7 @@ class Renderer;
 class Renderer11;
 class TextureStorageInterface2D;
 class TextureStorageInterfaceCube;
+class TextureStorage11_2D;
 
 class Image11 : public Image
 {
@@ -54,6 +55,10 @@ class Image11 : public Image
 
     virtual void copy(GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height, gl::Framebuffer *source);
 
+    bool recoverFromAssociatedStorage();
+    bool isAssociatedStorageValid(TextureStorage11_2D* textureStorage) const;
+    void disassociateStorage();
+
   protected:
     HRESULT map(D3D11_MAP mapType, D3D11_MAPPED_SUBRESOURCE *map);
     void unmap();
@@ -64,12 +69,18 @@ class Image11 : public Image
     ID3D11Resource *getStagingTexture();
     unsigned int getStagingSubresource();
     void createStagingTexture();
+    void releaseStagingTexture();
 
     Renderer11 *mRenderer;
 
     DXGI_FORMAT mDXGIFormat;
     ID3D11Resource *mStagingTexture;
     unsigned int mStagingSubresource;
+
+    bool mRecoverFromStorage;
+    TextureStorage11_2D *mAssociatedStorage;
+    int mAssociatedStorageLevel;
+    unsigned int mRecoveredFromStorageCount;
 };
 
 }

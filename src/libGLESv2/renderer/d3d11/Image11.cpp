@@ -27,11 +27,16 @@ Image11::Image11()
     mStagingTexture = NULL;
     mRenderer = NULL;
     mDXGIFormat = DXGI_FORMAT_UNKNOWN;
+    mRecoverFromStorage = false;
+    mAssociatedStorage = NULL;
+    mAssociatedStorageLevel = 0;
+    mRecoveredFromStorageCount = 0;
 }
 
 Image11::~Image11()
 {
-    SafeRelease(mStagingTexture);
+    disassociateStorage();
+    releaseStagingTexture();
 }
 
 Image11 *Image11::makeImage11(Image *img)
@@ -81,15 +86,48 @@ void Image11::generateMipmap(GLuint clientVersion, Image11 *dest, Image11 *src)
 
 bool Image11::isDirty() const
 {
-    // Make sure that this image is marked as dirty even if the staging texture hasn't been created yet
-    // if initialization is required before use.
-    return (mDirty && (mStagingTexture || gl_d3d11::RequiresTextureDataInitialization(mInternalFormat)));
+    // If mStagingTexture doesn't exist AND mStagingTexture doesn't need to be recovered from TextureStorage
+    // AND the texture doesn't require init data (i.e. a blank new texture will suffice)
+    // AND mDirty is true 
+    // then isDirty should still return false.
+
+    if (mDirty && !mStagingTexture && !mRecoverFromStorage && !gl_d3d11::RequiresTextureDataInitialization(mInternalFormat))
+    {
+        return false;
+    }
+
+    return mDirty;
 }
 
 bool Image11::copyToStorage(TextureStorageInterface2D *storage, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height)
 {
     TextureStorage11_2D *storage11 = TextureStorage11_2D::makeTextureStorage11_2D(storage->getStorageInstance());
-    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, 0, xoffset, yoffset, 0, width, height, 1);
+
+    // If an app's behavior results in an Image11 copying its data to/from to a TextureStorage multiple times,
+    // then we should just keep the staging texture around to prevent the copying from impacting perf.
+    // We allow the Image11 to copy its data to/from TextureStorage once.
+    // This accounts for an app making a late call to glGenerateMipmap.
+    bool attemptToReleaseStagingTexture = (mRecoveredFromStorageCount < 2);
+
+    if (attemptToReleaseStagingTexture)
+    {
+        // If another image is relying on this Storage for its data, then we must let it recover its data before we overwrite it.
+        storage11->releaseAssociatedImage(level, this);
+    }
+
+    bool updateSubresourceSuccess = storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, 0, xoffset, yoffset, 0, width, height, 1);
+
+    // Once the image data has been copied into the Storage, we can release it locally.
+    if (attemptToReleaseStagingTexture && updateSubresourceSuccess)
+    {
+        storage11->associateImage(this, level);
+        releaseStagingTexture();
+        mRecoverFromStorage = true;
+        mAssociatedStorage = storage11;
+        mAssociatedStorageLevel = level;
+    }
+
+    return updateSubresourceSuccess;
 }
 
 bool Image11::copyToStorage(TextureStorageInterfaceCube *storage, int face, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height)
@@ -110,6 +148,52 @@ bool Image11::copyToStorage(TextureStorageInterface2DArray *storage, int level, 
     return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, arrayLayer, xoffset, yoffset, 0, width, height, 1);
 }
 
+bool Image11::isAssociatedStorageValid(TextureStorage11_2D* textureStorage) const
+{
+    return (mAssociatedStorage == textureStorage);
+}
+
+bool Image11::recoverFromAssociatedStorage()
+{
+    if (mRecoverFromStorage)
+    {
+        createStagingTexture();
+
+        bool textureStorageCorrect = mAssociatedStorage->isAssociatedImageValid(mAssociatedStorageLevel, this);
+
+        // This means that the cached TextureStorage has been modified after this Image11 released its copy of its data. 
+        // This should not have happened. The TextureStorage should have told this Image11 to recover its data before it was overwritten.
+        ASSERT(textureStorageCorrect);
+
+        if (textureStorageCorrect)
+        {
+            // CopySubResource from the Storage to the Staging texture
+            mAssociatedStorage->copySubresourceLevel(mStagingTexture, mStagingSubresource, mAssociatedStorageLevel, 0, 0, 0, 0, mWidth, mHeight, mDepth);
+            mRecoveredFromStorageCount += 1;
+        }
+
+        // Reset all the recovery parameters, even if the texture storage association is broken.
+        disassociateStorage();
+
+        return textureStorageCorrect;
+    }
+
+    return false;
+}
+
+void Image11::disassociateStorage()
+{
+    if (mRecoverFromStorage)
+    {
+        // Make the texturestorage release the Image11 too
+        mAssociatedStorage->disassociateImage(mAssociatedStorageLevel, this);
+
+        mRecoverFromStorage = false;
+        mAssociatedStorage = NULL;
+        mAssociatedStorageLevel = 0;
+    }
+}
+
 bool Image11::redefine(Renderer *renderer, GLenum target, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, bool forceRelease)
 {
     if (mWidth != width ||
@@ -117,6 +201,11 @@ bool Image11::redefine(Renderer *renderer, GLenum target, GLenum internalformat,
         mInternalFormat != internalformat ||
         forceRelease)
     {
+        // End the association with the TextureStorage, since that data will be out of date.
+        // Also reset mRecoveredFromStorageCount since this Image is getting completely redefined.
+        disassociateStorage();
+        mRecoveredFromStorageCount = 0;
+
         mRenderer = Renderer11::makeRenderer11(renderer);
         GLuint clientVersion = mRenderer->getCurrentClientVersion();
 
@@ -131,7 +220,7 @@ bool Image11::redefine(Renderer *renderer, GLenum target, GLenum internalformat,
         mActualFormat = d3d11_gl::GetInternalFormat(mDXGIFormat, clientVersion);
         mRenderable = gl_d3d11::GetRTVFormat(internalformat, clientVersion) != DXGI_FORMAT_UNKNOWN;
 
-        SafeRelease(mStagingTexture);
+        releaseStagingTexture();
         mDirty = gl_d3d11::RequiresTextureDataInitialization(mInternalFormat);
 
         return true;
@@ -307,6 +396,11 @@ ID3D11Resource *Image11::getStagingTexture()
     return mStagingTexture;
 }
 
+void Image11::releaseStagingTexture()
+{
+    SafeRelease(mStagingTexture);
+}
+
 unsigned int Image11::getStagingSubresource()
 {
     createStagingTexture();
@@ -428,6 +522,9 @@ HRESULT Image11::map(D3D11_MAP mapType, D3D11_MAPPED_SUBRESOURCE *map)
 {
     createStagingTexture();
 
+    // We must recover from the TextureStorage if necessary, even for D3D11_MAP_WRITE.
+    recoverFromAssociatedStorage();
+    
     HRESULT result = E_FAIL;
 
     if (mStagingTexture)
