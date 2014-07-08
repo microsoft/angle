@@ -30,6 +30,7 @@ Image11::Image11()
     mRecoverFromStorage = false;
     mAssociatedStorage = NULL;
     mAssociatedStorageLevel = 0;
+    mAssociatedStorageLayerTarget = 0;
     mRecoveredFromStorageCount = 0;
 }
 
@@ -102,7 +103,29 @@ bool Image11::isDirty() const
 bool Image11::copyToStorage(TextureStorageInterface2D *storage, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height)
 {
     TextureStorage11_2D *storage11 = TextureStorage11_2D::makeTextureStorage11_2D(storage->getStorageInstance());
+    return copyToStorageImpl(storage11, level, 0, xoffset, yoffset, width, height);
+}
 
+bool Image11::copyToStorage(TextureStorageInterfaceCube *storage, int face, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height)
+{
+    TextureStorage11_Cube *storage11 = TextureStorage11_Cube::makeTextureStorage11_Cube(storage->getStorageInstance());
+    return copyToStorageImpl(storage11, level, face, xoffset, yoffset, width, height);
+}
+
+bool Image11::copyToStorage(TextureStorageInterface3D *storage, int level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth)
+{
+    TextureStorage11_3D *storage11 = TextureStorage11_3D::makeTextureStorage11_3D(storage->getStorageInstance());
+    return copyToStorageImpl(storage11, level, 0, xoffset, yoffset, width, height);
+}
+
+bool Image11::copyToStorage(TextureStorageInterface2DArray *storage, int level, GLint xoffset, GLint yoffset, GLint arrayLayer, GLsizei width, GLsizei height)
+{
+    TextureStorage11_2DArray *storage11 = TextureStorage11_2DArray::makeTextureStorage11_2DArray(storage->getStorageInstance());
+    return copyToStorageImpl(storage11, level, arrayLayer, xoffset, yoffset, width, height);
+}
+
+bool Image11::copyToStorageImpl(TextureStorage11 *storage11, int level, int layerTarget, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height)
+{
     // If an app's behavior results in an Image11 copying its data to/from to a TextureStorage multiple times,
     // then we should just keep the staging texture around to prevent the copying from impacting perf.
     // We allow the Image11 to copy its data to/from TextureStorage once.
@@ -112,43 +135,26 @@ bool Image11::copyToStorage(TextureStorageInterface2D *storage, int level, GLint
     if (attemptToReleaseStagingTexture)
     {
         // If another image is relying on this Storage for its data, then we must let it recover its data before we overwrite it.
-        storage11->releaseAssociatedImage(level, this);
+        storage11->releaseAssociatedImage(level, layerTarget, this);
     }
 
-    bool updateSubresourceSuccess = storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, 0, xoffset, yoffset, 0, width, height, 1);
+    bool updateSubresourceSuccess = storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, layerTarget, xoffset, yoffset, 0, width, height, 1);
 
     // Once the image data has been copied into the Storage, we can release it locally.
     if (attemptToReleaseStagingTexture && updateSubresourceSuccess)
     {
-        storage11->associateImage(this, level);
+        storage11->associateImage(this, level, layerTarget);
         releaseStagingTexture();
         mRecoverFromStorage = true;
         mAssociatedStorage = storage11;
         mAssociatedStorageLevel = level;
+        mAssociatedStorageLayerTarget = layerTarget;
     }
 
     return updateSubresourceSuccess;
 }
 
-bool Image11::copyToStorage(TextureStorageInterfaceCube *storage, int face, int level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height)
-{
-    TextureStorage11_Cube *storage11 = TextureStorage11_Cube::makeTextureStorage11_Cube(storage->getStorageInstance());
-    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, face, xoffset, yoffset, 0, width, height, 1);
-}
-
-bool Image11::copyToStorage(TextureStorageInterface3D *storage, int level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth)
-{
-    TextureStorage11_3D *storage11 = TextureStorage11_3D::makeTextureStorage11_3D(storage->getStorageInstance());
-    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, 0, xoffset, yoffset, zoffset, width, height, depth);
-}
-
-bool Image11::copyToStorage(TextureStorageInterface2DArray *storage, int level, GLint xoffset, GLint yoffset, GLint arrayLayer, GLsizei width, GLsizei height)
-{
-    TextureStorage11_2DArray *storage11 = TextureStorage11_2DArray::makeTextureStorage11_2DArray(storage->getStorageInstance());
-    return storage11->updateSubresourceLevel(getStagingTexture(), getStagingSubresource(), level, arrayLayer, xoffset, yoffset, 0, width, height, 1);
-}
-
-bool Image11::isAssociatedStorageValid(TextureStorage11_2D* textureStorage) const
+bool Image11::isAssociatedStorageValid(TextureStorage11* textureStorage) const
 {
     return (mAssociatedStorage == textureStorage);
 }
@@ -159,7 +165,7 @@ bool Image11::recoverFromAssociatedStorage()
     {
         createStagingTexture();
 
-        bool textureStorageCorrect = mAssociatedStorage->isAssociatedImageValid(mAssociatedStorageLevel, this);
+        bool textureStorageCorrect = mAssociatedStorage->isAssociatedImageValid(mAssociatedStorageLevel, mAssociatedStorageLayerTarget, this);
 
         // This means that the cached TextureStorage has been modified after this Image11 released its copy of its data. 
         // This should not have happened. The TextureStorage should have told this Image11 to recover its data before it was overwritten.
@@ -168,7 +174,7 @@ bool Image11::recoverFromAssociatedStorage()
         if (textureStorageCorrect)
         {
             // CopySubResource from the Storage to the Staging texture
-            mAssociatedStorage->copySubresourceLevel(mStagingTexture, mStagingSubresource, mAssociatedStorageLevel, 0, 0, 0, 0, mWidth, mHeight, mDepth);
+            mAssociatedStorage->copySubresourceLevel(mStagingTexture, mStagingSubresource, mAssociatedStorageLevel, mAssociatedStorageLayerTarget, 0, 0, 0, mWidth, mHeight, mDepth);
             mRecoveredFromStorageCount += 1;
         }
 
@@ -186,11 +192,12 @@ void Image11::disassociateStorage()
     if (mRecoverFromStorage)
     {
         // Make the texturestorage release the Image11 too
-        mAssociatedStorage->disassociateImage(mAssociatedStorageLevel, this);
+        mAssociatedStorage->disassociateImage(mAssociatedStorageLevel, mAssociatedStorageLayerTarget, this);
 
         mRecoverFromStorage = false;
         mAssociatedStorage = NULL;
         mAssociatedStorageLevel = 0;
+        mAssociatedStorageLayerTarget = 0;
     }
 }
 

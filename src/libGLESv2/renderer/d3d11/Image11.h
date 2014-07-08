@@ -25,7 +25,7 @@ class Renderer;
 class Renderer11;
 class TextureStorageInterface2D;
 class TextureStorageInterfaceCube;
-class TextureStorage11_2D;
+class TextureStorage11;
 
 class Image11 : public Image
 {
@@ -56,7 +56,7 @@ class Image11 : public Image
     virtual void copy(GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height, gl::Framebuffer *source);
 
     bool recoverFromAssociatedStorage();
-    bool isAssociatedStorageValid(TextureStorage11_2D* textureStorage) const;
+    bool isAssociatedStorageValid(TextureStorage11* textureStorage) const;
     void disassociateStorage();
 
   protected:
@@ -65,6 +65,8 @@ class Image11 : public Image
 
   private:
     DISALLOW_COPY_AND_ASSIGN(Image11);
+
+    bool copyToStorageImpl(TextureStorage11 *storage11, int level, int layerTarget, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height);
 
     ID3D11Resource *getStagingTexture();
     unsigned int getStagingSubresource();
@@ -78,8 +80,9 @@ class Image11 : public Image
     unsigned int mStagingSubresource;
 
     bool mRecoverFromStorage;
-    TextureStorage11_2D *mAssociatedStorage;
+    TextureStorage11 *mAssociatedStorage;
     int mAssociatedStorageLevel;
+    int mAssociatedStorageLayerTarget;
     unsigned int mRecoveredFromStorageCount;
 };
 

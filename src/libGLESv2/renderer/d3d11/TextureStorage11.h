@@ -56,6 +56,15 @@ class TextureStorage11 : public TextureStorage
                                 int layerTarget, GLint xoffset, GLint yoffset, GLint zoffset,
                                 GLsizei width, GLsizei height, GLsizei depth);
 
+    bool copySubresourceLevel(ID3D11Resource* dstTexture, unsigned int dstSubresource, int level,
+                              int layerTarget, GLint xoffset, GLint yoffset, GLint zoffset,
+                              GLsizei width, GLsizei height, GLsizei depth);
+
+    virtual bool associateImage(Image11* image, int level, int layerTarget) = 0;
+    virtual bool disassociateImage(int level, int layerTarget, Image11* expectedImage) = 0;
+    virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage) = 0;
+    virtual bool releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage) = 0;
+
   protected:
     TextureStorage11(Renderer *renderer, UINT bindFlags);
     void generateMipmapLayer(RenderTarget11 *source, RenderTarget11 *dest);
@@ -153,14 +162,10 @@ class TextureStorage11_2D : public TextureStorage11
 
     virtual void generateMipmap(int level);
 
-    bool associateImage(Image11* image, int level);
-    bool disassociateImage(int level, Image11* expectedImage);
-    bool isAssociatedImageValid(int level, Image11* expectedImage) const;
-    bool releaseAssociatedImage(int level, Image11* incomingImage);
-
-    bool copySubresourceLevel(ID3D11Resource* dstTexture, unsigned int dstSubresource,
-                              int level, int layerTarget, GLint xoffset, GLint yoffset, GLint zoffset,
-                              GLsizei width, GLsizei height, GLsizei depth);
+    virtual bool associateImage(Image11* image, int level, int layerTarget);
+    virtual bool disassociateImage(int level, int layerTarget, Image11* expectedImage);
+    virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
+    virtual bool releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
 
   protected:
     virtual ID3D11Resource *getSwizzleTexture();
@@ -195,6 +200,11 @@ class TextureStorage11_Cube : public TextureStorage11
 
     virtual void generateMipmap(int faceIndex, int level);
 
+    virtual bool associateImage(Image11* image, int level, int layerTarget);
+    virtual bool disassociateImage(int level, int layerTarget, Image11* expectedImage);
+    virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
+    virtual bool releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
+
   protected:
     virtual ID3D11Resource *getSwizzleTexture();
     virtual ID3D11RenderTargetView *getSwizzleRenderTarget(int mipLevel);
@@ -211,6 +221,8 @@ class TextureStorage11_Cube : public TextureStorage11
 
     ID3D11Texture2D *mSwizzleTexture;
     ID3D11RenderTargetView *mSwizzleRenderTargets[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
+
+    Image11 *mAssociatedImages[6][gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 };
 
 class TextureStorage11_3D : public TextureStorage11
@@ -227,6 +239,11 @@ class TextureStorage11_3D : public TextureStorage11
     virtual RenderTarget *getRenderTargetLayer(int mipLevel, int layer);
 
     virtual void generateMipmap(int level);
+
+    virtual bool associateImage(Image11* image, int level, int layerTarget);
+    virtual bool disassociateImage(int level, int layerTarget, Image11* expectedImage);
+    virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
+    virtual bool releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
 
   protected:
     virtual ID3D11Resource *getSwizzleTexture();
@@ -248,6 +265,8 @@ class TextureStorage11_3D : public TextureStorage11
     ID3D11Texture3D *mTexture;
     ID3D11Texture3D *mSwizzleTexture;
     ID3D11RenderTargetView *mSwizzleRenderTargets[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
+
+    Image11 *mAssociatedImages[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 };
 
 class TextureStorage11_2DArray : public TextureStorage11
@@ -263,6 +282,11 @@ class TextureStorage11_2DArray : public TextureStorage11
     virtual RenderTarget *getRenderTargetLayer(int mipLevel, int layer);
 
     virtual void generateMipmap(int level);
+
+    virtual bool associateImage(Image11* image, int level, int layerTarget);
+    virtual bool disassociateImage(int level, int layerTarget, Image11* expectedImage);
+    virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
+    virtual bool releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
 
   protected:
     virtual ID3D11Resource *getSwizzleTexture();
@@ -283,6 +307,9 @@ class TextureStorage11_2DArray : public TextureStorage11
 
     ID3D11Texture2D *mSwizzleTexture;
     ID3D11RenderTargetView *mSwizzleRenderTargets[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
+
+    typedef std::map<LevelLayerKey, Image11*> ImageMap;
+    ImageMap mAssociatedImages;
 };
 
 }
