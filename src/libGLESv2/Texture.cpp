@@ -477,20 +477,23 @@ Texture2D::Texture2D(rx::Renderer *renderer, GLuint id) : Texture(renderer, id, 
 }
 
 Texture2D::~Texture2D()
-{
-    delete mTexStorage;
-    mTexStorage = NULL;
-    
+{  
     if (mSurface)
     {
         mSurface->setBoundTexture(NULL);
         mSurface = NULL;
     }
 
+    // Delete the Images before the TextureStorage.
+    // Images might be relying on the TextureStorage for some of their data.
+    // If TextureStorage is deleted before the Images, then their data will be wastefully copied back from the GPU before we delete the Images.
     for (int i = 0; i < IMPLEMENTATION_MAX_TEXTURE_LEVELS; ++i)
     {
         delete mImageArray[i];
     }
+
+    delete mTexStorage;
+    mTexStorage = NULL;
 }
 
 GLsizei Texture2D::getWidth(GLint level) const
@@ -1111,6 +1114,9 @@ TextureCubeMap::TextureCubeMap(rx::Renderer *renderer, GLuint id) : Texture(rend
 
 TextureCubeMap::~TextureCubeMap()
 {
+    // Delete the Images before the TextureStorage.
+    // Images might be relying on the TextureStorage for some of their data.
+    // If TextureStorage is deleted before the Images, then their data will be wastefully copied back from the GPU before we delete the Images.
     for (int i = 0; i < 6; i++)
     {
         for (int j = 0; j < IMPLEMENTATION_MAX_TEXTURE_LEVELS; ++j)
@@ -1751,13 +1757,16 @@ Texture3D::Texture3D(rx::Renderer *renderer, GLuint id) : Texture(renderer, id, 
 
 Texture3D::~Texture3D()
 {
-    delete mTexStorage;
-    mTexStorage = NULL;
-
+    // Delete the Images before the TextureStorage.
+    // Images might be relying on the TextureStorage for some of their data.
+    // If TextureStorage is deleted before the Images, then their data will be wastefully copied back from the GPU before we delete the Images.
     for (int i = 0; i < IMPLEMENTATION_MAX_TEXTURE_LEVELS; ++i)
     {
         delete mImageArray[i];
     }
+
+    delete mTexStorage;
+    mTexStorage = NULL;
 }
 
 GLsizei Texture3D::getWidth(GLint level) const
@@ -2283,10 +2292,13 @@ Texture2DArray::Texture2DArray(rx::Renderer *renderer, GLuint id) : Texture(rend
 
 Texture2DArray::~Texture2DArray()
 {
+    // Delete the Images before the TextureStorage.
+    // Images might be relying on the TextureStorage for some of their data.
+    // If TextureStorage is deleted before the Images, then their data will be wastefully copied back from the GPU before we delete the Images.
+    deleteImages();
+
     delete mTexStorage;
     mTexStorage = NULL;
-
-    deleteImages();
 }
 
 void Texture2DArray::deleteImages()
