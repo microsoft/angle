@@ -26,6 +26,9 @@
         <ProjectItem ReplaceParameters="false" TargetFileName="storelogo.png">storelogo.png</ProjectItem>
       </Folder>
       <ProjectItem ReplaceParameters="false" TargetFileName="$ext_projectname$.Windows_TemporaryKey.pfx" BlendDoNotCreate="true">Application_TemporaryKey.pfx</ProjectItem>
+      <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLESPage.xaml">OpenGLESPage.xaml</ProjectItem>
+      <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLESPage.xaml.cpp">OpenGLESPage.xaml.cpp</ProjectItem>
+      <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLESPage.xaml.h">OpenGLESPage.xaml.h</ProjectItem>
     </Project>
   </TemplateContent>
   <WizardExtension>

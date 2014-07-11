@@ -110,16 +110,16 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="..\$ext_projectname$.Shared\OpenGLESPage.xaml" />
+    <Page Include="OpenGLESPage.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\$ext_projectname$.Shared\OpenGLESPage.xaml.cpp">
-      <DependentUpon>..\$ext_projectname$.Shared\OpenGLESPage.xaml</DependentUpon>
+    <ClCompile Include="OpenGLESPage.xaml.cpp">
+      <DependentUpon>OpenGLESPage.xaml</DependentUpon>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\$ext_projectname$.Shared\OpenGLESPage.xaml.h">
-      <DependentUpon>..\$ext_projectname$.Shared\OpenGLESPage.xaml</DependentUpon>
+    <ClInclude Include="OpenGLESPage.xaml.h">
+      <DependentUpon>OpenGLESPage.xaml</DependentUpon>
     </ClInclude>
   </ItemGroup>
 

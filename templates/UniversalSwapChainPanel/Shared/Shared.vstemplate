@@ -21,9 +21,6 @@
         <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="App.xaml">App.xaml</ProjectItem>
         <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="App.xaml.cpp">App.xaml.cpp</ProjectItem>
         <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="App.xaml.h">App.xaml.h</ProjectItem>
-        <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLESPage.xaml">OpenGLESPage.xaml</ProjectItem>
-        <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLESPage.xaml.cpp">OpenGLESPage.xaml.cpp</ProjectItem>
-        <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLESPage.xaml.h">OpenGLESPage.xaml.h</ProjectItem>
         <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLES.cpp">OpenGLES.cpp</ProjectItem>
         <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLES.h">OpenGLES.h</ProjectItem>
     </Project>

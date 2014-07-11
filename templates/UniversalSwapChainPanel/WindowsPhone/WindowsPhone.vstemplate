@@ -27,6 +27,9 @@
         <ProjectItem ReplaceParameters="false" TargetFileName="storeLogo.scale-240.png">phone.storelogo.png</ProjectItem>
         <ProjectItem ReplaceParameters="false" TargetFileName="wideLogo.scale-240.png">phone.widelogo.png</ProjectItem>
       </Folder>
+      <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLESPage.xaml">OpenGLESPage.xaml</ProjectItem>
+      <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLESPage.xaml.cpp">OpenGLESPage.xaml.cpp</ProjectItem>
+      <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="OpenGLESPage.xaml.h">OpenGLESPage.xaml.h</ProjectItem>
     </Project>
   </TemplateContent>
   <WizardExtension>
