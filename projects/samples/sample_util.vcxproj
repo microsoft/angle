@@ -14,6 +14,7 @@
     <ProjectGuid>{297C46B0-9263-A9EA-82B1-EA221E7D7C7F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>sample_util</RootNamespace>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
   <PropertyGroup Label="Configuration">
@@ -37,15 +38,17 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\include;..\..\samples\angle\sample_util;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\samples\angle\sample_util;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4201;4100;4127;4239;4244;4245;4512;4702;4530;4718;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4100;4127;4239;4244;4245;4512;4702;4530;4718;4267;4264;4447;4075;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -53,12 +56,12 @@
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
     </Lib>
     <Link>
-      <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -67,21 +70,23 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\..\include;..\..\samples\angle\sample_util;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\samples\angle\sample_util;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\include;..\..\samples\angle\sample_util;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\samples\angle\sample_util;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4201;4100;4127;4239;4244;4245;4512;4702;4530;4718;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4100;4127;4239;4244;4245;4512;4702;4530;4718;4267;4264;4447;4075;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -89,12 +94,12 @@
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
     </Lib>
     <Link>
-      <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -103,7 +108,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\..\include;..\..\samples\angle\sample_util;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\..\samples\angle\sample_util;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
@@ -112,33 +117,33 @@
     <None Include="..\..\samples\samples.gyp"/>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\samples\angle\sample_util\Window.h"/>
-    <ClInclude Include="..\..\samples\angle\sample_util\path_utils.h"/>
-    <ClInclude Include="..\..\samples\angle\sample_util\Vector.h"/>
-    <ClInclude Include="..\..\samples\angle\sample_util\keyboard.h"/>
-    <ClInclude Include="..\..\samples\angle\sample_util\shader_utils.h"/>
-    <ClInclude Include="..\..\samples\angle\sample_util\Matrix.h"/>
-    <ClInclude Include="..\..\samples\angle\sample_util\Timer.h"/>
-    <ClInclude Include="..\..\samples\angle\sample_util\mouse.h"/>
-    <ClInclude Include="..\..\samples\angle\sample_util\geometry_utils.h"/>
     <ClInclude Include="..\..\samples\angle\sample_util\Event.h"/>
-    <ClInclude Include="..\..\samples\angle\sample_util\random_utils.h"/>
-    <ClInclude Include="..\..\samples\angle\sample_util\tga_utils.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\Matrix.h"/>
     <ClInclude Include="..\..\samples\angle\sample_util\SampleApplication.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\Timer.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\Vector.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\Window.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\geometry_utils.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\keyboard.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\mouse.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\path_utils.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\random_utils.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\shader_utils.h"/>
     <ClInclude Include="..\..\samples\angle\sample_util\texture_utils.h"/>
+    <ClInclude Include="..\..\samples\angle\sample_util\tga_utils.h"/>
     <ClInclude Include="..\..\samples\angle\sample_util\win32\Win32Timer.h"/>
     <ClInclude Include="..\..\samples\angle\sample_util\win32\Win32Window.h"/>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\samples\angle\sample_util\Window.cpp"/>
-    <ClCompile Include="..\..\samples\angle\sample_util\texture_utils.cpp"/>
-    <ClCompile Include="..\..\samples\angle\sample_util\Vector.cpp"/>
-    <ClCompile Include="..\..\samples\angle\sample_util\shader_utils.cpp"/>
-    <ClCompile Include="..\..\samples\angle\sample_util\SampleApplication.cpp"/>
-    <ClCompile Include="..\..\samples\angle\sample_util\geometry_utils.cpp"/>
-    <ClCompile Include="..\..\samples\angle\sample_util\tga_utils.cpp"/>
-    <ClCompile Include="..\..\samples\angle\sample_util\random_utils.cpp"/>
     <ClCompile Include="..\..\samples\angle\sample_util\Matrix.cpp"/>
+    <ClCompile Include="..\..\samples\angle\sample_util\SampleApplication.cpp"/>
+    <ClCompile Include="..\..\samples\angle\sample_util\Vector.cpp"/>
+    <ClCompile Include="..\..\samples\angle\sample_util\Window.cpp"/>
+    <ClCompile Include="..\..\samples\angle\sample_util\geometry_utils.cpp"/>
+    <ClCompile Include="..\..\samples\angle\sample_util\random_utils.cpp"/>
+    <ClCompile Include="..\..\samples\angle\sample_util\shader_utils.cpp"/>
+    <ClCompile Include="..\..\samples\angle\sample_util\texture_utils.cpp"/>
+    <ClCompile Include="..\..\samples\angle\sample_util\tga_utils.cpp"/>
     <ClCompile Include="..\..\samples\angle\sample_util\win32\Win32Timer.cpp"/>
     <ClCompile Include="..\..\samples\angle\sample_util\win32\Win32Window.cpp"/>
     <ClCompile Include="..\..\samples\angle\sample_util\win32\Win32_path_utils.cpp"/>

@@ -39,8 +39,8 @@
   </PropertyGroup>
   
   <PropertyGroup Label="ANGLE">
-  	<AngleIncPath Condition=" '$(AngleIncPath)' == '' ">$(AngleRootPath)\include\</AngleIncPath>
-  	<AngleBinPath Condition=" '$(AngleBinPath)' == '' ">$(AngleRootPath)\projects\src\winrt\$(Platform)\$(Configuration)\</AngleBinPath>
+    <AngleIncPath Condition=" '$(AngleIncPath)' == '' ">$(AngleRootPath)\include\</AngleIncPath>
+    <AngleBinPath Condition=" '$(AngleBinPath)' == '' ">$(AngleRootPath)\projects\winrt\windows\src\$(Configuration)_$(Platform)\</AngleBinPath>
   </PropertyGroup>
   
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -82,7 +82,7 @@
   
   <ItemDefinitionGroup Condition="'$(Platform)'=='ARM'">
     <Link>
-      <AdditionalDependencies>$(AngleBinPath)libGLESv2.Windows\lib\libGLESv2.lib;$(AngleBinPath)libEGL.Windows\lib\libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(AngleBinPath)lib\libGLESv2.lib;$(AngleBinPath)lib\libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\lib\store\arm; $(VCInstallDir)\lib\arm</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
@@ -97,7 +97,7 @@
   
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <Link>
-      <AdditionalDependencies>$(AngleBinPath)libGLESv2.Windows\lib\libGLESv2.lib;$(AngleBinPath)libEGL.Windows\lib\libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(AngleBinPath)lib\libGLESv2.lib;$(AngleBinPath)lib\libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\lib\store; $(VCInstallDir)\lib</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
@@ -111,7 +111,7 @@
   
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
     <Link>
-      <AdditionalDependencies>$(AngleBinPath)libGLESv2.Windows\lib\libGLESv2.lib;$(AngleBinPath)libEGL.Windows\lib\libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(AngleBinPath)lib\libGLESv2.lib;$(AngleBinPath)lib\libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\lib\store\amd64; $(VCInstallDir)\lib\amd64</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
@@ -140,10 +140,10 @@
   </ItemGroup>
   
   <ItemGroup Label="ANGLE">
-    <None Include="$(AngleBinPath)libEGL.Windows\libEGL.dll">
+    <None Include="$(AngleBinPath)libEGL.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="$(AngleBinPath)libGLESv2.Windows\libGLESv2.dll">
+    <None Include="$(AngleBinPath)libGLESv2.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
   </ItemGroup>

@@ -35,7 +35,7 @@
   </PropertyGroup>
   <PropertyGroup Label="ANGLE">
     <AngleIncPath Condition=" '$(AngleIncPath)' == '' ">$(AngleRootPath)\include\</AngleIncPath>
-    <AngleBinPath Condition=" '$(AngleBinPath)' == '' ">$(AngleRootPath)\projects\src\winrt\$(Platform)\$(Configuration)\</AngleBinPath>
+    <AngleBinPath Condition=" '$(AngleBinPath)' == '' ">$(AngleRootPath)\projects\src\$(Configuration)_$(Platform)\</AngleBinPath>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -125,7 +125,7 @@
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(AngleBinPath)libGLESv2.Desktop\lib\libGLESv2.lib;$(AngleBinPath)libEGL.Desktop\lib\libEGL.lib;kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(AngleBinPath)lib\libGLESv2.lib;$(AngleBinPath)lib\libEGL.lib;kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
       <FixedBaseAddress>false</FixedBaseAddress>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
@@ -142,9 +142,9 @@
   <ItemDefinitionGroup Label="ANGLE">
     <PreBuildEvent>
       <Command>
-		xcopy /Q /Y "$(AngleBinPath)libGLESv2.Desktop\libGLESv2.dll" "$(OutDir)" 
-		xcopy /Q /Y "$(AngleBinPath)libEGL.Desktop\libEGL.dll" "$(OutDir)"
-	  </Command>
+        xcopy /Q /Y "$(AngleBinPath)libGLESv2.dll" "$(OutDir)" 
+        xcopy /Q /Y "$(AngleBinPath)libEGL.dll" "$(OutDir)"
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   

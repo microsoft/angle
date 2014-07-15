@@ -10,6 +10,17 @@
             'type': 'static_library',
             'includes': [ '../build/common_defines.gypi', ],
             'sources': [ '<!@(python <(angle_path)/enumerate_files.py compiler/preprocessor -types *.cpp *.h *.y *.l )' ],
+            'conditions':
+            [
+                ['angle_build_winrt==1',
+                {
+                    'msvs_enable_winrt' : '1',
+                }],
+                ['angle_build_winphone==1',
+                {
+                    'msvs_enable_winphone' : '1',
+                }],
+            ],
         },
         {
             'target_name': 'translator_lib',
@@ -25,7 +36,7 @@
             [
                 '<!@(python <(angle_path)/enumerate_files.py \
                      -dirs compiler/translator third_party/compiler common ../include \
-                     -excludes compiler/translator/ShaderLang.cpp */winrt/* \
+                     -excludes compiler/translator/ShaderLang.cpp */winrt/* */win32/*\
                      -types *.cpp *.h *.y *.l)',
             ],
             'msvs_settings':
@@ -35,6 +46,17 @@
                 'AdditionalOptions': ['/ignore:4221']
               },
             },
+            'conditions':
+            [
+                ['angle_build_winrt==1',
+                {
+                    'msvs_enable_winrt' : '1',
+                }],
+                ['angle_build_winphone==1',
+                {
+                    'msvs_enable_winphone' : '1',
+                }],
+            ],
         },
 
         {
@@ -50,6 +72,22 @@
             'defines':
             [
                 'ANGLE_TRANSLATOR_IMPLEMENTATION',
+            ],
+            'conditions':
+            [
+                ['angle_build_winrt==1',
+                {
+                    'defines':
+                    [
+                        'ANGLE_TRANSLATOR_IMPLEMENTATION',
+                        'ANGLE_ENABLE_WINDOWS_STORE',
+                    ],
+                    'msvs_enable_winrt' : '1',
+                }],
+                ['angle_build_winphone==1',
+                {
+                    'msvs_enable_winphone' : '1',
+                }],
             ],
             'sources':
             [
@@ -81,6 +119,17 @@
             'sources':
             [
                 'compiler/translator/ShaderLang.cpp'
+            ],
+            'conditions':
+            [
+                ['angle_build_winrt==1',
+                {
+                    'msvs_enable_winrt' : '1',
+                }],
+                ['angle_build_winphone==1',
+                {
+                    'msvs_enable_winphone' : '1',
+                }],
             ],
         },
     ],

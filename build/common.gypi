@@ -8,6 +8,8 @@
     {
         'angle_build_tests%': '1',
         'angle_build_samples%': '1',
+        'angle_build_winrt%': '0',
+        'angle_build_winphone%': '0',
         # angle_code is set to 1 for the core ANGLE targets defined in src/build_angle.gyp.
         # angle_code is set to 0 for test code, sample code, and third party code.
         # When angle_code is 1, we build with additional warning flags on Mac and Linux.
@@ -33,6 +35,25 @@
             '-Wno-format-nonliteral',
         ],
     },
+    'conditions' :
+    [
+        ['angle_build_winphone' == '0',
+        {
+            'msvs_system_include_dirs':
+            [
+                '<(windows_sdk_path)/Include/shared',
+                '<(windows_sdk_path)/Include/um',
+            ],
+        }],
+        ['angle_build_winphone' == '1',
+        {
+            'msvs_system_include_dirs':
+            [
+                '<(windowsphone_sdk_path)/Include/shared',
+                '<(windowsphone_sdk_path)/Include/um',
+            ],
+        }],
+    ],
     'target_defaults':
     {
         'default_configuration': 'Debug',
@@ -104,6 +125,13 @@
                         'Optimization': '0',    # /Od
                         'BasicRuntimeChecks': '3',
                         'RuntimeLibrary': '1',    # /MTd (debug static)
+                        'conditions':
+                        [
+                            ['angle_build_winrt==1',
+                            {
+                                'RuntimeLibrary': '3',    # /MDd (debug dynamic)
+                            }],
+                        ],
                     },
                     'VCLinkerTool':
                     {
@@ -127,6 +155,13 @@
                     {
                         'Optimization': '2',    # /Os
                         'RuntimeLibrary': '0',    # /MT (static)
+                        'conditions':
+                        [
+                            ['angle_build_winrt==1',
+                            {
+                                'RuntimeLibrary': '2',    # /MD (dynamic)
+                            }],
+                        ],
                     },
                     'VCLinkerTool':
                     {
@@ -159,6 +194,30 @@
                     },
                 },
             }, # x86_Base
+            
+            'arm_Base':
+            {
+                'abstract': 1,
+                'msvs_configuration_platform': 'ARM',
+                'msvs_settings':
+                {
+                    'VCLinkerTool':
+                    {
+                        'TargetMachine': '3', # ARM
+                        'AdditionalLibraryDirectories':
+                        [
+                            '<(windows_sdk_path)/Lib/win8/um/arm',
+                        ],
+                    },
+                    'VCLibrarianTool':
+                    {
+                        'AdditionalLibraryDirectories':
+                        [
+                            '<(windows_sdk_path)/Lib/win8/um/arm',
+                        ],
+                    },
+                },
+            }, # arm_Base
 
             'x64_Base':
             {
@@ -195,7 +254,7 @@
             },
             'conditions':
             [
-                [ 'OS == "win" and MSVS_VERSION != "2010e" and MSVS_VERSION != "2012e"',
+                ['angle_build_winrt==0 and OS == "win" and MSVS_VERSION != "2010e" and MSVS_VERSION != "2012e"',
                 {
                     'Debug_x64':
                     {
@@ -204,6 +263,36 @@
                     'Release_x64':
                     {
                         'inherit_from': ['Common_Base', 'x64_Base', 'Release_Base'],
+                    },
+                }],
+                ['angle_build_winrt==1 and angle_build_winphone==0',
+                {
+                    'Debug_x64':
+                    {
+                        'inherit_from': ['Common_Base', 'x64_Base', 'Debug_Base'],
+                    },
+                    'Release_x64':
+                    {
+                        'inherit_from': ['Common_Base', 'x64_Base', 'Release_Base'],
+                    },
+                    'Debug_ARM':
+                    {
+                        'inherit_from': ['Common_Base', 'arm_Base', 'Debug_Base'],
+                    },
+                    'Release_ARM':
+                    {
+                        'inherit_from': ['Common_Base', 'arm_Base', 'Release_Base'],
+                    },
+                }],
+                ['angle_build_winrt==1 and angle_build_winphone==1',
+                {
+                    'Debug_ARM':
+                    {
+                        'inherit_from': ['Common_Base', 'arm_Base', 'Debug_Base'],
+                    },
+                    'Release_ARM':
+                    {
+                        'inherit_from': ['Common_Base', 'arm_Base', 'Release_Base'],
                     },
                 }],
             ],

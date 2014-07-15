@@ -41,6 +41,9 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120_wp81</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Label="ANGLE">
+    <AngleBinPath Condition=" '$(AngleBinPath)' == '' ">$(ProjectDir)$(Configuration)_$(Platform)</AngleBinPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -68,6 +71,18 @@
       <IgnoreSpecificDefaultLibraries>ole32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\WindowsPhone\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">xcopy /Y /S "$(AngleBinPath)\*.dll" "$(ProjectDir)"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">xcopy /Y /S "$(AngleBinPath)\*.dll" "$(ProjectDir)"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xcopy /Y /S "$(AngleBinPath)\*.dll" "$(ProjectDir)"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xcopy /Y /S "$(AngleBinPath)\*.dll" "$(ProjectDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <AppxManifest Include="..\..\..\tests\winrt_tests\angle.test.fl9\Package.WindowsPhone.appxmanifest">
@@ -88,17 +103,35 @@
     <SDKReference Include="TestPlatform, Version=12.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\winrt\libEGL.WindowsPhone.vcxproj">
-      <Project>{54e0a402-0f76-4c9d-a900-bdc9b431cbee}</Project>
+    <ProjectReference Include="..\..\winrt\windowsphone\src\libEGL.vcxproj">
+      <Project>{7e06c9dd-998c-dbdc-c61d-e97b8e717892}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\winrt\libGLESv2.WindowsPhone.vcxproj">
-      <Project>{4d96c7a1-1f21-4406-afc6-83637ebf89fd}</Project>
+    <ProjectReference Include="..\..\winrt\windowsphone\src\libGLESv2.vcxproj">
+      <Project>{1dde4ca6-93ac-3e79-9517-c8bd4e61672e}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
     <IntDir>$(SolutionDir)$(PlatformName)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
+    <ItemGroup Label="ANGLE">
+    <None Include="libEGL.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="libGLESv2.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="angle.test.fl9.Shared.vcxitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsPhone\v$(TargetPlatformVersion)\Microsoft.Cpp.WindowsPhone.$(TargetPlatformVersion).targets" />

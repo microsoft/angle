@@ -24,7 +24,7 @@
                         '<!@(python <(angle_path)/enumerate_files.py \
                              -dirs common libEGL ../include \
                              -types *.cpp *.h *.def *.rc \
-                             -excludes */winrt/*)',
+                             -excludes */winrt/* */win32/*)',
                     ],
                     'defines':
                     [
@@ -32,14 +32,68 @@
                         'GL_GLEXT_PROTOTYPES=',
                         'EGLAPI=',
                     ],
+                    'conditions':
+                    [
+                        ['angle_build_winrt==0',
+                        {
+                            'defines':
+                            [
+                                'GL_APICALL=',
+                                'GL_GLEXT_PROTOTYPES=',
+                                'EGLAPI=',
+                            ],
+                            'sources':
+                            [
+                                '<!@(python <(angle_path)/enumerate_files.py \
+                                     -dirs common/win32 \
+                                     -types *.cpp *.h )',
+                            ],
+                        }],
+                        ['angle_build_winrt==1',
+                        {
+                            'defines':
+                            [
+                                'GL_APICALL=',
+                                'GL_GLEXT_PROTOTYPES=',
+                                'EGLAPI=',
+                                'NTDDI_VERSION=NTDDI_WINBLUE',
+                            ],
+                            'sources':
+                            [
+                                '<!@(python <(angle_path)/enumerate_files.py \
+                                     -dirs common/winrt third_party/threademulation \
+                                     -types *.cpp *.h )',
+                            ],
+                            'msvs_enable_winrt' : '1',
+                            'msvs_requires_importlibrary' : '1',
+                            'msvs_settings':
+                            {
+                                'VCLinkerTool':
+                                {
+                                    'EnableCOMDATFolding': '1',
+                                    'OptimizeReferences': '1',
+                                }
+                            },
+                        }],
+                        ['angle_build_winphone==1',
+                        {
+                            'msvs_enable_winphone' : '1',
+                        }],
+                    ],
                     'includes': [ '../build/common_defines.gypi', ],
                     'msvs_settings':
                     {
                         'VCLinkerTool':
                         {
-                            'AdditionalDependencies':
+                            'conditions':
                             [
-                                'd3d9.lib',
+                                ['angle_build_winrt==0',
+                                {
+                                    'AdditionalDependencies':
+                                    [
+                                        'd3d9.lib',
+                                    ],
+                                }],
                             ],
                         },
                     },

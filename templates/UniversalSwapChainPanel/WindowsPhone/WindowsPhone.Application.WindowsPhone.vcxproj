@@ -31,8 +31,8 @@
   </PropertyGroup>
   
   <PropertyGroup Label="ANGLE">
-  	<AngleIncPath Condition=" '$(AngleIncPath)' == '' ">$(AngleRootPath)\include\</AngleIncPath>
-  	<AngleBinPath Condition=" '$(AngleBinPath)' == '' ">$(AngleRootPath)\projects\src\winrt\$(Platform)\$(Configuration)\</AngleBinPath>
+    <AngleIncPath Condition=" '$(AngleIncPath)' == '' ">$(AngleRootPath)\include\</AngleIncPath>
+    <AngleBinPath Condition=" '$(AngleBinPath)' == '' ">$(AngleRootPath)\projects\winrt\windowsphone\src\$(Configuration)_$(Platform)\</AngleBinPath>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -66,7 +66,7 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <Link>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(WindowsPhoneSDK_LibraryPath_x86)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(AngleBinPath)libGLESv2.WindowsPhone\lib\libGLESv2.lib;$(AngleBinPath)libEGL.WindowsPhone\lib\libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(AngleBinPath)lib\libGLESv2.lib;$(AngleBinPath)lib\libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
     </Link>
     <ClCompile>
@@ -77,7 +77,7 @@
   <ItemDefinitionGroup Condition="'$(Platform)'=='ARM'">
     <Link>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(WindowsPhoneSDK_LibraryPath_arm)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(AngleBinPath)libGLESv2.WindowsPhone\lib\libGLESv2.lib;$(AngleBinPath)libEGL.WindowsPhone\lib\libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(AngleBinPath)lib\libGLESv2.lib;$(AngleBinPath)lib\libEGL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
     </Link>
     <ClCompile>
@@ -102,10 +102,10 @@
   </ItemGroup>
 
   <ItemGroup Label="ANGLE">
-    <None Include="$(AngleBinPath)libEGL.WindowsPhone\libEGL.dll">
+    <None Include="$(AngleBinPath)libEGL.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="$(AngleBinPath)libGLESv2.WindowsPhone\libGLESv2.dll">
+    <None Include="$(AngleBinPath)libGLESv2.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
   </ItemGroup>

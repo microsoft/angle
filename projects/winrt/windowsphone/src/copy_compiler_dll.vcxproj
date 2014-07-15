@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FC399E5A-A46B-675C-DE49-24E2008B2E2B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>copy_compiler_dll</RootNamespace>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <AppContainerApplication>true</AppContainerApplication>
+    <ApplicationType>Windows Phone</ApplicationType>
+    <ApplicationTypeRevision>8.1</ApplicationTypeRevision>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Locals">
+    <PlatformToolset>v120_wp81</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+  <ImportGroup Label="ExtensionSettings"/>
+  <ImportGroup Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros"/>
+  <PropertyGroup>
+    <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\..\..\..\third_party\cygwin\bin\;$(MSBuildProjectDirectory)\..\..\..\..\third_party\python_26\</ExecutablePath>
+    <OutDir>$(SolutionDir)$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
+    <TargetPath>$(OutDir)\$(ProjectName)$(TargetExt)</TargetPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4127;4239;4244;4245;4512;4702;4530;4718;4267;4264;4447;4075;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4127;4239;4244;4245;4512;4702;4530;4718;4267;4264;4447;4075;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/arm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/arm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineARM</TargetMachine>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4127;4239;4244;4245;4512;4702;4530;4718;4267;4264;4447;4075;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4127;4239;4244;4245;4512;4702;4530;4718;4267;4264;4447;4075;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/arm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/arm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineARM</TargetMachine>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\src\angle.gyp"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="copy_scripts.vcxproj">
+      <Project>{D4CB6FC1-E492-E9C4-2AF3-23FC58CB4D67}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+  <ImportGroup Label="ExtensionTargets"/>
+</Project>

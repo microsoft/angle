@@ -9,9 +9,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\src\angle.gyp"/>
     <ClCompile Include="..\..\src\compiler\translator\ShaderLang.cpp">
       <Filter>compiler\translator</Filter>
     </ClCompile>
+    <None Include="..\..\src\angle.gyp"/>
   </ItemGroup>
 </Project>

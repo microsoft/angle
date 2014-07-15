@@ -14,6 +14,7 @@
     <ProjectGuid>{63FB0B97-D1D9-5158-8E85-7F5B1E403817}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>copy_scripts</RootNamespace>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
   <PropertyGroup Label="Configuration">
@@ -39,22 +40,24 @@
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <Link>
       <AdditionalDependencies></AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -64,29 +67,31 @@
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
+      <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <Link>
       <AdditionalDependencies></AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -96,7 +101,7 @@
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -105,19 +110,19 @@
   <ItemGroup>
     <CustomBuild Include="..\..\src\commit_id.py">
       <FileType>Document</FileType>
-      <Command>call mkdir &quot;$(OutDir)obj\global_intermediate&quot; 2&gt;nul &amp; set ERRORLEVEL=0 &amp; copy /Y &quot;..\..\src\commit_id.py&quot; &quot;$(OutDir)obj\global_intermediate\commit_id.py&quot;</Command>
+      <Command>call mkdir &quot;$(OutDir)obj\global_intermediate&quot; 2&gt;nul &amp; set ERRORLEVEL=0 &amp; copy /Y &quot;..\..\src\commit_id.py&quot; &quot;$(OutDir)obj\global_intermediate\commit_id.py&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
       <Message>Copying commit_id.py to $(OutDir)obj/global_intermediate\commit_id.py</Message>
       <Outputs>$(OutDir)obj\global_intermediate\commit_id.py</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\commit_id.bat">
       <FileType>Document</FileType>
-      <Command>call mkdir &quot;$(OutDir)obj\global_intermediate&quot; 2&gt;nul &amp; set ERRORLEVEL=0 &amp; copy /Y &quot;..\..\src\commit_id.bat&quot; &quot;$(OutDir)obj\global_intermediate\commit_id.bat&quot;</Command>
+      <Command>call mkdir &quot;$(OutDir)obj\global_intermediate&quot; 2&gt;nul &amp; set ERRORLEVEL=0 &amp; copy /Y &quot;..\..\src\commit_id.bat&quot; &quot;$(OutDir)obj\global_intermediate\commit_id.bat&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
       <Message>Copying commit_id.bat to $(OutDir)obj/global_intermediate\commit_id.bat</Message>
       <Outputs>$(OutDir)obj\global_intermediate\commit_id.bat</Outputs>
     </CustomBuild>
     <CustomBuild Include="..\..\src\copy_compiler_dll.bat">
       <FileType>Document</FileType>
-      <Command>call mkdir &quot;$(OutDir)obj\global_intermediate&quot; 2&gt;nul &amp; set ERRORLEVEL=0 &amp; copy /Y &quot;..\..\src\copy_compiler_dll.bat&quot; &quot;$(OutDir)obj\global_intermediate\copy_compiler_dll.bat&quot;</Command>
+      <Command>call mkdir &quot;$(OutDir)obj\global_intermediate&quot; 2&gt;nul &amp; set ERRORLEVEL=0 &amp; copy /Y &quot;..\..\src\copy_compiler_dll.bat&quot; &quot;$(OutDir)obj\global_intermediate\copy_compiler_dll.bat&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
       <Message>Copying copy_compiler_dll.bat to $(OutDir)obj/global_intermediate\copy_compiler_dll.bat</Message>
       <Outputs>$(OutDir)obj\global_intermediate\copy_compiler_dll.bat</Outputs>
     </CustomBuild>

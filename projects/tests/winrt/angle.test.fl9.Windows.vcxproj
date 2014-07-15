@@ -84,6 +84,12 @@
     <Link>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">xcopy /Y /S "$(AngleBinPath)\*.dll" "$(ProjectDir)"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">xcopy /Y /S "$(AngleBinPath)\*.dll" "$(ProjectDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
     <ClCompile>
@@ -92,6 +98,12 @@
     <Link>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;$(VCInstallDir)UnitTest\amd64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xcopy /Y /S "$(AngleBinPath)\*.dll" "$(ProjectDir)"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xcopy /Y /S "$(AngleBinPath)\*.dll" "$(ProjectDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='ARM'">
     <ClCompile>
@@ -100,6 +112,12 @@
     <Link>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;$(VCInstallDir)UnitTest\ARM\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">xcopy /Y /S "$(AngleBinPath)\*.dll" "$(ProjectDir)"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">xcopy /Y /S "$(AngleBinPath)\*.dll" "$(ProjectDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <SDKReference Include="CppUnitTestFramework, Version=11.0" />
@@ -111,6 +129,9 @@
     </AppxManifest>
     <None Include="..\..\..\tests\winrt_tests\angle.test.fl9\angle.test.fl9_TemporaryKey.pfx" />
   </ItemGroup>
+  <PropertyGroup Label="ANGLE">
+    <AngleBinPath Condition=" '$(AngleBinPath)' == '' ">$(ProjectDir)$(Configuration)_$(Platform)</AngleBinPath>
+  </PropertyGroup>
   <ItemGroup>
     <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\UnitTestLogo.scale-100.png" />
     <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\UnitTestSmallLogo.scale-100.png" />
@@ -118,11 +139,21 @@
     <Image Include="..\..\..\tests\winrt_tests\angle.test.common\Assets\UnitTestStoreLogo.scale-100.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\projects\src\winrt\libEGL.Windows.vcxproj">
-      <Project>{ae7eaa1d-1b1c-400b-ab9b-6bef4afc0143}</Project>
+    <ProjectReference Include="..\..\winrt\windows\src\libEGL.vcxproj">
+      <Project>{3989dab8-4a64-1e8c-ff89-aeeac1bf0d66}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\projects\src\winrt\libGLESv2.Windows.vcxproj">
-      <Project>{090ae338-d52d-4212-a99b-977f55ac2b7e}</Project>
+    <ProjectReference Include="..\..\winrt\windows\src\libGLESv2.vcxproj">
+      <Project>{85f3a15c-b3c6-98e9-2a46-3b9059aeb1eb}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
@@ -132,6 +163,17 @@
     <OutDir>$(SolutionDir)$(PlatformName)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
     <IntDir>$(SolutionDir)$(PlatformName)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Label="ANGLE">
+    <AngleBinPath Condition=" '$(AngleBinPath)' == '' ">$(ProjectDir)$(Configuration)_$(Platform)</AngleBinPath>
+  </PropertyGroup>
+  <ItemGroup Label="ANGLE">
+    <None Include="libEGL.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="libGLESv2.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="angle.test.fl9.Shared.vcxitems" Label="Shared" />
   <ImportGroup Label="ExtensionTargets" />

@@ -115,7 +115,7 @@ HRESULT SwapChainPanelHost::createSwapChain(ID3D11Device* device, DXGIFactory* f
 HRESULT getSwapChainPanelSize(ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> swapChainPanel, RECT* windowSize)
 {
     ComPtr<ABI::Windows::UI::Xaml::IUIElement> uiElement;
-    ABI::Windows::Foundation::Size renderSize;
+    ABI::Windows::Foundation::Size renderSize = { 0, 0 };
     HRESULT result = swapChainPanel.As(&uiElement);
     if (SUCCEEDED(result))
     {

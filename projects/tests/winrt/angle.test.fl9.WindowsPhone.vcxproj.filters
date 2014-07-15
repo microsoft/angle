@@ -31,6 +31,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\tests\winrt_tests\angle.test.fl9\angle.test.fl9.WindowsPhone_TemporaryKey.pfx" />
+    <None Include="$(AngleBinPath)libEGL.dll" />
+    <None Include="$(AngleBinPath)libGLESv2.dll" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="..\..\..\tests\winrt_tests\angle.test.fl9\Package.WindowsPhone.appxmanifest">

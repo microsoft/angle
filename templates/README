@@ -12,6 +12,7 @@ To add these templates to your installation of Visual Studio 2013:
 Before you can build a project based on these templates, you must:
     1)  Clone an ANGLE repository that includes WinRT support (if you haven't already done so).
     2)  Set the 'AngleRootPath' system environment variable to the location of your ANGLE source.
-    3)  Open the following solution file:
-            $(AngleRootPath)\projects\src\winrt\angle.universal.sln
+    3)  Open one of the following solution files to build Windows Store 8.1 compatible ANGLE binaries:
+            $(AngleRootPath)\projects\winrt\windows\src\angle.sln
+            $(AngleRootPath)\projects\winrt\windowsphone\src\angle.sln
         and build the flavors of ANGLE that you wish to use in your project created above, e.g. Release/ARM/WindowsPhone.
