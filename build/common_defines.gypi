@@ -8,6 +8,7 @@
         'component%': 'static_library',
         'angle_path%': '..',
         'windows_sdk_path%': '$(WindowsSdkDir)',
+        'windows8_1_sdk_path%': 'C:/Program Files (x86)/Windows Kits/8.1',
         'windows8_sdk_path%': 'C:/Program Files (x86)/Windows Kits/8.0',
         'windowsphone_sdk_path%': '$(WindowsPhoneSdkDir)',
     },
@@ -50,7 +51,7 @@
                 {
                     'AdditionalLibraryDirectories':
                     [
-                        '<(windows_sdk_path)/Lib/win8/um/x86',
+                        '<(windows8_1_sdk_path)/Lib/winv6.3/um/x86',
                         '<(windows8_sdk_path)/Lib/win8/um/x86',
                     ],
                 },
@@ -58,7 +59,7 @@
                 {
                     'AdditionalLibraryDirectories':
                     [
-                        '<(windows_sdk_path)/Lib/win8/um/x86',
+                        '<(windows8_1_sdk_path)/Lib/winv6.3/um/x86',
                         '<(windows8_sdk_path)/Lib/win8/um/x86',
                     ],
                 },
@@ -76,7 +77,7 @@
                 {
                     'AdditionalLibraryDirectories':
                     [
-                        '<(windows_sdk_path)/Lib/win8/um/x86',
+                        '<(windows8_1_sdk_path)/Lib/winv6.3/um/x86',
                         '<(windows8_sdk_path)/Lib/win8/um/x86',
                     ],
                 },
@@ -84,7 +85,7 @@
                 {
                     'AdditionalLibraryDirectories':
                     [
-                        '<(windows_sdk_path)/Lib/win8/um/x86',
+                        '<(windows8_1_sdk_path)/Lib/winv6.3/um/x86',
                         '<(windows8_sdk_path)/Lib/win8/um/x86',
                     ],
                 },

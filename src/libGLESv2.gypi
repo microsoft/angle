@@ -23,6 +23,7 @@
                     'ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT("d3dcompiler_47.dll"), TEXT("d3dcompiler_46.dll"), TEXT("d3dcompiler_43.dll") }',
                     'ANGLE_ENABLE_WINDOWS_STORE',
                     'NTDDI_VERSION=NTDDI_WINBLUE',
+                    'ANGLE_ENABLE_RENDER_TO_BACK_BUFFER',
                 ],
             }],
             ['angle_build_winphone==1',

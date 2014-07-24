@@ -57,6 +57,7 @@
                                 'GL_GLEXT_PROTOTYPES=',
                                 'EGLAPI=',
                                 'NTDDI_VERSION=NTDDI_WINBLUE',
+                                'ANGLE_ENABLE_RENDER_TO_BACK_BUFFER',
                             ],
                             'sources':
                             [

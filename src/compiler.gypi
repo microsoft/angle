@@ -81,6 +81,7 @@
                     [
                         'ANGLE_TRANSLATOR_IMPLEMENTATION',
                         'ANGLE_ENABLE_WINDOWS_STORE',
+                        'ANGLE_ENABLE_RENDER_TO_BACK_BUFFER',
                     ],
                     'msvs_enable_winrt' : '1',
                 }],
