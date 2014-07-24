@@ -30,7 +30,7 @@ class SwapChain9 : public SwapChain
 
     virtual IDirect3DSurface9 *getRenderTarget();
     virtual IDirect3DSurface9 *getDepthStencil();
-    virtual IDirect3DTexture9 *getOffscreenTexture();
+    virtual IDirect3DTexture9 *getTargetTexture();
 
     static SwapChain9 *makeSwapChain9(SwapChain *swapChain);
 

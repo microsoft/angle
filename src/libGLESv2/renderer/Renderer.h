@@ -93,6 +93,9 @@ struct dx_VertexConstants
 {
     float depthRange[4];
     float viewAdjust[4];
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    float viewScale[4];
+#endif
 };
 
 struct dx_PixelConstants
@@ -100,6 +103,9 @@ struct dx_PixelConstants
     float depthRange[4];
     float viewCoords[4];
     float depthFront[4];
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    float viewScale[4];
+#endif
 };
 
 enum ShaderType
@@ -235,6 +241,8 @@ class Renderer
     virtual unsigned int getMaxRenderTargets() const = 0;
 
     virtual bool isD3D11FeatureLevel9() const = 0;
+
+    virtual bool isRenderingToBackBuffer() const = 0;
 
     // Pixel operations
     virtual bool copyToRenderTarget(TextureStorageInterface2D *dest, TextureStorageInterface2D *source) = 0;

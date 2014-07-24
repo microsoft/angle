@@ -530,10 +530,15 @@ bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const 
         vertexHLSL += "\n"
                       "    gl_main();\n"
                       "\n"
-                      "    VS_OUTPUT output;\n"
+                      "   VS_OUTPUT output;\n"
                       "    output.gl_Position = gl_Position;\n"
                       "    output._dx_Position.x = gl_Position.x;\n"
-                      "    output._dx_Position.y = -gl_Position.y;\n"
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+                      // This code assumes that dx_ViewScale.y = -1.0f when rendering to texture, and +1.0f when rendering to backbuffer. No other values are valid.
+                      "    output._dx_Position.y = dx_ViewScale.y * gl_Position.y;\n"
+#else
+                      "    output._dx_Position.y = - gl_Position.y;\n"
+#endif
                       "    output._dx_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
                       "    output._dx_Position.w = gl_Position.w;\n";
     }
@@ -724,6 +729,16 @@ bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const 
         {
             pixelHLSL += "    gl_FragCoord.x = input.dx_VPos.x;\n"
                          "    gl_FragCoord.y = input.dx_VPos.y;\n";
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+            // This code assumes that dx_ViewScale.y = -1.0f when rendering to texture, and +1.0f when rendering to backbuffer. No other values are valid.
+            // When rendering to the backbuffer, the code inverts gl_FragCoord's y coordinate. This involves subtracting the y coordinate from the height of the area being rendered to.
+            // Render area height: (2.0f / (1 - input.gl_FragCoord.y * rhw)) * input.dx_VPos.y
+            // When rendering to backbuffer, ((1.0f + dx_ViewScale.y) / 2.0f) = 1.0f and dx_ViewScale.y = +1.0f
+            // When rendering to texture, ((1.0f + dx_ViewScale.y) / 2.0f) = 0.0f and dx_ViewScale.y = -1.0f
+            // Therefore, gl_FragCoord.y = ((1.0f + dx_ViewScale.y) / 2.0f) * (2.0f / (1 - input.gl_FragCoord.y * rhw)) * input.dx_VPos.y - dx_ViewScale.y * input.dx_VPos.y;
+            // Simplifying, this becomes:
+            pixelHLSL += "    gl_FragCoord.y = (1.0f + dx_ViewScale.y) * input.dx_VPos.y / (1 - input.gl_FragCoord.y * rhw)  - dx_ViewScale.y * input.dx_VPos.y;\n";
+#endif
         }
         else if (shaderModel >= 3)
         {

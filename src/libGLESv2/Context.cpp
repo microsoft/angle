@@ -1173,7 +1173,7 @@ TransformFeedback *Context::getCurrentTransformFeedback() const
 
 bool Context::isSampler(GLuint samplerName) const
 {
-    return mResourceManager->isSampler(samplerName);
+    return mResourceManager->isSampler(samplerName); 
 }
 
 void Context::bindArrayBuffer(unsigned int buffer)
@@ -2402,6 +2402,13 @@ void Context::applyState(GLenum drawMode)
 
     mState.rasterizer.pointDrawMode = (drawMode == GL_POINTS);
     mState.rasterizer.multiSample = (samples != 0);
+
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    mState.rasterizer.reverseCullMode = mRenderer->isRenderingToBackBuffer();
+#else
+    mState.rasterizer.reverseCullMode = false;
+#endif
+
     mRenderer->setRasterizerState(mState.rasterizer);
 
     unsigned int mask = 0;

@@ -173,6 +173,8 @@ class Renderer9 : public Renderer
 
     virtual bool isD3D11FeatureLevel9() const;
 
+    virtual bool isRenderingToBackBuffer() const;
+
     D3DFORMAT ConvertTextureInternalFormat(GLenum internalformat);
 
     // Pixel operations

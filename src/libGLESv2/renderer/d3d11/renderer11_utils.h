@@ -39,6 +39,8 @@ D3D11_QUERY ConvertQueryType(GLenum queryType);
 namespace d3d11
 {
 
+bool IsBackbuffer(ID3D11Resource* resource);
+
 void GenerateInitialTextureData(GLint internalFormat, GLuint clientVersion, GLuint width, GLuint height, GLuint depth,
                                 GLuint mipLevels, std::vector<D3D11_SUBRESOURCE_DATA> *outSubresourceData,
                                 std::vector< std::vector<BYTE> > *outData);

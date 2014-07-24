@@ -51,9 +51,13 @@ static const DXGI_FORMAT RenderTargetFormats[] =
     {
         DXGI_FORMAT_B8G8R8A8_UNORM,
         DXGI_FORMAT_R8G8B8A8_UNORM,
+#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+        // These formats are typically not valid swapchain buffer formats.
+        // In particular, flip-model swapchains only support RGBA16, BGRA8 and RGBA8.
         DXGI_FORMAT_B5G6R5_UNORM,
         DXGI_FORMAT_B5G5R5A1_UNORM,
         DXGI_FORMAT_B4G4R4A4_UNORM
+#endif
 };
 
 static const DXGI_FORMAT DepthStencilFormats[] =
@@ -104,6 +108,10 @@ Renderer11::Renderer11(egl::Display *display, HDC hDc, EGLNativeDisplayType disp
     mAppliedGeometryShader = NULL;
     mCurPointGeometryShader = NULL;
     mAppliedPixelShader = NULL;
+
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    mRenderingToBackBuffer = false;
+#endif
 
 #if defined (ANGLE_ENABLE_WINDOWS_STORE)
     mSuspendedEventToken.value = 0;
@@ -495,6 +503,12 @@ EGLint Renderer11::initialize()
             mDepthTextureSupport = false;
         }
     }
+
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    // We should initialize the variables for rendering to a backbuffer.
+    // They are configured to render to an offscreen texture by default, but they should get overwritten as necessary.
+    setRenderToBackBufferVariables(false);
+#endif
 
     return EGL_SUCCESS;
 }
@@ -1158,6 +1172,17 @@ bool Renderer11::applyRenderTarget(gl::Framebuffer *framebuffer)
         stencilbufferSerial != mAppliedStencilbufferSerial)
     {
         mDeviceContext->OMSetRenderTargets(getMaxRenderTargets(), framebufferRTVs, framebufferDSV);
+
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+        if (framebufferRTVs[0])
+        {
+            ID3D11Resource* res = NULL;
+            framebufferRTVs[0]->GetResource(&res);
+
+            setRenderToBackBufferVariables(d3d11::IsBackbuffer(res));
+            SafeRelease(res);
+        }
+#endif
 
         mRenderTargetDesc.width = renderTargetWidth;
         mRenderTargetDesc.height = renderTargetHeight;
@@ -1829,6 +1854,10 @@ void Renderer11::markAllStateDirty()
     mForceSetDepthStencilState = true;
     mForceSetScissor = true;
     mForceSetViewport = true;
+
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    mRenderingToBackBuffer = true;
+#endif
 
     mAppliedIB = NULL;
     mAppliedIBFormat = DXGI_FORMAT_UNKNOWN;
@@ -2815,6 +2844,45 @@ bool Renderer11::isD3D11FeatureLevel9() const
     return mFeatureLevel <= D3D_FEATURE_LEVEL_9_3;
 }
 
+bool Renderer11::isRenderingToBackBuffer() const
+{
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    return mRenderingToBackBuffer;
+#else
+    return false;
+#endif
+}
+
+void Renderer11::setRenderToBackBufferVariables(bool renderingToBackBuffer)
+{
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    mRenderingToBackBuffer = renderingToBackBuffer;
+
+    // The rasterizer state must be updated, so that it will update its culling mode.
+    mForceSetRasterState = true;
+
+    mVertexConstants.viewScale[0] = 1.0f;
+    mVertexConstants.viewScale[1] = 1.0f;
+    mVertexConstants.viewScale[2] = 1.0f;
+    mVertexConstants.viewScale[3] = 1.0f;
+
+    mPixelConstants.viewScale[0] = 1.0f;
+    mPixelConstants.viewScale[1] = 1.0f;
+    mPixelConstants.viewScale[2] = 1.0f;
+    mPixelConstants.viewScale[3] = 1.0f;
+
+    // When rendering to a texture, invert the rendering by setting these constants to -1 instead of +1.
+    if (!mRenderingToBackBuffer)
+    {
+        mVertexConstants.viewScale[1] = -1.0f;
+        mPixelConstants.viewScale[1] = -1.0f;
+    }
+#else
+    // This shouldn't be called if ANGLE_ENABLE_RENDER_TO_BACK_BUFFER isn't defined.
+    UNIMPLEMENTED();
+#endif
+}
+
 bool Renderer11::copyToRenderTarget(TextureStorageInterface2D *dest, TextureStorageInterface2D *source)
 {
     if (source && dest)
@@ -3166,11 +3234,11 @@ RenderTarget *Renderer11::createRenderTarget(SwapChain *swapChain, bool depth)
     {
         // Note: render target may be NULL for 0 sized surfaces
         renderTarget = new RenderTarget11(this, swapChain11->getRenderTarget(),
-                                          swapChain11->getOffscreenTexture(),
+                                          swapChain11->getTargetTexture(),
                                           swapChain11->getRenderTargetShaderResource(),
                                           swapChain11->getWidth(), swapChain11->getHeight(), 1);
     }
-    return renderTarget;
+    return renderTarget; 
 }
 
 RenderTarget *Renderer11::createRenderTarget(int width, int height, GLenum format, GLsizei samples)

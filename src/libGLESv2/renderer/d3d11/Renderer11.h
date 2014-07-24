@@ -172,6 +172,8 @@ class Renderer11 : public Renderer
 
     virtual bool isD3D11FeatureLevel9() const;
 
+    virtual bool isRenderingToBackBuffer() const;
+
     // Pixel operations
     virtual bool copyToRenderTarget(TextureStorageInterface2D *dest, TextureStorageInterface2D *source);
     virtual bool copyToRenderTarget(TextureStorageInterfaceCube *dest, TextureStorageInterfaceCube *source);
@@ -264,6 +266,8 @@ class Renderer11 : public Renderer
     static void invalidateFBOAttachmentSwizzles(gl::FramebufferAttachment *attachment, int mipLevel);
     static void invalidateFramebufferSwizzles(gl::Framebuffer *framebuffer);
 
+    void setRenderToBackBufferVariables(bool renderingToBackBuffer);
+
     HMODULE mD3d11Module;
     HMODULE mDxgiModule;
     HDC mDc;
@@ -339,6 +343,10 @@ class Renderer11 : public Renderer
     // Currently applied rasterizer state
     bool mForceSetRasterState;
     gl::RasterizerState mCurRasterState;
+
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    bool mRenderingToBackBuffer;
+#endif
 
     // Currently applied depth stencil state
     bool mForceSetDepthStencilState;

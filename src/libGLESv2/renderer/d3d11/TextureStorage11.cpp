@@ -395,7 +395,7 @@ void TextureStorage11::verifySwizzleExists(GLenum swizzleRed, GLenum swizzleGree
 TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, SwapChain11 *swapchain)
     : TextureStorage11(renderer, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE)
 {
-    mTexture = swapchain->getOffscreenTexture();
+    mTexture = swapchain->getTargetTexture();
     mTexture->AddRef();
     mSwizzleTexture = NULL;
 

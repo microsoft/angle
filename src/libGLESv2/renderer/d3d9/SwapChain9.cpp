@@ -366,7 +366,7 @@ IDirect3DSurface9 *SwapChain9::getDepthStencil()
 // Increments refcount on texture.
 // caller must Release() the returned texture
 // TODO: remove the AddRef to match SwapChain11
-IDirect3DTexture9 *SwapChain9::getOffscreenTexture()
+IDirect3DTexture9 *SwapChain9::getTargetTexture()
 {
     if (mOffscreenTexture)
     {

@@ -219,6 +219,27 @@ D3D11_QUERY ConvertQueryType(GLenum queryType)
 namespace d3d11
 {
 
+bool IsBackbuffer(ID3D11Resource* resource)
+{
+    IDXGIResource* dxgiResource = NULL;
+    HRESULT hr = resource->QueryInterface(__uuidof(IDXGIResource), (void**)&dxgiResource);
+
+    if (SUCCEEDED(hr))
+    {
+        DXGI_USAGE usage;
+        hr = dxgiResource->GetUsage(&usage);
+
+        if (SUCCEEDED(hr))
+        {
+            SafeRelease(dxgiResource);
+            return ((usage & DXGI_USAGE_BACK_BUFFER) != 0);
+        }
+    }
+
+    SafeRelease(dxgiResource);
+    return false;
+}
+
 void GenerateInitialTextureData(GLint internalFormat, GLuint clientVersion, GLuint width, GLuint height, GLuint depth,
                                 GLuint mipLevels, std::vector<D3D11_SUBRESOURCE_DATA> *outSubresourceData,
                                 std::vector< std::vector<BYTE> > *outData)

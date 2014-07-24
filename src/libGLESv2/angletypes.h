@@ -102,6 +102,8 @@ struct RasterizerState
     bool multiSample;
 
     bool rasterizerDiscard;
+
+    bool reverseCullMode;
 };
 
 struct BlendState

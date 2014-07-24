@@ -2767,6 +2767,12 @@ bool Renderer9::isD3D11FeatureLevel9() const
     return false;
 }
 
+bool Renderer9::isRenderingToBackBuffer() const
+{
+    // We don't support rendering directly to the backbuffer in the d3d9 renderer.
+    return false;
+}
+
 D3DFORMAT Renderer9::ConvertTextureInternalFormat(GLenum internalformat)
 {
     switch (internalformat)
