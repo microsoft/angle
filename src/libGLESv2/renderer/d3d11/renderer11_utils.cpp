@@ -219,6 +219,33 @@ D3D11_QUERY ConvertQueryType(GLenum queryType)
 namespace d3d11
 {
 
+HRESULT createD3D11DeviceWithWARPFallback(unsigned int createflags, D3D_FEATURE_LEVEL * featureLevels, unsigned int numFeatureLevels,
+                                          ID3D11Device **device, D3D_FEATURE_LEVEL *featureLevel, ID3D11DeviceContext **context)
+{
+    HRESULT result = S_OK;
+
+    // Attempt to create a hardware device first, then fallback to WARP on failure.
+    result = D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createflags, featureLevels, numFeatureLevels, D3D11_SDK_VERSION,
+                               device, featureLevel, context);
+
+    if (FAILED(result) && result == DXGI_ERROR_UNSUPPORTED)
+    {
+        ERR("Failed creating D3D11 device - falling back to WARP D3D11 device.\n");
+        // If the WARP fallback attempt fails, return the original error from the first attempt to create the device.
+        if SUCCEEDED(D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_WARP, NULL, createflags, featureLevels, numFeatureLevels, D3D11_SDK_VERSION,
+                                       device, featureLevel, context))
+        {
+            return S_OK;
+        }
+        else
+        {
+            ERR("Failed creating fallback D3D11 WARP device.");
+        }
+    }
+
+    return result;
+}
+
 bool IsBackbuffer(ID3D11Resource* resource)
 {
     IDXGIResource* dxgiResource = NULL;

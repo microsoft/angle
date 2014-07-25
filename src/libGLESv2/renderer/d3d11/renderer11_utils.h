@@ -39,6 +39,9 @@ D3D11_QUERY ConvertQueryType(GLenum queryType);
 namespace d3d11
 {
 
+HRESULT createD3D11DeviceWithWARPFallback(unsigned int createflags, D3D_FEATURE_LEVEL * featureLevels, unsigned int numFeatureLevels,
+                                          ID3D11Device **device, D3D_FEATURE_LEVEL *featureLevel, ID3D11DeviceContext **context);
+
 bool IsBackbuffer(ID3D11Resource* resource);
 
 void GenerateInitialTextureData(GLint internalFormat, GLuint clientVersion, GLuint width, GLuint height, GLuint depth,
