@@ -157,7 +157,7 @@ void HelloTriangleRenderer::Draw()
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-void HelloTriangleRenderer::OnWindowSizeChanged(GLsizei width, GLsizei height)
+void HelloTriangleRenderer::UpdateWindowSize(GLsizei width, GLsizei height)
 {
     glViewport(0, 0, width, height);
 }

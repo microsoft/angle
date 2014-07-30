@@ -10,7 +10,7 @@ namespace $ext_safeprojectname$
         HelloTriangleRenderer();
         ~HelloTriangleRenderer();
         void Draw();
-        void OnWindowSizeChanged(GLsizei width, GLsizei height);
+        void UpdateWindowSize(GLsizei width, GLsizei height);
 
     private:
         GLuint mProgram;

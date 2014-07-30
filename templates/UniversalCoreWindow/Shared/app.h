@@ -20,6 +20,8 @@ namespace $ext_safeprojectname$
         virtual void Uninitialize();
 
     private:
+        void RecreateRenderer();
+    
         // Application lifecycle event handlers.
         void OnActivated(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs^ args);
 
@@ -34,11 +36,13 @@ namespace $ext_safeprojectname$
 
         bool mWindowClosed;
         bool mWindowVisible;
-
+        GLsizei mWindowWidth;
+        GLsizei mWindowHeight;
+        
         EGLDisplay mEglDisplay;
         EGLContext mEglContext;
         EGLSurface mEglSurface;
-
+        
         std::unique_ptr<HelloTriangleRenderer> mTriangleRenderer;
     };
 

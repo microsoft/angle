@@ -46,6 +46,8 @@ int main(Platform::Array<Platform::String^>^)
 App::App() :
     mWindowClosed(false),
     mWindowVisible(true),
+    mWindowWidth(0),
+    mWindowHeight(0),
     mEglDisplay(EGL_NO_DISPLAY),
     mEglContext(EGL_NO_CONTEXT),
     mEglSurface(EGL_NO_SURFACE)
@@ -93,9 +95,15 @@ void App::SetWindow(CoreWindow^ window)
 // Initializes scene resources
 void App::Load(Platform::String^ entryPoint)
 {
+    RecreateRenderer();
+}
+
+void App::RecreateRenderer()
+{
     if (!mTriangleRenderer)
     {
         mTriangleRenderer.reset(new HelloTriangleRenderer());
+        mTriangleRenderer->UpdateWindowSize(mWindowWidth, mWindowHeight);
     }
 }
 
@@ -119,7 +127,7 @@ void App::Run()
                 CleanupEGL();
 
                 InitializeEGL(CoreWindow::GetForCurrentThread());
-                mTriangleRenderer.reset(new HelloTriangleRenderer());
+                RecreateRenderer();
             }
         }
         else
@@ -254,6 +262,13 @@ void App::UpdateWindowSize(Size size)
 {
     DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
     Size pixelSize(ConvertDipsToPixels(size.Width, currentDisplayInformation->LogicalDpi), ConvertDipsToPixels(size.Height, currentDisplayInformation->LogicalDpi));
-
-    mTriangleRenderer->OnWindowSizeChanged(static_cast<GLsizei>(pixelSize.Width), static_cast<GLsizei>(pixelSize.Height));
+    
+    mWindowWidth = static_cast<GLsizei>(pixelSize.Width);
+    mWindowHeight = static_cast<GLsizei>(pixelSize.Height);
+    
+    // mTriangleRenderer might not have been initialized yet.
+    if (mTriangleRenderer)
+    {
+        mTriangleRenderer->UpdateWindowSize(mWindowWidth, mWindowHeight);
+    }
 }
