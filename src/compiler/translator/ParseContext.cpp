@@ -286,21 +286,21 @@ bool TParseContext::lValueErrorCheck(const TSourceLoc& line, const char* op, TIn
 
                 TIntermTyped* rightNode = binaryNode->getRight();
                 TIntermAggregate *aggrNode = rightNode->getAsAggregate();
-                
-                for (TIntermSequence::iterator p = aggrNode->getSequence().begin(); 
-                                               p != aggrNode->getSequence().end(); p++) {
+
+                for (TIntermSequence::iterator p = aggrNode->getSequence()->begin();
+                                               p != aggrNode->getSequence()->end(); p++) {
                     int value = (*p)->getAsTyped()->getAsConstantUnion()->getIConst(0);
-                    offset[value]++;     
+                    offset[value]++;
                     if (offset[value] > 1) {
                         error(line, " l-value of swizzle cannot have duplicate components", op);
 
                         return true;
                     }
                 }
-            } 
+            }
 
             return errorReturn;
-        default: 
+        default:
             break;
         }
         error(line, " l-value required", op);
@@ -804,7 +804,7 @@ bool TParseContext::arrayErrorCheck(const TSourceLoc& line, const TString& ident
         if (type.arraySize)
             variable->getType().setArraySize(type.arraySize);
 
-        if (! symbolTable.declare(*variable)) {
+        if (! symbolTable.declare(variable)) {
             delete variable;
             error(line, "INTERNAL ERROR inserting new symbol", identifier.c_str());
             return true;
@@ -884,7 +884,7 @@ bool TParseContext::nonInitErrorCheck(const TSourceLoc& line, const TString& ide
 
     variable = new TVariable(&identifier, TType(type));
 
-    if (! symbolTable.declare(*variable)) {
+    if (! symbolTable.declare(variable)) {
         error(line, "redefinition", variable->getName().c_str());
         delete variable;
         variable = 0;
@@ -1066,7 +1066,7 @@ bool TParseContext::executeInitializer(const TSourceLoc& line, const TString& id
         // add variable to symbol table
         //
         variable = new TVariable(&identifier, type);
-        if (! symbolTable.declare(*variable)) {
+        if (! symbolTable.declare(variable)) {
             error(line, "redefinition", variable->getName().c_str());
             return true;
             // don't delete variable, it's used by error recovery, and the pool 
@@ -1142,8 +1142,8 @@ bool TParseContext::areAllChildConst(TIntermAggregate* aggrNode)
 
     // check if all the child nodes are constants so that they can be inserted into 
     // the parent node
-    TIntermSequence &sequence = aggrNode->getSequence() ;
-    for (TIntermSequence::iterator p = sequence.begin(); p != sequence.end(); ++p) {
+    TIntermSequence *sequence = aggrNode->getSequence() ;
+    for (TIntermSequence::iterator p = sequence->begin(); p != sequence->end(); ++p) {
         if (!(*p)->getAsTyped()->getAsConstantUnion())
             return false;
     }
@@ -1538,17 +1538,17 @@ TIntermTyped *TParseContext::addConstructor(TIntermNode *arguments, const TType 
     if (!aggregateArguments)
     {
         aggregateArguments = new TIntermAggregate;
-        aggregateArguments->getSequence().push_back(arguments);
+        aggregateArguments->getSequence()->push_back(arguments);
     }
 
     if (op == EOpConstructStruct)
     {
         const TFieldList &fields = type->getStruct()->fields();
-        TIntermSequence &args = aggregateArguments->getSequence();
+        TIntermSequence *args = aggregateArguments->getSequence();
 
         for (size_t i = 0; i < fields.size(); i++)
         {
-            if (args[i]->getAsTyped()->getType() != *fields[i]->type())
+            if ((*args)[i]->getAsTyped()->getType() != *fields[i]->type())
             {
                 error(line, "Structure constructor arguments do not match structure fields", "Error");
                 recover();
@@ -1576,7 +1576,7 @@ TIntermTyped* TParseContext::foldConstConstructor(TIntermAggregate* aggrNode, co
     if (canBeFolded) {
         bool returnVal = false;
         ConstantUnion* unionArray = new ConstantUnion[type.getObjectSize()];
-        if (aggrNode->getSequence().size() == 1)  {
+        if (aggrNode->getSequence()->size() == 1)  {
             returnVal = intermediate.parseConstTree(aggrNode->getLine(), aggrNode, unionArray, aggrNode->getOp(), type, true);
         }
         else {
@@ -1586,102 +1586,6 @@ TIntermTyped* TParseContext::foldConstConstructor(TIntermAggregate* aggrNode, co
             return 0;
 
         return intermediate.addConstantUnion(unionArray, type, aggrNode->getLine());
-    }
-
-    return 0;
-}
-
-// Function for constructor implementation. Calls addUnaryMath with appropriate EOp value
-// for the parameter to the constructor (passed to this function). Essentially, it converts
-// the parameter types correctly. If a constructor expects an int (like ivec2) and is passed a 
-// float, then float is converted to int.
-//
-// Returns 0 for an error or the constructed node.
-//
-TIntermTyped* TParseContext::constructBuiltIn(const TType* type, TOperator op, TIntermNode* node, const TSourceLoc& line, bool subset)
-{
-    TIntermTyped* newNode;
-    TOperator basicOp;
-
-    //
-    // First, convert types as needed.
-    //
-    switch (op) {
-    case EOpConstructVec2:
-    case EOpConstructVec3:
-    case EOpConstructVec4:
-    case EOpConstructMat2:
-    case EOpConstructMat3:
-    case EOpConstructMat4:
-    case EOpConstructFloat:
-        basicOp = EOpConstructFloat;
-        break;
-
-    case EOpConstructIVec2:
-    case EOpConstructIVec3:
-    case EOpConstructIVec4:
-    case EOpConstructInt:
-        basicOp = EOpConstructInt;
-        break;
-
-    case EOpConstructUVec2:
-    case EOpConstructUVec3:
-    case EOpConstructUVec4:
-    case EOpConstructUInt:
-        basicOp = EOpConstructUInt;
-        break;
-
-    case EOpConstructBVec2:
-    case EOpConstructBVec3:
-    case EOpConstructBVec4:
-    case EOpConstructBool:
-        basicOp = EOpConstructBool;
-        break;
-
-    default:
-        error(line, "unsupported construction", "");
-        recover();
-
-        return 0;
-    }
-    newNode = intermediate.addUnaryMath(basicOp, node, node->getLine());
-    if (newNode == 0) {
-        error(line, "can't convert", "constructor");
-        return 0;
-    }
-
-    //
-    // Now, if there still isn't an operation to do the construction, and we need one, add one.
-    //
-    
-    // Otherwise, skip out early.
-    if (subset || (newNode != node && newNode->getType() == *type))
-        return newNode;
-
-    // setAggregateOperator will insert a new node for the constructor, as needed.
-    return intermediate.setAggregateOperator(newNode, op, line);
-}
-
-// This function tests for the type of the parameters to the structures constructors. Raises
-// an error message if the expected type does not match the parameter passed to the constructor.
-//
-// Returns 0 for an error or the input node itself if the expected and the given parameter types match.
-//
-TIntermTyped* TParseContext::constructStruct(TIntermNode* node, TType* type, int paramCount, const TSourceLoc& line, bool subset)
-{
-    if (*type == node->getAsTyped()->getType()) {
-        if (subset)
-            return node->getAsTyped();
-        else
-            return intermediate.setAggregateOperator(node->getAsTyped(), EOpConstructStruct, line);
-    } else {
-        std::stringstream extraInfoStream;
-        extraInfoStream << "cannot convert parameter " << paramCount 
-                        << " from '" << node->getAsTyped()->getType().getBasicString()
-                        << "' to '" << type->getBasicString() << "'";
-        std::string extraInfo = extraInfoStream.str();
-        error(line, "", "constructor", extraInfo.c_str());
-        recover();
     }
 
     return 0;
@@ -1870,7 +1774,7 @@ TIntermAggregate* TParseContext::addInterfaceBlock(const TPublicType& typeQualif
     }
 
     TSymbol* blockNameSymbol = new TInterfaceBlockName(&blockName);
-    if (!symbolTable.declare(*blockNameSymbol)) {
+    if (!symbolTable.declare(blockNameSymbol)) {
         error(nameLine, "redefinition", blockName.c_str(), "interface block name");
         recover();
     }
@@ -1950,7 +1854,7 @@ TIntermAggregate* TParseContext::addInterfaceBlock(const TPublicType& typeQualif
             TVariable* fieldVariable = new TVariable(&field->name(), *fieldType);
             fieldVariable->setQualifier(typeQualifier.qualifier);
 
-            if (!symbolTable.declare(*fieldVariable)) {
+            if (!symbolTable.declare(fieldVariable)) {
                 error(field->line(), "redefinition", field->name().c_str(), "interface block member name");
                 recover();
             }
@@ -1962,7 +1866,7 @@ TIntermAggregate* TParseContext::addInterfaceBlock(const TPublicType& typeQualif
         TVariable* instanceTypeDef = new TVariable(instanceName, interfaceBlockType, false);
         instanceTypeDef->setQualifier(typeQualifier.qualifier);
 
-        if (!symbolTable.declare(*instanceTypeDef)) {
+        if (!symbolTable.declare(instanceTypeDef)) {
             error(instanceLine, "redefinition", instanceName->c_str(), "interface block instance name");
             recover();
         }
@@ -2551,7 +2455,7 @@ TPublicType TParseContext::addStructure(const TSourceLoc& structLine, const TSou
             recover();
         }
         TVariable* userTypeDef = new TVariable(structName, *structureType, true);
-        if (!symbolTable.declare(*userTypeDef)) {
+        if (!symbolTable.declare(userTypeDef)) {
             error(nameLine, "redefinition", structName->c_str(), "struct");
             recover();
         }

@@ -1,0 +1,68 @@
+Name
+
+    ANGLE_platform_angle_opengl
+
+Name Strings
+
+    EGL_ANGLE_platform_angle_opengl
+
+Contributors
+
+    Shannon Woods, Google
+    Geoff Lang, Google
+
+Contacts
+
+    Geoff Lang, Google (geofflang 'at' chromium 'dot' org)
+
+Status
+
+    Draft
+
+Version
+
+    Version 1, 2014-06-05
+
+Number
+
+    EGL Extension XXX
+
+Extension Type
+
+    EGL client extension
+
+Dependencies
+
+    Requires ANGLE_platform_angle.
+
+Overview
+
+    This extension enables selection of OpenGL display types.
+
+New Types
+
+    None
+
+New Procedures and Functions
+
+    None
+
+New Tokens
+
+    Accepted as values for the EGL_PLATFORM_ANGLE_TYPE_ANGLE attribute:
+
+        EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE               0x3207
+        EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE             0x3208
+
+Additions to the EGL Specification
+
+    None.
+
+Issues
+
+    None
+
+Revision History
+
+    Version 1, 2014-06-05 (Geoff Lang)
+        - Initial draft

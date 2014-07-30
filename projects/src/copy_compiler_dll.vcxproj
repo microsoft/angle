@@ -116,7 +116,7 @@
   <ItemGroup>
     <CustomBuild Include="..\..\src\copy_compiler_dll.bat">
       <FileType>Document</FileType>
-      <Command>call call $(OutDir)obj\global_intermediate\copy_compiler_dll.bat &quot;$(Platform)&quot; &quot;$(WindowsSdkDir)&quot; &quot;$(OutDir)&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Command>call call $(OutDir)obj\global_intermediate\angle\copy_compiler_dll.bat &quot;$(Platform)&quot; &quot;$(WindowsSdkDir)&quot; &quot;$(OutDir)&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
       <Message>Copying D3D Compiler DLL...</Message>
       <Outputs>$(OutDir)</Outputs>
     </CustomBuild>

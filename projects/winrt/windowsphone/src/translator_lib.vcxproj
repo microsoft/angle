@@ -227,6 +227,7 @@
     <ClInclude Include="..\..\..\..\include\GLES3\gl3platform.h"/>
     <ClInclude Include="..\..\..\..\include\GLSLANG\ShaderLang.h"/>
     <ClInclude Include="..\..\..\..\include\KHR\khrplatform.h"/>
+    <ClInclude Include="..\..\..\..\include\angle_gl.h"/>
     <ClInclude Include="..\..\..\..\src\common\RefCountObject.h"/>
     <ClInclude Include="..\..\..\..\src\common\angleutils.h"/>
     <ClInclude Include="..\..\..\..\src\common\blocklayout.h"/>
@@ -242,6 +243,7 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\BaseTypes.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\BuiltInFunctionEmulator.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\Common.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\Compiler.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ConstantUnion.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\DetectCallDepth.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\DetectDiscontinuity.h"/>
@@ -271,8 +273,9 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\RemoveTree.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\RenameFunction.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\RewriteElseBlocks.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\ScalarizeVecAndMatConstructorArgs.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\SearchSymbol.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\ShHandle.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\StructureHLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\SymbolTable.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\TranslatorESSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\TranslatorGLSL.h"/>
@@ -280,6 +283,8 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\Types.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuit.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuitAST.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\UniformHLSL.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\UtilsHLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ValidateLimitations.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ValidateOutputs.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\VariableInfo.h"/>
@@ -333,7 +338,9 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\QualifierAlive.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\RemoveTree.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\RewriteElseBlocks.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\ScalarizeVecAndMatConstructorArgs.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SearchSymbol.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\StructureHLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SymbolTable.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\TranslatorESSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\TranslatorGLSL.cpp"/>
@@ -341,6 +348,8 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\Types.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuit.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuitAST.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\UniformHLSL.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\UtilsHLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ValidateLimitations.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ValidateOutputs.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\VariableInfo.cpp"/>

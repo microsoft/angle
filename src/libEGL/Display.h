@@ -33,8 +33,12 @@ class Display
     bool initialize();
     void terminate();
 
-    static egl::Display *getDisplay(EGLNativeDisplayType displayId);
+    static egl::Display *getDisplay(EGLNativeDisplayType displayId, EGLint displayType);
 
+    static const char *getExtensionString(egl::Display *display);
+
+    static bool supportsPlatformD3D();
+    static bool supportsPlatformOpenGL();
     bool getConfigs(EGLConfig *configs, const EGLint *attribList, EGLint configSize, EGLint *numConfig);
     bool getConfigAttrib(EGLConfig config, EGLint attribute, EGLint *value);
 
@@ -63,15 +67,13 @@ class Display
   private:
     DISALLOW_COPY_AND_ASSIGN(Display);
 
-    Display(EGLNativeDisplayType displayId, HDC deviceContext);
+    Display(EGLNativeDisplayType displayId, EGLint displayType);
 
     bool restoreLostDevice();
 
     EGLNativeDisplayType mDisplayId;
-    const HDC mDc;
+    EGLint mRequestedDisplayType;
 
-    bool mSoftwareDevice;
-    
     typedef std::set<Surface*> SurfaceSet;
     SurfaceSet mSurfaceSet;
 
@@ -82,9 +84,12 @@ class Display
 
     rx::Renderer *mRenderer;
 
-    void initExtensionString();
+    static std::string generateClientExtensionString();
+
+    void initDisplayExtensionString();
+    std::string mDisplayExtensionString;
+
     void initVendorString();
-    std::string mExtensionString;
     std::string mVendorString;
 };
 }

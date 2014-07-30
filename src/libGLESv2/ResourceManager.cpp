@@ -17,6 +17,7 @@
 #include "libGLESv2/Texture.h"
 #include "libGLESv2/Sampler.h"
 #include "libGLESv2/Fence.h"
+#include "libGLESv2/renderer/Renderer.h"
 
 namespace gl
 {
@@ -311,7 +312,7 @@ Program *ResourceManager::getProgram(unsigned int handle)
     }
 }
 
-FramebufferAttachment *ResourceManager::getRenderbuffer(unsigned int handle)
+Renderbuffer *ResourceManager::getRenderbuffer(unsigned int handle)
 {
     RenderbufferMap::iterator renderbuffer = mRenderbufferMap.find(handle);
 
@@ -353,7 +354,7 @@ FenceSync *ResourceManager::getFenceSync(unsigned int handle)
     }
 }
 
-void ResourceManager::setRenderbuffer(GLuint handle, FramebufferAttachment *buffer)
+void ResourceManager::setRenderbuffer(GLuint handle, Renderbuffer *buffer)
 {
     mRenderbufferMap[handle] = buffer;
 }
@@ -362,7 +363,7 @@ void ResourceManager::checkBufferAllocation(unsigned int buffer)
 {
     if (buffer != 0 && !getBuffer(buffer))
     {
-        Buffer *bufferObject = new Buffer(mRenderer, buffer);
+        Buffer *bufferObject = new Buffer(mRenderer->createBuffer(), buffer);
         mBufferMap[buffer] = bufferObject;
         bufferObject->addRef();
     }
@@ -376,19 +377,19 @@ void ResourceManager::checkTextureAllocation(GLuint texture, TextureType type)
 
         if (type == TEXTURE_2D)
         {
-            textureObject = new Texture2D(mRenderer, texture);
+            textureObject = new Texture2D(mRenderer->createTexture2D(), texture);
         }
         else if (type == TEXTURE_CUBE)
         {
-            textureObject = new TextureCubeMap(mRenderer, texture);
+            textureObject = new TextureCubeMap(mRenderer->createTextureCube(), texture);
         }
         else if (type == TEXTURE_3D)
         {
-            textureObject = new Texture3D(mRenderer, texture);
+            textureObject = new Texture3D(mRenderer->createTexture3D(), texture);
         }
         else if (type == TEXTURE_2D_ARRAY)
         {
-            textureObject = new Texture2DArray(mRenderer, texture);
+            textureObject = new Texture2DArray(mRenderer->createTexture2DArray(), texture);
         }
         else
         {
@@ -405,7 +406,7 @@ void ResourceManager::checkRenderbufferAllocation(GLuint renderbuffer)
 {
     if (renderbuffer != 0 && !getRenderbuffer(renderbuffer))
     {
-        FramebufferAttachment *renderbufferObject = new FramebufferAttachment(mRenderer, renderbuffer, new Colorbuffer(mRenderer, 0, 0, GL_RGBA4, 0));
+        Renderbuffer *renderbufferObject = new Renderbuffer(renderbuffer, new Colorbuffer(mRenderer, 0, 0, GL_RGBA4, 0));
         mRenderbufferMap[renderbuffer] = renderbufferObject;
         renderbufferObject->addRef();
     }

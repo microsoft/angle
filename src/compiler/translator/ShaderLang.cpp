@@ -11,11 +11,12 @@
 
 #include "GLSLANG/ShaderLang.h"
 
+#include "compiler/translator/Compiler.h"
 #include "compiler/translator/InitializeDll.h"
 #include "compiler/translator/length_limits.h"
-#include "compiler/translator/ShHandle.h"
 #include "compiler/translator/TranslatorHLSL.h"
 #include "compiler/translator/VariablePacker.h"
+#include "angle_gl.h"
 
 static bool isInitialized = false;
 
@@ -43,6 +44,51 @@ static bool checkMappedNameMaxLength(const ShHandle handle, size_t expectedValue
     size_t mappedNameMaxLength = 0;
     ShGetInfo(handle, SH_MAPPED_NAME_MAX_LENGTH, &mappedNameMaxLength);
     return (expectedValue == mappedNameMaxLength);
+}
+
+template <typename VarT>
+static const sh::ShaderVariable *ReturnVariable(const std::vector<VarT> &infoList, int index)
+{
+    if (index < 0 || static_cast<size_t>(index) >= infoList.size())
+    {
+        return NULL;
+    }
+
+    return &infoList[index];
+}
+
+static const sh::ShaderVariable *GetVariable(const TCompiler *compiler, ShShaderInfo varType, int index)
+{
+    switch (varType)
+    {
+      case SH_ACTIVE_ATTRIBUTES:
+        return ReturnVariable(compiler->getAttributes(), index);
+      case SH_ACTIVE_UNIFORMS:
+        return ReturnVariable(compiler->getExpandedUniforms(), index);
+      case SH_VARYINGS:
+        return ReturnVariable(compiler->getExpandedVaryings(), index);
+      default:
+        UNREACHABLE();
+        return NULL;
+    }
+}
+
+static ShPrecisionType ConvertPrecision(sh::GLenum precision)
+{
+    switch (precision)
+    {
+      case GL_HIGH_FLOAT:
+      case GL_HIGH_INT:
+        return SH_PRECISION_HIGHP;
+      case GL_MEDIUM_FLOAT:
+      case GL_MEDIUM_INT:
+        return SH_PRECISION_MEDIUMP;
+      case GL_LOW_FLOAT:
+      case GL_LOW_INT:
+        return SH_PRECISION_LOWP;
+      default:
+        return SH_PRECISION_UNDEFINED;
+    }
 }
 
 //
@@ -115,7 +161,7 @@ void ShInitBuiltInResources(ShBuiltInResources* resources)
 //
 // Driver calls these to create and destroy compiler objects.
 //
-ShHandle ShConstructCompiler(ShShaderType type, ShShaderSpec spec,
+ShHandle ShConstructCompiler(sh::GLenum type, ShShaderSpec spec,
                              ShShaderOutput output,
                              const ShBuiltInResources* resources)
 {
@@ -204,19 +250,19 @@ void ShGetInfo(const ShHandle handle, ShShaderInfo pname, size_t* params)
         *params = compiler->getInfoSink().obj.size() + 1;
         break;
     case SH_ACTIVE_UNIFORMS:
-        *params = compiler->getUniforms().size();
+        *params = compiler->getExpandedUniforms().size();
         break;
     case SH_ACTIVE_UNIFORM_MAX_LENGTH:
         *params = 1 + GetGlobalMaxTokenSize(compiler->getShaderSpec());
         break;
     case SH_ACTIVE_ATTRIBUTES:
-        *params = compiler->getAttribs().size();
+        *params = compiler->getAttributes().size();
         break;
     case SH_ACTIVE_ATTRIBUTE_MAX_LENGTH:
         *params = 1 + GetGlobalMaxTokenSize(compiler->getShaderSpec());
         break;
     case SH_VARYINGS:
-        *params = compiler->getVaryings().size();
+        *params = compiler->getExpandedVaryings().size();
         break;
     case SH_VARYING_MAX_LENGTH:
         *params = 1 + GetGlobalMaxTokenSize(compiler->getShaderSpec());
@@ -293,7 +339,7 @@ void ShGetVariableInfo(const ShHandle handle,
                        int index,
                        size_t* length,
                        int* size,
-                       ShDataType* type,
+                       sh::GLenum* type,
                        ShPrecisionType* precision,
                        int* staticUse,
                        char* name,
@@ -310,47 +356,32 @@ void ShGetVariableInfo(const ShHandle handle,
     if (compiler == 0)
         return;
 
-    const TVariableInfoList& varList =
-        varType == SH_ACTIVE_ATTRIBUTES ? compiler->getAttribs() :
-            (varType == SH_ACTIVE_UNIFORMS ? compiler->getUniforms() :
-                compiler->getVaryings());
-    if (index < 0 || index >= static_cast<int>(varList.size()))
+    const sh::ShaderVariable *varInfo = GetVariable(compiler, varType, index);
+    if (!varInfo)
+    {
         return;
-
-    const TVariableInfo& varInfo = varList[index];
-    if (length) *length = varInfo.name.size();
-    *size = varInfo.size;
-    *type = varInfo.type;
-    switch (varInfo.precision) {
-    case EbpLow:
-        *precision = SH_PRECISION_LOWP;
-        break;
-    case EbpMedium:
-        *precision = SH_PRECISION_MEDIUMP;
-        break;
-    case EbpHigh:
-        *precision = SH_PRECISION_HIGHP;
-        break;
-    default:
-        // Some types does not support precision, for example, boolean.
-        *precision = SH_PRECISION_UNDEFINED;
-        break;
     }
-    *staticUse = varInfo.staticUse ? 1 : 0;
+
+    if (length) *length = varInfo->name.size();
+    *size = varInfo->elementCount();
+    *type = varInfo->type;
+    *precision = ConvertPrecision(varInfo->precision);
+    *staticUse = varInfo->staticUse ? 1 : 0;
 
     // This size must match that queried by
     // SH_ACTIVE_UNIFORM_MAX_LENGTH, SH_ACTIVE_ATTRIBUTE_MAX_LENGTH, SH_VARYING_MAX_LENGTH
     // in ShGetInfo, below.
     size_t variableLength = 1 + GetGlobalMaxTokenSize(compiler->getShaderSpec());
     ASSERT(checkVariableMaxLengths(handle, variableLength));
-    strncpy(name, varInfo.name.c_str(), variableLength);
+    strncpy(name, varInfo->name.c_str(), variableLength);
     name[variableLength - 1] = 0;
-    if (mappedName) {
+    if (mappedName)
+    {
         // This size must match that queried by
         // SH_MAPPED_NAME_MAX_LENGTH in ShGetInfo, below.
         size_t maxMappedNameLength = 1 + GetGlobalMaxTokenSize(compiler->getShaderSpec());
         ASSERT(checkMappedNameMaxLength(handle, maxMappedNameLength));
-        strncpy(mappedName, varInfo.mappedName.c_str(), maxMappedNameLength);
+        strncpy(mappedName, varInfo->mappedName.c_str(), maxMappedNameLength);
         mappedName[maxMappedNameLength - 1] = 0;
     }
 }
@@ -434,12 +465,62 @@ int ShCheckVariablesWithinPackingLimits(
     if (varInfoArraySize == 0)
         return 1;
     ASSERT(varInfoArray);
-    TVariableInfoList variables;
+    std::vector<sh::ShaderVariable> variables;
     for (size_t ii = 0; ii < varInfoArraySize; ++ii)
     {
-        TVariableInfo var(varInfoArray[ii].type, varInfoArray[ii].size);
+        sh::ShaderVariable var(varInfoArray[ii].type, (sh::GLenum)0, "", varInfoArray[ii].size);
         variables.push_back(var);
     }
     VariablePacker packer;
     return packer.CheckVariablesWithinPackingLimits(maxVectors, variables) ? 1 : 0;
+}
+
+bool ShGetInterfaceBlockRegister(const ShHandle handle,
+                                 const char *interfaceBlockName,
+                                 unsigned int *indexOut)
+{
+    if (!handle || !interfaceBlockName || !indexOut)
+    {
+        return false;
+    }
+
+    TShHandleBase* base = static_cast<TShHandleBase*>(handle);
+    TranslatorHLSL* translator = base->getAsTranslatorHLSL();
+    if (!translator)
+    {
+        return false;
+    }
+
+    if (!translator->hasInterfaceBlock(interfaceBlockName))
+    {
+        return false;
+    }
+
+    *indexOut = translator->getInterfaceBlockRegister(interfaceBlockName);
+    return true;
+}
+
+bool ShGetUniformRegister(const ShHandle handle,
+                          const char *uniformName,
+                          unsigned int *indexOut)
+{
+    if (!handle || !uniformName || !indexOut)
+    {
+        return false;
+    }
+
+    TShHandleBase* base = static_cast<TShHandleBase*>(handle);
+    TranslatorHLSL* translator = base->getAsTranslatorHLSL();
+    if (!translator)
+    {
+        return false;
+    }
+
+    if (!translator->hasUniform(uniformName))
+    {
+        return false;
+    }
+
+    *indexOut = translator->getUniformRegister(uniformName);
+    return true;
 }

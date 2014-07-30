@@ -102,19 +102,9 @@ void makeCurrent(Context *context, egl::Display *display, egl::Surface *surface)
     current->context = context;
     current->display = display;
 
-    if (context && display)
+    if (context && display && surface)
     {
-        if (surface)
-        {
-            // Implictly calls setFramebufferZero for a new framebuffer.
-            context->makeCurrent(surface);
-        }
-        else
-        {
-            // Cleans out Framebuffer zero on the context.
-            // In particular, this releases Resources Views on the current D3D swapchain.
-            context->setFramebufferZero(NULL);
-        }
+        context->makeCurrent(surface);
     }
 }
 

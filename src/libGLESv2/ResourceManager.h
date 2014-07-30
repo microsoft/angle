@@ -10,8 +10,7 @@
 #ifndef LIBGLESV2_RESOURCEMANAGER_H_
 #define LIBGLESV2_RESOURCEMANAGER_H_
 
-#include <GLES3/gl3.h>
-#include <GLES2/gl2.h>
+#include "angle_gl.h"
 
 #include <unordered_map>
 
@@ -30,7 +29,7 @@ class Buffer;
 class Shader;
 class Program;
 class Texture;
-class FramebufferAttachment;
+class Renderbuffer;
 class Sampler;
 class FenceSync;
 
@@ -63,11 +62,11 @@ class ResourceManager
     Shader *getShader(GLuint handle);
     Program *getProgram(GLuint handle);
     Texture *getTexture(GLuint handle);
-    FramebufferAttachment *getRenderbuffer(GLuint handle);
+    Renderbuffer *getRenderbuffer(GLuint handle);
     Sampler *getSampler(GLuint handle);
     FenceSync *getFenceSync(GLuint handle);
     
-    void setRenderbuffer(GLuint handle, FramebufferAttachment *renderbuffer);
+    void setRenderbuffer(GLuint handle, Renderbuffer *renderbuffer);
 
     void checkBufferAllocation(unsigned int buffer);
     void checkTextureAllocation(GLuint texture, TextureType type);
@@ -97,7 +96,7 @@ class ResourceManager
     TextureMap mTextureMap;
     HandleAllocator mTextureHandleAllocator;
 
-    typedef std::unordered_map<GLuint, FramebufferAttachment*> RenderbufferMap;
+    typedef std::unordered_map<GLuint, Renderbuffer*> RenderbufferMap;
     RenderbufferMap mRenderbufferMap;
     HandleAllocator mRenderbufferHandleAllocator;
 

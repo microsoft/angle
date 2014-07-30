@@ -67,11 +67,8 @@
     <Filter Include="include\KHR">
       <UniqueIdentifier>{6D4588DE-6319-FB13-135F-FA88843373FC}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\common">
-      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    <Filter Include="include">
+      <UniqueIdentifier>{57CA55B8-BCC5-4000-CE3A-58972F82E9CB}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -184,8 +181,8 @@
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    <Filter Include="src\common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -517,8 +514,11 @@
     <Filter Include="src\libGLESv2">
       <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -526,53 +526,11 @@
     <Filter Include="src\libGLESv2">
       <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\libGLESv2">
       <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -910,7 +868,226 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -922,7 +1099,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -934,7 +1114,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -946,7 +1129,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -958,7 +1144,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -970,7 +1159,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -982,7 +1174,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -994,7 +1189,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1006,7 +1204,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1018,7 +1219,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1030,7 +1234,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1042,7 +1249,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1054,7 +1264,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1066,7 +1279,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1078,7 +1294,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1090,7 +1309,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1102,7 +1324,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1114,7 +1339,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1126,7 +1354,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1138,7 +1369,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1150,7 +1384,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1162,7 +1399,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1174,7 +1414,115 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
+      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9\shaders">
+      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9\shaders\compiled">
+      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
+      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9\shaders">
+      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9\shaders\compiled">
+      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
+      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9\shaders">
+      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9\shaders\compiled">
+      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
+      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9\shaders">
+      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9\shaders\compiled">
+      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
+      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9\shaders">
+      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9\shaders\compiled">
+      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1186,7 +1534,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1198,7 +1549,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1210,7 +1564,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1222,7 +1579,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1234,7 +1594,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1246,7 +1609,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1258,7 +1624,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1270,7 +1639,10 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1282,26 +1654,11 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
-      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
-      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -1312,13 +1669,451 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
-      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2">
+      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1330,13 +2125,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
-      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1348,13 +2146,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
-      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1366,13 +2167,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
-      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1384,13 +2188,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
-      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1402,535 +2209,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9">
-      <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d9\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1942,13 +2230,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1960,13 +2251,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1978,13 +2272,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -1996,13 +2293,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2014,13 +2314,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2032,13 +2335,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2050,13 +2356,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2068,13 +2377,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2086,13 +2398,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2104,13 +2419,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2122,13 +2440,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2140,13 +2461,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2158,13 +2482,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2176,13 +2503,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2194,13 +2524,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2212,13 +2545,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2230,13 +2566,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2248,13 +2587,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2266,13 +2608,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2284,13 +2629,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2302,13 +2650,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2320,13 +2671,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2338,13 +2692,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2356,13 +2713,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2374,13 +2734,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2392,13 +2755,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2410,13 +2776,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2428,13 +2797,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2446,13 +2818,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2464,13 +2839,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2482,13 +2860,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2500,13 +2881,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2518,13 +2902,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2536,13 +2923,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2554,13 +2944,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2572,13 +2965,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2590,13 +2986,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2608,13 +3007,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2626,13 +3028,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2644,13 +3049,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2662,13 +3070,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2680,13 +3091,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2698,13 +3112,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2716,13 +3133,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2734,13 +3154,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2752,13 +3175,16 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
@@ -2770,14 +3196,11 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
-      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -2788,14 +3211,11 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
-      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -2806,14 +3226,11 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
-      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -2824,14 +3241,11 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
-      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -2842,14 +3256,11 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
-      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -2860,14 +3271,11 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders\compiled">
-      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -2878,11 +3286,11 @@
     <Filter Include="src\libGLESv2\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    <Filter Include="src\libGLESv2\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libGLESv2\renderer\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
+    <Filter Include="src\libGLESv2\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -2930,6 +3338,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\KHR\khrplatform.h">
       <Filter>include\KHR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\angle_gl.h">
+      <Filter>include</Filter>
     </ClInclude>
     <ClCompile Include="..\..\src\common\RefCountObject.cpp">
       <Filter>src\common</Filter>
@@ -2997,6 +3408,12 @@
     <ClInclude Include="..\..\src\libGLESv2\Buffer.h">
       <Filter>src\libGLESv2</Filter>
     </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\Caps.cpp">
+      <Filter>src\libGLESv2</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\Caps.h">
+      <Filter>src\libGLESv2</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\src\libGLESv2\Context.cpp">
       <Filter>src\libGLESv2</Filter>
     </ClCompile>
@@ -3060,12 +3477,6 @@
     <ClInclude Include="..\..\src\libGLESv2\Renderbuffer.h">
       <Filter>src\libGLESv2</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\RenderbufferProxySet.cpp">
-      <Filter>src\libGLESv2</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\RenderbufferProxySet.h">
-      <Filter>src\libGLESv2</Filter>
-    </ClInclude>
     <ClCompile Include="..\..\src\libGLESv2\ResourceManager.cpp">
       <Filter>src\libGLESv2</Filter>
     </ClCompile>
@@ -3082,6 +3493,12 @@
       <Filter>src\libGLESv2</Filter>
     </ClCompile>
     <ClInclude Include="..\..\src\libGLESv2\Shader.h">
+      <Filter>src\libGLESv2</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\State.cpp">
+      <Filter>src\libGLESv2</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\State.h">
       <Filter>src\libGLESv2</Filter>
     </ClInclude>
     <ClCompile Include="..\..\src\libGLESv2\Texture.cpp">
@@ -3108,6 +3525,9 @@
     <ClInclude Include="..\..\src\libGLESv2\VertexArray.h">
       <Filter>src\libGLESv2</Filter>
     </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\VertexAttribute.cpp">
+      <Filter>src\libGLESv2</Filter>
+    </ClCompile>
     <ClInclude Include="..\..\src\libGLESv2\VertexAttribute.h">
       <Filter>src\libGLESv2</Filter>
     </ClInclude>
@@ -3153,10 +3573,7 @@
     <ClInclude Include="..\..\src\libGLESv2\queryconversions.h">
       <Filter>src\libGLESv2</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\BufferStorage.cpp">
-      <Filter>src\libGLESv2\renderer</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\BufferStorage.h">
+    <ClInclude Include="..\..\src\libGLESv2\renderer\BufferImpl.h">
       <Filter>src\libGLESv2\renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\libGLESv2\renderer\FenceImpl.h">
@@ -3166,18 +3583,6 @@
       <Filter>src\libGLESv2\renderer</Filter>
     </ClCompile>
     <ClInclude Include="..\..\src\libGLESv2\renderer\Image.h">
-      <Filter>src\libGLESv2\renderer</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\IndexBuffer.cpp">
-      <Filter>src\libGLESv2\renderer</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\IndexBuffer.h">
-      <Filter>src\libGLESv2\renderer</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\IndexDataManager.cpp">
-      <Filter>src\libGLESv2\renderer</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\IndexDataManager.h">
       <Filter>src\libGLESv2\renderer</Filter>
     </ClInclude>
     <ClCompile Include="..\..\src\libGLESv2\renderer\IndexRangeCache.cpp">
@@ -3204,22 +3609,10 @@
     <ClInclude Include="..\..\src\libGLESv2\renderer\SwapChain.h">
       <Filter>src\libGLESv2\renderer</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\TextureStorage.cpp">
-      <Filter>src\libGLESv2\renderer</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\TextureStorage.h">
+    <ClInclude Include="..\..\src\libGLESv2\renderer\TextureImpl.h">
       <Filter>src\libGLESv2\renderer</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\VertexBuffer.cpp">
-      <Filter>src\libGLESv2\renderer</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\VertexBuffer.h">
-      <Filter>src\libGLESv2\renderer</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\VertexDataManager.cpp">
-      <Filter>src\libGLESv2\renderer</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\VertexDataManager.h">
+    <ClInclude Include="..\..\src\libGLESv2\renderer\VertexArrayImpl.h">
       <Filter>src\libGLESv2\renderer</Filter>
     </ClInclude>
     <ClCompile Include="..\..\src\libGLESv2\renderer\copyimage.cpp">
@@ -3234,6 +3627,9 @@
     <ClInclude Include="..\..\src\libGLESv2\renderer\generatemip.h">
       <Filter>src\libGLESv2\renderer</Filter>
     </ClInclude>
+    <None Include="..\..\src\libGLESv2\renderer\generatemip.inl">
+      <Filter>src\libGLESv2\renderer</Filter>
+    </None>
     <ClInclude Include="..\..\src\libGLESv2\renderer\imageformats.h">
       <Filter>src\libGLESv2\renderer</Filter>
     </ClInclude>
@@ -3243,6 +3639,9 @@
     <ClInclude Include="..\..\src\libGLESv2\renderer\loadimage.h">
       <Filter>src\libGLESv2\renderer</Filter>
     </ClInclude>
+    <None Include="..\..\src\libGLESv2\renderer\loadimage.inl">
+      <Filter>src\libGLESv2\renderer</Filter>
+    </None>
     <ClCompile Include="..\..\src\libGLESv2\renderer\loadimageSSE2.cpp">
       <Filter>src\libGLESv2\renderer</Filter>
     </ClCompile>
@@ -3282,414 +3681,441 @@
     <ClInclude Include="..\..\src\third_party\systeminfo\SystemInfo.h">
       <Filter>src\third_party\systeminfo</Filter>
     </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\BufferD3D.cpp">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\BufferD3D.h">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\HLSLCompiler.cpp">
       <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClCompile>
     <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\HLSLCompiler.h">
       <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\Blit9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\ImageD3D.cpp">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\Blit9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\ImageD3D.h">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\BufferStorage9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\IndexBuffer.cpp">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\BufferStorage9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\IndexBuffer.h">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\Fence9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\IndexDataManager.cpp">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\Fence9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\IndexDataManager.h">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\Image9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\MemoryBuffer.cpp">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\Image9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\MemoryBuffer.h">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\IndexBuffer9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\TextureD3D.cpp">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\IndexBuffer9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\TextureD3D.h">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\Query9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\TextureStorage.cpp">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\Query9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\TextureStorage.h">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\RenderTarget9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\VertexBuffer.cpp">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\RenderTarget9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\VertexBuffer.h">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\Renderer9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\VertexDataManager.cpp">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\Renderer9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\VertexDataManager.h">
+      <Filter>src\libGLESv2\renderer\d3d</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\ShaderCache.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\ShaderExecutable9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Blit9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\ShaderExecutable9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Blit9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\SwapChain9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Buffer9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\SwapChain9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Buffer9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\TextureStorage9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Fence9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\TextureStorage9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Fence9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\VertexBuffer9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\formatutils9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\VertexBuffer9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\formatutils9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\VertexDeclarationCache.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Image9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\VertexDeclarationCache.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Image9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\formatutils9.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\IndexBuffer9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\formatutils9.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\IndexBuffer9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d9\renderer9_utils.cpp">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Query9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\renderer9_utils.h">
-      <Filter>src\libGLESv2\renderer\d3d9</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Query9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <None Include="..\..\src\libGLESv2\renderer\d3d9\shaders\Blit.ps">
-      <Filter>src\libGLESv2\renderer\d3d9\shaders</Filter>
-    </None>
-    <None Include="..\..\src\libGLESv2\renderer\d3d9\shaders\Blit.vs">
-      <Filter>src\libGLESv2\renderer\d3d9\shaders</Filter>
-    </None>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\shaders\compiled\componentmaskps.h">
-      <Filter>src\libGLESv2\renderer\d3d9\shaders\compiled</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\shaders\compiled\flipyvs.h">
-      <Filter>src\libGLESv2\renderer\d3d9\shaders\compiled</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\shaders\compiled\luminanceps.h">
-      <Filter>src\libGLESv2\renderer\d3d9\shaders\compiled</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\shaders\compiled\passthroughps.h">
-      <Filter>src\libGLESv2\renderer\d3d9\shaders\compiled</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d9\shaders\compiled\standardvs.h">
-      <Filter>src\libGLESv2\renderer\d3d9\shaders\compiled</Filter>
-    </ClInclude>
-    <None Include="..\..\src\libGLESv2\renderer\d3d9\shaders\generate_shaders.bat">
-      <Filter>src\libGLESv2\renderer\d3d9\shaders</Filter>
-    </None>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\Blit11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Renderer9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\Blit11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\Renderer9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\BufferStorage11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\renderer9_utils.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\BufferStorage11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\renderer9_utils.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\Clear11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\RenderTarget9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\Clear11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\RenderTarget9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\Fence11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\ShaderCache.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\ShaderExecutable9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\Fence11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\shaders\compiled\componentmaskps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9\shaders\compiled</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\Image11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\shaders\compiled\flipyvs.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9\shaders\compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\shaders\compiled\luminanceps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9\shaders\compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\shaders\compiled\passthroughps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9\shaders\compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\shaders\compiled\standardvs.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9\shaders\compiled</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\SwapChain9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\Image11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\SwapChain9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\IndexBuffer11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\TextureStorage9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\IndexBuffer11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\TextureStorage9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\InputLayoutCache.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\VertexArray9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\VertexBuffer9.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\InputLayoutCache.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\VertexBuffer9.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\PixelTransfer11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d9\VertexDeclarationCache.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\PixelTransfer11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d9\VertexDeclarationCache.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d9</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\Query11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Blit11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\Query11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Blit11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\RenderStateCache.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Buffer11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\RenderStateCache.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Buffer11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\RenderTarget11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Clear11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\RenderTarget11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Clear11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\Renderer11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Fence11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\Renderer11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Fence11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\ShaderExecutable11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\formatutils11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\ShaderExecutable11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\formatutils11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\SwapChain11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Image11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\SwapChain11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Image11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\TextureStorage11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\IndexBuffer11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\TextureStorage11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\IndexBuffer11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\VertexBuffer11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\InputLayoutCache.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\VertexBuffer11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\InputLayoutCache.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\formatutils11.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\PixelTransfer11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\formatutils11.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\PixelTransfer11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d11\renderer11_utils.cpp">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Query11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\renderer11_utils.h">
-      <Filter>src\libGLESv2\renderer\d3d11</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Query11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <None Include="..\..\src\libGLESv2\renderer\d3d11\shaders\BufferToTexture11.hlsl">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders</Filter>
-    </None>
-    <None Include="..\..\src\libGLESv2\renderer\d3d11\shaders\Clear11.hlsl">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders</Filter>
-    </None>
-    <None Include="..\..\src\libGLESv2\renderer\d3d11\shaders\Passthrough2D11.hlsl">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders</Filter>
-    </None>
-    <None Include="..\..\src\libGLESv2\renderer\d3d11\shaders\Passthrough3D11.hlsl">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders</Filter>
-    </None>
-    <None Include="..\..\src\libGLESv2\renderer\d3d11\shaders\Swizzle11.hlsl">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders</Filter>
-    </None>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\buffertotexture11_gs.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Renderer11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\Renderer11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\buffertotexture11_ps_4f.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\renderer11_utils.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\renderer11_utils.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\buffertotexture11_ps_4i.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\RenderStateCache.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\RenderStateCache.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\buffertotexture11_ps_4ui.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\RenderTarget11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\RenderTarget11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\buffertotexture11_vs.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\ShaderExecutable11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\ShaderExecutable11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearfloat11_fl9ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\buffertotexture11_gs.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearfloat11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\buffertotexture11_ps_4f.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearfloat11vs.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\buffertotexture11_ps_4i.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearsint11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\buffertotexture11_ps_4ui.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearsint11vs.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\buffertotexture11_vs.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearuint11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\clearfloat11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\clearuint11vs.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\clearfloat11vs.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthrough2d11vs.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\clearsint11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthrough3d11gs.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\clearsint11vs.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthrough3d11vs.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\clearuint11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughdepth2d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\clearuint11vs.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughlum2d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthrough2d11vs.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughlum3d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthrough3d11gs.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughlumalpha2d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthrough3d11vs.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughlumalpha3d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughdepth2d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughr2d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughlum2d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughr2di11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughlum3d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughr2dui11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughlumalpha2d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughr3d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughlumalpha3d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughr3di11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughr2d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughr3dui11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughr2di11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrg2d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughr2dui11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrg2di11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughr3d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrg2dui11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughr3di11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrg3d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughr3dui11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrg3di11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrg2d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrg3dui11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrg2di11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgb2d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrg2dui11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgb2di11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrg3d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgb2dui11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrg3di11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgb3d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrg3dui11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgb3di11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgb2d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgb3dui11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgb2di11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgba2d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgb2dui11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgba2di11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgb3d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgba2dui11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgb3di11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgba3d11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgb3dui11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgba3di11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgba2d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\passthroughrgba3dui11ps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgba2di11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzlef2darrayps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgba2dui11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzlef2dps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgba3d11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzlef3dps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgba3di11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzlei2darrayps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\passthroughrgba3dui11ps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzlei2dps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\swizzlef2darrayps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzlei3dps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\swizzlef2dps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzleui2darrayps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\swizzlef3dps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzleui2dps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\swizzlei2darrayps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d11\shaders\compiled\swizzleui3dps.h">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders\compiled</Filter>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\swizzlei2dps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
     </ClInclude>
-    <None Include="..\..\src\libGLESv2\renderer\d3d11\shaders\generate_shaders.bat">
-      <Filter>src\libGLESv2\renderer\d3d11\shaders</Filter>
-    </None>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\swizzlei3dps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\swizzleui2darrayps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\swizzleui2dps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\shaders\compiled\swizzleui3dps.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11\shaders\compiled</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\SwapChain11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\SwapChain11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\TextureStorage11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\TextureStorage11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\VertexArray11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\src\libGLESv2\renderer\d3d\d3d11\VertexBuffer11.cpp">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\d3d\d3d11\VertexBuffer11.h">
+      <Filter>src\libGLESv2\renderer\d3d\d3d11</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\src\common\win32\hwndhost.cpp">
       <Filter>src\common\win32</Filter>
     </ClCompile>
