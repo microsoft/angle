@@ -956,6 +956,13 @@ bool Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
     // Get D3D viewport bounds, which depends on the feature level
     const Range& viewportBounds = getViewportBounds();
 
+    if (isRenderingToBackBuffer())
+    {
+        // When rendering directly to the swapchain backbuffer, we must invert the viewport in Y-axis.
+        // This is due to the differences between the D3D and GL window origins.
+        actualViewport.y = mRenderTargetDesc.height - viewport.y - viewport.height;
+    }
+
     // Clamp width and height first to the gl maximum, then clamp further if we extend past the D3D maximum bounds
     D3D11_VIEWPORT dxViewport;
     dxViewport.TopLeftX = gl::clamp(actualViewport.x, viewportBounds.start, viewportBounds.end);
