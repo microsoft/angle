@@ -74,7 +74,7 @@ protected:
     GLint mAttribLocation;
 };
 
-TEST_F(BufferDataTest, null_data)
+TEST_F(BufferDataTest, NULLData)
 {
     glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
     EXPECT_GL_NO_ERROR();
@@ -97,13 +97,28 @@ TEST_F(BufferDataTest, null_data)
     }
 }
 
-TEST_F(BufferDataTest, huge_setdata_should_not_crash)
+TEST_F(BufferDataTest, ZeroNonNULLData)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
+    EXPECT_GL_NO_ERROR();
+
+    char *zeroData = new char[0];
+    glBufferData(GL_ARRAY_BUFFER, 0, zeroData, GL_STATIC_DRAW);
+    EXPECT_GL_NO_ERROR();
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, 0, zeroData);
+    EXPECT_GL_NO_ERROR();
+
+    delete [] zeroData;
+}
+
+TEST_F(BufferDataTest, HugeSetDataShouldNotCrash)
 {
     glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
     EXPECT_GL_NO_ERROR();
 
     // use as large a size as possible without causing an exception
-    GLsizei hugeSize = (1 << 30);
+    GLsizei hugeSize = (1 << 29);
 
     // on x64, use as large a GLsizei value as possible
     if (sizeof(size_t) > 4)
@@ -112,7 +127,7 @@ TEST_F(BufferDataTest, huge_setdata_should_not_crash)
     }
 
     char *data = new (std::nothrow) char[hugeSize];
-    EXPECT_NE((char * const)NULL, data);
+    ASSERT_NE((char * const)NULL, data);
 
     if (data == NULL)
     {

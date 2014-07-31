@@ -38,7 +38,6 @@
 #include "libEGL/Display.h"
 
 #include "third_party/trace_event/trace_event.h"
-#include "third_party/systeminfo/SystemInfo.h"
 
 // Can also be enabled by defining FORCE_REF_RAST in the project's predefined macros
 #define REF_RAST 0

@@ -375,7 +375,6 @@ class Renderer11 : public Renderer
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
     EventRegistrationToken mSuspendedEventToken;
 #endif // defined(ANGLE_ENABLE_WINDOWS_STORE)
-
 };
 
 }

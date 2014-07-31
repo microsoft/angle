@@ -1,7 +1,8 @@
 #include "ANGLETest.h"
 
 ANGLETest::ANGLETest()
-    : mClientVersion(2),
+    : mTestPlatform(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE),
+      mClientVersion(2),
       mWidth(1280),
       mHeight(720),
       mRedBits(-1),
@@ -248,6 +249,39 @@ bool ANGLETest::isMultisampleEnabled() const
 
 bool ANGLETest::createEGLContext()
 {
+    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = reinterpret_cast<PFNEGLGETPLATFORMDISPLAYEXTPROC>(eglGetProcAddress("eglGetPlatformDisplayEXT"));
+    if (!eglGetPlatformDisplayEXT)
+    {
+        return false;
+    }
+
+    const EGLint displayAttributes[] =
+    {
+        EGL_PLATFORM_ANGLE_TYPE_ANGLE, mTestPlatform,
+        EGL_NONE,
+    };
+
+    mDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, mNativeDisplay, displayAttributes);
+    if (mDisplay == EGL_NO_DISPLAY)
+    {
+        destroyEGLContext();
+        return false;
+    }
+
+    EGLint majorVersion, minorVersion;
+    if (!eglInitialize(mDisplay, &majorVersion, &minorVersion))
+    {
+        destroyEGLContext();
+        return false;
+    }
+
+    eglBindAPI(EGL_OPENGL_ES_API);
+    if (eglGetError() != EGL_SUCCESS)
+    {
+        destroyEGLContext();
+        return false;
+    }
+
     const EGLint configAttributes[] =
     {
         EGL_RED_SIZE,       (mRedBits >= 0)     ? mRedBits     : EGL_DONT_CARE,
@@ -315,8 +349,25 @@ bool ANGLETest::createEGLContext()
 
 bool ANGLETest::destroyEGLContext()
 {
-    eglDestroySurface(mDisplay, mSurface);
-    eglDestroyContext(mDisplay, mContext);
+    if (mDisplay != EGL_NO_DISPLAY)
+    {
+        eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+
+        if (mSurface != EGL_NO_SURFACE)
+        {
+            eglDestroySurface(mDisplay, mSurface);
+            mSurface = EGL_NO_SURFACE;
+        }
+
+        if (mContext != EGL_NO_CONTEXT)
+        {
+            eglDestroyContext(mDisplay, mContext);
+            mContext = EGL_NO_CONTEXT;
+        }
+
+        eglTerminate(mDisplay);
+        mDisplay = EGL_NO_DISPLAY;
+    }
 
     return true;
 }
