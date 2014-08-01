@@ -598,11 +598,14 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         result = mWindow.As(&iWinRTWindow);
         if(SUCCEEDED(result))
         {
-            ComPtr<IUnknown> iWindow = iWinRTWindow->GetWindowInterface();
+			ComPtr<IUnknown> iWindow;
+			iWindow.Attach(iWinRTWindow->GetWindowInterface());
 			bool isBgPanel = winrt::isSwapChainBackgroundPanel(iWindow);
 			bool isPanel = winrt::isSwapChainPanel(iWindow);
 			bool isAnyPanel = isBgPanel || isPanel;
+
             IDXGIFactory2 *factory = mRenderer->getDxgiFactory();
+
             DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
             swapChainDesc.Width = backbufferWidth;
             swapChainDesc.Height = backbufferHeight;
@@ -614,30 +617,22 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
             swapChainDesc.BufferCount = 2;
             swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //must be used for winrt
             swapChainDesc.Scaling = isAnyPanel ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
-            if (isBgPanel)
-            {
-                ComPtr<ISwapChainBackgroundPanelNative> panelNative;
-                ComPtr<IUnknown> iWindow = iWinRTWindow->GetWindowInterface();
-                result = iWindow.As(&panelNative);
-                if SUCCEEDED(result)
-                {
-                    result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
-                    if SUCCEEDED(result)
-                    {
-                        panelNative->SetSwapChain(mSwapChain);
-                    }
-                }
-            }
-			else if (isPanel){
-				ComPtr<ISwapChainPanelNative> panelNative;
-				ComPtr<IUnknown> iWindow = iWinRTWindow->GetWindowInterface();
-				result = iWindow.As(&panelNative);
-				if SUCCEEDED(result)
-				{
-					result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
-					if SUCCEEDED(result)
-					{
-						panelNative->SetSwapChain(mSwapChain);
+
+			if (isAnyPanel){
+				result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, &mSwapChain);
+				if (SUCCEEDED(result)){
+					if (isBgPanel){
+						ComPtr<ISwapChainBackgroundPanelNative> panelNative;
+						result = iWindow.As(&panelNative);
+						if (SUCCEEDED(result)){
+							panelNative->SetSwapChain(mSwapChain);
+						}
+					} else if (isPanel){
+						ComPtr<ISwapChainPanelNative> panelNative;
+						result = iWindow.As(&panelNative);
+						if (SUCCEEDED(result)){
+							panelNative->SetSwapChain(mSwapChain);
+						}
 					}
 				}
 			}

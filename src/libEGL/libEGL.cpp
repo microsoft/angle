@@ -303,7 +303,6 @@ EGLSurface __stdcall eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EG
 {
     EVENT("(EGLDisplay dpy = 0x%0.8p, EGLConfig config = 0x%0.8p, EGLNativeWindowType win = 0x%0.8p, "
           "const EGLint *attrib_list = 0x%0.8p)", dpy, config, win, attrib_list);
-
     try
     {
         egl::Display *display = static_cast<egl::Display*>(dpy);
@@ -335,6 +334,7 @@ EGLSurface __stdcall eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EG
 EGLSurface __stdcall eglCreateWindowSurface_c(EGLDisplay dpy, EGLConfig config,
 	EGLNativeWindowCType win,
 	const EGLint *attrib_list){
+
 	return eglCreateWindowSurface(dpy, config, EGLNativeWindowType(win), attrib_list);
 }
 
