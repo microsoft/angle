@@ -25,6 +25,7 @@ ABI::Windows::Graphics::Display::DisplayOrientations GetDisplayOrientation();
 float convertDipsToPixels(float dips);
 
 bool isSwapChainBackgroundPanel(Microsoft::WRL::ComPtr<IUnknown> window);
+bool isSwapChainPanel(Microsoft::WRL::ComPtr<IUnknown> window);
 
 HRESULT getWindowDimensions(Microsoft::WRL::ComPtr<ABI::Windows::UI::Core::ICoreWindow> window, int& width, int& height);
 

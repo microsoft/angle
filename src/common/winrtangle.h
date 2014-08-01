@@ -41,9 +41,16 @@ struct __declspec(uuid("6B70903A-0D55-45BA-A10E-CA2D428E4867")) IWinPhone8XamlD3
     virtual void __stdcall Update(ID3D11Device1* device, ID3D11DeviceContext1* context, ID3D11RenderTargetView* renderTarget) = 0;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 HRESULT __stdcall CreateWinrtEglWindow(IUnknown* windowInterface, ANGLE_D3D_FEATURE_LEVEL featureLevel, IWinrtEglWindow ** result);
 HRESULT __stdcall CreateWinPhone8XamlWindow(IWinPhone8XamlD3DWindow ** result);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif   // WINRT_ANGLE_H_
 

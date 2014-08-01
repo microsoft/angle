@@ -122,6 +122,8 @@ private:
     ID3D11RenderTargetView* m_renderTarget;
 };
 
+extern "C" {
+
 HRESULT __stdcall CreateWinPhone8XamlWindow(IWinPhone8XamlD3DWindow ** result)
 {
     ASSERT(result);
@@ -136,6 +138,8 @@ HRESULT __stdcall CreateWinPhone8XamlWindow(IWinPhone8XamlD3DWindow ** result)
 
     *result = iWindow.Detach();
     return S_OK;
+}
+
 }
 
 class WinrtEglWindow : public RuntimeClass<RuntimeClassFlags<ClassicCom>, IWinrtEglWindow>
@@ -240,6 +244,8 @@ private:
     ID3D11Device* m_device;
 };
 
+extern "C" {
+
 HRESULT __stdcall CreateWinrtEglWindow(IUnknown* windowInterface, ANGLE_D3D_FEATURE_LEVEL featureLevel, IWinrtEglWindow ** result)
 {
     ASSERT(result);
@@ -256,4 +262,4 @@ HRESULT __stdcall CreateWinrtEglWindow(IUnknown* windowInterface, ANGLE_D3D_FEAT
     return S_OK;
 }
 
-
+}

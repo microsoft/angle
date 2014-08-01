@@ -89,6 +89,9 @@ typedef Microsoft::WRL::ComPtr<IUnknown> EGLNativeWindowType;
 typedef EGLNativeWindowType EGLNativeDisplayType;
 typedef HBITMAP EGLNativePixmapType;
 
+typedef IUnknown * EGLNativeWindowCType;
+typedef EGLNativeWindowType EGLNativeDisplayCType;
+
 #endif
 
 #elif defined(_WIN32) || defined(_WIN64)
