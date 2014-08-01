@@ -64,7 +64,7 @@ void App::Initialize(CoreApplicationView^ applicationView)
 
     // Logic for other event handlers could go here.
     // Information about the Suspending and Resuming event handlers can be found here:
-	// http://msdn.microsoft.com/en-us/library/windows/apps/xaml/hh994930.aspx
+    // http://msdn.microsoft.com/en-us/library/windows/apps/xaml/hh994930.aspx
 }
 
 // Called when the CoreWindow object is created (or re-created).
@@ -165,7 +165,16 @@ void App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 
 void App::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
 {
+#if (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP)
+    // On Windows 8.1, apps are resized when they are snapped alongside other apps, or when the device is rotated.
+    // The default framebuffer will be automatically resized when either of these occur.
+    // In particular, on a 90 degree rotation, the default framebuffer's width and height will switch.
     UpdateWindowSize(args->Size);
+#else if (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+    // On Windows Phone 8.1, the window size changes when the device is rotated.
+    // The default framebuffer will not be automatically resized when this occurs.
+    // It is therefore up to the app to handle rotation-specific logic in its rendering code.
+#endif
 }
 
 void App::InitializeEGL(CoreWindow^ window)
