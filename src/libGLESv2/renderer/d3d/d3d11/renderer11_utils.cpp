@@ -381,9 +381,12 @@ static bool GetInstancingSupport(D3D_FEATURE_LEVEL featureLevel)
       case D3D_FEATURE_LEVEL_11_1:
       case D3D_FEATURE_LEVEL_11_0:
       case D3D_FEATURE_LEVEL_10_1:
-      case D3D_FEATURE_LEVEL_10_0:
-      case D3D_FEATURE_LEVEL_9_3:  return true;
+      case D3D_FEATURE_LEVEL_10_0: return true;
 
+      // D3D_FEATURE_LEVEL_9_3 supports instancing, but the first input slot in the input layout must contain per-vertex data.
+      // This is difficult to enforce in ANGLE, so we disable instancing entirely. 
+      // TODO: Add support for instancing on 9_3.
+      case D3D_FEATURE_LEVEL_9_3:
       case D3D_FEATURE_LEVEL_9_2:
       case D3D_FEATURE_LEVEL_9_1:  return false;
 
@@ -549,6 +552,21 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
     // Unimplemented, set to minimum required
     caps->maxLODBias = 2.0f;
 
+    // Max LOD is required to be FLT_MAX if D3D_FEATURE_LEVEL_9_X is detected
+    caps->maxLOD = (featureLevel <= D3D_FEATURE_LEVEL_9_3) ? FLT_MAX : 0.0f;
+
+    // Choose if depth clip should be enabled if supported
+    caps->depthClipRequired = (featureLevel <= D3D_FEATURE_LEVEL_9_3) ? true : false;
+
+    // Choose if rendering to depth textures is supported
+    caps->supportsRenderingToDepthTextures = (featureLevel <= D3D_FEATURE_LEVEL_9_3) ? false : true;
+
+    // Choose if rendering to 3D textures are supported
+    caps->supportsRenderingTo3DTextures = (featureLevel <= D3D_FEATURE_LEVEL_9_3) ? false : true;
+
+    // Choose if geometry shaders are supported
+    caps->supportsGeometryShaders = (featureLevel <= D3D_FEATURE_LEVEL_9_3) ? false : true;
+
     // No specific limits on render target size, maximum 2D texture size is equivalent
     caps->maxRenderbufferSize = caps->max2DTextureSize;
 
@@ -563,7 +581,7 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
 
     // Choose a reasonable maximum, enforced in the shader.
     caps->minAliasedPointSize = 1.0f;
-    caps->maxAliasedPointSize = 1024.0f;
+    caps->maxAliasedPointSize = (featureLevel <= D3D_FEATURE_LEVEL_9_3) ? 0.0f : 1024.0f;
 
     // Wide lines not supported
     caps->minAliasedLineWidth = 1.0f;

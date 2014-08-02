@@ -581,10 +581,27 @@ ID3D11ShaderResourceView *TextureStorage11_2D::createSRV(int baseLevel, int mipL
     srvDesc.Texture2D.MostDetailedMip = mTopLevel + baseLevel;
     srvDesc.Texture2D.MipLevels = mipLevels;
 
+    HRESULT result = S_OK;
+
+    // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
+    if (texture != NULL && mRenderer->isFeatureLevel9Limited())
+    {
+        D3D11_TEXTURE2D_DESC desc;
+        ID3D11Texture2D* texture2D = NULL;
+
+        result = texture->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&texture2D);
+        ASSERT(SUCCEEDED(result));
+
+        texture2D->GetDesc(&desc);
+        srvDesc.Texture2D.MostDetailedMip = desc.MipLevels - srvDesc.Texture2D.MipLevels;
+
+        SafeRelease(texture2D);
+    }
+
     ID3D11ShaderResourceView *SRV = NULL;
 
     ID3D11Device *device = mRenderer->getDevice();
-    HRESULT result = device->CreateShaderResourceView(texture, &srvDesc, &SRV);
+    result = device->CreateShaderResourceView(texture, &srvDesc, &SRV);
 
     if (result == E_OUTOFMEMORY)
     {
@@ -785,6 +802,14 @@ RenderTarget *TextureStorage11_Cube::getRenderTargetFace(GLenum faceTarget, int 
             srvDesc.Texture2DArray.FirstArraySlice = faceIndex;
             srvDesc.Texture2DArray.ArraySize = 1;
 
+            // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
+            if (mRenderer->isFeatureLevel9Limited())
+            {
+                D3D11_TEXTURE2D_DESC desc;
+                mTexture->GetDesc(&desc);
+                srvDesc.Texture2DArray.MostDetailedMip = desc.MipLevels - srvDesc.Texture2DArray.MipLevels;
+            }
+
             ID3D11ShaderResourceView *srv;
             result = device->CreateShaderResourceView(mTexture, &srvDesc, &srv);
 
@@ -881,6 +906,14 @@ ID3D11ShaderResourceView *TextureStorage11_Cube::createSRV(int baseLevel, int mi
         srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
         srvDesc.TextureCube.MipLevels = mipLevels;
         srvDesc.TextureCube.MostDetailedMip = mTopLevel + baseLevel;
+    }
+
+    // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
+    if (mRenderer->isFeatureLevel9Limited())
+    {
+        D3D11_TEXTURE2D_DESC desc;
+        mTexture->GetDesc(&desc);
+        srvDesc.Texture2DArray.MostDetailedMip = desc.MipLevels - srvDesc.Texture2DArray.MipLevels;
     }
 
     ID3D11ShaderResourceView *SRV = NULL;
@@ -1084,10 +1117,27 @@ ID3D11ShaderResourceView *TextureStorage11_3D::createSRV(int baseLevel, int mipL
     srvDesc.Texture3D.MostDetailedMip = baseLevel;
     srvDesc.Texture3D.MipLevels = mipLevels;
 
+    HRESULT result = S_OK;
+
+    // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
+    if (texture != NULL && mRenderer->isFeatureLevel9Limited())
+    {
+        D3D11_TEXTURE3D_DESC desc;
+        ID3D11Texture3D* texture3D = NULL;
+
+        result = texture->QueryInterface(__uuidof(ID3D11Texture3D), (void**)&texture3D);
+        ASSERT(SUCCEEDED(result));
+
+        texture3D->GetDesc(&desc);
+        srvDesc.Texture3D.MostDetailedMip = desc.MipLevels - srvDesc.Texture3D.MipLevels;
+
+        SafeRelease(texture3D);
+    }
+
     ID3D11ShaderResourceView *SRV = NULL;
 
     ID3D11Device *device = mRenderer->getDevice();
-    HRESULT result = device->CreateShaderResourceView(texture, &srvDesc, &SRV);
+    result = device->CreateShaderResourceView(texture, &srvDesc, &SRV);
 
     if (result == E_OUTOFMEMORY)
     {
@@ -1392,8 +1442,25 @@ ID3D11ShaderResourceView *TextureStorage11_2DArray::createSRV(int baseLevel, int
 
     ID3D11ShaderResourceView *SRV = NULL;
 
+    HRESULT result = S_OK;
+
+    // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
+    if (texture != NULL && mRenderer->isFeatureLevel9Limited())
+    {
+        D3D11_TEXTURE2D_DESC desc;
+        ID3D11Texture2D* texture2D = NULL;
+
+        result = texture->QueryInterface(__uuidof(ID3D11Texture3D), (void**)&texture2D);
+        ASSERT(SUCCEEDED(result));
+
+        texture2D->GetDesc(&desc);
+        srvDesc.Texture2D.MostDetailedMip = desc.MipLevels - srvDesc.Texture2D.MipLevels;
+
+        SafeRelease(texture2D);
+    }
+
     ID3D11Device *device = mRenderer->getDevice();
-    HRESULT result = device->CreateShaderResourceView(texture, &srvDesc, &SRV);
+    result = device->CreateShaderResourceView(texture, &srvDesc, &SRV);
 
     if (result == E_OUTOFMEMORY)
     {
@@ -1421,6 +1488,14 @@ RenderTarget *TextureStorage11_2DArray::getRenderTargetLayer(int mipLevel, int l
             srvDesc.Texture2DArray.MipLevels = 1;
             srvDesc.Texture2DArray.FirstArraySlice = layer;
             srvDesc.Texture2DArray.ArraySize = 1;
+
+            // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
+            if (mTexture != NULL && mRenderer->isFeatureLevel9Limited())
+            {
+                D3D11_TEXTURE2D_DESC desc;
+                mTexture->GetDesc(&desc);
+                srvDesc.Texture2D.MostDetailedMip = desc.MipLevels - srvDesc.Texture2D.MipLevels;
+            }
 
             ID3D11ShaderResourceView *srv;
             result = device->CreateShaderResourceView(mTexture, &srvDesc, &srv);

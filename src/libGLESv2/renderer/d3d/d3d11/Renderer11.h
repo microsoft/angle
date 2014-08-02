@@ -211,6 +211,8 @@ class Renderer11 : public Renderer
     virtual rx::VertexConversionType getVertexConversionType(const gl::VertexFormat &vertexFormat) const;
     virtual GLenum getVertexComponentType(const gl::VertexFormat &vertexFormat) const;
 
+    bool isFeatureLevel9Limited() const { return (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3); }
+
   private:
     DISALLOW_COPY_AND_ASSIGN(Renderer11);
 
@@ -238,10 +240,12 @@ class Renderer11 : public Renderer
     HLSLCompiler mCompiler;
 
     bool mDeviceLost;
+    bool mForceFeatureLevel9;
 
     void initializeDevice();
     void releaseDeviceResources();
     int getMinorShaderModel() const;
+    std::string getShaderModelSuffix() const;
     void release();
 
     RenderStateCache mStateCache;

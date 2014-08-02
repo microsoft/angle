@@ -210,7 +210,7 @@ Blit11::Blit11(rx::Renderer11 *renderer)
     pointSamplerDesc.BorderColor[2] = 0.0f;
     pointSamplerDesc.BorderColor[3] = 0.0f;
     pointSamplerDesc.MinLOD = 0.0f;
-    pointSamplerDesc.MaxLOD = 0.0f;
+    pointSamplerDesc.MaxLOD = renderer->getRendererCaps().maxLOD;
 
     result = device->CreateSamplerState(&pointSamplerDesc, &mPointSampler);
     ASSERT(SUCCEEDED(result));
@@ -229,7 +229,7 @@ Blit11::Blit11(rx::Renderer11 *renderer)
     linearSamplerDesc.BorderColor[2] = 0.0f;
     linearSamplerDesc.BorderColor[3] = 0.0f;
     linearSamplerDesc.MinLOD = 0.0f;
-    linearSamplerDesc.MaxLOD = 0.0f;
+    linearSamplerDesc.MaxLOD = renderer->getRendererCaps().maxLOD;
 
     result = device->CreateSamplerState(&linearSamplerDesc, &mLinearSampler);
     ASSERT(SUCCEEDED(result));
@@ -291,29 +291,34 @@ Blit11::Blit11(rx::Renderer11 *renderer)
     ASSERT(SUCCEEDED(result));
     d3d11::SetDebugName(mQuad2DVS, "Blit11 2D vertex shader");
 
-    result = device->CreatePixelShader(g_PS_PassthroughDepth2D, ArraySize(g_PS_PassthroughDepth2D), NULL, &mDepthPS);
-    ASSERT(SUCCEEDED(result));
-    d3d11::SetDebugName(mDepthPS, "Blit11 2D depth pixel shader");
-
-    D3D11_INPUT_ELEMENT_DESC quad3DLayout[] =
+    if (renderer->getRendererCaps().supportsRenderingToDepthTextures)
     {
-        { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT,    0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "LAYER",    0, DXGI_FORMAT_R32_UINT,        0,  8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    };
+        result = device->CreatePixelShader(g_PS_PassthroughDepth2D, ArraySize(g_PS_PassthroughDepth2D), NULL, &mDepthPS);
+        ASSERT(SUCCEEDED(result));
+        d3d11::SetDebugName(mDepthPS, "Blit11 2D depth pixel shader");
+    }
 
-    result = device->CreateInputLayout(quad3DLayout, ArraySize(quad3DLayout), g_VS_Passthrough3D, ArraySize(g_VS_Passthrough3D), &mQuad3DIL);
-    ASSERT(SUCCEEDED(result));
-    d3d11::SetDebugName(mQuad3DIL, "Blit11 3D input layout");
+    if (renderer->getRendererCaps().supportsRenderingTo3DTextures)
+    {
+        D3D11_INPUT_ELEMENT_DESC quad3DLayout[] =
+        {
+            { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "LAYER", 0, DXGI_FORMAT_R32_UINT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        };
 
-    result = device->CreateVertexShader(g_VS_Passthrough3D, ArraySize(g_VS_Passthrough3D), NULL, &mQuad3DVS);
-    ASSERT(SUCCEEDED(result));
-    d3d11::SetDebugName(mQuad3DVS, "Blit11 3D vertex shader");
+        result = device->CreateInputLayout(quad3DLayout, ArraySize(quad3DLayout), g_VS_Passthrough3D, ArraySize(g_VS_Passthrough3D), &mQuad3DIL);
+        ASSERT(SUCCEEDED(result));
+        d3d11::SetDebugName(mQuad3DIL, "Blit11 3D input layout");
 
-    result = device->CreateGeometryShader(g_GS_Passthrough3D, ArraySize(g_GS_Passthrough3D), NULL, &mQuad3DGS);
-    ASSERT(SUCCEEDED(result));
-    d3d11::SetDebugName(mQuad3DGS, "Renderer11 copy 3D texture geometry shader");
+        result = device->CreateVertexShader(g_VS_Passthrough3D, ArraySize(g_VS_Passthrough3D), NULL, &mQuad3DVS);
+        ASSERT(SUCCEEDED(result));
+        d3d11::SetDebugName(mQuad3DVS, "Blit11 3D vertex shader");
 
+        result = device->CreateGeometryShader(g_GS_Passthrough3D, ArraySize(g_GS_Passthrough3D), NULL, &mQuad3DGS);
+        ASSERT(SUCCEEDED(result));
+        d3d11::SetDebugName(mQuad3DGS, "Renderer11 copy 3D texture geometry shader");
+    }
     buildShaderMap();
 
     D3D11_BUFFER_DESC swizzleBufferDesc;
@@ -968,6 +973,19 @@ void Blit11::addSwizzleShaderToMap(GLenum destType, D3D11_SRV_DIMENSION viewDime
 void Blit11::buildShaderMap()
 {
     ID3D11Device *device = mRenderer->getDevice();
+
+    if (mRenderer->isFeatureLevel9Limited())
+    {
+        add2DBlitShaderToMap(GL_RGBA,            false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2D,     "Blit11 2D RGBA pixel shader"           ));
+        add2DBlitShaderToMap(GL_BGRA_EXT,        false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2D,     "Blit11 2D BGRA pixel shader"           ));
+        add2DBlitShaderToMap(GL_RGB,             false, d3d11::CompilePS(device, g_PS_PassthroughRGB2D,      "Blit11 2D RGB pixel shader"            ));
+        add2DBlitShaderToMap(GL_RG,              false, d3d11::CompilePS(device, g_PS_PassthroughRG2D,       "Blit11 2D RG pixel shader"             ));
+        add2DBlitShaderToMap(GL_RED,             false, d3d11::CompilePS(device, g_PS_PassthroughR2D,        "Blit11 2D R pixel shader"              ));
+        add2DBlitShaderToMap(GL_ALPHA,           false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2D,     "Blit11 2D alpha pixel shader"          ));
+        add2DBlitShaderToMap(GL_LUMINANCE,       false, d3d11::CompilePS(device, g_PS_PassthroughLum2D,      "Blit11 2D lum pixel shader"            ));
+        add2DBlitShaderToMap(GL_LUMINANCE_ALPHA, false, d3d11::CompilePS(device, g_PS_PassthroughLumAlpha2D, "Blit11 2D luminance alpha pixel shader"));
+        return;
+    }
 
     add2DBlitShaderToMap(GL_RGBA,            false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2D,     "Blit11 2D RGBA pixel shader"           ));
     add2DBlitShaderToMap(GL_RGBA_INTEGER,    false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2DUI,   "Blit11 2D RGBA UI pixel shader"        ));

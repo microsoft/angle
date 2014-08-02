@@ -214,6 +214,7 @@ struct Caps
     GLuint max2DTextureSize;
     GLuint maxArrayTextureLayers;
     GLfloat maxLODBias;
+    GLfloat maxLOD;
     GLuint maxCubeMapTextureSize;
     GLuint maxRenderbufferSize;
     GLuint maxDrawBuffers;
@@ -224,7 +225,10 @@ struct Caps
     GLfloat maxAliasedPointSize;
     GLfloat minAliasedLineWidth;
     GLfloat maxAliasedLineWidth;
-
+    bool depthClipRequired;
+    bool supportsRenderingToDepthTextures;
+    bool supportsRenderingTo3DTextures;
+    bool supportsGeometryShaders;
 };
 
 }

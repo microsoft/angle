@@ -18,6 +18,7 @@
 
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearfloat11vs.h"
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearfloat11ps.h"
+#include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearfloat11_fl9ps.h"
 
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearuint11vs.h"
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/clearuint11ps.h"
@@ -105,7 +106,7 @@ Clear11::Clear11(Renderer11 *renderer)
     rsDesc.DepthBias = 0;
     rsDesc.DepthBiasClamp = 0.0f;
     rsDesc.SlopeScaledDepthBias = 0.0f;
-    rsDesc.DepthClipEnable = FALSE;
+    rsDesc.DepthClipEnable = mRenderer->getRendererCaps().depthClipRequired;
     rsDesc.ScissorEnable = FALSE;
     rsDesc.MultisampleEnable = FALSE;
     rsDesc.AntialiasedLineEnable = FALSE;
@@ -114,9 +115,17 @@ Clear11::Clear11(Renderer11 *renderer)
     ASSERT(SUCCEEDED(result));
     d3d11::SetDebugName(mRasterizerState, "Clear11 masked clear rasterizer state");
 
-    mFloatClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_FLOAT, g_VS_ClearFloat, g_PS_ClearFloat);
-    mUintClearShader  = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_UINT,  g_VS_ClearUint,  g_PS_ClearUint );
-    mIntClearShader   = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_SINT,  g_VS_ClearSint,  g_PS_ClearSint );
+    // There aren't D3D_FEATURE_LEVEL_9_X equivalents to the uint and int Clear shaders, since they aren't supported.
+    if (mRenderer->isFeatureLevel9Limited())
+    {
+        mFloatClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_FLOAT, g_VS_ClearFloat, g_PS_ClearFloat_FL9);
+    }
+    else
+    {
+        mFloatClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_FLOAT, g_VS_ClearFloat, g_PS_ClearFloat);
+        mUintClearShader  = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_UINT,  g_VS_ClearUint,  g_PS_ClearUint );
+        mIntClearShader   = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_SINT,  g_VS_ClearSint,  g_PS_ClearSint );
+    }
 }
 
 Clear11::~Clear11()

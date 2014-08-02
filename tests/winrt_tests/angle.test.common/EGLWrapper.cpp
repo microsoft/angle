@@ -14,9 +14,10 @@ EGLWrapper::EGLWrapper()
 {
 }
 
-void EGLWrapper::InitializeSurfacelessEGL(EGLNativeDisplayType displayId)
+void EGLWrapper::InitializeOffscreenSurfaceEGL(EGLNativeDisplayType displayId)
 {
     EGLint configAttribList[] = {
+        EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
         EGL_RED_SIZE, 8,
         EGL_GREEN_SIZE, 8,
         EGL_BLUE_SIZE, 8,
@@ -27,11 +28,19 @@ void EGLWrapper::InitializeSurfacelessEGL(EGLNativeDisplayType displayId)
         EGL_NONE
     };
 
+    EGLint pBufferAttribList[] = {
+        EGL_WIDTH, 64,
+        EGL_HEIGHT, 64,
+        EGL_LARGEST_PBUFFER, EGL_FALSE,
+        EGL_NONE
+    };
+
     EGLint numConfigs = 0;
     EGLint majorVersion = 1;
     EGLint minorVersion = 0;
     EGLDisplay display = EGL_NO_DISPLAY;
     EGLContext context = EGL_NO_CONTEXT;
+    EGLSurface surface = EGL_NO_SURFACE;
     EGLConfig config = nullptr;
     EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE, EGL_NONE };
 
@@ -62,13 +71,20 @@ void EGLWrapper::InitializeSurfacelessEGL(EGLNativeDisplayType displayId)
         throw Exception::CreateException(E_FAIL, L"Failed to create EGL context");
     }
 
-    if (eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, context) == EGL_FALSE)
+    surface = eglCreatePbufferSurface(display, config, pBufferAttribList);
+    if (surface == EGL_NO_SURFACE)
+    {
+        throw Exception::CreateException(E_FAIL, L"Failed to create EGL surface");
+    }
+
+    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to make display and context current.");
     }
 
     mDisplay = display;
     mContext = context;
+    mSurface = surface;
 }
 
 void EGLWrapper::CleanupEGL()
@@ -91,3 +107,35 @@ void EGLWrapper::CleanupEGL()
         mDisplay = EGL_NO_DISPLAY;
     }
 }
+
+/*
+void EGLWrapper::ForceRendererCreation()
+{
+    GLuint offscreenFramebuffer;
+    GLuint offscreenTexture;
+
+    glGenFramebuffers(1, &offscreenFramebuffer);
+    glGenTextures(1, &offscreenTexture);
+
+    glBindTexture(GL_TEXTURE_2D, offscreenTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 64, 64, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glBindFramebuffer(GL_FRAMEBUFFER, offscreenFramebuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, offscreenTexture, 0);
+
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
+    {
+        throw Exception::CreateException(E_FAIL, L"Framebuffer is not complete.");
+    }
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glDeleteFramebuffers(1, &offscreenFramebuffer);
+    glDeleteTextures(1, &offscreenTexture);
+}
+*/

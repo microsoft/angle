@@ -372,6 +372,7 @@ Caps::Caps()
       max2DTextureSize(0),
       maxArrayTextureLayers(0),
       maxLODBias(0),
+      maxLOD(0),
       maxCubeMapTextureSize(0),
       maxRenderbufferSize(0),
       maxDrawBuffers(0),
@@ -380,7 +381,11 @@ Caps::Caps()
       maxViewportHeight(0),
       minAliasedPointSize(0),
       maxAliasedPointSize(0),
-      minAliasedLineWidth(0)
+      minAliasedLineWidth(0),
+      depthClipRequired(true),
+      supportsRenderingToDepthTextures(true),
+      supportsRenderingTo3DTextures(true),
+      supportsGeometryShaders(true)
 {
 }
 

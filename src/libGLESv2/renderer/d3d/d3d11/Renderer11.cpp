@@ -71,7 +71,8 @@ enum
 Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, EGLint requestedDisplay)
     : Renderer(display),
       mDc(hDc),
-      mRequestedDisplay(requestedDisplay)
+      mRequestedDisplay(requestedDisplay),
+      mForceFeatureLevel9(hDc == EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE)
 {
     mVertexDataManager = NULL;
     mIndexDataManager = NULL;
@@ -164,10 +165,26 @@ EGLint Renderer11::initialize()
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_1,
         D3D_FEATURE_LEVEL_10_0,
+        D3D_FEATURE_LEVEL_9_3,
+    };
+
+    D3D_FEATURE_LEVEL onlyfeatureLevel9_3[] =
+    {
+        D3D_FEATURE_LEVEL_9_3,
     };
 
     UINT featureLevelCount = 0; 
-    featureLevelCount = ArraySize(featureLevels);
+    D3D_FEATURE_LEVEL* featureLevelsRequested = featureLevels;
+    if (mForceFeatureLevel9)
+    {
+        featureLevelsRequested = onlyfeatureLevel9_3;
+        featureLevelCount = ArraySize(onlyfeatureLevel9_3);
+    }
+    else
+    {
+        featureLevelsRequested = featureLevels;
+        featureLevelCount = ArraySize(featureLevels);
+    }
 
     HRESULT result = S_OK;
     bool forceWarp = false;
@@ -179,7 +196,7 @@ EGLint Renderer11::initialize()
 
 #ifdef _DEBUG
     result = d3d11::createD3D11DeviceWithWARPFallback(D3D11_CREATE_DEVICE_DEBUG,
-                                                      featureLevels,
+                                                      featureLevelsRequested,
                                                       featureLevelCount,
                                                       forceWarp,
                                                       &mDevice,
@@ -195,7 +212,7 @@ EGLint Renderer11::initialize()
 #endif
     {
         result = d3d11::createD3D11DeviceWithWARPFallback(0,
-                                                          featureLevels,
+                                                          featureLevelsRequested,
                                                           featureLevelCount,
                                                           forceWarp,
                                                           &mDevice,
@@ -344,7 +361,11 @@ void Renderer11::initializeDevice()
     mClear = new Clear11(this);
 
     ASSERT(!mPixelTransfer);
-    mPixelTransfer = new PixelTransfer11(this);
+    // Fast copy buffer to texture isn't supported on D3D_FEATURE_LEVEL_9_X
+    if (!isFeatureLevel9Limited())
+    {
+        mPixelTransfer = new PixelTransfer11(this);
+    }
 
     markAllStateDirty();
 }
@@ -1361,6 +1382,11 @@ void Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indic
 void Renderer11::applyShaders(gl::ProgramBinary *programBinary, const gl::VertexFormat inputLayout[], const gl::Framebuffer *framebuffer,
                               bool rasterizerDiscard, bool transformFeedbackActive)
 {
+    if (getMaxTransformFeedbackBuffers() == 0)
+    {
+        ASSERT(!transformFeedbackActive);
+    }
+
     ShaderExecutable *vertexExe = programBinary->getVertexExecutableForInputLayout(inputLayout);
     ShaderExecutable *pixelExe = programBinary->getPixelExecutableForFramebuffer(framebuffer);
     ShaderExecutable *geometryExe = programBinary->getGeometryExecutable();
@@ -1571,7 +1597,7 @@ void Renderer11::applyUniforms(const gl::ProgramBinary &programBinary)
     }
 
     // needed for the point sprite geometry shader
-    if (mCurrentGeometryConstantBuffer != mDriverConstantBufferPS)
+    if ((getRendererCaps().supportsGeometryShaders) && (mCurrentGeometryConstantBuffer != mDriverConstantBufferPS))
     {
         mDeviceContext->GSSetConstantBuffers(0, 1, &mDriverConstantBufferPS);
         mCurrentGeometryConstantBuffer = mDriverConstantBufferPS;
@@ -1724,8 +1750,23 @@ bool Renderer11::testDeviceResettable()
         D3D_FEATURE_LEVEL_9_3,
     };
 
+    D3D_FEATURE_LEVEL onlyfeatureLevel9_3[] =
+    {
+        D3D_FEATURE_LEVEL_9_3,
+    };
+
     UINT featureLevelCount = 0;
-    featureLevelCount = ArraySize(featureLevels);
+    D3D_FEATURE_LEVEL* featureLevelsRequested = featureLevels;
+    if (mForceFeatureLevel9)
+    {
+        featureLevelsRequested = onlyfeatureLevel9_3;
+        featureLevelCount = ArraySize(onlyfeatureLevel9_3);
+    }
+    else
+    {
+        featureLevelsRequested = featureLevels;
+        featureLevelCount = ArraySize(featureLevels);
+    }
 
     ID3D11Device* dummyDevice;
     D3D_FEATURE_LEVEL dummyFeatureLevel;
@@ -1743,7 +1784,7 @@ bool Renderer11::testDeviceResettable()
     createFlags = D3D11_CREATE_DEVICE_DEBUG;
 #endif
     HRESULT result = d3d11::createD3D11DeviceWithWARPFallback(createFlags,
-                                                              featureLevels,
+                                                              featureLevelsRequested,
                                                               featureLevelCount,
                                                               forceWarp,
                                                               &dummyDevice,
@@ -1840,8 +1881,8 @@ std::string Renderer11::getRendererDescription() const
     rendererString << mDescription;
     rendererString << " Direct3D11";
 
-    rendererString << " vs_" << getMajorShaderModel() << "_" << getMinorShaderModel();
-    rendererString << " ps_" << getMajorShaderModel() << "_" << getMinorShaderModel();
+    rendererString << " vs_" << getMajorShaderModel() << "_" << getMinorShaderModel() << getShaderModelSuffix();
+    rendererString << " ps_" << getMajorShaderModel() << "_" << getMinorShaderModel() << getShaderModelSuffix();
 
     return rendererString.str();
 }
@@ -1889,14 +1930,14 @@ unsigned int Renderer11::getReservedFragmentUniformVectors() const
 unsigned int Renderer11::getMaxVertexUniformVectors() const
 {
     META_ASSERT(MAX_VERTEX_UNIFORM_VECTORS_D3D11 <= D3D10_REQ_CONSTANT_BUFFER_ELEMENT_COUNT);
-    ASSERT(mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
+    ASSERT(mFeatureLevel >= D3D_FEATURE_LEVEL_9_3);
     return MAX_VERTEX_UNIFORM_VECTORS_D3D11;
 }
 
 unsigned int Renderer11::getMaxFragmentUniformVectors() const
 {
     META_ASSERT(MAX_FRAGMENT_UNIFORM_VECTORS_D3D11 <= D3D10_REQ_CONSTANT_BUFFER_ELEMENT_COUNT);
-    ASSERT(mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
+    ASSERT(mFeatureLevel >= D3D_FEATURE_LEVEL_9_3);
     return MAX_FRAGMENT_UNIFORM_VECTORS_D3D11;
 }
 
@@ -1913,6 +1954,14 @@ unsigned int Renderer11::getMaxVaryingVectors() const
         return D3D10_1_VS_OUTPUT_REGISTER_COUNT - getReservedVaryings();
       case D3D_FEATURE_LEVEL_10_0:
         return D3D10_VS_OUTPUT_REGISTER_COUNT - getReservedVaryings();
+      case D3D_FEATURE_LEVEL_9_3:
+          // OpenGL ES 2.0 requires 8 four-component varying vectors, excuding the ones reserved by ANGLE.
+          // Chrome disables WebGL if 8 four-component varying vectors are not available. 
+          // Shader Model 2.x, similar to Shader Model 4_0_level_9_3, supports between 8 and 11 four-component output registers.
+          // This is not enough, since ANGLE currently reserves 4 four-component registers (as of 5-29-2014).
+          // To enable WebGL on 9_3, we say that D3D_FEATURE_LEVEL_9_3 supports 8 four-component varying vectors.
+          // TODO: Investigate a better solution to this problem.
+          return 8; // 11 - getReservedVaryings();
       default: UNREACHABLE();
         return 0;
     }
@@ -1925,6 +1974,7 @@ unsigned int Renderer11::getMaxVertexShaderUniformBuffers() const
 
     switch (mFeatureLevel)
     {
+      case D3D_FEATURE_LEVEL_9_3:
       case D3D_FEATURE_LEVEL_11_0:
         return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedVertexUniformBuffers();
       case D3D_FEATURE_LEVEL_10_1:
@@ -1942,6 +1992,7 @@ unsigned int Renderer11::getMaxFragmentShaderUniformBuffers() const
 
     switch (mFeatureLevel)
     {
+      case D3D_FEATURE_LEVEL_9_3:
       case D3D_FEATURE_LEVEL_11_0:
         return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedFragmentUniformBuffers();
       case D3D_FEATURE_LEVEL_10_1:
@@ -1984,6 +2035,10 @@ unsigned int Renderer11::getMaxTransformFeedbackBuffers() const
         return D3D10_1_SO_BUFFER_SLOT_COUNT;
       case D3D_FEATURE_LEVEL_10_0:
         return D3D10_SO_BUFFER_SLOT_COUNT;
+      case D3D_FEATURE_LEVEL_9_1:
+      case D3D_FEATURE_LEVEL_9_2:
+      case D3D_FEATURE_LEVEL_9_3:
+          return 0;
       default: UNREACHABLE();
         return 0;
     }
@@ -2000,6 +2055,10 @@ unsigned int Renderer11::getMaxTransformFeedbackSeparateComponents() const
         // D3D 10 and 10.1 only allow one output per output slot if an output slot other than zero
         // is used.
         return 4;
+      case D3D_FEATURE_LEVEL_9_1:
+      case D3D_FEATURE_LEVEL_9_2:
+      case D3D_FEATURE_LEVEL_9_3:
+          return 0;
       default: UNREACHABLE();
         return 0;
     }
@@ -2017,6 +2076,7 @@ unsigned int Renderer11::getMaxUniformBufferSize() const
 
     switch (mFeatureLevel)
     {
+      case D3D_FEATURE_LEVEL_9_3:
       case D3D_FEATURE_LEVEL_11_0:
         return D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT * bytesPerComponent;
       case D3D_FEATURE_LEVEL_10_1:
@@ -2071,6 +2131,7 @@ int Renderer11::getMajorShaderModel() const
       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MAJOR_VERSION;   // 5
       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MAJOR_VERSION; // 4
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MAJOR_VERSION;   // 4
+      case D3D_FEATURE_LEVEL_9_3:  return D3D10_SHADER_MAJOR_VERSION;   // 4
       default: UNREACHABLE();      return 0;
     }
 }
@@ -2082,7 +2143,23 @@ int Renderer11::getMinorShaderModel() const
       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MINOR_VERSION;   // 0
       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MINOR_VERSION; // 1
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MINOR_VERSION;   // 0
+      case D3D_FEATURE_LEVEL_9_3:  return D3D10_SHADER_MINOR_VERSION;   // 0
       default: UNREACHABLE();      return 0;
+    }
+}
+
+std::string Renderer11::getShaderModelSuffix() const
+{
+    switch (mFeatureLevel)
+    {
+      case D3D_FEATURE_LEVEL_11_0:
+      case D3D_FEATURE_LEVEL_10_1:
+      case D3D_FEATURE_LEVEL_10_0:
+        return "";
+      case D3D_FEATURE_LEVEL_9_3:
+        return "_level_9_3";
+      default: UNREACHABLE();
+        return 0;
     }
 }
 
@@ -2564,25 +2641,8 @@ ShaderExecutable *Renderer11::compileToExecutable(gl::InfoLog &infoLog, const ch
         return NULL;
     }
 
-    const char *profileVersion = NULL;
-    switch (mFeatureLevel)
-    {
-      case D3D_FEATURE_LEVEL_11_0:
-        profileVersion = "5_0";
-        break;
-      case D3D_FEATURE_LEVEL_10_1:
-        profileVersion = "4_1";
-        break;
-      case D3D_FEATURE_LEVEL_10_0:
-        profileVersion = "4_0";
-        break;
-      default:
-        UNREACHABLE();
-        return NULL;
-    }
-
     char profile[32];
-    snprintf(profile, ArraySize(profile), "%s_%s", profileType, profileVersion);
+    snprintf(profile, ArraySize(profile), "%s_%d_%d%s", profileType, getMajorShaderModel(), getMinorShaderModel(), getShaderModelSuffix().c_str());
 
     UINT flags = D3DCOMPILE_OPTIMIZATION_LEVEL0;
 
@@ -2667,6 +2727,14 @@ FenceImpl *Renderer11::createFence()
 
 bool Renderer11::supportsFastCopyBufferToTexture(GLenum internalFormat) const
 {
+    // D3D_FEATURE_LEVEL_9_X doesn't support FastCopyBufferToTexture since PixelTransfer uses
+    // Geometry Shaders and int types in its PS/VS shaders.
+    // TODO: Add limited support for FastCopyBufferToTexture on D3D_FEATURE_LEVEL_9_3.
+    if (isFeatureLevel9Limited())
+    {
+        return false;
+    }
+
     ASSERT(getRendererExtensions().pixelBufferObject);
 
     // sRGB formats do not work with D3D11 buffer SRVs
