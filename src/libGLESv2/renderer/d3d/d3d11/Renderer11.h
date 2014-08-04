@@ -123,7 +123,6 @@ class Renderer11 : public Renderer
     virtual bool getPostSubBufferSupport() const;
     virtual int getMaxRecommendedElementsIndices() const;
     virtual int getMaxRecommendedElementsVertices() const;
-    virtual bool getSRGBTextureSupport() const;
 
     virtual int getMajorShaderModel() const;
     virtual int getMinSwapInterval() const;
@@ -207,7 +206,6 @@ class Renderer11 : public Renderer
     void packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams &params, void *pixelsOut);
 
     virtual bool getLUID(LUID *adapterLuid) const;
-    virtual GLenum getNativeTextureFormat(GLenum internalFormat) const;
     virtual rx::VertexConversionType getVertexConversionType(const gl::VertexFormat &vertexFormat) const;
     virtual GLenum getVertexComponentType(const gl::VertexFormat &vertexFormat) const;
 

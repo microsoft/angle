@@ -8,7 +8,6 @@
 //
 
 #include "common/blocklayout.h"
-#include "common/shadervars.h"
 #include "common/mathutil.h"
 #include "common/utilities.h"
 

@@ -9,7 +9,6 @@
 #include <limits>
 
 #include "compiler/preprocessor/numeric_lex.h"
-#include "common/shadervars.h"
 #include "common/utilities.h"
 
 bool atof_clamp(const char *str, float *value)
@@ -269,6 +268,8 @@ InterpolationType GetInterpolationType(TQualifier qualifier)
       case EvqFragmentIn:
       case EvqVaryingIn:
       case EvqVaryingOut:
+      case EvqInvariantVaryingIn:
+      case EvqInvariantVaryingOut:
         return INTERPOLATION_SMOOTH;
 
       case EvqCentroidIn:

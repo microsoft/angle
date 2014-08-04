@@ -109,9 +109,9 @@ bool VertexBuffer11::storeVertexAttributes(const gl::VertexAttribute &attrib, co
         }
 
         gl::VertexFormat vertexFormat(attrib, currentValue.Type);
-        VertexCopyFunction conversionFunc = gl_d3d11::GetVertexCopyFunction(vertexFormat);
-        ASSERT(conversionFunc != NULL);
-        conversionFunc(input, inputStride, count, output);
+        const d3d11::VertexFormat &vertexFormatInfo = d3d11::GetVertexFormatInfo(vertexFormat);
+        ASSERT(vertexFormatInfo.copyFunction != NULL);
+        vertexFormatInfo.copyFunction(input, inputStride, count, output);
 
         dxContext->Unmap(mBuffer, 0);
 
@@ -136,19 +136,14 @@ bool VertexBuffer11::getSpaceRequired(const gl::VertexAttribute &attrib, GLsizei
         }
         else
         {
-            if (static_cast<unsigned int>(instances) < std::numeric_limits<unsigned int>::max() - (attrib.divisor - 1))
-            {
-                // Round up
-                elementCount = rx::roundUp(static_cast<unsigned int>(instances), attrib.divisor);
-            }
-            else
-            {
-                elementCount = instances / attrib.divisor;
-            }
+            // Round up to divisor, if possible
+            elementCount = rx::UnsignedCeilDivide(static_cast<unsigned int>(instances), attrib.divisor);
         }
 
         gl::VertexFormat vertexFormat(attrib);
-        unsigned int elementSize = static_cast<unsigned int>(gl_d3d11::GetVertexElementSize(vertexFormat));
+        const d3d11::VertexFormat &vertexFormatInfo = d3d11::GetVertexFormatInfo(vertexFormat);
+        const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(vertexFormatInfo.nativeFormat);
+        unsigned int elementSize = dxgiFormatInfo.pixelBytes;
         if (elementSize <= std::numeric_limits<unsigned int>::max() / elementCount)
         {
             if (outSpaceRequired)

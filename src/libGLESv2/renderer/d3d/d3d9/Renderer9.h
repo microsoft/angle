@@ -124,7 +124,6 @@ class Renderer9 : public Renderer
     virtual bool getPostSubBufferSupport() const;
     virtual int getMaxRecommendedElementsIndices() const;
     virtual int getMaxRecommendedElementsVertices() const;
-    virtual bool getSRGBTextureSupport() const;
 
     virtual int getMajorShaderModel() const;
     DWORD getCapsDeclTypes() const;
@@ -202,7 +201,6 @@ class Renderer9 : public Renderer
     D3DPOOL getTexturePool(DWORD usage) const;
 
     virtual bool getLUID(LUID *adapterLuid) const;
-    virtual GLenum getNativeTextureFormat(GLenum internalFormat) const;
     virtual rx::VertexConversionType getVertexConversionType(const gl::VertexFormat &vertexFormat) const;
     virtual GLenum getVertexComponentType(const gl::VertexFormat &vertexFormat) const;
 

@@ -11,7 +11,6 @@
 #ifndef LIBEGL_SURFACE_H_
 #define LIBEGL_SURFACE_H_
 
-#define EGLAPI
 #include <EGL/egl.h>
 
 #include "common/angleutils.h"
@@ -103,7 +102,7 @@ private:
     EGLint mSwapInterval;
     EGLint mPostSubBufferSupported;
     EGLint mFixedSize;
-    
+
     bool mSwapIntervalDirty;
     gl::Texture2D *mTexture;
 };

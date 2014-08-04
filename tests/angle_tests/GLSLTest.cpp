@@ -186,7 +186,7 @@ TEST_F(GLSLTest, TwoElseIfRewriting)
         "varying float v;\n"
         "void main() {\n"
         "  gl_Position = a_position;\n"
-        "  if (a_position.x == 0.0`) {\n"
+        "  if (a_position.x == 0.0) {\n"
         "    v = 1.0;\n"
         "  } else if (a_position.x > 0.5) {\n"
         "    v = 0.0;\n"
@@ -201,6 +201,106 @@ TEST_F(GLSLTest, TwoElseIfRewriting)
         "void main() {\n"
         "  gl_FragColor = vec4(v, 0.0, 0.0, 1.0);\n"
         "}\n";
+
+    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    EXPECT_NE(0u, program);
+}
+
+TEST_F(GLSLTest, InvariantVaryingOut)
+{
+    const std::string fragmentShaderSource = SHADER_SOURCE
+    (
+        precision mediump float;
+        varying float v_varying;
+        void main() { gl_FragColor = vec4(v_varying, 0, 0, 1.0); }
+    );
+
+    const std::string vertexShaderSource = SHADER_SOURCE
+    (
+        attribute vec4 a_position;
+        invariant varying float v_varying;
+        void main() { v_varying = a_position.x; gl_Position = a_position; }
+    );
+
+    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    EXPECT_NE(0u, program);
+}
+
+TEST_F(GLSLTest, InvariantVaryingIn)
+{
+    const std::string fragmentShaderSource = SHADER_SOURCE
+    (
+        precision mediump float;
+        invariant varying float v_varying;
+        void main() { gl_FragColor = vec4(v_varying, 0, 0, 1.0); }
+    );
+
+    const std::string vertexShaderSource = SHADER_SOURCE
+    (
+        attribute vec4 a_position;
+        varying float v_varying;
+        void main() { v_varying = a_position.x; gl_Position = a_position; }
+    );
+
+    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    EXPECT_NE(0u, program);
+}
+
+TEST_F(GLSLTest, InvariantVaryingBoth)
+{
+    const std::string fragmentShaderSource = SHADER_SOURCE
+    (
+        precision mediump float;
+        invariant varying float v_varying;
+        void main() { gl_FragColor = vec4(v_varying, 0, 0, 1.0); }
+    );
+
+    const std::string vertexShaderSource = SHADER_SOURCE
+    (
+        attribute vec4 a_position;
+        invariant varying float v_varying;
+        void main() { v_varying = a_position.x; gl_Position = a_position; }
+    );
+
+    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    EXPECT_NE(0u, program);
+}
+
+TEST_F(GLSLTest, InvariantGLPosition)
+{
+    const std::string fragmentShaderSource = SHADER_SOURCE
+    (
+        precision mediump float;
+        varying float v_varying;
+        void main() { gl_FragColor = vec4(v_varying, 0, 0, 1.0); }
+    );
+
+    const std::string vertexShaderSource = SHADER_SOURCE
+    (
+        attribute vec4 a_position;
+        invariant gl_Position;
+        varying float v_varying;
+        void main() { v_varying = a_position.x; gl_Position = a_position; }
+    );
+
+    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    EXPECT_NE(0u, program);
+}
+
+TEST_F(GLSLTest, InvariantAll)
+{
+    const std::string fragmentShaderSource = SHADER_SOURCE
+    (
+        precision mediump float;
+        varying float v_varying;
+        void main() { gl_FragColor = vec4(v_varying, 0, 0, 1.0); }
+    );
+
+    const std::string vertexShaderSource =
+        "#pragma STDGL invariant(all)\n"
+        "attribute vec4 a_position;\n"
+        "varying float v_varying;\n"
+        "void main() { v_varying = a_position.x; gl_Position = a_position; }\n";
 
     GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);

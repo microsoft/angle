@@ -352,8 +352,6 @@ EGLint Renderer9::initialize()
 
     initializeDevice();
 
-    d3d9::InitializeVertexTranslations(this);
-
     return EGL_SUCCESS;
 }
 
@@ -419,40 +417,24 @@ int Renderer9::generateConfigs(ConfigDesc **configDescList)
 
     for (unsigned int formatIndex = 0; formatIndex < numRenderFormats; formatIndex++)
     {
-        D3DFORMAT renderTargetFormat = RenderTargetFormats[formatIndex];
-
-        HRESULT result = mD3d9->CheckDeviceFormat(mAdapter, mDeviceType, currentDisplayMode.Format, D3DUSAGE_RENDERTARGET, D3DRTYPE_SURFACE, renderTargetFormat);
-
-        if (SUCCEEDED(result))
+        const d3d9::D3DFormat &renderTargetFormatInfo = d3d9::GetD3DFormatInfo(RenderTargetFormats[formatIndex]);
+        const gl::TextureCaps &renderTargetFormatCaps = getRendererTextureCaps().get(renderTargetFormatInfo.internalFormat);
+        if (renderTargetFormatCaps.renderable)
         {
             for (unsigned int depthStencilIndex = 0; depthStencilIndex < numDepthFormats; depthStencilIndex++)
             {
-                D3DFORMAT depthStencilFormat = DepthStencilFormats[depthStencilIndex];
-                HRESULT result = D3D_OK;
-
-                if(depthStencilFormat != D3DFMT_UNKNOWN)
+                const d3d9::D3DFormat &depthStencilFormatInfo = d3d9::GetD3DFormatInfo(DepthStencilFormats[depthStencilIndex]);
+                const gl::TextureCaps &depthStencilFormatCaps = getRendererTextureCaps().get(depthStencilFormatInfo.internalFormat);
+                if (depthStencilFormatCaps.renderable || DepthStencilFormats[depthStencilIndex] == D3DFMT_UNKNOWN)
                 {
-                    result = mD3d9->CheckDeviceFormat(mAdapter, mDeviceType, currentDisplayMode.Format, D3DUSAGE_DEPTHSTENCIL, D3DRTYPE_SURFACE, depthStencilFormat);
-                }
+                    ConfigDesc newConfig;
+                    newConfig.renderTargetFormat = renderTargetFormatInfo.internalFormat;
+                    newConfig.depthStencilFormat = depthStencilFormatInfo.internalFormat;
+                    newConfig.multiSample = 0; // FIXME: enumerate multi-sampling
+                    newConfig.fastConfig = (currentDisplayMode.Format == RenderTargetFormats[formatIndex]);
+                    newConfig.es3Capable = false;
 
-                if (SUCCEEDED(result))
-                {
-                    if(depthStencilFormat != D3DFMT_UNKNOWN)
-                    {
-                        result = mD3d9->CheckDepthStencilMatch(mAdapter, mDeviceType, currentDisplayMode.Format, renderTargetFormat, depthStencilFormat);
-                    }
-
-                    if (SUCCEEDED(result))
-                    {
-                        ConfigDesc newConfig;
-                        newConfig.renderTargetFormat = d3d9_gl::GetInternalFormat(renderTargetFormat);
-                        newConfig.depthStencilFormat = d3d9_gl::GetInternalFormat(depthStencilFormat);
-                        newConfig.multiSample = 0; // FIXME: enumerate multi-sampling
-                        newConfig.fastConfig = (currentDisplayMode.Format == renderTargetFormat);
-                        newConfig.es3Capable = false;
-
-                        (*configDescList)[numConfigs++] = newConfig;
-                    }
+                    (*configDescList)[numConfigs++] = newConfig;
                 }
             }
         }
@@ -814,10 +796,11 @@ void Renderer9::setBlendState(gl::Framebuffer *framebuffer, const gl::BlendState
         // drawing is done.
         // http://code.google.com/p/angleproject/issues/detail?id=169
 
-        DWORD colorMask = gl_d3d9::ConvertColorMask(gl::GetRedBits(internalFormat)   > 0 && blendState.colorMaskRed,
-                                                    gl::GetGreenBits(internalFormat) > 0 && blendState.colorMaskGreen,
-                                                    gl::GetBlueBits(internalFormat)  > 0 && blendState.colorMaskBlue,
-                                                    gl::GetAlphaBits(internalFormat) > 0 && blendState.colorMaskAlpha);
+        const gl::InternalFormat &formatInfo = gl::GetInternalFormatInfo(internalFormat);
+        DWORD colorMask = gl_d3d9::ConvertColorMask(formatInfo.redBits   > 0 && blendState.colorMaskRed,
+                                                    formatInfo.greenBits > 0 && blendState.colorMaskGreen,
+                                                    formatInfo.blueBits  > 0 && blendState.colorMaskBlue,
+                                                    formatInfo.alphaBits > 0 && blendState.colorMaskAlpha);
         if (colorMask == 0 && !zeroColorMaskAllowed)
         {
             // Enable green channel, but set blending so nothing will be drawn.
@@ -1745,7 +1728,7 @@ void Renderer9::clear(const gl::ClearParameters &clearParams, gl::Framebuffer *f
     unsigned int stencilUnmasked = 0x0;
     if (clearParams.clearStencil && frameBuffer->hasStencil())
     {
-        unsigned int stencilSize = gl::GetStencilBits(frameBuffer->getStencilbuffer()->getActualFormat());
+        unsigned int stencilSize = gl::GetInternalFormatInfo((frameBuffer->getStencilbuffer()->getActualFormat())).stencilBits;
         stencilUnmasked = (0x1 << stencilSize) - 1;
     }
 
@@ -1756,29 +1739,19 @@ void Renderer9::clear(const gl::ClearParameters &clearParams, gl::Framebuffer *f
     D3DCOLOR color = D3DCOLOR_ARGB(255, 0, 0, 0);
     if (clearColor)
     {
-        gl::FramebufferAttachment *attachment = frameBuffer->getFirstColorbuffer();
-        GLenum internalFormat = attachment->getInternalFormat();
-        GLenum actualFormat = attachment->getActualFormat();
+        const gl::FramebufferAttachment *attachment = frameBuffer->getFirstColorbuffer();
+        const gl::InternalFormat &formatInfo = gl::GetInternalFormatInfo(attachment->getInternalFormat());
+        const gl::InternalFormat &actualFormatInfo = gl::GetInternalFormatInfo(attachment->getActualFormat());
 
-        GLuint internalRedBits = gl::GetRedBits(internalFormat);
-        GLuint internalGreenBits = gl::GetGreenBits(internalFormat);
-        GLuint internalBlueBits = gl::GetBlueBits(internalFormat);
-        GLuint internalAlphaBits = gl::GetAlphaBits(internalFormat);
+        color = D3DCOLOR_ARGB(gl::unorm<8>((formatInfo.alphaBits == 0 && actualFormatInfo.alphaBits > 0) ? 1.0f : clearParams.colorFClearValue.alpha),
+                              gl::unorm<8>((formatInfo.redBits   == 0 && actualFormatInfo.redBits   > 0) ? 0.0f : clearParams.colorFClearValue.red),
+                              gl::unorm<8>((formatInfo.greenBits == 0 && actualFormatInfo.greenBits > 0) ? 0.0f : clearParams.colorFClearValue.green),
+                              gl::unorm<8>((formatInfo.blueBits  == 0 && actualFormatInfo.blueBits  > 0) ? 0.0f : clearParams.colorFClearValue.blue));
 
-        GLuint actualRedBits = gl::GetRedBits(actualFormat);
-        GLuint actualGreenBits = gl::GetGreenBits(actualFormat);
-        GLuint actualBlueBits = gl::GetBlueBits(actualFormat);
-        GLuint actualAlphaBits = gl::GetAlphaBits(actualFormat);
-
-        color = D3DCOLOR_ARGB(gl::unorm<8>((internalAlphaBits == 0 && actualAlphaBits > 0) ? 1.0f : clearParams.colorFClearValue.alpha),
-                              gl::unorm<8>((internalRedBits   == 0 && actualRedBits   > 0) ? 0.0f : clearParams.colorFClearValue.red),
-                              gl::unorm<8>((internalGreenBits == 0 && actualGreenBits > 0) ? 0.0f : clearParams.colorFClearValue.green),
-                              gl::unorm<8>((internalBlueBits  == 0 && actualBlueBits  > 0) ? 0.0f : clearParams.colorFClearValue.blue));
-
-        if ((internalRedBits   > 0 && !clearParams.colorMaskRed) ||
-            (internalGreenBits > 0 && !clearParams.colorMaskGreen) ||
-            (internalBlueBits  > 0 && !clearParams.colorMaskBlue) ||
-            (internalAlphaBits > 0 && !clearParams.colorMaskAlpha))
+        if ((formatInfo.redBits   > 0 && !clearParams.colorMaskRed) ||
+            (formatInfo.greenBits > 0 && !clearParams.colorMaskGreen) ||
+            (formatInfo.blueBits  > 0 && !clearParams.colorMaskBlue) ||
+            (formatInfo.alphaBits > 0 && !clearParams.colorMaskAlpha))
         {
             needMaskedColorClear = true;
         }
@@ -2308,11 +2281,6 @@ int Renderer9::getMaxRecommendedElementsVertices() const
     return 0;
 }
 
-bool Renderer9::getSRGBTextureSupport() const
-{
-    return false;
-}
-
 int Renderer9::getMajorShaderModel() const
 {
     return D3DSHADER_VERSION_MAJOR(mDeviceCaps.PixelShaderVersion);
@@ -2772,28 +2740,25 @@ void Renderer9::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsiz
         inputPitch = lock.Pitch;
     }
 
-    GLenum sourceInternalFormat = d3d9_gl::GetInternalFormat(desc.Format);
-    GLenum sourceFormat = gl::GetFormat(sourceInternalFormat);
-    GLenum sourceType = gl::GetType(sourceInternalFormat);
-
-    GLuint sourcePixelSize = gl::GetPixelBytes(sourceInternalFormat);
-
-    if (sourceFormat == format && sourceType == type)
+    const d3d9::D3DFormat &d3dFormatInfo = d3d9::GetD3DFormatInfo(desc.Format);
+    const gl::InternalFormat &sourceFormatInfo = gl::GetInternalFormatInfo(d3dFormatInfo.internalFormat);
+    if (sourceFormatInfo.format == format && sourceFormatInfo.type == type)
     {
         // Direct copy possible
         unsigned char *dest = static_cast<unsigned char*>(pixels);
         for (int y = 0; y < rect.bottom - rect.top; y++)
         {
-            memcpy(dest + y * outputPitch, source + y * inputPitch, (rect.right - rect.left) * sourcePixelSize);
+            memcpy(dest + y * outputPitch, source + y * inputPitch, (rect.right - rect.left) * sourceFormatInfo.pixelBytes);
         }
     }
     else
     {
-        GLenum destInternalFormat = gl::GetSizedInternalFormat(format, type);
-        GLuint destPixelSize = gl::GetPixelBytes(destInternalFormat);
-        GLuint sourcePixelSize = gl::GetPixelBytes(sourceInternalFormat);
+        const d3d9::D3DFormat &sourceD3DFormatInfo = d3d9::GetD3DFormatInfo(desc.Format);
+        ColorCopyFunction fastCopyFunc = sourceD3DFormatInfo.getFastCopyFunction(format, type);
 
-        ColorCopyFunction fastCopyFunc = d3d9::GetFastCopyFunction(desc.Format, format, type);
+        const gl::FormatType &destFormatTypeInfo = gl::GetFormatTypeInfo(format, type);
+        const gl::InternalFormat &destFormatInfo = gl::GetInternalFormatInfo(destFormatTypeInfo.internalFormat);
+
         if (fastCopyFunc)
         {
             // Fast copy is possible through some special function
@@ -2801,8 +2766,8 @@ void Renderer9::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsiz
             {
                 for (int x = 0; x < rect.right - rect.left; x++)
                 {
-                    void *dest = static_cast<unsigned char*>(pixels) + y * outputPitch + x * destPixelSize;
-                    void *src = static_cast<unsigned char*>(source) + y * inputPitch + x * sourcePixelSize;
+                    void *dest = static_cast<unsigned char*>(pixels) + y * outputPitch + x * destFormatInfo.pixelBytes;
+                    void *src = static_cast<unsigned char*>(source) + y * inputPitch + x * sourceFormatInfo.pixelBytes;
 
                     fastCopyFunc(src, dest);
                 }
@@ -2810,22 +2775,18 @@ void Renderer9::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsiz
         }
         else
         {
-            ColorReadFunction readFunc = d3d9::GetColorReadFunction(desc.Format);
-            ColorWriteFunction writeFunc = gl::GetColorWriteFunction(format, type);
-
             gl::ColorF temp;
-
             for (int y = 0; y < rect.bottom - rect.top; y++)
             {
                 for (int x = 0; x < rect.right - rect.left; x++)
                 {
-                    void *dest = reinterpret_cast<unsigned char*>(pixels) + y * outputPitch + x * destPixelSize;
-                    void *src = source + y * inputPitch + x * sourcePixelSize;
+                    void *dest = reinterpret_cast<unsigned char*>(pixels) + y * outputPitch + x * destFormatInfo.pixelBytes;
+                    void *src = source + y * inputPitch + x * sourceFormatInfo.pixelBytes;
 
                     // readFunc and writeFunc will be using the same type of color, CopyTexImage
                     // will not allow the copy otherwise.
-                    readFunc(src, &temp);
-                    writeFunc(&temp, dest);
+                    sourceD3DFormatInfo.colorReadFunction(src, &temp);
+                    destFormatTypeInfo.colorWriteFunction(&temp, dest);
                 }
             }
         }
@@ -3116,20 +3077,14 @@ bool Renderer9::getLUID(LUID *adapterLuid) const
     return false;
 }
 
-GLenum Renderer9::getNativeTextureFormat(GLenum internalFormat) const
-{
-    return d3d9_gl::GetInternalFormat(gl_d3d9::GetTextureFormat(internalFormat));
-}
-
 rx::VertexConversionType Renderer9::getVertexConversionType(const gl::VertexFormat &vertexFormat) const
 {
-    return d3d9::GetVertexConversionType(vertexFormat);
+    return d3d9::GetVertexFormatInfo(getCapsDeclTypes(), vertexFormat).conversionType;
 }
 
 GLenum Renderer9::getVertexComponentType(const gl::VertexFormat &vertexFormat) const
 {
-    D3DDECLTYPE declType = d3d9::GetNativeVertexFormat(vertexFormat);
-    return d3d9::GetDeclTypeComponentType(declType);
+    return d3d9::GetVertexFormatInfo(getCapsDeclTypes(), vertexFormat).componentType;
 }
 
 void Renderer9::generateCaps(gl::Caps *outCaps, gl::TextureCapsMap *outTextureCaps, gl::Extensions *outExtensions) const
