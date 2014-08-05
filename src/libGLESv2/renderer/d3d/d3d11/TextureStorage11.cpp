@@ -445,6 +445,7 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, GLenum internalform
 
     for (unsigned int i = 0; i < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS; i++)
     {
+        mAssociatedImages[i] = NULL;
         mRenderTarget[i] = NULL;
         mSwizzleRenderTargets[i] = NULL;
     }
