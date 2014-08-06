@@ -131,6 +131,7 @@ protected:
 
     void runTest2D()
     {
+        glGetError();
         glUseProgram(mProgram);
         glBindTexture(GL_TEXTURE_2D, mTexture);
         glUniform1i(mTextureUniformLocation, 0);
