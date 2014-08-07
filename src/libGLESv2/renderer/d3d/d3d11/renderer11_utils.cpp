@@ -218,6 +218,27 @@ D3D11_QUERY ConvertQueryType(GLenum queryType)
 
 namespace d3d11
 {
+    bool IsBackbuffer(ID3D11Resource* resource)
+    {
+        IDXGIResource* dxgiResource = NULL;
+        HRESULT hr = resource->QueryInterface(__uuidof(IDXGIResource), (void**)&dxgiResource);
+
+        if (SUCCEEDED(hr))
+        {
+            DXGI_USAGE usage;
+            hr = dxgiResource->GetUsage(&usage);
+
+            if (SUCCEEDED(hr))
+            {
+                SafeRelease(dxgiResource);
+                return ((usage & DXGI_USAGE_BACK_BUFFER) != 0);
+            }
+        }
+
+        SafeRelease(dxgiResource);
+        return false;
+    }
+
     HRESULT createD3D11DeviceWithWARPFallback(unsigned int createflags, D3D_FEATURE_LEVEL * featureLevels, unsigned int numFeatureLevels,
         bool forceWarp, ID3D11Device **device, D3D_FEATURE_LEVEL *featureLevel, ID3D11DeviceContext **context)
     {

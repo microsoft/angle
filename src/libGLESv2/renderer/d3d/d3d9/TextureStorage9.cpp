@@ -91,7 +91,7 @@ int TextureStorage9::getLevelCount() const
 TextureStorage9_2D::TextureStorage9_2D(Renderer *renderer, SwapChain9 *swapchain)
     : TextureStorage9(renderer, D3DUSAGE_RENDERTARGET)
 {
-    IDirect3DTexture9 *surfaceTexture = swapchain->getOffscreenTexture();
+    IDirect3DTexture9 *surfaceTexture = swapchain->getTargetTexture();
     mTexture = surfaceTexture;
     mRenderTarget = NULL;
 

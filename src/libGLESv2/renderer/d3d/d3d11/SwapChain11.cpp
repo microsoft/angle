@@ -7,6 +7,11 @@
 
 // SwapChain11.cpp: Implements a back-end specific class for the D3D11 swap chain.
 
+// ANGLE usually renders to an offscreen texture, which is then drawn onto the swapchain by this SwapChain11 class.
+// This additional draw call results in a lot of extra pixel overdraw, which can be expensive on lower end hardware (such as mobile GPUs).
+// We therefore have a #define called ANGLE_ENABLE_RENDER_TO_BACK_BUFFER. When this is set, ANGLE renders directly to the swapchain.
+// This #define is not set by default for all flavours of ANGLE, since it could impact corner-case GL ES conformance tests.
+
 #include "libGLESv2/renderer/d3d/d3d11/SwapChain11.h"
 
 #include "libGLESv2/renderer/d3d/d3d11/renderer11_utils.h"
@@ -26,9 +31,11 @@ namespace rx
     mSwapChain = NULL;
     mBackBufferTexture = NULL;
     mBackBufferRTView = NULL;
+#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     mOffscreenTexture = NULL;
     mOffscreenRTView = NULL;
     mOffscreenSRView = NULL;
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     mDepthStencilTexture = NULL;
     mDepthStencilDSView = NULL;
     mDepthStencilSRView = NULL;
@@ -54,9 +61,11 @@ void SwapChain11::release()
     SafeRelease(mSwapChain);
     SafeRelease(mBackBufferTexture);
     SafeRelease(mBackBufferRTView);
+#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     SafeRelease(mOffscreenTexture);
     SafeRelease(mOffscreenRTView);
     SafeRelease(mOffscreenSRView);
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     SafeRelease(mDepthStencilTexture);
     SafeRelease(mDepthStencilDSView);
     SafeRelease(mDepthStencilSRView);
@@ -74,9 +83,11 @@ void SwapChain11::release()
 
 void SwapChain11::releaseOffscreenTexture()
 {
+#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     SafeRelease(mOffscreenTexture);
     SafeRelease(mOffscreenRTView);
     SafeRelease(mOffscreenSRView);
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     SafeRelease(mDepthStencilTexture);
     SafeRelease(mDepthStencilDSView);
     SafeRelease(mDepthStencilSRView);
@@ -92,6 +103,9 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     ASSERT(backbufferWidth >= 1);
     ASSERT(backbufferHeight >= 1);
 
+    HRESULT result = E_FAIL;
+
+#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     // Preserve the render target content
     ID3D11Texture2D *previousOffscreenTexture = mOffscreenTexture;
     if (previousOffscreenTexture)
@@ -100,8 +114,12 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     }
     const int previousWidth = mWidth;
     const int previousHeight = mHeight;
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
     releaseOffscreenTexture();
+
+
+#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
     const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat);
 
@@ -110,7 +128,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     if (mAppCreatedShareHandle)
     {
         ID3D11Resource *tempResource11;
-        HRESULT result = device->OpenSharedResource(mShareHandle, __uuidof(ID3D11Resource), (void**)&tempResource11);
+        result = device->OpenSharedResource(mShareHandle, __uuidof(ID3D11Resource), (void**)&tempResource11);
 
         if (FAILED(result))
         {
@@ -161,7 +179,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
         offscreenTextureDesc.CPUAccessFlags = 0;
         offscreenTextureDesc.MiscFlags = useSharedResource ? D3D11_RESOURCE_MISC_SHARED : 0;
 
-        HRESULT result = device->CreateTexture2D(&offscreenTextureDesc, NULL, &mOffscreenTexture);
+        result = device->CreateTexture2D(&offscreenTextureDesc, NULL, &mOffscreenTexture);
 
         if (FAILED(result))
         {
@@ -211,7 +229,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     offscreenRTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
     offscreenRTVDesc.Texture2D.MipSlice = 0;
 
-    HRESULT result = device->CreateRenderTargetView(mOffscreenTexture, &offscreenRTVDesc, &mOffscreenRTView);
+    result = device->CreateRenderTargetView(mOffscreenTexture, &offscreenRTVDesc, &mOffscreenRTView);
     ASSERT(SUCCEEDED(result));
     d3d11::SetDebugName(mOffscreenRTView, "Offscreen back buffer render target");
 
@@ -224,6 +242,8 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     result = device->CreateShaderResourceView(mOffscreenTexture, &offscreenSRVDesc, &mOffscreenSRView);
     ASSERT(SUCCEEDED(result));
     d3d11::SetDebugName(mOffscreenSRView, "Offscreen back buffer shader resource");
+
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
     const d3d11::TextureFormat &depthBufferFormatInfo = d3d11::GetTextureFormatInfo(mDepthBufferFormat);
 
@@ -283,6 +303,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     mWidth = backbufferWidth;
     mHeight = backbufferHeight;
 
+#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     if (previousOffscreenTexture != NULL)
     {
         D3D11_BOX sourceBox = {0};
@@ -304,6 +325,8 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
             swapRect(0, 0, mWidth, mHeight);
         }
     }
+
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
     return EGL_SUCCESS;
 }
@@ -439,6 +462,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
 void SwapChain11::initPassThroughResources()
 {
+#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     ID3D11Device *device = mRenderer->getDevice();
 
     ASSERT(device != NULL);
@@ -495,6 +519,7 @@ void SwapChain11::initPassThroughResources()
     result = device->CreatePixelShader(g_PS_PassthroughRGBA2D, sizeof(g_PS_PassthroughRGBA2D), NULL, &mPassThroughPS);
     ASSERT(SUCCEEDED(result));
     d3d11::SetDebugName(mPassThroughPS, "Swap chain pass through pixel shader");
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 }
 
 // parameters should be validated/clamped by caller
@@ -505,12 +530,25 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
         return EGL_SUCCESS;
     }
 
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    // When rendering directly to the backbuffer, we must swap the whole buffer.
+    if (!(x == 0 && y == 0 && width == mWidth && height == mHeight))
+    {
+        ERR("When ANGLE_ENABLE_RENDER_TO_BACK_BUFFER is defined, swapRect can only be called on the entire backbuffer.");
+        ASSERT(false);
+        return EGL_FALSE;
+    }
+#endif
+
     ID3D11Device *device = mRenderer->getDevice();
     ID3D11DeviceContext *deviceContext = mRenderer->getDeviceContext();
 
+    HRESULT result = E_FAIL;
+
+#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     // Set vertices
     D3D11_MAPPED_SUBRESOURCE mappedResource;
-    HRESULT result = deviceContext->Map(mQuadVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    result = deviceContext->Map(mQuadVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     if (FAILED(result))
     {
         return EGL_BAD_ACCESS;
@@ -575,6 +613,8 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     // Draw
     deviceContext->Draw(4, 0);
 
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+
 #if ANGLE_FORCE_VSYNC_OFF
     result = mSwapChain->Present(0, 0);
 #else
@@ -608,19 +648,33 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     return EGL_SUCCESS; 
 }
 
-ID3D11Texture2D *SwapChain11::getOffscreenTexture()
+ID3D11Texture2D *SwapChain11::getTargetTexture()
 {
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    D3D11_TEXTURE2D_DESC desc;
+    mBackBufferTexture->GetDesc(&desc);
+    return mBackBufferTexture;
+#else
     return mOffscreenTexture;
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 }
 
 ID3D11RenderTargetView *SwapChain11::getRenderTarget()
 {
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    return mBackBufferRTView;
+#else
     return mOffscreenRTView;
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 }
 
 ID3D11ShaderResourceView *SwapChain11::getRenderTargetShaderResource()
 {
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    return NULL;
+#else
     return mOffscreenSRView;
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 }
 
 ID3D11DepthStencilView *SwapChain11::getDepthStencil()

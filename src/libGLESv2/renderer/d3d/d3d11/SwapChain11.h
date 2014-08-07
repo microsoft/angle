@@ -28,7 +28,7 @@ class SwapChain11 : public SwapChain
     virtual EGLint swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
     virtual void recreate();
 
-    virtual ID3D11Texture2D *getOffscreenTexture();
+    virtual ID3D11Texture2D *getTargetTexture();
     virtual ID3D11RenderTargetView *getRenderTarget();
     virtual ID3D11ShaderResourceView *getRenderTargetShaderResource();
 
@@ -61,9 +61,11 @@ class SwapChain11 : public SwapChain
     ID3D11Texture2D *mBackBufferTexture;
     ID3D11RenderTargetView *mBackBufferRTView;
 
+#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     ID3D11Texture2D *mOffscreenTexture;
     ID3D11RenderTargetView *mOffscreenRTView;
     ID3D11ShaderResourceView *mOffscreenSRView;
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
     ID3D11Texture2D *mDepthStencilTexture;
     ID3D11DepthStencilView *mDepthStencilDSView;

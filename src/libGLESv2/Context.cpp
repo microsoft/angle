@@ -1387,6 +1387,11 @@ void Context::applyState(GLenum drawMode)
     RasterizerState rasterizer = mState.getRasterizerState();
     rasterizer.pointDrawMode = (drawMode == GL_POINTS);
     rasterizer.multiSample = (samples != 0);
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    rasterizer.reverseCullMode = mRenderer->isRenderingToBackBuffer();
+#else
+    rasterizer.reverseCullMode = false;
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
     mRenderer->setRasterizerState(rasterizer);
 

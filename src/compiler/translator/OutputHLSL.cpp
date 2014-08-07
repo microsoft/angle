@@ -461,6 +461,11 @@ void OutputHLSL::header()
                 out << "    float3 dx_DepthFront : packoffset(c2);\n";
             }
 
+            if (mUsesFragCoord)
+            {
+                out << "    float2 dx_ViewScale : packoffset(c3);\n";
+            }
+
             out << "};\n";
         }
         else
@@ -547,8 +552,21 @@ void OutputHLSL::header()
                 out << "cbuffer DriverConstants : register(b1)\n"
                        "{\n"
                        "    float3 dx_DepthRange : packoffset(c0);\n"
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+                       "    float2 dx_ViewScale : packoffset(c2);\n"
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
                        "};\n"
                        "\n";
+            }
+            else
+            {
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+                out << "cbuffer DriverConstants : register(b1)\n"
+                       "{\n"
+                       "    float2 dx_ViewScale : packoffset(c2);\n"
+                       "};\n"
+                       "\n";
+#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
             }
         }
         else

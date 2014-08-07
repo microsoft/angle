@@ -2281,6 +2281,12 @@ int Renderer9::getMaxRecommendedElementsVertices() const
     return 0;
 }
 
+bool Renderer9::isRenderingToBackBuffer() const
+{
+    // We don't support rendering directly to the backbuffer in the d3d9 renderer.
+    return false;
+}
+
 int Renderer9::getMajorShaderModel() const
 {
     return D3DSHADER_VERSION_MAJOR(mDeviceCaps.PixelShaderVersion);

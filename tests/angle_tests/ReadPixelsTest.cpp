@@ -247,6 +247,7 @@ TEST_F(ReadPixelsTest, PBOAndSubDataOffset)
 
 TEST_F(ReadPixelsTest, DrawWithPBO)
 {
+    glGetError();
     unsigned char data[4] = { 1, 2, 3, 4 };
 
     glBindTexture(GL_TEXTURE_2D, mTexture);

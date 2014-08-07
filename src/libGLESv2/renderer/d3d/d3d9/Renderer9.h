@@ -130,6 +130,8 @@ class Renderer9 : public Renderer
     virtual int getMinSwapInterval() const;
     virtual int getMaxSwapInterval() const;
 
+    virtual bool isRenderingToBackBuffer() const;
+
     // Pixel operations
     virtual bool copyToRenderTarget(TextureStorageInterface2D *dest, TextureStorageInterface2D *source);
     virtual bool copyToRenderTarget(TextureStorageInterfaceCube *dest, TextureStorageInterfaceCube *source);
