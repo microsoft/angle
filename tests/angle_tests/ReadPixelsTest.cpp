@@ -84,7 +84,7 @@ protected:
     GLuint mPositionVBO;
 };
 
-TEST_F(ReadPixelsTest, out_of_bounds)
+TEST_F(ReadPixelsTest, OutOfBounds)
 {
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -117,7 +117,7 @@ TEST_F(ReadPixelsTest, out_of_bounds)
     }
 }
 
-TEST_F(ReadPixelsTest, pbo_with_other_target)
+TEST_F(ReadPixelsTest, PBOWithOtherTarget)
 {
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -142,7 +142,7 @@ TEST_F(ReadPixelsTest, pbo_with_other_target)
     EXPECT_GL_NO_ERROR();
 }
 
-TEST_F(ReadPixelsTest, pbo_with_existing_data)
+TEST_F(ReadPixelsTest, PBOWithExistingData)
 {
     // Clear backbuffer to red
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -180,7 +180,7 @@ TEST_F(ReadPixelsTest, pbo_with_existing_data)
     EXPECT_GL_NO_ERROR();
 }
 
-TEST_F(ReadPixelsTest, pbo_and_sub_data)
+TEST_F(ReadPixelsTest, PBOAndSubData)
 {
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -199,16 +199,18 @@ TEST_F(ReadPixelsTest, pbo_and_sub_data)
     unsigned char *dataPtr = static_cast<unsigned char *>(mappedPtr);
     EXPECT_GL_NO_ERROR();
 
-    EXPECT_EQ(1, dataPtr[0]);
-    EXPECT_EQ(2, dataPtr[1]);
-    EXPECT_EQ(3, dataPtr[2]);
-    EXPECT_EQ(4, dataPtr[3]);
-
+    if (dataPtr)
+    {
+        EXPECT_EQ(1, dataPtr[0]);
+        EXPECT_EQ(2, dataPtr[1]);
+        EXPECT_EQ(3, dataPtr[2]);
+        EXPECT_EQ(4, dataPtr[3]);
+    }
     glUnmapBuffer(GL_ARRAY_BUFFER);
     EXPECT_GL_NO_ERROR();
 }
 
-TEST_F(ReadPixelsTest, pbo_and_sub_data_offset)
+TEST_F(ReadPixelsTest, PBOAndSubDataOffset)
 {
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -227,22 +229,25 @@ TEST_F(ReadPixelsTest, pbo_and_sub_data_offset)
     unsigned char *dataPtr = static_cast<unsigned char *>(mappedPtr);
     EXPECT_GL_NO_ERROR();
 
-    EXPECT_EQ(255, dataPtr[0]);
-    EXPECT_EQ(0, dataPtr[1]);
-    EXPECT_EQ(0, dataPtr[2]);
-    EXPECT_EQ(255, dataPtr[3]);
+    if (dataPtr)
+    {
+        EXPECT_EQ(255, dataPtr[0]);
+        EXPECT_EQ(0, dataPtr[1]);
+        EXPECT_EQ(0, dataPtr[2]);
+        EXPECT_EQ(255, dataPtr[3]);
 
-    EXPECT_EQ(1, dataPtr[16]);
-    EXPECT_EQ(2, dataPtr[17]);
-    EXPECT_EQ(3, dataPtr[18]);
-    EXPECT_EQ(4, dataPtr[19]);
-
+        EXPECT_EQ(1, dataPtr[16]);
+        EXPECT_EQ(2, dataPtr[17]);
+        EXPECT_EQ(3, dataPtr[18]);
+        EXPECT_EQ(4, dataPtr[19]);
+    }
     glUnmapBuffer(GL_ARRAY_BUFFER);
     EXPECT_GL_NO_ERROR();
 }
 
-TEST_F(ReadPixelsTest, draw_with_pbo)
+TEST_F(ReadPixelsTest, DrawWithPBO)
 {
+    glGetError();
     unsigned char data[4] = { 1, 2, 3, 4 };
 
     glBindTexture(GL_TEXTURE_2D, mTexture);
@@ -292,4 +297,34 @@ TEST_F(ReadPixelsTest, draw_with_pbo)
     EXPECT_EQ(2, data[1]);
     EXPECT_EQ(3, data[2]);
     EXPECT_EQ(4, data[3]);
+}
+
+TEST_F(ReadPixelsTest, MultisampledPBO)
+{
+    GLuint fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    GLuint rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorageMultisampleANGLE(GL_RENDERBUFFER, 2, GL_RGBA8, 4, 4);
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
+
+    ASSERT_GL_NO_ERROR();
+
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, mPBO);
+
+    EXPECT_GL_NO_ERROR();
+
+    glReadPixels(0, 0, 1, 1, GL_RGBA8, GL_UNSIGNED_BYTE, NULL);
+
+    EXPECT_GL_ERROR(GL_INVALID_OPERATION);
+
+    glDeleteRenderbuffers(1, &rbo);
+    glDeleteFramebuffers(1, &fbo);
 }

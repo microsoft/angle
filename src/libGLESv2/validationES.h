@@ -26,6 +26,7 @@ bool ValidCompressedImageSize(const gl::Context *context, GLenum internalFormat,
 bool ValidQueryType(const gl::Context *context, GLenum queryType);
 bool ValidProgram(const gl::Context *context, GLuint id);
 
+bool ValidateAttachmentTarget(const gl::Context *context, GLenum attachment);
 bool ValidateRenderbufferStorageParameters(const gl::Context *context, GLenum target, GLsizei samples,
                                            GLenum internalformat, GLsizei width, GLsizei height,
                                            bool angleExtension);
@@ -57,6 +58,17 @@ bool ValidateStateQuery(gl::Context *context, GLenum pname, GLenum *nativeType, 
 bool ValidateCopyTexImageParametersBase(gl::Context* context, GLenum target, GLint level, GLenum internalformat, bool isSubImage,
                                         GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height,
                                         GLint border, GLenum *textureInternalFormatOut);
+
+bool ValidateDrawArrays(const gl::Context *context, GLenum mode, GLint first, GLsizei count);
+bool ValidateDrawArraysInstanced(const gl::Context *context, GLenum mode, GLint first, GLsizei count, GLsizei primcount);
+bool ValidateDrawElements(const gl::Context *context, GLenum mode, GLsizei count, GLenum type, const GLvoid* indices);
+bool ValidateDrawElementsInstanced(const gl::Context *context, GLenum mode, GLsizei count, GLenum type,
+                                   const GLvoid *indices, GLsizei primcount);
+
+bool ValidateFramebufferTextureBase(const gl::Context *context, GLenum target, GLenum attachment,
+                                    GLuint texture, GLint level);
+bool ValidateFramebufferTexture2D(const gl::Context *context, GLenum target, GLenum attachment,
+                                  GLenum textarget, GLuint texture, GLint level);
 
 }
 

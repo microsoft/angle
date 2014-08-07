@@ -33,11 +33,11 @@ bool HLSLCompiler::initialize()
 
 #if defined(ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES)
     // Find a D3DCompiler module that had already been loaded based on a predefined list of versions.
-    static TCHAR* d3dCompilerNames[] = ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES;
+    static const char *d3dCompilerNames[] = ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES;
 
     for (size_t i = 0; i < ArraySize(d3dCompilerNames); ++i)
     {
-        if (GetModuleHandleEx(0, d3dCompilerNames[i], &mD3DCompilerModule))
+        if (GetModuleHandleExA(0, d3dCompilerNames[i], &mD3DCompilerModule))
         {
             break;
         }
@@ -77,10 +77,9 @@ void HLSLCompiler::release()
 ShaderBlob *HLSLCompiler::compileToBinary(gl::InfoLog &infoLog, const char *hlsl, const char *profile,
                                           const UINT optimizationFlags[], const char *flagNames[], int attempts) const
 {
-    ASSERT(mD3DCompileFunc);
-#if !defined(ANGLE_ENABLE_WINDOWS_STORE)
-    ASSERT(mD3DCompilerModule);
-#endif // !defined(ANGLE_ENABLE_WINDOWS_STORE)
+#ifndef ANGLE_ENABLE_WINDOWS_STORE
+    ASSERT(mD3DCompilerModule && mD3DCompileFunc);
+#endif // ANGLE_ENABLE_WINDOWS_STORE
 
     if (!hlsl)
     {
@@ -117,14 +116,11 @@ ShaderBlob *HLSLCompiler::compileToBinary(gl::InfoLog &infoLog, const char *hlsl
                 return gl::error(GL_OUT_OF_MEMORY, (ShaderBlob*)NULL);
             }
 
-            infoLog.append("Warning: D3D shader compilation failed with ");
-            infoLog.append(flagNames[i]);
-            infoLog.append(" flags.");
+            infoLog.append("Warning: D3D shader compilation failed with %s flags.", flagNames[i]);
+
             if (i + 1 < attempts)
             {
-                infoLog.append(" Retrying with ");
-                infoLog.append(flagNames[i + 1]);
-                infoLog.append(".\n");
+                infoLog.append(" Retrying with %s.\n", flagNames[i + 1]);
             }
         }
     }

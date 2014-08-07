@@ -14,13 +14,94 @@
 
 #include "libGLESv2/Texture.h"
 #include "libGLESv2/renderer/Renderer.h"
-#include "libGLESv2/renderer/TextureStorage.h"
 #include "common/utilities.h"
 #include "libGLESv2/formatutils.h"
+#include "libGLESv2/FramebufferAttachment.h"
 
 namespace gl
 {
 unsigned int RenderbufferStorage::mCurrentSerial = 1;
+
+Renderbuffer::Renderbuffer(GLuint id, RenderbufferStorage *newStorage)
+  : RefCountObject(id),
+    mStorage(newStorage)
+{
+    ASSERT(mStorage);
+}
+
+void Renderbuffer::setStorage(RenderbufferStorage *newStorage)
+{
+    ASSERT(newStorage);
+
+    SafeDelete(mStorage);
+    mStorage = newStorage;
+}
+
+RenderbufferStorage *Renderbuffer::getStorage()
+{
+    ASSERT(mStorage);
+    return mStorage;
+}
+
+GLsizei Renderbuffer::getWidth() const
+{
+    ASSERT(mStorage);
+    return mStorage->getWidth();
+}
+
+GLsizei Renderbuffer::getHeight() const
+{
+    ASSERT(mStorage);
+    return mStorage->getHeight();
+}
+
+GLenum Renderbuffer::getInternalFormat() const
+{
+    ASSERT(mStorage);
+    return mStorage->getInternalFormat();
+}
+
+GLenum Renderbuffer::getActualFormat() const
+{
+    ASSERT(mStorage);
+    return mStorage->getActualFormat();
+}
+
+GLsizei Renderbuffer::getSamples() const
+{
+    ASSERT(mStorage);
+    return mStorage->getSamples();
+}
+
+GLuint Renderbuffer::getRedSize() const
+{
+    return GetInternalFormatInfo(getActualFormat()).redBits;
+}
+
+GLuint Renderbuffer::getGreenSize() const
+{
+    return GetInternalFormatInfo(getActualFormat()).greenBits;
+}
+
+GLuint Renderbuffer::getBlueSize() const
+{
+    return GetInternalFormatInfo(getActualFormat()).blueBits;
+}
+
+GLuint Renderbuffer::getAlphaSize() const
+{
+    return GetInternalFormatInfo(getActualFormat()).alphaBits;
+}
+
+GLuint Renderbuffer::getDepthSize() const
+{
+    return GetInternalFormatInfo(getActualFormat()).depthBits;
+}
+
+GLuint Renderbuffer::getStencilSize() const
+{
+    return GetInternalFormatInfo(getActualFormat()).stencilBits;
+}
 
 RenderbufferStorage::RenderbufferStorage() : mSerial(issueSerials(1))
 {
@@ -41,11 +122,6 @@ rx::RenderTarget *RenderbufferStorage::getRenderTarget()
 }
 
 rx::RenderTarget *RenderbufferStorage::getDepthStencil()
-{
-    return NULL;
-}
-
-rx::TextureStorage *RenderbufferStorage::getTextureStorage()
 {
     return NULL;
 }

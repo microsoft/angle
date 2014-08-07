@@ -1,9 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 13.00
 # Visual Studio 2013
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "commit_id", "commit_id.vcxproj", "{876961B6-9C7A-D919-0BB2-DC322D351790}"
-	ProjectSection(ProjectDependencies) = postProject
-		{D4CB6FC1-E492-E9C4-2AF3-23FC58CB4D67} = {D4CB6FC1-E492-E9C4-2AF3-23FC58CB4D67}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "copy_compiler_dll", "copy_compiler_dll.vcxproj", "{FC399E5A-A46B-675C-DE49-24E2008B2E2B}"
 	ProjectSection(ProjectDependencies) = postProject

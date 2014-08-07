@@ -23,7 +23,6 @@
 #include "libEGL/Display.h"
 
 #include "common/surfacehost.h"
-
 namespace egl
 {
 
@@ -264,7 +263,7 @@ bool Surface::checkForOutOfDateSwapChain()
 
 #ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     if (wasDirty)
-    {        
+    {
         // We must release any remaining resources acting on the swapchain, before we resize it below.
         // We do this by setting the surface to be NULL.
         if (static_cast<egl::Surface*>(getCurrentDrawSurface()) == this)

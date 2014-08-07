@@ -34,6 +34,7 @@ WHICH GENERATES THE GLSL ES PARSER (glslang_tab.cpp AND glslang_tab.h).
 #pragma warning(disable: 4701)
 #endif
 
+#include "angle_gl.h"
 #include "compiler/translator/SymbolTable.h"
 #include "compiler/translator/ParseContext.h"
 #include "GLSLANG/ShaderLang.h"
@@ -106,14 +107,14 @@ extern void yyerror(YYLTYPE* yylloc, TParseContext* context, const char* reason)
   } while (0)
 
 #define VERTEX_ONLY(S, L) {  \
-    if (context->shaderType != SH_VERTEX_SHADER) {  \
+    if (context->shaderType != GL_VERTEX_SHADER) {  \
         context->error(L, " supported in vertex shaders only ", S);  \
         context->recover();  \
     }  \
 }
 
 #define FRAG_ONLY(S, L) {  \
-    if (context->shaderType != SH_FRAGMENT_SHADER) {  \
+    if (context->shaderType != GL_FRAGMENT_SHADER) {  \
         context->error(L, " supported in fragment shaders only ", S);  \
         context->recover();  \
     }  \
@@ -237,7 +238,7 @@ variable_identifier
         {
             TType type(EbtFloat, EbpUndefined);
             TVariable *fakeVariable = new TVariable($1.string, type);
-            context->symbolTable.declare(*fakeVariable);
+            context->symbolTable.declare(fakeVariable);
             variable = fakeVariable;
         }
 
@@ -411,7 +412,7 @@ function_call
                     for (size_t i = 0; i < fnCandidate->getParamCount(); ++i) {
                         qual = fnCandidate->getParam(i).type->getQualifier();
                         if (qual == EvqOut || qual == EvqInOut) {
-                            if (context->lValueErrorCheck($$->getLine(), "assign", $$->getAsAggregate()->getSequence()[i]->getAsTyped())) {
+                            if (context->lValueErrorCheck($$->getLine(), "assign", (*($$->getAsAggregate()->getSequence()))[i]->getAsTyped())) {
                                 context->error($1.intermNode->getLine(), "Constant value cannot be passed for 'out' or 'inout' parameters.", "Error");
                                 context->recover();
                             }
@@ -820,7 +821,7 @@ declaration
         $$ = $1.intermAggregate;
     }
     | PRECISION precision_qualifier type_specifier_no_prec SEMICOLON {
-        if (($2 == EbpHigh) && (context->shaderType == SH_FRAGMENT_SHADER) && !context->fragmentPrecisionHigh) {
+        if (($2 == EbpHigh) && (context->shaderType == GL_FRAGMENT_SHADER) && !context->fragmentPrecisionHigh) {
             context->error(@1, "precision is not supported in fragment shader", "highp");
             context->recover();
         }
@@ -887,7 +888,8 @@ function_prototype
         else
         {
             // Insert the unmangled name to detect potential future redefinition as a variable.
-            context->symbolTable.getOuterLevel()->insert($1->getName(), *$1);
+            TFunction *function = new TFunction(NewPoolTString($1->getName().c_str()), $1->getReturnType());
+            context->symbolTable.getOuterLevel()->insert(function);
         }
 
         //
@@ -899,7 +901,7 @@ function_prototype
 
         // We're at the inner scope level of the function's arguments and body statement.
         // Add the function prototype to the surrounding scope instead.
-        context->symbolTable.getOuterLevel()->insert(*$$.function);
+        context->symbolTable.getOuterLevel()->insert($$.function);
     }
     ;
 
@@ -1161,7 +1163,7 @@ type_qualifier
         ES2_ONLY("varying", @1);
         if (context->globalErrorCheck(@1, context->symbolTable.atGlobalLevel(), "varying"))
             context->recover();
-        if (context->shaderType == SH_VERTEX_SHADER)
+        if (context->shaderType == GL_VERTEX_SHADER)
             $$.setBasic(EbtVoid, EvqVaryingOut, @1);
         else
             $$.setBasic(EbtVoid, EvqVaryingIn, @1);
@@ -1170,7 +1172,7 @@ type_qualifier
         ES2_ONLY("varying", @1);
         if (context->globalErrorCheck(@1, context->symbolTable.atGlobalLevel(), "invariant varying"))
             context->recover();
-        if (context->shaderType == SH_VERTEX_SHADER)
+        if (context->shaderType == GL_VERTEX_SHADER)
             $$.setBasic(EbtVoid, EvqInvariantVaryingOut, @1);
         else
             $$.setBasic(EbtVoid, EvqInvariantVaryingIn, @1);
@@ -1209,29 +1211,29 @@ storage_qualifier
     }
     | IN_QUAL {
         ES3_ONLY("in", @1, "storage qualifier");
-        $$.qualifier = (context->shaderType == SH_FRAGMENT_SHADER) ? EvqFragmentIn : EvqVertexIn;
+        $$.qualifier = (context->shaderType == GL_FRAGMENT_SHADER) ? EvqFragmentIn : EvqVertexIn;
     }
     | OUT_QUAL {
         ES3_ONLY("out", @1, "storage qualifier");
-        $$.qualifier = (context->shaderType == SH_FRAGMENT_SHADER) ? EvqFragmentOut : EvqVertexOut;
+        $$.qualifier = (context->shaderType == GL_FRAGMENT_SHADER) ? EvqFragmentOut : EvqVertexOut;
     }
     | CENTROID IN_QUAL {
         ES3_ONLY("centroid in", @1, "storage qualifier");
-        if (context->shaderType == SH_VERTEX_SHADER)
+        if (context->shaderType == GL_VERTEX_SHADER)
         {
             context->error(@1, "invalid storage qualifier", "it is an error to use 'centroid in' in the vertex shader");
             context->recover();
         }
-        $$.qualifier = (context->shaderType == SH_FRAGMENT_SHADER) ? EvqCentroidIn : EvqVertexIn;
+        $$.qualifier = (context->shaderType == GL_FRAGMENT_SHADER) ? EvqCentroidIn : EvqVertexIn;
     }
     | CENTROID OUT_QUAL {
         ES3_ONLY("centroid out", @1, "storage qualifier");
-        if (context->shaderType == SH_FRAGMENT_SHADER)
+        if (context->shaderType == GL_FRAGMENT_SHADER)
         {
             context->error(@1, "invalid storage qualifier", "it is an error to use 'centroid out' in the fragment shader");
             context->recover();
         }
-        $$.qualifier = (context->shaderType == SH_FRAGMENT_SHADER) ? EvqFragmentOut : EvqCentroidOut;
+        $$.qualifier = (context->shaderType == GL_FRAGMENT_SHADER) ? EvqFragmentOut : EvqCentroidOut;
     }
     | UNIFORM {
         if (context->globalErrorCheck(@1, context->symbolTable.atGlobalLevel(), "uniform"))
@@ -1899,7 +1901,7 @@ function_definition
                 //
                 // Insert the parameters with name in the symbol table.
                 //
-                if (! context->symbolTable.declare(*variable)) {
+                if (! context->symbolTable.declare(variable)) {
                     context->error(@1, "redefinition", variable->getName().c_str());
                     context->recover();
                     delete variable;

@@ -84,6 +84,7 @@
 #pragma warning(disable: 4701)
 #endif
 
+#include "angle_gl.h"
 #include "compiler/translator/SymbolTable.h"
 #include "compiler/translator/ParseContext.h"
 #include "GLSLANG/ShaderLang.h"
@@ -362,14 +363,14 @@ extern void yyerror(YYLTYPE* yylloc, TParseContext* context, const char* reason)
   } while (0)
 
 #define VERTEX_ONLY(S, L) {  \
-    if (context->shaderType != SH_VERTEX_SHADER) {  \
+    if (context->shaderType != GL_VERTEX_SHADER) {  \
         context->error(L, " supported in vertex shaders only ", S);  \
         context->recover();  \
     }  \
 }
 
 #define FRAG_ONLY(S, L) {  \
-    if (context->shaderType != SH_FRAGMENT_SHADER) {  \
+    if (context->shaderType != GL_FRAGMENT_SHADER) {  \
         context->error(L, " supported in fragment shaders only ", S);  \
         context->recover();  \
     }  \
@@ -2575,7 +2576,7 @@ yyreduce:
         {
             TType type(EbtFloat, EbpUndefined);
             TVariable *fakeVariable = new TVariable((yyvsp[(1) - (1)].lex).string, type);
-            context->symbolTable.declare(*fakeVariable);
+            context->symbolTable.declare(fakeVariable);
             variable = fakeVariable;
         }
 
@@ -2793,7 +2794,7 @@ yyreduce:
                     for (size_t i = 0; i < fnCandidate->getParamCount(); ++i) {
                         qual = fnCandidate->getParam(i).type->getQualifier();
                         if (qual == EvqOut || qual == EvqInOut) {
-                            if (context->lValueErrorCheck((yyval.interm.intermTypedNode)->getLine(), "assign", (yyval.interm.intermTypedNode)->getAsAggregate()->getSequence()[i]->getAsTyped())) {
+                            if (context->lValueErrorCheck((yyval.interm.intermTypedNode)->getLine(), "assign", (*((yyval.interm.intermTypedNode)->getAsAggregate()->getSequence()))[i]->getAsTyped())) {
                                 context->error((yyvsp[(1) - (1)].interm).intermNode->getLine(), "Constant value cannot be passed for 'out' or 'inout' parameters.", "Error");
                                 context->recover();
                             }
@@ -3352,7 +3353,7 @@ yyreduce:
   case 76:
 
     {
-        if (((yyvsp[(2) - (4)].interm.precision) == EbpHigh) && (context->shaderType == SH_FRAGMENT_SHADER) && !context->fragmentPrecisionHigh) {
+        if (((yyvsp[(2) - (4)].interm.precision) == EbpHigh) && (context->shaderType == GL_FRAGMENT_SHADER) && !context->fragmentPrecisionHigh) {
             context->error((yylsp[(1) - (4)]), "precision is not supported in fragment shader", "highp");
             context->recover();
         }
@@ -3436,7 +3437,8 @@ yyreduce:
         else
         {
             // Insert the unmangled name to detect potential future redefinition as a variable.
-            context->symbolTable.getOuterLevel()->insert((yyvsp[(1) - (2)].interm.function)->getName(), *(yyvsp[(1) - (2)].interm.function));
+            TFunction *function = new TFunction(NewPoolTString((yyvsp[(1) - (2)].interm.function)->getName().c_str()), (yyvsp[(1) - (2)].interm.function)->getReturnType());
+            context->symbolTable.getOuterLevel()->insert(function);
         }
 
         //
@@ -3448,7 +3450,7 @@ yyreduce:
 
         // We're at the inner scope level of the function's arguments and body statement.
         // Add the function prototype to the surrounding scope instead.
-        context->symbolTable.getOuterLevel()->insert(*(yyval.interm).function);
+        context->symbolTable.getOuterLevel()->insert((yyval.interm).function);
     }
     break;
 
@@ -3794,7 +3796,7 @@ yyreduce:
         ES2_ONLY("varying", (yylsp[(1) - (1)]));
         if (context->globalErrorCheck((yylsp[(1) - (1)]), context->symbolTable.atGlobalLevel(), "varying"))
             context->recover();
-        if (context->shaderType == SH_VERTEX_SHADER)
+        if (context->shaderType == GL_VERTEX_SHADER)
             (yyval.interm.type).setBasic(EbtVoid, EvqVaryingOut, (yylsp[(1) - (1)]));
         else
             (yyval.interm.type).setBasic(EbtVoid, EvqVaryingIn, (yylsp[(1) - (1)]));
@@ -3807,7 +3809,7 @@ yyreduce:
         ES2_ONLY("varying", (yylsp[(1) - (2)]));
         if (context->globalErrorCheck((yylsp[(1) - (2)]), context->symbolTable.atGlobalLevel(), "invariant varying"))
             context->recover();
-        if (context->shaderType == SH_VERTEX_SHADER)
+        if (context->shaderType == GL_VERTEX_SHADER)
             (yyval.interm.type).setBasic(EbtVoid, EvqInvariantVaryingOut, (yylsp[(1) - (2)]));
         else
             (yyval.interm.type).setBasic(EbtVoid, EvqInvariantVaryingIn, (yylsp[(1) - (2)]));
@@ -3871,7 +3873,7 @@ yyreduce:
 
     {
         ES3_ONLY("in", (yylsp[(1) - (1)]), "storage qualifier");
-        (yyval.interm.type).qualifier = (context->shaderType == SH_FRAGMENT_SHADER) ? EvqFragmentIn : EvqVertexIn;
+        (yyval.interm.type).qualifier = (context->shaderType == GL_FRAGMENT_SHADER) ? EvqFragmentIn : EvqVertexIn;
     }
     break;
 
@@ -3879,7 +3881,7 @@ yyreduce:
 
     {
         ES3_ONLY("out", (yylsp[(1) - (1)]), "storage qualifier");
-        (yyval.interm.type).qualifier = (context->shaderType == SH_FRAGMENT_SHADER) ? EvqFragmentOut : EvqVertexOut;
+        (yyval.interm.type).qualifier = (context->shaderType == GL_FRAGMENT_SHADER) ? EvqFragmentOut : EvqVertexOut;
     }
     break;
 
@@ -3887,12 +3889,12 @@ yyreduce:
 
     {
         ES3_ONLY("centroid in", (yylsp[(1) - (2)]), "storage qualifier");
-        if (context->shaderType == SH_VERTEX_SHADER)
+        if (context->shaderType == GL_VERTEX_SHADER)
         {
             context->error((yylsp[(1) - (2)]), "invalid storage qualifier", "it is an error to use 'centroid in' in the vertex shader");
             context->recover();
         }
-        (yyval.interm.type).qualifier = (context->shaderType == SH_FRAGMENT_SHADER) ? EvqCentroidIn : EvqVertexIn;
+        (yyval.interm.type).qualifier = (context->shaderType == GL_FRAGMENT_SHADER) ? EvqCentroidIn : EvqVertexIn;
     }
     break;
 
@@ -3900,12 +3902,12 @@ yyreduce:
 
     {
         ES3_ONLY("centroid out", (yylsp[(1) - (2)]), "storage qualifier");
-        if (context->shaderType == SH_FRAGMENT_SHADER)
+        if (context->shaderType == GL_FRAGMENT_SHADER)
         {
             context->error((yylsp[(1) - (2)]), "invalid storage qualifier", "it is an error to use 'centroid out' in the fragment shader");
             context->recover();
         }
-        (yyval.interm.type).qualifier = (context->shaderType == SH_FRAGMENT_SHADER) ? EvqFragmentOut : EvqCentroidOut;
+        (yyval.interm.type).qualifier = (context->shaderType == GL_FRAGMENT_SHADER) ? EvqFragmentOut : EvqCentroidOut;
     }
     break;
 
@@ -4967,7 +4969,7 @@ yyreduce:
                 //
                 // Insert the parameters with name in the symbol table.
                 //
-                if (! context->symbolTable.declare(*variable)) {
+                if (! context->symbolTable.declare(variable)) {
                     context->error((yylsp[(1) - (1)]), "redefinition", variable->getName().c_str());
                     context->recover();
                     delete variable;

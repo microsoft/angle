@@ -12,6 +12,10 @@
 #include "common/platform.h"
 
 #include <stddef.h>
+#include <limits.h>
+#include <string>
+#include <set>
+#include <sstream>
 
 #if defined (ANGLE_ENABLE_WINDOWS_STORE)
 #include "third_party/ThreadEmulation/ThreadEmulation.h"
@@ -57,6 +61,16 @@ void SafeDelete(T*& resource)
 }
 
 template <typename T>
+void SafeDeleteContainer(T& resource)
+{
+    for (typename T::iterator i = resource.begin(); i != resource.end(); i++)
+    {
+        SafeDelete(*i);
+    }
+    resource.clear();
+}
+
+template <typename T>
 void SafeDeleteArray(T*& resource)
 {
     delete[] resource;
@@ -85,6 +99,42 @@ inline void StructZero(T *obj)
     memset(obj, 0, sizeof(T));
 }
 
+inline const char* MakeStaticString(const std::string &str)
+{
+    static std::set<std::string> strings;
+    std::set<std::string>::iterator it = strings.find(str);
+    if (it != strings.end())
+    {
+        return it->c_str();
+    }
+
+    return strings.insert(str).first->c_str();
+}
+
+inline std::string ArrayString(unsigned int i)
+{
+    // We assume UINT_MAX and GL_INVALID_INDEX are equal
+    // See DynamicHLSL.cpp
+    if (i == UINT_MAX)
+    {
+        return "";
+    }
+
+    std::stringstream strstr;
+
+    strstr << "[";
+    strstr << i;
+    strstr << "]";
+
+    return strstr.str();
+}
+
+inline std::string Str(int i)
+{
+    std::stringstream strstr;
+    strstr << i;
+    return strstr.str();
+}
 #if defined(_MSC_VER)
 #define snprintf _snprintf
 #endif

@@ -31,11 +31,17 @@ enum
                                                          IMPLEMENTATION_MAX_FRAGMENT_SHADER_UNIFORM_BUFFERS,
 
     IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS = 4,
-};
 
-const float ALIASED_LINE_WIDTH_RANGE_MIN = 1.0f;
-const float ALIASED_LINE_WIDTH_RANGE_MAX = 1.0f;
-const float ALIASED_POINT_SIZE_RANGE_MIN = 1.0f;
+    // These are the maximums the implementation can support
+    // The actual GL caps are limited by the device caps
+    // and should be queried from the Context
+    IMPLEMENTATION_MAX_2D_TEXTURE_SIZE = 16384,
+    IMPLEMENTATION_MAX_CUBE_MAP_TEXTURE_SIZE = 16384,
+    IMPLEMENTATION_MAX_3D_TEXTURE_SIZE = 2048,
+    IMPLEMENTATION_MAX_2D_ARRAY_TEXTURE_LAYERS = 2048,
+
+    IMPLEMENTATION_MAX_TEXTURE_LEVELS = 15   // 1+log2 of MAX_TEXTURE_SIZE
+};
 
 }
 

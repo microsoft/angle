@@ -4,8 +4,8 @@
 // found in the LICENSE file.
 //
 
+#include "angle_gl.h"
 #include "compiler/translator/BuiltInFunctionEmulator.h"
-
 #include "compiler/translator/SymbolTable.h"
 
 namespace {
@@ -243,7 +243,7 @@ public:
                 default:
                     return true;
             };
-            const TIntermSequence& sequence = node->getSequence();
+            const TIntermSequence& sequence = *(node->getSequence());
             // Right now we only handle built-in functions with two parameters.
             if (sequence.size() != 2)
                 return true;
@@ -265,9 +265,9 @@ private:
 
 }  // anonymous namepsace
 
-BuiltInFunctionEmulator::BuiltInFunctionEmulator(ShShaderType shaderType)
+BuiltInFunctionEmulator::BuiltInFunctionEmulator(sh::GLenum shaderType)
 {
-    if (shaderType == SH_FRAGMENT_SHADER) {
+    if (shaderType == GL_FRAGMENT_SHADER) {
         mFunctionMask = kFunctionEmulationFragmentMask;
         mFunctionSource = kFunctionEmulationFragmentSource;
     } else {

@@ -37,6 +37,7 @@ if __name__ == '__main__':
     gyp_cmd += ' -D angle_build_winphone=0'
     gyp_cmd += ' -D release_symbols=' + ('true' if release_symbols else 'false')
     gyp_cmd += ' -D angle_enable_d3d9=0'
+    gyp_cmd += ' -D angle_use_commit_id=0'
     gyp_cmd += ' ' + os.path.join(script_dir, 'all.gyp')
 
     print 'Generating Windows projects to ' + generation_dir + ' from gyp files...'
@@ -60,6 +61,7 @@ if __name__ == '__main__':
     gyp_cmd += ' -D angle_build_winphone=1'
     gyp_cmd += ' -D release_symbols=' + ('true' if release_symbols else 'false')
     gyp_cmd += ' -D angle_enable_d3d9=0'
+    gyp_cmd += ' -D angle_use_commit_id=0'
     gyp_cmd += ' ' + os.path.join(script_dir, 'all.gyp')
 
     print 'Generating Windows Phone projects to ' + generation_dir + ' from gyp files...'

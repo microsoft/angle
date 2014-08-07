@@ -12,16 +12,16 @@
 #ifndef LIBGLESV2_SHADER_H_
 #define LIBGLESV2_SHADER_H_
 
-#include <GLES3/gl3.h>
-#include <GLES2/gl2.h>
+
 #include <string>
 #include <list>
 #include <vector>
 
-#include "common/shadervars.h"
+#include "angle_gl.h"
+#include <GLSLANG/ShaderLang.h>
+
 #include "common/angleutils.h"
 #include "libGLESv2/angletypes.h"
-#include "GLSLANG/ShaderLang.h"
 
 namespace rx
 {
@@ -32,12 +32,12 @@ namespace gl
 {
 class ResourceManager;
 
-struct PackedVarying : public Varying
+struct PackedVarying : public sh::Varying
 {
     unsigned int registerIndex; // Assigned during link
 
-    PackedVarying(const Varying &varying)
-      : Varying(varying),
+    PackedVarying(const sh::Varying &varying)
+      : sh::Varying(varying),
         registerIndex(GL_INVALID_INDEX)
     {}
 
@@ -58,7 +58,7 @@ class Shader
 
     virtual ~Shader();
 
-    virtual GLenum getType() = 0;
+    virtual GLenum getType() const = 0;
     GLuint getHandle() const;
 
     void deleteSource();
@@ -69,8 +69,8 @@ class Shader
     void getSource(GLsizei bufSize, GLsizei *length, char *buffer) const;
     int getTranslatedSourceLength() const;
     void getTranslatedSource(GLsizei bufSize, GLsizei *length, char *buffer) const;
-    const std::vector<Uniform> &getUniforms() const;
-    const std::vector<InterfaceBlock> &getInterfaceBlocks() const;
+    const std::vector<sh::Uniform> &getUniforms() const;
+    const std::vector<sh::InterfaceBlock> &getInterfaceBlocks() const;
     std::vector<PackedVarying> &getVaryings();
 
     virtual void compile() = 0;
@@ -88,6 +88,8 @@ class Shader
 
     static void releaseCompiler();
     static ShShaderOutput getCompilerOutputType(GLenum shader);
+    unsigned int getUniformRegister(const std::string &uniformName) const;
+    unsigned int getInterfaceBlockRegister(const std::string &blockName) const;
 
     bool usesDepthRange() const { return mUsesDepthRange; }
     bool usesPointSize() const { return mUsesPointSize; }
@@ -134,8 +136,10 @@ class Shader
     std::string mSource;
     std::string mHlsl;
     std::string mInfoLog;
-    std::vector<Uniform> mActiveUniforms;
-    std::vector<InterfaceBlock> mActiveInterfaceBlocks;
+    std::vector<sh::Uniform> mActiveUniforms;
+    std::vector<sh::InterfaceBlock> mActiveInterfaceBlocks;
+    std::map<std::string, unsigned int> mUniformRegisterMap;
+    std::map<std::string, unsigned int> mInterfaceBlockRegisterMap;
 
     ResourceManager *mResourceManager;
 };
@@ -149,19 +153,19 @@ class VertexShader : public Shader
 
     ~VertexShader();
 
-    virtual GLenum getType();
+    virtual GLenum getType() const;
     virtual void compile();
     virtual void uncompile();
     int getSemanticIndex(const std::string &attributeName);
 
-    const std::vector<Attribute> &activeAttributes() const { return mActiveAttributes; }
+    const std::vector<sh::Attribute> &activeAttributes() const { return mActiveAttributes; }
 
   private:
     DISALLOW_COPY_AND_ASSIGN(VertexShader);
 
     void parseAttributes();
 
-    std::vector<Attribute> mActiveAttributes;
+    std::vector<sh::Attribute> mActiveAttributes;
 };
 
 class FragmentShader : public Shader
@@ -171,15 +175,15 @@ class FragmentShader : public Shader
 
     ~FragmentShader();
 
-    virtual GLenum getType();
+    virtual GLenum getType() const;
     virtual void compile();
     virtual void uncompile();
-    const std::vector<Attribute> &getOutputVariables() const;
+    const std::vector<sh::Attribute> &getOutputVariables() const;
 
   private:
     DISALLOW_COPY_AND_ASSIGN(FragmentShader);
 
-    std::vector<Attribute> mActiveOutputVariables;
+    std::vector<sh::Attribute> mActiveOutputVariables;
 };
 }
 
