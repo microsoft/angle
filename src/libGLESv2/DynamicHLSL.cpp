@@ -870,7 +870,7 @@ bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const 
             // When rendering to texture, ((1.0f + dx_ViewScale.y) / 2.0f) = 0.0f and dx_ViewScale.y = -1.0f
             // Therefore, gl_FragCoord.y = ((1.0f + dx_ViewScale.y) / 2.0f) * (2.0f / (1 - input.gl_FragCoord.y * rhw)) * input.dx_VPos.y - dx_ViewScale.y * input.dx_VPos.y;
             // Simplifying, this becomes:
-            pixelHLSL += "    gl_FragCoord.y = (1.0f + dx_ViewScale.y) * input.dx_VPos.y / (1 - input.gl_FragCoord.y * rhw)  - dx_ViewScale.y * input.dx_VPos.y;\n";
+            pixelHLSL += "    gl_FragCoord.y = (1.0f + dx_ViewScale.y) * input.dx_Position.y / (1 - input.gl_FragCoord.y * rhw)  - dx_ViewScale.y * input.dx_Position.y;\n";
 #endif
         }
         else if (shaderModel >= 3)

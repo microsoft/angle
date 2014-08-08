@@ -652,7 +652,10 @@ ID3D11Texture2D *SwapChain11::getTargetTexture()
 {
 #ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     D3D11_TEXTURE2D_DESC desc;
-    mBackBufferTexture->GetDesc(&desc);
+    if (mBackBufferTexture)
+    {
+        mBackBufferTexture->GetDesc(&desc);
+    }
     return mBackBufferTexture;
 #else
     return mOffscreenTexture;

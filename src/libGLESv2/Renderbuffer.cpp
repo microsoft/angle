@@ -29,6 +29,11 @@ Renderbuffer::Renderbuffer(GLuint id, RenderbufferStorage *newStorage)
     ASSERT(mStorage);
 }
 
+Renderbuffer::~Renderbuffer()
+{
+    SafeDelete(mStorage);
+}
+
 void Renderbuffer::setStorage(RenderbufferStorage *newStorage)
 {
     ASSERT(newStorage);
@@ -114,6 +119,7 @@ RenderbufferStorage::RenderbufferStorage() : mSerial(issueSerials(1))
 
 RenderbufferStorage::~RenderbufferStorage()
 {
+
 }
 
 rx::RenderTarget *RenderbufferStorage::getRenderTarget()
