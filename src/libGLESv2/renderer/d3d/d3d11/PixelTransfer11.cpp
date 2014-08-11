@@ -160,7 +160,7 @@ bool PixelTransfer11::copyBufferToTexture(const gl::PixelUnpackState &unpack, un
     GLenum unsizedFormat = gl::GetInternalFormatInfo(destinationFormat).format;
     GLenum sourceFormat = gl::GetFormatTypeInfo(unsizedFormat, sourcePixelsType).internalFormat;
 
-    const d3d11::TextureFormat &sourceFormatInfo = d3d11::GetTextureFormatInfo(sourceFormat);
+    const d3d11::TextureFormat &sourceFormatInfo = d3d11::GetTextureFormatInfo(sourceFormat, mRenderer->getDevice()->GetFeatureLevel());
     DXGI_FORMAT srvFormat = sourceFormatInfo.srvFormat;
     ASSERT(srvFormat != DXGI_FORMAT_UNKNOWN);
     Buffer11 *bufferStorage11 = Buffer11::makeBuffer11(sourceBuffer.getImplementation());

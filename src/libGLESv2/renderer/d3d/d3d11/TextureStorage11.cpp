@@ -123,11 +123,11 @@ TextureStorage11 *TextureStorage11::makeTextureStorage11(TextureStorage *storage
     return static_cast<TextureStorage11*>(storage);
 }
 
-DWORD TextureStorage11::GetTextureBindFlags(GLenum internalFormat, bool renderTarget)
+DWORD TextureStorage11::GetTextureBindFlags(GLenum internalFormat, D3D_FEATURE_LEVEL d3dFeatureLevel, bool renderTarget)
 {
     UINT bindFlags = 0;
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalFormat);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalFormat, d3dFeatureLevel);
     if (formatInfo.srvFormat != DXGI_FORMAT_UNKNOWN)
     {
         bindFlags |= D3D11_BIND_SHADER_RESOURCE;
@@ -396,7 +396,7 @@ void TextureStorage11::verifySwizzleExists(GLenum swizzleRed, GLenum swizzleGree
     }
 }
 
-TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, SwapChain11 *swapchain)
+TextureStorage11_2D::TextureStorage11_2D(Renderer11 *renderer, SwapChain11 *swapchain)
     : TextureStorage11(renderer, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE)
 {
     mTexture = swapchain->getTargetTexture();
@@ -429,7 +429,7 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, SwapChain11 *swapch
     mRenderTargetFormat = rtvDesc.Format;
 
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(mTextureFormat);
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(dxgiFormatInfo.internalFormat);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(dxgiFormatInfo.internalFormat, mRenderer->getDevice()->GetFeatureLevel());
     mSwizzleTextureFormat = formatInfo.swizzleTexFormat;
     mSwizzleShaderResourceFormat = formatInfo.swizzleSRVFormat;
     mSwizzleRenderTargetFormat = formatInfo.swizzleRTVFormat;
@@ -437,8 +437,8 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, SwapChain11 *swapch
     mDepthStencilFormat = DXGI_FORMAT_UNKNOWN;
 }
 
-TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels)
-    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderTarget))
+TextureStorage11_2D::TextureStorage11_2D(Renderer11 *renderer, GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels)
+    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getDevice()->GetFeatureLevel(), renderTarget))
 {
     mTexture = NULL;
     mSwizzleTexture = NULL;
@@ -450,7 +450,7 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer *renderer, GLenum internalform
         mSwizzleRenderTargets[i] = NULL;
     }
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getDevice()->GetFeatureLevel());
     mTextureFormat = formatInfo.texFormat;
     mShaderResourceFormat = formatInfo.srvFormat;
     mDepthStencilFormat = formatInfo.dsvFormat;
@@ -806,8 +806,8 @@ unsigned int TextureStorage11_2D::getTextureLevelDepth(int mipLevel) const
     return 1;
 }
 
-TextureStorage11_Cube::TextureStorage11_Cube(Renderer *renderer, GLenum internalformat, bool renderTarget, int size, int levels)
-    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderTarget))
+TextureStorage11_Cube::TextureStorage11_Cube(Renderer11 *renderer, GLenum internalformat, bool renderTarget, int size, int levels)
+    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getDevice()->GetFeatureLevel(), renderTarget))
 {
     mTexture = NULL;
     mSwizzleTexture = NULL;
@@ -822,7 +822,7 @@ TextureStorage11_Cube::TextureStorage11_Cube(Renderer *renderer, GLenum internal
         }
     }
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getDevice()->GetFeatureLevel());
     mTextureFormat = formatInfo.texFormat;
     mShaderResourceFormat = formatInfo.srvFormat;
     mDepthStencilFormat = formatInfo.dsvFormat;
@@ -1226,9 +1226,9 @@ unsigned int TextureStorage11_Cube::getTextureLevelDepth(int mipLevel) const
     return 6;
 }
 
-TextureStorage11_3D::TextureStorage11_3D(Renderer *renderer, GLenum internalformat, bool renderTarget,
+TextureStorage11_3D::TextureStorage11_3D(Renderer11 *renderer, GLenum internalformat, bool renderTarget,
                                          GLsizei width, GLsizei height, GLsizei depth, int levels)
-    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderTarget))
+    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getDevice()->GetFeatureLevel(), renderTarget))
 {
     mTexture = NULL;
     mSwizzleTexture = NULL;
@@ -1240,7 +1240,7 @@ TextureStorage11_3D::TextureStorage11_3D(Renderer *renderer, GLenum internalform
         mSwizzleRenderTargets[i] = NULL;
     }
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getDevice()->GetFeatureLevel());
     mTextureFormat = formatInfo.texFormat;
     mShaderResourceFormat = formatInfo.srvFormat;
     mDepthStencilFormat = formatInfo.dsvFormat;
@@ -1632,9 +1632,9 @@ unsigned int TextureStorage11_3D::getTextureLevelDepth(int mipLevel) const
 }
 
 
-TextureStorage11_2DArray::TextureStorage11_2DArray(Renderer *renderer, GLenum internalformat, bool renderTarget,
+TextureStorage11_2DArray::TextureStorage11_2DArray(Renderer11 *renderer, GLenum internalformat, bool renderTarget,
                                                    GLsizei width, GLsizei height, GLsizei depth, int levels)
-    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderTarget))
+    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getDevice()->GetFeatureLevel(), renderTarget))
 {
     mTexture = NULL;
     mSwizzleTexture = NULL;
@@ -1644,7 +1644,7 @@ TextureStorage11_2DArray::TextureStorage11_2DArray(Renderer *renderer, GLenum in
         mSwizzleRenderTargets[level] = NULL;
     }
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getDevice()->GetFeatureLevel());
     mTextureFormat = formatInfo.texFormat;
     mShaderResourceFormat = formatInfo.srvFormat;
     mDepthStencilFormat = formatInfo.dsvFormat;

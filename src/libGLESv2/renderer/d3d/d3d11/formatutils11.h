@@ -63,7 +63,7 @@ struct TextureFormat
     typedef std::map<GLenum, LoadImageFunction> LoadFunctionMap;
     LoadFunctionMap loadFunctions;
 };
-const TextureFormat &GetTextureFormatInfo(GLenum internalFormat);
+const TextureFormat &GetTextureFormatInfo(GLenum internalFormat, D3D_FEATURE_LEVEL d3dFeatureLevel);
 
 struct VertexFormat
 {

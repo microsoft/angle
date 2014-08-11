@@ -280,7 +280,7 @@ RenderTarget11::RenderTarget11(Renderer *renderer, GLsizei width, GLsizei height
     mDepthStencil = NULL;
     mShaderResource = NULL;
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalFormat);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer->getDevice()->GetFeatureLevel());
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(formatInfo.texFormat);
 
     const gl::TextureCaps &textureCaps = mRenderer->getRendererTextureCaps().get(internalFormat);
