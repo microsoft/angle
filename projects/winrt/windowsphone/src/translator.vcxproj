@@ -215,6 +215,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ShaderLang.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\ShaderVars.cpp"/>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
   <ImportGroup Label="ExtensionTargets"/>

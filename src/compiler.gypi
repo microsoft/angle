@@ -33,7 +33,6 @@
             'common/mathutil.cpp',
             'common/mathutil.h',
             'common/platform.h',
-            'common/shadervars.cpp',
             'common/surfacehost.h',
             'common/tls.cpp',
             'common/tls.h',
@@ -74,7 +73,10 @@
             'compiler/translator/InitializeVariables.cpp',
             'compiler/translator/InitializeVariables.h',
             'compiler/translator/IntermTraverse.cpp',
+            'compiler/translator/Intermediate.h',
             'compiler/translator/Intermediate.cpp',
+            'compiler/translator/IntermNode.h',
+            'compiler/translator/IntermNode.cpp',
             'compiler/translator/LoopInfo.cpp',
             'compiler/translator/LoopInfo.h',
             'compiler/translator/MMap.h',
@@ -94,6 +96,8 @@
             'compiler/translator/Pragma.h',
             'compiler/translator/QualifierAlive.cpp',
             'compiler/translator/QualifierAlive.h',
+            'compiler/translator/RegenerateStructNames.cpp',
+            'compiler/translator/RegenerateStructNames.h',
             'compiler/translator/RemoveTree.cpp',
             'compiler/translator/RemoveTree.h',
             'compiler/translator/RenameFunction.h',
@@ -151,7 +155,6 @@
             'compiler/translator/intermOut.cpp',
             'compiler/translator/intermediate.h',
             'compiler/translator/length_limits.h',
-            'compiler/translator/localintermediate.h',
             'compiler/translator/parseConst.cpp',
             'compiler/translator/timing/RestrictFragmentShaderTiming.cpp',
             'compiler/translator/timing/RestrictFragmentShaderTiming.h',
@@ -224,6 +227,12 @@
                 '.',
                 '../include',
             ],
+            'defines':
+            [
+                # define the static translator to indicate exported
+                # classes are (in fact) locally defined
+                'ANGLE_TRANSLATOR_STATIC',
+            ],
             'sources':
             [
                 '<@(angle_translator_lib_sources)',
@@ -281,7 +290,8 @@
             ],
             'sources':
             [
-                'compiler/translator/ShaderLang.cpp'
+                'compiler/translator/ShaderLang.cpp',
+                'compiler/translator/ShaderVars.cpp'
             ],
         },
 
@@ -308,7 +318,8 @@
             },
             'sources':
             [
-                'compiler/translator/ShaderLang.cpp'
+                'compiler/translator/ShaderLang.cpp',
+                'compiler/translator/ShaderVars.cpp',
             ],
             'conditions':
             [

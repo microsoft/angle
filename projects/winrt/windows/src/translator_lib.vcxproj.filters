@@ -187,8 +187,47 @@
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\common">
-      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    <Filter Include="src\compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -1128,15 +1167,6 @@
     </Filter>
     <Filter Include="src\compiler\translator\depgraph">
       <UniqueIdentifier>{233BE2B2-4E73-B3F0-20B8-25A55D8E5238}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\compiler">
-      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\compiler\translator">
-      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -1392,9 +1422,6 @@
     <ClInclude Include="..\..\..\..\src\common\platform.h">
       <Filter>src\common</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\..\..\src\common\shadervars.cpp">
-      <Filter>src\common</Filter>
-    </ClCompile>
     <ClInclude Include="..\..\..\..\src\common\surfacehost.h">
       <Filter>src\common</Filter>
     </ClInclude>
@@ -1515,7 +1542,16 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\IntermTraverse.cpp">
       <Filter>src\compiler\translator</Filter>
     </ClCompile>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\Intermediate.h">
+      <Filter>src\compiler\translator</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\..\..\src\compiler\translator\Intermediate.cpp">
+      <Filter>src\compiler\translator</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\IntermNode.h">
+      <Filter>src\compiler\translator</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\IntermNode.cpp">
       <Filter>src\compiler\translator</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\compiler\translator\LoopInfo.cpp">
@@ -1573,6 +1609,12 @@
       <Filter>src\compiler\translator</Filter>
     </ClCompile>
     <ClInclude Include="..\..\..\..\src\compiler\translator\QualifierAlive.h">
+      <Filter>src\compiler\translator</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\RegenerateStructNames.cpp">
+      <Filter>src\compiler\translator</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\RegenerateStructNames.h">
       <Filter>src\compiler\translator</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\..\src\compiler\translator\RemoveTree.cpp">
@@ -1744,9 +1786,6 @@
       <Filter>src\compiler\translator</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\compiler\translator\length_limits.h">
-      <Filter>src\compiler\translator</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\localintermediate.h">
       <Filter>src\compiler\translator</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\..\src\compiler\translator\parseConst.cpp">

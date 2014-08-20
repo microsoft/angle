@@ -243,7 +243,6 @@
     <ClInclude Include="..\..\..\..\include\angle_gl.h"/>
     <ClInclude Include="..\..\..\..\src\common\RefCountObject.h"/>
     <ClInclude Include="..\..\..\..\src\common\angleutils.h"/>
-    <ClInclude Include="..\..\..\..\src\common\blocklayout.h"/>
     <ClInclude Include="..\..\..\..\src\common\debug.h"/>
     <ClInclude Include="..\..\..\..\src\common\event_tracer.h"/>
     <ClInclude Include="..\..\..\..\src\common\mathutil.h"/>
@@ -265,11 +264,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\common\RefCountObject.cpp"/>
-    <ClCompile Include="..\..\..\..\src\common\blocklayout.cpp"/>
     <ClCompile Include="..\..\..\..\src\common\debug.cpp"/>
     <ClCompile Include="..\..\..\..\src\common\event_tracer.cpp"/>
     <ClCompile Include="..\..\..\..\src\common\mathutil.cpp"/>
-    <ClCompile Include="..\..\..\..\src\common\shadervars.cpp"/>
     <ClCompile Include="..\..\..\..\src\common\tls.cpp"/>
     <ClCompile Include="..\..\..\..\src\common\utilities.cpp"/>
     <ClCompile Include="..\..\..\..\src\libEGL\Config.cpp"/>
