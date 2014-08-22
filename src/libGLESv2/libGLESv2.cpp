@@ -4079,7 +4079,17 @@ void __stdcall glTexParameterf(GLenum target, GLenum pname, GLfloat param)
           case GL_TEXTURE_BASE_LEVEL:           texture->getSamplerState().baseLevel = gl::iround<GLint>(param);      break;
           case GL_TEXTURE_MAX_LEVEL:            texture->getSamplerState().maxLevel = gl::iround<GLint>(param);       break;
           case GL_TEXTURE_MIN_LOD:              texture->getSamplerState().minLod = param;                            break;
-          case GL_TEXTURE_MAX_LOD:              texture->getSamplerState().maxLod = param;                            break;
+          case GL_TEXTURE_MAX_LOD:  
+			if (param == FLT_MAX || context->getRenderer()->getRendererCaps().supportsNonTrivialMaxLOD)
+			{
+				texture->getSamplerState().maxLod = param;
+			}
+			else
+			{
+			    ERR("Current renderer requires MaxLOD to equal FLT_MAX.");
+			    return gl::error(GL_INVALID_OPERATION);
+			}
+			break;
           default: UNREACHABLE(); break;
         }
     }
@@ -4128,7 +4138,9 @@ void __stdcall glTexParameteri(GLenum target, GLenum pname, GLint param)
           case GL_TEXTURE_BASE_LEVEL:           texture->getSamplerState().baseLevel = param;            break;
           case GL_TEXTURE_MAX_LEVEL:            texture->getSamplerState().maxLevel = param;             break;
           case GL_TEXTURE_MIN_LOD:              texture->getSamplerState().minLod = (GLfloat)param;      break;
-          case GL_TEXTURE_MAX_LOD:              texture->getSamplerState().maxLod = (GLfloat)param;      break;
+		  case GL_TEXTURE_MAX_LOD:
+			ERR("Current renderer requires MaxLOD to equal FLT_MAX.");
+			return gl::error(GL_INVALID_OPERATION);
           default: UNREACHABLE(); break;
         }
     }

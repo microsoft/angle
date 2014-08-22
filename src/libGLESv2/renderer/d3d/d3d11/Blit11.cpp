@@ -210,7 +210,7 @@ Blit11::Blit11(rx::Renderer11 *renderer)
     pointSamplerDesc.BorderColor[2] = 0.0f;
     pointSamplerDesc.BorderColor[3] = 0.0f;
     pointSamplerDesc.MinLOD = 0.0f;
-    pointSamplerDesc.MaxLOD = renderer->getRendererCaps().maxLOD;
+    pointSamplerDesc.MaxLOD = renderer->getRendererCaps().supportsNonTrivialMaxLOD ? 0.0f : FLT_MAX;
 
     result = device->CreateSamplerState(&pointSamplerDesc, &mPointSampler);
     ASSERT(SUCCEEDED(result));
@@ -229,7 +229,7 @@ Blit11::Blit11(rx::Renderer11 *renderer)
     linearSamplerDesc.BorderColor[2] = 0.0f;
     linearSamplerDesc.BorderColor[3] = 0.0f;
     linearSamplerDesc.MinLOD = 0.0f;
-    linearSamplerDesc.MaxLOD = renderer->getRendererCaps().maxLOD;
+	linearSamplerDesc.MaxLOD = renderer->getRendererCaps().supportsNonTrivialMaxLOD ? 0.0f : FLT_MAX;
 
     result = device->CreateSamplerState(&linearSamplerDesc, &mLinearSampler);
     ASSERT(SUCCEEDED(result));

@@ -215,7 +215,6 @@ struct Caps
     GLuint max2DTextureSize;
     GLuint maxArrayTextureLayers;
     GLfloat maxLODBias;
-    GLfloat maxLOD;
     GLuint maxCubeMapTextureSize;
     GLuint maxRenderbufferSize;
     GLuint maxDrawBuffers;
@@ -230,6 +229,7 @@ struct Caps
     bool supportsRenderingToDepthTextures;
     bool supportsRenderingTo3DTextures;
     bool supportsGeometryShaders;
+	bool supportsNonTrivialMaxLOD;
 };
 
 }
