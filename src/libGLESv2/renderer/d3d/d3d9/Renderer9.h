@@ -125,7 +125,10 @@ class Renderer9 : public Renderer
     virtual int getMaxRecommendedElementsIndices() const;
     virtual int getMaxRecommendedElementsVertices() const;
 
-    virtual int getMajorShaderModel() const;
+	virtual int getMajorShaderModel() const;
+	virtual int getMinorShaderModel() const;
+	virtual std::string getShaderModelSuffix() const;
+
     DWORD getCapsDeclTypes() const;
     virtual int getMinSwapInterval() const;
     virtual int getMaxSwapInterval() const;

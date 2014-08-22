@@ -834,32 +834,39 @@ bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const 
     {
         pixelHLSL += "    float rhw = 1.0 / input.gl_FragCoord.w;\n";
 
-        if (shaderModel >= 4)
-        {
-            pixelHLSL += "    gl_FragCoord.x = input.dx_Position.x;\n"
-                         "    gl_FragCoord.y = input.dx_Position.y;\n";
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-            // This code assumes that dx_ViewScale.y = -1.0f when rendering to texture, and +1.0f when rendering to backbuffer. No other values are valid.
-            // When rendering to the backbuffer, the code inverts gl_FragCoord's y coordinate. This involves subtracting the y coordinate from the height of the area being rendered to.
-            // Render area height: (2.0f / (1 - input.gl_FragCoord.y * rhw)) * input.dx_VPos.y
-            // When rendering to backbuffer, ((1.0f + dx_ViewScale.y) / 2.0f) = 1.0f and dx_ViewScale.y = +1.0f
-            // When rendering to texture, ((1.0f + dx_ViewScale.y) / 2.0f) = 0.0f and dx_ViewScale.y = -1.0f
-            // Therefore, gl_FragCoord.y = ((1.0f + dx_ViewScale.y) / 2.0f) * (2.0f / (1 - input.gl_FragCoord.y * rhw)) * input.dx_VPos.y - dx_ViewScale.y * input.dx_VPos.y;
-            // Simplifying, this becomes:
-            pixelHLSL += "    gl_FragCoord.y = (1.0f + dx_ViewScale.y) * input.dx_Position.y / (1 - input.gl_FragCoord.y * rhw)  - dx_ViewScale.y * input.dx_Position.y;\n";
-#endif
-        }
-        else if (shaderModel >= 3)
-        {
-            pixelHLSL += "    gl_FragCoord.x = input.dx_Position.x + 0.5;\n"
-                         "    gl_FragCoord.y = input.dx_Position.y + 0.5;\n";
-        }
+		// Certain Shader Models (4_0+ and 3_0) allow reading from dx_Position in the pixel shader.
+		// Other Shader Models (4_0_level_9_3 and 2_x) don't support this, so we emulate it using dx_ViewCoords.
+		if (shaderModel >= 3 && mRenderer->getShaderModelSuffix() == "")
+		{
+			if (shaderModel >= 4)
+			{
+				pixelHLSL += "    gl_FragCoord.x = input.dx_Position.x;\n"
+							 "    gl_FragCoord.y = input.dx_Position.y;\n";
+			}
+			else if (shaderModel >= 3)
+			{
+				pixelHLSL += "    gl_FragCoord.x = input.dx_Position.x + 0.5;\n"
+							 "    gl_FragCoord.y = input.dx_Position.y + 0.5;\n";
+			}
+		}
         else
         {
             // dx_ViewCoords contains the viewport width/2, height/2, center.x and center.y. See Renderer::setViewport()
             pixelHLSL += "    gl_FragCoord.x = (input.gl_FragCoord.x * rhw) * dx_ViewCoords.x + dx_ViewCoords.z;\n"
                          "    gl_FragCoord.y = (input.gl_FragCoord.y * rhw) * dx_ViewCoords.y + dx_ViewCoords.w;\n";
         }
+
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+		// This code assumes that dx_ViewScale.y = -1.0f when rendering to texture, and +1.0f when rendering to backbuffer. No other values are valid.
+		// It also assumes that gl_FragCoord.y has been set correctly above.
+		// When rendering to the backbuffer, the code inverts gl_FragCoord's y coordinate. This involves subtracting the y coordinate from the height of the area being rendered to.
+		// Render area height: (2.0f / (1 - input.gl_FragCoord.y * rhw)) * gl_FragCoord.y
+		// When rendering to backbuffer, ((1.0f + dx_ViewScale.y) / 2.0f) = 1.0f and dx_ViewScale.y = +1.0f
+		// When rendering to texture, ((1.0f + dx_ViewScale.y) / 2.0f) = 0.0f and dx_ViewScale.y = -1.0f
+		// Therefore, gl_FragCoord.y = ((1.0f + dx_ViewScale.y) / 2.0f) * (2.0f / (1 - input.gl_FragCoord.y * rhw)) * gl_FragCoord.y - dx_ViewScale.y * gl_FragCoord.y;
+		// Simplifying, this becomes:
+		pixelHLSL += "    gl_FragCoord.y = (1.0f + dx_ViewScale.y) * gl_FragCoord.y / (1 - input.gl_FragCoord.y * rhw)  - dx_ViewScale.y * gl_FragCoord.y;\n";
+#endif
 
         pixelHLSL += "    gl_FragCoord.z = (input.gl_FragCoord.z * rhw) * dx_DepthFront.x + dx_DepthFront.y;\n"
                      "    gl_FragCoord.w = rhw;\n";

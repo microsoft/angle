@@ -208,7 +208,10 @@ class Renderer
     virtual int getMaxRecommendedElementsIndices() const = 0;
     virtual int getMaxRecommendedElementsVertices() const = 0;
 
-    virtual int getMajorShaderModel() const = 0;
+	virtual int getMajorShaderModel() const = 0;
+	virtual int getMinorShaderModel() const = 0;
+	virtual std::string getShaderModelSuffix() const = 0;
+
     virtual int getMinSwapInterval() const = 0;
     virtual int getMaxSwapInterval() const = 0;
 
