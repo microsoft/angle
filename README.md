@@ -24,6 +24,10 @@ The Windows Store projects for ANGLE are located here:
 * projects/winrt/windows/src/
 * projects/winrt/windowsphone/src/
 
+The ANGLE projects for Windows desktop applications are located here:
+
+* projects/src/
+
 Features (available now)
 =====
 + Full Windows Store support for both ICoreWindow and SwapChainPanel for XAML 
