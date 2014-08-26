@@ -151,7 +151,9 @@ GLuint ResourceManager::createFenceSync()
 {
     GLuint handle = mFenceSyncHandleAllocator.allocate();
 
-    mFenceSyncMap[handle] = new FenceSync(mRenderer, handle);
+    FenceSync *fenceSync = new FenceSync(mRenderer, handle);
+    fenceSync->addRef();
+    mFenceSyncMap[handle] = fenceSync;
 
     return handle;
 }
@@ -377,19 +379,19 @@ void ResourceManager::checkTextureAllocation(GLuint texture, TextureType type)
 
         if (type == TEXTURE_2D)
         {
-            textureObject = new Texture2D(mRenderer->createTexture2D(), texture);
+            textureObject = new Texture2D(mRenderer->createTexture(GL_TEXTURE_2D), texture);
         }
         else if (type == TEXTURE_CUBE)
         {
-            textureObject = new TextureCubeMap(mRenderer->createTextureCube(), texture);
+            textureObject = new TextureCubeMap(mRenderer->createTexture(GL_TEXTURE_CUBE_MAP), texture);
         }
         else if (type == TEXTURE_3D)
         {
-            textureObject = new Texture3D(mRenderer->createTexture3D(), texture);
+            textureObject = new Texture3D(mRenderer->createTexture(GL_TEXTURE_3D), texture);
         }
         else if (type == TEXTURE_2D_ARRAY)
         {
-            textureObject = new Texture2DArray(mRenderer->createTexture2DArray(), texture);
+            textureObject = new Texture2DArray(mRenderer->createTexture(GL_TEXTURE_2D_ARRAY), texture);
         }
         else
         {

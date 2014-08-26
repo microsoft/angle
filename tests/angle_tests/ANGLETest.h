@@ -43,7 +43,7 @@ class ANGLETest : public testing::Test
   public:
     static bool InitTestWindow(EGLNativeDisplayType nativeDisplayType = EGL_D3D11_ONLY_DISPLAY_ANGLE);
     static bool DestroyTestWindow();
-    static bool ReizeWindow(int width, int height);
+    static bool ResizeWindow(int width, int height);
 
   protected:
     virtual void SetUp();
@@ -98,8 +98,8 @@ class ANGLETest : public testing::Test
     EGLConfig mConfig;
     EGLSurface mSurface;
     EGLContext mContext;
+    EGLDisplay mDisplay;
 
-    static EGLDisplay mDisplay;
     static EGLNativeWindowType mNativeWindow;
     static EGLNativeDisplayType mNativeDisplay;
 };

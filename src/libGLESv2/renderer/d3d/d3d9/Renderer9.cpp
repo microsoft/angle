@@ -661,7 +661,7 @@ void Renderer9::setTexture(gl::SamplerType type, int index, gl::Texture *texture
 
     if (texture)
     {
-        TextureImpl* textureImpl = texture->getImplementation();
+        TextureD3D* textureImpl = TextureD3D::makeTextureD3D(texture->getImplementation());
 
         TextureStorageInterface *texStorage = textureImpl->getNativeTexture();
         if (texStorage)
@@ -1329,20 +1329,22 @@ void Renderer9::drawElements(GLenum mode, GLsizei count, GLenum type, const GLvo
 {
     startScene();
 
+    int minIndex = static_cast<int>(indexInfo.indexRange.start);
+
     if (mode == GL_POINTS)
     {
-        drawIndexedPoints(count, type, indices, indexInfo.minIndex, elementArrayBuffer);
+        drawIndexedPoints(count, type, indices, minIndex, elementArrayBuffer);
     }
     else if (mode == GL_LINE_LOOP)
     {
-        drawLineLoop(count, type, indices, indexInfo.minIndex, elementArrayBuffer);
+        drawLineLoop(count, type, indices, minIndex, elementArrayBuffer);
     }
     else
     {
         for (int i = 0; i < mRepeatDraw; i++)
         {
-            GLsizei vertexCount = indexInfo.maxIndex - indexInfo.minIndex + 1;
-            mDevice->DrawIndexedPrimitive(mPrimitiveType, -(INT)indexInfo.minIndex, indexInfo.minIndex, vertexCount, indexInfo.startIndex, mPrimitiveCount);
+            GLsizei vertexCount = static_cast<int>(indexInfo.indexRange.length()) + 1;
+            mDevice->DrawIndexedPrimitive(mPrimitiveType, -minIndex, minIndex, vertexCount, indexInfo.startIndex, mPrimitiveCount);
         }
     }
 }
@@ -2178,15 +2180,9 @@ GUID Renderer9::getAdapterIdentifier() const
     return mAdapterIdentifier.DeviceIdentifier;
 }
 
-unsigned int Renderer9::getMaxVertexTextureImageUnits() const
-{
-    META_ASSERT(MAX_TEXTURE_IMAGE_UNITS_VTF_SM3 <= gl::IMPLEMENTATION_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-    return mVertexTextureSupport ? MAX_TEXTURE_IMAGE_UNITS_VTF_SM3 : 0;
-}
-
 unsigned int Renderer9::getMaxCombinedTextureImageUnits() const
 {
-    return gl::MAX_TEXTURE_IMAGE_UNITS + getMaxVertexTextureImageUnits();
+    return getRendererCaps().maxTextureImageUnits + getRendererCaps().maxVertexTextureImageUnits;
 }
 
 unsigned int Renderer9::getReservedVertexUniformVectors() const
@@ -2199,31 +2195,9 @@ unsigned int Renderer9::getReservedFragmentUniformVectors() const
     return 3;   // dx_ViewCoords, dx_DepthFront and dx_DepthRange.
 }
 
-unsigned int Renderer9::getMaxVertexUniformVectors() const
-{
-    return MAX_VERTEX_CONSTANT_VECTORS_D3D9 - getReservedVertexUniformVectors();
-}
-
-unsigned int Renderer9::getMaxFragmentUniformVectors() const
-{
-    const int maxPixelConstantVectors = (getMajorShaderModel() >= 3) ? MAX_PIXEL_CONSTANT_VECTORS_SM3 : MAX_PIXEL_CONSTANT_VECTORS_SM2;
-
-    return maxPixelConstantVectors - getReservedFragmentUniformVectors();
-}
-
 unsigned int Renderer9::getMaxVaryingVectors() const
 {
     return (getMajorShaderModel() >= 3) ? MAX_VARYING_VECTORS_SM3 : MAX_VARYING_VECTORS_SM2;
-}
-
-unsigned int Renderer9::getMaxVertexShaderUniformBuffers() const
-{
-    return 0;
-}
-
-unsigned int Renderer9::getMaxFragmentShaderUniformBuffers() const
-{
-    return 0;
 }
 
 unsigned int Renderer9::getReservedVertexUniformBuffers() const
@@ -2635,7 +2609,7 @@ bool Renderer9::blitRect(gl::Framebuffer *readFramebuffer, const gl::Rectangle &
 }
 
 void Renderer9::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format,
-                           GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, void* pixels)
+                           GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels)
 {
     ASSERT(pack.pixelBuffer.get() == NULL);
 
@@ -2678,7 +2652,7 @@ void Renderer9::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsiz
     {
         // Use the pixels ptr as a shared handle to write directly into client's memory
         result = mDevice->CreateOffscreenPlainSurface(desc.Width, desc.Height, desc.Format,
-                                                      D3DPOOL_SYSTEMMEM, &systemSurface, &pixels);
+                                                      D3DPOOL_SYSTEMMEM, &systemSurface, reinterpret_cast<void**>(&pixels));
         if (FAILED(result))
         {
             // Try again without the shared handle
@@ -2743,16 +2717,16 @@ void Renderer9::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsiz
         return;   // No sensible error to generate
     }
 
-    unsigned char *source;
+    uint8_t *source;
     int inputPitch;
     if (pack.reverseRowOrder)
     {
-        source = ((unsigned char*)lock.pBits) + lock.Pitch * (rect.bottom - rect.top - 1);
+        source = reinterpret_cast<uint8_t*>(lock.pBits) + lock.Pitch * (rect.bottom - rect.top - 1);
         inputPitch = -lock.Pitch;
     }
     else
     {
-        source = (unsigned char*)lock.pBits;
+        source = reinterpret_cast<uint8_t*>(lock.pBits);
         inputPitch = lock.Pitch;
     }
 
@@ -2761,10 +2735,9 @@ void Renderer9::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsiz
     if (sourceFormatInfo.format == format && sourceFormatInfo.type == type)
     {
         // Direct copy possible
-        unsigned char *dest = static_cast<unsigned char*>(pixels);
         for (int y = 0; y < rect.bottom - rect.top; y++)
         {
-            memcpy(dest + y * outputPitch, source + y * inputPitch, (rect.right - rect.left) * sourceFormatInfo.pixelBytes);
+            memcpy(pixels + y * outputPitch, source + y * inputPitch, (rect.right - rect.left) * sourceFormatInfo.pixelBytes);
         }
     }
     else
@@ -2782,8 +2755,8 @@ void Renderer9::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsiz
             {
                 for (int x = 0; x < rect.right - rect.left; x++)
                 {
-                    void *dest = static_cast<unsigned char*>(pixels) + y * outputPitch + x * destFormatInfo.pixelBytes;
-                    void *src = static_cast<unsigned char*>(source) + y * inputPitch + x * sourceFormatInfo.pixelBytes;
+                    uint8_t *dest = pixels + y * outputPitch + x * destFormatInfo.pixelBytes;
+                    const uint8_t *src = source + y * inputPitch + x * sourceFormatInfo.pixelBytes;
 
                     fastCopyFunc(src, dest);
                 }
@@ -2791,18 +2764,18 @@ void Renderer9::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsiz
         }
         else
         {
-            gl::ColorF temp;
+            uint8_t temp[sizeof(gl::ColorF)];
             for (int y = 0; y < rect.bottom - rect.top; y++)
             {
                 for (int x = 0; x < rect.right - rect.left; x++)
                 {
-                    void *dest = reinterpret_cast<unsigned char*>(pixels) + y * outputPitch + x * destFormatInfo.pixelBytes;
-                    void *src = source + y * inputPitch + x * sourceFormatInfo.pixelBytes;
+                    uint8_t *dest = pixels + y * outputPitch + x * destFormatInfo.pixelBytes;
+                    const uint8_t *src = source + y * inputPitch + x * sourceFormatInfo.pixelBytes;
 
                     // readFunc and writeFunc will be using the same type of color, CopyTexImage
                     // will not allow the copy otherwise.
-                    sourceD3DFormatInfo.colorReadFunction(src, &temp);
-                    destFormatTypeInfo.colorWriteFunction(&temp, dest);
+                    sourceD3DFormatInfo.colorReadFunction(src, temp);
+                    destFormatTypeInfo.colorWriteFunction(temp, dest);
                 }
             }
         }
@@ -3059,24 +3032,19 @@ TextureStorage *Renderer9::createTextureStorage2DArray(GLenum internalformat, bo
     return NULL;
 }
 
-Texture2DImpl *Renderer9::createTexture2D()
+TextureImpl *Renderer9::createTexture(GLenum target)
 {
-    return new TextureD3D_2D(this);
-}
+    switch(target)
+    {
+      case GL_TEXTURE_2D: return new TextureD3D_2D(this);
+      case GL_TEXTURE_CUBE_MAP: return new TextureD3D_Cube(this);
+      case GL_TEXTURE_3D: return new TextureD3D_3D(this);
+      case GL_TEXTURE_2D_ARRAY: return new TextureD3D_2DArray(this);
+      default:
+        UNREACHABLE();
+    }
 
-TextureCubeImpl *Renderer9::createTextureCube()
-{
-    return new TextureD3D_Cube(this);
-}
-
-Texture3DImpl *Renderer9::createTexture3D()
-{
-    return new TextureD3D_3D(this);
-}
-
-Texture2DArrayImpl *Renderer9::createTexture2DArray()
-{
-    return new TextureD3D_2DArray(this);
+    return NULL;
 }
 
 bool Renderer9::getLUID(LUID *adapterLuid) const

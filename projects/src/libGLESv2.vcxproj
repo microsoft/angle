@@ -213,6 +213,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\..\src\libGLESv2\libGLESv2.def"/>
+    <None Include="..\..\src\libGLESv2\renderer\copyimage.inl"/>
+    <None Include="..\..\src\libGLESv2\renderer\copyvertex.inl"/>
     <None Include="..\..\src\libGLESv2\renderer\generatemip.inl"/>
     <None Include="..\..\src\libGLESv2\renderer\loadimage.inl"/>
     <None Include="..\..\src\angle.gyp"/>
@@ -247,6 +249,7 @@
     <ClInclude Include="..\..\src\libGLESv2\Caps.h"/>
     <ClInclude Include="..\..\src\libGLESv2\Context.h"/>
     <ClInclude Include="..\..\src\libGLESv2\DynamicHLSL.h"/>
+    <ClInclude Include="..\..\src\libGLESv2\Error.h"/>
     <ClInclude Include="..\..\src\libGLESv2\Fence.h"/>
     <ClInclude Include="..\..\src\libGLESv2\Framebuffer.h"/>
     <ClInclude Include="..\..\src\libGLESv2\FramebufferAttachment.h"/>
@@ -398,6 +401,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\common\RefCountObject.cpp"/>
+    <ClCompile Include="..\..\src\common\angleutils.cpp"/>
     <ClCompile Include="..\..\src\common\blocklayout.cpp"/>
     <ClCompile Include="..\..\src\common\debug.cpp"/>
     <ClCompile Include="..\..\src\common\event_tracer.cpp"/>
@@ -408,6 +412,7 @@
     <ClCompile Include="..\..\src\libGLESv2\Caps.cpp"/>
     <ClCompile Include="..\..\src\libGLESv2\Context.cpp"/>
     <ClCompile Include="..\..\src\libGLESv2\DynamicHLSL.cpp"/>
+    <ClCompile Include="..\..\src\libGLESv2\Error.cpp"/>
     <ClCompile Include="..\..\src\libGLESv2\Fence.cpp"/>
     <ClCompile Include="..\..\src\libGLESv2\Float16ToFloat32.cpp"/>
     <ClCompile Include="..\..\src\libGLESv2\Framebuffer.cpp"/>

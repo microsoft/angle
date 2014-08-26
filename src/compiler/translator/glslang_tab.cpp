@@ -795,32 +795,32 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   205,   205,   206,   209,   264,   267,   272,   277,   282,
-     287,   293,   296,   299,   302,   305,   315,   328,   336,   436,
-     439,   447,   450,   456,   460,   467,   473,   482,   490,   493,
-     503,   506,   516,   526,   547,   548,   549,   554,   555,   563,
-     574,   575,   583,   594,   598,   599,   609,   619,   629,   642,
-     643,   653,   666,   670,   674,   678,   679,   692,   693,   706,
-     707,   720,   721,   738,   739,   752,   753,   754,   755,   756,
-     760,   763,   774,   782,   790,   817,   822,   833,   837,   841,
-     845,   852,   907,   910,   917,   925,   946,   967,   977,  1005,
-    1010,  1020,  1025,  1035,  1038,  1041,  1044,  1050,  1057,  1060,
-    1064,  1068,  1072,  1079,  1083,  1087,  1094,  1098,  1102,  1123,
-    1132,  1138,  1141,  1147,  1153,  1160,  1169,  1178,  1186,  1189,
-    1196,  1200,  1207,  1210,  1214,  1218,  1227,  1236,  1244,  1254,
-    1266,  1269,  1272,  1278,  1285,  1288,  1294,  1297,  1300,  1306,
-    1309,  1324,  1328,  1332,  1336,  1340,  1344,  1349,  1354,  1359,
-    1364,  1369,  1374,  1379,  1384,  1389,  1394,  1399,  1404,  1409,
-    1414,  1419,  1424,  1429,  1434,  1439,  1444,  1449,  1453,  1457,
-    1461,  1465,  1469,  1473,  1477,  1481,  1485,  1489,  1493,  1497,
-    1501,  1505,  1509,  1517,  1525,  1529,  1542,  1542,  1545,  1545,
-    1551,  1554,  1570,  1573,  1582,  1586,  1592,  1599,  1614,  1618,
-    1622,  1623,  1629,  1630,  1631,  1632,  1633,  1637,  1638,  1638,
-    1638,  1648,  1649,  1653,  1653,  1654,  1654,  1659,  1662,  1672,
-    1675,  1681,  1682,  1686,  1694,  1698,  1708,  1713,  1730,  1730,
-    1735,  1735,  1742,  1742,  1750,  1753,  1759,  1762,  1768,  1772,
-    1779,  1786,  1793,  1800,  1811,  1820,  1824,  1831,  1834,  1840,
-    1840
+       0,   206,   206,   207,   210,   234,   237,   242,   247,   252,
+     257,   263,   266,   269,   272,   275,   285,   298,   306,   406,
+     409,   417,   420,   426,   430,   437,   443,   452,   460,   463,
+     473,   476,   486,   496,   517,   518,   519,   524,   525,   533,
+     544,   545,   553,   564,   568,   569,   579,   589,   599,   612,
+     613,   623,   636,   640,   644,   648,   649,   662,   663,   676,
+     677,   690,   691,   708,   709,   722,   723,   724,   725,   726,
+     730,   733,   744,   752,   760,   787,   793,   804,   808,   812,
+     816,   823,   879,   882,   889,   897,   918,   939,   949,   977,
+     982,   992,   997,  1007,  1010,  1013,  1016,  1022,  1029,  1032,
+    1036,  1040,  1044,  1051,  1055,  1059,  1066,  1070,  1074,  1081,
+    1090,  1096,  1099,  1105,  1111,  1118,  1127,  1136,  1144,  1147,
+    1154,  1158,  1165,  1168,  1172,  1176,  1185,  1194,  1202,  1212,
+    1224,  1227,  1230,  1236,  1243,  1246,  1252,  1255,  1258,  1264,
+    1267,  1282,  1286,  1290,  1294,  1298,  1302,  1307,  1312,  1317,
+    1322,  1327,  1332,  1337,  1342,  1347,  1352,  1357,  1362,  1367,
+    1372,  1377,  1382,  1387,  1392,  1397,  1402,  1407,  1411,  1415,
+    1419,  1423,  1427,  1431,  1435,  1439,  1443,  1447,  1451,  1455,
+    1459,  1463,  1467,  1475,  1483,  1487,  1500,  1500,  1503,  1503,
+    1509,  1512,  1528,  1531,  1540,  1544,  1550,  1557,  1572,  1576,
+    1580,  1581,  1587,  1588,  1589,  1590,  1591,  1595,  1596,  1596,
+    1596,  1606,  1607,  1611,  1611,  1612,  1612,  1617,  1620,  1630,
+    1633,  1639,  1640,  1644,  1652,  1656,  1666,  1671,  1688,  1688,
+    1693,  1693,  1700,  1700,  1708,  1711,  1717,  1720,  1726,  1730,
+    1737,  1744,  1751,  1758,  1769,  1778,  1782,  1789,  1792,  1798,
+    1798
 };
 #endif
 
@@ -2547,38 +2547,7 @@ yyreduce:
 
     {
         // The symbol table search was done in the lexical phase
-        const TSymbol *symbol = (yyvsp[(1) - (1)].lex).symbol;
-        const TVariable *variable = 0;
-
-        if (!symbol)
-        {
-            context->error((yylsp[(1) - (1)]), "undeclared identifier", (yyvsp[(1) - (1)].lex).string->c_str());
-            context->recover();
-        }
-        else if (!symbol->isVariable())
-        {
-            context->error((yylsp[(1) - (1)]), "variable expected", (yyvsp[(1) - (1)].lex).string->c_str());
-            context->recover();
-        }
-        else
-        {
-            variable = static_cast<const TVariable*>(symbol);
-
-            if (context->symbolTable.findBuiltIn(variable->getName(), context->shaderVersion) &&
-                !variable->getExtension().empty() &&
-                context->extensionErrorCheck((yylsp[(1) - (1)]), variable->getExtension()))
-            {
-                context->recover();
-            }
-        }
-
-        if (!variable)
-        {
-            TType type(EbtFloat, EbpUndefined);
-            TVariable *fakeVariable = new TVariable((yyvsp[(1) - (1)].lex).string, type);
-            context->symbolTable.declare(fakeVariable);
-            variable = fakeVariable;
-        }
+        const TVariable *variable = context->getNamedVariable((yylsp[(1) - (1)]), (yyvsp[(1) - (1)].lex).string, (yyvsp[(1) - (1)].lex).symbol);
 
         if (variable->getType().getQualifier() == EvqConst)
         {
@@ -3344,9 +3313,10 @@ yyreduce:
   case 75:
 
     {
-        if ((yyvsp[(1) - (2)].interm).intermAggregate)
-            (yyvsp[(1) - (2)].interm).intermAggregate->setOp(EOpDeclaration);
-        (yyval.interm.intermNode) = (yyvsp[(1) - (2)].interm).intermAggregate;
+        TIntermAggregate *aggNode = (yyvsp[(1) - (2)].interm).intermAggregate;
+        if (aggNode && aggNode->getOp() == EOpNull)
+            aggNode->setOp(EOpDeclaration);
+        (yyval.interm.intermNode) = aggNode;
     }
     break;
 
@@ -3719,22 +3689,8 @@ yyreduce:
   case 108:
 
     {
-        VERTEX_ONLY("invariant declaration", (yylsp[(1) - (2)]));
-        if (context->globalErrorCheck((yylsp[(1) - (2)]), context->symbolTable.atGlobalLevel(), "invariant varying"))
-            context->recover();
-        (yyval.interm).type.setBasic(EbtInvariant, EvqInvariantVaryingOut, (yylsp[(2) - (2)]));
-        if (!(yyvsp[(2) - (2)].lex).symbol)
-        {
-            context->error((yylsp[(2) - (2)]), "undeclared identifier declared as invariant", (yyvsp[(2) - (2)].lex).string->c_str());
-            context->recover();
-            
-            (yyval.interm).intermAggregate = 0;
-        }
-        else
-        {
-            TIntermSymbol *symbol = context->intermediate.addSymbol(0, *(yyvsp[(2) - (2)].lex).string, TType((yyval.interm).type), (yylsp[(2) - (2)]));
-            (yyval.interm).intermAggregate = context->intermediate.makeAggregate(symbol, (yylsp[(2) - (2)]));
-        }
+        // $$.type is not used in invariant declarations.
+        (yyval.interm).intermAggregate = context->parseInvariantDeclaration((yylsp[(1) - (2)]), (yylsp[(2) - (2)]), (yyvsp[(2) - (2)].lex).string, (yyvsp[(2) - (2)].lex).symbol);
     }
     break;
 

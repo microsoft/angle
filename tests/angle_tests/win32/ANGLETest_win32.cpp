@@ -113,7 +113,7 @@ bool ANGLETest::DestroyTestWindow()
     return true;
 }
 
-bool ANGLETest::ReizeWindow(int width, int height)
+bool ANGLETest::ResizeWindow(int width, int height)
 {
     RECT windowRect;
     if (!GetWindowRect(mNativeWindow, &windowRect))

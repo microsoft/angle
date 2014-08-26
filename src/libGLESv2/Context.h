@@ -22,6 +22,7 @@
 #include "common/angleutils.h"
 #include "common/RefCountObject.h"
 #include "libGLESv2/Caps.h"
+#include "libGLESv2/Error.h"
 #include "libGLESv2/HandleAllocator.h"
 #include "libGLESv2/angletypes.h"
 #include "libGLESv2/Constants.h"
@@ -134,7 +135,7 @@ class Context
     void bindPixelUnpackBuffer(GLuint buffer);
     void useProgram(GLuint program);
     void linkProgram(GLuint program);
-    void setProgramBinary(GLuint program, const void *binary, GLint length);
+    void setProgramBinary(GLuint program, GLenum binaryFormat, const void *binary, GLint length);
     void bindTransformFeedback(GLuint transformFeedback);
 
     void beginQuery(GLenum target, GLuint query);
@@ -196,11 +197,7 @@ class Context
     void drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, GLsizei instances);
     void sync(bool block);   // flush/finish
 
-    void recordInvalidEnum();
-    void recordInvalidValue();
-    void recordInvalidOperation();
-    void recordOutOfMemory();
-    void recordInvalidFramebufferOperation();
+    void recordError(const Error &error);
 
     GLenum getError();
     GLenum getResetStatus();
@@ -316,11 +313,8 @@ class Context
     BindingPointer<Texture> mIncompleteTextures[TEXTURE_TYPE_COUNT];
 
     // Recorded errors
-    bool mInvalidEnum;
-    bool mInvalidValue;
-    bool mInvalidOperation;
-    bool mOutOfMemory;
-    bool mInvalidFramebufferOperation;
+    typedef std::set<GLenum> ErrorSet;
+    ErrorSet mErrors;
 
     // Current/lost context flags
     bool mHasBeenCurrent;
@@ -328,9 +322,6 @@ class Context
     GLenum mResetStatus;
     GLenum mResetStrategy;
     bool mRobustAccess;
-
-    bool mSupportsVertexTexture;
-    int mNumCompressedTextureFormats;
 
     ResourceManager *mResourceManager;
 };

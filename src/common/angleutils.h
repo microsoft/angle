@@ -16,6 +16,7 @@
 #include <string>
 #include <set>
 #include <sstream>
+#include <cstdarg>
 
 #if defined (ANGLE_ENABLE_WINDOWS_STORE)
 #include "third_party/ThreadEmulation/ThreadEmulation.h"
@@ -135,6 +136,10 @@ inline std::string Str(int i)
     strstr << i;
     return strstr.str();
 }
+
+std::string FormatString(const std::string &fmt, va_list vararg);
+std::string FormatString(const std::string &fmt, ...);
+
 #if defined(_MSC_VER)
 #define snprintf _snprintf
 #endif

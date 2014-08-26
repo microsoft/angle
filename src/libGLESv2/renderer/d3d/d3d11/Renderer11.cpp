@@ -493,11 +493,7 @@ void Renderer11::setSamplerState(gl::SamplerType type, int index, const gl::Samp
 {
     if (type == gl::SAMPLER_PIXEL)
     {
-        if (index < 0 || index >= gl::MAX_TEXTURE_IMAGE_UNITS)
-        {
-            ERR("Pixel shader sampler index %i is not valid.", index);
-            return;
-        }
+        ASSERT(static_cast<unsigned int>(index) < getRendererCaps().maxTextureImageUnits);
 
         if (mForceSetPixelSamplerStates[index] || memcmp(&samplerState, &mCurPixelSamplerStates[index], sizeof(gl::SamplerState)) != 0)
         {
@@ -518,11 +514,7 @@ void Renderer11::setSamplerState(gl::SamplerType type, int index, const gl::Samp
     }
     else if (type == gl::SAMPLER_VERTEX)
     {
-        if (index < 0 || index >= (int)getMaxVertexTextureImageUnits())
-        {
-            ERR("Vertex shader sampler index %i is not valid.", index);
-            return;
-        }
+        ASSERT(static_cast<unsigned int>(index) < getRendererCaps().maxVertexTextureImageUnits);
 
         if (mForceSetVertexSamplerStates[index] || memcmp(&samplerState, &mCurVertexSamplerStates[index], sizeof(gl::SamplerState)) != 0)
         {
@@ -551,7 +543,7 @@ void Renderer11::setTexture(gl::SamplerType type, int index, gl::Texture *textur
 
     if (texture)
     {
-        TextureImpl* textureImpl = texture->getImplementation();
+        TextureD3D* textureImpl = TextureD3D::makeTextureD3D(texture->getImplementation());
 
         TextureStorageInterface *texStorage = textureImpl->getNativeTexture();
         if (texStorage)
@@ -572,11 +564,7 @@ void Renderer11::setTexture(gl::SamplerType type, int index, gl::Texture *textur
 
     if (type == gl::SAMPLER_PIXEL)
     {
-        if (index < 0 || index >= gl::MAX_TEXTURE_IMAGE_UNITS)
-        {
-            ERR("Pixel shader sampler index %i is not valid.", index);
-            return;
-        }
+        ASSERT(static_cast<unsigned int>(index) < getRendererCaps().maxTextureImageUnits);
 
         if (forceSetTexture || mCurPixelSRVs[index] != textureSRV)
         {
@@ -587,11 +575,7 @@ void Renderer11::setTexture(gl::SamplerType type, int index, gl::Texture *textur
     }
     else if (type == gl::SAMPLER_VERTEX)
     {
-        if (index < 0 || index >= (int)getMaxVertexTextureImageUnits())
-        {
-            ERR("Vertex shader sampler index %i is not valid.", index);
-            return;
-        }
+        ASSERT(static_cast<unsigned int>(index) < getRendererCaps().maxVertexTextureImageUnits);
 
         if (forceSetTexture || mCurVertexSRVs[index] != textureSRV)
         {
@@ -1080,7 +1064,7 @@ void Renderer11::applyTransformFeedbackBuffers(gl::Buffer *transformFeedbackBuff
         if (transformFeedbackBuffers[i])
         {
             Buffer11 *storage = Buffer11::makeBuffer11(transformFeedbackBuffers[i]->getImplementation());
-            ID3D11Buffer *buffer = storage->getBuffer(BUFFER_USAGE_VERTEX_OR_TRANSFORM_FEEDBACK);
+            ID3D11Buffer *buffer = storage->getBuffer(BUFFER_USAGE_TRANSFORM_FEEDBACK);
 
             d3dBuffers[i] = buffer;
             d3dOffsets[i] = (mAppliedTFBuffers[i] != buffer) ? static_cast<UINT>(offsets[i]) : -1;
@@ -1163,21 +1147,23 @@ void Renderer11::drawArrays(GLenum mode, GLsizei count, GLsizei instances, bool 
 void Renderer11::drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,
                               gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei instances)
 {
+    int minIndex = static_cast<int>(indexInfo.indexRange.start);
+
     if (mode == GL_LINE_LOOP)
     {
-        drawLineLoop(count, type, indices, indexInfo.minIndex, elementArrayBuffer);
+        drawLineLoop(count, type, indices, minIndex, elementArrayBuffer);
     }
     else if (mode == GL_TRIANGLE_FAN)
     {
-        drawTriangleFan(count, type, indices, indexInfo.minIndex, elementArrayBuffer, instances);
+        drawTriangleFan(count, type, indices, minIndex, elementArrayBuffer, instances);
     }
     else if (instances > 0)
     {
-        mDeviceContext->DrawIndexedInstanced(count, instances, 0, -static_cast<int>(indexInfo.minIndex), 0);
+        mDeviceContext->DrawIndexedInstanced(count, instances, 0, -minIndex, 0);
     }
     else
     {
-        mDeviceContext->DrawIndexed(count, 0, -static_cast<int>(indexInfo.minIndex));
+        mDeviceContext->DrawIndexed(count, 0, -minIndex);
     }
 }
 
@@ -1943,7 +1929,7 @@ unsigned int Renderer11::getMaxVertexTextureImageUnits() const
 
 unsigned int Renderer11::getMaxCombinedTextureImageUnits() const
 {
-    return gl::MAX_TEXTURE_IMAGE_UNITS + getMaxVertexTextureImageUnits();
+    return getRendererCaps().maxTextureImageUnits + getRendererCaps().maxVertexTextureImageUnits;
 }
 
 unsigned int Renderer11::getReservedVertexUniformVectors() const
@@ -2128,24 +2114,6 @@ bool Renderer11::getPostSubBufferSupport() const
 {
     // D3D11 does not support present with dirty rectangles until D3D11.1 and DXGI 1.2.
     return false;
-}
-
-int Renderer11::getMaxRecommendedElementsIndices() const
-{
-    META_ASSERT(D3D11_REQ_DRAWINDEXED_INDEX_COUNT_2_TO_EXP == 32);
-    META_ASSERT(D3D10_REQ_DRAWINDEXED_INDEX_COUNT_2_TO_EXP == 32);
-
-    // D3D11 allows up to 2^32 elements, but we report max signed int for convenience.
-    return std::numeric_limits<GLint>::max();
-}
-
-int Renderer11::getMaxRecommendedElementsVertices() const
-{
-    META_ASSERT(D3D11_REQ_DRAW_VERTEX_COUNT_2_TO_EXP == 32);
-    META_ASSERT(D3D10_REQ_DRAW_VERTEX_COUNT_2_TO_EXP == 32);
-
-    // D3D11 allows up to 2^32 elements, but we report max signed int for convenience.
-    return std::numeric_limits<GLint>::max();
 }
 
 int Renderer11::getMajorShaderModel() const
@@ -2945,7 +2913,7 @@ bool Renderer11::blitRect(gl::Framebuffer *readTarget, const gl::Rectangle &read
 }
 
 void Renderer11::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format,
-                            GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, void* pixels)
+                            GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels)
 {
     ID3D11Texture2D *colorBufferTexture = NULL;
     unsigned int subresourceIndex = 0;
@@ -2960,10 +2928,13 @@ void Renderer11::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsi
         area.width = width;
         area.height = height;
 
-        if (pack.pixelBuffer.get() != NULL)
+        gl::Buffer *packBuffer = pack.pixelBuffer.get();
+        if (packBuffer != NULL)
         {
-            rx::Buffer11 *packBufferStorage = Buffer11::makeBuffer11(pack.pixelBuffer.get()->getImplementation());
+            rx::Buffer11 *packBufferStorage = Buffer11::makeBuffer11(packBuffer->getImplementation());
             PackPixelsParams packParams(area, format, type, outputPitch, pack, reinterpret_cast<ptrdiff_t>(pixels));
+
+            packBuffer->getIndexRangeCache()->clear();
             packBufferStorage->packPixels(colorBufferTexture, subresourceIndex, packParams);
         }
         else
@@ -3013,28 +2984,23 @@ TextureStorage *Renderer11::createTextureStorage2DArray(GLenum internalformat, b
     return new TextureStorage11_2DArray(this, internalformat, renderTarget, width, height, depth, levels);
 }
 
-Texture2DImpl *Renderer11::createTexture2D()
+TextureImpl *Renderer11::createTexture(GLenum target)
 {
-    return new TextureD3D_2D(this);
-}
+    switch(target)
+    {
+      case GL_TEXTURE_2D: return new TextureD3D_2D(this);
+      case GL_TEXTURE_CUBE_MAP: return new TextureD3D_Cube(this);
+      case GL_TEXTURE_3D: return new TextureD3D_3D(this);
+      case GL_TEXTURE_2D_ARRAY: return new TextureD3D_2DArray(this);
+      default:
+        UNREACHABLE();
+    }
 
-TextureCubeImpl *Renderer11::createTextureCube()
-{
-    return new TextureD3D_Cube(this);
-}
-
-Texture3DImpl *Renderer11::createTexture3D()
-{
-    return new TextureD3D_3D(this);
-}
-
-Texture2DArrayImpl *Renderer11::createTexture2DArray()
-{
-    return new TextureD3D_2DArray(this);
+    return NULL;
 }
 
 void Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int subResource, const gl::Rectangle &area, GLenum format,
-                                 GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, void *pixels)
+                                 GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels)
 {
     ASSERT(area.width >= 0);
     ASSERT(area.height >= 0);
@@ -3134,7 +3100,7 @@ void Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int subResou
     SafeRelease(stagingTex);
 }
 
-void Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams &params, void *pixelsOut)
+void Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams &params, uint8_t *pixelsOut)
 {
     D3D11_TEXTURE2D_DESC textureDesc;
     readTexture->GetDesc(&textureDesc);
@@ -3144,16 +3110,16 @@ void Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams
     UNUSED_ASSERTION_VARIABLE(hr);
     ASSERT(SUCCEEDED(hr));
 
-    unsigned char *source;
+    uint8_t *source;
     int inputPitch;
     if (params.pack.reverseRowOrder)
     {
-        source = static_cast<unsigned char*>(mapping.pData) + mapping.RowPitch * (params.area.height - 1);
+        source = static_cast<uint8_t*>(mapping.pData) + mapping.RowPitch * (params.area.height - 1);
         inputPitch = -static_cast<int>(mapping.RowPitch);
     }
     else
     {
-        source = static_cast<unsigned char*>(mapping.pData);
+        source = static_cast<uint8_t*>(mapping.pData);
         inputPitch = static_cast<int>(mapping.RowPitch);
     }
 
@@ -3161,7 +3127,7 @@ void Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams
     const gl::InternalFormat &sourceFormatInfo = gl::GetInternalFormatInfo(dxgiFormatInfo.internalFormat);
     if (sourceFormatInfo.format == params.format && sourceFormatInfo.type == params.type)
     {
-        unsigned char *dest = static_cast<unsigned char*>(pixelsOut) + params.offset;
+        uint8_t *dest = pixelsOut + params.offset;
         for (int y = 0; y < params.area.height; y++)
         {
             memcpy(dest + y * params.outputPitch, source + y * inputPitch, params.area.width * sourceFormatInfo.pixelBytes);
@@ -3182,8 +3148,8 @@ void Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams
             {
                 for (int x = 0; x < params.area.width; x++)
                 {
-                    void *dest = static_cast<unsigned char*>(pixelsOut) + params.offset + y * params.outputPitch + x * destFormatInfo.pixelBytes;
-                    void *src = static_cast<unsigned char*>(source) + y * inputPitch + x * sourceFormatInfo.pixelBytes;
+                    uint8_t *dest = pixelsOut + params.offset + y * params.outputPitch + x * destFormatInfo.pixelBytes;
+                    const uint8_t *src = source + y * inputPitch + x * sourceFormatInfo.pixelBytes;
 
                     fastCopyFunc(src, dest);
                 }
@@ -3191,7 +3157,7 @@ void Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams
         }
         else
         {
-            unsigned char temp[16]; // Maximum size of any Color<T> type used.
+            uint8_t temp[16]; // Maximum size of any Color<T> type used.
             META_ASSERT(sizeof(temp) >= sizeof(gl::ColorF)  &&
                         sizeof(temp) >= sizeof(gl::ColorUI) &&
                         sizeof(temp) >= sizeof(gl::ColorI));
@@ -3200,8 +3166,8 @@ void Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams
             {
                 for (int x = 0; x < params.area.width; x++)
                 {
-                    void *dest = static_cast<unsigned char*>(pixelsOut) + params.offset + y * params.outputPitch + x * destFormatInfo.pixelBytes;
-                    void *src = static_cast<unsigned char*>(source) + y * inputPitch + x * sourceFormatInfo.pixelBytes;
+                    uint8_t *dest = pixelsOut + params.offset + y * params.outputPitch + x * destFormatInfo.pixelBytes;
+                    const uint8_t *src = source + y * inputPitch + x * sourceFormatInfo.pixelBytes;
 
                     // readFunc and writeFunc will be using the same type of color, CopyTexImage
                     // will not allow the copy otherwise.

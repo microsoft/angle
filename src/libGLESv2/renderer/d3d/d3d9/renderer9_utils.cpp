@@ -328,6 +328,11 @@ void GenerateCaps(IDirect3D9 *d3d9, IDirect3DDevice9 *device, D3DDEVTYPE deviceT
         textureCapsMap->insert(*internalFormat, textureCaps);
 
         maxSamples = std::max(maxSamples, textureCaps.getMaxSamples());
+
+        if (gl::GetInternalFormatInfo(*internalFormat).compressed)
+        {
+            caps->compressedTextureFormats.push_back(*internalFormat);
+        }
     }
 
     // GL core feature limits
@@ -366,6 +371,59 @@ void GenerateCaps(IDirect3D9 *d3d9, IDirect3DDevice9 *device, D3DDEVTYPE deviceT
     // Wide lines not supported
     caps->minAliasedLineWidth = 1.0f;
     caps->maxAliasedLineWidth = 1.0f;
+
+    // Primitive count limits (unused in ES2)
+    caps->maxElementsIndices = 0;
+    caps->maxElementsVertices = 0;
+
+    // Program and shader binary formats (no supported shader binary formats)
+    caps->programBinaryFormats.push_back(GL_PROGRAM_BINARY_ANGLE);
+
+    // WaitSync is ES3-only, set to zero
+    caps->maxServerWaitTimeout = 0;
+
+    // Vertex shader limits
+    caps->maxVertexAttributes = 16;
+
+    const size_t reservedVertexUniformVectors = 2; // dx_ViewAdjust and dx_DepthRange.
+    const size_t MAX_VERTEX_CONSTANT_VECTORS_D3D9 = 256;
+    caps->maxVertexUniformVectors = MAX_VERTEX_CONSTANT_VECTORS_D3D9 - reservedVertexUniformVectors;
+    caps->maxVertexUniformComponents = caps->maxVertexUniformVectors * 4;
+
+    caps->maxVertexUniformBlocks = 0;
+
+    const size_t MAX_VERTEX_OUTPUT_VECTORS_SM3 = 10;
+    const size_t MAX_VERTEX_OUTPUT_VECTORS_SM2 = 8;
+    caps->maxVertexOutputComponents = ((deviceCaps.VertexShaderVersion >= D3DVS_VERSION(3, 0)) ? MAX_VERTEX_OUTPUT_VECTORS_SM3
+                                                                                               : MAX_VERTEX_OUTPUT_VECTORS_SM2) * 4;
+
+    // Only Direct3D 10 ready devices support all the necessary vertex texture formats.
+    // We test this using D3D9 by checking support for the R16F format.
+    if (deviceCaps.VertexShaderVersion >= D3DVS_VERSION(3, 0) &&
+        SUCCEEDED(d3d9->CheckDeviceFormat(adapter, deviceType, currentDisplayMode.Format,
+                                          D3DUSAGE_QUERY_VERTEXTEXTURE, D3DRTYPE_TEXTURE, D3DFMT_R16F)))
+    {
+        const size_t MAX_TEXTURE_IMAGE_UNITS_VTF_SM3 = 4;
+        caps->maxVertexTextureImageUnits = MAX_TEXTURE_IMAGE_UNITS_VTF_SM3;
+    }
+    else
+    {
+        caps->maxVertexTextureImageUnits = 0;
+    }
+
+    // Fragment shader limits
+    const size_t reservedPixelUniformVectors = 3; // dx_ViewCoords, dx_DepthFront and dx_DepthRange.
+
+    const size_t MAX_PIXEL_CONSTANT_VECTORS_SM3 = 224;
+    const size_t MAX_PIXEL_CONSTANT_VECTORS_SM2 = 32;
+    caps->maxFragmentUniformVectors = ((deviceCaps.PixelShaderVersion >= D3DPS_VERSION(3, 0)) ? MAX_PIXEL_CONSTANT_VECTORS_SM3
+                                                                                              : MAX_PIXEL_CONSTANT_VECTORS_SM2) - reservedPixelUniformVectors;
+    caps->maxFragmentUniformComponents = caps->maxFragmentUniformVectors * 4;
+    caps->maxFragmentUniformBlocks = 0;
+    caps->maxFragmentInputComponents = caps->maxVertexOutputComponents;
+    caps->maxTextureImageUnits = 16;
+    caps->minProgramTexelOffset = 0;
+    caps->maxProgramTexelOffset = 0;
 
     // GL extension support
     extensions->setTextureExtensionSupport(*textureCapsMap);

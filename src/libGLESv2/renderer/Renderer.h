@@ -15,6 +15,8 @@
 #include "libGLESv2/Caps.h"
 #include "common/surfacehost.h"
 
+#include <cstdint>
+
 #if !defined(ANGLE_COMPILE_OPTIMIZATION_LEVEL)
 // WARNING: D3DCOMPILE_OPTIMIZATION_LEVEL3 may lead to a DX9 shader compiler hang.
 // It should only be used selectively to work around specific bugs.
@@ -82,10 +84,7 @@ class RenderTarget;
 class Image;
 class TextureStorage;
 class UniformStorage;
-class Texture2DImpl;
-class TextureCubeImpl;
-class Texture3DImpl;
-class Texture2DArrayImpl;
+class TextureImpl;
 
 struct ConfigDesc
 {
@@ -187,16 +186,10 @@ class Renderer
     virtual std::string getRendererDescription() const = 0;
     virtual GUID getAdapterIdentifier() const = 0;
 
-    bool getVertexTextureSupport() const { return getMaxVertexTextureImageUnits() > 0; }
-    virtual unsigned int getMaxVertexTextureImageUnits() const = 0;
     virtual unsigned int getMaxCombinedTextureImageUnits() const = 0;
     virtual unsigned int getReservedVertexUniformVectors() const = 0;
     virtual unsigned int getReservedFragmentUniformVectors() const = 0;
-    virtual unsigned int getMaxVertexUniformVectors() const = 0;
-    virtual unsigned int getMaxFragmentUniformVectors() const = 0;
     virtual unsigned int getMaxVaryingVectors() const = 0;
-    virtual unsigned int getMaxVertexShaderUniformBuffers() const = 0;
-    virtual unsigned int getMaxFragmentShaderUniformBuffers() const = 0;
     virtual unsigned int getReservedVertexUniformBuffers() const = 0;
     virtual unsigned int getReservedFragmentUniformBuffers() const = 0;
     virtual unsigned int getMaxTransformFeedbackBuffers() const = 0;
@@ -205,8 +198,6 @@ class Renderer
     virtual unsigned int getMaxUniformBufferSize() const = 0;
     virtual bool getShareHandleSupport() const = 0;
     virtual bool getPostSubBufferSupport() const = 0;
-    virtual int getMaxRecommendedElementsIndices() const = 0;
-    virtual int getMaxRecommendedElementsVertices() const = 0;
 
 	virtual int getMajorShaderModel() const = 0;
 	virtual int getMinorShaderModel() const = 0;
@@ -235,7 +226,7 @@ class Renderer
     virtual bool blitRect(gl::Framebuffer *readTarget, const gl::Rectangle &readRect, gl::Framebuffer *drawTarget, const gl::Rectangle &drawRect,
                           const gl::Rectangle *scissor, bool blitRenderTarget, bool blitDepth, bool blitStencil, GLenum filter) = 0;
     virtual void readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format,
-                            GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, void* pixels) = 0;
+                            GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels) = 0;
 
     // RenderTarget creation
     virtual RenderTarget *createRenderTarget(SwapChain *swapChain, bool depth) = 0;
@@ -260,10 +251,7 @@ class Renderer
     virtual TextureStorage *createTextureStorage2DArray(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, GLsizei depth, int levels) = 0;
 
     // Texture creation
-    virtual Texture2DImpl *createTexture2D() = 0;
-    virtual TextureCubeImpl *createTextureCube() = 0;
-    virtual Texture3DImpl *createTexture3D() = 0;
-    virtual Texture2DArrayImpl *createTexture2DArray() = 0;
+    virtual TextureImpl *createTexture(GLenum target) = 0;
 
     // Buffer creation
     virtual BufferImpl *createBuffer() = 0;
