@@ -27,6 +27,26 @@ protected:
             FAIL() << "Failed to create ANGLE limited FeatureLevel test window.";
         }
 
+		// Point Sprite Compilation Test Vertex Shader source
+		pointSpriteCompilationTestVS = SHADER_SOURCE
+		(
+			void main()
+			{
+				gl_PointSize = 100.0;
+				gl_Position = vec4(1.0, 0.0, 0.0, 1.0);
+			}
+		);
+
+		// Point Sprite Compilation Test Fragment Shader source
+		pointSpriteCompilationTestFS = SHADER_SOURCE
+		(
+			precision mediump float;
+			void main()
+			{
+				gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			}
+		);
+
         ANGLETest::SetUp();
     }
 
@@ -44,25 +64,8 @@ protected:
         }
     }
 
-    // Point Sprite Compilation Test Vertex Shader source
-    const std::string pointSpriteCompilationTestVS = SHADER_SOURCE
-    (
-        void main()
-        {
-            gl_PointSize = 100.0;
-            gl_Position = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-    );
-
-    // Point Sprite Compilation Test Fragment Shader source
-    const std::string pointSpriteCompilationTestFS = SHADER_SOURCE
-    (
-        precision mediump float;
-        void main()
-        {
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-    );
+	std::string pointSpriteCompilationTestVS;
+	std::string pointSpriteCompilationTestFS;
 
     // Helper that checks for D3D_FEATURE_LEVEL_9_* by looking for the a hint in the renderer string.
     bool findFL9RendererString()

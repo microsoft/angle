@@ -2241,20 +2241,6 @@ bool Renderer9::getPostSubBufferSupport() const
     return true;
 }
 
-int Renderer9::getMaxRecommendedElementsIndices() const
-{
-    // ES3 only
-    UNREACHABLE();
-    return 0;
-}
-
-int Renderer9::getMaxRecommendedElementsVertices() const
-{
-    // ES3 only
-    UNREACHABLE();
-    return 0;
-}
-
 bool Renderer9::isRenderingToBackBuffer() const
 {
     // We don't support rendering directly to the backbuffer in the d3d9 renderer.

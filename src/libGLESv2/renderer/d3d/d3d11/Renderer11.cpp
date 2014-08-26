@@ -1912,21 +1912,6 @@ GUID Renderer11::getAdapterIdentifier() const
     return adapterId;
 }
 
-unsigned int Renderer11::getMaxVertexTextureImageUnits() const
-{
-    META_ASSERT(MAX_TEXTURE_IMAGE_UNITS_VTF_SM4 <= gl::IMPLEMENTATION_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-    switch (mFeatureLevel)
-    {
-      case D3D_FEATURE_LEVEL_11_0:
-      case D3D_FEATURE_LEVEL_10_1:
-      case D3D_FEATURE_LEVEL_10_0:
-      case D3D_FEATURE_LEVEL_9_3:
-        return MAX_TEXTURE_IMAGE_UNITS_VTF_SM4;
-      default: UNREACHABLE();
-        return 0;
-    }
-}
-
 unsigned int Renderer11::getMaxCombinedTextureImageUnits() const
 {
     return getRendererCaps().maxTextureImageUnits + getRendererCaps().maxVertexTextureImageUnits;
@@ -1940,20 +1925,6 @@ unsigned int Renderer11::getReservedVertexUniformVectors() const
 unsigned int Renderer11::getReservedFragmentUniformVectors() const
 {
     return 0;   // Driver uniforms are stored in a separate constant buffer
-}
-
-unsigned int Renderer11::getMaxVertexUniformVectors() const
-{
-    META_ASSERT(MAX_VERTEX_UNIFORM_VECTORS_D3D11 <= D3D10_REQ_CONSTANT_BUFFER_ELEMENT_COUNT);
-    ASSERT(mFeatureLevel >= D3D_FEATURE_LEVEL_9_3);
-    return MAX_VERTEX_UNIFORM_VECTORS_D3D11;
-}
-
-unsigned int Renderer11::getMaxFragmentUniformVectors() const
-{
-    META_ASSERT(MAX_FRAGMENT_UNIFORM_VECTORS_D3D11 <= D3D10_REQ_CONSTANT_BUFFER_ELEMENT_COUNT);
-    ASSERT(mFeatureLevel >= D3D_FEATURE_LEVEL_9_3);
-    return MAX_FRAGMENT_UNIFORM_VECTORS_D3D11;
 }
 
 unsigned int Renderer11::getMaxVaryingVectors() const
@@ -1977,42 +1948,6 @@ unsigned int Renderer11::getMaxVaryingVectors() const
           // To enable WebGL on 9_3, we say that D3D_FEATURE_LEVEL_9_3 supports 8 four-component varying vectors.
           // TODO: Investigate a better solution to this problem.
           return 8; // 11 - getReservedVaryings();
-      default: UNREACHABLE();
-        return 0;
-    }
-}
-
-unsigned int Renderer11::getMaxVertexShaderUniformBuffers() const
-{
-    META_ASSERT(gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS >= D3D10_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT &&
-                gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS >= D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT);
-
-    switch (mFeatureLevel)
-    {
-      case D3D_FEATURE_LEVEL_9_3:
-      case D3D_FEATURE_LEVEL_11_0:
-        return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedVertexUniformBuffers();
-      case D3D_FEATURE_LEVEL_10_1:
-      case D3D_FEATURE_LEVEL_10_0:
-        return D3D10_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedVertexUniformBuffers();
-      default: UNREACHABLE();
-        return 0;
-    }
-}
-
-unsigned int Renderer11::getMaxFragmentShaderUniformBuffers() const
-{
-    META_ASSERT(gl::IMPLEMENTATION_MAX_FRAGMENT_SHADER_UNIFORM_BUFFERS >= D3D10_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT &&
-                gl::IMPLEMENTATION_MAX_FRAGMENT_SHADER_UNIFORM_BUFFERS >= D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT);
-
-    switch (mFeatureLevel)
-    {
-      case D3D_FEATURE_LEVEL_9_3:
-      case D3D_FEATURE_LEVEL_11_0:
-        return D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedFragmentUniformBuffers();
-      case D3D_FEATURE_LEVEL_10_1:
-      case D3D_FEATURE_LEVEL_10_0:
-        return D3D10_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT - getReservedFragmentUniformBuffers();
       default: UNREACHABLE();
         return 0;
     }
