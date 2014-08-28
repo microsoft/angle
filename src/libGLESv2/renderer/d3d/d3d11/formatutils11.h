@@ -73,7 +73,7 @@ struct VertexFormat
     DXGI_FORMAT nativeFormat;
     VertexCopyFunction copyFunction;
 };
-const VertexFormat &GetVertexFormatInfo(const gl::VertexFormat &vertexFormat);
+const VertexFormat &GetVertexFormatInfo(const gl::VertexFormat &vertexFormat, D3D_FEATURE_LEVEL d3dFeatureLevel);
 
 }
 

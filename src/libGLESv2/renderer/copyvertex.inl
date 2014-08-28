@@ -40,6 +40,36 @@ inline void CopyNativeVertexData(const uint8_t *input, size_t stride, size_t cou
     }
 }
 
+template <size_t inputComponentCount, size_t outputComponentCount>
+inline void Copy8SnormTo16SnormVertexData(const uint8_t *input, size_t stride, size_t count, uint8_t *output)
+{
+    for (size_t i = 0; i < count; i++)
+    {
+        const GLbyte *offsetInput = reinterpret_cast<const GLbyte*>(input + i * stride);
+        GLshort *offsetOutput = reinterpret_cast<GLshort*>(output) + i * outputComponentCount;
+
+        for (size_t j = 0; j < inputComponentCount; j++)
+        {
+            // The original GLbyte value ranges from -128 to +127 (INT8_MAX).
+            // When converted to GLshort, the value must be scaled to between -32768 and +32767 (INT16_MAX).
+            if (offsetInput[j] > 0)
+            {
+                offsetOutput[j] = offsetInput[j] << 8 | offsetInput[j] << 1 | ((offsetInput[j] & 0x40) >> 6);
+            }
+            else
+            {
+                offsetOutput[j] = offsetInput[j] << 8;
+            }
+        }
+
+        for (size_t j = inputComponentCount; j < outputComponentCount; j++)
+        {
+            // Pad the remaining offsetOutputs with INT16_MAX.
+            offsetOutput[j] = INT16_MAX;
+        }
+    }
+}
+
 template <size_t componentCount>
 inline void Copy32FixedTo32FVertexData(const uint8_t *input, size_t stride, size_t count, uint8_t *output)
 {
