@@ -64,11 +64,6 @@ void OpenGLES::Initialize()
         throw Exception::CreateException(E_FAIL, L"Failed to create EGL context");
     }
 
-    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
-    {
-        throw Exception::CreateException(E_FAIL, L"Failed to make EGLSurface current");
-    }
-
     mEglDisplay = display;
     mEglContext = context;
     mEglConfig = config;
