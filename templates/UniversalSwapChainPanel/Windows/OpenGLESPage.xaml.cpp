@@ -4,6 +4,7 @@
 using namespace $ext_safeprojectname$;
 using namespace Platform;
 using namespace Concurrency;
+using namespace Windows::Foundation;
 
 OpenGLESPage::OpenGLESPage() :
     OpenGLESPage(nullptr)
@@ -13,7 +14,9 @@ OpenGLESPage::OpenGLESPage() :
 
 OpenGLESPage::OpenGLESPage(OpenGLES* openGLES) :
     mOpenGLES(openGLES),
-    mRenderSurface(EGL_NO_SURFACE)
+    mRenderSurface(EGL_NO_SURFACE),
+    mCustomRenderSurfaceSize(0,0),
+    mUseCustomRenderSurfaceSize(false)
 {
     InitializeComponent();
 
@@ -75,15 +78,33 @@ void OpenGLESPage::OnSwapChainPanelSizeChanged(Object^ sender, Windows::UI::Xaml
 void OpenGLESPage::GetSwapChainPanelSize(GLsizei* width, GLsizei* height)
 {
     critical_section::scoped_lock lock(mSwapChainPanelSizeCriticalSection);
-    *width = static_cast<GLsizei>(mSwapChainPanelSize.Width);
-    *height = static_cast<GLsizei>(mSwapChainPanelSize.Height);
+    // If a custom render surface size is specified, return its size instead of
+    // the swapchain panel size.
+    if (mUseCustomRenderSurfaceSize)
+    {
+        *width = static_cast<GLsizei>(mCustomRenderSurfaceSize.Width);
+        *height = static_cast<GLsizei>(mCustomRenderSurfaceSize.Height);
+    }
+    else
+    {
+        *width = static_cast<GLsizei>(mSwapChainPanelSize.Width);
+        *height = static_cast<GLsizei>(mSwapChainPanelSize.Height);
+    }
 }
 
 void OpenGLESPage::CreateRenderSurface()
 {
     if (mOpenGLES)
     {
-        mRenderSurface = mOpenGLES->CreateSurface(swapChainPanel);
+        //
+        // A Custom render surface size can be specified by uncommenting the following lines.
+        // The render surface will be automatically scaled to fit the entire window.  Using a
+        // smaller sized render surface can result in a performance gain.
+        //
+        //mCustomRenderSurfaceSize = Size(800, 600);
+        //mUseCustomRenderSurfaceSize = true;
+
+        mRenderSurface = mOpenGLES->CreateSurface(swapChainPanel, mUseCustomRenderSurfaceSize ? &mCustomRenderSurfaceSize : nullptr);
     }
 }
 

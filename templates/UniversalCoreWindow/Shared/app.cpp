@@ -11,6 +11,7 @@ using namespace Windows::ApplicationModel::Activation;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Input;
 using namespace Windows::Foundation;
+using namespace Windows::Foundation::Collections;
 using namespace Windows::Graphics::Display;
 using namespace Microsoft::WRL;
 using namespace Platform;
@@ -50,7 +51,9 @@ App::App() :
     mWindowHeight(0),
     mEglDisplay(EGL_NO_DISPLAY),
     mEglContext(EGL_NO_CONTEXT),
-    mEglSurface(EGL_NO_SURFACE)
+    mEglSurface(EGL_NO_SURFACE),
+    mCustomRenderSurfaceSize(0,0),
+    mUseCustomRenderSurfaceSize(false)
 {
 }
 
@@ -224,7 +227,21 @@ void App::InitializeEGL(CoreWindow^ window)
         throw Exception::CreateException(E_FAIL, L"Failed to choose first EGLConfig count");
     }
 
-    surface = eglCreateWindowSurface(display, config, reinterpret_cast<IInspectable*>(window), surfaceAttribList);
+    // Create a PropertySet and initialize with the EGLNativeWindowType.
+    PropertySet^ surfaceCreationProperties = ref new PropertySet();
+    surfaceCreationProperties->Insert(ref new String(EGLNativeWindowTypeProperty), window);
+
+    //
+    // A Custom render surface size can be specified by uncommenting the following lines.
+    // The render surface will be automatically scaled to fit the entire window.  Using a
+    // smaller sized render surface can result in a performance gain.
+    //
+    //mCustomRenderSurfaceSize = Size(800, 600);
+    //mUseCustomRenderSurfaceSize = true;
+    //surfaceCreationProperties->Insert(ref new String(EGLRenderSurfaceSizeProperty), PropertyValue::CreateSize(mCustomRenderSurfaceSize));
+    //
+
+    surface = eglCreateWindowSurface(display, config, reinterpret_cast<IInspectable*>(surfaceCreationProperties), surfaceAttribList);
     if (surface == EGL_NO_SURFACE)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to create EGL fullscreen surface");
@@ -269,12 +286,22 @@ void App::CleanupEGL()
 
 void App::UpdateWindowSize(Size size)
 {
-    DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
-    Size pixelSize(ConvertDipsToPixels(size.Width, currentDisplayInformation->LogicalDpi), ConvertDipsToPixels(size.Height, currentDisplayInformation->LogicalDpi));
-    
+    Size pixelSize;
+    // Use the dimensions of the custom render surface size if one was specified.
+    if (mUseCustomRenderSurfaceSize)
+    {
+        // Render surface size is already in pixels
+        pixelSize = mCustomRenderSurfaceSize;
+    }
+    else
+    {
+        DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
+        pixelSize = Size(ConvertDipsToPixels(size.Width, currentDisplayInformation->LogicalDpi), ConvertDipsToPixels(size.Height, currentDisplayInformation->LogicalDpi));
+    }
+
     mWindowWidth = static_cast<GLsizei>(pixelSize.Width);
     mWindowHeight = static_cast<GLsizei>(pixelSize.Height);
-    
+
     // mTriangleRenderer might not have been initialized yet.
     if (mTriangleRenderer)
     {

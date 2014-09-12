@@ -7,19 +7,58 @@
 // corewindowhost.cpp: Host for managing ICoreWindow native window types.
 
 #include "common/winrt/corewindowhost.h"
+using namespace ABI::Windows::Foundation::Collections;
 
 CoreWindowHost::~CoreWindowHost()
 {
     unregisterForSizeChangeEvents();
 }
 
-bool CoreWindowHost::initialize(EGLNativeWindowType window)
+bool CoreWindowHost::initialize(EGLNativeWindowType window, IPropertySet* propertySet)
 {
+    ComPtr<IPropertySet> props = propertySet;
     ComPtr<IInspectable> win = window;
-    HRESULT result = win.As(&mCoreWindow);
+    SIZE swapChainSize = {};
+    bool swapChainSizeSpecified = false;
+    HRESULT result = S_OK;
+
+    // IPropertySet is an optional parameter and can null.
+    // If one is specified, cache as an IMap and read the properties
+    // used for initial host initialization.
+    if (propertySet)
+    {
+        result = props.As(&mPropertyMap);
+        if (SUCCEEDED(result))
+        {
+            // The EGLRenderSurfaceSizeProperty is optional and may be missing.  The IPropertySet
+            // was prevalidated to contain the EGLNativeWindowType before being passed to
+            // this host.
+            result = getOptionalSizePropertyValue(mPropertyMap, EGLRenderSurfaceSizeProperty, &swapChainSize, &swapChainSizeSpecified);
+        }
+    }
+
     if (SUCCEEDED(result))
     {
-        result = getCoreWindowSizeInPixels(mCoreWindow, &mClientRect);
+        result = win.As(&mCoreWindow);
+    }
+
+    if (SUCCEEDED(result))
+    {
+        // If a swapchain size is specfied, then the automatic resize
+        // behaviors implemented by the host should be disabled.  The swapchain
+        // will be still be scaled when being rendered to fit the bounds
+        // of the host.
+        // Scaling of the swapchain output occurs automatically because if
+        // the scaling mode setting DXGI_SCALING_STRETCH on the swapchain.
+        if (swapChainSizeSpecified)
+        {
+            mClientRect = { 0, 0, swapChainSize.cx, swapChainSize.cy };
+            mSupportsSwapChainResize = false;
+        }
+        else
+        {
+            result = getCoreWindowSizeInPixels(mCoreWindow, &mClientRect);
+        }
     }
 
     if (SUCCEEDED(result))
@@ -51,7 +90,10 @@ bool CoreWindowHost::registerForSizeChangeEvents()
 
 void CoreWindowHost::unregisterForSizeChangeEvents()
 {
-    (void)mCoreWindow->remove_SizeChanged(mSizeChangedEventToken);
+    if (mCoreWindow)
+    {
+        (void)mCoreWindow->remove_SizeChanged(mSizeChangedEventToken);
+    }
     mSizeChangedEventToken.value = 0;
 }
 
@@ -72,7 +114,7 @@ HRESULT CoreWindowHost::createSwapChain(ID3D11Device* device, DXGIFactory* facto
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_BACK_BUFFER;
     swapChainDesc.BufferCount = 2;
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-    swapChainDesc.Scaling = DXGI_SCALING_NONE;
+    swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
 
     *swapChain = nullptr;
 
@@ -91,24 +133,29 @@ HRESULT CoreWindowHost::createSwapChain(ID3D11Device* device, DXGIFactory* facto
         }
 #endif // (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
 
+        result = newSwapChain.CopyTo(swapChain);
+    }
+
+    if (SUCCEEDED(result))
+    {
+        // If automatic swapchain resize behaviors have been disabled, then
+        // unregister for the resize change events.
         if (mSupportsSwapChainResize == false)
         {
             unregisterForSizeChangeEvents();
         }
-
-        newSwapChain.CopyTo(swapChain);
     }
 
     return result;
 }
 
-HRESULT getCoreWindowSizeInPixels(ComPtr<ABI::Windows::UI::Core::ICoreWindow> coreWindow, RECT* windowSize)
+HRESULT getCoreWindowSizeInPixels(const ComPtr<ABI::Windows::UI::Core::ICoreWindow>& coreWindow, RECT* windowSize)
 {
     ABI::Windows::Foundation::Rect bounds;
     HRESULT result = coreWindow->get_Bounds(&bounds);
     if (SUCCEEDED(result))
     {
-        *windowSize = { 0, 0, (LONG)winrt::convertDipsToPixels(bounds.Width), (LONG)winrt::convertDipsToPixels(bounds.Height) };
+        *windowSize = { 0, 0, winrt::convertDipsToPixels(bounds.Width), winrt::convertDipsToPixels(bounds.Height) };
     }
 
     return result;

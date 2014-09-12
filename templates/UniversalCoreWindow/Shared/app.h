@@ -21,7 +21,7 @@ namespace $ext_safeprojectname$
 
     private:
         void RecreateRenderer();
-    
+
         // Application lifecycle event handlers.
         void OnActivated(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs^ args);
 
@@ -42,8 +42,10 @@ namespace $ext_safeprojectname$
         EGLDisplay mEglDisplay;
         EGLContext mEglContext;
         EGLSurface mEglSurface;
-        
+
         std::unique_ptr<HelloTriangleRenderer> mTriangleRenderer;
+        Windows::Foundation::Size mCustomRenderSurfaceSize;
+        bool mUseCustomRenderSurfaceSize;
     };
 
 }

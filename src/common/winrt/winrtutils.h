@@ -15,7 +15,7 @@ namespace winrt
 {
 
 std::string getTempPath();
-float convertDipsToPixels(float dips);
+long convertDipsToPixels(float dips);
 
 };
 

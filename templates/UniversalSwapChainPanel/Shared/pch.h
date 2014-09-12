@@ -17,6 +17,7 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
+#include <angle_windowsstore.h>
 
 #include "OpenGLES.h"
 #include "HelloTriangleRenderer.h"

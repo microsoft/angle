@@ -15,12 +15,15 @@ class SwapChainPanelHost : public IInspectableSurfaceHost, public std::enable_sh
 {
 public:
     ~SwapChainPanelHost();
-    bool initialize(EGLNativeWindowType window);
+    bool initialize(EGLNativeWindowType window, IPropertySet* propertySet);
     bool registerForSizeChangeEvents();
     void unregisterForSizeChangeEvents();
     HRESULT createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain);
+    HRESULT scaleSwapChain(SIZE& newSize);
 private:
     ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> mSwapChainPanel;
+    ComPtr<IMap<HSTRING, IInspectable*>> mPropertyMap;
+    ComPtr<DXGISwapChain> mSwapChain;
 };
 
 [uuid(8ACBD974-8187-4508-AD80-AEC77F93CF36)]
@@ -55,7 +58,7 @@ public:
             HRESULT result = e->get_NewSize(&newSize);
             if (SUCCEEDED(result))
             {
-                SIZE windowSize = { (long)newSize.Width, (long)newSize.Height };
+                SIZE windowSize = { lround(newSize.Width), lround(newSize.Height) };
                 host->setNewClientSize(windowSize);
             }
         }
@@ -67,6 +70,6 @@ private:
     std::weak_ptr<IInspectableSurfaceHost> mHost;
 };
 
-HRESULT getSwapChainPanelSize(ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> swapChainPanel, RECT* windowSize);
+HRESULT getSwapChainPanelSize(const ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel>& swapChainPanel, RECT* windowSize);
 
 #endif // COMMON_SWAPCHAINPANELHOST_H_

@@ -7,6 +7,7 @@
 // winrtutils.cpp: Common Windows Runtime utilities.
 
 #include <wrl.h>
+#include <wrl/wrappers/corewrappers.h>
 #include <windows.graphics.display.h>
 #include "common/winrt/winrtutils.h"
 #include "common/winrt/corewindowhost.h"
@@ -14,7 +15,9 @@
 
 using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Wrappers;
+using namespace ABI::Windows::ApplicationModel::Core;
 using namespace ABI::Windows::Foundation;
+using namespace ABI::Windows::Foundation::Collections;
 
 namespace winrt
 {
@@ -67,7 +70,7 @@ std::string getTempPath()
             std::wstring t = std::wstring(hstrPath.GetRawBuffer(nullptr));
             return std::string(t.begin(), t.end());
         }
-        catch (std::bad_alloc)
+        catch (const std::bad_alloc&)
         {
             result = E_OUTOFMEMORY;
         }
@@ -93,9 +96,10 @@ static float GetLogicalDpi()
     return dpi;
 }
 
-float convertDipsToPixels(float dips)
+long convertDipsToPixels(float dips)
 {
     static const float dipsPerInch = 96.0f;
-    return floor(dips * GetLogicalDpi() / dipsPerInch + 0.5f); // Round to nearest integer.
+    return lround((dips * GetLogicalDpi() / dipsPerInch));
 }
+
 };

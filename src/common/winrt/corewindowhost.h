@@ -17,12 +17,13 @@ class CoreWindowHost : public IInspectableSurfaceHost, public std::enable_shared
 {
 public:
     ~CoreWindowHost();
-    bool initialize(EGLNativeWindowType window);
+    bool initialize(EGLNativeWindowType window, IPropertySet* propertySet);
     bool registerForSizeChangeEvents();
     void unregisterForSizeChangeEvents();
     HRESULT createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain);
 private:
     ComPtr<ABI::Windows::UI::Core::ICoreWindow> mCoreWindow;
+    ComPtr<IMap<HSTRING, IInspectable*>> mPropertyMap;
 };
 
 [uuid(7F924F66-EBAE-40E5-A10B-B8F35E245190)]
@@ -51,7 +52,7 @@ public:
             ABI::Windows::Foundation::Size windowSize;
             if (SUCCEEDED(e->get_Size(&windowSize)))
             {
-                SIZE windowSizeInPixels = { (long)winrt::convertDipsToPixels(windowSize.Width), (long)winrt::convertDipsToPixels(windowSize.Height) };
+                SIZE windowSizeInPixels = { winrt::convertDipsToPixels(windowSize.Width), winrt::convertDipsToPixels(windowSize.Height) };
                 host->setNewClientSize(windowSizeInPixels);
             }
         }
@@ -63,6 +64,6 @@ private:
     std::weak_ptr<IInspectableSurfaceHost> mHost;
 };
 
-HRESULT getCoreWindowSizeInPixels(ComPtr<ABI::Windows::UI::Core::ICoreWindow> coreWindow, RECT* windowSize);
+HRESULT getCoreWindowSizeInPixels(const ComPtr<ABI::Windows::UI::Core::ICoreWindow>& coreWindow, RECT* windowSize);
 
 #endif // COMMON_COREWINDOWHOST_H_

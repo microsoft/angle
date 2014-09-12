@@ -1,6 +1,9 @@
 #include "pch.h"
 
 using namespace Platform;
+using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::Foundation;
+using namespace Windows::Foundation::Collections;
 
 OpenGLES::OpenGLES() :
     mEglConfig(nullptr),
@@ -90,7 +93,7 @@ void OpenGLES::Reset()
     Initialize();
 }
 
-EGLSurface OpenGLES::CreateSurface(Windows::UI::Xaml::Controls::SwapChainPanel^ panel)
+EGLSurface OpenGLES::CreateSurface(SwapChainPanel^ panel, const Size* renderSurfaceSize)
 {
     if (!panel)
     {
@@ -102,7 +105,17 @@ EGLSurface OpenGLES::CreateSurface(Windows::UI::Xaml::Controls::SwapChainPanel^ 
         EGL_NONE, EGL_NONE
     };
 
-    surface = eglCreateWindowSurface(mEglDisplay, mEglConfig, reinterpret_cast<IInspectable*>(panel), surfaceAttribList);
+    // Create a PropertySet and initialize with the EGLNativeWindowType.
+    PropertySet^ surfaceCreationProperties = ref new PropertySet();
+    surfaceCreationProperties->Insert(ref new String(EGLNativeWindowTypeProperty), panel);
+
+    // If a render surface size is specified, add it to the surface creation properties
+    if (renderSurfaceSize != nullptr)
+    {
+        surfaceCreationProperties->Insert(ref new String(EGLRenderSurfaceSizeProperty), PropertyValue::CreateSize(*renderSurfaceSize));
+    }
+
+    surface = eglCreateWindowSurface(mEglDisplay, mEglConfig, reinterpret_cast<IInspectable*>(surfaceCreationProperties), surfaceAttribList);
     if (surface == EGL_NO_SURFACE)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to create EGL surface");

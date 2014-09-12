@@ -7,19 +7,63 @@
 // swapchainpanelhost.cpp: Host for managing ISwapChainPanel native window types.
 
 #include "common/winrt/swapchainpanelhost.h"
+#include <algorithm>
+#include <math.h>
+using namespace ABI::Windows::Foundation::Collections;
 
 SwapChainPanelHost::~SwapChainPanelHost()
 {
     unregisterForSizeChangeEvents();
 }
 
-bool SwapChainPanelHost::initialize(EGLNativeWindowType window)
+bool SwapChainPanelHost::initialize(EGLNativeWindowType window, IPropertySet* propertySet)
 {
+    ComPtr<IPropertySet> props = propertySet;
     ComPtr<IInspectable> win = window;
-    HRESULT result = win.As(&mSwapChainPanel);
+    SIZE swapChainSize = {};
+    bool swapChainSizeSpecified = false;
+    HRESULT result = S_OK;
+
+    // IPropertySet is an optional parameter and can null.
+    // If one is specified, cache as an IMap and read the properties
+    // used for initial host initialization.
+    if (propertySet)
+    {
+        result = props.As(&mPropertyMap);
+        if (SUCCEEDED(result))
+        {
+            // The EGLRenderSurfaceSizeProperty is optional and may be missing.  The IPropertySet
+            // was prevalidated to contain the EGLNativeWindowType before being passed to
+            // this host.
+            result = getOptionalSizePropertyValue(mPropertyMap, EGLRenderSurfaceSizeProperty, &swapChainSize, &swapChainSizeSpecified);
+        }
+    }
+
     if (SUCCEEDED(result))
     {
-        result = getSwapChainPanelSize(mSwapChainPanel, &mClientRect);
+        result = win.As(&mSwapChainPanel);
+    }
+
+    if (SUCCEEDED(result))
+    {
+        // If a swapchain size is specfied, then the automatic resize
+        // behaviors implemented by the host should be disabled.  The swapchain
+        // will be still be scaled when being rendered to fit the bounds
+        // of the host.
+        // Scaling of the swapchain output needs to be handled by the
+        // host for swapchain panels even though the scaling mode setting 
+        // DXGI_SCALING_STRETCH is configured on the swapchain.
+        if (swapChainSizeSpecified)
+        {
+            mClientRect = { 0, 0, swapChainSize.cx, swapChainSize.cy };
+
+            // Enable host swapchain scaling
+            mRequiresSwapChainScaling = true;
+        }
+        else
+        {
+            result = getSwapChainPanelSize(mSwapChainPanel, &mClientRect);
+        }
     }
 
     if (SUCCEEDED(result))
@@ -91,6 +135,7 @@ HRESULT SwapChainPanelHost::createSwapChain(ID3D11Device* device, DXGIFactory* f
 
     ComPtr<IDXGISwapChain1> newSwapChain;
     ComPtr<ISwapChainPanelNative> swapChainPanelNative;
+    RECT currentPanelSize = {};
 
     HRESULT result = factory->CreateSwapChainForComposition(device, &swapChainDesc, nullptr, newSwapChain.ReleaseAndGetAddressOf());
 
@@ -106,13 +151,60 @@ HRESULT SwapChainPanelHost::createSwapChain(ID3D11Device* device, DXGIFactory* f
 
     if (SUCCEEDED(result))
     {
-        newSwapChain.CopyTo(swapChain);
+        // The swapchain panel host requires an instance of the swapchain set on the SwapChainPanel
+        // to perform the runtime-scale behavior.  This swapchain is cached here because there are
+        // no methods for retreiving the currently configured on from ISwapChainPanelNative.
+        mSwapChain = newSwapChain;
+        result = newSwapChain.CopyTo(swapChain);
+    }
+
+    // If the host is responsible for scaling the output of the swapchain, then
+    // scale it now before returning an instance to the caller.  This is done by
+    // first reading the current size of the swapchain panel, then scaling
+    if (SUCCEEDED(result) && mRequiresSwapChainScaling)
+    {
+        result = getSwapChainPanelSize(mSwapChainPanel, &currentPanelSize);
+    }
+
+    // Scale the swapchain to fit inside the contents of the panel.
+    if (SUCCEEDED(result) && mRequiresSwapChainScaling)
+    {
+        SIZE currentSize = { currentPanelSize.right, currentPanelSize.bottom };
+        result = scaleSwapChain(currentSize);
+    }
+
+    if (SUCCEEDED(result))
+    {
+        // If automatic swapchain resize behaviors have been disabled, then
+        // unregister for the resize change events.
+        if (mSupportsSwapChainResize == false)
+        {
+            unregisterForSizeChangeEvents();
+        }
     }
 
     return result;
 }
 
-HRESULT getSwapChainPanelSize(ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> swapChainPanel, RECT* windowSize)
+HRESULT SwapChainPanelHost::scaleSwapChain(SIZE& newSize)
+{
+    ABI::Windows::Foundation::Size renderScale = { (float)newSize.cx/(float)mClientRect.right, (float)newSize.cy/(float)mClientRect.bottom };
+    // Setup a scale matrix for the swap chain
+    DXGI_MATRIX_3X2_F scaleMatrix = {};
+    scaleMatrix._11 = renderScale.Width;
+    scaleMatrix._22 = renderScale.Height;
+
+    ComPtr<IDXGISwapChain2> swapChain2;
+    HRESULT result = mSwapChain.As(&swapChain2);
+    if (SUCCEEDED(result))
+    {
+        result = swapChain2->SetMatrixTransform(&scaleMatrix);
+    }
+
+    return result;
+}
+
+HRESULT getSwapChainPanelSize(const ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel>& swapChainPanel, RECT* windowSize)
 {
     ComPtr<ABI::Windows::UI::Xaml::IUIElement> uiElement;
     ABI::Windows::Foundation::Size renderSize = { 0, 0 };
@@ -124,7 +216,7 @@ HRESULT getSwapChainPanelSize(ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChai
 
     if (SUCCEEDED(result))
     {
-        *windowSize = { 0, 0, (long)renderSize.Width, (long)renderSize.Height };
+        *windowSize = { 0, 0, lround(renderSize.Width), lround(renderSize.Height) };
     }
 
     return result;

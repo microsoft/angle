@@ -15,6 +15,10 @@
 #include "common/debug.h"
 #include <dxgi.h>
 #include <dxgi1_2.h>
+#if defined (ANGLE_ENABLE_WINDOWS_STORE)
+#include <dxgi1_3.h>
+#endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
+
 #include <d3d11.h>
 
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)

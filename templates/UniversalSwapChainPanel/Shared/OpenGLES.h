@@ -6,7 +6,7 @@ public:
     OpenGLES();
     ~OpenGLES();
 
-    EGLSurface CreateSurface(Windows::UI::Xaml::Controls::SwapChainPanel^ panel);
+    EGLSurface CreateSurface(Windows::UI::Xaml::Controls::SwapChainPanel^ panel, const Windows::Foundation::Size* renderSurfaceSize);
     void DestroySurface(const EGLSurface surface);
     void MakeCurrent(const EGLSurface surface);
     EGLBoolean SwapBuffers(const EGLSurface surface);

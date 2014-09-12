@@ -8,13 +8,14 @@
 class MockDXGISwapChain : public RuntimeClass<
     RuntimeClassFlags<ClassicCom>,
     IDXGIObject,
-    IDXGISwapChain1>
+    IDXGISwapChain2>
 {
 public:
 
     MockDXGISwapChain(const DXGI_SWAP_CHAIN_DESC1 *pDesc)
     {
         mDesc = *pDesc;
+        mMatrixTransform = {};
     }
 
     // IDXGIObject
@@ -226,8 +227,60 @@ public:
         return E_NOTIMPL;
     }
 
+    // IDXGISwapChain2
+    STDMETHODIMP SetSourceSize(
+        UINT Width,
+        UINT Height)
+    {
+        Assert::Fail(L"Unexpected call to SetSourceSize");
+        return E_NOTIMPL;
+    }
+
+    STDMETHODIMP GetSourceSize(
+        UINT *pWidth,
+        UINT *pHeight)
+    {
+        Assert::Fail(L"Unexpected call to GetSourceSize");
+        return E_NOTIMPL;
+    }
+
+    STDMETHODIMP SetMaximumFrameLatency(
+        UINT MaxLatency)
+    {
+        Assert::Fail(L"Unexpected call to SetMaximumFrameLatency");
+        return E_NOTIMPL;
+    }
+
+    STDMETHODIMP GetMaximumFrameLatency(
+        UINT *pMaxLatency)
+    {
+        Assert::Fail(L"Unexpected call to GetMaximumFrameLatency");
+        return E_NOTIMPL;
+    }
+
+    HANDLE STDMETHODCALLTYPE GetFrameLatencyWaitableObject(void)
+    {
+        Assert::Fail(L"Unexpected call to GetFrameLatencyWaitableObject");
+        return NULL;
+    }
+
+    STDMETHODIMP SetMatrixTransform(
+        const DXGI_MATRIX_3X2_F *pMatrix)
+    {
+        mMatrixTransform = *pMatrix;
+        return S_OK;
+    }
+
+    STDMETHODIMP GetMatrixTransform(
+        DXGI_MATRIX_3X2_F *pMatrix)
+    {
+        *pMatrix = mMatrixTransform;
+        return S_OK;
+    }
+
 private:
 
     DXGI_SWAP_CHAIN_DESC1 mDesc;
+    DXGI_MATRIX_3X2_F mMatrixTransform;
 
 };
