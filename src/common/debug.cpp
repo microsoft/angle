@@ -67,7 +67,7 @@ static void output(bool traceFileDebugOnly, PerfOutputFunction perfFunc, const c
 #if defined(ANGLE_ENABLE_TRACE_OUTPUT)
 // Only output to the debugger window for debug builds only
 #ifdef _DEBUG
-    OutputDebugStringA(&asciiMessageBuffer[0]);
+    OutputDebugStringA(formattedMessage.c_str());
 #endif // _DEBUG
 #endif // ANGLE_ENABLE_TRACE_OUTPUT
 
