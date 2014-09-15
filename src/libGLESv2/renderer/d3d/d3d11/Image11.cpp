@@ -22,16 +22,19 @@
 namespace rx
 {
 
-Image11::Image11()
+Image11::Image11(Renderer11 *renderer)
 {
     mStagingTexture = NULL;
-    mRenderer = NULL;
     mDXGIFormat = DXGI_FORMAT_UNKNOWN;
     mRecoverFromStorage = false;
     mAssociatedStorage = NULL;
     mAssociatedStorageLevel = 0;
     mAssociatedStorageLayerTarget = 0;
     mRecoveredFromStorageCount = 0;
+
+    // mRenderer should remain unchanged during the lifetime of the Image11 object.
+    // This lets us safely use mRenderer (and its Feature Level) in Image11's methods.
+    mRenderer = renderer;
 }
 
 Image11::~Image11()
@@ -214,7 +217,11 @@ bool Image11::redefine(Renderer *renderer, GLenum target, GLenum internalformat,
         disassociateStorage();
         mRecoveredFromStorageCount = 0;
 
-        mRenderer = Renderer11::makeRenderer11(renderer);
+        // The Image11's Renderer11 shouldn't change when the Image is redefined.
+        Renderer11* newRenderer = Renderer11::makeRenderer11(renderer);
+        UNUSED_ASSERTION_VARIABLE(newRenderer);
+        ASSERT(newRenderer == mRenderer);
+
         D3D_FEATURE_LEVEL d3dFeatureLevel = mRenderer->getDevice()->GetFeatureLevel();
 
         mWidth = width;

@@ -2883,7 +2883,7 @@ void Renderer11::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsi
 
 Image *Renderer11::createImage()
 {
-    return new Image11();
+    return new Image11(this);
 }
 
 void Renderer11::generateMipmap(Image *dest, Image *src)

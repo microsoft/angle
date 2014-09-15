@@ -30,7 +30,7 @@ class TextureStorage11;
 class Image11 : public ImageD3D
 {
   public:
-    Image11();
+    Image11(Renderer11 *renderer);
     virtual ~Image11();
 
     static Image11 *makeImage11(Image *img);
