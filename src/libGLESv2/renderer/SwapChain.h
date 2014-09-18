@@ -12,6 +12,10 @@
 
 #include "common/angleutils.h"
 #include "common/surfacehost.h"
+#include "common/platform.h"
+
+#include <GLES2/gl2.h>
+#include <EGL/egl.h>
 
 #if !defined(ANGLE_FORCE_VSYNC_OFF)
 #define ANGLE_FORCE_VSYNC_OFF 0

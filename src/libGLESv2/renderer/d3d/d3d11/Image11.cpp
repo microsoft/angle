@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2012 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -11,13 +10,13 @@
 #include "libGLESv2/renderer/d3d/d3d11/Renderer11.h"
 #include "libGLESv2/renderer/d3d/d3d11/Image11.h"
 #include "libGLESv2/renderer/d3d/d3d11/TextureStorage11.h"
-#include "libGLESv2/Framebuffer.h"
-#include "libGLESv2/FramebufferAttachment.h"
-
-#include "libGLESv2/main.h"
-#include "common/utilities.h"
 #include "libGLESv2/renderer/d3d/d3d11/formatutils11.h"
 #include "libGLESv2/renderer/d3d/d3d11/renderer11_utils.h"
+#include "libGLESv2/Framebuffer.h"
+#include "libGLESv2/FramebufferAttachment.h"
+#include "libGLESv2/main.h"
+
+#include "common/utilities.h"
 
 namespace rx
 {
@@ -91,11 +90,10 @@ void Image11::generateMipmap(Image11 *dest, Image11 *src)
 
 bool Image11::isDirty() const
 {
-    // If mStagingTexture doesn't exist AND mStagingTexture doesn't need to be recovered from TextureStorage
+    // If mDirty is true
+    // AND mStagingTexture doesn't exist AND mStagingTexture doesn't need to be recovered from TextureStorage
     // AND the texture doesn't require init data (i.e. a blank new texture will suffice)
-    // AND mDirty is true 
     // then isDirty should still return false.
-
     if (mDirty && !mStagingTexture && !mRecoverFromStorage && !(d3d11::GetTextureFormatInfo(mInternalFormat, mRenderer->getDevice()->GetFeatureLevel()).dataInitializerFunction != NULL))
     {
         return false;

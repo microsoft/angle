@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2002-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -11,9 +10,10 @@
 #include "libGLESv2/renderer/d3d/d3d9/renderer9_utils.h"
 #include "libGLESv2/renderer/d3d/d3d9/formatutils9.h"
 #include "libGLESv2/formatutils.h"
-#include "common/mathutil.h"
-#include "libGLESv2/Context.h"
+#include "libGLESv2/Framebuffer.h"
+#include "libGLESv2/renderer/d3d/d3d9/RenderTarget9.h"
 
+#include "common/mathutil.h"
 #include "common/debug.h"
 
 #include "third_party/systeminfo/SystemInfo.h"
@@ -425,6 +425,24 @@ void GenerateCaps(IDirect3D9 *d3d9, IDirect3DDevice9 *device, D3DDEVTYPE deviceT
     caps->minProgramTexelOffset = 0;
     caps->maxProgramTexelOffset = 0;
 
+    // Aggregate shader limits (unused in ES2)
+    caps->maxUniformBufferBindings = 0;
+    caps->maxUniformBlockSize = 0;
+    caps->uniformBufferOffsetAlignment = 0;
+    caps->maxCombinedUniformBlocks = 0;
+    caps->maxCombinedVertexUniformComponents = 0;
+    caps->maxCombinedFragmentUniformComponents = 0;
+    caps->maxVaryingComponents = 0;
+
+    // Aggregate shader limits
+    caps->maxVaryingVectors = caps->maxVertexOutputComponents / 4;
+    caps->maxCombinedTextureImageUnits = caps->maxVertexTextureImageUnits + caps->maxFragmentInputComponents;
+
+    // Transform feedback limits
+    caps->maxTransformFeedbackInterleavedComponents = 0;
+    caps->maxTransformFeedbackSeparateAttributes = 0;
+    caps->maxTransformFeedbackSeparateComponents = 0;
+
     // GL extension support
     extensions->setTextureExtensionSupport(*textureCapsMap);
     extensions->elementIndexUint = deviceCaps.MaxVertexIndex >= (1 << 16);
@@ -513,6 +531,12 @@ void MakeValidSize(bool isImage, D3DFORMAT format, GLsizei *requestWidth, GLsize
         }
     }
     *levelOffset = upsampleCount;
+}
+
+RenderTarget9 *GetAttachmentRenderTarget(gl::FramebufferAttachment *attachment)
+{
+    RenderTarget *renderTarget = rx::GetAttachmentRenderTarget(attachment);
+    return RenderTarget9::makeRenderTarget9(renderTarget);
 }
 
 }

@@ -1,5 +1,3 @@
-
-#include "precompiled.h"
 //
 // Copyright (c) 2002-2012 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -10,17 +8,16 @@
 // the actual underlying surfaces of a Texture.
 
 #include "libGLESv2/renderer/d3d/d3d9/Image9.h"
-
+#include "libGLESv2/renderer/d3d/d3d9/renderer9_utils.h"
+#include "libGLESv2/renderer/d3d/d3d9/formatutils9.h"
+#include "libGLESv2/renderer/d3d/d3d9/Renderer9.h"
+#include "libGLESv2/renderer/d3d/d3d9/RenderTarget9.h"
+#include "libGLESv2/renderer/d3d/d3d9/TextureStorage9.h"
 #include "libGLESv2/main.h"
 #include "libGLESv2/Framebuffer.h"
 #include "libGLESv2/FramebufferAttachment.h"
 #include "libGLESv2/Renderbuffer.h"
-#include "libGLESv2/renderer/d3d/d3d9/Renderer9.h"
-#include "libGLESv2/renderer/d3d/d3d9/RenderTarget9.h"
-#include "libGLESv2/renderer/d3d/d3d9/TextureStorage9.h"
 
-#include "libGLESv2/renderer/d3d/d3d9/renderer9_utils.h"
-#include "libGLESv2/renderer/d3d/d3d9/formatutils9.h"
 
 namespace rx
 {
@@ -371,7 +368,7 @@ bool Image9::copyToSurface(IDirect3DSurface9 *destSurface, GLint xoffset, GLint 
         }
         else
         {
-            // UpdateSurface: source must be SYSTEMMEM, dest must be DEFAULT pools 
+            // UpdateSurface: source must be SYSTEMMEM, dest must be DEFAULT pools
             HRESULT result = device->UpdateSurface(sourceSurface, &rect, destSurface, &point);
             UNUSED_ASSERTION_VARIABLE(result);
             ASSERT(SUCCEEDED(result));
@@ -465,9 +462,9 @@ void Image9::copy(GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y,
 
     if (colorbuffer)
     {
-        renderTarget = RenderTarget9::makeRenderTarget9(colorbuffer->getRenderTarget());
+        renderTarget = d3d9::GetAttachmentRenderTarget(colorbuffer);
     }
-    
+
     if (renderTarget)
     {
         surface = renderTarget->getSurface();
@@ -484,7 +481,7 @@ void Image9::copy(GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y,
     IDirect3DSurface9 *renderTargetData = NULL;
     D3DSURFACE_DESC description;
     surface->GetDesc(&description);
-    
+
     HRESULT result = device->CreateOffscreenPlainSurface(description.Width, description.Height, description.Format, D3DPOOL_SYSTEMMEM, &renderTargetData, NULL);
 
     if (FAILED(result))
@@ -520,7 +517,7 @@ void Image9::copy(GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y,
 
     D3DLOCKED_RECT destLock = {0};
     result = lock(&destLock, &destRect);
-    
+
     if (FAILED(result))
     {
         ERR("Failed to lock the destination surface (rectangle might be invalid).");

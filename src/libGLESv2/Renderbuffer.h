@@ -71,7 +71,6 @@ class RenderbufferStorage
     virtual ~RenderbufferStorage() = 0;
 
     virtual rx::RenderTarget *getRenderTarget();
-    virtual rx::RenderTarget *getDepthStencil();
 
     virtual GLsizei getWidth() const;
     virtual GLsizei getHeight() const;
@@ -125,7 +124,7 @@ class DepthStencilbuffer : public RenderbufferStorage
 
     ~DepthStencilbuffer();
 
-    virtual rx::RenderTarget *getDepthStencil();
+    virtual rx::RenderTarget *getRenderTarget();
 
   protected:
     rx::RenderTarget  *mDepthStencil;

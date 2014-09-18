@@ -21,11 +21,7 @@
 #include <cstdint>
 #include <memory>
 
-// A macro to disallow the copy constructor and operator= functions
-// This must be used in the private: declarations for a class
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-    TypeName(const TypeName&);               \
-    void operator=(const TypeName&)
+#include "shared_utils.h"
 
 class OSWindow;
 
@@ -38,14 +34,35 @@ class EGLWindow
 
     ~EGLWindow();
 
+    void setClientVersion(EGLint glesMajorVersion) { mClientVersion = glesMajorVersion; }
+    void setWidth(size_t width) { mWidth = width; }
+    void setHeight(size_t height) { mHeight = height; }
+    void setConfigRedBits(int bits) { mRedBits = bits; }
+    void setConfigGreenBits(int bits) { mGreenBits = bits; }
+    void setConfigBlueBits(int bits) { mBlueBits = bits; }
+    void setConfigAlphaBits(int bits) { mAlphaBits = bits; }
+    void setConfigDepthBits(int bits) { mDepthBits = bits; }
+    void setConfigStencilBits(int bits) { mStencilBits = bits; }
+    void setMultisample(bool multisample) { mMultisample = multisample; }
+    void setSwapInterval(EGLint swapInterval) { mSwapInterval = swapInterval; }
+
     void swap();
 
+    GLuint getClientVersion() const { return mClientVersion; }
     EGLConfig getConfig() const;
     EGLDisplay getDisplay() const;
     EGLSurface getSurface() const;
     EGLContext getContext() const;
     size_t getWidth() const { return mWidth; }
     size_t getHeight() const { return mHeight; }
+    int getConfigRedBits() const { return mRedBits; }
+    int getConfigGreenBits() const { return mGreenBits; }
+    int getConfigBlueBits() const { return mBlueBits; }
+    int getConfigAlphaBits() const { return mAlphaBits; }
+    int getConfigDepthBits() const { return mDepthBits; }
+    int getConfigStencilBits() const { return mStencilBits; }
+    bool isMultisample() const { return mMultisample; }
+    EGLint getSwapInterval() const { return mSwapInterval; }
 
     bool initializeGL(const OSWindow *osWindow);
     void destroyGL();
@@ -62,6 +79,14 @@ class EGLWindow
     EGLint mRequestedRenderer;
     size_t mWidth;
     size_t mHeight;
+    int mRedBits;
+    int mGreenBits;
+    int mBlueBits;
+    int mAlphaBits;
+    int mDepthBits;
+    int mStencilBits;
+    bool mMultisample;
+    EGLint mSwapInterval;
 };
 
 #endif // UTIL_EGLWINDOW_H_

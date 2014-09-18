@@ -12,9 +12,10 @@
 #define GL_GLEXT_PROTOTYPES
 
 #include "angle_gl.h"
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
 #include <algorithm>
+
+#include "shared_utils.h"
+#include "shader_utils.h"
 
 #define EXPECT_GL_ERROR(err) EXPECT_EQ((err), glGetError())
 #define EXPECT_GL_NO_ERROR() EXPECT_GL_ERROR(GL_NO_ERROR)
@@ -33,7 +34,8 @@
     EXPECT_EQ((a), pixel[3]); \
 }
 
-#define SHADER_SOURCE(...) #__VA_ARGS__
+class EGLWindow;
+class OSWindow;
 
 class ANGLETest : public testing::Test
 {
@@ -53,7 +55,6 @@ class ANGLETest : public testing::Test
 
     static void drawQuad(GLuint program, const std::string& positionAttribName, GLfloat quadDepth);
     static GLuint compileShader(GLenum type, const std::string &source);
-    static GLuint compileProgram(const std::string &vsSource, const std::string &fsSource);
     static bool extensionEnabled(const std::string &extName);
 
     void setClientVersion(int clientVersion);
@@ -70,38 +71,15 @@ class ANGLETest : public testing::Test
     int getClientVersion() const;
     int getWindowWidth() const;
     int getWindowHeight() const;
-    int getConfigRedBits() const;
-    int getConfigGreenBits() const;
-    int getConfigBlueBits() const;
-    int getConfigAlphaBits() const;
-    int getConfigDepthBits() const;
-    int getConfigStencilBits() const;
     bool isMultisampleEnabled() const;
 
   private:
     bool createEGLContext();
     bool destroyEGLContext();
 
-    EGLint mTestPlatform;
+    EGLWindow *mEGLWindow;
 
-    int mClientVersion;
-    int mWidth;
-    int mHeight;
-    int mRedBits;
-    int mGreenBits;
-    int mBlueBits;
-    int mAlphaBits;
-    int mDepthBits;
-    int mStencilBits;
-    bool mMultisample;
-
-    EGLConfig mConfig;
-    EGLSurface mSurface;
-    EGLContext mContext;
-    EGLDisplay mDisplay;
-
-    static EGLNativeWindowType mNativeWindow;
-    static EGLNativeDisplayType mNativeDisplay;
+    static OSWindow *mOSWindow;
 };
 
 class ANGLETestEnvironment : public testing::Environment

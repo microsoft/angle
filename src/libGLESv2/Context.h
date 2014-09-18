@@ -10,15 +10,6 @@
 #ifndef LIBGLESV2_CONTEXT_H_
 #define LIBGLESV2_CONTEXT_H_
 
-#include "angle_gl.h"
-#include <EGL/egl.h>
-
-#include <string>
-#include <set>
-#include <map>
-#include <unordered_map>
-#include <array>
-
 #include "common/angleutils.h"
 #include "common/RefCountObject.h"
 #include "libGLESv2/Caps.h"
@@ -28,6 +19,14 @@
 #include "libGLESv2/Constants.h"
 #include "libGLESv2/VertexAttribute.h"
 #include "libGLESv2/State.h"
+
+#include "angle_gl.h"
+
+#include <string>
+#include <set>
+#include <map>
+#include <unordered_map>
+#include <array>
 
 namespace rx
 {
@@ -138,8 +137,8 @@ class Context
     void setProgramBinary(GLuint program, GLenum binaryFormat, const void *binary, GLint length);
     void bindTransformFeedback(GLuint transformFeedback);
 
-    void beginQuery(GLenum target, GLuint query);
-    void endQuery(GLenum target);
+    Error beginQuery(GLenum target, GLuint query);
+    Error endQuery(GLenum target);
 
     void setFramebufferZero(Framebuffer *framebuffer);
 
@@ -186,15 +185,17 @@ class Context
     bool getQueryParameterInfo(GLenum pname, GLenum *type, unsigned int *numParams);
     bool getIndexedQueryParameterInfo(GLenum target, GLenum *type, unsigned int *numParams);
 
-    void clear(GLbitfield mask);
-    void clearBufferfv(GLenum buffer, int drawbuffer, const float *values);
-    void clearBufferuiv(GLenum buffer, int drawbuffer, const unsigned int *values);
-    void clearBufferiv(GLenum buffer, int drawbuffer, const int *values);
-    void clearBufferfi(GLenum buffer, int drawbuffer, float depth, int stencil);
+    Error clear(GLbitfield mask);
+    Error clearBufferfv(GLenum buffer, int drawbuffer, const float *values);
+    Error clearBufferuiv(GLenum buffer, int drawbuffer, const unsigned int *values);
+    Error clearBufferiv(GLenum buffer, int drawbuffer, const int *values);
+    Error clearBufferfi(GLenum buffer, int drawbuffer, float depth, int stencil);
 
-    void readPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLsizei *bufSize, void* pixels);
+    Error readPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLsizei *bufSize, void* pixels);
     void drawArrays(GLenum mode, GLint first, GLsizei count, GLsizei instances);
-    void drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, GLsizei instances);
+    void drawElements(GLenum mode, GLsizei count, GLenum type,
+                      const GLvoid *indices, GLsizei instances,
+                      const rx::RangeUI &indexRange);
     void sync(bool block);   // flush/finish
 
     void recordError(const Error &error);
@@ -209,10 +210,6 @@ class Context
     const TextureCapsMap &getTextureCaps() const;
     const Extensions &getExtensions() const;
 
-    unsigned int getMaximumCombinedTextureImageUnits() const;
-    unsigned int getMaximumCombinedUniformBufferBindings() const;
-    unsigned int getMaxTransformFeedbackBufferBindings() const;
-    GLintptr getUniformBufferOffsetAlignment() const;
     const std::string &getRendererString() const;
 
     const std::string &getExtensionString() const;
@@ -224,13 +221,12 @@ class Context
     void blitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
                          GLbitfield mask, GLenum filter);
 
-    void invalidateFrameBuffer(GLenum target, GLsizei numAttachments, const GLenum* attachments,
-                               GLint x, GLint y, GLsizei width, GLsizei height);
-
     rx::Renderer *getRenderer() { return mRenderer; }
 
     State &getState() { return mState; }
     const State &getState() const { return mState; }
+
+    void releaseShaderCompiler();
 
   private:
     DISALLOW_COPY_AND_ASSIGN(Context);

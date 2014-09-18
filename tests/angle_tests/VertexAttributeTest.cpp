@@ -42,7 +42,7 @@ protected:
             glVertexAttribPointer(mExpectedAttrib, i + 1, GL_FLOAT, GL_FALSE, 0, test.expectedData);
 
             glEnableVertexAttribArray(mTestAttrib);
-            glEnableVertexAttribArray(mExpectedAttrib);
+            glEnableVertexAttribArray(mExpectedAttrib); 
 
             drawQuad(mProgram, "position", 0.5f);
 
@@ -86,7 +86,7 @@ protected:
             }
         );
 
-        mProgram = compileProgram(testVertexShaderSource, testFragmentShaderSource);
+        mProgram = CompileProgram(testVertexShaderSource, testFragmentShaderSource);
         if (mProgram == 0)
         {
             FAIL() << "shader compilation failed.";

@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2002-2012 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -9,9 +8,10 @@
 // class with derivations, classes that perform graphics API agnostic vertex buffer operations.
 
 #include "libGLESv2/renderer/d3d/VertexBuffer.h"
+#include "libGLESv2/renderer/d3d/BufferD3D.h"
 #include "libGLESv2/renderer/Renderer.h"
 #include "libGLESv2/VertexAttribute.h"
-#include "libGLESv2/renderer/d3d/BufferD3D.h"
+
 #include "common/mathutil.h"
 
 namespace rx

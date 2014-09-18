@@ -11,6 +11,8 @@
 
 #include "common/angleutils.h"
 
+#include "angle_gl.h"
+
 namespace egl
 {
 class Surface;
@@ -27,7 +29,6 @@ namespace rx
 {
 
 class Image;
-class RenderTarget;
 class Renderer;
 class TextureStorageInterface;
 
@@ -55,10 +56,6 @@ class TextureImpl
     virtual void storage(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth) = 0;
 
     virtual void generateMipmaps() = 0;
-
-    virtual unsigned int getRenderTargetSerial(GLint level, GLint layer) = 0;
-    virtual RenderTarget *getRenderTarget(GLint level, GLint layer) = 0;
-    virtual RenderTarget *getDepthStencil(GLint level, GLint layer) = 0;
 
     virtual void bindTexImage(egl::Surface *surface) = 0;
     virtual void releaseTexImage() = 0;

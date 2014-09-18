@@ -12,6 +12,9 @@
 
 #include "common/angleutils.h"
 #include "common/mathutil.h"
+
+#include "angle_gl.h"
+
 #include <map>
 
 namespace rx
@@ -27,6 +30,8 @@ class IndexRangeCache
 
     void invalidateRange(unsigned int offset, unsigned int size);
     void clear();
+
+    static RangeUI ComputeRange(GLenum type, const GLvoid *indices, GLsizei count);
 
   private:
     struct IndexRange
@@ -56,4 +61,4 @@ class IndexRangeCache
 
 }
 
-#endif LIBGLESV2_RENDERER_INDEXRANGECACHE_H
+#endif // LIBGLESV2_RENDERER_INDEXRANGECACHE_H

@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2012 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -12,10 +11,10 @@
 #include "libGLESv2/renderer/d3d/d3d11/VertexBuffer11.h"
 #include "libGLESv2/renderer/d3d/d3d11/Buffer11.h"
 #include "libGLESv2/renderer/d3d/d3d11/ShaderExecutable11.h"
+#include "libGLESv2/renderer/d3d/d3d11/formatutils11.h"
+#include "libGLESv2/renderer/d3d/VertexDataManager.h"
 #include "libGLESv2/ProgramBinary.h"
 #include "libGLESv2/VertexAttribute.h"
-#include "libGLESv2/renderer/d3d/VertexDataManager.h"
-#include "libGLESv2/renderer/d3d/d3d11/formatutils11.h"
 
 #include "third_party/murmurhash/MurmurHash3.h"
 
@@ -196,7 +195,7 @@ GLenum InputLayoutCache::applyVertexBuffers(TranslatedAttribute attributes[gl::M
             VertexBuffer11 *vertexBuffer = VertexBuffer11::makeVertexBuffer11(attributes[i].vertexBuffer);
             Buffer11 *bufferStorage = attributes[i].storage ? Buffer11::makeBuffer11(attributes[i].storage) : NULL;
 
-            buffer = bufferStorage ? bufferStorage->getBuffer(BUFFER_USAGE_VERTEX)
+            buffer = bufferStorage ? bufferStorage->getBuffer(BUFFER_USAGE_VERTEX_OR_TRANSFORM_FEEDBACK)
                                    : vertexBuffer->getBuffer();
         }
 

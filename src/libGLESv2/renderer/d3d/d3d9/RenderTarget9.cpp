@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2012-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -10,7 +9,6 @@
 
 #include "libGLESv2/renderer/d3d/d3d9/RenderTarget9.h"
 #include "libGLESv2/renderer/d3d/d3d9/Renderer9.h"
-
 #include "libGLESv2/renderer/d3d/d3d9/renderer9_utils.h"
 #include "libGLESv2/renderer/d3d/d3d9/formatutils9.h"
 #include "libGLESv2/main.h"

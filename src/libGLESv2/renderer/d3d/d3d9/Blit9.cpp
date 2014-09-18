@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2002-2010 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -8,8 +7,6 @@
 // Blit9.cpp: Surface copy utility class.
 
 #include "libGLESv2/renderer/d3d/d3d9/Blit9.h"
-
-#include "libGLESv2/main.h"
 #include "libGLESv2/renderer/d3d/d3d9/renderer9_utils.h"
 #include "libGLESv2/renderer/d3d/d3d9/formatutils9.h"
 #include "libGLESv2/renderer/d3d/d3d9/TextureStorage9.h"
@@ -17,9 +14,11 @@
 #include "libGLESv2/renderer/d3d/d3d9/Renderer9.h"
 #include "libGLESv2/Framebuffer.h"
 #include "libGLESv2/FramebufferAttachment.h"
+#include "libGLESv2/main.h"
 
 namespace
 {
+// Precompiled shaders
 #include "libGLESv2/renderer/d3d/d3d9/shaders/compiled/standardvs.h"
 #include "libGLESv2/renderer/d3d/d3d9/shaders/compiled/flipyvs.h"
 #include "libGLESv2/renderer/d3d/d3d9/shaders/compiled/passthroughps.h"
@@ -217,9 +216,9 @@ bool Blit9::copy(gl::Framebuffer *framebuffer, const RECT &sourceRect, GLenum de
 
     if (colorbuffer)
     {
-        renderTarget = RenderTarget9::makeRenderTarget9(colorbuffer->getRenderTarget());
+        renderTarget = d3d9::GetAttachmentRenderTarget(colorbuffer);
     }
-    
+
     if (renderTarget)
     {
         source = renderTarget->getSurface();
@@ -234,7 +233,7 @@ bool Blit9::copy(gl::Framebuffer *framebuffer, const RECT &sourceRect, GLenum de
     TextureStorage9_2D *storage9 = TextureStorage9_2D::makeTextureStorage9_2D(storage->getStorageInstance());
     IDirect3DSurface9 *destSurface = storage9->getSurfaceLevel(level, true);
     bool result = false;
-        
+
     if (destSurface)
     {
         result = copy(source, sourceRect, destFormat, xoffset, yoffset, destSurface);
@@ -253,9 +252,9 @@ bool Blit9::copy(gl::Framebuffer *framebuffer, const RECT &sourceRect, GLenum de
 
     if (colorbuffer)
     {
-        renderTarget = RenderTarget9::makeRenderTarget9(colorbuffer->getRenderTarget());
+        renderTarget = d3d9::GetAttachmentRenderTarget(colorbuffer);
     }
-    
+
     if (renderTarget)
     {
         source = renderTarget->getSurface();

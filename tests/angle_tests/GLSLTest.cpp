@@ -272,7 +272,7 @@ TEST_F(GLSLTest, NamelessScopedStructs)
         }
     );
 
-    GLuint program = compileProgram(mSimpleVSSource, fragmentShaderSource);
+    GLuint program = CompileProgram(mSimpleVSSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 TEST_F(GLSLTest, ScopedStructsOrderBug)
@@ -303,7 +303,7 @@ TEST_F(GLSLTest, ScopedStructsOrderBug)
         }
     );
 
-    GLuint program = compileProgram(mSimpleVSSource, fragmentShaderSource);
+    GLuint program = CompileProgram(mSimpleVSSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -335,7 +335,7 @@ TEST_F(GLSLTest, ScopedStructsBug)
         }
     );
 
-    GLuint program = compileProgram(mSimpleVSSource, fragmentShaderSource);
+    GLuint program = CompileProgram(mSimpleVSSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -364,7 +364,7 @@ TEST_F(GLSLTest, DxPositionBug)
         }
     );
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -393,7 +393,7 @@ TEST_F(GLSLTest, ElseIfRewriting)
         "  gl_FragColor = color;\n"
         "}\n";
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     ASSERT_NE(0u, program);
 
     drawQuad(program, "a_position", 0.5f);
@@ -426,7 +426,7 @@ TEST_F(GLSLTest, TwoElseIfRewriting)
         "  gl_FragColor = vec4(v, 0.0, 0.0, 1.0);\n"
         "}\n";
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -446,7 +446,7 @@ TEST_F(GLSLTest, InvariantVaryingOut)
         void main() { v_varying = a_position.x; gl_Position = a_position; }
     );
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -466,7 +466,7 @@ TEST_F(GLSLTest, InvariantVaryingIn)
         void main() { v_varying = a_position.x; gl_Position = a_position; }
     );
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -486,7 +486,7 @@ TEST_F(GLSLTest, InvariantVaryingBoth)
         void main() { v_varying = a_position.x; gl_Position = a_position; }
     );
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -507,7 +507,7 @@ TEST_F(GLSLTest, InvariantGLPosition)
         void main() { v_varying = a_position.x; gl_Position = a_position; }
     );
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -526,7 +526,7 @@ TEST_F(GLSLTest, InvariantAll)
         "varying float v_varying;\n"
         "void main() { v_varying = a_position.x; gl_Position = a_position; }\n";
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -540,7 +540,7 @@ TEST_F(GLSLTest, MaxVaryingVec3)
 
     GenerateGLSLWithVaryings(0, 0, 0, 0, maxVaryings, 0, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -554,7 +554,7 @@ TEST_F(GLSLTest, MaxVaryingVec3Array)
 
     GenerateGLSLWithVaryings(0, 0, 0, 0, 0, maxVaryings / 2, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -568,7 +568,7 @@ TEST_F(GLSLTest, MaxVaryingVec3AndOneFloat)
 
     GenerateGLSLWithVaryings(1, 0, 0, 0, maxVaryings, 0, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -582,7 +582,7 @@ TEST_F(GLSLTest, MaxVaryingVec3ArrayAndOneFloatArray)
 
     GenerateGLSLWithVaryings(0, 1, 0, 0, 0, maxVaryings / 2, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -596,7 +596,7 @@ TEST_F(GLSLTest, TwiceMaxVaryingVec2)
 
     GenerateGLSLWithVaryings(0, 0, 2 * maxVaryings, 0, 0, 0, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -610,7 +610,7 @@ TEST_F(GLSLTest, MaxVaryingVec2Arrays)
 
     GenerateGLSLWithVaryings(0, 0, 0, maxVaryings, 0, 0, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_NE(0u, program);
 }
 
@@ -624,7 +624,7 @@ TEST_F(GLSLTest, MaxPlusOneVaryingVec3)
 
     GenerateGLSLWithVaryings(0, 0, 0, 0, maxVaryings + 1, 0, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_EQ(0u, program);
 }
 
@@ -638,7 +638,7 @@ TEST_F(GLSLTest, MaxPlusOneVaryingVec3Array)
 
     GenerateGLSLWithVaryings(0, 0, 0, 0, 0, maxVaryings / 2 + 1, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_EQ(0u, program);
 }
 
@@ -652,7 +652,7 @@ TEST_F(GLSLTest, MaxVaryingVec3AndOneVec2)
 
     GenerateGLSLWithVaryings(0, 0, 1, 0, maxVaryings, 0, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_EQ(0u, program);
 }
 
@@ -666,7 +666,7 @@ TEST_F(GLSLTest, MaxPlusOneVaryingVec2)
 
     GenerateGLSLWithVaryings(0, 0, 2 * maxVaryings + 1, 0, 0, 0, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_EQ(0u, program);
 }
 
@@ -680,6 +680,6 @@ TEST_F(GLSLTest, MaxVaryingVec3ArrayAndMaxPlusOneFloatArray)
 
     GenerateGLSLWithVaryings(0, maxVaryings / 2 + 1, 0, 0, 0, maxVaryings / 2, &fragmentShaderSource, &vertexShaderSource);
 
-    GLuint program = compileProgram(vertexShaderSource, fragmentShaderSource);
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_EQ(0u, program);
 }

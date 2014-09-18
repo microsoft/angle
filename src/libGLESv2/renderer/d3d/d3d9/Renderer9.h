@@ -27,6 +27,7 @@ namespace rx
 class VertexDataManager;
 class IndexDataManager;
 class StreamingIndexBufferInterface;
+class StaticIndexBufferInterface;
 struct TranslatedAttribute;
 class Blit9;
 
@@ -82,7 +83,7 @@ class Renderer9 : public Renderer
     virtual bool applyPrimitiveType(GLenum primitiveType, GLsizei elementCount);
     virtual GLenum applyVertexBuffer(gl::ProgramBinary *programBinary, const gl::VertexAttribute vertexAttributes[], const gl::VertexAttribCurrentValueData currentValues[],
                                      GLint first, GLsizei count, GLsizei instances);
-    virtual GLenum applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo);
+    virtual gl::Error applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo);
 
     virtual void applyTransformFeedbackBuffers(gl::Buffer *transformFeedbackBuffers[], GLintptr offsets[]);
 
@@ -90,7 +91,7 @@ class Renderer9 : public Renderer
     virtual void drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,
                               gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei instances);
 
-    virtual void clear(const gl::ClearParameters &clearParams, gl::Framebuffer *frameBuffer);
+    virtual gl::Error clear(const gl::ClearParameters &clearParams, gl::Framebuffer *frameBuffer);
 
     virtual void markAllStateDirty();
 
@@ -105,16 +106,10 @@ class Renderer9 : public Renderer
     virtual std::string getRendererDescription() const;
     virtual GUID getAdapterIdentifier() const;
 
-    virtual unsigned int getMaxCombinedTextureImageUnits() const;
     virtual unsigned int getReservedVertexUniformVectors() const;
     virtual unsigned int getReservedFragmentUniformVectors() const;
-    virtual unsigned int getMaxVaryingVectors() const;
     virtual unsigned int getReservedVertexUniformBuffers() const;
     virtual unsigned int getReservedFragmentUniformBuffers() const;
-    virtual unsigned int getMaxTransformFeedbackBuffers() const;
-    virtual unsigned int getMaxTransformFeedbackSeparateComponents() const;
-    virtual unsigned int getMaxTransformFeedbackInterleavedComponents() const;
-    virtual unsigned int getMaxUniformBufferSize() const;
     virtual bool getShareHandleSupport() const;
     virtual bool getPostSubBufferSupport() const;
 
@@ -145,14 +140,20 @@ class Renderer9 : public Renderer
 
     virtual bool blitRect(gl::Framebuffer *readTarget, const gl::Rectangle &readRect, gl::Framebuffer *drawTarget, const gl::Rectangle &drawRect,
                           const gl::Rectangle *scissor, bool blitRenderTarget, bool blitDepth, bool blitStencil, GLenum filter);
-    virtual void readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format,
-                            GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels);
+
+    virtual gl::Error readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format,
+                                 GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels);
 
     // RenderTarget creation
     virtual RenderTarget *createRenderTarget(SwapChain *swapChain, bool depth);
     virtual RenderTarget *createRenderTarget(int width, int height, GLenum format, GLsizei samples);
 
+    // Shader creation
+    virtual ShaderImpl *createShader(GLenum type);
+    virtual ProgramImpl *createProgram();
+
     // Shader operations
+    virtual void releaseShaderCompiler();
     virtual ShaderExecutable *loadExecutable(const void *function, size_t length, rx::ShaderType type,
                                              const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
                                              bool separatedOutputBuffers);
@@ -185,6 +186,9 @@ class Renderer9 : public Renderer
     virtual QueryImpl *createQuery(GLenum type);
     virtual FenceImpl *createFence();
 
+    // Transform Feedback creation
+    virtual TransformFeedbackImpl* createTransformFeedback();
+
     // Buffer-to-texture and Texture-to-buffer copies
     virtual bool supportsFastCopyBufferToTexture(GLenum internalFormat) const;
     virtual bool fastCopyBufferToTexture(const gl::PixelUnpackState &unpack, unsigned int offset, RenderTarget *destRenderTarget,
@@ -212,6 +216,8 @@ class Renderer9 : public Renderer
 
     void drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer);
     void drawIndexedPoints(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer);
+
+    StaticIndexBufferInterface *getCountingIB(size_t count);
 
     bool copyToRenderTarget(IDirect3DSurface9 *dest, IDirect3DSurface9 *source, bool fromManaged);
     gl::FramebufferAttachment *getNullColorbuffer(gl::FramebufferAttachment *depthbuffer);
@@ -323,6 +329,7 @@ class Renderer9 : public Renderer
 
     IndexDataManager *mIndexDataManager;
     StreamingIndexBufferInterface *mLineLoopIB;
+    StaticIndexBufferInterface *mCountingIB;
 
     enum { NUM_NULL_COLORBUFFER_CACHE_ENTRIES = 12 };
     struct NullColorbufferCacheEntry

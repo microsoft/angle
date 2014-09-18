@@ -1,5 +1,8 @@
 #include "ANGLETest.h"
 
+// Needed for Sleep()
+#include <Windows.h>
+
 class OcclusionQueriesTest : public ANGLETest
 {
 protected:
@@ -38,7 +41,7 @@ protected:
             }
         );
 
-        mProgram = compileProgram(passthroughVS, passthroughPS);
+        mProgram = CompileProgram(passthroughVS, passthroughPS);
         if (mProgram == 0)
         {
             FAIL() << "shader compilation failed.";

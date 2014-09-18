@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2002-2012 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -10,12 +9,11 @@
 
 #include "libGLESv2/renderer/d3d/VertexDataManager.h"
 #include "libGLESv2/renderer/d3d/BufferD3D.h"
-
+#include "libGLESv2/renderer/d3d/VertexBuffer.h"
+#include "libGLESv2/renderer/Renderer.h"
 #include "libGLESv2/Buffer.h"
 #include "libGLESv2/ProgramBinary.h"
 #include "libGLESv2/VertexAttribute.h"
-#include "libGLESv2/renderer/d3d/VertexBuffer.h"
-#include "libGLESv2/renderer/Renderer.h"
 
 namespace
 {
@@ -92,29 +90,14 @@ GLenum VertexDataManager::prepareVertexData(const gl::VertexAttribute attribs[],
         return GL_OUT_OF_MEMORY;
     }
 
+    // Invalidate static buffers that don't contain matching attributes
     for (int attributeIndex = 0; attributeIndex < gl::MAX_VERTEX_ATTRIBS; attributeIndex++)
     {
         translated[attributeIndex].active = (programBinary->getSemanticIndex(attributeIndex) != -1);
-    }
 
-    // Invalidate static buffers that don't contain matching attributes
-    for (int i = 0; i < gl::MAX_VERTEX_ATTRIBS; i++)
-    {
-        if (translated[i].active && attribs[i].enabled)
+        if (translated[attributeIndex].active && attribs[attributeIndex].enabled)
         {
-            gl::Buffer *buffer = attribs[i].buffer.get();
-
-            if (buffer)
-            {
-                BufferD3D *bufferImpl = BufferD3D::makeBufferD3D(buffer->getImplementation());
-                StaticVertexBufferInterface *staticBuffer = bufferImpl->getStaticVertexBuffer();
-
-                if (staticBuffer && staticBuffer->getBufferSize() > 0 && !staticBuffer->lookupAttribute(attribs[i], NULL) &&
-                    !staticBuffer->directStoragePossible(attribs[i], currentValues[i]))
-                {
-                    bufferImpl->invalidateStaticData();
-                }
-            }
+            invalidateMatchingStaticData(attribs[attributeIndex], currentValues[attributeIndex]);
         }
     }
 
@@ -123,40 +106,9 @@ GLenum VertexDataManager::prepareVertexData(const gl::VertexAttribute attribs[],
     {
         if (translated[i].active && attribs[i].enabled)
         {
-            gl::Buffer *buffer = attribs[i].buffer.get();
-            BufferD3D *bufferImpl = buffer ? BufferD3D::makeBufferD3D(buffer->getImplementation()) : NULL;
-            StaticVertexBufferInterface *staticBuffer = bufferImpl ? bufferImpl->getStaticVertexBuffer() : NULL;
-            VertexBufferInterface *vertexBuffer = staticBuffer ? staticBuffer : static_cast<VertexBufferInterface*>(mStreamingBuffer);
-
-            if (!vertexBuffer->directStoragePossible(attribs[i], currentValues[i]))
+            if (!reserveSpaceForAttrib(attribs[i], currentValues[i], count, instances))
             {
-                if (staticBuffer)
-                {
-                    if (staticBuffer->getBufferSize() == 0)
-                    {
-                        int totalCount = ElementsInBuffer(attribs[i], bufferImpl->getSize());
-                        if (!staticBuffer->reserveVertexSpace(attribs[i], totalCount, 0))
-                        {
-                            return GL_OUT_OF_MEMORY;
-                        }
-                    }
-                }
-                else
-                {
-                    int totalCount = StreamingBufferElementCount(attribs[i], count, instances);
-
-                    // [OpenGL ES 3.0.2] section 2.9.4 page 40:
-                    // We can return INVALID_OPERATION if our vertex attribute does not have enough backing data.
-                    if (bufferImpl && ElementsInBuffer(attribs[i], bufferImpl->getSize()) < totalCount)
-                    {
-                        return GL_INVALID_OPERATION;
-                    }
-
-                    if (!mStreamingBuffer->reserveVertexSpace(attribs[i], totalCount, instances))
-                    {
-                        return GL_OUT_OF_MEMORY;
-                    }
-                }
+                return GL_OUT_OF_MEMORY;
             }
         }
     }
@@ -209,6 +161,64 @@ GLenum VertexDataManager::prepareVertexData(const gl::VertexAttribute attribs[],
     return GL_NO_ERROR;
 }
 
+void VertexDataManager::invalidateMatchingStaticData(const gl::VertexAttribute &attrib,
+                                                     const gl::VertexAttribCurrentValueData &currentValue) const
+{
+    gl::Buffer *buffer = attrib.buffer.get();
+
+    if (buffer)
+    {
+        BufferD3D *bufferImpl = BufferD3D::makeBufferD3D(buffer->getImplementation());
+        StaticVertexBufferInterface *staticBuffer = bufferImpl->getStaticVertexBuffer();
+
+        if (staticBuffer &&
+            staticBuffer->getBufferSize() > 0 &&
+            !staticBuffer->lookupAttribute(attrib, NULL) &&
+            !staticBuffer->directStoragePossible(attrib, currentValue))
+        {
+            bufferImpl->invalidateStaticData();
+        }
+    }
+}
+
+bool VertexDataManager::reserveSpaceForAttrib(const gl::VertexAttribute &attrib,
+                                              const gl::VertexAttribCurrentValueData &currentValue,
+                                              GLsizei count,
+                                              GLsizei instances) const
+{
+    gl::Buffer *buffer = attrib.buffer.get();
+    BufferD3D *bufferImpl = buffer ? BufferD3D::makeBufferD3D(buffer->getImplementation()) : NULL;
+    StaticVertexBufferInterface *staticBuffer = bufferImpl ? bufferImpl->getStaticVertexBuffer() : NULL;
+    VertexBufferInterface *vertexBuffer = staticBuffer ? staticBuffer : static_cast<VertexBufferInterface*>(mStreamingBuffer);
+
+    if (!vertexBuffer->directStoragePossible(attrib, currentValue))
+    {
+        if (staticBuffer)
+        {
+            if (staticBuffer->getBufferSize() == 0)
+            {
+                int totalCount = ElementsInBuffer(attrib, bufferImpl->getSize());
+                if (!staticBuffer->reserveVertexSpace(attrib, totalCount, 0))
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            int totalCount = StreamingBufferElementCount(attrib, count, instances);
+            ASSERT(!bufferImpl || ElementsInBuffer(attrib, bufferImpl->getSize()) >= totalCount);
+
+            if (!mStreamingBuffer->reserveVertexSpace(attrib, totalCount, instances))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 GLenum VertexDataManager::storeAttribute(const gl::VertexAttribute &attrib,
                                          const gl::VertexAttribCurrentValueData &currentValue,
                                          TranslatedAttribute *translated,
@@ -217,13 +227,7 @@ GLenum VertexDataManager::storeAttribute(const gl::VertexAttribute &attrib,
                                          GLsizei instances)
 {
     gl::Buffer *buffer = attrib.buffer.get();
-
-    if (!buffer && attrib.pointer == NULL)
-    {
-        // This is an application error that would normally result in a crash, but we catch it and return an error
-        ERR("An enabled vertex array has no buffer and no pointer.");
-        return GL_INVALID_OPERATION;
-    }
+    ASSERT(buffer || attrib.pointer);
 
     BufferD3D *storage = buffer ? BufferD3D::makeBufferD3D(buffer->getImplementation()) : NULL;
     StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBuffer() : NULL;

@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2012-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -13,10 +12,11 @@
 // This #define is not set by default for all flavours of ANGLE, since it could impact corner-case GL ES conformance tests.
 
 #include "libGLESv2/renderer/d3d/d3d11/SwapChain11.h"
-
 #include "libGLESv2/renderer/d3d/d3d11/renderer11_utils.h"
 #include "libGLESv2/renderer/d3d/d3d11/formatutils11.h"
 #include "libGLESv2/renderer/d3d/d3d11/Renderer11.h"
+
+// Precompiled shaders
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough2d11vs.h"
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2d11ps.h"
 

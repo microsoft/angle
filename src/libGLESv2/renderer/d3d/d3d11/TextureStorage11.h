@@ -13,6 +13,8 @@
 #include "libGLESv2/Texture.h"
 #include "libGLESv2/renderer/d3d/TextureStorage.h"
 
+#include <map>
+
 namespace rx
 {
 class RenderTarget;
@@ -60,10 +62,10 @@ class TextureStorage11 : public TextureStorage
                               int layerTarget, GLint xoffset, GLint yoffset, GLint zoffset,
                               GLsizei width, GLsizei height, GLsizei depth);
 
-    virtual bool associateImage(Image11* image, int level, int layerTarget) = 0;
-    virtual bool disassociateImage(int level, int layerTarget, Image11* expectedImage) = 0;
+    virtual void associateImage(Image11* image, int level, int layerTarget) = 0;
+    virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage) = 0;
     virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage) = 0;
-    virtual bool releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage) = 0;
+    virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage) = 0;
 
   protected:
     TextureStorage11(Renderer *renderer, UINT bindFlags);
@@ -162,10 +164,10 @@ class TextureStorage11_2D : public TextureStorage11
 
     virtual void generateMipmap(int level);
 
-    virtual bool associateImage(Image11* image, int level, int layerTarget);
-    virtual bool disassociateImage(int level, int layerTarget, Image11* expectedImage);
+    virtual void associateImage(Image11* image, int level, int layerTarget);
+    virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage);
     virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
-    virtual bool releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
+    virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
 
   protected:
     virtual ID3D11Resource *getSwizzleTexture();
@@ -200,10 +202,10 @@ class TextureStorage11_Cube : public TextureStorage11
 
     virtual void generateMipmap(int faceIndex, int level);
 
-    virtual bool associateImage(Image11* image, int level, int layerTarget);
-    virtual bool disassociateImage(int level, int layerTarget, Image11* expectedImage);
+    virtual void associateImage(Image11* image, int level, int layerTarget);
+    virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage);
     virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
-    virtual bool releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
+    virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
 
   protected:
     virtual ID3D11Resource *getSwizzleTexture();
@@ -240,10 +242,10 @@ class TextureStorage11_3D : public TextureStorage11
 
     virtual void generateMipmap(int level);
 
-    virtual bool associateImage(Image11* image, int level, int layerTarget);
-    virtual bool disassociateImage(int level, int layerTarget, Image11* expectedImage);
+    virtual void associateImage(Image11* image, int level, int layerTarget);
+    virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage);
     virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
-    virtual bool releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
+    virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
 
   protected:
     virtual ID3D11Resource *getSwizzleTexture();
@@ -283,10 +285,10 @@ class TextureStorage11_2DArray : public TextureStorage11
 
     virtual void generateMipmap(int level);
 
-    virtual bool associateImage(Image11* image, int level, int layerTarget);
-    virtual bool disassociateImage(int level, int layerTarget, Image11* expectedImage);
+    virtual void associateImage(Image11* image, int level, int layerTarget);
+    virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage);
     virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
-    virtual bool releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
+    virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
 
   protected:
     virtual ID3D11Resource *getSwizzleTexture();

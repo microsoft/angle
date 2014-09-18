@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2012 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -7,11 +6,11 @@
 
 // VertexDeclarationCache.cpp: Implements a helper class to construct and cache vertex declarations.
 
+#include "libGLESv2/renderer/d3d/d3d9/VertexDeclarationCache.h"
+#include "libGLESv2/renderer/d3d/d3d9/VertexBuffer9.h"
+#include "libGLESv2/renderer/d3d/d3d9/formatutils9.h"
 #include "libGLESv2/ProgramBinary.h"
 #include "libGLESv2/VertexAttribute.h"
-#include "libGLESv2/renderer/d3d/d3d9/VertexBuffer9.h"
-#include "libGLESv2/renderer/d3d/d3d9/VertexDeclarationCache.h"
-#include "libGLESv2/renderer/d3d/d3d9/formatutils9.h"
 
 namespace rx
 {

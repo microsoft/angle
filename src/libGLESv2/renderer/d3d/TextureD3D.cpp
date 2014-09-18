@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright 2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -7,9 +6,9 @@
 
 // TextureD3D.cpp: Implementations of the Texture interfaces shared betweeen the D3D backends.
 
-#include "common/mathutil.h"
-#include "common/utilities.h"
-#include "libEGL/Surface.h"
+#include "libGLESv2/renderer/d3d/TextureD3D.h"
+#include "libGLESv2/renderer/d3d/TextureStorage.h"
+#include "libGLESv2/renderer/d3d/ImageD3D.h"
 #include "libGLESv2/Buffer.h"
 #include "libGLESv2/Framebuffer.h"
 #include "libGLESv2/Texture.h"
@@ -18,9 +17,11 @@
 #include "libGLESv2/renderer/BufferImpl.h"
 #include "libGLESv2/renderer/RenderTarget.h"
 #include "libGLESv2/renderer/Renderer.h"
-#include "libGLESv2/renderer/d3d/ImageD3D.h"
-#include "libGLESv2/renderer/d3d/TextureD3D.h"
-#include "libGLESv2/renderer/d3d/TextureStorage.h"
+
+#include "libEGL/Surface.h"
+
+#include "common/mathutil.h"
+#include "common/utilities.h"
 
 namespace rx
 {
@@ -517,34 +518,6 @@ RenderTarget *TextureD3D_2D::getRenderTarget(GLint level, GLint layer)
     }
 
     updateStorageLevel(level);
-
-    // ensure this is NOT a depth texture
-    if (isDepth(level))
-    {
-        return NULL;
-    }
-
-    return mTexStorage->getRenderTarget(level);
-}
-
-RenderTarget *TextureD3D_2D::getDepthStencil(GLint level, GLint layer)
-{
-    ASSERT(layer == 0);
-
-    // ensure the underlying texture is created
-    if (!ensureRenderTarget())
-    {
-        return NULL;
-    }
-
-    updateStorageLevel(level);
-
-    // ensure this is actually a depth texture
-    if (!isDepth(level))
-    {
-        return NULL;
-    }
-
     return mTexStorage->getRenderTarget(level);
 }
 
@@ -1039,35 +1012,6 @@ RenderTarget *TextureD3D_Cube::getRenderTarget(GLint level, GLint layer)
     }
 
     updateStorageFaceLevel(layer, level);
-
-    // ensure this is NOT a depth texture
-    if (isDepth(level, layer))
-    {
-        return NULL;
-    }
-
-    return mTexStorage->getRenderTarget(target, level);
-}
-
-RenderTarget *TextureD3D_Cube::getDepthStencil(GLint level, GLint layer)
-{
-    GLenum target = gl::TextureCubeMap::layerIndexToTarget(layer);
-    ASSERT(gl::IsCubemapTextureTarget(target));
-
-    // ensure the underlying texture is created
-    if (!ensureRenderTarget())
-    {
-        return NULL;
-    }
-
-    updateStorageFaceLevel(layer, level);
-
-    // ensure this is a depth texture
-    if (!isDepth(level, layer))
-    {
-        return NULL;
-    }
-
     return mTexStorage->getRenderTarget(target, level);
 }
 
@@ -1564,31 +1508,6 @@ RenderTarget *TextureD3D_3D::getRenderTarget(GLint level, GLint layer)
 
     updateStorage();
 
-    // ensure this is NOT a depth texture
-    if (isDepth(level))
-    {
-        return NULL;
-    }
-
-    return mTexStorage->getRenderTarget(level, layer);
-}
-
-RenderTarget *TextureD3D_3D::getDepthStencil(GLint level, GLint layer)
-{
-    // ensure the underlying texture is created
-    if (!ensureRenderTarget())
-    {
-        return NULL;
-    }
-
-    updateStorageLevel(level);
-
-    // ensure this is a depth texture
-    if (!isDepth(level))
-    {
-        return NULL;
-    }
-
     return mTexStorage->getRenderTarget(level, layer);
 }
 
@@ -1811,7 +1730,6 @@ TextureD3D_2DArray::~TextureD3D_2DArray()
     // Images might be relying on the TextureStorage for some of their data.
     // If TextureStorage is deleted before the Images, then their data will be wastefully copied back from the GPU before we delete the Images.
     deleteImages();
-
     SafeDelete(mTexStorage);
 }
 
@@ -2058,32 +1976,6 @@ RenderTarget *TextureD3D_2DArray::getRenderTarget(GLint level, GLint layer)
     }
 
     updateStorageLevel(level);
-
-    // ensure this is NOT a depth texture
-    if (isDepth(level))
-    {
-        return NULL;
-    }
-
-    return mTexStorage->getRenderTarget(level, layer);
-}
-
-RenderTarget *TextureD3D_2DArray::getDepthStencil(GLint level, GLint layer)
-{
-    // ensure the underlying texture is created
-    if (!ensureRenderTarget())
-    {
-        return NULL;
-    }
-
-    updateStorageLevel(level);
-
-    // ensure this is a depth texture
-    if (!isDepth(level))
-    {
-        return NULL;
-    }
-
     return mTexStorage->getRenderTarget(level, layer);
 }
 

@@ -255,6 +255,23 @@ struct Caps
     GLuint maxTextureImageUnits;
     GLint minProgramTexelOffset;
     GLint maxProgramTexelOffset;
+
+    // Table 6.33, implementation dependent aggregate shader limits
+    GLuint maxUniformBufferBindings;
+    GLuint64 maxUniformBlockSize;
+    GLuint uniformBufferOffsetAlignment;
+    GLuint maxCombinedUniformBlocks;
+    GLuint64 maxCombinedVertexUniformComponents;
+    GLuint64 maxCombinedFragmentUniformComponents;
+    GLuint maxVaryingComponents;
+    GLuint maxVaryingVectors;
+    GLuint maxCombinedTextureImageUnits;
+
+    // Table 6.34, implementation dependent transform feedback limits
+    GLuint maxTransformFeedbackInterleavedComponents;
+    GLuint maxTransformFeedbackSeparateAttributes;
+    GLuint maxTransformFeedbackSeparateComponents;
+    GLuint maxTransformFeedbackBuffers;
 };
 
 }

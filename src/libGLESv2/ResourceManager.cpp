@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2002-2013 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -93,13 +92,9 @@ GLuint ResourceManager::createShader(GLenum type)
 {
     GLuint handle = mProgramShaderHandleAllocator.allocate();
 
-    if (type == GL_VERTEX_SHADER)
+    if (type == GL_VERTEX_SHADER || type == GL_FRAGMENT_SHADER)
     {
-        mShaderMap[handle] = new VertexShader(this, mRenderer, handle);
-    }
-    else if (type == GL_FRAGMENT_SHADER)
-    {
-        mShaderMap[handle] = new FragmentShader(this, mRenderer, handle);
+        mShaderMap[handle] = new Shader(this, mRenderer->createShader(type), type, handle);
     }
     else UNREACHABLE();
 

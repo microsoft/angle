@@ -113,6 +113,33 @@
                 'compiler_tests/compiler_test_main.cpp',
             ],
         },
+
+        {
+            'target_name': 'angle_implementation_unit_tests',
+            'type': 'executable',
+            'dependencies':
+            [
+                '../src/angle.gyp:libGLESv2_static',
+                'gtest',
+                'gmock',
+            ],
+            'include_dirs':
+            [
+                '../include',
+                '../src',
+                'third_party/googletest/include',
+                'third_party/googlemock/include',
+            ],
+            'includes':
+            [
+                '../build/common_defines.gypi',
+                'angle_implementation_unit_tests/angle_implementation_unit_tests.gypi',
+            ],
+            'sources':
+            [
+                'angle_implementation_unit_tests/angle_implementation_unit_tests_main.cpp',
+            ],
+        },
     ],
 
     'conditions':
@@ -130,6 +157,7 @@
                         '../src/angle.gyp:libGLESv2',
                         '../src/angle.gyp:libEGL',
                         'gtest',
+                        '../util/util.gyp:angle_util',
                     ],
                     'include_dirs':
                     [
@@ -161,6 +189,33 @@
                     'sources':
                     [
                         '<!@(python <(angle_path)/enumerate_files.py standalone_tests -types *.cpp *.h)'
+                    ],
+                },
+                {
+                    'target_name': 'angle_perf_tests',
+                    'type': 'executable',
+                    'includes': [ '../build/common_defines.gypi', ],
+                    'dependencies':
+                    [
+                        '../src/angle.gyp:libGLESv2',
+                        '../src/angle.gyp:libEGL',
+                        'gtest',
+                        '../util/util.gyp:angle_util',
+                    ],
+                    'include_dirs':
+                    [
+                        '../include',
+                        'third_party/googletest/include',
+                    ],
+                    'sources':
+                    [
+                        'perf_tests/BufferSubData.cpp',
+                        'perf_tests/BufferSubData.h',
+                        'perf_tests/SimpleBenchmark.cpp',
+                        'perf_tests/SimpleBenchmark.h',
+                        'perf_tests/SimpleBenchmarks.cpp',
+                        'perf_tests/TexSubImage.cpp',
+                        'perf_tests/TexSubImage.h',
                     ],
                 },
             ],
@@ -266,6 +321,14 @@
                             [
                                 'CONFORMANCE_TESTS_TYPE=CONFORMANCE_TESTS_ES3',
                             ],
+                            'msvs_settings':
+                            {
+                                'VCCLCompilerTool':
+                                {
+                                    # MSVS has trouble compiling this due to the obj files becoming too large.
+                                    'AdditionalOptions': [ '/bigobj' ],
+                                },
+                            },
                             'actions':
                             [
                                 {

@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -245,15 +244,8 @@ ClearParameters State::getClearParameters(GLbitfield mask) const
     {
         if (framebufferObject->getStencilbuffer() != NULL)
         {
-            rx::RenderTarget *depthStencil = framebufferObject->getStencilbuffer()->getDepthStencil();
-            if (!depthStencil)
-            {
-                ERR("Depth stencil pointer unexpectedly null.");
-                ClearParameters nullClearParam = { 0 };
-                return nullClearParam;
-            }
-
-            if (GetInternalFormatInfo(depthStencil->getActualFormat()).stencilBits > 0)
+            GLenum stencilActualFormat = framebufferObject->getStencilbuffer()->getActualFormat();
+            if (GetInternalFormatInfo(stencilActualFormat).stencilBits > 0)
             {
                 clearParams.clearStencil = true;
             }
@@ -1315,19 +1307,19 @@ void State::getIntegerv(GLenum pname, GLint *params)
         }
         break;
       case GL_TEXTURE_BINDING_2D:
-        ASSERT(mActiveSampler < mContext->getMaximumCombinedTextureImageUnits());
+        ASSERT(mActiveSampler < mContext->getCaps().maxCombinedTextureImageUnits);
         *params = mSamplerTexture[TEXTURE_2D][mActiveSampler].id();
         break;
       case GL_TEXTURE_BINDING_CUBE_MAP:
-        ASSERT(mActiveSampler < mContext->getMaximumCombinedTextureImageUnits());
+        ASSERT(mActiveSampler < mContext->getCaps().maxCombinedTextureImageUnits);
         *params = mSamplerTexture[TEXTURE_CUBE][mActiveSampler].id();
         break;
       case GL_TEXTURE_BINDING_3D:
-        ASSERT(mActiveSampler < mContext->getMaximumCombinedTextureImageUnits());
+        ASSERT(mActiveSampler <mContext->getCaps().maxCombinedTextureImageUnits);
         *params = mSamplerTexture[TEXTURE_3D][mActiveSampler].id();
         break;
       case GL_TEXTURE_BINDING_2D_ARRAY:
-        ASSERT(mActiveSampler < mContext->getMaximumCombinedTextureImageUnits());
+        ASSERT(mActiveSampler < mContext->getCaps().maxCombinedTextureImageUnits);
         *params = mSamplerTexture[TEXTURE_2D_ARRAY][mActiveSampler].id();
         break;
       case GL_UNIFORM_BUFFER_BINDING:

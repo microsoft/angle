@@ -1,4 +1,3 @@
-#include "precompiled.h"
 //
 // Copyright (c) 2013 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -9,11 +8,10 @@
 
 #include "libGLESv2/renderer/d3d/d3d11/VertexBuffer11.h"
 #include "libGLESv2/renderer/d3d/d3d11/Buffer11.h"
-
-#include "libGLESv2/Buffer.h"
 #include "libGLESv2/renderer/d3d/d3d11/Renderer11.h"
-#include "libGLESv2/VertexAttribute.h"
 #include "libGLESv2/renderer/d3d/d3d11/formatutils11.h"
+#include "libGLESv2/Buffer.h"
+#include "libGLESv2/VertexAttribute.h"
 
 namespace rx
 {
