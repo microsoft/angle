@@ -90,8 +90,8 @@ struct InternalFormat
     SupportCheckFunction renderSupport;
     SupportCheckFunction filterSupport;
 
-    GLuint computeRowPitch(GLenum type, GLsizei width, GLint alignment) const;
-    GLuint computeDepthPitch(GLenum type, GLsizei width, GLsizei height, GLint alignment) const;
+    GLuint computeRowPitch(GLenum type, GLsizei width, GLint alignment, GLint rowLength) const;
+    GLuint computeDepthPitch(GLenum type, GLsizei width, GLsizei height, GLint alignment, GLint rowLength) const;
     GLuint computeBlockSize(GLenum type, GLsizei width, GLsizei height) const;
 };
 const InternalFormat &GetInternalFormatInfo(GLenum internalFormat);

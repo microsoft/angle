@@ -50,7 +50,7 @@ class Image
     virtual bool redefine(Renderer *renderer, GLenum target, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, bool forceRelease) = 0;
 
     virtual gl::Error loadData(GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
-                               GLint unpackAlignment, GLenum type, const void *input) = 0;
+                               GLint unpackAlignment, GLint unpackRowLength, GLenum type, const void *input) = 0;
     virtual gl::Error loadCompressedData(GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
                                          const void *input) = 0;
 

@@ -1750,7 +1750,7 @@ Error Context::readPixels(GLint x, GLint y, GLsizei width, GLsizei height,
 
     GLenum sizedInternalFormat = GetSizedInternalFormat(format, type);
     const InternalFormat &sizedFormatInfo = GetInternalFormatInfo(sizedInternalFormat);
-    GLuint outputPitch = sizedFormatInfo.computeRowPitch(type, width, mState.getPackAlignment());
+    GLuint outputPitch = sizedFormatInfo.computeRowPitch(type, width, mState.getPackAlignment(), 0);
 
     return mRenderer->readPixels(framebuffer, x, y, width, height, format, type, outputPitch, mState.getPackState(),
                                  reinterpret_cast<uint8_t*>(pixels));
@@ -2090,7 +2090,7 @@ Texture *Context::getIncompleteTexture(GLenum type)
     if (mIncompleteTextures.find(type) == mIncompleteTextures.end())
     {
         const GLubyte color[] = { 0, 0, 0, 255 };
-        const PixelUnpackState incompleteUnpackState(1);
+        const PixelUnpackState incompleteUnpackState(1, 0);
 
         Texture* t = NULL;
         switch (type)

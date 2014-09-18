@@ -1107,6 +1107,11 @@ void State::setUnpackAlignment(GLint alignment)
     mUnpack.alignment = alignment;
 }
 
+void State::setUnpackRowLength(GLint rowLength)
+{
+    mUnpack.rowLength = rowLength;
+}
+
 GLint State::getUnpackAlignment() const
 {
     return mUnpack.alignment;

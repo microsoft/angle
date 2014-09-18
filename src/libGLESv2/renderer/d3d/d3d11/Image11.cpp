@@ -254,11 +254,11 @@ DXGI_FORMAT Image11::getDXGIFormat() const
 // Store the pixel rectangle designated by xoffset,yoffset,width,height with pixels stored as format/type at input
 // into the target pixel rectangle.
 gl::Error Image11::loadData(GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
-                            GLint unpackAlignment, GLenum type, const void *input)
+                            GLint unpackAlignment, GLint unpackRowLength, GLenum type, const void *input)
 {
     const gl::InternalFormat &formatInfo = gl::GetInternalFormatInfo(mInternalFormat);
-    GLsizei inputRowPitch = formatInfo.computeRowPitch(type, width, unpackAlignment);
-    GLsizei inputDepthPitch = formatInfo.computeDepthPitch(type, width, height, unpackAlignment);
+    GLsizei inputRowPitch = formatInfo.computeRowPitch(type, width, unpackAlignment, unpackRowLength);
+    GLsizei inputDepthPitch = formatInfo.computeDepthPitch(type, width, height, unpackAlignment, unpackRowLength);
 
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(mDXGIFormat);
     GLuint outputPixelSize = dxgiFormatInfo.pixelBytes;
@@ -287,8 +287,8 @@ gl::Error Image11::loadCompressedData(GLint xoffset, GLint yoffset, GLint zoffse
                                       const void *input)
 {
     const gl::InternalFormat &formatInfo = gl::GetInternalFormatInfo(mInternalFormat);
-    GLsizei inputRowPitch = formatInfo.computeRowPitch(GL_UNSIGNED_BYTE, width, 1);
-    GLsizei inputDepthPitch = formatInfo.computeDepthPitch(GL_UNSIGNED_BYTE, width, height, 1);
+    GLsizei inputRowPitch = formatInfo.computeRowPitch(GL_UNSIGNED_BYTE, width, 1, 0);
+    GLsizei inputDepthPitch = formatInfo.computeDepthPitch(GL_UNSIGNED_BYTE, width, height, 1, 0);
 
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(mDXGIFormat);
     GLuint outputPixelSize = dxgiFormatInfo.pixelBytes;

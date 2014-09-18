@@ -231,6 +231,8 @@ class State
     // Pixel unpack state manipulation
     void setUnpackAlignment(GLint alignment);
     GLint getUnpackAlignment() const;
+    void setUnpackRowLength(GLint rowLength);
+    GLint getUnpackRowLength() const;
     const PixelUnpackState &getUnpackState() const;
 
     // State query functions

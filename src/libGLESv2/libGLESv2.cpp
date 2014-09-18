@@ -3753,9 +3753,12 @@ void GL_APIENTRY glPixelStorei(GLenum pname, GLint param)
             context->getState().setPackReverseRowOrder(param != 0);
             break;
 
+          case GL_UNPACK_ROW_LENGTH:
+            context->getState().setUnpackRowLength(param);
+            break;
+
           case GL_UNPACK_IMAGE_HEIGHT:
           case GL_UNPACK_SKIP_IMAGES:
-          case GL_UNPACK_ROW_LENGTH:
           case GL_UNPACK_SKIP_ROWS:
           case GL_UNPACK_SKIP_PIXELS:
           case GL_PACK_ROW_LENGTH:

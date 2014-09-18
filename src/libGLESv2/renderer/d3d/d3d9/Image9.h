@@ -46,7 +46,7 @@ class Image9 : public ImageD3D
     virtual gl::Error copyToStorage(TextureStorage *storage, const gl::ImageIndex &index, const gl::Box &region);
 
     virtual gl::Error loadData(GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
-                               GLint unpackAlignment, GLenum type, const void *input);
+                               GLint unpackAlignment, GLint unpackRowLength, GLenum type, const void *input);
     virtual gl::Error loadCompressedData(GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
                                          const void *input);
 

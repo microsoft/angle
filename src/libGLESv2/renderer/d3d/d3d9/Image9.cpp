@@ -481,13 +481,13 @@ gl::Error Image9::copyToSurface(IDirect3DSurface9 *destSurface, GLint xoffset, G
 // Store the pixel rectangle designated by xoffset,yoffset,width,height with pixels stored as format/type at input
 // into the target pixel rectangle.
 gl::Error Image9::loadData(GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
-                           GLint unpackAlignment, GLenum type, const void *input)
+                           GLint unpackAlignment, GLint unpackRowLength, GLenum type, const void *input)
 {
     // 3D textures are not supported by the D3D9 backend.
     ASSERT(zoffset == 0 && depth == 1);
 
     const gl::InternalFormat &formatInfo = gl::GetInternalFormatInfo(mInternalFormat);
-    GLsizei inputRowPitch = formatInfo.computeRowPitch(type, width, unpackAlignment);
+    GLsizei inputRowPitch = formatInfo.computeRowPitch(type, width, unpackAlignment, unpackRowLength);
 
     const d3d9::TextureFormat &d3dFormatInfo = d3d9::GetTextureFormatInfo(mInternalFormat);
     ASSERT(d3dFormatInfo.loadFunction != NULL);
@@ -521,8 +521,8 @@ gl::Error Image9::loadCompressedData(GLint xoffset, GLint yoffset, GLint zoffset
     ASSERT(zoffset == 0 && depth == 1);
 
     const gl::InternalFormat &formatInfo = gl::GetInternalFormatInfo(mInternalFormat);
-    GLsizei inputRowPitch = formatInfo.computeRowPitch(GL_UNSIGNED_BYTE, width, 1);
-    GLsizei inputDepthPitch = formatInfo.computeDepthPitch(GL_UNSIGNED_BYTE, width, height, 1);
+    GLsizei inputRowPitch = formatInfo.computeRowPitch(GL_UNSIGNED_BYTE, width, 1, 0);
+    GLsizei inputDepthPitch = formatInfo.computeDepthPitch(GL_UNSIGNED_BYTE, width, height, 1, 0);
 
     const d3d9::TextureFormat &d3d9FormatInfo = d3d9::GetTextureFormatInfo(mInternalFormat);
 
