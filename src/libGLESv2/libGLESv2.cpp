@@ -3754,7 +3754,14 @@ void GL_APIENTRY glPixelStorei(GLenum pname, GLint param)
             break;
 
           case GL_UNPACK_ROW_LENGTH:
-            context->getState().setUnpackRowLength(param);
+            if (context->getClientVersion() < 3)
+            {
+                return gl::error(GL_INVALID_ENUM);
+            }
+            else
+            {
+                context->getState().setUnpackRowLength(param);
+            }
             break;
 
           case GL_UNPACK_IMAGE_HEIGHT:
