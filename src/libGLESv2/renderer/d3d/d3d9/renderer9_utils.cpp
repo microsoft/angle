@@ -361,8 +361,10 @@ void GenerateCaps(IDirect3D9 *d3d9, IDirect3DDevice9 *device, D3DDEVTYPE deviceT
     caps->maxColorAttachments = 1;
 
     // No specific limits on viewport size, maximum 2D texture size is equivalent
-    caps->maxViewportWidth = caps->max2DTextureSize;
-    caps->maxViewportHeight = caps->maxViewportWidth;
+    caps->minViewportBoundsX = 0;
+    caps->minViewportBoundsY = 0;
+    caps->maxViewportBoundsX = caps->max2DTextureSize;
+    caps->maxViewportBoundsY = caps->maxViewportBoundsX;
 
     // Point size is clamped to 1.0f when the shader model is less than 3
     caps->minAliasedPointSize = 1.0f;

@@ -506,27 +506,25 @@ void OutputHLSL::header()
 
         if (mOutputType == SH_HLSL11_OUTPUT)
         {
+            out << "cbuffer DriverConstants : register(b1)\n"
+                    "{\n";
+
             if (mUsesDepthRange)
             {
-                out << "cbuffer DriverConstants : register(b1)\n"
-                       "{\n"
-                       "    float3 dx_DepthRange : packoffset(c0);\n"
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-                       "    float2 dx_ViewScale : packoffset(c2);\n"
-#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-                       "};\n"
-                       "\n";
+                out << "    float3 dx_DepthRange : packoffset(c0);\n";
             }
-            else
-            {
+            
+            // dx_ViewAdjust will only be used in Feature Level 9 shaders.
+            // However, we declare it for all shaders (including Feature Level 10+).
+            // The bytecode is the same whether we declare it or not, since D3DCompiler removes it if it's unused.
+            out << "    float4 dx_ViewAdjust : packoffset(c1);\n";
+
 #ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-                out << "cbuffer DriverConstants : register(b1)\n"
-                       "{\n"
-                       "    float2 dx_ViewScale : packoffset(c2);\n"
-                       "};\n"
-                       "\n";
+            out << "    float2 dx_ViewScale : packoffset(c2);\n";
 #endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-            }
+
+            out << "};\n"
+                    "\n";
         }
         else
         {

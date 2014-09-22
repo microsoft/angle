@@ -531,7 +531,26 @@ static size_t GetMaximum3DTextureSize(D3D_FEATURE_LEVEL featureLevel)
     }
 }
 
-static size_t GetMaximumViewportSize(D3D_FEATURE_LEVEL featureLevel)
+static int GetMinimumViewportBounds(D3D_FEATURE_LEVEL featureLevel)
+{
+    switch (featureLevel)
+    {
+      case D3D_FEATURE_LEVEL_11_1:
+      case D3D_FEATURE_LEVEL_11_0: return D3D11_VIEWPORT_BOUNDS_MIN;
+
+      case D3D_FEATURE_LEVEL_10_1:
+      case D3D_FEATURE_LEVEL_10_0: return D3D10_VIEWPORT_BOUNDS_MIN;
+
+      // Feature Levels 9_* don't support negative viewports.
+      case D3D_FEATURE_LEVEL_9_3:
+      case D3D_FEATURE_LEVEL_9_2:
+      case D3D_FEATURE_LEVEL_9_1:  return 0;
+
+      default: UNREACHABLE();      return 0;
+    }
+}
+
+static int GetMaximumViewportBounds(D3D_FEATURE_LEVEL featureLevel)
 {
     switch (featureLevel)
     {
@@ -541,7 +560,8 @@ static size_t GetMaximumViewportSize(D3D_FEATURE_LEVEL featureLevel)
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0: return D3D10_VIEWPORT_BOUNDS_MAX;
 
-        // No constants for D3D9 viewport size limits, use the maximum texture sizes
+      // No constants for D3D11 Feature Level 9 viewport size limits, so use the maximum texture sizes.
+      // Note: Feature Level 9 also clips the viewport to the dimensions of the currently bound rendertarget.  
       case D3D_FEATURE_LEVEL_9_3:  return D3D_FL9_3_REQ_TEXTURE2D_U_OR_V_DIMENSION;
       case D3D_FEATURE_LEVEL_9_2:
       case D3D_FEATURE_LEVEL_9_1:  return D3D_FL9_1_REQ_TEXTURE2D_U_OR_V_DIMENSION;
@@ -959,9 +979,11 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
     caps->maxDrawBuffers = GetMaximumSimultaneousRenderTargets(featureLevel);
     caps->maxColorAttachments = GetMaximumSimultaneousRenderTargets(featureLevel);
 
-    // D3D11 has the same limit for viewport width and height
-    caps->maxViewportWidth = GetMaximumViewportSize(featureLevel);
-    caps->maxViewportHeight = caps->maxViewportWidth;
+    // D3D11 has the same limits for viewport X and Y bounds
+    caps->minViewportBoundsX = GetMinimumViewportBounds(featureLevel);
+    caps->minViewportBoundsY = caps->minViewportBoundsX;
+    caps->maxViewportBoundsX = GetMaximumViewportBounds(featureLevel);
+    caps->maxViewportBoundsY = caps->maxViewportBoundsX;
 
     // Choose a reasonable maximum, enforced in the shader.
     caps->minAliasedPointSize = 1.0f;

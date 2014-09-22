@@ -45,7 +45,7 @@ void ANGLETest::swapBuffers()
     mEGLWindow->swap();
 }
 
-void ANGLETest::drawQuad(GLuint program, const std::string& positionAttribName, GLfloat quadDepth)
+void ANGLETest::drawQuad(GLuint program, const std::string& positionAttribName, GLfloat quadDepth, GLfloat quadScale)
 {
     GLint positionLocation = glGetAttribLocation(program, positionAttribName.c_str());
 
@@ -53,13 +53,13 @@ void ANGLETest::drawQuad(GLuint program, const std::string& positionAttribName, 
 
     const GLfloat vertices[] =
     {
-        -1.0f,  1.0f, quadDepth,
-        -1.0f, -1.0f, quadDepth,
-         1.0f, -1.0f, quadDepth,
+        -1.0f * quadScale,  1.0f * quadScale, quadDepth,
+        -1.0f * quadScale, -1.0f * quadScale, quadDepth,
+         1.0f * quadScale, -1.0f * quadScale, quadDepth,
 
-        -1.0f,  1.0f, quadDepth,
-         1.0f, -1.0f, quadDepth,
-         1.0f,  1.0f, quadDepth,
+        -1.0f * quadScale,  1.0f * quadScale, quadDepth,
+         1.0f * quadScale, -1.0f * quadScale, quadDepth,
+         1.0f * quadScale,  1.0f * quadScale, quadDepth,
     };
 
     glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, 0, vertices);

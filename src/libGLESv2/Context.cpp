@@ -950,8 +950,8 @@ void Context::getIntegerv(GLenum pname, GLint *params)
         break;
       case GL_MAX_VIEWPORT_DIMS:
         {
-            params[0] = mCaps.maxViewportWidth;
-            params[1] = mCaps.maxViewportHeight;
+            params[0] = mCaps.maxViewportBoundsX - mCaps.minViewportBoundsX;
+            params[1] = mCaps.maxViewportBoundsY - mCaps.minViewportBoundsY;
         }
         break;
       case GL_COMPRESSED_TEXTURE_FORMATS:

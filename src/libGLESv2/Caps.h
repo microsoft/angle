@@ -219,8 +219,10 @@ struct Caps
     GLuint maxRenderbufferSize;
     GLuint maxDrawBuffers;
     GLuint maxColorAttachments;
-    GLuint maxViewportWidth;
-    GLuint maxViewportHeight;
+    GLint minViewportBoundsX;
+    GLint minViewportBoundsY;
+    GLint maxViewportBoundsX;
+    GLint maxViewportBoundsY;
     GLfloat minAliasedPointSize;
     GLfloat maxAliasedPointSize;
     GLfloat minAliasedLineWidth;

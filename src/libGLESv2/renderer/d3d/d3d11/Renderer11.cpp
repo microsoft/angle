@@ -781,6 +781,7 @@ bool Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
     gl::Rectangle actualViewport = viewport;
     float actualZNear = gl::clamp01(zNear);
     float actualZFar = gl::clamp01(zFar);
+
     if (ignoreViewport)
     {
         actualViewport.x = 0;
@@ -790,22 +791,35 @@ bool Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
         actualZNear = 0.0f;
         actualZFar = 1.0f;
     }
-
-    const gl::Caps& caps = getRendererCaps();
-
-    if (isRenderingToBackBuffer())
+    else if (isRenderingToBackBuffer())
     {
         // When rendering directly to the swapchain backbuffer, we must invert the viewport in Y-axis.
         // This is due to the differences between the D3D and GL window origins.
         actualViewport.y = mRenderTargetDesc.height - viewport.y - viewport.height;
     }
 
+    const gl::Caps& caps = getRendererCaps();
+
     // Clamp width and height first to the gl maximum, then clamp further if we extend past the D3D maximum bounds
     D3D11_VIEWPORT dxViewport;
-    dxViewport.TopLeftX = gl::clamp(actualViewport.x, -static_cast<int>(caps.maxViewportWidth), static_cast<int>(caps.maxViewportWidth));
-    dxViewport.TopLeftY = gl::clamp(actualViewport.y, -static_cast<int>(caps.maxViewportHeight), static_cast<int>(caps.maxViewportHeight));
-    dxViewport.Width = gl::clamp(actualViewport.width, 0, static_cast<int>(caps.maxViewportWidth - dxViewport.TopLeftX));
-    dxViewport.Height = gl::clamp(actualViewport.height, 0, static_cast<int>(caps.maxViewportHeight - dxViewport.TopLeftY));
+
+    int maxViewportBoundsX = caps.maxViewportBoundsX;
+    int maxViewportBoundsY = caps.maxViewportBoundsY;
+
+    // On Feature Level 9_* we must also clamp the viewport to the size of the bound rendertarget.
+    if (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3)
+    {
+        maxViewportBoundsX = std::min<int>(maxViewportBoundsX, mRenderTargetDesc.width);
+        maxViewportBoundsY = std::min<int>(maxViewportBoundsY, mRenderTargetDesc.height);
+    }   
+
+    int dxViewportTopLeftX = gl::clamp(actualViewport.x, caps.minViewportBoundsX, maxViewportBoundsX);
+    int dxViewportTopLeftY = gl::clamp(actualViewport.y, caps.minViewportBoundsY, maxViewportBoundsY);
+
+    dxViewport.TopLeftX = static_cast<float>(dxViewportTopLeftX);
+    dxViewport.TopLeftY = static_cast<float>(dxViewportTopLeftY);
+    dxViewport.Width    = static_cast<float>(gl::clamp(actualViewport.width, 0, maxViewportBoundsX - dxViewportTopLeftX));
+    dxViewport.Height   = static_cast<float>(gl::clamp(actualViewport.height, 0, maxViewportBoundsY - dxViewportTopLeftY));
     dxViewport.MinDepth = actualZNear;
     dxViewport.MaxDepth = actualZFar;
 
@@ -824,6 +838,15 @@ bool Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
         mCurViewport = actualViewport;
         mCurNear = actualZNear;
         mCurFar = actualZFar;
+
+        // On Feature Level 9_*, we must emulate negative (or large) viewports in the shaders using viewAdjust (like the D3D9 renderer).
+        if (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3)
+        {
+            mVertexConstants.viewAdjust[0] = (float)((actualViewport.width - (int)dxViewport.Width) + 2 * (actualViewport.x - dxViewportTopLeftX) - 1) / dxViewport.Width;
+            mVertexConstants.viewAdjust[1] = (float)((actualViewport.height - (int)dxViewport.Height) + 2 * (actualViewport.y - dxViewportTopLeftY) - 1) / dxViewport.Height;
+            mVertexConstants.viewAdjust[2] = (float)actualViewport.width / dxViewport.Width;
+            mVertexConstants.viewAdjust[3] = (float)actualViewport.height / dxViewport.Height;
+        }
 
         mPixelConstants.viewCoords[0] = actualViewport.width  * 0.5f;
         mPixelConstants.viewCoords[1] = actualViewport.height * 0.5f;

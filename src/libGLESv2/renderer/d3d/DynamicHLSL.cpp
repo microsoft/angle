@@ -724,7 +724,8 @@ bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const 
                   "{\n"
                   "    initAttributes(input);\n";
 
-    if (shaderModel >= 4)
+    // On D3D9 or D3D11 Feature Level 9, we need to emulate large viewports using dx_ViewAdjust.
+    if (shaderModel >= 4 && mRenderer->getShaderModelSuffix() == "")
     {
         vertexHLSL += "\n"
                       "    gl_main();\n"
@@ -748,9 +749,20 @@ bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const 
                       "\n"
                       "    VS_OUTPUT output;\n"
                       "    output.gl_Position = gl_Position;\n"
-                      "    output.dx_Position.x = gl_Position.x * dx_ViewAdjust.z + dx_ViewAdjust.x * gl_Position.w;\n"
-                      "    output.dx_Position.y = -(gl_Position.y * dx_ViewAdjust.w + dx_ViewAdjust.y * gl_Position.w);\n"
-                      "    output.dx_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
+                      "    output.dx_Position.x = gl_Position.x * dx_ViewAdjust.z + dx_ViewAdjust.x * gl_Position.w;\n";
+#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+        // If ANGLE_ENABLE_RENDER_TO_BACK_BUFFER is enabled and we're using the D3D11 renderer via Feature Level 9_*, then we need to invert the dxPosition like above.
+        // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER isn't supported when using the D3D9 renderer.
+        if (shaderModel >= 4 && mRenderer->getShaderModelSuffix() != "")
+        {
+            vertexHLSL += "    output.dx_Position.y = dx_ViewScale.y * (gl_Position.y * dx_ViewAdjust.w + dx_ViewAdjust.y * gl_Position.w);\n";
+        }
+        else
+#endif
+        {
+            vertexHLSL += "    output.dx_Position.y = -(gl_Position.y * dx_ViewAdjust.w + dx_ViewAdjust.y * gl_Position.w);\n";
+        }
+        vertexHLSL += "    output.dx_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
                       "    output.dx_Position.w = gl_Position.w;\n";
     }
 
