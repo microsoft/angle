@@ -4,19 +4,19 @@
 // found in the LICENSE file.
 //
 
-// corewindowhost.h: Host for managing ICoreWindow native window types.
+// CoreWindowNativeWindow.h: NativeWindow for managing ICoreWindow native window types.
 
-#ifndef COMMON_COREWINDOWHOST_H_
-#define COMMON_COREWINDOWHOST_H_
+#ifndef COMMON_COREWINDOWNATIVEWINDOW_H_
+#define COMMON_COREWINDOWNATIVEWINDOW_H_
 
-#include "common/winrt/iinspectablehost.h"
+#include "common/winrt/IInspectableNativeWindow.h"
 
 typedef ABI::Windows::Foundation::__FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CWindowSizeChangedEventArgs_t IWindowSizeChangedEventHandler;
 
-class CoreWindowHost : public IInspectableSurfaceHost, public std::enable_shared_from_this<CoreWindowHost>
+class CoreWindowNativeWindow : public IInspectableNativeWindow, public std::enable_shared_from_this<CoreWindowNativeWindow>
 {
 public:
-    ~CoreWindowHost();
+    ~CoreWindowNativeWindow();
     bool initialize(EGLNativeWindowType window, IPropertySet* propertySet);
     bool registerForSizeChangeEvents();
     void unregisterForSizeChangeEvents();
@@ -32,7 +32,7 @@ class CoreWindowSizeChangedHandler :
 {
 public:
     CoreWindowSizeChangedHandler() { }
-    HRESULT RuntimeClassInitialize(std::shared_ptr<IInspectableSurfaceHost> host)
+    HRESULT RuntimeClassInitialize(std::shared_ptr<IInspectableNativeWindow> host)
     {
         if (!host)
         {
@@ -46,7 +46,7 @@ public:
     // IWindowSizeChangedEventHandler
     IFACEMETHOD(Invoke)(ABI::Windows::UI::Core::ICoreWindow *sender, ABI::Windows::UI::Core::IWindowSizeChangedEventArgs *e)
     {
-        std::shared_ptr<IInspectableSurfaceHost> host = mHost.lock();
+        std::shared_ptr<IInspectableNativeWindow> host = mHost.lock();
         if (host)
         {
             ABI::Windows::Foundation::Size windowSize;
@@ -61,9 +61,9 @@ public:
     }
 
 private:
-    std::weak_ptr<IInspectableSurfaceHost> mHost;
+    std::weak_ptr<IInspectableNativeWindow> mHost;
 };
 
 HRESULT getCoreWindowSizeInPixels(const ComPtr<ABI::Windows::UI::Core::ICoreWindow>& coreWindow, RECT* windowSize);
 
-#endif // COMMON_COREWINDOWHOST_H_
+#endif // COMMON_COREWINDOWNATIVEWINDOW_H_

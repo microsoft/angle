@@ -90,6 +90,9 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <Midl>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\libGLESv2;$(OutDir)obj\global_intermediate\angle;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
@@ -132,6 +135,9 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineARM</TargetMachine>
     </Link>
+    <Midl>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\libGLESv2;$(OutDir)obj\global_intermediate\angle;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
@@ -174,6 +180,9 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <Midl>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\libGLESv2;$(OutDir)obj\global_intermediate\angle;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
@@ -215,6 +224,9 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineARM</TargetMachine>
     </Link>
+    <Midl>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\libGLESv2;$(OutDir)obj\global_intermediate\angle;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
@@ -249,7 +261,7 @@
     <ClInclude Include="..\..\..\..\src\common\event_tracer.h"/>
     <ClInclude Include="..\..\..\..\src\common\mathutil.h"/>
     <ClInclude Include="..\..\..\..\src\common\platform.h"/>
-    <ClInclude Include="..\..\..\..\src\common\surfacehost.h"/>
+    <ClInclude Include="..\..\..\..\src\common\NativeWindow.h"/>
     <ClInclude Include="..\..\..\..\src\common\tls.h"/>
     <ClInclude Include="..\..\..\..\src\common\utilities.h"/>
     <ClInclude Include="..\..\..\..\src\common\version.h"/>
@@ -391,9 +403,9 @@
     <ClInclude Include="..\..\..\..\src\libGLESv2\renderer\d3d\d3d11\TextureStorage11.h"/>
     <ClInclude Include="..\..\..\..\src\libGLESv2\renderer\d3d\d3d11\VertexArray11.h"/>
     <ClInclude Include="..\..\..\..\src\libGLESv2\renderer\d3d\d3d11\VertexBuffer11.h"/>
-    <ClInclude Include="..\..\..\..\src\common\winrt\corewindowhost.h"/>
-    <ClInclude Include="..\..\..\..\src\common\winrt\iinspectablehost.h"/>
-    <ClInclude Include="..\..\..\..\src\common\winrt\swapchainpanelhost.h"/>
+    <ClInclude Include="..\..\..\..\src\common\winrt\CoreWindowNativeWindow.h"/>
+    <ClInclude Include="..\..\..\..\src\common\winrt\IInspectableNativeWindow.h"/>
+    <ClInclude Include="..\..\..\..\src\common\winrt\SwapChainPanelNativeWindow.h"/>
     <ClInclude Include="..\..\..\..\src\common\winrt\winrtutils.h"/>
     <ClInclude Include="..\..\..\..\src\third_party\threademulation\ThreadEmulation.h"/>
   </ItemGroup>
@@ -475,9 +487,9 @@
     <ClCompile Include="..\..\..\..\src\libGLESv2\renderer\d3d\d3d11\SwapChain11.cpp"/>
     <ClCompile Include="..\..\..\..\src\libGLESv2\renderer\d3d\d3d11\TextureStorage11.cpp"/>
     <ClCompile Include="..\..\..\..\src\libGLESv2\renderer\d3d\d3d11\VertexBuffer11.cpp"/>
-    <ClCompile Include="..\..\..\..\src\common\winrt\corewindowhost.cpp"/>
-    <ClCompile Include="..\..\..\..\src\common\winrt\iinspectablehost.cpp"/>
-    <ClCompile Include="..\..\..\..\src\common\winrt\swapchainpanelhost.cpp"/>
+    <ClCompile Include="..\..\..\..\src\common\winrt\CoreWindowNativeWindow.cpp"/>
+    <ClCompile Include="..\..\..\..\src\common\winrt\IInspectableNativeWindow.cpp"/>
+    <ClCompile Include="..\..\..\..\src\common\winrt\SwapChainPanelNativeWindow.cpp"/>
     <ClCompile Include="..\..\..\..\src\common\winrt\winrtutils.cpp"/>
     <ClCompile Include="..\..\..\..\src\third_party\threademulation\ThreadEmulation.cpp"/>
   </ItemGroup>

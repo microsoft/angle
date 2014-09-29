@@ -4,24 +4,19 @@
 // found in the LICENSE file.
 //
 
-// iinspectablehost.cpp: Host for managing IInspectable native window types.
+// iinspectablehost.cpp: NativeWindow base class for managing IInspectable native window types.
 
-#include "common/winrt/corewindowhost.h"
-#include "common/winrt/swapchainpanelhost.h"
+#include "common/winrt/CoreWindowNativeWindow.h"
+#include "common/winrt/SwapChainPanelNativeWindow.h"
 
 namespace rx
 {
-SurfaceHost::SurfaceHost(EGLNativeWindowType window)
+NativeWindow::NativeWindow(EGLNativeWindowType window)
 {
     mWindow = window;
 }
 
-SurfaceHost::~SurfaceHost()
-{
-
-}
-
-bool SurfaceHost::initialize()
+bool NativeWindow::initialize()
 {
     try
     {
@@ -40,22 +35,22 @@ bool SurfaceHost::initialize()
             mWindow = eglNativeWindow.Get();
         }
 
-        // If the native window is a ICoreWindow, initialize a CoreWindowHost
+        // If the native window is a ICoreWindow, initialize a CoreWindowNativeWindow
         ComPtr<ABI::Windows::UI::Core::ICoreWindow> coreWindow;
         if (isCoreWindow(mWindow, &coreWindow))
         {
-            mImpl = std::make_shared<CoreWindowHost>();
+            mImpl = std::make_shared<CoreWindowNativeWindow>();
             if (mImpl)
             {
                 return mImpl->initialize(mWindow, propertySet.Get());
             }
         }
 
-        // If the native window is a ISwapChainPanel, initialize a SwapChainPanelHost
+        // If the native window is a ISwapChainPanel, initialize a SwapChainPanelNativeWindow
         ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> swapChainPanel;
         if (isSwapChainPanel(mWindow, &swapChainPanel))
         {
-            mImpl = std::make_shared<SwapChainPanelHost>();
+            mImpl = std::make_shared<SwapChainPanelNativeWindow>();
             if (mImpl)
             {
                 return mImpl->initialize(mWindow, propertySet.Get());
@@ -70,7 +65,7 @@ bool SurfaceHost::initialize()
     return false;
 }
 
-bool SurfaceHost::getClientRect(RECT* rect)
+bool NativeWindow::getClientRect(RECT* rect)
 {
     if (mImpl)
     {
@@ -80,12 +75,12 @@ bool SurfaceHost::getClientRect(RECT* rect)
     return false;
 }
 
-bool SurfaceHost::isIconic()
+bool NativeWindow::isIconic()
 {
     return false;
 }
 
-HRESULT SurfaceHost::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
+HRESULT NativeWindow::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
 {
     if (mImpl)
     {
@@ -208,7 +203,7 @@ bool isEGLConfiguredPropertySet(EGLNativeWindowType window, ABI::Windows::Founda
 // IPropertySet
 // 
 // Anything else will be rejected as an invalid IInspectable.
-bool isValid(EGLNativeWindowType window)
+bool isValidEGLNativeWindowType(EGLNativeWindowType window)
 {
     return isCoreWindow(window) || isSwapChainPanel(window) || isEGLConfiguredPropertySet(window);
 }

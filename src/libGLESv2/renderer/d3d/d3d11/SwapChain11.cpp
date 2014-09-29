@@ -20,13 +20,14 @@
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough2d11vs.h"
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2d11ps.h"
 
-#include "common/surfacehost.h"
+#include "common/NativeWindow.h"
 namespace rx
 {
 
-    SwapChain11::SwapChain11(Renderer11 *renderer, rx::SurfaceHost host, HANDLE shareHandle,
-                         GLenum backBufferFormat, GLenum depthBufferFormat)
-    : mRenderer(renderer), SwapChain(host, shareHandle, backBufferFormat, depthBufferFormat)
+    SwapChain11::SwapChain11(Renderer11 *renderer, rx::NativeWindow nativeWindow, HANDLE shareHandle,
+                            GLenum backBufferFormat, GLenum depthBufferFormat)
+    : mRenderer(renderer), 
+      SwapChain(nativeWindow, shareHandle, backBufferFormat, depthBufferFormat)
 {
     mSwapChain = NULL;
     mBackBufferTexture = NULL;
@@ -164,7 +165,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     }
     else
     {
-        const bool useSharedResource = !mHost.getNativeWindowType() && mRenderer->getShareHandleSupport();
+        const bool useSharedResource = !mNativeWindow.getNativeWindow() && mRenderer->getShareHandleSupport();
 
         D3D11_TEXTURE2D_DESC offscreenTextureDesc = {0};
         offscreenTextureDesc.Width = backbufferWidth;
@@ -428,10 +429,10 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         return EGL_SUCCESS;
     }
 
-    if (mHost.getNativeWindowType())
+    if (mNativeWindow.getNativeWindow())
     {
         const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, device->GetFeatureLevel());
-        HRESULT result = mHost.createSwapChain(
+        HRESULT result = mNativeWindow.createSwapChain(
             device, mRenderer->getDxgiFactory(), 
             backbufferFormatInfo.texFormat, 
             backbufferWidth, backbufferHeight, &mSwapChain);

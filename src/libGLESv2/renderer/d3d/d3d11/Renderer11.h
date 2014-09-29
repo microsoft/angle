@@ -57,7 +57,7 @@ class Renderer11 : public Renderer
 
     virtual void sync(bool block);
 
-    virtual SwapChain *createSwapChain(rx::SurfaceHost host, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
+    virtual SwapChain *createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
 
     virtual void generateSwizzle(gl::Texture *texture);
     virtual void setSamplerState(gl::SamplerType type, int index, const gl::SamplerState &sampler);

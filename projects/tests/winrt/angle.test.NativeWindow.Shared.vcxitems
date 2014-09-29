@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <CodeSharingProject>9a3914c0-6596-4fbf-a103-e607cc42308c</CodeSharingProject>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>f7f6fbb7-320f-439e-8c60-af5fe4be3f50</SharedGUID>
+    <ItemsProjectGuid>{062be4f1-b4d8-47cc-a276-9ff6f20f5390}</ItemsProjectGuid>
+    <ItemsRootNamespace>angle_test_NativeWindow</ItemsRootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\CoreWindowNativeWindow.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\IInspectableNativeWindow.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\SwapChainPanelNativeWindow.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\winrtutils.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.NativeWindow\GenericInterfaces.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.NativeWindow\MockCoreWindow.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.NativeWindow\MockD3DDevice.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.NativeWindow\MockDXGIFactory.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.NativeWindow\MockDXGISwapChain.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.NativeWindow\MockSwapChainPanel.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.NativeWindow\pch.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.NativeWindow\targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\CoreWindowNativeWindow.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\IInspectableNativeWindow.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\SwapChainPanelNativeWindow.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\common\winrt\winrtutils.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.NativeWindow\pch.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\tests\winrt_tests\angle.test.NativeWindow\NativeWindowTests.cpp" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+</Project>

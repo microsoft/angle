@@ -47,8 +47,8 @@
 #   include <windows.h>
 #   include <intrin.h>
 #   if defined (ANGLE_ENABLE_WINDOWS_STORE)
-#   include "third_party/threademulation/threademulation.h"
-    using namespace ThreadEmulation;
+#       include "third_party/threademulation/threademulation.h"
+        using namespace ThreadEmulation;
 #   endif
 
 #   if defined(ANGLE_ENABLE_D3D9) || defined(ANGLE_ENABLE_PERF)

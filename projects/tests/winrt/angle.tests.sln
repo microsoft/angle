@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libEGL", "libEGL", "{8BA5424E-3C66-4972-A5AF-460E491F2ECA}"
 EndProject
@@ -15,13 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "commit_id", "commit_id", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "copy_scripts", "copy_scripts", "{08291178-B122-43F5-B216-4E1D9790B07B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle.test.surfacehost.Windows", "angle.test.surfacehost.Windows.vcxproj", "{DE028AD1-BCF4-4F06-9F2C-2F8FE694B14F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle.test.NativeWindow.Windows", "angle.test.NativeWindow.Windows.vcxproj", "{DE028AD1-BCF4-4F06-9F2C-2F8FE694B14F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ANGLE", "ANGLE", "{A40CE399-7DF0-4236-A971-6F40238AD617}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SurfaceHost tests", "SurfaceHost tests", "{3A6420A1-90C1-4EE9-978B-962909516131}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeWindow tests", "NativeWindow tests", "{3A6420A1-90C1-4EE9-978B-962909516131}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle.test.surfacehost.Shared", "angle.test.surfacehost.Shared.vcxitems", "{062BE4F1-B4D8-47CC-A276-9FF6F20F5390}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle.test.NativeWindow.Shared", "angle.test.NativeWindow.Shared.vcxitems", "{062BE4F1-B4D8-47CC-A276-9FF6F20F5390}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FL9 tests", "FL9 tests", "{18C43892-3590-4C84-AE78-539281388CE3}"
 EndProject
@@ -45,12 +45,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "translator_static", "..\..\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "translator", "..\..\winrt\windows\src\translator.vcxproj", "{E3541041-4306-ECA5-B262-9C2EF3DBFC3E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libANGLE", "libANGLE", "{F32EBBF1-4C1E-4E4B-99FD-B95AB5CFF089}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libANGLE", "..\..\winrt\windows\src\libANGLE.vcxproj", "{ABC138A2-380D-7385-6291-9BC2D1B540A7}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		angle.test.fl9.Shared.vcxitems*{ee7a790b-796f-445c-ac98-45da764a4fc2}*SharedItemsImports = 4
 		angle.test.fl9.Shared.vcxitems*{bbf25cab-922e-4383-ba97-fc84c97f20a5}*SharedItemsImports = 9
-		angle.test.surfacehost.Shared.vcxitems*{062be4f1-b4d8-47cc-a276-9ff6f20f5390}*SharedItemsImports = 9
-		angle.test.surfacehost.Shared.vcxitems*{de028ad1-bcf4-4f06-9f2c-2f8fe694b14f}*SharedItemsImports = 4
+		angle.test.NativeWindow.Shared.vcxitems*{062be4f1-b4d8-47cc-a276-9ff6f20f5390}*SharedItemsImports = 9
+		angle.test.NativeWindow.Shared.vcxitems*{de028ad1-bcf4-4f06-9f2c-2f8fe694b14f}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -187,6 +191,18 @@ Global
 		{E3541041-4306-ECA5-B262-9C2EF3DBFC3E}.Release|Win32.Build.0 = Release|Win32
 		{E3541041-4306-ECA5-B262-9C2EF3DBFC3E}.Release|x64.ActiveCfg = Release|x64
 		{E3541041-4306-ECA5-B262-9C2EF3DBFC3E}.Release|x64.Build.0 = Release|x64
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Debug|ARM.ActiveCfg = Debug|ARM
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Debug|ARM.Build.0 = Debug|ARM
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Debug|Win32.Build.0 = Debug|Win32
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Debug|x64.ActiveCfg = Debug|x64
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Debug|x64.Build.0 = Debug|x64
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Release|ARM.ActiveCfg = Release|ARM
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Release|ARM.Build.0 = Release|ARM
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Release|Win32.ActiveCfg = Release|Win32
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Release|Win32.Build.0 = Release|Win32
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Release|x64.ActiveCfg = Release|x64
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -210,5 +226,7 @@ Global
 		{9E0D3FA0-A133-FC53-D992-096A6F7903DE} = {2547CB2F-289F-4406-A4DB-A4B08B794584}
 		{60C4DBC4-945F-E059-D216-5D17E4E81C65} = {2547CB2F-289F-4406-A4DB-A4B08B794584}
 		{E3541041-4306-ECA5-B262-9C2EF3DBFC3E} = {2547CB2F-289F-4406-A4DB-A4B08B794584}
+		{F32EBBF1-4C1E-4E4B-99FD-B95AB5CFF089} = {A40CE399-7DF0-4236-A971-6F40238AD617}
+		{ABC138A2-380D-7385-6291-9BC2D1B540A7} = {F32EBBF1-4C1E-4E4B-99FD-B95AB5CFF089}
 	EndGlobalSection
 EndGlobal

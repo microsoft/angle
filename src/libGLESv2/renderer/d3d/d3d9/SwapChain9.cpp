@@ -14,9 +14,9 @@
 namespace rx
 {
 
-SwapChain9::SwapChain9(Renderer9 *renderer, rx::SurfaceHost host, HANDLE shareHandle,
+SwapChain9::SwapChain9(Renderer9 *renderer, rx::NativeWindow nativeWindow, HANDLE shareHandle,
                        GLenum backBufferFormat, GLenum depthBufferFormat)
-    : mRenderer(renderer), SwapChain(host, shareHandle, backBufferFormat, depthBufferFormat)
+    : mRenderer(renderer), SwapChain(nativeWindow, shareHandle, backBufferFormat, depthBufferFormat)
 {
     mSwapChain = NULL;
     mBackBuffer = NULL;
@@ -41,7 +41,7 @@ void SwapChain9::release()
     SafeRelease(mRenderTarget);
     SafeRelease(mOffscreenTexture);
 
-    if (mHost.getNativeWindowType())
+    if (mNativeWindow.getNativeWindow())
     {
         mShareHandle = NULL;
     }
@@ -95,7 +95,7 @@ EGLint SwapChain9::reset(int backbufferWidth, int backbufferHeight, EGLint swapI
     SafeRelease(mDepthStencil);
 
     HANDLE *pShareHandle = NULL;
-    if (!mHost.getNativeWindowType() && mRenderer->getShareHandleSupport())
+    if (!mNativeWindow.getNativeWindow() && mRenderer->getShareHandleSupport())
     {
         pShareHandle = &mShareHandle;
     }
@@ -151,7 +151,7 @@ EGLint SwapChain9::reset(int backbufferWidth, int backbufferHeight, EGLint swapI
     }
 
     const d3d9::TextureFormat &depthBufferd3dFormatInfo = d3d9::GetTextureFormatInfo(mDepthBufferFormat);
-    EGLNativeWindowType window = mHost.getNativeWindowType();
+    EGLNativeWindowType window = mNativeWindow.getNativeWindow();
     if (window)
     {
         D3DPRESENT_PARAMETERS presentParameters = {0};

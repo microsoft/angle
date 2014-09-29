@@ -10,7 +10,7 @@
 #include <wrl/wrappers/corewrappers.h>
 #include <windows.graphics.display.h>
 #include "common/winrt/winrtutils.h"
-#include "common/winrt/corewindowhost.h"
+#include "common/winrt/CoreWindowNativeWindow.h"
 #include "common/debug.h"
 
 using namespace Microsoft::WRL;

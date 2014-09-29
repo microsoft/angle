@@ -98,6 +98,9 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <Midl>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
@@ -139,6 +142,9 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineARM</TargetMachine>
     </Link>
+    <Midl>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
@@ -180,6 +186,9 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
+    <Midl>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
@@ -221,6 +230,9 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <Midl>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
@@ -261,6 +273,9 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineARM</TargetMachine>
     </Link>
+    <Midl>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
@@ -301,6 +316,9 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
+    <Midl>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </Midl>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
@@ -333,7 +351,7 @@
     <ClInclude Include="..\..\..\..\src\common\event_tracer.h"/>
     <ClInclude Include="..\..\..\..\src\common\mathutil.h"/>
     <ClInclude Include="..\..\..\..\src\common\platform.h"/>
-    <ClInclude Include="..\..\..\..\src\common\surfacehost.h"/>
+    <ClInclude Include="..\..\..\..\src\common\NativeWindow.h"/>
     <ClInclude Include="..\..\..\..\src\common\tls.h"/>
     <ClInclude Include="..\..\..\..\src\common\utilities.h"/>
     <ClInclude Include="..\..\..\..\src\common\version.h"/>

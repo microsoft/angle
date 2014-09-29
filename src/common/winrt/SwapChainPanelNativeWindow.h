@@ -9,12 +9,12 @@
 #ifndef COMMON_SWAPCHAINPANELHOST_H_
 #define COMMON_SWAPCHAINPANELHOST_H_
 
-#include "common/winrt/iinspectablehost.h"
+#include "common/winrt/IInspectableNativeWindow.h"
 
-class SwapChainPanelHost : public IInspectableSurfaceHost, public std::enable_shared_from_this<SwapChainPanelHost>
+class SwapChainPanelNativeWindow : public IInspectableNativeWindow, public std::enable_shared_from_this<SwapChainPanelNativeWindow>
 {
 public:
-    ~SwapChainPanelHost();
+    ~SwapChainPanelNativeWindow();
     bool initialize(EGLNativeWindowType window, IPropertySet* propertySet);
     bool registerForSizeChangeEvents();
     void unregisterForSizeChangeEvents();
@@ -32,7 +32,7 @@ class SwapChainPanelSizeChangedHandler :
 {
 public:
     SwapChainPanelSizeChangedHandler() { }
-    HRESULT RuntimeClassInitialize(std::shared_ptr<IInspectableSurfaceHost> host)
+    HRESULT RuntimeClassInitialize(std::shared_ptr<IInspectableNativeWindow> host)
     {
         if (!host)
         {
@@ -46,7 +46,7 @@ public:
     // ISizeChangedEventHandler
     IFACEMETHOD(Invoke)(IInspectable *sender, ABI::Windows::UI::Xaml::ISizeChangedEventArgs *e)
     {
-        std::shared_ptr<IInspectableSurfaceHost> host = mHost.lock();
+        std::shared_ptr<IInspectableNativeWindow> host = mHost.lock();
         if (host)
         {
             // The size of the ISwapChainPanel control is returned in DIPs.
@@ -67,7 +67,7 @@ public:
     }
 
 private:
-    std::weak_ptr<IInspectableSurfaceHost> mHost;
+    std::weak_ptr<IInspectableNativeWindow> mHost;
 };
 
 HRESULT getSwapChainPanelSize(const ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel>& swapChainPanel, RECT* windowSize);

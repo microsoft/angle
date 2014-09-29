@@ -25,10 +25,10 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\angle.test.surfacehost_TemporaryKey.pfx" />
+    <None Include="..\..\..\tests\winrt_tests\angle.test.NativeWindow\angle.test.NativeWindow_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="..\..\..\tests\winrt_tests\angle.test.surfacehost\Package.Windows.appxmanifest">
+    <AppxManifest Include="..\..\..\tests\winrt_tests\angle.test.NativeWindow\Package.Windows.appxmanifest">
       <Filter>Package</Filter>
     </AppxManifest>
   </ItemGroup>

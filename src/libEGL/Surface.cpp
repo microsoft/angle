@@ -22,12 +22,12 @@
 #include "libEGL/main.h"
 #include "libEGL/Display.h"
 
-#include "common/surfacehost.h"
+#include "common/NativeWindow.h"
 namespace egl
 {
 
 Surface::Surface(Display *display, const Config *config, EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height, EGLint postSubBufferSupported) 
-    : mDisplay(display), mConfig(config), mPostSubBufferSupported(postSubBufferSupported), mHost(window)
+    : mDisplay(display), mConfig(config), mNativeWindow(window), mPostSubBufferSupported(postSubBufferSupported)
 {
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
@@ -47,8 +47,7 @@ Surface::Surface(Display *display, const Config *config, EGLNativeWindowType win
 }
 
 Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType)
-    : mDisplay(display), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE),
-      mHost(nullptr)
+    : mDisplay(display), mNativeWindow(NULL), mConfig(config), mShareHandle(shareHandle), mWidth(width), mHeight(height), mPostSubBufferSupported(EGL_FALSE)
 {
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
@@ -72,9 +71,9 @@ Surface::~Surface()
 
 bool Surface::initialize()
 {
-    if (mHost.getNativeWindowType())
+    if (mNativeWindow.getNativeWindow())
     {
-        if (!mHost.initialize())
+        if (!mNativeWindow.initialize())
         {
             return false;
         }
@@ -110,7 +109,7 @@ bool Surface::resetSwapChain()
     if (!mFixedSize)
     {
         RECT windowRect;
-        if (!mHost.getClientRect(&windowRect))
+        if (!mNativeWindow.getClientRect(&windowRect))
         {
             ASSERT(false);
 
@@ -128,7 +127,7 @@ bool Surface::resetSwapChain()
         height = mHeight;
     }
 
-    mSwapChain = mRenderer->createSwapChain(mHost, mShareHandle,
+    mSwapChain = mRenderer->createSwapChain(mNativeWindow, mShareHandle,
                                             mConfig->mRenderTargetFormat,
                                             mConfig->mDepthStencilFormat);
     if (!mSwapChain)
@@ -234,7 +233,7 @@ bool Surface::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 
 EGLNativeWindowType Surface::getWindowHandle()
 {
-    return mHost.getNativeWindowType();
+    return mNativeWindow.getNativeWindow();
 }
 
 bool Surface::checkForOutOfDateSwapChain()
@@ -243,11 +242,11 @@ bool Surface::checkForOutOfDateSwapChain()
     int clientWidth = getWidth();
     int clientHeight = getHeight();
     bool sizeDirty = false;
-    if (!mFixedSize && !mHost.isIconic())
+    if (!mFixedSize && !mNativeWindow.isIconic())
     {
         // The window is automatically resized to 150x22 when it's minimized, but the swapchain shouldn't be resized
         // because that's not a useful size to render to.
-        if (!mHost.getClientRect(&client))
+        if (!mNativeWindow.getClientRect(&client))
         {
             ASSERT(false);
             return false;

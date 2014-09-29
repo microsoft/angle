@@ -4,30 +4,25 @@
 // found in the LICENSE file.
 //
 
-// hwndhost.cpp: Host for managing HWND native window types.
+// NativeWindow.cpp: Handler for managing HWND native window types.
 
-#include "common/surfacehost.h"
+#include "common/NativeWindow.h"
 #include "common/debug.h"
 
-bool isValid(EGLNativeWindowType window)
+bool isValidEGLNativeWindowType(EGLNativeWindowType window)
 {
-    return !!IsWindow(window);
+    return (IsWindow(window) == TRUE);
 }
 
 namespace rx
 {
-SurfaceHost::SurfaceHost(EGLNativeWindowType window) :
-    mWindow(window)
+NativeWindow::NativeWindow(EGLNativeWindowType window) : mWindow(window)
 {
-
 }
 
-SurfaceHost::~SurfaceHost()
-{
-
-}
-
-HRESULT SurfaceHost::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
+HRESULT NativeWindow::createSwapChain(ID3D11Device* device, DXGIFactory* factory,
+                                      DXGI_FORMAT format, unsigned int width, unsigned int height,
+                                      DXGISwapChain** swapChain)
 {
     if (device == NULL || factory == NULL || swapChain == NULL || width == 0 || height == 0)
     {
@@ -50,7 +45,7 @@ HRESULT SurfaceHost::createSwapChain(ID3D11Device* device, DXGIFactory* factory,
     swapChainDesc.SampleDesc.Quality = 0;
     swapChainDesc.Windowed = TRUE;
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-        
+
     return factory->CreateSwapChain(device, &swapChainDesc, swapChain);
 }
 };

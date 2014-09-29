@@ -19,7 +19,7 @@
 #include "libEGL/Display.h"
 #include "libEGL/Surface.h"
 
-#include "common/surfacehost.h"
+#include "common/NativeWindow.h"
 bool validateDisplay(egl::Display *display)
 {
     if (display == EGL_NO_DISPLAY)
@@ -327,7 +327,7 @@ EGLSurface __stdcall eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EG
         return EGL_NO_SURFACE;
     }
 
-    if (!isValid(win))
+    if (!isValidEGLNativeWindowType(win))
     {
         return egl::error(EGL_BAD_NATIVE_WINDOW, EGL_NO_SURFACE);
     }
@@ -683,7 +683,7 @@ EGLBoolean __stdcall eglSwapInterval(EGLDisplay dpy, EGLint interval)
     {
         return egl::error(EGL_BAD_SURFACE, EGL_FALSE);
     }
-    
+
     draw_surface->setSwapInterval(interval);
 
     return egl::success(EGL_TRUE);

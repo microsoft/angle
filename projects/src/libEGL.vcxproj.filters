@@ -336,7 +336,7 @@
     <ClInclude Include="..\..\src\common\platform.h">
       <Filter>src\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\common\surfacehost.h">
+    <ClInclude Include="..\..\src\common\NativeWindow.h">
       <Filter>src\common</Filter>
     </ClInclude>
     <ClCompile Include="..\..\src\common\tls.cpp">
@@ -390,7 +390,7 @@
     <ClInclude Include="..\..\src\libEGL\resource.h">
       <Filter>src\libEGL</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\src\common\win32\hwndhost.cpp">
+    <ClCompile Include="..\..\src\common\win32\NativeWindow.cpp">
       <Filter>src\common\win32</Filter>
     </ClCompile>
     <None Include="..\..\src\angle.gyp">

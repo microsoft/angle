@@ -14,7 +14,7 @@
 #include <EGL/egl.h>
 
 #include "common/angleutils.h"
-#include "common/surfacehost.h"
+#include "common/NativeWindow.h"
 
 namespace gl
 {
@@ -82,7 +82,7 @@ private:
     bool resetSwapChain(int backbufferWidth, int backbufferHeight);
     bool swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
 
-    rx::SurfaceHost mHost;         // Host for the native window type
+    rx::NativeWindow mNativeWindow;   // Handler for the Window that the surface is created for.
     const egl::Config *mConfig;    // EGL config surface was created with
     EGLint mHeight;                // Height of surface
     EGLint mWidth;                 // Width of surface

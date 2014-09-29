@@ -6,17 +6,17 @@
 
 // swapchainpanelhost.cpp: Host for managing ISwapChainPanel native window types.
 
-#include "common/winrt/swapchainpanelhost.h"
+#include "common/winrt/SwapChainPanelNativeWindow.h"
 #include <algorithm>
 #include <math.h>
 using namespace ABI::Windows::Foundation::Collections;
 
-SwapChainPanelHost::~SwapChainPanelHost()
+SwapChainPanelNativeWindow::~SwapChainPanelNativeWindow()
 {
     unregisterForSizeChangeEvents();
 }
 
-bool SwapChainPanelHost::initialize(EGLNativeWindowType window, IPropertySet* propertySet)
+bool SwapChainPanelNativeWindow::initialize(EGLNativeWindowType window, IPropertySet* propertySet)
 {
     ComPtr<IPropertySet> props = propertySet;
     ComPtr<IInspectable> win = window;
@@ -76,7 +76,7 @@ bool SwapChainPanelHost::initialize(EGLNativeWindowType window, IPropertySet* pr
     return false;
 }
 
-bool SwapChainPanelHost::registerForSizeChangeEvents()
+bool SwapChainPanelNativeWindow::registerForSizeChangeEvents()
 {
     ComPtr<ABI::Windows::UI::Xaml::ISizeChangedEventHandler> sizeChangedHandler;
     ComPtr<ABI::Windows::UI::Xaml::IFrameworkElement> frameworkElement;
@@ -100,7 +100,7 @@ bool SwapChainPanelHost::registerForSizeChangeEvents()
     return false;
 }
 
-void SwapChainPanelHost::unregisterForSizeChangeEvents()
+void SwapChainPanelNativeWindow::unregisterForSizeChangeEvents()
 {
     ComPtr<ABI::Windows::UI::Xaml::IFrameworkElement> frameworkElement;
     if (SUCCEEDED(mSwapChainPanel.As(&frameworkElement)))
@@ -111,7 +111,7 @@ void SwapChainPanelHost::unregisterForSizeChangeEvents()
     mSizeChangedEventToken.value = 0;
 }
 
-HRESULT SwapChainPanelHost::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
+HRESULT SwapChainPanelNativeWindow::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
 {
     if (device == NULL || factory == NULL || swapChain == NULL || width == 0 || height == 0)
     {
@@ -186,7 +186,7 @@ HRESULT SwapChainPanelHost::createSwapChain(ID3D11Device* device, DXGIFactory* f
     return result;
 }
 
-HRESULT SwapChainPanelHost::scaleSwapChain(SIZE& newSize)
+HRESULT SwapChainPanelNativeWindow::scaleSwapChain(SIZE& newSize)
 {
     ABI::Windows::Foundation::Size renderScale = { (float)newSize.cx/(float)mClientRect.right, (float)newSize.cy/(float)mClientRect.bottom };
     // Setup a scale matrix for the swap chain

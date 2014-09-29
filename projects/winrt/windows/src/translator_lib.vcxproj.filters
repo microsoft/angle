@@ -1422,7 +1422,7 @@
     <ClInclude Include="..\..\..\..\src\common\platform.h">
       <Filter>src\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\src\common\surfacehost.h">
+    <ClInclude Include="..\..\..\..\src\common\NativeWindow.h">
       <Filter>src\common</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\..\src\common\tls.cpp">

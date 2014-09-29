@@ -417,7 +417,7 @@
     <ClInclude Include="..\..\..\..\src\common\platform.h">
       <Filter>src\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\src\common\surfacehost.h">
+    <ClInclude Include="..\..\..\..\src\common\NativeWindow.h">
       <Filter>src\common</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\..\src\common\tls.cpp">
@@ -471,22 +471,22 @@
     <ClInclude Include="..\..\..\..\src\libEGL\resource.h">
       <Filter>src\libEGL</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\..\..\src\common\winrt\corewindowhost.cpp">
+    <ClCompile Include="..\..\..\..\src\common\winrt\CoreWindowNativeWindow.cpp">
       <Filter>src\common\winrt</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\..\..\src\common\winrt\corewindowhost.h">
+    <ClInclude Include="..\..\..\..\src\common\winrt\CoreWindowNativeWindow.h">
       <Filter>src\common\winrt</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\..\..\src\common\winrt\iinspectablehost.cpp">
+    <ClCompile Include="..\..\..\..\src\common\winrt\IInspectableNativeWindow.cpp">
       <Filter>src\common\winrt</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\..\..\src\common\winrt\iinspectablehost.h">
+    <ClInclude Include="..\..\..\..\src\common\winrt\IInspectableNativeWindow.h">
       <Filter>src\common\winrt</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\..\..\src\common\winrt\swapchainpanelhost.cpp">
+    <ClCompile Include="..\..\..\..\src\common\winrt\SwapChainPanelNativeWindow.cpp">
       <Filter>src\common\winrt</Filter>
     </ClCompile>
-    <ClInclude Include="..\..\..\..\src\common\winrt\swapchainpanelhost.h">
+    <ClInclude Include="..\..\..\..\src\common\winrt\SwapChainPanelNativeWindow.h">
       <Filter>src\common\winrt</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\..\src\common\winrt\winrtutils.cpp">

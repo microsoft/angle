@@ -36,7 +36,7 @@
             'common/mathutil.cpp',
             'common/mathutil.h',
             'common/platform.h',
-            'common/surfacehost.h',
+            'common/NativeWindow.h',
             'common/tls.cpp',
             'common/tls.h',
             'common/utilities.cpp',
@@ -139,16 +139,16 @@
         ],
         'angle_libangle_win32_sources':
         [
-            'common/win32/hwndhost.cpp',
+            'common/win32/NativeWindow.cpp',
         ],
         'angle_libangle_winrt_sources':
         [
-            'common/winrt/corewindowhost.cpp',
-            'common/winrt/corewindowhost.h',
-            'common/winrt/iinspectablehost.cpp',
-            'common/winrt/iinspectablehost.h',
-            'common/winrt/swapchainpanelhost.cpp',
-            'common/winrt/swapchainpanelhost.h',
+            'common/winrt/CoreWindowNativeWindow.cpp',
+            'common/winrt/CoreWindowNativeWindow.h',
+            'common/winrt/IInspectableNativeWindow.cpp',
+            'common/winrt/IInspectableNativeWindow.h',
+            'common/winrt/SwapChainPanelNativeWindow.cpp',
+            'common/winrt/SwapChainPanelNativeWindow.h',
             'common/winrt/winrtutils.cpp',
             'common/winrt/winrtutils.h',
             'third_party/threademulation/ThreadEmulation.cpp',
@@ -508,6 +508,20 @@
                     ],
                     'conditions':
                     [
+                        ['angle_enable_d3d9==1',
+                        {
+                            'defines':
+                            [
+                                'ANGLE_ENABLE_D3D9',
+                            ],
+                        }],
+                        ['angle_enable_d3d11==1',
+                        {
+                            'defines':
+                            [
+                                'ANGLE_ENABLE_D3D11',
+                            ],
+                        }],
                         ['angle_build_winrt==1',
                         {
                             'msvs_enable_winrt' : '1',
@@ -541,6 +555,20 @@
                     ],
                     'conditions':
                     [
+                        ['angle_enable_d3d9==1',
+                        {
+                            'defines':
+                            [
+                                'ANGLE_ENABLE_D3D9',
+                            ],
+                        }],
+                        ['angle_enable_d3d11==1',
+                        {
+                            'defines':
+                            [
+                                'ANGLE_ENABLE_D3D11',
+                            ],
+                        }],
                         ['angle_build_winrt==1',
                         {
                             'msvs_enable_winrt' : '1',

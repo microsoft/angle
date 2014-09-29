@@ -3,7 +3,7 @@
   <Identity Name="7d68adf5-f515-45c3-9f9a-767114e0d20c" Publisher="CN=ANGLE" Version="1.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="7d68adf5-f515-45c3-9f9a-767114e0d20c" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>angle_test_surfacehost</DisplayName>
+    <DisplayName>angle_test_NativeWindow</DisplayName>
     <PublisherDisplayName>ANGLE</PublisherDisplayName>
     <Logo>StoreLogo.png</Logo>
   </Properties>
@@ -16,7 +16,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="vstest.executionengine.appcontainer.exe" EntryPoint="Microsoft.VisualStudio.TestPlatform.TestExecutor.AppContainer.App">
-      <m3:VisualElements DisplayName="angle_test_surfacehost" Square150x150Logo="Logo.png" Square44x44Logo="SmallLogo.png" Description="angle_test_surfacehost" ForegroundText="light" BackgroundColor="#464646">
+      <m3:VisualElements DisplayName="angle_test_NativeWindow" Square150x150Logo="Logo.png" Square44x44Logo="SmallLogo.png" Description="angle_test_NativeWindow" ForegroundText="light" BackgroundColor="#464646">
         <m3:DefaultTile Wide310x150Logo="WideLogo.png" Square71x71Logo="Square71x71Logo.png">
         </m3:DefaultTile>
         <m3:SplashScreen Image="SplashScreen.png" />

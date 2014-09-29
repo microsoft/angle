@@ -4,17 +4,17 @@
 // found in the LICENSE file.
 //
 
-// corewindowhost.cpp: Host for managing ICoreWindow native window types.
+// CoreWindowNativeWindow.cpp: NativeWindow for managing ICoreWindow native window types.
 
-#include "common/winrt/corewindowhost.h"
+#include "common/winrt/CoreWindowNativeWindow.h"
 using namespace ABI::Windows::Foundation::Collections;
 
-CoreWindowHost::~CoreWindowHost()
+CoreWindowNativeWindow::~CoreWindowNativeWindow()
 {
     unregisterForSizeChangeEvents();
 }
 
-bool CoreWindowHost::initialize(EGLNativeWindowType window, IPropertySet* propertySet)
+bool CoreWindowNativeWindow::initialize(EGLNativeWindowType window, IPropertySet* propertySet)
 {
     ComPtr<IPropertySet> props = propertySet;
     ComPtr<IInspectable> win = window;
@@ -71,7 +71,7 @@ bool CoreWindowHost::initialize(EGLNativeWindowType window, IPropertySet* proper
     return false;
 }
 
-bool CoreWindowHost::registerForSizeChangeEvents()
+bool CoreWindowNativeWindow::registerForSizeChangeEvents()
 {
     ComPtr<IWindowSizeChangedEventHandler> sizeChangedHandler;
     HRESULT result = Microsoft::WRL::MakeAndInitialize<CoreWindowSizeChangedHandler>(sizeChangedHandler.ReleaseAndGetAddressOf(), this->shared_from_this());
@@ -88,7 +88,7 @@ bool CoreWindowHost::registerForSizeChangeEvents()
     return false;
 }
 
-void CoreWindowHost::unregisterForSizeChangeEvents()
+void CoreWindowNativeWindow::unregisterForSizeChangeEvents()
 {
     if (mCoreWindow)
     {
@@ -97,7 +97,7 @@ void CoreWindowHost::unregisterForSizeChangeEvents()
     mSizeChangedEventToken.value = 0;
 }
 
-HRESULT CoreWindowHost::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
+HRESULT CoreWindowNativeWindow::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
 {
     if (device == NULL || factory == NULL || swapChain == NULL || width == 0 || height == 0)
     {

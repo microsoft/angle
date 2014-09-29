@@ -39,6 +39,7 @@ class Display
 
     static bool supportsPlatformD3D();
     static bool supportsPlatformOpenGL();
+
     bool getConfigs(EGLConfig *configs, const EGLint *attribList, EGLint configSize, EGLint *numConfig);
     bool getConfigAttrib(EGLConfig config, EGLint attribute, EGLint *value);
 

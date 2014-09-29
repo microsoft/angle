@@ -11,7 +11,7 @@
 #define LIBGLESV2_RENDERER_SWAPCHAIN_H_
 
 #include "common/angleutils.h"
-#include "common/surfacehost.h"
+#include "common/NativeWindow.h"
 #include "common/platform.h"
 
 #include <GLES2/gl2.h>
@@ -27,8 +27,8 @@ namespace rx
 class SwapChain
 {
   public:
-    SwapChain(rx::SurfaceHost host, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
-        : mShareHandle(shareHandle), mBackBufferFormat(backBufferFormat), mDepthBufferFormat(depthBufferFormat), mHost(host)
+    SwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
+        : mShareHandle(shareHandle), mBackBufferFormat(backBufferFormat), mDepthBufferFormat(depthBufferFormat), mNativeWindow(nativeWindow)
     {
     }
 
@@ -44,7 +44,7 @@ class SwapChain
   protected:
     const GLenum mBackBufferFormat;
     const GLenum mDepthBufferFormat;
-    rx::SurfaceHost mHost;
+    rx::NativeWindow mNativeWindow;
 
     HANDLE mShareHandle;
 };

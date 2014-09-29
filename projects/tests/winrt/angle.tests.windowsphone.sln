@@ -15,13 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "commit_id", "commit_id", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "copy_scripts", "copy_scripts", "{08291178-B122-43F5-B216-4E1D9790B07B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle.test.surfacehost.WindowsPhone", "angle.test.surfacehost.WindowsPhone.vcxproj", "{B00E4537-DD76-41A9-81EE-20F1328A7CB3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle.test.NativeWindow.WindowsPhone", "angle.test.NativeWindow.WindowsPhone.vcxproj", "{B00E4537-DD76-41A9-81EE-20F1328A7CB3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ANGLE", "ANGLE", "{A40CE399-7DF0-4236-A971-6F40238AD617}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SurfaceHost tests", "SurfaceHost tests", "{3A6420A1-90C1-4EE9-978B-962909516131}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeWindow tests", "NativeWindow tests", "{3A6420A1-90C1-4EE9-978B-962909516131}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle.test.surfacehost.Shared", "angle.test.surfacehost.Shared.vcxitems", "{062BE4F1-B4D8-47CC-A276-9FF6F20F5390}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle.test.NativeWindow.Shared", "angle.test.NativeWindow.Shared.vcxitems", "{062BE4F1-B4D8-47CC-A276-9FF6F20F5390}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FL9 tests", "FL9 tests", "{18C43892-3590-4C84-AE78-539281388CE3}"
 EndProject
@@ -49,8 +49,8 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		angle.test.fl9.Shared.vcxitems*{23b244e4-f1f2-4ba3-9543-71bdf9e750e5}*SharedItemsImports = 4
 		angle.test.fl9.Shared.vcxitems*{bbf25cab-922e-4383-ba97-fc84c97f20a5}*SharedItemsImports = 9
-		angle.test.surfacehost.Shared.vcxitems*{062be4f1-b4d8-47cc-a276-9ff6f20f5390}*SharedItemsImports = 9
-		angle.test.surfacehost.Shared.vcxitems*{b00e4537-dd76-41a9-81ee-20f1328a7cb3}*SharedItemsImports = 4
+		angle.test.NativeWindow.Shared.vcxitems*{062be4f1-b4d8-47cc-a276-9ff6f20f5390}*SharedItemsImports = 9
+		angle.test.NativeWindow.Shared.vcxitems*{b00e4537-dd76-41a9-81ee-20f1328a7cb3}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM

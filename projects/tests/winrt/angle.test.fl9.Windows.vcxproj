@@ -57,7 +57,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup>
-    <PackageCertificateKeyFile>..\..\..\tests\winrt_tests\angle.test.surfacehost\angle.test.surfacehost_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>..\..\..\tests\winrt_tests\angle.test.NativeWindow\angle.test.NativeWindow_TemporaryKey.pfx</PackageCertificateKeyFile>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>

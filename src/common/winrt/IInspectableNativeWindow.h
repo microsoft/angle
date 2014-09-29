@@ -4,11 +4,11 @@
 // found in the LICENSE file.
 //
 
-// iinspectablehost.h: Host specific implementation interface for 
+// IInspectableNativeWindow.h: Host specific implementation interface for 
 // managing IInspectable native window types.
 
-#ifndef COMMON_IINSPECTABLEHOST_H_
-#define COMMON_IINSPECTABLEHOST_H_
+#ifndef COMMON_IINSPECTABLENATIVEWINDOW_H_
+#define COMMON_IINSPECTABLENATIVEWINDOW_H_
 
 #include <wrl.h>
 #include <wrl/wrappers/corewrappers.h>
@@ -16,7 +16,7 @@
 #include <windows.ui.xaml.h>
 #include <windows.ui.xaml.media.dxinterop.h>
 #include "common/winrt/winrtutils.h"
-#include "common/surfaceHost.h"
+#include "common/NativeWindow.h"
 #include "angle_windowsstore.h"
 
 using namespace Microsoft::WRL;
@@ -24,7 +24,7 @@ using namespace Microsoft::WRL::Wrappers;
 using namespace ABI::Windows::Foundation;
 using namespace ABI::Windows::Foundation::Collections;
 
-class IInspectableSurfaceHost
+class IInspectableNativeWindow
 {
 public:
     virtual bool initialize(EGLNativeWindowType window, IPropertySet* propertySet) = 0;
@@ -33,7 +33,7 @@ public:
     virtual void unregisterForSizeChangeEvents() = 0;
     virtual HRESULT scaleSwapChain(SIZE& newSize) { return S_OK; }
 
-    IInspectableSurfaceHost() :
+    IInspectableNativeWindow() :
         mSupportsSwapChainResize(true),
         mRequiresSwapChainScaling(false),
         mClientRectChanged(false),
@@ -43,7 +43,7 @@ public:
         mSizeChangedEventToken.value = 0;
     }
 
-    virtual ~IInspectableSurfaceHost(){}
+    virtual ~IInspectableNativeWindow(){}
 
     bool getClientRect(RECT* rect)
     {
@@ -86,4 +86,4 @@ bool isSwapChainPanel(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Xaml:
 bool isEGLConfiguredPropertySet(EGLNativeWindowType window, ABI::Windows::Foundation::Collections::IPropertySet** propertySet = nullptr, IInspectable** inspectable = nullptr);
 HRESULT getOptionalSizePropertyValue(const ComPtr<ABI::Windows::Foundation::Collections::IMap<HSTRING, IInspectable*>>& propertyMap, const wchar_t* propertyName, SIZE* value, bool* valueExists);
 
-#endif // COMMON_IINSPECTABLEHOST_H_
+#endif // COMMON_IINSPECTABLENATIVEWINDOW_H_
