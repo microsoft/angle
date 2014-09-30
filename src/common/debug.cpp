@@ -15,10 +15,6 @@
 #include <fstream>
 #include <cstdio>
 
-#if defined(ANGLE_ENABLE_PERF) && defined(ANGLE_ENABLE_WINDOWS_STORE)
-#undef ANGLE_ENABLE_PERF
-#endif
-
 namespace gl
 {
 #if defined(ANGLE_ENABLE_PERF)

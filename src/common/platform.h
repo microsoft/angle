@@ -51,6 +51,10 @@
         using namespace ThreadEmulation;
 #   endif
 
+#   if defined(ANGLE_ENABLE_PERF) && defined(ANGLE_ENABLE_WINDOWS_STORE)
+#      undef ANGLE_ENABLE_PERF
+#   endif
+
 #   if defined(ANGLE_ENABLE_D3D9) || defined(ANGLE_ENABLE_PERF)
 #       include <d3d9.h>
 #       include <d3dcompiler.h>
