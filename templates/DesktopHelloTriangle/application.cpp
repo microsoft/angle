@@ -11,9 +11,9 @@ int main(int argc, char **argv)
 }
 
 Application::Application(const std::wstring& windowTitle)
-    : mEGLDisplay(EGL_NO_DISPLAY),
-      mEGLContext(EGL_NO_CONTEXT),
-      mEGLSurface(EGL_NO_SURFACE),
+    : mEglDisplay(EGL_NO_DISPLAY),
+      mEglContext(EGL_NO_CONTEXT),
+      mEglSurface(EGL_NO_SURFACE),
       mNativeWindow(0),
       mWindowTitle(windowTitle),
       mIsRunning(false)
@@ -76,7 +76,7 @@ int Application::Run()
         
         // The call to eglSwapBuffers might not be successful (e.g. due to Device Lost)
         // If the call fails, then we must reinitialize EGL and the GL resources.
-        if (eglSwapBuffers(mEGLDisplay, mEGLSurface) != GL_TRUE)
+        if (eglSwapBuffers(mEglDisplay, mEglSurface) != GL_TRUE)
         {
             OutputDebugStringW(L"Call to eglSwapBuffers failed.");
             mTriangleRenderer.reset(nullptr);
@@ -119,82 +119,92 @@ bool Application::InitializeEGL()
         EGL_GREEN_SIZE, 8,
         EGL_BLUE_SIZE, 8,
         EGL_ALPHA_SIZE, 8,
-        EGL_DEPTH_SIZE, 24,
+        EGL_DEPTH_SIZE, 8,
         EGL_STENCIL_SIZE, 8,
-        EGL_SAMPLE_BUFFERS, EGL_DONT_CARE,
         EGL_NONE
     };
 
     const EGLint surfaceAttributes[] =
     {
         EGL_POST_SUB_BUFFER_SUPPORTED_NV, EGL_TRUE,
-        EGL_NONE, EGL_NONE,
+        EGL_NONE
     };
 
-    EGLint contextAttibutes[] =
+    const EGLint contextAttibutes[] =
     {
-        EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE
+        EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL_NONE
     };
+
+    const EGLint displayAttributes[] =
+    {
+        EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
+        EGL_NONE,
+    };
+
+    EGLConfig config = 0;
+
+    // eglGetPlatformDisplayEXT is an alternative to eglGetDisplay. It allows us to specifically request D3D11 instead of D3D9.
+    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = reinterpret_cast<PFNEGLGETPLATFORMDISPLAYEXTPROC>(eglGetProcAddress("eglGetPlatformDisplayEXT"));
+    if (!eglGetPlatformDisplayEXT)
+    {
+         OutputDebugStringW(L"Failed to get function eglGetPlatformDisplayEXT");
+    }
+
+    mEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, mHDC, displayAttributes);
+    if (mEglDisplay == EGL_NO_DISPLAY)
+    {
+        OutputDebugStringW(L"Failed to get requested EGL display");
+        CleanupEGL();
+        return false;
+    }
+
+    if (eglInitialize(mEglDisplay, NULL, NULL) == EGL_FALSE)
+    {
+        OutputDebugStringW(L"Failed to initialize EGL");
+        CleanupEGL();
+        return false;
+    }
 
     EGLint numConfigs;
-    EGLint majorVersion;
-    EGLint minorVersion;
-    EGLConfig config = 0;
-    EGLNativeDisplayType requestedDisplay = EGL_D3D11_ONLY_DISPLAY_ANGLE;
-
-    mEGLDisplay = eglGetDisplay(requestedDisplay);
-    if (mEGLDisplay == EGL_NO_DISPLAY)
+    if (eglGetConfigs(mEglDisplay, NULL, 0, &numConfigs) == EGL_FALSE)
     {
-        OutputDebugStringW(L"Failed to get requested EGL display.");
+        OutputDebugStringW(L"Failed to get EGLConfig count");
+    }
+
+    if (eglChooseConfig(mEglDisplay, configAttributes, &config, 1, &numConfigs) == EGL_FALSE || (numConfigs != 1))
+    {
+        OutputDebugStringW(L"Failed to choose first EGLConfig");
         CleanupEGL();
         return false;
     }
 
-    if (eglInitialize(mEGLDisplay, &majorVersion, &minorVersion) == EGL_FALSE)
+    mEglSurface = eglCreateWindowSurface(mEglDisplay, config, mNativeWindow, surfaceAttributes);
+    if (mEglSurface == EGL_NO_SURFACE)
     {
-        OutputDebugStringW(L"Failed to initialize EGL.");
-        CleanupEGL();
-        return false;
-    }
-
-    if (eglGetConfigs(mEGLDisplay, NULL, 0, &numConfigs) == EGL_FALSE)
-    {
-        OutputDebugStringW(L"Failed to get EGLConfig count.");
-    }
-
-    if (eglChooseConfig(mEGLDisplay, configAttributes, &config, 1, &numConfigs) == EGL_FALSE || (numConfigs != 1))
-    {
-        OutputDebugStringW(L"Failed to choose first EGLConfig count.");
-        CleanupEGL();
-        return false;
-    }
-
-    mEGLSurface = eglCreateWindowSurface(mEGLDisplay, config, mNativeWindow, surfaceAttributes);
-    if (mEGLSurface == EGL_NO_SURFACE)
-    {
-        OutputDebugStringW(L"Failed to create EGL fullscreen surface.");
+        OutputDebugStringW(L"Failed to create EGL fullscreen surface");
         CleanupEGL();
         return false;
     }
 
     if (eglGetError() != EGL_SUCCESS)
     {
-        OutputDebugStringW(L"eglGetError has reported an error.");
+        OutputDebugStringW(L"eglGetError has reported an error");
         CleanupEGL();
         return false;
     }
 
-    mEGLContext = eglCreateContext(mEGLDisplay, config, NULL, contextAttibutes);
-    if (mEGLContext == EGL_NO_CONTEXT)
+    mEglContext = eglCreateContext(mEglDisplay, config, NULL, contextAttibutes);
+    if (mEglContext == EGL_NO_CONTEXT)
     {
         OutputDebugStringW(L"Failed to create EGL context");
         CleanupEGL();
         return false;
     }
 
-    if (eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext) == EGL_FALSE)
+    if (eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext) == EGL_FALSE)
     {
-        OutputDebugStringW(L"Failed to make EGLSurface current.");
+        OutputDebugStringW(L"Failed to make EGLSurface current");
         CleanupEGL();
         return false;
     }
@@ -204,22 +214,22 @@ bool Application::InitializeEGL()
 
 void Application::CleanupEGL()
 {
-    if (mEGLDisplay != EGL_NO_DISPLAY && mEGLSurface != EGL_NO_SURFACE)
+    if (mEglDisplay != EGL_NO_DISPLAY && mEglSurface != EGL_NO_SURFACE)
     {
-        eglDestroySurface(mEGLDisplay, mEGLSurface);
-        mEGLSurface = EGL_NO_SURFACE;
+        eglDestroySurface(mEglDisplay, mEglSurface);
+        mEglSurface = EGL_NO_SURFACE;
     }
 
-    if (mEGLDisplay != EGL_NO_DISPLAY && mEGLContext != EGL_NO_CONTEXT)
+    if (mEglDisplay != EGL_NO_DISPLAY && mEglContext != EGL_NO_CONTEXT)
     {
-        eglDestroyContext(mEGLDisplay, mEGLContext);
-        mEGLContext = EGL_NO_CONTEXT;
+        eglDestroyContext(mEglDisplay, mEglContext);
+        mEglContext = EGL_NO_CONTEXT;
     }
 
-    if (mEGLDisplay != EGL_NO_DISPLAY)
+    if (mEglDisplay != EGL_NO_DISPLAY)
     {
-        eglMakeCurrent(mEGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        eglTerminate(mEGLDisplay);
+        eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        eglTerminate(mEglDisplay);
     }
 }
 
@@ -307,11 +317,24 @@ bool Application::InitializeWindow(int width, int height)
 
     ShowWindow(mNativeWindow, SW_SHOW);
 
+    mHDC = GetDC(mNativeWindow);
+    if (!mHDC)
+    {
+        CleanupWindow();
+        return false;
+    }
+
     return true;
 }
 
 void Application::CleanupWindow()
 {
+    if (mHDC)
+    {
+        ReleaseDC(mNativeWindow, mHDC);
+        mHDC = 0;
+    }
+
     if (mNativeWindow)
     {
         DestroyWindow(mNativeWindow);

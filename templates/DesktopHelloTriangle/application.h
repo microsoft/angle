@@ -25,10 +25,12 @@ namespace $safeprojectname$
 
         void Step(double deltaTime, double elapsedTime);
 
-        EGLDisplay mEGLDisplay;
-        EGLContext mEGLContext;
-        EGLSurface mEGLSurface;
+        EGLDisplay mEglDisplay;
+        EGLContext mEglContext;
+        EGLSurface mEglSurface;
         EGLNativeWindowType mNativeWindow;
+
+        HDC mHDC;
 
         std::unique_ptr<HelloTriangleRenderer> mTriangleRenderer;
 

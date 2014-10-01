@@ -182,49 +182,61 @@ void App::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ ar
 
 void App::InitializeEGL(CoreWindow^ window)
 {
-    EGLint configAttribList[] = {
+    const EGLint configAttributes[] = 
+    {
         EGL_RED_SIZE, 8,
         EGL_GREEN_SIZE, 8,
         EGL_BLUE_SIZE, 8,
         EGL_ALPHA_SIZE, 8,
         EGL_DEPTH_SIZE, 8,
         EGL_STENCIL_SIZE, 8,
-        EGL_SAMPLE_BUFFERS, 0,
         EGL_NONE
     };
 
-    EGLint surfaceAttribList[] = {
-        EGL_NONE, EGL_NONE
+    const EGLint displayAttributes[] =
+    {
+        // This can be used to configure D3D11. For example, EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_ANGLE could be used.
+        // This would ask the graphics card to use D3D11 Feature Level 9_3 instead of Feature Level 11_0+.
+        // On Windows Phone, this would allow the Phone Emulator to act more like the GPUs that are available on real Phone devices.
+        EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
+        EGL_NONE,
     };
 
-    EGLint numConfigs = 0;
-    EGLint majorVersion = 1;
-    EGLint minorVersion = 0;
-    EGLDisplay display = EGL_NO_DISPLAY;
-    EGLContext context = EGL_NO_CONTEXT;
-    EGLSurface surface = EGL_NO_SURFACE;
-    EGLConfig config = nullptr;
-    EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE, EGL_NONE };
+    const EGLint contextAttributes[] = 
+    { 
+        EGL_CONTEXT_CLIENT_VERSION, 2, 
+        EGL_NONE
+    };
+    
+    EGLConfig config = NULL;
 
-    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    if (display == EGL_NO_DISPLAY)
+    // eglGetPlatformDisplayEXT is an alternative to eglGetDisplay. It allows us to pass in 'displayAttributes' to configure D3D11.
+    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = reinterpret_cast<PFNEGLGETPLATFORMDISPLAYEXTPROC>(eglGetProcAddress("eglGetPlatformDisplayEXT"));
+    if (!eglGetPlatformDisplayEXT)
+    {
+        throw Exception::CreateException(E_FAIL, L"Failed to get function eglGetPlatformDisplayEXT");
+    }
+
+    mEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, displayAttributes);
+    if (mEglDisplay == EGL_NO_DISPLAY)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to get default EGL display");
     }
 
-    if (eglInitialize(display, &majorVersion, &minorVersion) == EGL_FALSE)
+    if (eglInitialize(mEglDisplay, NULL, NULL) == EGL_FALSE)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to initialize EGL");
     }
 
-    if (eglGetConfigs(display, NULL, 0, &numConfigs) == EGL_FALSE)
+    EGLint numConfigs = 0;
+    if (eglGetConfigs(mEglDisplay, NULL, 0, &numConfigs) == EGL_FALSE)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to get EGLConfig count");
     }
 
-    if (eglChooseConfig(display, configAttribList, &config, 1, &numConfigs) == EGL_FALSE)
+    if (eglChooseConfig(mEglDisplay, configAttributes, &config, 1, &numConfigs) == EGL_FALSE)
     {
-        throw Exception::CreateException(E_FAIL, L"Failed to choose first EGLConfig count");
+        throw Exception::CreateException(E_FAIL, L"Failed to choose first EGLConfig");
     }
 
     // Create a PropertySet and initialize with the EGLNativeWindowType.
@@ -241,26 +253,22 @@ void App::InitializeEGL(CoreWindow^ window)
     //surfaceCreationProperties->Insert(ref new String(EGLRenderSurfaceSizeProperty), PropertyValue::CreateSize(mCustomRenderSurfaceSize));
     //
 
-    surface = eglCreateWindowSurface(display, config, reinterpret_cast<IInspectable*>(surfaceCreationProperties), surfaceAttribList);
-    if (surface == EGL_NO_SURFACE)
+    mEglSurface = eglCreateWindowSurface(mEglDisplay, config, reinterpret_cast<IInspectable*>(surfaceCreationProperties), NULL);
+    if (mEglSurface == EGL_NO_SURFACE)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to create EGL fullscreen surface");
     }
 
-    context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
-    if (context == EGL_NO_CONTEXT)
+    mEglContext = eglCreateContext(mEglDisplay, config, EGL_NO_CONTEXT, contextAttributes);
+    if (mEglContext == EGL_NO_CONTEXT)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to create EGL context");
     }
 
-    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
+    if (eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext) == EGL_FALSE)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to make fullscreen EGLSurface current");
     }
-
-    mEglDisplay = display;
-    mEglSurface = surface;
-    mEglContext = context;
 }
 
 void App::CleanupEGL()
