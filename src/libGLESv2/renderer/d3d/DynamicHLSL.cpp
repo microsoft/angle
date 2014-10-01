@@ -126,6 +126,7 @@ static bool packVarying(PackedVarying *varying, const int maxVaryingVectors, Var
             if (available)
             {
                 varying->registerIndex = r;
+                varying->columnIndex = 0;
 
                 for (int y = 0; y < registers; y++)
                 {
@@ -160,7 +161,7 @@ static bool packVarying(PackedVarying *varying, const int maxVaryingVectors, Var
                 {
                     varying->registerIndex = r;
                     varying->columnIndex = 2;
-                    
+
                     for (int y = 0; y < registers; y++)
                     {
                         for (int x = 2; x < 4; x++)

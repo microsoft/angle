@@ -4,14 +4,28 @@
 
 OSWindow *ANGLETest::mOSWindow = NULL;
 
-ANGLETest::ANGLETest()
-    : mEGLWindow(NULL)
+ANGLETest::ANGLETest(EGLint glesMajorVersion, EGLint requestedRenderer)
+    : mEGLWindow(NULL),
+      mRequestedRenderer(requestedRenderer)
 {
-    mEGLWindow = new EGLWindow(1280, 720, 2, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE);
+    mEGLWindow = new EGLWindow(1280, 720, glesMajorVersion, requestedRenderer);
 }
 
 void ANGLETest::SetUp()
 {
+    // As per the spec for ANGLE_platform_angle, the value of EGL_PLATFORM_ANGLE_TYPE_ANGLE is ignored if an EGLDisplay
+    // was previously created for any value of EGLNativeDisplayType.
+    // As a result, if we wish to request a different display type then we need to recreate the OS Window.
+    if (mOSWindow->getRequestedRenderer() != EGL_NONE && mOSWindow->getRequestedRenderer() != mRequestedRenderer)
+    {
+        ANGLETest::DestroyTestWindow();
+
+        if (!ANGLETest::InitTestWindow())
+        {
+            FAIL() << "Failed to create ANGLE test window.";
+        }
+    }
+
     ResizeWindow(mEGLWindow->getWidth(), mEGLWindow->getHeight());
     if (!createEGLContext())
     {
@@ -107,11 +121,6 @@ bool ANGLETest::extensionEnabled(const std::string &extName)
     return strstr(extString, extName.c_str()) != NULL;
 }
 
-void ANGLETest::setClientVersion(int clientVersion)
-{
-    mEGLWindow->setClientVersion(clientVersion);
-}
-
 void ANGLETest::setWindowWidth(int width)
 {
     mEGLWindow->setWidth(width);
@@ -188,10 +197,10 @@ bool ANGLETest::destroyEGLContext()
     return true;
 }
 
-bool ANGLETest::InitTestWindow(EGLNativeDisplayType nativeDisplayType)
+bool ANGLETest::InitTestWindow()
 {
     mOSWindow = CreateOSWindow();
-    if (!mOSWindow->initialize("ANGLE_TEST", 128, 128, nativeDisplayType))
+    if (!mOSWindow->initialize("ANGLE_TEST", 128, 128))
     {
         return false;
     }

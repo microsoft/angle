@@ -7,6 +7,7 @@
 #include "SimpleBenchmark.h"
 #include "BufferSubData.h"
 #include "TexSubImage.h"
+#include "PointSprites.h"
 
 EGLint platforms[] =
 {
@@ -100,4 +101,21 @@ int main(int argc, char **argv)
     }
 
     RunBenchmarks<TexSubImageBenchmark>(subImageParams);
+
+    std::vector<PointSpritesParams> pointSpriteParams;
+
+    for (size_t platIt = 0; platIt < ArraySize(platforms); platIt++)
+    {
+        PointSpritesParams params;
+
+        params.requestedRenderer = platforms[platIt];
+        params.iterations = 10;
+        params.count = 10;
+        params.size = 3.0f;
+        params.numVaryings = 3;
+
+        pointSpriteParams.push_back(params);
+    }
+
+    RunBenchmarks<PointSpritesBenchmark>(pointSpriteParams);
 }

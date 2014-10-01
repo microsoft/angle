@@ -20,6 +20,7 @@
 #include "libEGL/Surface.h"
 
 #include "common/NativeWindow.h"
+
 bool validateDisplay(egl::Display *display)
 {
     if (display == EGL_NO_DISPLAY)

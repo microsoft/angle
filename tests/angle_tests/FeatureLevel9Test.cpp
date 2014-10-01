@@ -5,7 +5,7 @@
 class FeatureLevel9Test : public ANGLETest
 {
 protected:
-    FeatureLevel9Test()
+    FeatureLevel9Test() : ANGLETest(3, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
     {
         setWindowWidth(128);
         setWindowHeight(128);
@@ -13,20 +13,10 @@ protected:
         setConfigGreenBits(8);
         setConfigBlueBits(8);
         setConfigAlphaBits(8);
-        setClientVersion(3);
     }
 
     virtual void SetUp()
     {
-        // Ensure that ANGLE is initialized with a Feature Level restricted
-        // environment.  This is done by destroying any currently created
-        // Windows/setup and recreating one.
-        ANGLETest::DestroyTestWindow();
-        if (!ANGLETest::InitTestWindow(EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE))
-        {
-            FAIL() << "Failed to create ANGLE limited FeatureLevel test window.";
-        }
-
 		// Point Sprite Compilation Test Vertex Shader source
 		pointSpriteCompilationTestVS = SHADER_SOURCE
 		(

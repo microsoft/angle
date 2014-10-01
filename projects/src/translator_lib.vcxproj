@@ -323,6 +323,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\common\RefCountObject.cpp"/>
+    <ClCompile Include="..\..\src\common\angleutils.cpp"/>
     <ClCompile Include="..\..\src\common\blocklayout.cpp"/>
     <ClCompile Include="..\..\src\common\debug.cpp"/>
     <ClCompile Include="..\..\src\common\event_tracer.cpp"/>

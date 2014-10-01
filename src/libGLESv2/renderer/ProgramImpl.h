@@ -13,11 +13,11 @@
 #include "libGLESv2/BinaryStream.h"
 #include "libGLESv2/Constants.h"
 #include "libGLESv2/ProgramBinary.h"
+#include "libGLESv2/renderer/Renderer.h"
 
 namespace rx
 {
 
-class DynamicHLSL;
 class Renderer;
 
 class ProgramImpl
@@ -25,30 +25,32 @@ class ProgramImpl
 public:
     virtual ~ProgramImpl() { }
 
-    // TODO: Temporary interfaces to ease migration. Remove soon!
-    virtual Renderer *getRenderer() = 0;
-    virtual DynamicHLSL *getDynamicHLSL() = 0;
-    virtual const std::vector<rx::PixelShaderOutputVariable> &getPixelShaderKey() = 0;
+    virtual bool usesPointSize() const = 0;
+    virtual int getShaderVersion() const = 0;
+    virtual GLenum getTransformFeedbackBufferMode() const = 0;
+    virtual std::vector<gl::LinkedVarying> &getTransformFeedbackLinkedVaryings() = 0;
+    virtual sh::Attribute *getShaderAttributes() = 0;
 
     virtual GLenum getBinaryFormat() = 0;
     virtual bool load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream) = 0;
     virtual bool save(gl::BinaryOutputStream *stream) = 0;
 
-    virtual rx::ShaderExecutable *getPixelExecutableForOutputLayout(gl::InfoLog &infoLog, const std::vector<GLenum> &outputSignature,
-                                                                    const std::vector<gl::LinkedVarying> &transformFeedbackLinkedVaryings,
-                                                                    bool separatedOutputBuffers) = 0;
-    virtual rx::ShaderExecutable *getVertexExecutableForInputLayout(gl::InfoLog &infoLog,
-                                                                    const gl::VertexFormat inputLayout[gl::MAX_VERTEX_ATTRIBS],
-                                                                    const sh::Attribute shaderAttributes[],
-                                                                    const std::vector<gl::LinkedVarying> &transformFeedbackLinkedVaryings,
-                                                                    bool separatedOutputBuffers) = 0;
+    virtual bool compileProgramExecutables(gl::InfoLog &infoLog, gl::Shader *fragmentShader, gl::Shader *vertexShader,
+                                           int registers) = 0;
 
     virtual bool link(gl::InfoLog &infoLog, gl::Shader *fragmentShader, gl::Shader *vertexShader,
-                      const std::vector<std::string> &transformFeedbackVaryings, int *registers,
-                      std::vector<gl::LinkedVarying> *linkedVaryings, std::map<int,
-                      gl::VariableLocation> *outputVariables) = 0;
+                      const std::vector<std::string> &transformFeedbackVaryings, GLenum transformFeedbackBufferMode,
+                      int *registers, std::vector<gl::LinkedVarying> *linkedVaryings,
+                      std::map<int, gl::VariableLocation> *outputVariables, const gl::Caps &caps) = 0;
 
     virtual void initializeUniformStorage(const std::vector<gl::LinkedUniform*> &uniforms) = 0;
+
+    virtual gl::Error applyUniforms(const std::vector<gl::LinkedUniform*> &uniforms) = 0;
+    virtual gl::Error applyUniformBuffers(const std::vector<gl::UniformBlock*> uniformBlocks, const std::vector<gl::Buffer*> boundBuffers,
+                                     const gl::Caps &caps) = 0;
+    virtual bool assignUniformBlockRegister(gl::InfoLog &infoLog, gl::UniformBlock *uniformBlock, GLenum shader,
+                                            unsigned int registerIndex, const gl::Caps &caps) = 0;
+    virtual unsigned int getReservedUniformVectors(GLenum shader) = 0;
 
     virtual void reset() = 0;
 };

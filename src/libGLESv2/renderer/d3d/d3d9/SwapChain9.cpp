@@ -16,7 +16,8 @@ namespace rx
 
 SwapChain9::SwapChain9(Renderer9 *renderer, rx::NativeWindow nativeWindow, HANDLE shareHandle,
                        GLenum backBufferFormat, GLenum depthBufferFormat)
-    : mRenderer(renderer), SwapChain(nativeWindow, shareHandle, backBufferFormat, depthBufferFormat)
+    : mRenderer(renderer),
+      SwapChain(nativeWindow, shareHandle, backBufferFormat, depthBufferFormat)
 {
     mSwapChain = NULL;
     mBackBuffer = NULL;
@@ -151,6 +152,7 @@ EGLint SwapChain9::reset(int backbufferWidth, int backbufferHeight, EGLint swapI
     }
 
     const d3d9::TextureFormat &depthBufferd3dFormatInfo = d3d9::GetTextureFormatInfo(mDepthBufferFormat);
+
     EGLNativeWindowType window = mNativeWindow.getNativeWindow();
     if (window)
     {

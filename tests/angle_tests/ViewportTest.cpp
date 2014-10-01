@@ -1,9 +1,14 @@
 #include "ANGLETest.h"
 
+// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
+typedef ::testing::Types<TFT<Gles::Three, Rend::D3D11>, TFT<Gles::Two, Rend::D3D11>, TFT<Gles::Two, Rend::D3D9> > TestFixtureTypes;
+TYPED_TEST_CASE(ViewportTest, TestFixtureTypes);
+
+template<typename T>
 class ViewportTest : public ANGLETest
 {
 protected:
-    ViewportTest()
+    ViewportTest() : ANGLETest(T::GetGlesMajorVersion(), T::GetRequestedRenderer())
     {
         setWindowWidth(512);
         setWindowHeight(512);
@@ -119,61 +124,61 @@ protected:
     GLuint mProgram;
 };
 
-TEST_F(ViewportTest, QuarterWindow)
+TYPED_TEST(ViewportTest, QuarterWindow)
 {
     glViewport(0, 0, getWindowWidth() / 4, getWindowHeight() / 4);
     runTest();
 }
 
-TEST_F(ViewportTest, QuarterWindowCentered)
+TYPED_TEST(ViewportTest, QuarterWindowCentered)
 {
     glViewport(getWindowWidth() * 3 / 8, getWindowHeight() * 3 / 8, getWindowWidth() / 4, getWindowHeight() / 4);
     runTest();
 }
 
-TEST_F(ViewportTest, FullWindow)
+TYPED_TEST(ViewportTest, FullWindow)
 {
     glViewport(0, 0, getWindowWidth(), getWindowHeight());
     runTest();
 }
 
-TEST_F(ViewportTest, FullWindowOffCenter)
+TYPED_TEST(ViewportTest, FullWindowOffCenter)
 {
     glViewport(-getWindowWidth() / 2, getWindowHeight() / 2, getWindowWidth(), getWindowHeight());
     runTest();
 }
 
-TEST_F(ViewportTest, DoubleWindow)
+TYPED_TEST(ViewportTest, DoubleWindow)
 {
     glViewport(0, 0, getWindowWidth() * 2, getWindowHeight() * 2);
     runTest();
 }
 
-TEST_F(ViewportTest, DoubleWindowCentered)
+TYPED_TEST(ViewportTest, DoubleWindowCentered)
 {
     glViewport(-getWindowWidth() / 2, -getWindowHeight() / 2, getWindowWidth() * 2, getWindowHeight() * 2);
     runTest();
 }
 
-TEST_F(ViewportTest, DoubleWindowOffCenter)
+TYPED_TEST(ViewportTest, DoubleWindowOffCenter)
 {
     glViewport(-getWindowWidth() * 3 / 4, getWindowHeight() * 3 / 4, getWindowWidth(), getWindowHeight());
     runTest();
 }
 
-TEST_F(ViewportTest, TripleWindow)
+TYPED_TEST(ViewportTest, TripleWindow)
 {
     glViewport(0, 0, getWindowWidth() * 3, getWindowHeight() * 3);
     runTest();
 }
 
-TEST_F(ViewportTest, TripleWindowCentered)
+TYPED_TEST(ViewportTest, TripleWindowCentered)
 {
     glViewport(-getWindowWidth(), -getWindowHeight(), getWindowWidth() * 3, getWindowHeight() * 3);
     runTest();
 }
 
-TEST_F(ViewportTest, TripleWindowOffCenter)
+TYPED_TEST(ViewportTest, TripleWindowOffCenter)
 {
     glViewport(-getWindowWidth() * 3 / 2, -getWindowHeight() * 3 / 2, getWindowWidth() * 3, getWindowHeight() * 3);
     runTest();

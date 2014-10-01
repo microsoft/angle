@@ -21,12 +21,13 @@
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2d11ps.h"
 
 #include "common/NativeWindow.h"
+
 namespace rx
 {
 
-    SwapChain11::SwapChain11(Renderer11 *renderer, rx::NativeWindow nativeWindow, HANDLE shareHandle,
-                            GLenum backBufferFormat, GLenum depthBufferFormat)
-    : mRenderer(renderer), 
+SwapChain11::SwapChain11(Renderer11 *renderer, rx::NativeWindow nativeWindow, HANDLE shareHandle,
+                         GLenum backBufferFormat, GLenum depthBufferFormat)
+    : mRenderer(renderer),
       SwapChain(nativeWindow, shareHandle, backBufferFormat, depthBufferFormat)
 {
     mSwapChain = NULL;
@@ -432,10 +433,10 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
     if (mNativeWindow.getNativeWindow())
     {
         const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, device->GetFeatureLevel());
-        HRESULT result = mNativeWindow.createSwapChain(
-            device, mRenderer->getDxgiFactory(), 
-            backbufferFormatInfo.texFormat, 
-            backbufferWidth, backbufferHeight, &mSwapChain);
+
+        HRESULT result = mNativeWindow.createSwapChain(device, mRenderer->getDxgiFactory(),
+                                               backbufferFormatInfo.texFormat,
+                                               backbufferWidth, backbufferHeight, &mSwapChain);
 
         if (FAILED(result))
         {

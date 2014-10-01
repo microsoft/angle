@@ -1,9 +1,14 @@
 #include "ANGLETest.h"
 
+// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
+typedef ::testing::Types<TFT<Gles::Three, Rend::D3D11>, TFT<Gles::Two, Rend::D3D11>, TFT<Gles::Two, Rend::D3D9>> TestFixtureTypes;
+TYPED_TEST_CASE(ClearTest, TestFixtureTypes);
+
+template<typename T>
 class ClearTest : public ANGLETest
 {
 protected:
-    ClearTest()
+    ClearTest() : ANGLETest(T::GetGlesMajorVersion(), T::GetRequestedRenderer())
     {
         setWindowWidth(128);
         setWindowHeight(128);
@@ -12,7 +17,6 @@ protected:
         setConfigBlueBits(8);
         setConfigAlphaBits(8);
         setConfigDepthBits(24);
-        setClientVersion(3);
     }
 
     virtual void SetUp()
@@ -63,7 +67,7 @@ protected:
     GLuint mFBO;
 };
 
-TEST_F(ClearTest, ClearIssue)
+TYPED_TEST(ClearTest, ClearIssue)
 {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -104,7 +108,7 @@ TEST_F(ClearTest, ClearIssue)
 // Requires ES3
 // This tests a bug where in a masked clear when calling "ClearBuffer", we would
 // mistakenly clear every channel (including the masked-out ones)
-TEST_F(ClearTest, MaskedClearBufferBug)
+TYPED_TEST(ClearTest, MaskedClearBufferBug)
 {
     unsigned char pixelData[] = { 255, 255, 255, 255 };
 
@@ -137,4 +141,54 @@ TEST_F(ClearTest, MaskedClearBufferBug)
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textures[1], 0);
     EXPECT_PIXEL_EQ(0, 0, 0, 127, 255, 255);
+
+    glDeleteTextures(2, textures);
+}
+
+TYPED_TEST(ClearTest, BadFBOSerialBug)
+{
+    // First make a simple framebuffer, and clear it to green
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+
+    GLuint textures[2];
+    glGenTextures(2, &textures[0]);
+
+    glBindTexture(GL_TEXTURE_2D, textures[0]);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, getWindowWidth(), getWindowHeight());
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textures[0], 0);
+
+    GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+    glDrawBuffers(1, drawBuffers);
+
+    float clearValues1[] = { 0.0f, 1.0f, 0.0f, 1.0f };
+    glClearBufferfv(GL_COLOR, 0, clearValues1);
+
+    ASSERT_GL_NO_ERROR();
+    EXPECT_PIXEL_EQ(0, 0, 0, 255, 0, 255);
+
+    // Next make a second framebuffer, and draw it to red
+    // (Triggers bad applied render target serial)
+    GLuint fbo2;
+    glGenFramebuffers(1, &fbo2);
+    ASSERT_GL_NO_ERROR();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo2);
+
+    glBindTexture(GL_TEXTURE_2D, textures[1]);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, getWindowWidth(), getWindowHeight());
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textures[1], 0);
+
+    glDrawBuffers(1, drawBuffers);
+
+    drawQuad(mProgram, "position", 0.5f);
+
+    ASSERT_GL_NO_ERROR();
+    EXPECT_PIXEL_EQ(0, 0, 255, 0, 0, 255);
+
+    // Check that the first framebuffer is still green.
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+    EXPECT_PIXEL_EQ(0, 0, 0, 255, 0, 255);
+
+    glDeleteTextures(2, textures);
+    glDeleteFramebuffers(1, &fbo2);
 }

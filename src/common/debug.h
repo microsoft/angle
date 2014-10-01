@@ -94,6 +94,10 @@ namespace gl
 #endif
 // A macro to indicate unimplemented functionality
 
+#if defined (ANGLE_TEST_CONFIG)
+#define NOASSERT_UNIMPLEMENTED 1
+#endif
+
 // Define NOASSERT_UNIMPLEMENTED to non zero to skip the assert fail in the unimplemented checks
 // This will allow us to test with some automated test suites (eg dEQP) without crashing
 #ifndef NOASSERT_UNIMPLEMENTED

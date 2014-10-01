@@ -19,7 +19,7 @@ class OSWindow
     OSWindow();
     virtual ~OSWindow();
 
-    virtual bool initialize(const std::string &name, size_t width, size_t height, EGLNativeDisplayType nativeDisplayType = EGL_D3D11_ONLY_DISPLAY_ANGLE) = 0;
+    virtual bool initialize(const std::string &name, size_t width, size_t height) = 0;
     virtual void destroy() = 0;
 
     int getWidth() const;
@@ -27,6 +27,9 @@ class OSWindow
 
     virtual EGLNativeWindowType getNativeWindow() const = 0;
     virtual EGLNativeDisplayType getNativeDisplay() const = 0;
+
+    void setRequestedRenderer(EGLint requestedDisplayType);
+    EGLint getRequestedRenderer() const ;
 
     virtual void messageLoop() = 0;
 
@@ -40,6 +43,8 @@ class OSWindow
   protected:
     int mWidth;
     int mHeight;
+
+    EGLint mRequestedRenderer;
 
     std::list<Event> mEvents;
 };

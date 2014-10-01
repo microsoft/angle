@@ -262,6 +262,7 @@
     <ClInclude Include="..\..\src\libGLESv2\Framebuffer.h"/>
     <ClInclude Include="..\..\src\libGLESv2\FramebufferAttachment.h"/>
     <ClInclude Include="..\..\src\libGLESv2\HandleAllocator.h"/>
+    <ClInclude Include="..\..\src\libGLESv2\ImageIndex.h"/>
     <ClInclude Include="..\..\src\libGLESv2\Program.h"/>
     <ClInclude Include="..\..\src\libGLESv2\ProgramBinary.h"/>
     <ClInclude Include="..\..\src\libGLESv2\Query.h"/>
@@ -294,6 +295,7 @@
     <ClInclude Include="..\..\src\libGLESv2\renderer\TextureImpl.h"/>
     <ClInclude Include="..\..\src\libGLESv2\renderer\TransformFeedbackImpl.h"/>
     <ClInclude Include="..\..\src\libGLESv2\renderer\VertexArrayImpl.h"/>
+    <ClInclude Include="..\..\src\libGLESv2\renderer\Workarounds.h"/>
     <ClInclude Include="..\..\src\libGLESv2\renderer\copyimage.h"/>
     <ClInclude Include="..\..\src\libGLESv2\renderer\copyvertex.h"/>
     <ClInclude Include="..\..\src\libGLESv2\renderer\generatemip.h"/>
@@ -431,6 +433,7 @@
     <ClCompile Include="..\..\src\libGLESv2\Framebuffer.cpp"/>
     <ClCompile Include="..\..\src\libGLESv2\FramebufferAttachment.cpp"/>
     <ClCompile Include="..\..\src\libGLESv2\HandleAllocator.cpp"/>
+    <ClCompile Include="..\..\src\libGLESv2\ImageIndex.cpp"/>
     <ClCompile Include="..\..\src\libGLESv2\Program.cpp"/>
     <ClCompile Include="..\..\src\libGLESv2\ProgramBinary.cpp"/>
     <ClCompile Include="..\..\src\libGLESv2\Query.cpp"/>

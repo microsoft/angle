@@ -10,6 +10,7 @@
 #include "libGLESv2/renderer/d3d/d3d11/renderer11_utils.h"
 #include "libGLESv2/renderer/d3d/d3d11/formatutils11.h"
 #include "libGLESv2/renderer/d3d/d3d11/RenderTarget11.h"
+#include "libGLESv2/renderer/Workarounds.h"
 #include "libGLESv2/ProgramBinary.h"
 #include "libGLESv2/Framebuffer.h"
 
@@ -1034,7 +1035,7 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
                                                  static_cast<GLint64>(caps->maxFragmentUniformComponents);
     caps->maxVaryingComponents = GetMaximumVertexOutputVectors(featureLevel) * 4;
     caps->maxVaryingVectors = GetMaximumVertexOutputVectors(featureLevel);
-    caps->maxCombinedTextureImageUnits = caps->maxVertexTextureImageUnits + caps->maxFragmentInputComponents;
+    caps->maxCombinedTextureImageUnits = caps->maxVertexTextureImageUnits + caps->maxTextureImageUnits;
 
     // Transform feedback limits
     caps->maxTransformFeedbackInterleavedComponents = GetMaximumStreamOutputInterleavedComponenets(featureLevel);
@@ -1159,6 +1160,13 @@ RenderTarget11 *GetAttachmentRenderTarget(gl::FramebufferAttachment *attachment)
 {
     RenderTarget *renderTarget = rx::GetAttachmentRenderTarget(attachment);
     return RenderTarget11::makeRenderTarget11(renderTarget);
+}
+
+Workarounds GenerateWorkarounds()
+{
+    Workarounds workarounds;
+    workarounds.mrtPerfWorkaround = true;
+    return workarounds;
 }
 
 }

@@ -373,7 +373,7 @@ Win32Window::~Win32Window()
     destroy();
 }
 
-bool Win32Window::initialize(const std::string &name, size_t width, size_t height, EGLNativeDisplayType nativeDisplayType)
+bool Win32Window::initialize(const std::string &name, size_t width, size_t height)
 {
     destroy();
 
@@ -427,15 +427,7 @@ bool Win32Window::initialize(const std::string &name, size_t width, size_t heigh
     mNativeWindow = CreateWindowExA(0, mChildClassName.c_str(), name.c_str(), WS_VISIBLE | WS_CHILD, 0, 0, width, height,
                                     mParentWindow, NULL, GetModuleHandle(NULL), this);
 
-    if (nativeDisplayType == EGL_DEFAULT_DISPLAY)
-    {
-        mNativeDisplay = GetDC(mNativeWindow);
-    }
-    else
-    {
-        mNativeDisplay = nativeDisplayType;
-    }
-
+    mNativeDisplay = GetDC(mNativeWindow);
     if (!mNativeDisplay)
     {
         destroy();
@@ -449,13 +441,7 @@ void Win32Window::destroy()
 {
     if (mNativeDisplay)
     {
-        if ((mNativeDisplay != EGL_SOFTWARE_DISPLAY_ANGLE) &&
-            (mNativeDisplay != EGL_D3D11_ELSE_D3D9_DISPLAY_ANGLE) &&
-            (mNativeDisplay != EGL_D3D11_ONLY_DISPLAY_ANGLE) &&
-            (mNativeDisplay != EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE))
-        {
-            ReleaseDC(mNativeWindow, mNativeDisplay);
-        }
+        ReleaseDC(mNativeWindow, mNativeDisplay);
         mNativeDisplay = 0;
     }
 

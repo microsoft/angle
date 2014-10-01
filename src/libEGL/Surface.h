@@ -83,6 +83,9 @@ private:
     bool swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
 
     rx::NativeWindow mNativeWindow;   // Handler for the Window that the surface is created for.
+
+    bool mWindowSubclassed;        // Indicates whether we successfully subclassed mWindow for WM_RESIZE hooking
+
     const egl::Config *mConfig;    // EGL config surface was created with
     EGLint mHeight;                // Height of surface
     EGLint mWidth;                 // Width of surface

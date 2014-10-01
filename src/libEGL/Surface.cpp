@@ -23,6 +23,7 @@
 #include "libEGL/Display.h"
 
 #include "common/NativeWindow.h"
+
 namespace egl
 {
 
@@ -235,6 +236,10 @@ EGLNativeWindowType Surface::getWindowHandle()
 {
     return mNativeWindow.getNativeWindow();
 }
+
+
+#define kSurfaceProperty _TEXT("Egl::SurfaceOwner")
+#define kParentWndProc _TEXT("Egl::SurfaceParentWndProc")
 
 bool Surface::checkForOutOfDateSwapChain()
 {

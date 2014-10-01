@@ -16,6 +16,7 @@
 #include "libGLESv2/FramebufferAttachment.h"
 #include "libGLESv2/renderer/Renderer.h"
 #include "libGLESv2/renderer/RenderTarget.h"
+#include "libGLESv2/renderer/Workarounds.h"
 #include "libGLESv2/renderer/d3d/TextureD3D.h"
 
 #include "common/utilities.h"
@@ -29,8 +30,9 @@ RenderTarget *GetAttachmentRenderTarget(gl::FramebufferAttachment *attachment)
         gl::Texture *texture = attachment->getTexture();
         ASSERT(texture);
         TextureD3D *textureD3D = TextureD3D::makeTextureD3D(texture->getImplementation());
-
-        return textureD3D->getRenderTarget(attachment->mipLevel(), attachment->layer());
+        const gl::ImageIndex *index = attachment->getTextureImageIndex();
+        ASSERT(index);
+        return textureD3D->getRenderTarget(*index);
     }
 
     gl::Renderbuffer *renderbuffer = attachment->getRenderbuffer();
@@ -48,7 +50,9 @@ unsigned int GetAttachmentSerial(gl::FramebufferAttachment *attachment)
         gl::Texture *texture = attachment->getTexture();
         ASSERT(texture);
         TextureD3D *textureD3D = TextureD3D::makeTextureD3D(texture->getImplementation());
-        return textureD3D->getRenderTargetSerial(attachment->mipLevel(), attachment->layer());
+        const gl::ImageIndex *index = attachment->getTextureImageIndex();
+        ASSERT(index);
+        return textureD3D->getRenderTargetSerial(*index);
     }
 
     gl::Renderbuffer *renderbuffer = attachment->getRenderbuffer();
@@ -686,12 +690,10 @@ ColorbufferInfo Framebuffer::getColorbuffersForRender() const
             ASSERT(drawBufferState == GL_BACK || drawBufferState == (GL_COLOR_ATTACHMENT0_EXT + colorAttachment));
             colorbuffersForRender.push_back(colorbuffer);
         }
-#if (ANGLE_MRT_PERF_WORKAROUND == ANGLE_WORKAROUND_DISABLED)
-        else
+        else if (!mRenderer->getWorkarounds().mrtPerfWorkaround)
         {
             colorbuffersForRender.push_back(NULL);
         }
-#endif
     }
 
     return colorbuffersForRender;

@@ -28,7 +28,7 @@ class SwapChain
 {
   public:
     SwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
-        : mShareHandle(shareHandle), mBackBufferFormat(backBufferFormat), mDepthBufferFormat(depthBufferFormat), mNativeWindow(nativeWindow)
+        : mNativeWindow(nativeWindow), mShareHandle(shareHandle), mBackBufferFormat(backBufferFormat), mDepthBufferFormat(depthBufferFormat)
     {
     }
 
@@ -42,9 +42,9 @@ class SwapChain
     virtual HANDLE getShareHandle() {return mShareHandle;};
 
   protected:
+    rx::NativeWindow mNativeWindow;  // Handler for the Window that the surface is created for.
     const GLenum mBackBufferFormat;
     const GLenum mDepthBufferFormat;
-    rx::NativeWindow mNativeWindow;
 
     HANDLE mShareHandle;
 };

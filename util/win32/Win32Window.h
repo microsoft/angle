@@ -17,7 +17,7 @@ class Win32Window : public OSWindow
     Win32Window();
     ~Win32Window();
 
-    bool initialize(const std::string &name, size_t width, size_t height, EGLNativeDisplayType nativeDisplayType = EGL_D3D11_ONLY_DISPLAY_ANGLE);
+    bool initialize(const std::string &name, size_t width, size_t height);
     void destroy();
 
     EGLNativeWindowType getNativeWindow() const;
