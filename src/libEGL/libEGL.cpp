@@ -122,7 +122,7 @@ EGLDisplay __stdcall eglGetPlatformDisplayEXT(EGLenum platform, void *native_dis
 
 #ifndef ANGLE_ENABLE_WINDOWS_STORE
     // Validate the display device context
-    if ((displayId != EGL_D3D11_ONLY_DISPLAY_ANGLE) && (displayId != EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE) && WindowFromDC(displayId) == NULL)
+    if ((displayId != EGL_D3D11_ONLY_DISPLAY_ANGLE) && WindowFromDC(displayId) == NULL)
     {
         return egl::success(EGL_NO_DISPLAY);
     }
@@ -153,6 +153,8 @@ EGLDisplay __stdcall eglGetPlatformDisplayEXT(EGLenum platform, void *native_dis
       case EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE:
       case EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE:
       case EGL_PLATFORM_ANGLE_TYPE_D3D11_WARP_ANGLE:
+      case EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_ANGLE:
+      case EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE:
         if (!egl::Display::supportsPlatformD3D())
         {
             return egl::success(EGL_NO_DISPLAY);

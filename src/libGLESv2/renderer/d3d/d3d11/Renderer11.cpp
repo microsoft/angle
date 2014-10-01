@@ -86,8 +86,7 @@ enum
 Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, EGLint requestedDisplay)
     : Renderer(display),
       mDc(hDc),
-      mRequestedDisplay(requestedDisplay),
-      mForceFeatureLevel9(hDc == EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE)
+      mRequestedDisplay(requestedDisplay)
 {
     mVertexDataManager = NULL;
     mIndexDataManager = NULL;
@@ -195,7 +194,7 @@ EGLint Renderer11::initialize()
 
     UINT featureLevelCount = 0; 
     D3D_FEATURE_LEVEL* featureLevelsRequested = featureLevels;
-    if (mForceFeatureLevel9)
+    if (mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_ANGLE || mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE)
     {
         featureLevelsRequested = onlyfeatureLevel9_3;
         featureLevelCount = ArraySize(onlyfeatureLevel9_3);
@@ -209,7 +208,7 @@ EGLint Renderer11::initialize()
     HRESULT result = S_OK;
     bool forceWarp = false;
 
-    if (mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_WARP_ANGLE)
+    if (mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_WARP_ANGLE || mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE)
     {
         forceWarp = true;
     }
@@ -1841,7 +1840,7 @@ bool Renderer11::testDeviceResettable()
 
     UINT featureLevelCount = 0;
     D3D_FEATURE_LEVEL* featureLevelsRequested = featureLevels;
-    if (mForceFeatureLevel9)
+    if (mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_ANGLE || mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE)
     {
         featureLevelsRequested = onlyfeatureLevel9_3;
         featureLevelCount = ArraySize(onlyfeatureLevel9_3);
@@ -1859,7 +1858,7 @@ bool Renderer11::testDeviceResettable()
 
     bool forceWarp = false;
 
-    if (mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_WARP_ANGLE)
+    if (mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_WARP_ANGLE || mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE)
     {
         forceWarp = true;
     }

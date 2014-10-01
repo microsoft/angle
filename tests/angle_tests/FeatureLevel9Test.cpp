@@ -2,10 +2,15 @@
 
 #include <vector>
 
+// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
+typedef ::testing::Types<TFT<Gles::Three, Rend::D3D11_FL9_3>> TestFixtureTypes;
+TYPED_TEST_CASE(FeatureLevel9Test, TestFixtureTypes);
+
+template<typename T>
 class FeatureLevel9Test : public ANGLETest
 {
 protected:
-    FeatureLevel9Test() : ANGLETest(3, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
+    FeatureLevel9Test() : ANGLETest(T::GetGlesMajorVersion(), T::GetRequestedRenderer())
     {
         setWindowWidth(128);
         setWindowHeight(128);
@@ -40,20 +45,6 @@ protected:
         ANGLETest::SetUp();
     }
 
-    virtual void TearDown()
-    {
-        ANGLETest::TearDown();
-
-        // Ensure that ANGLE is reinitialized with a non-Feature Level restricted
-        // environment.  This is done by destroying any currently created
-        // Windows/setup and recreating one without restrictions.
-        ANGLETest::DestroyTestWindow();
-        if (!ANGLETest::InitTestWindow())
-        {
-            FAIL() << "Failed to create ANGLE test window.";
-        }
-    }
-
 	std::string pointSpriteCompilationTestVS;
 	std::string pointSpriteCompilationTestFS;
 
@@ -66,7 +57,7 @@ protected:
     }
 };
 
-TEST_F(FeatureLevel9Test, pointSpriteCompile)
+TYPED_TEST(FeatureLevel9Test, pointSpriteCompile)
 {
     bool featureLevel9StringFound = findFL9RendererString();
     EXPECT_EQ(true, featureLevel9StringFound);
@@ -120,7 +111,7 @@ TEST_F(FeatureLevel9Test, pointSpriteCompile)
     glDeleteProgram(program);
 }
 
-TEST_F(FeatureLevel9Test, transformFeedback)
+TYPED_TEST(FeatureLevel9Test, transformFeedback)
 {
     bool featureLevel9StringFound = findFL9RendererString();
     EXPECT_EQ(true, featureLevel9StringFound);
@@ -183,7 +174,7 @@ TEST_F(FeatureLevel9Test, transformFeedback)
     ASSERT_GL_ERROR(GL_INVALID_OPERATION);
 }
 
-TEST_F(FeatureLevel9Test, maxLODEqualsFLT_MAX)
+TYPED_TEST(FeatureLevel9Test, maxLODEqualsFLT_MAX)
 {
 	// Feature Level 9 requires MaxLOD = FLT_MAX in the SamplerState. 
 

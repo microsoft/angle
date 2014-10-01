@@ -233,7 +233,6 @@ class Renderer11 : public Renderer
     HLSLCompiler mCompiler;
 
     bool mDeviceLost;
-    bool mForceFeatureLevel9;
 
     void initializeDevice();
     void releaseDeviceResources();

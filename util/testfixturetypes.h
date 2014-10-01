@@ -42,11 +42,11 @@ struct D3D11
     };
 };
 
-struct D3D9
+struct D3D11_FL9_3
 {
     static EGLint GetRequestedRenderer()
     {
-        return EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE;
+        return EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_ANGLE;
     };
 };
 
@@ -55,6 +55,22 @@ struct WARP
     static EGLint GetRequestedRenderer()
     {
         return EGL_PLATFORM_ANGLE_TYPE_D3D11_WARP_ANGLE;
+    };
+};
+
+struct WARP_FL9_3
+{
+    static EGLint GetRequestedRenderer()
+    {
+        return EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE;
+    };
+};
+
+struct D3D9
+{
+    static EGLint GetRequestedRenderer()
+    {
+        return EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE;
     };
 };
 

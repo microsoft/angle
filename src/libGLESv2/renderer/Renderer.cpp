@@ -111,9 +111,10 @@ rx::Renderer *glCreateRenderer(egl::Display *display, EGLNativeDisplayType nativ
 #   if defined(ANGLE_ENABLE_D3D11)
         if (nativeDisplay == EGL_D3D11_ELSE_D3D9_DISPLAY_ANGLE ||
             nativeDisplay == EGL_D3D11_ONLY_DISPLAY_ANGLE ||
-            nativeDisplay == EGL_D3D11_FL9_3_ONLY_DISPLAY_ANGLE ||
             requestedDisplayType == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE ||
-            requestedDisplayType == EGL_PLATFORM_ANGLE_TYPE_D3D11_WARP_ANGLE)
+            requestedDisplayType == EGL_PLATFORM_ANGLE_TYPE_D3D11_WARP_ANGLE ||
+            requestedDisplayType == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_ANGLE || 
+            requestedDisplayType == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE )
         {
             rendererCreationFunctions.push_back(rx::CreateRenderer<rx::Renderer11>);
         }
