@@ -229,11 +229,6 @@ void App::InitializeEGL(CoreWindow^ window)
     }
 
     EGLint numConfigs = 0;
-    if (eglGetConfigs(mEglDisplay, NULL, 0, &numConfigs) == EGL_FALSE)
-    {
-        throw Exception::CreateException(E_FAIL, L"Failed to get EGLConfig count");
-    }
-
     if (eglChooseConfig(mEglDisplay, configAttributes, &config, 1, &numConfigs) == EGL_FALSE)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to choose first EGLConfig");

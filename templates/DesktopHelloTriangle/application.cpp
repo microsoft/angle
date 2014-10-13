@@ -167,11 +167,6 @@ bool Application::InitializeEGL()
     }
 
     EGLint numConfigs;
-    if (eglGetConfigs(mEglDisplay, NULL, 0, &numConfigs) == EGL_FALSE)
-    {
-        OutputDebugStringW(L"Failed to get EGLConfig count");
-    }
-
     if (eglChooseConfig(mEglDisplay, configAttributes, &config, 1, &numConfigs) == EGL_FALSE || (numConfigs != 1))
     {
         OutputDebugStringW(L"Failed to choose first EGLConfig");
