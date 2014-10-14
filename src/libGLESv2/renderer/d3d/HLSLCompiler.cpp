@@ -94,9 +94,8 @@ void HLSLCompiler::release()
 ID3DBlob *HLSLCompiler::compileToBinary(gl::InfoLog &infoLog, const std::string &hlsl, const std::string &profile,
                                         const std::vector<CompileConfig> &configs) const
 {
-#ifndef ANGLE_ENABLE_WINDOWS_STORE
+#if !defined (ANGLE_ENABLE_WINDOWS_STORE)
     ASSERT(mD3DCompilerModule && mD3DCompileFunc);
-#endif // ANGLE_ENABLE_WINDOWS_STORE
 
     if (gl::perfActive())
     {
@@ -104,6 +103,7 @@ ID3DBlob *HLSLCompiler::compileToBinary(gl::InfoLog &infoLog, const std::string 
         std::string sourceText = FormatString("#line 2 \"%s\"\n\n%s", sourcePath.c_str(), hlsl.c_str());
         writeFile(sourcePath.c_str(), sourceText.c_str(), sourceText.size());
     }
+#endif // ANGLE_ENABLE_WINDOWS_STORE
 
     for (size_t i = 0; i < configs.size(); ++i)
     {

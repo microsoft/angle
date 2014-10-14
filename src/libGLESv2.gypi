@@ -543,6 +543,16 @@
                             'msvs_enable_winphone' : '1',
                         }],
                     ],
+                    'configurations':
+                    {
+                        'Debug':
+                        {
+                            'defines':
+                            [
+                                'ANGLE_ENABLE_PERF',
+                            ],
+                        },
+                    },
                 },
                 {
                     'target_name': 'libGLESv2_static',

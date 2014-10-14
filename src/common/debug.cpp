@@ -115,11 +115,13 @@ class D3D11DebugEventWrapper : public DebugEventWrapper
     {
         if (!mInitialized)
         {
+#if !defined(ANGLE_ENABLE_WINDOWS_STORE)
             mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
             ASSERT(mD3d11Module);
 
             PFN_D3D11_CREATE_DEVICE D3D11CreateDevice = (PFN_D3D11_CREATE_DEVICE)GetProcAddress(mD3d11Module, "D3D11CreateDevice");
             ASSERT(D3D11CreateDevice != NULL);
+#endif // !ANGLE_ENABLE_WINDOWS_STORE
 
             ID3D11Device* device = NULL;
             ID3D11DeviceContext* context = NULL;

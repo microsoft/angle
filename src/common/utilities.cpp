@@ -443,12 +443,10 @@ int VariableSortOrder(GLenum type)
 
 }
 
+#if !defined (ANGLE_ENABLE_WINDOWS_STORE)
 std::string getTempPath()
 {
 #if ANGLE_PLATFORM_WINDOWS
-#if defined (ANGLE_ENABLE_WINDOWS_STORE)
-    return winrt::getTempPath();
-#else
     char path[MAX_PATH];
     DWORD pathLen = GetTempPathA(sizeof(path) / sizeof(path[0]), path);
     if (pathLen == 0)
@@ -465,7 +463,6 @@ std::string getTempPath()
     }
 
     return path;
-#endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
 #else
     UNIMPLEMENTED();
     return "";
@@ -484,3 +481,4 @@ void writeFile(const char* path, const void* content, size_t size)
     fwrite(content, sizeof(char), size, file);
     fclose(file);
 }
+#endif // defined (ANGLE_ENABLE_WINDOWS_STORE)

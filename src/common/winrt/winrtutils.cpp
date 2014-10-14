@@ -22,65 +22,6 @@ using namespace ABI::Windows::Foundation::Collections;
 namespace winrt
 {
 
-std::string getTempPath()
-{
-    ComPtr<IActivationFactory> pActivationFactory;
-    ComPtr<ABI::Windows::ApplicationModel::IPackageStatics> packageStatics;
-    ComPtr<ABI::Windows::ApplicationModel::IPackage> package;
-    ComPtr<ABI::Windows::Storage::IStorageFolder> storageFolder;
-    ComPtr<ABI::Windows::Storage::IStorageItem> storageItem;
-    HString hstrPath;
-
-    HRESULT result = GetActivationFactory(HStringReference(RuntimeClass_Windows_ApplicationModel_Package).Get(), &pActivationFactory);
-    ASSERT(SUCCEEDED(result));
-    if (SUCCEEDED(result))
-    {
-        result = pActivationFactory.As(&packageStatics);
-        ASSERT(SUCCEEDED(result));
-    }
-
-    if (SUCCEEDED(result))
-    {
-        result = packageStatics->get_Current(&package);
-        ASSERT(SUCCEEDED(result));
-    }
-
-    if (SUCCEEDED(result))
-    {
-        result = package->get_InstalledLocation(&storageFolder);
-        ASSERT(SUCCEEDED(result));
-    }
-
-    if (SUCCEEDED(result))
-    {
-        result = storageFolder.As(&storageItem);
-        ASSERT(SUCCEEDED(result));
-    }
-
-    if (SUCCEEDED(result))
-    {
-        result = storageItem->get_Path(hstrPath.GetAddressOf());
-        ASSERT(SUCCEEDED(result));
-    }
-    
-    if (SUCCEEDED(result))
-    {
-        try
-        {
-            std::wstring t = std::wstring(hstrPath.GetRawBuffer(nullptr));
-            return std::string(t.begin(), t.end());
-        }
-        catch (const std::bad_alloc&)
-        {
-            result = E_OUTOFMEMORY;
-        }
-        ASSERT(SUCCEEDED(result));
-    }
-
-    UNREACHABLE();
-    return std::string();
-}
-
 static float GetLogicalDpi()
 {
     ComPtr<ABI::Windows::Graphics::Display::IDisplayPropertiesStatics> displayProperties;
