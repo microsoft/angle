@@ -2805,9 +2805,9 @@ TextureStorage *Renderer11::createTextureStorage2D(SwapChain *swapChain)
     return new TextureStorage11_2D(this, swapChain11);
 }
 
-TextureStorage *Renderer11::createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels)
+TextureStorage *Renderer11::createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly)
 {
-    return new TextureStorage11_2D(this, internalformat, renderTarget, width, height, levels);
+    return new TextureStorage11_2D(this, internalformat, renderTarget, width, height, levels, hintLevelZeroOnly);
 }
 
 TextureStorage *Renderer11::createTextureStorageCube(GLenum internalformat, bool renderTarget, int size, int levels)
@@ -3364,7 +3364,7 @@ void Renderer11::unregisterForRendererTrimRequest()
 
 Workarounds Renderer11::generateWorkarounds() const
 {
-    return d3d11::GenerateWorkarounds();
+    return d3d11::GenerateWorkarounds(mFeatureLevel);
 }
 
 }

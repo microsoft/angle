@@ -1162,10 +1162,13 @@ RenderTarget11 *GetAttachmentRenderTarget(gl::FramebufferAttachment *attachment)
     return RenderTarget11::makeRenderTarget11(renderTarget);
 }
 
-Workarounds GenerateWorkarounds()
+Workarounds GenerateWorkarounds(D3D_FEATURE_LEVEL featureLevel)
 {
     Workarounds workarounds;
+
     workarounds.mrtPerfWorkaround = true;
+    workarounds.zeroMaxLodWorkaround = (featureLevel <= D3D_FEATURE_LEVEL_9_3);
+
     return workarounds;
 }
 

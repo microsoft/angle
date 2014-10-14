@@ -42,6 +42,8 @@ class TextureStorage11 : public TextureStorage
     UINT getBindFlags() const;
 
     virtual ID3D11Resource *getResource() const = 0;
+    virtual ID3D11Resource *getResource(int includeLevel) { return getResource(); } ;
+
     virtual ID3D11ShaderResourceView *getSRV(const gl::SamplerState &samplerState);
     virtual RenderTarget *getRenderTarget(const gl::ImageIndex &index) = 0;
 
@@ -156,18 +158,23 @@ class TextureStorage11_2D : public TextureStorage11
 {
   public:
     TextureStorage11_2D(Renderer11 *renderer, SwapChain11 *swapchain);
-    TextureStorage11_2D(Renderer11 *renderer, GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels);
+    TextureStorage11_2D(Renderer11 *renderer, GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly = false);
     virtual ~TextureStorage11_2D();
 
     static TextureStorage11_2D *makeTextureStorage11_2D(TextureStorage *storage);
 
     virtual ID3D11Resource *getResource() const;
+    virtual ID3D11Resource *getResource(int includeLevel);
     virtual RenderTarget *getRenderTarget(const gl::ImageIndex &index);
+
+    virtual gl::Error copyToStorage(TextureStorage *destStorage);
 
     virtual void associateImage(Image11* image, int level, int layerTarget);
     virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage);
     virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
     virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
+
+    virtual void pickLevelZeroWorkaroundTexture(bool useLevelZeroTexture);
 
   protected:
     virtual ID3D11Resource *getSwizzleTexture();
@@ -178,9 +185,25 @@ class TextureStorage11_2D : public TextureStorage11
 
     virtual ID3D11ShaderResourceView *createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture);
 
+    bool createTexture2DHelper(GLsizei width, GLsizei height, int levels, ID3D11Texture2D** texture);
+
     ID3D11Texture2D *mTexture;
     RenderTarget11 *mRenderTarget[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 
+    // These are members related to the zero max-LOD workaround.
+    // D3D11 Feature Level 9_3 can't disable mipmaps on a mipmapped texture (i.e. solely sample from level zero).   
+    // These members are used to work around this limitation. 
+    // Usually only mTexture XOR mLevelZeroTexture will exist.
+    // For example, if an app creates a texture with only one level, then 9_3 will only create mLevelZeroTexture.
+    // However, in some scenarios, both textures have to be created. This incurs additional memory overhead.
+    // One example of this is an application that creates a texture, calls glGenerateMipmap, and then disables mipmaps on the texture.
+    // A more likely example is an app that creates an empty texture, renders to it, and then calls glGenerateMipmap
+    // TODO: In this rendering scenario, release the mLevelZeroTexture after mTexture has been created to save memory.
+    ID3D11Texture2D *mLevelZeroTexture;
+    RenderTarget11* mLevelZeroRenderTarget;
+    bool mUseLevelZeroTexture;
+
+    // Swizzle-related variables
     ID3D11Texture2D *mSwizzleTexture;
     ID3D11RenderTargetView *mSwizzleRenderTargets[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 
