@@ -857,8 +857,8 @@ void Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
         // On Feature Level 9_*, we must emulate negative (or large) viewports in the shaders using viewAdjust (like the D3D9 renderer).
         if (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3)
         {
-            mVertexConstants.viewAdjust[0] = (float)((actualViewport.width - (int)dxViewport.Width) + 2 * (actualViewport.x - dxViewportTopLeftX) - 1) / dxViewport.Width;
-            mVertexConstants.viewAdjust[1] = (float)((actualViewport.height - (int)dxViewport.Height) + 2 * (actualViewport.y - dxViewportTopLeftY) - 1) / dxViewport.Height;
+            mVertexConstants.viewAdjust[0] = (float)((actualViewport.width - (int)dxViewport.Width) + 2 * (actualViewport.x - dxViewportTopLeftX)) / dxViewport.Width;
+            mVertexConstants.viewAdjust[1] = (float)((actualViewport.height - (int)dxViewport.Height) + 2 * (actualViewport.y - dxViewportTopLeftY)) / dxViewport.Height;
             mVertexConstants.viewAdjust[2] = (float)actualViewport.width / dxViewport.Width;
             mVertexConstants.viewAdjust[3] = (float)actualViewport.height / dxViewport.Height;
         }

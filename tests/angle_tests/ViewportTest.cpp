@@ -1,7 +1,7 @@
 #include "ANGLETest.h"
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-typedef ::testing::Types<TFT<Gles::Three, Rend::D3D11>, TFT<Gles::Three, Rend::D3D11_FL9_3>, TFT<Gles::Two, Rend::D3D9>> TestFixtureTypes;
+typedef ::testing::Types<TFT<Gles::Three, Rend::D3D11>, TFT<Gles::Two, Rend::D3D11_FL9_3>, TFT<Gles::Two, Rend::D3D9>> TestFixtureTypes;
 TYPED_TEST_CASE(ViewportTest, TestFixtureTypes);
 
 template<typename T>
@@ -44,23 +44,22 @@ protected:
         checkPixel(centerViewportX, centerViewportY, true);
 
         // Pixels just inside the red quad should be red.
-        // Use +/- 2 to ensure that the test isn't impacted by division rounding (neither in the test nor in the viewport emulation shader code).
-        checkPixel(redQuadLeftSideX + 2,  redQuadTopSideY + 2,    true);
-        checkPixel(redQuadLeftSideX + 2,  redQuadBottomSideY - 2, true);
-        checkPixel(redQuadRightSideX - 2, redQuadTopSideY + 2,    true);
-        checkPixel(redQuadRightSideX - 2, redQuadBottomSideY - 2, true);
+        checkPixel(redQuadLeftSideX,      redQuadTopSideY,        true);
+        checkPixel(redQuadLeftSideX,      redQuadBottomSideY - 1, true);
+        checkPixel(redQuadRightSideX - 1, redQuadTopSideY,        true);
+        checkPixel(redQuadRightSideX - 1, redQuadBottomSideY - 1, true);
 
         // Pixels just outside the red quad should be black.
-        checkPixel(redQuadLeftSideX - 2,  redQuadTopSideY - 2,    false);
-        checkPixel(redQuadLeftSideX - 2,  redQuadBottomSideY + 2, false);
-        checkPixel(redQuadRightSideX + 2, redQuadTopSideY - 2,    false);
-        checkPixel(redQuadRightSideX + 2, redQuadBottomSideY + 2, false);
+        checkPixel(redQuadLeftSideX - 1,  redQuadTopSideY - 1, false);
+        checkPixel(redQuadLeftSideX - 1,  redQuadBottomSideY,  false);
+        checkPixel(redQuadRightSideX,     redQuadTopSideY - 1, false);
+        checkPixel(redQuadRightSideX,     redQuadBottomSideY,  false);
 
         // Pixels just within the viewport should be black.
-        checkPixel(viewportSize[0] + 2,                    viewportSize[1] + 2,                   false);
-        checkPixel(viewportSize[0] + 2,                    viewportSize[1] + viewportSize[3] - 2, false);
-        checkPixel(viewportSize[0] + viewportSize[2] - 2,  viewportSize[1] + 2,                   false);
-        checkPixel(viewportSize[0] + viewportSize[2] - 2,  viewportSize[1] + viewportSize[3] - 2, false);
+        checkPixel(viewportSize[0],                        viewportSize[1],                       false);
+        checkPixel(viewportSize[0],                        viewportSize[1] + viewportSize[3] - 1, false);
+        checkPixel(viewportSize[0] + viewportSize[2] - 1,  viewportSize[1],                       false);
+        checkPixel(viewportSize[0] + viewportSize[2] - 1,  viewportSize[1] + viewportSize[3] - 1, false);
     }
 
     void checkPixel(GLint x, GLint y, GLboolean expectRed)
