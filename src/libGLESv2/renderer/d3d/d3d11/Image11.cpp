@@ -94,7 +94,7 @@ bool Image11::isDirty() const
     // AND mStagingTexture doesn't exist AND mStagingTexture doesn't need to be recovered from TextureStorage
     // AND the texture doesn't require init data (i.e. a blank new texture will suffice)
     // then isDirty should still return false.
-    if (mDirty && !mStagingTexture && !mRecoverFromStorage && !(d3d11::GetTextureFormatInfo(mInternalFormat, mRenderer->getDevice()->GetFeatureLevel()).dataInitializerFunction != NULL))
+    if (mDirty && !mStagingTexture && !mRecoverFromStorage && !(d3d11::GetTextureFormatInfo(mInternalFormat, mRenderer->getFeatureLevel()).dataInitializerFunction != NULL))
     {
         return false;
     }
@@ -225,7 +225,7 @@ bool Image11::redefine(Renderer *renderer, GLenum target, GLenum internalformat,
         UNUSED_ASSERTION_VARIABLE(newRenderer);
         ASSERT(newRenderer == mRenderer);
 
-        D3D_FEATURE_LEVEL d3dFeatureLevel = mRenderer->getDevice()->GetFeatureLevel();
+        D3D_FEATURE_LEVEL d3dFeatureLevel = mRenderer->getFeatureLevel();
 
         mWidth = width;
         mHeight = height;
@@ -270,7 +270,7 @@ gl::Error Image11::loadData(GLint xoffset, GLint yoffset, GLint zoffset, GLsizei
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(mDXGIFormat);
     GLuint outputPixelSize = dxgiFormatInfo.pixelBytes;
 
-    const d3d11::TextureFormat &d3dFormatInfo = d3d11::GetTextureFormatInfo(mInternalFormat, mRenderer->getDevice()->GetFeatureLevel());
+    const d3d11::TextureFormat &d3dFormatInfo = d3d11::GetTextureFormatInfo(mInternalFormat, mRenderer->getFeatureLevel());
     LoadImageFunction loadFunction = d3dFormatInfo.loadFunctions.at(type);
 
     D3D11_MAPPED_SUBRESOURCE mappedImage;
@@ -305,7 +305,7 @@ gl::Error Image11::loadCompressedData(GLint xoffset, GLint yoffset, GLint zoffse
     ASSERT(xoffset % outputBlockWidth == 0);
     ASSERT(yoffset % outputBlockHeight == 0);
 
-    const d3d11::TextureFormat &d3dFormatInfo = d3d11::GetTextureFormatInfo(mInternalFormat, mRenderer->getDevice()->GetFeatureLevel());
+    const d3d11::TextureFormat &d3dFormatInfo = d3d11::GetTextureFormatInfo(mInternalFormat, mRenderer->getFeatureLevel());
     LoadImageFunction loadFunction = d3dFormatInfo.loadFunctions.at(GL_UNSIGNED_BYTE);
 
     D3D11_MAPPED_SUBRESOURCE mappedImage;
@@ -446,7 +446,7 @@ void Image11::createStagingTexture()
     if (mWidth > 0 && mHeight > 0 && mDepth > 0)
     {
         ID3D11Device *device = mRenderer->getDevice();
-        D3D_FEATURE_LEVEL d3dFeatureLevel = device->GetFeatureLevel();
+        D3D_FEATURE_LEVEL d3dFeatureLevel = mRenderer->getFeatureLevel();
         HRESULT result;
 
         int lodOffset = 1;

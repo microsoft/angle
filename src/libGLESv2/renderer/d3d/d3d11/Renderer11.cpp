@@ -387,7 +387,7 @@ void Renderer11::initializeDevice()
 
     ASSERT(!mPixelTransfer);
     // Fast copy buffer to texture isn't supported on D3D_FEATURE_LEVEL_9_X
-    if (!isFeatureLevel9Limited())
+    if (!(mFeatureLevel <= D3D_FEATURE_LEVEL_9_3))
     {
         mPixelTransfer = new PixelTransfer11(this);
     }
@@ -2594,7 +2594,7 @@ bool Renderer11::supportsFastCopyBufferToTexture(GLenum internalFormat) const
     // D3D_FEATURE_LEVEL_9_X doesn't support FastCopyBufferToTexture since PixelTransfer uses
     // Geometry Shaders and int types in its PS/VS shaders.
     // TODO: Add limited support for FastCopyBufferToTexture on D3D_FEATURE_LEVEL_9_3.
-    if (isFeatureLevel9Limited())
+    if (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3)
     {
         return false;
     }

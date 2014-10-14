@@ -115,7 +115,7 @@ Clear11::Clear11(Renderer11 *renderer)
     d3d11::SetDebugName(mRasterizerState, "Clear11 masked clear rasterizer state");
 
     // There aren't D3D_FEATURE_LEVEL_9_X equivalents to the uint and int Clear shaders, since they aren't supported.
-    if (mRenderer->isFeatureLevel9Limited())
+    if (mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
     {
         mFloatClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_FLOAT, g_VS_ClearFloat, g_PS_ClearFloat_FL9);
     }

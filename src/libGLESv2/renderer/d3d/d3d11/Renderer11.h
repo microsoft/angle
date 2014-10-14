@@ -201,7 +201,7 @@ class Renderer11 : public Renderer
     virtual rx::VertexConversionType getVertexConversionType(const gl::VertexFormat &vertexFormat) const;
     virtual GLenum getVertexComponentType(const gl::VertexFormat &vertexFormat) const;
 
-    bool isFeatureLevel9Limited() const { return (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3); }
+    D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; }
 
   private:
     DISALLOW_COPY_AND_ASSIGN(Renderer11);

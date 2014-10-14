@@ -977,7 +977,7 @@ void Blit11::buildShaderMap()
 {
     ID3D11Device *device = mRenderer->getDevice();
 
-    if (mRenderer->isFeatureLevel9Limited())
+    if (mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
     {
         add2DBlitShaderToMap(GL_RGBA,            false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2D,     "Blit11 2D RGBA pixel shader"           ));
         add2DBlitShaderToMap(GL_BGRA_EXT,        false, d3d11::CompilePS(device, g_PS_PassthroughRGBA2D,     "Blit11 2D BGRA pixel shader"           ));

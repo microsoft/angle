@@ -447,7 +447,7 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer11 *renderer, SwapChain11 *swap
     mRenderTargetFormat = rtvDesc.Format;
 
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(mTextureFormat);
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(dxgiFormatInfo.internalFormat, mRenderer->getDevice()->GetFeatureLevel());
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(dxgiFormatInfo.internalFormat, mRenderer->getFeatureLevel());
     mSwizzleTextureFormat = formatInfo.swizzleTexFormat;
     mSwizzleShaderResourceFormat = formatInfo.swizzleSRVFormat;
     mSwizzleRenderTargetFormat = formatInfo.swizzleRTVFormat;
@@ -458,7 +458,7 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer11 *renderer, SwapChain11 *swap
 }
 
 TextureStorage11_2D::TextureStorage11_2D(Renderer11 *renderer, GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels)
-    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getDevice()->GetFeatureLevel(), renderTarget)),
+    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getFeatureLevel(), renderTarget)),
       mTexture(NULL),
       mSwizzleTexture(NULL)
 {
@@ -469,7 +469,7 @@ TextureStorage11_2D::TextureStorage11_2D(Renderer11 *renderer, GLenum internalfo
         mSwizzleRenderTargets[i] = NULL;
     }
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getDevice()->GetFeatureLevel());
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getFeatureLevel());
     mTextureFormat = formatInfo.texFormat;
     mShaderResourceFormat = formatInfo.srvFormat;
     mDepthStencilFormat = formatInfo.dsvFormat;
@@ -717,7 +717,7 @@ ID3D11ShaderResourceView *TextureStorage11_2D::createSRV(int baseLevel, int mipL
     HRESULT result = S_OK;
 
     // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-    if (texture != NULL && mRenderer->isFeatureLevel9Limited())
+    if (texture != NULL && mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
     {
         D3D11_TEXTURE2D_DESC desc;
         ID3D11Texture2D* texture2D = NULL;
@@ -812,7 +812,7 @@ ID3D11RenderTargetView *TextureStorage11_2D::getSwizzleRenderTarget(int mipLevel
 }
 
 TextureStorage11_Cube::TextureStorage11_Cube(Renderer11 *renderer, GLenum internalformat, bool renderTarget, int size, int levels)
-    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getDevice()->GetFeatureLevel(), renderTarget))
+    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getFeatureLevel(), renderTarget))
 {
     mTexture = NULL;
     mSwizzleTexture = NULL;
@@ -827,7 +827,7 @@ TextureStorage11_Cube::TextureStorage11_Cube(Renderer11 *renderer, GLenum intern
         }
     }
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getDevice()->GetFeatureLevel());
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getFeatureLevel());
     mTextureFormat = formatInfo.texFormat;
     mShaderResourceFormat = formatInfo.srvFormat;
     mDepthStencilFormat = formatInfo.dsvFormat;
@@ -1024,7 +1024,7 @@ RenderTarget *TextureStorage11_Cube::getRenderTarget(const gl::ImageIndex &index
             srvDesc.Texture2DArray.ArraySize = 1;
 
             // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-            if (mRenderer->isFeatureLevel9Limited())
+            if (mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
             {
                 D3D11_TEXTURE2D_DESC desc;
                 mTexture->GetDesc(&desc);
@@ -1128,7 +1128,7 @@ ID3D11ShaderResourceView *TextureStorage11_Cube::createSRV(int baseLevel, int mi
     }
 
     // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-    if (mRenderer->isFeatureLevel9Limited())
+    if (mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
     {
         D3D11_TEXTURE2D_DESC desc;
         mTexture->GetDesc(&desc);
@@ -1220,7 +1220,7 @@ ID3D11RenderTargetView *TextureStorage11_Cube::getSwizzleRenderTarget(int mipLev
 
 TextureStorage11_3D::TextureStorage11_3D(Renderer11 *renderer, GLenum internalformat, bool renderTarget,
                                          GLsizei width, GLsizei height, GLsizei depth, int levels)
-    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getDevice()->GetFeatureLevel(), renderTarget))
+    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getFeatureLevel(), renderTarget))
 {
     mTexture = NULL;
     mSwizzleTexture = NULL;
@@ -1232,7 +1232,7 @@ TextureStorage11_3D::TextureStorage11_3D(Renderer11 *renderer, GLenum internalfo
         mSwizzleRenderTargets[i] = NULL;
     }
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getDevice()->GetFeatureLevel());
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getFeatureLevel());
     mTextureFormat = formatInfo.texFormat;
     mShaderResourceFormat = formatInfo.srvFormat;
     mDepthStencilFormat = formatInfo.dsvFormat;
@@ -1406,7 +1406,7 @@ ID3D11ShaderResourceView *TextureStorage11_3D::createSRV(int baseLevel, int mipL
     HRESULT result = S_OK;
 
     // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-    if (texture != NULL && mRenderer->isFeatureLevel9Limited())
+    if (texture != NULL && mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
     {
         D3D11_TEXTURE3D_DESC desc;
         ID3D11Texture3D* texture3D = NULL;
@@ -1592,7 +1592,7 @@ ID3D11RenderTargetView *TextureStorage11_3D::getSwizzleRenderTarget(int mipLevel
 
 TextureStorage11_2DArray::TextureStorage11_2DArray(Renderer11 *renderer, GLenum internalformat, bool renderTarget,
                                                    GLsizei width, GLsizei height, GLsizei depth, int levels)
-    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getDevice()->GetFeatureLevel(), renderTarget))
+    : TextureStorage11(renderer, GetTextureBindFlags(internalformat, renderer->getFeatureLevel(), renderTarget))
 {
     mTexture = NULL;
     mSwizzleTexture = NULL;
@@ -1602,7 +1602,7 @@ TextureStorage11_2DArray::TextureStorage11_2DArray(Renderer11 *renderer, GLenum 
         mSwizzleRenderTargets[level] = NULL;
     }
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getDevice()->GetFeatureLevel());
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalformat, renderer->getFeatureLevel());
     mTextureFormat = formatInfo.texFormat;
     mShaderResourceFormat = formatInfo.srvFormat;
     mDepthStencilFormat = formatInfo.dsvFormat;
@@ -1776,7 +1776,7 @@ ID3D11ShaderResourceView *TextureStorage11_2DArray::createSRV(int baseLevel, int
     HRESULT result = S_OK;
 
     // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-    if (texture != NULL && mRenderer->isFeatureLevel9Limited())
+    if (texture != NULL && mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
     {
         D3D11_TEXTURE2D_DESC desc;
         ID3D11Texture2D* texture2D = NULL;
@@ -1826,7 +1826,7 @@ RenderTarget *TextureStorage11_2DArray::getRenderTarget(const gl::ImageIndex &in
             srvDesc.Texture2DArray.ArraySize = 1;
 
             // On D3D_FEATURE_LEVEL_9_X, the MostDetailedMip + MipLevels must include the lowest LOD of the texture.
-            if (mTexture != NULL && mRenderer->isFeatureLevel9Limited())
+            if (mTexture != NULL && mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
             {
                 D3D11_TEXTURE2D_DESC desc;
                 mTexture->GetDesc(&desc);

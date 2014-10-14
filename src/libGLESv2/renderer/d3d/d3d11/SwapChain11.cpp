@@ -123,7 +123,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
 
 #ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
-    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, device->GetFeatureLevel());
+    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getFeatureLevel());
 
     // If the app passed in a share handle, open the resource
     // See EGL_ANGLE_d3d_share_handle_client_buffer
@@ -247,7 +247,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
 
 #endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
-    const d3d11::TextureFormat &depthBufferFormatInfo = d3d11::GetTextureFormatInfo(mDepthBufferFormat, device->GetFeatureLevel());
+    const d3d11::TextureFormat &depthBufferFormatInfo = d3d11::GetTextureFormatInfo(mDepthBufferFormat, mRenderer->getFeatureLevel());
 
     if (mDepthBufferFormat != GL_NONE)
     {
@@ -262,7 +262,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
         depthStencilTextureDesc.Usage = D3D11_USAGE_DEFAULT;
         depthStencilTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
-        if (!mRenderer->isFeatureLevel9Limited())
+        if (!(mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3))
         {
             depthStencilTextureDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
         }
@@ -367,7 +367,7 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
     // Resize swap chain
     DXGI_SWAP_CHAIN_DESC desc;
     mSwapChain->GetDesc(&desc);
-    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, device->GetFeatureLevel());
+    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getFeatureLevel());
     HRESULT result = mSwapChain->ResizeBuffers(desc.BufferCount, backbufferWidth, backbufferHeight, backbufferFormatInfo.texFormat, 0);
     if (FAILED(result))
     {
@@ -432,7 +432,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
     if (mNativeWindow.getNativeWindow())
     {
-        const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, device->GetFeatureLevel());
+        const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getFeatureLevel());
 
         HRESULT result = mNativeWindow.createSwapChain(device, mRenderer->getDxgiFactory(),
                                                backbufferFormatInfo.texFormat,
