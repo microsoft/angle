@@ -57,6 +57,10 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
             {
                 return FALSE;
             }
+
+#ifdef ANGLE_ENABLE_PERF
+            gl::InitializeDebugEvents();
+#endif
         }
         // Fall through to initialize index
       case DLL_THREAD_ATTACH:
@@ -73,6 +77,10 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
         {
             gl::DeallocateCurrent();
             DestroyTLSIndex(currentTLS);
+
+#ifdef ANGLE_ENABLE_PERF
+            gl::UninitializeDebugEvents();
+#endif
         }
         break;
       default:

@@ -18,12 +18,164 @@
 namespace gl
 {
 #if defined(ANGLE_ENABLE_PERF)
-typedef void (WINAPI *PerfOutputFunction)(D3DCOLOR, LPCWSTR);
-#else
-typedef void (*PerfOutputFunction)(unsigned int, const wchar_t*);
-#endif
+// Wraps the D3D9/D3D11 event marker functions.
+class DebugEventWrapper
+{
+  public:
+    DebugEventWrapper() { };
+    virtual ~DebugEventWrapper() { };
+    virtual void beginEvent(LPCWSTR wszName) = 0;
+    virtual void endEvent() = 0;
+    virtual void setMarker(LPCWSTR wszName) = 0;
+    virtual bool getStatus() = 0;
+};
 
-static void output(bool traceFileDebugOnly, PerfOutputFunction perfFunc, const char *format, va_list vararg)
+#if defined(ANGLE_ENABLE_D3D9)
+class D3D9DebugEventWrapper : public DebugEventWrapper
+{ 
+  public:
+    void beginEvent(LPCWSTR wszName)
+    {
+        D3DPERF_BeginEvent(0, wszName);
+    }
+
+    void endEvent()
+    {
+        D3DPERF_EndEvent();
+    }
+
+    void setMarker(LPCWSTR wszName)
+    {
+        D3DPERF_SetMarker(0, wszName);
+    }
+
+    bool getStatus()
+    {
+        return !!D3DPERF_GetStatus();
+    }
+};
+#elif defined(ANGLE_ENABLE_D3D11)
+// If the project uses D3D9 then we can use the D3D9 event markers, even with the D3D11 renderer.
+// However, if D3D9 is unavailable (e.g. in Windows Store), then we use D3D11 event markers.
+// The D3D11 event markers are methods on ID3DUserDefinedAnnotation, which is implemented by the DeviceContext.
+// This doesn't have to be the same DeviceContext that the renderer uses, though.
+class D3D11DebugEventWrapper : public DebugEventWrapper
+{
+  public:
+
+    D3D11DebugEventWrapper()
+      : mInitialized(false),
+        mD3d11Module(NULL),
+        mUserDefinedAnnotation(NULL)
+    {
+        // D3D11 devices can't be created during DllMain.
+        // We defer device creation until the object is actually used.
+    }
+
+    ~D3D11DebugEventWrapper()
+    {
+        if (mInitialized)
+        {
+            SafeRelease(mUserDefinedAnnotation);
+            FreeLibrary(mD3d11Module);
+        }
+    }
+
+    virtual void beginEvent(LPCWSTR wszName)
+    {
+        initializeDevice();
+
+        mUserDefinedAnnotation->BeginEvent(wszName);
+    }
+
+    virtual void endEvent()
+    {
+        initializeDevice();
+
+        mUserDefinedAnnotation->EndEvent();
+    }
+
+    virtual void setMarker(LPCWSTR wszName)
+    {
+        initializeDevice();
+
+        mUserDefinedAnnotation->SetMarker(wszName);
+    }
+
+    virtual bool getStatus()
+    {
+        // ID3DUserDefinedAnnotation::GetStatus doesn't work with the Graphics Diagnostics tools in Visual Studio 2013, 
+        // so always return true here.
+        return true;
+    }
+
+  protected:
+
+    void initializeDevice()
+    {
+        if (!mInitialized)
+        {
+            mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
+            ASSERT(mD3d11Module);
+
+            PFN_D3D11_CREATE_DEVICE D3D11CreateDevice = (PFN_D3D11_CREATE_DEVICE)GetProcAddress(mD3d11Module, "D3D11CreateDevice");
+            ASSERT(D3D11CreateDevice != NULL);
+
+            ID3D11Device* device = NULL;
+            ID3D11DeviceContext* context = NULL;
+              
+            HRESULT hr = E_FAIL;
+
+            // Create a D3D_DRIVER_TYPE_NULL device, which is much cheaper than other types of device.
+            hr =  D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_NULL, NULL, 0, NULL, 0, D3D11_SDK_VERSION, &device, NULL, &context);
+            ASSERT(SUCCEEDED(hr));
+   
+            hr = context->QueryInterface(__uuidof(mUserDefinedAnnotation), reinterpret_cast<void**>(&mUserDefinedAnnotation));
+            ASSERT(SUCCEEDED(hr) && mUserDefinedAnnotation != NULL);
+
+            SafeRelease(device);
+            SafeRelease(context);
+        
+            mInitialized = true;
+        }
+    }
+
+    bool mInitialized;
+    HMODULE mD3d11Module;
+    ID3DUserDefinedAnnotation* mUserDefinedAnnotation;
+};
+#endif // ANGLE_ENABLE_D3D9 elif ANGLE_ENABLE_D3D11
+
+static DebugEventWrapper* g_DebugEventWrapper = NULL;
+
+void InitializeDebugEvents()
+{
+#if defined(ANGLE_ENABLE_D3D9)
+    g_DebugEventWrapper = new D3D9DebugEventWrapper();
+#elif defined(ANGLE_ENABLE_D3D11)
+    g_DebugEventWrapper = new D3D11DebugEventWrapper();
+#endif
+}
+
+void UninitializeDebugEvents()
+{
+    if (g_DebugEventWrapper != NULL)
+    {
+        delete g_DebugEventWrapper;
+        g_DebugEventWrapper = NULL;
+    }
+}
+
+#endif // ANGLE_ENABLE_PERF
+
+enum DebugTraceOutputType
+{
+   DebugTraceOutputTypeNone,
+   DebugTraceOutputTypeSetMarker,
+   DebugTraceOutputTypeBeginEvent
+};
+
+static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, const char *format, va_list vararg)
 {
 #if defined(ANGLE_ENABLE_PERF) || defined(ANGLE_ENABLE_TRACE)
     std::string formattedMessage = FormatString(format, vararg);
@@ -41,7 +193,17 @@ static void output(bool traceFileDebugOnly, PerfOutputFunction perfFunc, const c
 
         wideMessage.assign(formattedMessage.begin(), formattedMessage.end());
 
-        perfFunc(0, wideMessage.c_str());
+        switch (outputType)
+        {
+            case DebugTraceOutputTypeNone:
+                break;
+            case DebugTraceOutputTypeBeginEvent:
+                g_DebugEventWrapper->beginEvent(wideMessage.c_str());
+                break;
+            case DebugTraceOutputTypeSetMarker:
+                g_DebugEventWrapper->setMarker(wideMessage.c_str());
+                break;
+        }
     }
 #endif // ANGLE_ENABLE_PERF
 
@@ -76,9 +238,9 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
     va_list vararg;
     va_start(vararg, format);
 #if defined(ANGLE_ENABLE_PERF)
-    output(traceFileDebugOnly, D3DPERF_SetMarker, format, vararg);
+    output(traceFileDebugOnly, DebugTraceOutputTypeSetMarker, format, vararg);
 #else
-    output(traceFileDebugOnly, NULL, format, vararg);
+    output(traceFileDebugOnly, DebugTraceOutputTypeNone, format, vararg);
 #endif
     va_end(vararg);
 }
@@ -86,7 +248,7 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
 bool perfActive()
 {
 #if defined(ANGLE_ENABLE_PERF)
-    static bool active = D3DPERF_GetStatus() != 0;
+    static bool active = g_DebugEventWrapper->getStatus();
     return active;
 #else
     return false;
@@ -104,9 +266,9 @@ ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
     va_list vararg;
     va_start(vararg, format);
 #if defined(ANGLE_ENABLE_PERF)
-    output(true, reinterpret_cast<PerfOutputFunction>(D3DPERF_BeginEvent), format, vararg);
+    output(true, DebugTraceOutputTypeBeginEvent, format, vararg);
 #else
-    output(true, NULL, format, vararg);
+    output(true, DebugTraceOutputTypeNone, format, vararg);
 #endif // ANGLE_ENABLE_PERF
     va_end(vararg);
 }
@@ -116,7 +278,7 @@ ScopedPerfEventHelper::~ScopedPerfEventHelper()
 #if defined(ANGLE_ENABLE_PERF)
     if (perfActive())
     {
-        D3DPERF_EndEvent();
+        g_DebugEventWrapper->endEvent();
     }
 #endif
 }
