@@ -117,6 +117,10 @@
             'Debug_Base':
             {
                 'abstract': 1,
+                'defines':
+                [
+                    '_DEBUG'
+                ],
                 'msvs_settings':
                 {
                     'VCCLCompilerTool':
@@ -148,6 +152,10 @@
             'Release_Base':
             {
                 'abstract': 1,
+                'defines':
+                [
+                    'NDEBUG'
+                ],
                 'msvs_settings':
                 {
                     'VCCLCompilerTool':
