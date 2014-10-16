@@ -17,6 +17,7 @@
 #include <set>
 #include <sstream>
 #include <cstdarg>
+#include <vector>
 
 #if defined (ANGLE_ENABLE_WINDOWS_STORE)
 #include "third_party/ThreadEmulation/ThreadEmulation.h"
@@ -136,6 +137,8 @@ inline std::string Str(int i)
     strstr << i;
     return strstr.str();
 }
+
+int FormatStringIntoVector(const char *fmt, va_list vararg, std::vector<char>* buffer);
 
 std::string FormatString(const char *fmt, va_list vararg);
 std::string FormatString(const char *fmt, ...);

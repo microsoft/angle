@@ -179,31 +179,23 @@ enum DebugTraceOutputType
 
 static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, const char *format, va_list vararg)
 {
-#if defined(ANGLE_ENABLE_PERF) || defined(ANGLE_ENABLE_TRACE)
-    std::string formattedMessage = FormatString(format, vararg);
-#endif
-
 #if defined(ANGLE_ENABLE_PERF)
+    static std::vector<char> buffer(512);
+
     if (perfActive())
     {
-        // The perf function only accepts wide strings, widen the ascii message
-        static std::wstring wideMessage;
-        if (wideMessage.capacity() < formattedMessage.length())
-        {
-            wideMessage.reserve(formattedMessage.size());
-        }
-
-        wideMessage.assign(formattedMessage.begin(), formattedMessage.end());
+        int len = FormatStringIntoVector(format, vararg, &buffer);
+        std::wstring formattedWideMessage(buffer.begin(), buffer.begin() + len);
 
         switch (outputType)
         {
             case DebugTraceOutputTypeNone:
                 break;
             case DebugTraceOutputTypeBeginEvent:
-                g_DebugEventWrapper->beginEvent(wideMessage.c_str());
+                g_DebugEventWrapper->beginEvent(formattedWideMessage.c_str());
                 break;
             case DebugTraceOutputTypeSetMarker:
-                g_DebugEventWrapper->setMarker(wideMessage.c_str());
+                g_DebugEventWrapper->setMarker(formattedWideMessage.c_str());
                 break;
         }
     }
@@ -216,6 +208,8 @@ static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, con
         return;
     }
 #endif // NDEBUG
+
+    std::string formattedMessage = FormatString(format, vararg);
 
     static std::ofstream file(TRACE_OUTPUT_FILE, std::ofstream::app);
     if (file)
