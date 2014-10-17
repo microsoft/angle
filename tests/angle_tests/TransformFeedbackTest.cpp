@@ -1,7 +1,7 @@
 #include "ANGLETest.h"
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-typedef ::testing::Types<TFT<Gles::Three, Rend::D3D11>> TestFixtureTypes;
+typedef ::testing::Types<   TFT<Gles::Three, Rend::D3D11>   > TestFixtureTypes;
 TYPED_TEST_CASE(TransformFeedbackTest, TestFixtureTypes);
 
 template<typename T>

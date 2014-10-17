@@ -2,7 +2,9 @@
 #include "media/pixel.inl"
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-typedef ::testing::Types<TFT<Gles::Two, Rend::D3D11>, TFT<Gles::Two, Rend::D3D9>> TestFixtureTypes;
+typedef ::testing::Types<   TFT<Gles::Two, Rend::D3D11>,
+                            TFT<Gles::Two, Rend::D3D11_FL9_3>,
+                            TFT<Gles::Two, Rend::D3D9>          > TestFixtureTypes;
 TYPED_TEST_CASE(CompressedTextureTest, TestFixtureTypes);
 
 template<typename T>

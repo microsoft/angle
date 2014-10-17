@@ -1,7 +1,10 @@
 #include "ANGLETest.h"
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-typedef ::testing::Types<TFT<Gles::Three, Rend::D3D11>, TFT<Gles::Two, Rend::D3D11>, TFT<Gles::Two, Rend::D3D9>> TestFixtureTypes;
+typedef ::testing::Types<   TFT<Gles::Three, Rend::D3D11>,
+                            TFT<Gles::Two,   Rend::D3D11>,
+                            TFT<Gles::Two,   Rend::D3D11_FL9_3>,
+                            TFT<Gles::Two,   Rend::D3D9>          > TestFixtureTypes;
 TYPED_TEST_CASE(ClearTest, TestFixtureTypes);
 
 template<typename T>
@@ -110,6 +113,11 @@ TYPED_TEST(ClearTest, ClearIssue)
 // mistakenly clear every channel (including the masked-out ones)
 TYPED_TEST(ClearTest, MaskedClearBufferBug)
 {
+    if (getClientVersion() < 3)
+    {
+        return;
+    }
+
     unsigned char pixelData[] = { 255, 255, 255, 255 };
 
     glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
@@ -147,6 +155,11 @@ TYPED_TEST(ClearTest, MaskedClearBufferBug)
 
 TYPED_TEST(ClearTest, BadFBOSerialBug)
 {
+    if (getClientVersion() < 3)
+    {
+        return;
+    }
+
     // First make a simple framebuffer, and clear it to green
     glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 

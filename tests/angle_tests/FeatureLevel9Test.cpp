@@ -3,7 +3,7 @@
 #include <vector>
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-typedef ::testing::Types<TFT<Gles::Three, Rend::D3D11_FL9_3>> TestFixtureTypes;
+typedef ::testing::Types<   TFT<Gles::Two, Rend::D3D11_FL9_3>   > TestFixtureTypes;
 TYPED_TEST_CASE(FeatureLevel9Test, TestFixtureTypes);
 
 template<typename T>
