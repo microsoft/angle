@@ -140,6 +140,16 @@
                     {
                         'GenerateDebugInformation': 'true',
                         'LinkIncremental': '2',
+                        'conditions':
+                        [
+                            ['angle_build_winrt==1',
+                            {
+                                'AdditionalDependencies':
+                                [
+                                    'dxgi.lib',
+                                ]
+                            }],
+                        ],
                     },
                 },
                 'xcode_settings':

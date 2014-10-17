@@ -15,6 +15,11 @@
 #include <fstream>
 #include <cstdio>
 
+#if defined(_DEBUG) && defined(ANGLE_ENABLE_D3D11) && defined(ANGLE_ENABLE_WINDOWS_STORE)
+#include <DXProgrammableCapture.h>
+#include <dxgidebug.h>
+#endif // ANGLE_ENABLE_D3D11 && ANGLE_ENABLE_WINDOWS_STORE
+
 namespace gl
 {
 #if defined(ANGLE_ENABLE_PERF)
@@ -104,8 +109,20 @@ class D3D11DebugEventWrapper : public DebugEventWrapper
 
     virtual bool getStatus()
     {
-        // ID3DUserDefinedAnnotation::GetStatus doesn't work with the Graphics Diagnostics tools in Visual Studio 2013, 
-        // so always return true here.
+        // ID3DUserDefinedAnnotation::GetStatus doesn't work with the Graphics Diagnostics tools in Visual Studio 2013.
+
+#if defined(_DEBUG) && defined(ANGLE_ENABLE_WINDOWS_STORE)
+        // In the Windows Store, we can use IDXGraphicsAnalysis. The call to GetDebugInterface1 only succeeds if the app is under capture.
+        // This should only be called in DEBUG mode. 
+        // If an app links against DXGIGetDebugInterface1 in release mode then it will fail Windows Store ingestion checks.
+        IDXGraphicsAnalysis* graphicsAnalysis;
+        DXGIGetDebugInterface1(0, IID_PPV_ARGS(&graphicsAnalysis));
+        bool underCapture = (graphicsAnalysis != NULL);
+        SafeRelease(graphicsAnalysis);
+        return underCapture;
+#endif
+ 
+        // Otherwise, we have to return true here.
         return true;
     }
 

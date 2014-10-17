@@ -77,7 +77,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;NOMINMAX;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;ANGLE_ENABLE_RENDER_TO_BACK_BUFFER;ANGLE_ENABLE_D3D11;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_ENABLE_PERF;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;NOMINMAX;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;ANGLE_ENABLE_RENDER_TO_BACK_BUFFER;ANGLE_ENABLE_D3D11;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;_DEBUG;ANGLE_ENABLE_PERF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -88,7 +88,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxguid.lib;d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxguid.lib;d3d11.lib;d3dcompiler.lib;dxgi.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x86;C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
@@ -107,7 +107,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\libGLESv2;$(WindowsSdkDir)\Include\shared;$(WindowsSdkDir)\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;ANGLE_ENABLE_RENDER_TO_BACK_BUFFER;ANGLE_ENABLE_D3D11;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_ENABLE_PERF;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ TEXT(&quot;d3dcompiler_47.dll&quot;), TEXT(&quot;d3dcompiler_46.dll&quot;), TEXT(&quot;d3dcompiler_43.dll&quot;) };ANGLE_ENABLE_WINDOWS_STORE;NTDDI_VERSION=NTDDI_WINBLUE;ANGLE_ENABLE_RENDER_TO_BACK_BUFFER;ANGLE_ENABLE_D3D11;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;_DEBUG;ANGLE_ENABLE_PERF;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -134,7 +134,7 @@
       <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/arm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxguid.lib;d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxguid.lib;d3d11.lib;d3dcompiler.lib;dxgi.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/arm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
@@ -180,7 +180,7 @@
       <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxguid.lib;d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxguid.lib;d3d11.lib;d3dcompiler.lib;dxgi.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(WindowsSdkDir)/Lib/win8/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
