@@ -229,7 +229,7 @@ void App::InitializeEGL(CoreWindow^ window)
     }
 
     EGLint numConfigs = 0;
-    if (eglChooseConfig(mEglDisplay, configAttributes, &config, 1, &numConfigs) == EGL_FALSE)
+    if ((eglChooseConfig(mEglDisplay, configAttributes, &config, 1, &numConfigs) == EGL_FALSE) || (numConfigs == 0))
     {
         throw Exception::CreateException(E_FAIL, L"Failed to choose first EGLConfig");
     }

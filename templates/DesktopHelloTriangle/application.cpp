@@ -167,7 +167,7 @@ bool Application::InitializeEGL()
     }
 
     EGLint numConfigs;
-    if (eglChooseConfig(mEglDisplay, configAttributes, &config, 1, &numConfigs) == EGL_FALSE || (numConfigs != 1))
+    if ((eglChooseConfig(mEglDisplay, configAttributes, &config, 1, &numConfigs) == EGL_FALSE) || (numConfigs == 0))
     {
         OutputDebugStringW(L"Failed to choose first EGLConfig");
         CleanupEGL();

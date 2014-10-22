@@ -65,7 +65,7 @@ void OpenGLES::Initialize()
     }
 
     EGLint numConfigs = 0;
-    if (eglChooseConfig(mEglDisplay, configAttributes, &mEglConfig, 1, &numConfigs) == EGL_FALSE)
+    if ((eglChooseConfig(mEglDisplay, configAttributes, &mEglConfig, 1, &numConfigs) == EGL_FALSE) || (numConfigs == 0))
     {
         throw Exception::CreateException(E_FAIL, L"Failed to choose first EGLConfig");
     }
