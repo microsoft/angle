@@ -187,6 +187,8 @@ class Renderer
     virtual const gl::TextureCapsMap &getRendererTextureCaps() const;
     virtual const gl::Extensions &getRendererExtensions() const;
 
+    virtual bool getClientVersion3Support() const = 0;
+
     virtual DWORD getAdapterVendor() const = 0;
     virtual std::string getRendererDescription() const = 0;
     virtual GUID getAdapterIdentifier() const = 0;

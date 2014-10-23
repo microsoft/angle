@@ -450,7 +450,7 @@ int Renderer9::generateConfigs(ConfigDesc **configDescList)
                     newConfig.multiSample = 0; // FIXME: enumerate multi-sampling
                     newConfig.fastConfig = (currentDisplayMode.Format == RenderTargetFormats[formatIndex]);
                     newConfig.es2Conformant = true;
-                    newConfig.es3Capable = false;
+                    newConfig.es3Capable = getClientVersion3Support();
 
                     (*configDescList)[numConfigs++] = newConfig;
                 }
@@ -2255,6 +2255,11 @@ bool Renderer9::resetRemovedDevice()
     // calling Reset, the rendering calls will succeed. Applies to Direct3D 9Ex only.
     release();
     return (initialize() == EGL_SUCCESS);
+}
+
+bool Renderer9::getClientVersion3Support() const
+{
+    return false;
 }
 
 DWORD Renderer9::getAdapterVendor() const

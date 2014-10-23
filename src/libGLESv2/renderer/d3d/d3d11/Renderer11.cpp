@@ -434,7 +434,7 @@ int Renderer11::generateConfigs(ConfigDesc **configDescList)
                     // Before we check mFeatureLevel, we need to ensure that the D3D device has been created.
                     ASSERT(mDevice != NULL);
                     newConfig.es2Conformant = (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
-                    newConfig.es3Capable = (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
+                    newConfig.es3Capable = getClientVersion3Support();
 
                     (*configDescList)[numConfigs++] = newConfig;
                 }
@@ -1955,6 +1955,11 @@ void Renderer11::trim()
 
     SafeRelease(dxgiDevice3);
 #endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
+}
+
+bool Renderer11::getClientVersion3Support() const
+{
+    return (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
 }
 
 DWORD Renderer11::getAdapterVendor() const

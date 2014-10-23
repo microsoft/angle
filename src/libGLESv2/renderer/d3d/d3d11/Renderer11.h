@@ -99,6 +99,7 @@ class Renderer11 : public Renderer
     virtual bool testDeviceLost(bool notify);
     virtual bool testDeviceResettable();
 
+    virtual bool getClientVersion3Support() const;
     virtual DWORD getAdapterVendor() const;
     virtual std::string getRendererDescription() const;
     virtual GUID getAdapterIdentifier() const;

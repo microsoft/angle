@@ -408,7 +408,7 @@ EGLContext Display::createContext(EGLConfig configHandle, EGLint clientVersion, 
         }
     }
 
-    if (clientVersion > 2 && mRenderer->getMajorShaderModel() < 4)
+    if (clientVersion == 3 && !(mRenderer->getClientVersion3Support()))
     {
         return error(EGL_BAD_CONFIG, EGL_NO_CONTEXT);
     }

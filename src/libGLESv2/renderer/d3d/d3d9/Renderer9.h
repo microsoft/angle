@@ -102,6 +102,8 @@ class Renderer9 : public Renderer
     virtual bool testDeviceResettable();
 
     IDirect3DDevice9 *getDevice() { return mDevice; }
+
+    virtual bool getClientVersion3Support() const;
     virtual DWORD getAdapterVendor() const;
     virtual std::string getRendererDescription() const;
     virtual GUID getAdapterIdentifier() const;
