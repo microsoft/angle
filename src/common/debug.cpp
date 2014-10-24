@@ -218,7 +218,7 @@ static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, con
     }
 #endif // ANGLE_ENABLE_PERF
 
-#if defined(ANGLE_ENABLE_TRACE)
+#if defined(ANGLE_ENABLE_DEBUG_TRACE)
 #if defined(NDEBUG)
     if (traceFileDebugOnly)
     {
@@ -235,14 +235,14 @@ static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, con
         file.flush();
     }
 
-#if defined(ANGLE_ENABLE_TRACE_OUTPUT)
+#if defined(ANGLE_ENABLE_DEBUG_TRACE_TO_DEBUGGER)
 // Only output to the debugger window for debug builds only
 #ifdef _DEBUG
     OutputDebugStringA(formattedMessage.c_str());
 #endif // _DEBUG
-#endif // ANGLE_ENABLE_TRACE_OUTPUT
+#endif // ANGLE_ENABLE_DEBUG_TRACE_TO_DEBUGGER
 
-#endif // ANGLE_ENABLE_TRACE
+#endif // ANGLE_ENABLE_DEBUG_TRACE
 
 }
 
@@ -270,12 +270,12 @@ bool perfActive()
 
 ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
 {
-#if !defined(ANGLE_ENABLE_TRACE)
+#if !defined(ANGLE_ENABLE_DEBUG_TRACE)
     if (!perfActive())
     {
         return;
     }
-#endif // !ANGLE_ENABLE_TRACE
+#endif // !ANGLE_ENABLE_DEBUG_TRACE
     va_list vararg;
     va_start(vararg, format);
 #if defined(ANGLE_ENABLE_PERF)

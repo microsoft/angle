@@ -42,28 +42,28 @@ namespace gl
 }
 
 // A macro to output a trace of a function call and its arguments to the debugging log
-#if defined(ANGLE_ENABLE_TRACE) || defined(ANGLE_ENABLE_PERF)
+#if defined(ANGLE_ENABLE_DEBUG_TRACE) || defined(ANGLE_ENABLE_PERF)
 #define TRACE(message, ...) gl::trace(true, "trace: %s(%d): " message "\n", __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 #define TRACE(message, ...) (void(0))
 #endif
 
 // A macro to output a function call and its arguments to the debugging log, to denote an item in need of fixing.
-#if defined(ANGLE_ENABLE_TRACE) || defined(ANGLE_ENABLE_PERF)
+#if defined(ANGLE_ENABLE_DEBUG_TRACE) || defined(ANGLE_ENABLE_PERF)
 #define FIXME(message, ...) gl::trace(false, "fixme: %s(%d): " message "\n", __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 #define FIXME(message, ...) (void(0))
 #endif
 
 // A macro to output a function call and its arguments to the debugging log, in case of error.
-#if defined(ANGLE_ENABLE_TRACE) || defined(ANGLE_ENABLE_PERF)
+#if defined(ANGLE_ENABLE_DEBUG_TRACE) || defined(ANGLE_ENABLE_PERF)
 #define ERR(message, ...) gl::trace(false, "err: %s(%d): " message "\n", __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 #define ERR(message, ...) (void(0))
 #endif
 
 // A macro to log a performance event around a scope.
-#if defined(ANGLE_ENABLE_TRACE) || defined(ANGLE_ENABLE_PERF)
+#if defined(ANGLE_ENABLE_DEBUG_TRACE) || defined(ANGLE_ENABLE_PERF)
 #if defined(_MSC_VER)
 #define EVENT(message, ...) gl::ScopedPerfEventHelper scopedPerfEventHelper ## __LINE__("%s" message "\n", __FUNCTION__, __VA_ARGS__);
 #else
@@ -71,7 +71,7 @@ namespace gl
 #endif // _MSC_VER
 #else
 #define EVENT(message, ...) (void(0))
-#endif // ANGLE_ENABLE_TRACE || ANGLE_ENABLE_PERF
+#endif // ANGLE_ENABLE_DEBUG_TRACE || ANGLE_ENABLE_PERF
 
 // A macro asserting a condition and outputting failures to the debug log
 #if !defined(NDEBUG)
@@ -86,7 +86,7 @@ namespace gl
 #define UNUSED_ASSERTION_VARIABLE(variable) ((void)variable)
 #endif
 
-#ifndef ANGLE_ENABLE_TRACE
+#ifndef ANGLE_ENABLE_DEBUG_TRACE
 #define UNUSED_TRACE_VARIABLE(variable) ((void)variable)
 #else
 #define UNUSED_TRACE_VARIABLE(variable)
