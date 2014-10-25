@@ -34,6 +34,9 @@
 #endif
 
 #ifdef ANGLE_PLATFORM_WINDOWS
+#   if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+#       define ANGLE_ENABLE_WINDOWS_STORE 1
+#   endif
 #   ifndef STRICT
 #       define STRICT 1
 #   endif
@@ -46,10 +49,6 @@
 
 #   include <windows.h>
 #   include <intrin.h>
-#   if defined (ANGLE_ENABLE_WINDOWS_STORE)
-#       include "third_party/threademulation/threademulation.h"
-        using namespace ThreadEmulation;
-#   endif
 
 #   if defined(ANGLE_ENABLE_D3D9)
 #       include <d3d9.h>
@@ -62,12 +61,19 @@
 #       include <d3d11_1.h>
 #       include <dxgi.h>
 #       include <dxgi1_2.h>
-#       if defined (ANGLE_ENABLE_WINDOWS_STORE)
-#           include <dxgi1_3.h>
-#       endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
 #       include <d3dcompiler.h>
 #   endif
 
+#   if defined(ANGLE_ENABLE_WINDOWS_STORE)
+#       include <dxgi1_3.h>
+#       if defined(_DEBUG) && defined(ANGLE_ENABLE_D3D11) && defined(ANGLE_ENABLE_WINDOWS_STORE)
+#           include <DXProgrammableCapture.h>
+#           include <dxgidebug.h>
+#       endif // ANGLE_ENABLE_D3D11 && ANGLE_ENABLE_WINDOWS_STORE
+#   endif
+
+#   undef near
+#   undef far
 #endif
 
 #endif // COMMON_PLATFORM_H_

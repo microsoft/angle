@@ -13,19 +13,18 @@
 #include "shader_utils.h"
 #include "random_utils.h"
 
-std::string PointSpritesParams::name() const
+std::string PointSpritesParams::suffix() const
 {
     std::stringstream strstr;
 
-    strstr << "PointSprites - " << BenchmarkParams::name()
-           << " - " << count << " sprites - size " << size
-           << " - " << numVaryings << " varyings";
+    strstr << "_" << count << "_" << size << "px"
+           << "_" << numVaryings << "vars";
 
     return strstr.str();
 }
 
 PointSpritesBenchmark::PointSpritesBenchmark(const PointSpritesParams &params)
-    : SimpleBenchmark(params.name(), 1280, 720, 2, params.requestedRenderer),
+    : SimpleBenchmark("PointSprites", 1280, 720, 2, params),
       mParams(params)
 {
     mDrawIterations = mParams.iterations;
@@ -107,7 +106,7 @@ bool PointSpritesBenchmark::initializeBenchmark()
 
     glGenBuffers(1, &mBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
-    glBufferData(GL_ARRAY_BUFFER, vertexPositions.size() * sizeof(float), vertexPositions.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertexPositions.size() * sizeof(float), &vertexPositions[0], GL_STATIC_DRAW);
 
     int positionLocation = glGetAttribLocation(mProgram, "vPosition");
     if (positionLocation == -1)

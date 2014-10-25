@@ -13,6 +13,28 @@
 
 #include "common/utilities.h"
 
+// Definitions local to the translation unit
+namespace
+{
+
+const char *GetShaderTypeString(GLenum type)
+{
+    switch (type)
+    {
+      case GL_VERTEX_SHADER:
+        return "VERTEX";
+
+      case GL_FRAGMENT_SHADER:
+        return "FRAGMENT";
+
+      default:
+        UNREACHABLE();
+        return "";
+    }
+}
+
+}
+
 namespace rx
 {
 
@@ -67,6 +89,11 @@ const ShaderD3D *ShaderD3D::makeShaderD3D(const ShaderImpl *impl)
 {
     ASSERT(HAS_DYNAMIC_TYPE(const ShaderD3D*, impl));
     return static_cast<const ShaderD3D*>(impl);
+}
+
+std::string ShaderD3D::getDebugInfo() const
+{
+    return mDebugInfo + std::string("\n// ") + GetShaderTypeString(mType) + " SHADER END\n";
 }
 
 // Perform a one-time initialization of the shader compiler (or after being destructed by releaseCompiler)
@@ -183,6 +210,7 @@ void ShaderD3D::uncompile()
     mInterfaceBlocks.clear();
     mActiveAttributes.clear();
     mActiveOutputVariables.clear();
+    mDebugInfo.clear();
 }
 
 void ShaderD3D::compileToHLSL(void *compiler, const std::string &source)
@@ -238,10 +266,12 @@ void ShaderD3D::compileToHLSL(void *compiler, const std::string &source)
         size_t objCodeLen = 0;
         ShGetInfo(compiler, SH_OBJECT_CODE_LENGTH, &objCodeLen);
 
-        char* outputHLSL = new char[objCodeLen];
-        ShGetObjectCode(compiler, outputHLSL);
+        std::vector<char> outputHLSL(objCodeLen);
+        ShGetObjectCode(compiler, outputHLSL.data());
 
 #ifdef _DEBUG
+        // Prefix hlsl shader with commented out glsl shader
+        // Useful in diagnostics tools like pix which capture the hlsl shaders
         std::ostringstream hlslStream;
         hlslStream << "// GLSL\n";
         hlslStream << "//\n";
@@ -257,13 +287,11 @@ void ShaderD3D::compileToHLSL(void *compiler, const std::string &source)
             curPos = (nextLine == std::string::npos) ? std::string::npos : (nextLine + 1);
         }
         hlslStream << "\n\n";
-        hlslStream << outputHLSL;
+        hlslStream << outputHLSL.data();
         mHlsl = hlslStream.str();
 #else
-        mHlsl = outputHLSL;
+        mHlsl = outputHLSL.data();
 #endif
-
-        SafeDeleteArray(outputHLSL);
 
         mUniforms = *GetShaderVariables(ShGetUniforms(compiler));
 
@@ -304,11 +332,11 @@ void ShaderD3D::compileToHLSL(void *compiler, const std::string &source)
         size_t infoLogLen = 0;
         ShGetInfo(compiler, SH_INFO_LOG_LENGTH, &infoLogLen);
 
-        char* infoLog = new char[infoLogLen];
-        ShGetInfoLog(compiler, infoLog);
-        mInfoLog = infoLog;
+        std::vector<char> infoLog(infoLogLen);
+        ShGetInfoLog(compiler, infoLog.data());
+        mInfoLog = infoLog.data();
 
-        TRACE("\n%s", mInfoLog.c_str());
+        TRACE("\n%s", infoLog.data());
     }
 }
 
@@ -422,6 +450,15 @@ bool ShaderD3D::compile(const std::string &source)
             FilterInactiveVariables(&mActiveOutputVariables);
         }
     }
+
+#ifdef ANGLE_GENERATE_SHADER_DEBUG_INFO
+    mDebugInfo += std::string("// ") + GetShaderTypeString(mType) + " SHADER BEGIN\n";
+    mDebugInfo += "\n// GLSL BEGIN\n\n" + source + "\n\n// GLSL END\n\n\n";
+    mDebugInfo += "// INITIAL HLSL BEGIN\n\n" + getTranslatedSource() + "\n// INITIAL HLSL END\n\n\n";
+    // Successive steps will append more info
+#else
+    mDebugInfo += getTranslatedSource();
+#endif
 
     return !getTranslatedSource().empty();
 }

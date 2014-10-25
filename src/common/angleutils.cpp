@@ -6,6 +6,7 @@
 
 #include "common/angleutils.h"
 
+#include <stdio.h>
 #include <vector>
 
 int FormatStringIntoVector(const char *fmt, va_list vararg, std::vector<char>* buffer)
@@ -30,7 +31,7 @@ std::string FormatString(const char *fmt, va_list vararg)
 
     int len = FormatStringIntoVector(fmt, vararg, &buffer);
 
-    return std::string(buffer.data(), len);
+    return std::string(&buffer[0], len);
 }
 
 std::string FormatString(const char *fmt, ...)

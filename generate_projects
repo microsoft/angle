@@ -16,6 +16,7 @@ script_dir = os.path.join(os.path.dirname(__file__), 'build')
 angle_dir = os.path.normpath(os.path.join(script_dir, os.pardir))
 gyp_dir = os.path.join(angle_dir, 'third_party', 'gyp')
 
+generation_dir = "projects"
 gyp_generators = "msvs"
 msvs_version = "2013e"
 build_tests = False
@@ -47,11 +48,11 @@ def generateProjects( generation_dir,
     sys.stdout.flush()
     os.system(gyp_cmd)
 
-    #git_add_cmd = 'git add ' + generation_dir + ' -u'
-    #print '\nRunning git add on updated Visual Studio projects...'
-    #print git_add_cmd
-    #sys.stdout.flush()
-    #os.system(git_add_cmd)
+    git_add_cmd = 'git add ' + generation_dir + ' -u'
+    print '\nRunning git add on updated Visual Studio projects...'
+    print git_add_cmd
+    sys.stdout.flush()
+    os.system(git_add_cmd)
     return;
 
 if __name__ == '__main__':
@@ -61,6 +62,7 @@ if __name__ == '__main__':
 
     # Generate Windows 8.1 projects
     generateProjects("projects/winrt/windows", False, True, False, False);
-
+    
     # Generate Windows Phone 8.1 projects
     generateProjects("projects/winrt/windowsphone", False, True, True, False);
+    

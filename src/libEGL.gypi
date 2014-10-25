@@ -5,8 +5,6 @@
 {
     'variables':
     {
-        'angle_enable_d3d9%': 1,
-        'angle_enable_d3d11%': 1,
         # This file list is shared with the GN build.
         'angle_libegl_sources':
         [
@@ -59,16 +57,12 @@
         ],
         'angle_libegl_winrt_sources':
         [
+            'common/winrt/SwapChainPanelNativeWindow.cpp',
+            'common/winrt/SwapChainPanelNativeWindow.h',
             'common/winrt/CoreWindowNativeWindow.cpp',
             'common/winrt/CoreWindowNativeWindow.h',
             'common/winrt/IInspectableNativeWindow.cpp',
             'common/winrt/IInspectableNativeWindow.h',
-            'common/winrt/SwapChainPanelNativeWindow.cpp',
-            'common/winrt/SwapChainPanelNativeWindow.h',
-            'common/winrt/winrtutils.cpp',
-            'common/winrt/winrtutils.h',
-            'third_party/threademulation/ThreadEmulation.cpp',
-            'third_party/threademulation/ThreadEmulation.h',
         ],
     },
     # Everything below this is duplicated in the GN build. If you change
@@ -117,26 +111,17 @@
                         }],
                         ['angle_build_winrt==0',
                         {
-                            'defines':
-                            [
-                                'GL_APICALL=',
-                                'GL_GLEXT_PROTOTYPES=',
-                                'EGLAPI=',
-                            ],
                             'sources':
                             [
                                 '<@(angle_libegl_win32_sources)',
                             ],
                         }],
+
                         ['angle_build_winrt==1',
                         {
                             'defines':
                             [
-                                'GL_APICALL=',
-                                'GL_GLEXT_PROTOTYPES=',
-                                'EGLAPI=',
                                 'NTDDI_VERSION=NTDDI_WINBLUE',
-                                'ANGLE_ENABLE_RENDER_TO_BACK_BUFFER',
                             ],
                             'sources':
                             [

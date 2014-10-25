@@ -46,18 +46,9 @@ class NativeWindow
 public:
     explicit NativeWindow(EGLNativeWindowType window);
 
-#if !defined(ANGLE_ENABLE_WINDOWS_STORE)
-    // The HWND NativeWindow implementation can benefit
-    // by having inline versions of these methods to 
-    // reduce the calling overhead.
-    inline bool initialize() { return true; }
-    inline bool getClientRect(LPRECT rect) { return GetClientRect(mWindow, rect) == TRUE; }
-    inline bool isIconic() { return IsIconic(mWindow) == TRUE; }
-#else
     bool initialize();
     bool getClientRect(LPRECT rect);
     bool isIconic();
-#endif // !defined(ANGLE_ENABLE_WINDOWS_STORE)
 
     HRESULT createSwapChain(ID3D11Device* device, DXGIFactory* factory,
                             DXGI_FORMAT format, UINT width, UINT height,
@@ -70,7 +61,7 @@ private:
 
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
     std::shared_ptr<IInspectableNativeWindow> mImpl;
-#endif // defined(ANGLE_ENABLE_WINDOWS_STORE)
+#endif
 
 };
 }

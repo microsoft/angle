@@ -43,9 +43,8 @@ class TextureStorage11 : public TextureStorage
 
     virtual ID3D11Resource *getResource() const = 0;
     virtual ID3D11Resource *getResource(int includeLevel) { return getResource(); } ;
-
-    virtual ID3D11ShaderResourceView *getSRV(const gl::SamplerState &samplerState);
-    virtual RenderTarget *getRenderTarget(const gl::ImageIndex &index) = 0;
+    virtual gl::Error getSRV(const gl::SamplerState &samplerState, ID3D11ShaderResourceView **outSRV);
+    virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT) = 0;
 
     virtual void generateMipmap(const gl::ImageIndex &sourceIndex, const gl::ImageIndex &destIndex);
 
@@ -53,26 +52,26 @@ class TextureStorage11 : public TextureStorage
     virtual bool isRenderTarget() const;
     virtual bool isManaged() const;
     virtual int getLevelCount() const;
-    UINT getSubresourceIndex(int mipLevel, int layerTarget) const;
+    UINT getSubresourceIndex(const gl::ImageIndex &index) const;
 
     gl::Error generateSwizzles(GLenum swizzleRed, GLenum swizzleGreen, GLenum swizzleBlue, GLenum swizzleAlpha);
     void invalidateSwizzleCacheLevel(int mipLevel);
     void invalidateSwizzleCache();
 
-    gl::Error updateSubresourceLevel(ID3D11Resource *texture, unsigned int sourceSubresource, int level,
-                                     int layerTarget, GLint xoffset, GLint yoffset, GLint zoffset,
-                                     GLsizei width, GLsizei height, GLsizei depth);
+    gl::Error updateSubresourceLevel(ID3D11Resource *texture, unsigned int sourceSubresource,
+                                     const gl::ImageIndex &index, const gl::Box &copyArea);
 
-    bool copySubresourceLevel(ID3D11Resource* dstTexture, unsigned int dstSubresource, int level,
-                              int layerTarget, GLint xoffset, GLint yoffset, GLint zoffset,
-                              GLsizei width, GLsizei height, GLsizei depth);
+    gl::Error copySubresourceLevel(ID3D11Resource* dstTexture, unsigned int dstSubresource,
+                                   const gl::ImageIndex &index, const gl::Box &region);
 
-    virtual void associateImage(Image11* image, int level, int layerTarget) = 0;
-    virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage) = 0;
-    virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage) = 0;
-    virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage) = 0;
+    virtual void associateImage(Image11* image, const gl::ImageIndex &index) = 0;
+    virtual void disassociateImage(const gl::ImageIndex &index, Image11* expectedImage) = 0;
+    virtual bool isAssociatedImageValid(const gl::ImageIndex &index, Image11* expectedImage) = 0;
+    virtual gl::Error releaseAssociatedImage(const gl::ImageIndex &index, Image11* incomingImage) = 0;
 
     virtual gl::Error copyToStorage(TextureStorage *destStorage);
+    virtual gl::Error setData(const gl::ImageIndex &index, Image *image, const gl::Box *destBox, GLenum type,
+                              const gl::PixelUnpackState &unpack, const uint8_t *pixelData);
 
   protected:
     TextureStorage11(Renderer *renderer, UINT bindFlags);
@@ -80,11 +79,12 @@ class TextureStorage11 : public TextureStorage
     int getLevelHeight(int mipLevel) const;
     int getLevelDepth(int mipLevel) const;
 
-    virtual ID3D11Resource *getSwizzleTexture() = 0;
-    virtual ID3D11RenderTargetView *getSwizzleRenderTarget(int mipLevel) = 0;
-    ID3D11ShaderResourceView *getSRVLevel(int mipLevel);
+    virtual gl::Error getSwizzleTexture(ID3D11Resource **outTexture) = 0;
+    virtual gl::Error getSwizzleRenderTarget(int mipLevel, ID3D11RenderTargetView **outRTV) = 0;
+    gl::Error getSRVLevel(int mipLevel, ID3D11ShaderResourceView **outSRV);
 
-    virtual ID3D11ShaderResourceView *createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture) = 0;
+    virtual gl::Error createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture,
+                                ID3D11ShaderResourceView **outSRV) const = 0;
 
     void verifySwizzleExists(GLenum swizzleRed, GLenum swizzleGreen, GLenum swizzleBlue, GLenum swizzleAlpha);
 
@@ -118,39 +118,24 @@ class TextureStorage11 : public TextureStorage
     };
     SwizzleCacheValue mSwizzleCache[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 
-    struct SRVKey
-    {
-        SRVKey(int baseLevel = 0, int mipLevels = 0, bool swizzle = false);
-
-        bool operator==(const SRVKey &rhs) const;
-
-        int baseLevel;
-        int mipLevels;
-        bool swizzle;
-    };
-
-    struct SRVPair
-    {
-        SRVKey key;
-        ID3D11ShaderResourceView *srv;
-    };
-
-    struct SRVCache
-    {
-        ~SRVCache();
-
-        ID3D11ShaderResourceView *find(const SRVKey &key) const;
-        ID3D11ShaderResourceView *add(const SRVKey &key, ID3D11ShaderResourceView *srv);
-
-        std::vector<SRVPair> cache;
-    };
-
   private:
     DISALLOW_COPY_AND_ASSIGN(TextureStorage11);
 
     const UINT mBindFlags;
 
-    SRVCache srvCache;
+    struct SRVKey
+    {
+        SRVKey(int baseLevel = 0, int mipLevels = 0, bool swizzle = false);
+
+        bool operator<(const SRVKey &rhs) const;
+
+        int baseLevel;
+        int mipLevels;
+        bool swizzle;
+    };
+    typedef std::map<SRVKey, ID3D11ShaderResourceView *> SRVCache;
+
+    SRVCache mSrvCache;
     ID3D11ShaderResourceView *mLevelSRVs[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 };
 
@@ -165,25 +150,25 @@ class TextureStorage11_2D : public TextureStorage11
 
     virtual ID3D11Resource *getResource() const;
     virtual ID3D11Resource *getResource(int includeLevel);
-    virtual RenderTarget *getRenderTarget(const gl::ImageIndex &index);
-
+    virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT);
     virtual gl::Error copyToStorage(TextureStorage *destStorage);
 
-    virtual void associateImage(Image11* image, int level, int layerTarget);
-    virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage);
-    virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
-    virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
+    virtual void associateImage(Image11* image, const gl::ImageIndex &index);
+    virtual void disassociateImage(const gl::ImageIndex &index, Image11* expectedImage);
+    virtual bool isAssociatedImageValid(const gl::ImageIndex &index, Image11* expectedImage);
+    virtual gl::Error releaseAssociatedImage(const gl::ImageIndex &index, Image11* incomingImage);
 
     virtual void pickLevelZeroWorkaroundTexture(bool useLevelZeroTexture);
 
   protected:
-    virtual ID3D11Resource *getSwizzleTexture();
-    virtual ID3D11RenderTargetView *getSwizzleRenderTarget(int mipLevel);
+    virtual gl::Error getSwizzleTexture(ID3D11Resource **outTexture);
+    virtual gl::Error getSwizzleRenderTarget(int mipLevel, ID3D11RenderTargetView **outRTV);
 
   private:
     DISALLOW_COPY_AND_ASSIGN(TextureStorage11_2D);
 
-    virtual ID3D11ShaderResourceView *createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture);
+    virtual gl::Error createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture,
+                                ID3D11ShaderResourceView **outSRV) const;
 
     bool createTexture2DHelper(GLsizei width, GLsizei height, int levels, ID3D11Texture2D** texture);
 
@@ -219,29 +204,32 @@ class TextureStorage11_Cube : public TextureStorage11
     static TextureStorage11_Cube *makeTextureStorage11_Cube(TextureStorage *storage);
 
     virtual ID3D11Resource *getResource() const;
-    virtual RenderTarget *getRenderTarget(const gl::ImageIndex &index);
+    virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT);
 
-    virtual void associateImage(Image11* image, int level, int layerTarget);
-    virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage);
-    virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
-    virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
+    virtual void associateImage(Image11* image, const gl::ImageIndex &index);
+    virtual void disassociateImage(const gl::ImageIndex &index, Image11* expectedImage);
+    virtual bool isAssociatedImageValid(const gl::ImageIndex &index, Image11* expectedImage);
+    virtual gl::Error releaseAssociatedImage(const gl::ImageIndex &index, Image11* incomingImage);
 
   protected:
-    virtual ID3D11Resource *getSwizzleTexture();
-    virtual ID3D11RenderTargetView *getSwizzleRenderTarget(int mipLevel);
+    virtual gl::Error getSwizzleTexture(ID3D11Resource **outTexture);
+    virtual gl::Error getSwizzleRenderTarget(int mipLevel, ID3D11RenderTargetView **outRTV);
 
   private:
     DISALLOW_COPY_AND_ASSIGN(TextureStorage11_Cube);
 
-    virtual ID3D11ShaderResourceView *createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture);
+    virtual gl::Error createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture,
+                                ID3D11ShaderResourceView **outSRV) const;
+
+    static const size_t CUBE_FACE_COUNT = 6;
 
     ID3D11Texture2D *mTexture;
-    RenderTarget11 *mRenderTarget[6][gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
+    RenderTarget11 *mRenderTarget[CUBE_FACE_COUNT][gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 
     ID3D11Texture2D *mSwizzleTexture;
     ID3D11RenderTargetView *mSwizzleRenderTargets[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 
-    Image11 *mAssociatedImages[6][gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
+    Image11 *mAssociatedImages[CUBE_FACE_COUNT][gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 };
 
 class TextureStorage11_3D : public TextureStorage11
@@ -256,21 +244,22 @@ class TextureStorage11_3D : public TextureStorage11
     virtual ID3D11Resource *getResource() const;
 
     // Handles both layer and non-layer RTs
-    virtual RenderTarget *getRenderTarget(const gl::ImageIndex &index);
+    virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT);
 
-    virtual void associateImage(Image11* image, int level, int layerTarget);
-    virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage);
-    virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
-    virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
+    virtual void associateImage(Image11* image, const gl::ImageIndex &index);
+    virtual void disassociateImage(const gl::ImageIndex &index, Image11* expectedImage);
+    virtual bool isAssociatedImageValid(const gl::ImageIndex &index, Image11* expectedImage);
+    virtual gl::Error releaseAssociatedImage(const gl::ImageIndex &index, Image11* incomingImage);
 
   protected:
-    virtual ID3D11Resource *getSwizzleTexture();
-    virtual ID3D11RenderTargetView *getSwizzleRenderTarget(int mipLevel);
+    virtual gl::Error getSwizzleTexture(ID3D11Resource **outTexture);
+    virtual gl::Error getSwizzleRenderTarget(int mipLevel, ID3D11RenderTargetView **outRTV);
 
   private:
     DISALLOW_COPY_AND_ASSIGN(TextureStorage11_3D);
 
-    virtual ID3D11ShaderResourceView *createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture);
+    virtual gl::Error createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture,
+                                ID3D11ShaderResourceView **outSRV) const;
 
     typedef std::pair<int, int> LevelLayerKey;
     typedef std::map<LevelLayerKey, RenderTarget11*> RenderTargetMap;
@@ -295,21 +284,22 @@ class TextureStorage11_2DArray : public TextureStorage11
     static TextureStorage11_2DArray *makeTextureStorage11_2DArray(TextureStorage *storage);
 
     virtual ID3D11Resource *getResource() const;
-    virtual RenderTarget *getRenderTarget(const gl::ImageIndex &index);
+    virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT);
 
-    virtual void associateImage(Image11* image, int level, int layerTarget);
-    virtual void disassociateImage(int level, int layerTarget, Image11* expectedImage);
-    virtual bool isAssociatedImageValid(int level, int layerTarget, Image11* expectedImage);
-    virtual void releaseAssociatedImage(int level, int layerTarget, Image11* incomingImage);
+    virtual void associateImage(Image11* image, const gl::ImageIndex &index);
+    virtual void disassociateImage(const gl::ImageIndex &index, Image11* expectedImage);
+    virtual bool isAssociatedImageValid(const gl::ImageIndex &index, Image11* expectedImage);
+    virtual gl::Error releaseAssociatedImage(const gl::ImageIndex &index, Image11* incomingImage);
 
   protected:
-    virtual ID3D11Resource *getSwizzleTexture();
-    virtual ID3D11RenderTargetView *getSwizzleRenderTarget(int mipLevel);
+    virtual gl::Error getSwizzleTexture(ID3D11Resource **outTexture);
+    virtual gl::Error getSwizzleRenderTarget(int mipLevel, ID3D11RenderTargetView **outRTV);
 
   private:
     DISALLOW_COPY_AND_ASSIGN(TextureStorage11_2DArray);
 
-    virtual ID3D11ShaderResourceView *createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture);
+    virtual gl::Error createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture,
+                                ID3D11ShaderResourceView **outSRV) const;
 
     typedef std::pair<int, int> LevelLayerKey;
     typedef std::map<LevelLayerKey, RenderTarget11*> RenderTargetMap;

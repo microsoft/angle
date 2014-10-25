@@ -6,6 +6,7 @@
 
 // CoreWindowNativeWindow.cpp: NativeWindow for managing ICoreWindow native window types.
 
+#include <windows.graphics.display.h>
 #include "common/winrt/CoreWindowNativeWindow.h"
 using namespace ABI::Windows::Foundation::Collections;
 
@@ -14,7 +15,7 @@ CoreWindowNativeWindow::~CoreWindowNativeWindow()
     unregisterForSizeChangeEvents();
 }
 
-bool CoreWindowNativeWindow::initialize(EGLNativeWindowType window, IPropertySet* propertySet)
+bool CoreWindowNativeWindow::initialize(EGLNativeWindowType window, IPropertySet *propertySet)
 {
     ComPtr<IPropertySet> props = propertySet;
     ComPtr<IInspectable> win = window;
@@ -97,7 +98,7 @@ void CoreWindowNativeWindow::unregisterForSizeChangeEvents()
     mSizeChangedEventToken.value = 0;
 }
 
-HRESULT CoreWindowNativeWindow::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
+HRESULT CoreWindowNativeWindow::createSwapChain(ID3D11Device *device, DXGIFactory *factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain **swapChain)
 {
     if (device == NULL || factory == NULL || swapChain == NULL || width == 0 || height == 0)
     {
@@ -149,14 +150,35 @@ HRESULT CoreWindowNativeWindow::createSwapChain(ID3D11Device* device, DXGIFactor
     return result;
 }
 
-HRESULT getCoreWindowSizeInPixels(const ComPtr<ABI::Windows::UI::Core::ICoreWindow>& coreWindow, RECT* windowSize)
+HRESULT getCoreWindowSizeInPixels(const ComPtr<ABI::Windows::UI::Core::ICoreWindow>& coreWindow, RECT *windowSize)
 {
     ABI::Windows::Foundation::Rect bounds;
     HRESULT result = coreWindow->get_Bounds(&bounds);
     if (SUCCEEDED(result))
     {
-        *windowSize = { 0, 0, winrt::convertDipsToPixels(bounds.Width), winrt::convertDipsToPixels(bounds.Height) };
+        *windowSize = { 0, 0, ConvertDipsToPixels(bounds.Width), ConvertDipsToPixels(bounds.Height) };
     }
 
     return result;
+}
+
+static float GetLogicalDpi()
+{
+    ComPtr<ABI::Windows::Graphics::Display::IDisplayPropertiesStatics> displayProperties;
+    float dpi = 96.0f;
+
+    if (SUCCEEDED(GetActivationFactory(HStringReference(RuntimeClass_Windows_Graphics_Display_DisplayProperties).Get(), displayProperties.GetAddressOf())))
+    {
+        if (SUCCEEDED(displayProperties->get_LogicalDpi(&dpi)))
+        {
+            return dpi;
+        }
+    }
+    return dpi;
+}
+
+long ConvertDipsToPixels(float dips)
+{
+    static const float dipsPerInch = 96.0f;
+    return lround((dips * GetLogicalDpi() / dipsPerInch));
 }

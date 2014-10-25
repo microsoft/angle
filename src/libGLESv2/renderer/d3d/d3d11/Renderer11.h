@@ -33,6 +33,7 @@ class StreamingIndexBufferInterface;
 class Blit11;
 class Clear11;
 class PixelTransfer11;
+class RenderTarget11;
 struct PackPixelsParams;
 
 enum
@@ -55,12 +56,12 @@ class Renderer11 : public Renderer
     virtual int generateConfigs(ConfigDesc **configDescList);
     virtual void deleteConfigs(ConfigDesc *configDescList);
 
-    virtual void sync(bool block);
+    virtual gl::Error sync(bool block);
 
     virtual SwapChain *createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
 
     virtual gl::Error generateSwizzle(gl::Texture *texture);
-    virtual gl::Error setSamplerState(gl::SamplerType type, int index, const gl::SamplerState &sampler);
+    virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler);
     virtual gl::Error setTexture(gl::SamplerType type, int index, gl::Texture *texture);
 
     virtual gl::Error setUniformBuffers(const gl::Buffer *vertexUniformBuffers[], const gl::Buffer *fragmentUniformBuffers[]);
@@ -79,11 +80,11 @@ class Renderer11 : public Renderer
     virtual gl::Error applyRenderTarget(gl::Framebuffer *frameBuffer);
     virtual gl::Error applyShaders(gl::ProgramBinary *programBinary, const gl::VertexFormat inputLayout[], const gl::Framebuffer *framebuffer,
                                    bool rasterizerDiscard, bool transformFeedbackActive);
+
     virtual gl::Error applyUniforms(const ProgramImpl &program, const std::vector<gl::LinkedUniform*> &uniformArray);
-    virtual gl::Error applyVertexBuffer(gl::ProgramBinary *programBinary, const gl::VertexAttribute vertexAttributes[], const gl::VertexAttribCurrentValueData currentValues[],
-                                        GLint first, GLsizei count, GLsizei instances);
+    virtual gl::Error applyVertexBuffer(const gl::State &state, GLint first, GLsizei count, GLsizei instances);
     virtual gl::Error applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo);
-    virtual void applyTransformFeedbackBuffers(gl::Buffer *transformFeedbackBuffers[], GLintptr offsets[]);
+    virtual void applyTransformFeedbackBuffers(const gl::State &state);
 
     virtual gl::Error drawArrays(GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive);
     virtual gl::Error drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,
@@ -146,12 +147,13 @@ class Renderer11 : public Renderer
 
     // Shader operations
     virtual void releaseShaderCompiler();
-    virtual ShaderExecutable *loadExecutable(const void *function, size_t length, rx::ShaderType type,
-                                             const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
-                                             bool separatedOutputBuffers);
-    virtual ShaderExecutable *compileToExecutable(gl::InfoLog &infoLog, const std::string &shaderHLSL, rx::ShaderType type,
-                                                  const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
-                                                  bool separatedOutputBuffers, D3DWorkaroundType workaround);
+    virtual gl::Error loadExecutable(const void *function, size_t length, rx::ShaderType type,
+                                     const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
+                                     bool separatedOutputBuffers, ShaderExecutable **outExecutable);
+    virtual gl::Error compileToExecutable(gl::InfoLog &infoLog, const std::string &shaderHLSL, rx::ShaderType type,
+                                          const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
+                                          bool separatedOutputBuffers, D3DWorkaroundType workaround,
+                                          ShaderExecutable **outExectuable);
     virtual UniformStorage *createUniformStorage(size_t storageSize);
 
     // Image operations
@@ -176,7 +178,8 @@ class Renderer11 : public Renderer
 
     // Query and Fence creation
     virtual QueryImpl *createQuery(GLenum type);
-    virtual FenceImpl *createFence();
+    virtual FenceNVImpl *createFenceNV();
+    virtual FenceSyncImpl *createFenceSync();
 
     // Transform Feedback creation
     virtual TransformFeedbackImpl* createTransformFeedback();
@@ -193,14 +196,18 @@ class Renderer11 : public Renderer
     virtual gl::Error fastCopyBufferToTexture(const gl::PixelUnpackState &unpack, unsigned int offset, RenderTarget *destRenderTarget,
                                               GLenum destinationFormat, GLenum sourcePixelsType, const gl::Box &destArea);
 
-    bool getRenderTargetResource(gl::FramebufferAttachment *colorbuffer, unsigned int *subresourceIndex, ID3D11Texture2D **resource);
+    gl::Error getRenderTargetResource(gl::FramebufferAttachment *colorbuffer, unsigned int *subresourceIndexOut, ID3D11Texture2D **texture2DOut);
+
     void unapplyRenderTargets();
     void setOneTimeRenderTarget(ID3D11RenderTargetView *renderTargetView);
-    void packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams &params, uint8_t *pixelsOut);
+    gl::Error packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams &params, uint8_t *pixelsOut);
 
     virtual bool getLUID(LUID *adapterLuid) const;
     virtual rx::VertexConversionType getVertexConversionType(const gl::VertexFormat &vertexFormat) const;
     virtual GLenum getVertexComponentType(const gl::VertexFormat &vertexFormat) const;
+
+    gl::Error readTextureData(ID3D11Texture2D *texture, unsigned int subResource, const gl::Rectangle &area, GLenum format,
+                              GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels);
 
     D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; }
 
@@ -212,9 +219,6 @@ class Renderer11 : public Renderer
 
     gl::Error drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer);
     gl::Error drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer, int instances);
-
-    gl::Error readTextureData(ID3D11Texture2D *texture, unsigned int subResource, const gl::Rectangle &area, GLenum format,
-                              GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels);
 
     gl::Error blitRenderbufferRect(const gl::Rectangle &readRect, const gl::Rectangle &drawRect, RenderTarget *readRenderTarget,
                                    RenderTarget *drawRenderTarget, GLenum filter, const gl::Rectangle *scissor,
@@ -300,8 +304,14 @@ class Renderer11 : public Renderer
     unsigned int mAppliedIBOffset;
 
     // Currently applied transform feedback buffers
-    ID3D11Buffer *mAppliedTFBuffers[gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS];
-    GLintptr mAppliedTFOffsets[gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS];
+    ID3D11Buffer *mAppliedTFBuffers[gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS]; // Tracks the current D3D buffers
+                                                                                        // in use for streamout
+    GLintptr mAppliedTFOffsets[gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS]; // Tracks the current GL-specified
+                                                                                   // buffer offsets to transform feedback
+                                                                                   // buffers
+    UINT mCurrentD3DOffsets[gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS];  // Tracks the D3D buffer offsets,
+                                                                                 // which may differ from GLs, due
+                                                                                 // to different append behavior
 
     // Currently applied shaders
     ID3D11VertexShader *mAppliedVertexShader;
@@ -348,6 +358,7 @@ class Renderer11 : public Renderer
     DXGI_ADAPTER_DESC mAdapterDescription;
     char mDescription[128];
     DXGIFactory *mDxgiFactory;
+
     // Trim support for Windows/Windows Phone 8.1 and above
     void trim();
     bool registerForRendererTrimRequest();
@@ -355,6 +366,7 @@ class Renderer11 : public Renderer
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
     EventRegistrationToken mSuspendedEventToken;
 #endif // defined(ANGLE_ENABLE_WINDOWS_STORE)
+
 };
 
 }

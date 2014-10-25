@@ -12,6 +12,7 @@
 
 #include "libGLESv2/angletypes.h"
 #include "libGLESv2/Caps.h"
+#include "libGLESv2/Error.h"
 
 #include <vector>
 
@@ -58,7 +59,7 @@ namespace d3d11
 {
 bool IsBackbuffer(ID3D11Resource* resource);
 
-HRESULT createD3D11DeviceWithWARPFallback(unsigned int createflags, D3D_FEATURE_LEVEL * featureLevels, unsigned int numFeatureLevels,
+HRESULT createD3D11DeviceWithWARPFallback(PFN_D3D11_CREATE_DEVICE CreateDeviceFunc, unsigned int createflags, D3D_FEATURE_LEVEL * featureLevels, unsigned int numFeatureLevels,
                                           bool forceWarp, ID3D11Device **device, D3D_FEATURE_LEVEL *featureLevel, ID3D11DeviceContext **context);
 
 void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsizei *requestHeight, int *levelOffset);
@@ -182,7 +183,7 @@ inline void SetBufferData(ID3D11DeviceContext *context, ID3D11Buffer *constantBu
     context->Unmap(constantBuffer, 0);
 }
 
-RenderTarget11 *GetAttachmentRenderTarget(gl::FramebufferAttachment *attachment);
+gl::Error GetAttachmentRenderTarget(gl::FramebufferAttachment *attachment, RenderTarget11 **outRT);
 
 Workarounds GenerateWorkarounds(D3D_FEATURE_LEVEL featureLevel);
 

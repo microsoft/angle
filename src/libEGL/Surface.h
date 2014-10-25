@@ -78,6 +78,8 @@ private:
     HANDLE mShareHandle;
     rx::SwapChain *mSwapChain;
 
+    void subclassWindow();
+    void unsubclassWindow();
     bool resizeSwapChain(int backbufferWidth, int backbufferHeight);
     bool resetSwapChain(int backbufferWidth, int backbufferHeight);
     bool swapRect(EGLint x, EGLint y, EGLint width, EGLint height);

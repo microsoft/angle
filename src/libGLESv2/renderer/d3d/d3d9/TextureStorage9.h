@@ -34,13 +34,16 @@ class TextureStorage9 : public TextureStorage
     DWORD getUsage() const;
 
     virtual IDirect3DBaseTexture9 *getBaseTexture() const = 0;
-    virtual RenderTarget *getRenderTarget(const gl::ImageIndex &index) = 0;
+    virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT) = 0;
     virtual void generateMipmap(const gl::ImageIndex &sourceIndex, const gl::ImageIndex &destIndex) = 0;
 
     virtual int getTopLevel() const;
     virtual bool isRenderTarget() const;
     virtual bool isManaged() const;
     virtual int getLevelCount() const;
+
+    virtual gl::Error setData(const gl::ImageIndex &index, Image *image, const gl::Box *destBox, GLenum type,
+                              const gl::PixelUnpackState &unpack, const uint8_t *pixelData);
 
   protected:
     int mTopLevel;
@@ -65,7 +68,7 @@ class TextureStorage9_2D : public TextureStorage9
     static TextureStorage9_2D *makeTextureStorage9_2D(TextureStorage *storage);
 
     IDirect3DSurface9 *getSurfaceLevel(int level, bool dirty);
-    virtual RenderTarget *getRenderTarget(const gl::ImageIndex &index);
+    virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT);
     virtual IDirect3DBaseTexture9 *getBaseTexture() const;
     virtual void generateMipmap(const gl::ImageIndex &sourceIndex, const gl::ImageIndex &destIndex);
     virtual gl::Error copyToStorage(TextureStorage *destStorage);
@@ -88,7 +91,7 @@ class TextureStorage9_Cube : public TextureStorage9
     static TextureStorage9_Cube *makeTextureStorage9_Cube(TextureStorage *storage);
 
     IDirect3DSurface9 *getCubeMapSurface(GLenum faceTarget, int level, bool dirty);
-    virtual RenderTarget *getRenderTarget(const gl::ImageIndex &index);
+    virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT);
     virtual IDirect3DBaseTexture9 *getBaseTexture() const;
     virtual void generateMipmap(const gl::ImageIndex &sourceIndex, const gl::ImageIndex &destIndex);
     virtual gl::Error copyToStorage(TextureStorage *destStorage);
@@ -98,8 +101,10 @@ class TextureStorage9_Cube : public TextureStorage9
 
     void initializeRenderTarget();
 
+    static const size_t CUBE_FACE_COUNT = 6;
+
     IDirect3DCubeTexture9 *mTexture;
-    RenderTarget9 *mRenderTarget[6];
+    RenderTarget9 *mRenderTarget[CUBE_FACE_COUNT];
 };
 
 }

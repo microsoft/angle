@@ -87,6 +87,13 @@ int TextureStorage9::getLevelCount() const
     return getBaseTexture() ? (getBaseTexture()->GetLevelCount() - getTopLevel()) : 0;
 }
 
+gl::Error TextureStorage9::setData(const gl::ImageIndex &index, Image *image, const gl::Box *destBox, GLenum type,
+                                   const gl::PixelUnpackState &unpack, const uint8_t *pixelData)
+{
+    UNREACHABLE();
+    return gl::Error(GL_INVALID_OPERATION);
+}
+
 TextureStorage9_2D::TextureStorage9_2D(Renderer *renderer, SwapChain9 *swapchain)
     : TextureStorage9(renderer, D3DUSAGE_RENDERTARGET)
 {
@@ -159,9 +166,11 @@ IDirect3DSurface9 *TextureStorage9_2D::getSurfaceLevel(int level, bool dirty)
     return surface;
 }
 
-RenderTarget *TextureStorage9_2D::getRenderTarget(const gl::ImageIndex &/*index*/)
+gl::Error TextureStorage9_2D::getRenderTarget(const gl::ImageIndex &/*index*/, RenderTarget **outRT)
 {
-    return mRenderTarget;
+    ASSERT(outRT);
+    *outRT = mRenderTarget;
+    return gl::Error(GL_NO_ERROR);
 }
 
 void TextureStorage9_2D::generateMipmap(const gl::ImageIndex &sourceIndex, const gl::ImageIndex &destIndex)
@@ -225,7 +234,7 @@ TextureStorage9_Cube::TextureStorage9_Cube(Renderer *renderer, GLenum internalfo
     : TextureStorage9(renderer, GetTextureUsage(internalformat, renderTarget))
 {
     mTexture = NULL;
-    for (int i = 0; i < 6; ++i)
+    for (int i = 0; i < CUBE_FACE_COUNT; ++i)
     {
         mRenderTarget[i] = NULL;
     }
@@ -250,14 +259,14 @@ TextureStorage9_Cube::TextureStorage9_Cube(Renderer *renderer, GLenum internalfo
     }
 
     initializeRenderTarget();
-    initializeSerials(getLevelCount() * 6, 6);
+    initializeSerials(getLevelCount() * CUBE_FACE_COUNT, CUBE_FACE_COUNT);
 }
 
 TextureStorage9_Cube::~TextureStorage9_Cube()
 {
     SafeRelease(mTexture);
 
-    for (int i = 0; i < 6; ++i)
+    for (int i = 0; i < CUBE_FACE_COUNT; ++i)
     {
         SafeDelete(mRenderTarget[i]);
     }
@@ -292,9 +301,13 @@ IDirect3DSurface9 *TextureStorage9_Cube::getCubeMapSurface(GLenum faceTarget, in
     return surface;
 }
 
-RenderTarget *TextureStorage9_Cube::getRenderTarget(const gl::ImageIndex &index)
+gl::Error TextureStorage9_Cube::getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT)
 {
-    return mRenderTarget[index.layerIndex];
+    ASSERT(outRT);
+    ASSERT(index.mipIndex == 0);
+    ASSERT(index.layerIndex >= 0 && index.layerIndex < CUBE_FACE_COUNT);
+    *outRT = mRenderTarget[index.layerIndex];
+    return gl::Error(GL_NO_ERROR);
 }
 
 void TextureStorage9_Cube::generateMipmap(const gl::ImageIndex &sourceIndex, const gl::ImageIndex &destIndex)
@@ -322,7 +335,7 @@ void TextureStorage9_Cube::initializeRenderTarget()
     {
         IDirect3DSurface9 *surface = NULL;
 
-        for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < CUBE_FACE_COUNT; ++i)
         {
             ASSERT(mRenderTarget[i] == NULL);
 
@@ -340,7 +353,7 @@ gl::Error TextureStorage9_Cube::copyToStorage(TextureStorage *destStorage)
     TextureStorage9_Cube *dest9 = TextureStorage9_Cube::makeTextureStorage9_Cube(destStorage);
 
     int levels = getLevelCount();
-    for (int f = 0; f < 6; f++)
+    for (int f = 0; f < CUBE_FACE_COUNT; f++)
     {
         for (int i = 0; i < levels; i++)
         {

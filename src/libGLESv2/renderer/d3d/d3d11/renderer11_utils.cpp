@@ -245,20 +245,20 @@ namespace d3d11
         return false;
     }
 
-    HRESULT createD3D11DeviceWithWARPFallback(unsigned int createflags, D3D_FEATURE_LEVEL * featureLevels, unsigned int numFeatureLevels,
+    HRESULT createD3D11DeviceWithWARPFallback(PFN_D3D11_CREATE_DEVICE CreateDeviceFunc, unsigned int createflags, D3D_FEATURE_LEVEL * featureLevels, unsigned int numFeatureLevels,
         bool forceWarp, ID3D11Device **device, D3D_FEATURE_LEVEL *featureLevel, ID3D11DeviceContext **context)
     {
         HRESULT result = S_OK;
 
         // Attempt to create a hardware device first, then fallback to WARP on failure if WARP was not forced by the caller.
-        result = D3D11CreateDevice(NULL, forceWarp ? D3D_DRIVER_TYPE_WARP : D3D_DRIVER_TYPE_HARDWARE, NULL, createflags, featureLevels, numFeatureLevels, D3D11_SDK_VERSION,
+        result = CreateDeviceFunc(NULL, forceWarp ? D3D_DRIVER_TYPE_WARP : D3D_DRIVER_TYPE_HARDWARE, NULL, createflags, featureLevels, numFeatureLevels, D3D11_SDK_VERSION,
             device, featureLevel, context);
 
         if (!forceWarp && FAILED(result) && result == DXGI_ERROR_UNSUPPORTED)
         {
             ERR("Failed creating D3D11 device - falling back to WARP D3D11 device.\n");
             // If the WARP fallback attempt fails, return the original error from the first attempt to create the device.
-            if SUCCEEDED(D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_WARP, NULL, createflags, featureLevels, numFeatureLevels, D3D11_SDK_VERSION,
+            if SUCCEEDED(CreateDeviceFunc(NULL, D3D_DRIVER_TYPE_WARP, NULL, createflags, featureLevels, numFeatureLevels, D3D11_SDK_VERSION,
                 device, featureLevel, context))
             {
                 return S_OK;
@@ -889,7 +889,7 @@ static size_t GetMaximumStreamOutputBuffers(D3D_FEATURE_LEVEL featureLevel)
     }
 }
 
-static size_t GetMaximumStreamOutputInterleavedComponenets(D3D_FEATURE_LEVEL featureLevel)
+static size_t GetMaximumStreamOutputInterleavedComponents(D3D_FEATURE_LEVEL featureLevel)
 {
     switch (featureLevel)
     {
@@ -907,12 +907,12 @@ static size_t GetMaximumStreamOutputInterleavedComponenets(D3D_FEATURE_LEVEL fea
     }
 }
 
-static size_t GetMaximumStreamOutputSeparateCompeonents(D3D_FEATURE_LEVEL featureLevel)
+static size_t GetMaximumStreamOutputSeparateComponents(D3D_FEATURE_LEVEL featureLevel)
 {
     switch (featureLevel)
     {
       case D3D_FEATURE_LEVEL_11_1:
-      case D3D_FEATURE_LEVEL_11_0: return GetMaximumStreamOutputInterleavedComponenets(featureLevel) /
+      case D3D_FEATURE_LEVEL_11_0: return GetMaximumStreamOutputInterleavedComponents(featureLevel) /
                                           GetMaximumStreamOutputBuffers(featureLevel);
 
 
@@ -1038,9 +1038,9 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
     caps->maxCombinedTextureImageUnits = caps->maxVertexTextureImageUnits + caps->maxTextureImageUnits;
 
     // Transform feedback limits
-    caps->maxTransformFeedbackInterleavedComponents = GetMaximumStreamOutputInterleavedComponenets(featureLevel);
+    caps->maxTransformFeedbackInterleavedComponents = GetMaximumStreamOutputInterleavedComponents(featureLevel);
     caps->maxTransformFeedbackSeparateAttributes = GetMaximumStreamOutputBuffers(featureLevel);
-    caps->maxTransformFeedbackSeparateComponents = GetMaximumStreamOutputSeparateCompeonents(featureLevel);
+    caps->maxTransformFeedbackSeparateComponents = GetMaximumStreamOutputSeparateComponents(featureLevel);
 
     // GL extension support
     extensions->setTextureExtensionSupport(*textureCapsMap);
@@ -1156,19 +1156,24 @@ HRESULT SetDebugName(ID3D11DeviceChild *resource, const char *name)
 #endif
 }
 
-RenderTarget11 *GetAttachmentRenderTarget(gl::FramebufferAttachment *attachment)
+gl::Error GetAttachmentRenderTarget(gl::FramebufferAttachment *attachment, RenderTarget11 **outRT)
 {
-    RenderTarget *renderTarget = rx::GetAttachmentRenderTarget(attachment);
-    return RenderTarget11::makeRenderTarget11(renderTarget);
+    RenderTarget *renderTarget = NULL;
+    gl::Error error = rx::GetAttachmentRenderTarget(attachment, &renderTarget);
+    if (error.isError())
+    {
+        return error;
+    }
+    *outRT = RenderTarget11::makeRenderTarget11(renderTarget);
+    return gl::Error(GL_NO_ERROR);
 }
 
 Workarounds GenerateWorkarounds(D3D_FEATURE_LEVEL featureLevel)
 {
     Workarounds workarounds;
-
     workarounds.mrtPerfWorkaround = true;
+    workarounds.setDataFasterThanImageUpload = true;
     workarounds.zeroMaxLodWorkaround = (featureLevel <= D3D_FEATURE_LEVEL_9_3);
-
     return workarounds;
 }
 

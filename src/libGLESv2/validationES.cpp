@@ -588,7 +588,8 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
                             return false;
                         }
 
-                        if (attachment->getActualFormat() != readColorBuffer->getActualFormat())
+                        // Return an error if the destination formats do not match
+                        if (attachment->getInternalFormat() != readColorBuffer->getInternalFormat())
                         {
                             context->recordError(Error(GL_INVALID_OPERATION));
                             return false;
@@ -1667,7 +1668,7 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
     // TODO: also disable index checking on back-ends that are robust to out-of-range accesses.
     if (elementArrayBuffer)
     {
-        unsigned int offset = reinterpret_cast<unsigned int>(indices);
+        uintptr_t offset = reinterpret_cast<uintptr_t>(indices);
         if (!elementArrayBuffer->getIndexRangeCache()->findRange(type, offset, count, indexRangeOut, NULL))
         {
             const void *dataPointer = elementArrayBuffer->getImplementation()->getData();

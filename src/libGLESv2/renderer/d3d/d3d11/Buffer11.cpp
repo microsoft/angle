@@ -144,7 +144,7 @@ class Buffer11::PackStorage11 : public Buffer11::BufferStorage11
 
   private:
 
-    void flushQueuedPackCommand();
+    gl::Error flushQueuedPackCommand();
 
     ID3D11Texture2D *mStagingTexture;
     DXGI_FORMAT mTextureFormat;
@@ -667,6 +667,9 @@ bool Buffer11::NativeBuffer11::copyFromStorage(BufferStorage11 *source, size_t s
         // Offset bounds are validated at the API layer
         ASSERT(sourceOffset + size <= destOffset + mBufferSize);
         memcpy(destPointer, sourcePointer, size);
+
+        context->Unmap(mNativeBuffer, 0);
+        source->unmap();
     }
     else
     {
@@ -867,7 +870,12 @@ void *Buffer11::PackStorage11::map(size_t offset, size_t length, GLbitfield acce
     //  and if D3D packs the staging texture memory identically to how we would fill
     //  the pack buffer according to the current pack state.
 
-    flushQueuedPackCommand();
+    gl::Error error = flushQueuedPackCommand();
+    if (error.isError())
+    {
+        return NULL;
+    }
+
     mDataModified = (mDataModified || (access & GL_MAP_WRITE_BIT) != 0);
 
     return mMemoryBuffer.data() + offset;
@@ -880,7 +888,12 @@ void Buffer11::PackStorage11::unmap()
 
 gl::Error Buffer11::PackStorage11::packPixels(ID3D11Texture2D *srcTexure, UINT srcSubresource, const PackPixelsParams &params)
 {
-    flushQueuedPackCommand();
+    gl::Error error = flushQueuedPackCommand();
+    if (error.isError())
+    {
+        return error;
+    }
+
     mQueuedPackCommand = new PackPixelsParams(params);
 
     D3D11_TEXTURE2D_DESC textureDesc;
@@ -945,15 +958,21 @@ gl::Error Buffer11::PackStorage11::packPixels(ID3D11Texture2D *srcTexure, UINT s
     return gl::Error(GL_NO_ERROR);
 }
 
-void Buffer11::PackStorage11::flushQueuedPackCommand()
+gl::Error Buffer11::PackStorage11::flushQueuedPackCommand()
 {
     ASSERT(mMemoryBuffer.size() > 0);
 
     if (mQueuedPackCommand)
     {
-        mRenderer->packPixels(mStagingTexture, *mQueuedPackCommand, mMemoryBuffer.data());
+        gl::Error error = mRenderer->packPixels(mStagingTexture, *mQueuedPackCommand, mMemoryBuffer.data());
         SafeDelete(mQueuedPackCommand);
+        if (error.isError())
+        {
+            return error;
+        }
     }
+
+    return gl::Error(GL_NO_ERROR);
 }
 
 }

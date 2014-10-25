@@ -19,11 +19,6 @@
 #include <cstdarg>
 #include <vector>
 
-#if defined (ANGLE_ENABLE_WINDOWS_STORE)
-#include "third_party/ThreadEmulation/ThreadEmulation.h"
-using namespace ThreadEmulation;
-#endif
-
 // A macro to disallow the copy constructor and operator= functions
 // This must be used in the private: declarations for a class
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \

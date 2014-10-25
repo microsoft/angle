@@ -13,6 +13,16 @@
         'angle_id_header_base': 'commit.h',
         'angle_id_header': '<(angle_gen_path)/id/<(angle_id_header_base)',
         'angle_use_commit_id%': '<!(python <(angle_id_script_base) check ..)',
+        'angle_enable_d3d9%': 0,
+        'angle_enable_d3d11%': 0,
+        'conditions':
+        [
+            ['OS=="win"',
+            {
+                'angle_enable_d3d9%': 1,
+                'angle_enable_d3d11%': 1,
+            }],
+        ],
     },
     'includes':
     [
@@ -26,6 +36,7 @@
         {
             'target_name': 'copy_scripts',
             'type': 'none',
+            'includes': [ '../build/common_defines.gypi', ],
             'hard_dependency': 1,
             'copies':
             [
@@ -104,6 +115,7 @@
                     'target_name': 'commit_id',
                     'type': 'none',
                     'hard_dependency': 1,
+                    'includes': [ '../build/common_defines.gypi', ],
                     'copies':
                     [
                         {
@@ -144,11 +156,6 @@
                     'includes': [ '../build/common_defines.gypi', ],
                     'conditions':
                     [
-                        ['angle_build_winrt==1',
-                        {
-                            'msvs_enable_winrt' : '1',
-                            'type' : 'shared_library',
-                        }],
                         ['angle_build_winrt==0',
                         {
                             'actions':
@@ -158,7 +165,7 @@
                                     'message': 'Copying D3D Compiler DLL...',
                                     'msvs_cygwin_shell': 0,
                                     'inputs': [ 'copy_compiler_dll.bat' ],
-                                    'outputs': [ '<(PRODUCT_DIR)' ],
+                                    'outputs': [ '<(PRODUCT_DIR)/d3dcompiler_46.dll' ],
                                     'action':
                                     [
                                         "<(angle_gen_path)/copy_compiler_dll.bat",
@@ -169,11 +176,16 @@
                                 },
                             ], #actions
                         }],
+                        ['angle_build_winrt==1',
+                        {
+                            'msvs_enable_winrt' : '1',
+                            'type' : 'shared_library',
+                        }],
                         ['angle_build_winphone==1',
                         {
                             'msvs_enable_winphone' : '1',
                         }],
-                    ],
+                    ]
                 },
             ], # targets
         }],

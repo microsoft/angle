@@ -34,7 +34,6 @@
             'common/mathutil.cpp',
             'common/mathutil.h',
             'common/platform.h',
-            'common/NativeWindow.h',
             'common/tls.cpp',
             'common/tls.h',
             'common/utilities.cpp',
@@ -272,6 +271,11 @@
             [
                 'ANGLE_TRANSLATOR_IMPLEMENTATION',
             ],
+            'sources':
+            [
+                'compiler/translator/ShaderLang.cpp',
+                'compiler/translator/ShaderVars.cpp'
+            ],
             'conditions':
             [
                 ['angle_build_winrt==1',
@@ -288,11 +292,6 @@
                 {
                     'msvs_enable_winphone' : '1',
                 }],
-            ],
-            'sources':
-            [
-                'compiler/translator/ShaderLang.cpp',
-                'compiler/translator/ShaderVars.cpp'
             ],
         },
 
@@ -320,7 +319,7 @@
             'sources':
             [
                 'compiler/translator/ShaderLang.cpp',
-                'compiler/translator/ShaderVars.cpp',
+                'compiler/translator/ShaderVars.cpp'
             ],
             'conditions':
             [

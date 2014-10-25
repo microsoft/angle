@@ -3555,6 +3555,9 @@
     <ClInclude Include="..\..\src\libGLESv2\Caps.h">
       <Filter>src\libGLESv2</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\libGLESv2\Constants.h">
+      <Filter>src\libGLESv2</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\src\libGLESv2\Context.cpp">
       <Filter>src\libGLESv2</Filter>
     </ClCompile>
@@ -3682,9 +3685,6 @@
       <Filter>src\libGLESv2</Filter>
     </ClCompile>
     <ClInclude Include="..\..\src\libGLESv2\angletypes.h">
-      <Filter>src\libGLESv2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libGLESv2\constants.h">
       <Filter>src\libGLESv2</Filter>
     </ClInclude>
     <ClCompile Include="..\..\src\libGLESv2\formatutils.cpp">

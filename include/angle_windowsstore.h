@@ -8,7 +8,7 @@
 #ifndef ANGLE_WINDOWSSTORE_H_
 #define ANGLE_WINDOWSSTORE_H_
 
-// The following properties can be set on the CoreApplication to support additional 
+// The following properties can be set on the CoreApplication to support additional
 // ANGLE configuration options.
 //
 // The Visual Studio sample templates provided with this version of ANGLE have examples
@@ -29,7 +29,7 @@ const wchar_t EGLNativeWindowTypeProperty[] = L"EGLNativeWindowTypeProperty";
 //              The render surface size width and height must be greater than 0.
 //              If this property is set, then the render surface size is fixed.
 //              If this property is missing, a default behavior will be provided.
-//              The default behavior uses the window size if a CoreWindow is specified or 
+//              The default behavior uses the window size if a CoreWindow is specified or
 //              the size of the SwapChainPanel control if one is specified.
 //
 const wchar_t EGLRenderSurfaceSizeProperty[] = L"EGLRenderSurfaceSizeProperty";

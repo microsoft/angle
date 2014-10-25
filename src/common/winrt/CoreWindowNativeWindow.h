@@ -10,27 +10,29 @@
 #define COMMON_COREWINDOWNATIVEWINDOW_H_
 
 #include "common/winrt/IInspectableNativeWindow.h"
+#include <memory>
 
 typedef ABI::Windows::Foundation::__FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CWindowSizeChangedEventArgs_t IWindowSizeChangedEventHandler;
+long ConvertDipsToPixels(float dips);
 
 class CoreWindowNativeWindow : public IInspectableNativeWindow, public std::enable_shared_from_this<CoreWindowNativeWindow>
 {
-public:
+  public:
     ~CoreWindowNativeWindow();
-    bool initialize(EGLNativeWindowType window, IPropertySet* propertySet);
+    bool initialize(EGLNativeWindowType window, IPropertySet *propertySet);
     bool registerForSizeChangeEvents();
     void unregisterForSizeChangeEvents();
-    HRESULT createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain);
-private:
+    HRESULT createSwapChain(ID3D11Device *device, DXGIFactory *factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain **swapChain);
+  private:
     ComPtr<ABI::Windows::UI::Core::ICoreWindow> mCoreWindow;
     ComPtr<IMap<HSTRING, IInspectable*>> mPropertyMap;
 };
 
 [uuid(7F924F66-EBAE-40E5-A10B-B8F35E245190)]
 class CoreWindowSizeChangedHandler :
-    public Microsoft::WRL::RuntimeClass<Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>, ABI::Windows::Foundation::__FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CWindowSizeChangedEventArgs_t>
+    public Microsoft::WRL::RuntimeClass<Microsoft::WRL::RuntimeClassFlags<Microsoft::WRL::ClassicCom>, IWindowSizeChangedEventHandler>
 {
-public:
+  public:
     CoreWindowSizeChangedHandler() { }
     HRESULT RuntimeClassInitialize(std::shared_ptr<IInspectableNativeWindow> host)
     {
@@ -52,7 +54,7 @@ public:
             ABI::Windows::Foundation::Size windowSize;
             if (SUCCEEDED(e->get_Size(&windowSize)))
             {
-                SIZE windowSizeInPixels = { winrt::convertDipsToPixels(windowSize.Width), winrt::convertDipsToPixels(windowSize.Height) };
+                SIZE windowSizeInPixels = { ConvertDipsToPixels(windowSize.Width), ConvertDipsToPixels(windowSize.Height) };
                 host->setNewClientSize(windowSizeInPixels);
             }
         }
@@ -60,10 +62,10 @@ public:
         return S_OK;
     }
 
-private:
+  private:
     std::weak_ptr<IInspectableNativeWindow> mHost;
 };
 
-HRESULT getCoreWindowSizeInPixels(const ComPtr<ABI::Windows::UI::Core::ICoreWindow>& coreWindow, RECT* windowSize);
+HRESULT getCoreWindowSizeInPixels(const ComPtr<ABI::Windows::UI::Core::ICoreWindow>& coreWindow, RECT *windowSize);
 
 #endif // COMMON_COREWINDOWNATIVEWINDOW_H_

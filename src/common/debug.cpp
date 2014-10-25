@@ -15,11 +15,6 @@
 #include <fstream>
 #include <cstdio>
 
-#if defined(_DEBUG) && defined(ANGLE_ENABLE_D3D11) && defined(ANGLE_ENABLE_WINDOWS_STORE)
-#include <DXProgrammableCapture.h>
-#include <dxgidebug.h>
-#endif // ANGLE_ENABLE_D3D11 && ANGLE_ENABLE_WINDOWS_STORE
-
 namespace gl
 {
 #if defined(ANGLE_ENABLE_PERF)

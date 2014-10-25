@@ -27,10 +27,12 @@ struct Workarounds
 {
     Workarounds()
         : mrtPerfWorkaround(false),
+          setDataFasterThanImageUpload(false),
           zeroMaxLodWorkaround(false)
     {}
 
     bool mrtPerfWorkaround;
+    bool setDataFasterThanImageUpload;
 
     // Some renderers can't disable mipmaps on a mipmaped texture (i.e. solely sample from level zero, and ignore the other levels).
     // D3D11 Feature Level 10+ does this by setting MaxLOD to 0.0f in the Sampler state. D3D9 sets D3DSAMP_MIPFILTER to D3DTEXF_NONE.

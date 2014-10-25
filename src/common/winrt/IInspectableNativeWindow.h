@@ -4,20 +4,18 @@
 // found in the LICENSE file.
 //
 
-// IInspectableNativeWindow.h: Host specific implementation interface for 
+// IInspectableNativeWindow.h: Host specific implementation interface for
 // managing IInspectable native window types.
 
 #ifndef COMMON_IINSPECTABLENATIVEWINDOW_H_
 #define COMMON_IINSPECTABLENATIVEWINDOW_H_
 
-#include <wrl.h>
-#include <wrl/wrappers/corewrappers.h>
-#include <windows.applicationmodel.core.h>
-#include <windows.ui.xaml.h>
-#include <windows.ui.xaml.media.dxinterop.h>
-#include "common/winrt/winrtutils.h"
+#include "common/platform.h"
 #include "common/NativeWindow.h"
 #include "angle_windowsstore.h"
+
+#include <windows.ui.xaml.h>
+#include <windows.ui.xaml.media.dxinterop.h>
 
 using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Wrappers;
@@ -26,12 +24,12 @@ using namespace ABI::Windows::Foundation::Collections;
 
 class IInspectableNativeWindow
 {
-public:
-    virtual bool initialize(EGLNativeWindowType window, IPropertySet* propertySet) = 0;
-    virtual HRESULT createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain) = 0;
+  public:
+    virtual bool initialize(EGLNativeWindowType window, IPropertySet *propertySet) = 0;
+    virtual HRESULT createSwapChain(ID3D11Device *device, DXGIFactory *factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain **swapChain) = 0;
     virtual bool registerForSizeChangeEvents() = 0;
     virtual void unregisterForSizeChangeEvents() = 0;
-    virtual HRESULT scaleSwapChain(SIZE& newSize) { return S_OK; }
+    virtual HRESULT scaleSwapChain(const SIZE& newSize) { return S_OK; }
 
     IInspectableNativeWindow() :
         mSupportsSwapChainResize(true),
@@ -45,7 +43,7 @@ public:
 
     virtual ~IInspectableNativeWindow(){}
 
-    bool getClientRect(RECT* rect)
+    bool getClientRect(RECT *rect)
     {
         if (mClientRectChanged && mSupportsSwapChainResize)
         {
@@ -57,7 +55,7 @@ public:
         return true;
     }
 
-    void setNewClientSize(SIZE& newSize)
+    void setNewClientSize(const SIZE &newSize)
     {
         if (mSupportsSwapChainResize && !mRequiresSwapChainScaling)
         {
@@ -81,9 +79,8 @@ protected:
     EventRegistrationToken mSizeChangedEventToken;
 };
 
-bool isCoreWindow(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Core::ICoreWindow>* coreWindow = nullptr);
-bool isSwapChainPanel(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel>* swapChainPanel = nullptr);
-bool isEGLConfiguredPropertySet(EGLNativeWindowType window, ABI::Windows::Foundation::Collections::IPropertySet** propertySet = nullptr, IInspectable** inspectable = nullptr);
-HRESULT getOptionalSizePropertyValue(const ComPtr<ABI::Windows::Foundation::Collections::IMap<HSTRING, IInspectable*>>& propertyMap, const wchar_t* propertyName, SIZE* value, bool* valueExists);
+bool isCoreWindow(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Core::ICoreWindow> *coreWindow = nullptr);
+bool isEGLConfiguredPropertySet(EGLNativeWindowType window, ABI::Windows::Foundation::Collections::IPropertySet **propertySet = nullptr, IInspectable **inspectable = nullptr);
+HRESULT getOptionalSizePropertyValue(const ComPtr<ABI::Windows::Foundation::Collections::IMap<HSTRING, IInspectable*>>& propertyMap, const wchar_t *propertyName, SIZE *value, bool *valueExists);
 
 #endif // COMMON_IINSPECTABLENATIVEWINDOW_H_
