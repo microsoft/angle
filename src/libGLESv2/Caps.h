@@ -231,7 +231,6 @@ struct Caps
     bool supportsRenderingToDepthTextures;
     bool supportsRenderingTo3DTextures;
     bool supportsGeometryShaders;
-	bool supportsNonTrivialMaxLOD;
 
     // Table 6.29, implementation dependent values (cont.)
     GLuint maxElementsIndices;

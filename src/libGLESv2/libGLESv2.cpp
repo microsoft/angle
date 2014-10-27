@@ -15,7 +15,6 @@
 #include "libGLESv2/Fence.h"
 #include "libGLESv2/Framebuffer.h"
 #include "libGLESv2/Renderbuffer.h"
-#include "libGLESv2/Renderer/Renderer.h"
 #include "libGLESv2/Program.h"
 #include "libGLESv2/ProgramBinary.h"
 #include "libGLESv2/Texture.h"
@@ -196,15 +195,7 @@ void GL_APIENTRY glBindBuffer(GLenum target, GLuint buffer)
             context->bindGenericUniformBuffer(buffer);
             return;
           case GL_TRANSFORM_FEEDBACK_BUFFER:
-              if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes > 0)
-              {
-                  context->bindGenericTransformFeedbackBuffer(buffer);
-              }
-              else
-              {
-                  context->recordError(gl::Error(GL_INVALID_OPERATION));
-                  return;
-              }
+            context->bindGenericTransformFeedbackBuffer(buffer);
             return;
 
           default:
@@ -2572,18 +2563,6 @@ void GL_APIENTRY glGetProgramiv(GLuint program, GLenum pname, GLint* params)
             }
         }
 
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
-        {
-            switch (pname)
-            {
-            case GL_TRANSFORM_FEEDBACK_BUFFER_MODE:
-            case GL_TRANSFORM_FEEDBACK_VARYINGS:
-            case GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH:
-                context->recordError(gl::Error(GL_INVALID_OPERATION));
-                return;
-            }
-        }
-
         switch (pname)
         {
           case GL_DELETE_STATUS:
@@ -4325,17 +4304,7 @@ void GL_APIENTRY glTexParameterf(GLenum target, GLenum pname, GLfloat param)
           case GL_TEXTURE_BASE_LEVEL:           texture->getSamplerState().baseLevel = gl::iround<GLint>(param);      break;
           case GL_TEXTURE_MAX_LEVEL:            texture->getSamplerState().maxLevel = gl::iround<GLint>(param);       break;
           case GL_TEXTURE_MIN_LOD:              texture->getSamplerState().minLod = param;                            break;
-          case GL_TEXTURE_MAX_LOD:  
-			if (param == FLT_MAX || context->getRenderer()->getRendererCaps().supportsNonTrivialMaxLOD)
-			{
-				texture->getSamplerState().maxLod = param;
-			}
-			else
-			{
-			    ERR("Current renderer requires MaxLOD to equal FLT_MAX.");
-			    return gl::error(GL_INVALID_OPERATION);
-			}
-			break;
+          case GL_TEXTURE_MAX_LOD:              texture->getSamplerState().maxLod = param;                            break;
           default: UNREACHABLE(); break;
         }
     }
@@ -4384,9 +4353,7 @@ void GL_APIENTRY glTexParameteri(GLenum target, GLenum pname, GLint param)
           case GL_TEXTURE_BASE_LEVEL:           texture->getSamplerState().baseLevel = param;            break;
           case GL_TEXTURE_MAX_LEVEL:            texture->getSamplerState().maxLevel = param;             break;
           case GL_TEXTURE_MIN_LOD:              texture->getSamplerState().minLod = (GLfloat)param;      break;
-		  case GL_TEXTURE_MAX_LOD:
-			ERR("Current renderer requires MaxLOD to equal FLT_MAX.");
-			return gl::error(GL_INVALID_OPERATION);
+          case GL_TEXTURE_MAX_LOD:              texture->getSamplerState().maxLod = (GLfloat)param;      break;
           default: UNREACHABLE(); break;
         }
     }
@@ -6055,11 +6022,7 @@ void GL_APIENTRY glGetIntegeri_v(GLenum target, GLuint index, GLint* data)
           case GL_TRANSFORM_FEEDBACK_BUFFER_START:
           case GL_TRANSFORM_FEEDBACK_BUFFER_SIZE:
           case GL_TRANSFORM_FEEDBACK_BUFFER_BINDING:
-            if (caps.maxTransformFeedbackSeparateAttributes == 0)
-            {
-                return gl::error(GL_INVALID_OPERATION);
-            }
-            else if (index >= caps.maxTransformFeedbackSeparateAttributes)
+            if (index >= caps.maxTransformFeedbackSeparateAttributes)
             {
                 context->recordError(gl::Error(GL_INVALID_VALUE));
                 return;
@@ -6133,12 +6096,6 @@ void GL_APIENTRY glBeginTransformFeedback(GLenum primitiveMode)
             return;
         }
 
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
-        {
-            context->recordError(gl::Error(GL_INVALID_OPERATION));
-            return;
-        }
-
         switch (primitiveMode)
         {
           case GL_TRIANGLES:
@@ -6179,12 +6136,6 @@ void GL_APIENTRY glEndTransformFeedback(void)
     if (context)
     {
         if (context->getClientVersion() < 3)
-        {
-            context->recordError(gl::Error(GL_INVALID_OPERATION));
-            return;
-        }
-
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
         {
             context->recordError(gl::Error(GL_INVALID_OPERATION));
             return;
@@ -6289,23 +6240,13 @@ void GL_APIENTRY glBindBufferBase(GLenum target, GLuint index, GLuint buffer)
     gl::Context *context = gl::getNonLostContext();
     if (context)
     {
-        const gl::Caps &caps = context->getCaps();
-
         if (context->getClientVersion() < 3)
         {
             context->recordError(gl::Error(GL_INVALID_OPERATION));
             return;
         }
 
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
-        {
-            if (target == GL_TRANSFORM_FEEDBACK_BUFFER)
-            {
-                context->recordError(gl::Error(GL_INVALID_OPERATION));
-                return;
-            }
-        }
-
+        const gl::Caps &caps = context->getCaps();
         switch (target)
         {
           case GL_TRANSFORM_FEEDBACK_BUFFER:
@@ -6359,11 +6300,6 @@ void GL_APIENTRY glTransformFeedbackVaryings(GLuint program, GLsizei count, cons
         {
             context->recordError(gl::Error(GL_INVALID_OPERATION));
             return;
-        }
-
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
-        {
-            return gl::error(GL_INVALID_OPERATION);
         }
 
         if (count < 0)
@@ -7729,24 +7665,13 @@ void GL_APIENTRY glGetInteger64i_v(GLenum target, GLuint index, GLint64* data)
     gl::Context *context = gl::getNonLostContext();
     if (context)
     {
-        const gl::Caps &caps = context->getCaps();
         if (context->getClientVersion() < 3)
         {
             context->recordError(gl::Error(GL_INVALID_OPERATION));
             return;
         }
 
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
-        {
-            switch (target)
-            {
-              case GL_TRANSFORM_FEEDBACK_BUFFER_START:
-              case GL_TRANSFORM_FEEDBACK_BUFFER_SIZE:
-              case GL_TRANSFORM_FEEDBACK_BUFFER_BINDING:
-                return gl::error(GL_INVALID_OPERATION);
-            }
-        }
-
+        const gl::Caps &caps = context->getCaps();
         switch (target)
         {
           case GL_TRANSFORM_FEEDBACK_BUFFER_START:
@@ -8136,11 +8061,6 @@ void GL_APIENTRY glBindTransformFeedback(GLenum target, GLuint id)
             return;
         }
 
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
-        {
-            return gl::error(GL_INVALID_OPERATION);
-        }
-
         switch (target)
         {
           case GL_TRANSFORM_FEEDBACK:
@@ -8184,12 +8104,6 @@ void GL_APIENTRY glDeleteTransformFeedbacks(GLsizei n, const GLuint* ids)
             return;
         }
 
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
-        {
-            context->recordError(gl::Error(GL_INVALID_OPERATION));
-            return;
-        }
-
         for (int i = 0; i < n; i++)
         {
             context->deleteTransformFeedback(ids[i]);
@@ -8205,12 +8119,6 @@ void GL_APIENTRY glGenTransformFeedbacks(GLsizei n, GLuint* ids)
     if (context)
     {
         if (context->getClientVersion() < 3)
-        {
-            context->recordError(gl::Error(GL_INVALID_OPERATION));
-            return;
-        }
-
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
         {
             context->recordError(gl::Error(GL_INVALID_OPERATION));
             return;
@@ -8255,12 +8163,6 @@ void GL_APIENTRY glPauseTransformFeedback(void)
             return;
         }
 
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
-        {
-            context->recordError(gl::Error(GL_INVALID_OPERATION));
-            return;
-        }
-
         gl::TransformFeedback *transformFeedback = context->getState().getCurrentTransformFeedback();
         ASSERT(transformFeedback != NULL);
 
@@ -8283,11 +8185,6 @@ void GL_APIENTRY glResumeTransformFeedback(void)
     if (context)
     {
         if (context->getClientVersion() < 3)
-        {
-            return gl::error(GL_INVALID_OPERATION);
-        }
-
-        if (context->getRenderer()->getRendererCaps().maxTransformFeedbackSeparateAttributes == 0)
         {
             context->recordError(gl::Error(GL_INVALID_OPERATION));
             return;

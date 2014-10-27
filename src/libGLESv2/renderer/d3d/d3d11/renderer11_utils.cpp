@@ -957,9 +957,6 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
     // Unimplemented, set to minimum required
     caps->maxLODBias = 2.0f;
 
-    // Max LOD is required to be FLT_MAX if D3D_FEATURE_LEVEL_9_X is detected
-    caps->supportsNonTrivialMaxLOD = featureLevel >= D3D_FEATURE_LEVEL_10_0;
-
     // Choose if depth clip should be enabled if supported
     caps->depthClipRequired = (featureLevel <= D3D_FEATURE_LEVEL_9_3) ? true : false;
 

@@ -392,7 +392,6 @@ Caps::Caps()
       supportsRenderingToDepthTextures(true),
       supportsRenderingTo3DTextures(true),
       supportsGeometryShaders(true),
-	  supportsNonTrivialMaxLOD(true),
 
       // Table 6.29
       maxElementsIndices(0),
