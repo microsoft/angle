@@ -105,6 +105,7 @@ class RenderStateCache
     SamplerStateMap mSamplerStateCache;
 
     ID3D11Device *mDevice;
+    D3D_FEATURE_LEVEL mFeatureLevel;
 };
 
 }

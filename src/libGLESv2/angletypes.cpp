@@ -25,7 +25,7 @@ SamplerState::SamplerState()
       baseLevel(0),
       maxLevel(1000),
       minLod(-1000.0f),
-      maxLod(FLT_MAX),
+      maxLod(1000.0f),
       compareMode(GL_NONE),
       compareFunc(GL_LEQUAL),
       swizzleRed(GL_RED),
