@@ -76,7 +76,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
                 return FALSE;
             }
 
-#ifdef ANGLE_ENABLE_PERF
+#ifdef ANGLE_ENABLE_DEBUG_ANNOTATIONS
             gl::InitializeDebugEvents();
 #endif
         }
@@ -96,7 +96,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
             egl::DeallocateCurrent();
             DestroyTLSIndex(currentTLS);
 
-#ifdef ANGLE_ENABLE_PERF
+#ifdef ANGLE_ENABLE_DEBUG_ANNOTATIONS
             gl::UninitializeDebugEvents();
 #endif
         }

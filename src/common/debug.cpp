@@ -17,7 +17,7 @@
 
 namespace gl
 {
-#if defined(ANGLE_ENABLE_PERF)
+#if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
 // Wraps the D3D9/D3D11 event marker functions.
 class DebugEventWrapper
 {
@@ -180,7 +180,7 @@ void UninitializeDebugEvents()
     }
 }
 
-#endif // ANGLE_ENABLE_PERF
+#endif // ANGLE_ENABLE_DEBUG_ANNOTATIONS
 
 enum DebugTraceOutputType
 {
@@ -191,7 +191,7 @@ enum DebugTraceOutputType
 
 static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, const char *format, va_list vararg)
 {
-#if defined(ANGLE_ENABLE_PERF)
+#if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
     static std::vector<char> buffer(512);
 
     if (perfActive())
@@ -211,7 +211,7 @@ static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, con
                 break;
         }
     }
-#endif // ANGLE_ENABLE_PERF
+#endif // ANGLE_ENABLE_DEBUG_ANNOTATIONS
 
 #if defined(ANGLE_ENABLE_DEBUG_TRACE)
 #if defined(NDEBUG)
@@ -245,7 +245,7 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
 {
     va_list vararg;
     va_start(vararg, format);
-#if defined(ANGLE_ENABLE_PERF)
+#if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
     output(traceFileDebugOnly, DebugTraceOutputTypeSetMarker, format, vararg);
 #else
     output(traceFileDebugOnly, DebugTraceOutputTypeNone, format, vararg);
@@ -255,7 +255,7 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
 
 bool perfActive()
 {
-#if defined(ANGLE_ENABLE_PERF)
+#if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
     static bool active = g_DebugEventWrapper->getStatus();
     return active;
 #else
@@ -273,17 +273,17 @@ ScopedPerfEventHelper::ScopedPerfEventHelper(const char* format, ...)
 #endif // !ANGLE_ENABLE_DEBUG_TRACE
     va_list vararg;
     va_start(vararg, format);
-#if defined(ANGLE_ENABLE_PERF)
+#if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
     output(true, DebugTraceOutputTypeBeginEvent, format, vararg);
 #else
     output(true, DebugTraceOutputTypeNone, format, vararg);
-#endif // ANGLE_ENABLE_PERF
+#endif // ANGLE_ENABLE_DEBUG_ANNOTATIONS
     va_end(vararg);
 }
 
 ScopedPerfEventHelper::~ScopedPerfEventHelper()
 {
-#if defined(ANGLE_ENABLE_PERF)
+#if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
     if (perfActive())
     {
         g_DebugEventWrapper->endEvent();

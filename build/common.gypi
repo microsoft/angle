@@ -60,6 +60,16 @@
             'Common_Base':
             {
                 'abstract': 1,
+                'conditions':
+                [
+                    ['angle_build_winrt==1',
+                    {
+                        'defines':
+                        [
+                            'ANGLE_ENABLE_RENDER_TO_BACK_BUFFER',
+                        ],
+                    }],
+                ],
                 'msvs_configuration_attributes':
                 {
                     'OutputDirectory': '$(SolutionDir)$(ConfigurationName)_$(Platform)',
@@ -100,6 +110,7 @@
                 'abstract': 1,
                 'defines':
                 [
+                    'ANGLE_ENABLE_DEBUG_ANNOTATIONS',
                     '_DEBUG'
                 ],
                 'msvs_settings':
