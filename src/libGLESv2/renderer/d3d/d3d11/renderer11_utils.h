@@ -59,9 +59,6 @@ namespace d3d11
 {
 bool IsBackbuffer(ID3D11Resource* resource);
 
-HRESULT createD3D11DeviceWithWARPFallback(PFN_D3D11_CREATE_DEVICE CreateDeviceFunc, unsigned int createflags, D3D_FEATURE_LEVEL * featureLevels, unsigned int numFeatureLevels,
-                                          bool forceWarp, ID3D11Device **device, D3D_FEATURE_LEVEL *featureLevel, ID3D11DeviceContext **context);
-
 void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsizei *requestHeight, int *levelOffset);
 
 void GenerateInitialTextureData(GLint internalFormat, D3D_FEATURE_LEVEL d3dFeatureLevel, GLuint width, GLuint height, GLuint depth,

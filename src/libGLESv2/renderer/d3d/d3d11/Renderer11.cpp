@@ -116,10 +116,9 @@ bool UnsetSRVsWithResource(std::vector<ID3D11ShaderResourceView *> &srvs, const 
 
 }
 
-Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, EGLint requestedDisplay)
+Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, const egl::AttributeMap &attributes)
     : Renderer(display),
-      mDc(hDc),
-      mRequestedDisplay(requestedDisplay)
+      mDc(hDc)
 {
     mVertexDataManager = NULL;
     mIndexDataManager = NULL;
@@ -159,6 +158,38 @@ Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, EGLint r
 #if defined (ANGLE_ENABLE_WINDOWS_STORE)
     mSuspendedEventToken.value = 0;
 #endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
+
+    EGLint requestedMajorVersion = attributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, EGL_DONT_CARE);
+    EGLint requestedMinorVersion = attributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE, EGL_DONT_CARE);
+
+    if (requestedMajorVersion == EGL_DONT_CARE || requestedMajorVersion >= 11)
+    {
+        if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 0)
+        {
+            mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_11_0);
+        }
+    }
+
+    if (requestedMajorVersion == EGL_DONT_CARE || requestedMajorVersion >= 10)
+    {
+        if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 1)
+        {
+            mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_10_1);
+        }
+        if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 0)
+        {
+            mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_10_0);
+        }
+    }
+
+    // For non-conformant feature levels (such as 9_3), the caller must specifically request the feature level.
+    if (requestedMajorVersion == 9 && requestedMinorVersion == 3)
+    {
+        mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_9_3);
+    }
+
+    mDriverType = (attributes.get(EGL_PLATFORM_ANGLE_USE_WARP_ANGLE, EGL_FALSE) == EGL_TRUE) ? D3D_DRIVER_TYPE_WARP
+                                                                                             : D3D_DRIVER_TYPE_HARDWARE;
 }
 
 Renderer11::~Renderer11()
@@ -210,49 +241,18 @@ EGLint Renderer11::initialize()
     }
 #endif
 
-    D3D_FEATURE_LEVEL featureLevels[] = 
-    {
-        D3D_FEATURE_LEVEL_11_0,
-        D3D_FEATURE_LEVEL_10_1,
-        D3D_FEATURE_LEVEL_10_0,
-        D3D_FEATURE_LEVEL_9_3,
-    };
-
-    D3D_FEATURE_LEVEL onlyfeatureLevel9_3[] =
-    {
-        D3D_FEATURE_LEVEL_9_3,
-    };
-
-    UINT featureLevelCount = 0; 
-    D3D_FEATURE_LEVEL* featureLevelsRequested = featureLevels;
-    if (mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_ANGLE || mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE)
-    {
-        featureLevelsRequested = onlyfeatureLevel9_3;
-        featureLevelCount = ArraySize(onlyfeatureLevel9_3);
-    }
-    else
-    {
-        featureLevelsRequested = featureLevels;
-        featureLevelCount = ArraySize(featureLevels);
-    }
-
     HRESULT result = S_OK;
-    bool forceWarp = false;
-
-    if (mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_WARP_ANGLE || mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE)
-    {
-        forceWarp = true;
-    }
-
 #ifdef _DEBUG
-    result = d3d11::createD3D11DeviceWithWARPFallback(D3D11CreateDevice,
-                                                      D3D11_CREATE_DEVICE_DEBUG,
-                                                      featureLevelsRequested,
-                                                      featureLevelCount,
-                                                      forceWarp,
-                                                      &mDevice,
-                                                      &mFeatureLevel,
-                                                      &mDeviceContext);
+    result = D3D11CreateDevice(NULL,
+                               mDriverType,
+                               NULL,
+                               D3D11_CREATE_DEVICE_DEBUG,
+                               mAvailableFeatureLevels.data(),
+                               mAvailableFeatureLevels.size(),
+                               D3D11_SDK_VERSION,
+                               &mDevice,
+                               &mFeatureLevel,
+                               &mDeviceContext);
 
     if (!mDevice || FAILED(result))
     {
@@ -262,14 +262,16 @@ EGLint Renderer11::initialize()
     if (!mDevice || FAILED(result))
 #endif
     {
-        result = d3d11::createD3D11DeviceWithWARPFallback(D3D11CreateDevice,
-                                                          0,
-                                                          featureLevelsRequested,
-                                                          featureLevelCount,
-                                                          forceWarp,
-                                                          &mDevice,
-                                                          &mFeatureLevel,
-                                                          &mDeviceContext);
+        result = D3D11CreateDevice(NULL,
+                                   mDriverType,
+                                   NULL,
+                                   0,
+                                   mAvailableFeatureLevels.data(),
+                                   mAvailableFeatureLevels.size(),
+                                   D3D11_SDK_VERSION,
+                                   &mDevice,
+                                   &mFeatureLevel,
+                                   &mDeviceContext);
 
         if (!mDevice || FAILED(result))
         {
@@ -1922,55 +1924,24 @@ bool Renderer11::testDeviceResettable()
         return false;
     }
 
-    D3D_FEATURE_LEVEL featureLevels[] =
-    {
-        D3D_FEATURE_LEVEL_11_0,
-        D3D_FEATURE_LEVEL_10_1,
-        D3D_FEATURE_LEVEL_10_0,
-        D3D_FEATURE_LEVEL_9_3,
-    };
-
-    D3D_FEATURE_LEVEL onlyfeatureLevel9_3[] =
-    {
-        D3D_FEATURE_LEVEL_9_3,
-    };
-
-    UINT featureLevelCount = 0;
-    D3D_FEATURE_LEVEL* featureLevelsRequested = featureLevels;
-    if (mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_ANGLE || mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE)
-    {
-        featureLevelsRequested = onlyfeatureLevel9_3;
-        featureLevelCount = ArraySize(onlyfeatureLevel9_3);
-    }
-    else
-    {
-        featureLevelsRequested = featureLevels;
-        featureLevelCount = ArraySize(featureLevels);
-    }
-
     ID3D11Device* dummyDevice;
     D3D_FEATURE_LEVEL dummyFeatureLevel;
     ID3D11DeviceContext* dummyContext;
-    unsigned int createFlags = 0;
 
-    bool forceWarp = false;
-
-    if (mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_WARP_ANGLE || mRequestedDisplay == EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_WARP_ANGLE)
-    {
-        forceWarp = true;
-    }
-
-#if defined(_DEBUG)
-    createFlags = D3D11_CREATE_DEVICE_DEBUG;
-#endif
-    HRESULT result = d3d11::createD3D11DeviceWithWARPFallback(D3D11CreateDevice,
-                                                              createFlags,
-                                                              featureLevelsRequested,
-                                                              featureLevelCount,
-                                                              forceWarp,
-                                                              &dummyDevice,
-                                                              &dummyFeatureLevel,
-                                                              &dummyContext);
+    HRESULT result = D3D11CreateDevice(NULL,
+                                       mDriverType,
+                                       NULL,
+                                       #if defined(_DEBUG)
+                                       D3D11_CREATE_DEVICE_DEBUG,
+                                       #else
+                                       0,
+                                       #endif
+                                       mAvailableFeatureLevels.data(),
+                                       mAvailableFeatureLevels.size(),
+                                       D3D11_SDK_VERSION,
+                                       &dummyDevice,
+                                       &dummyFeatureLevel,
+                                       &dummyContext);
 
     if (!mDevice || FAILED(result))
     {

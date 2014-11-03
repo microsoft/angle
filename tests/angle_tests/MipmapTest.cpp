@@ -1,17 +1,13 @@
 #include "ANGLETest.h"
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-typedef ::testing::Types<   TFT<Gles::Two, Rend::D3D11>,
-                            TFT<Gles::Two, Rend::WARP>,
-                            TFT<Gles::Two, Rend::D3D11_FL9_3>,
-                            TFT<Gles::Two, Rend::D3D9>          > TestFixtureTypes;
-TYPED_TEST_CASE(MipmapTest, TestFixtureTypes);
+ANGLE_TYPED_TEST_CASE(MipmapTest, ES2_D3D9, ES2_D3D11, ES2_D3D11_WARP, ES2_D3D11_FL9_3);
 
 template<typename T>
 class MipmapTest : public ANGLETest
 {
 protected:
-    MipmapTest() : ANGLETest(T::GetGlesMajorVersion(), T::GetRequestedRenderer())
+    MipmapTest() : ANGLETest(T::GetGlesMajorVersion(), T::GetPlatform())
     {
         setWindowWidth(128);
         setWindowHeight(128);

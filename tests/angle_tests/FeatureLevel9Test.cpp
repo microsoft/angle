@@ -3,14 +3,13 @@
 #include <vector>
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-typedef ::testing::Types<   TFT<Gles::Two, Rend::D3D11_FL9_3>   > TestFixtureTypes;
-TYPED_TEST_CASE(FeatureLevel9Test, TestFixtureTypes);
+ANGLE_TYPED_TEST_CASE(FeatureLevel9Test, ES2_D3D11_FL9_3);
 
 template<typename T>
 class FeatureLevel9Test : public ANGLETest
 {
 protected:
-    FeatureLevel9Test() : ANGLETest(T::GetGlesMajorVersion(), T::GetRequestedRenderer())
+    FeatureLevel9Test() : ANGLETest(T::GetGlesMajorVersion(), T::GetPlatform())
     {
         setWindowWidth(128);
         setWindowHeight(128);

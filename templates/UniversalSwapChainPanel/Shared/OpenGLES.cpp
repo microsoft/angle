@@ -31,37 +31,82 @@ void OpenGLES::Initialize()
         EGL_NONE
     };
 
-    const EGLint displayAttributes[] =
-    {
-        // This can be used to configure D3D11. For example, EGL_PLATFORM_ANGLE_TYPE_D3D11_FL9_3_ANGLE could be used.
-        // This would ask the graphics card to use D3D11 Feature Level 9_3 instead of Feature Level 11_0+.
-        // On Windows Phone, this would allow the Phone Emulator to act more like the GPUs that are available on real Phone devices.
-        EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
-        EGL_NONE,
-    };
-
     const EGLint contextAttributes[] = 
     { 
         EGL_CONTEXT_CLIENT_VERSION, 2, 
         EGL_NONE
     };
 
-    // eglGetPlatformDisplayEXT is an alternative to eglGetDisplay. It allows us to pass in 'displayAttributes' to configure D3D11.
+    const EGLint defaultDisplayAttributes[] =
+    {
+        // These are the default display attributes, used to request ANGLE's D3D11 renderer.
+        // eglInitialize will only succeed with these attributes if the hardware supports D3D11 Feature Level 10_0+.
+        EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
+        EGL_NONE,
+    };
+    
+    const EGLint fl9_3DisplayAttributes[] =
+    {
+        // These can be used to request ANGLE's D3D11 renderer, with D3D11 Feature Level 9_3.
+        // These attributes are used if the call to eglInitialize fails with the default display attributes.
+        EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
+        EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, 9,
+        EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE, 3,
+        EGL_NONE,
+    };
+
+    const EGLint warpDisplayAttributes[] =
+    {
+        // These attributes can be used to request D3D11 WARP.
+        // They are used if eglInitialize fails with both the default display attributes and the 9_3 display attributes.
+        EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
+        EGL_PLATFORM_ANGLE_USE_WARP_ANGLE, EGL_TRUE,
+        EGL_NONE,
+    };
+    
+    EGLConfig config = NULL;
+
+    // eglGetPlatformDisplayEXT is an alternative to eglGetDisplay. It allows us to pass in display attributes, used to configure D3D11.
     PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = reinterpret_cast<PFNEGLGETPLATFORMDISPLAYEXTPROC>(eglGetProcAddress("eglGetPlatformDisplayEXT"));
     if (!eglGetPlatformDisplayEXT)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to get function eglGetPlatformDisplayEXT");
     }
 
-    mEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, displayAttributes);
+    // Firstly get the display, and apply the default display attributes. They correspond to D3D11 Feature Level 10_0+.
+    mEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, defaultDisplayAttributes);
     if (mEglDisplay == EGL_NO_DISPLAY)
     {
-        throw Exception::CreateException(E_FAIL, L"Failed to get default EGL display");
+        throw Exception::CreateException(E_FAIL, L"Failed to get EGL display");
     }
 
     if (eglInitialize(mEglDisplay, NULL, NULL) == EGL_FALSE)
     {
-        throw Exception::CreateException(E_FAIL, L"Failed to initialize EGL");
+        // This call to eglInitialize (after applying the default display attributes) will return EGL_FALSE if Feature Level 10_0+ 
+        // is not supported by the hardware graphics card. This could happen on Windows Phone devices or on certain Windows tablets.
+        // Instead, we try applying the D3D11 Feature Level 9_3 display attributes and try to initialize the display again.
+        mEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, fl9_3DisplayAttributes);
+        if (mEglDisplay == EGL_NO_DISPLAY)
+        {
+            throw Exception::CreateException(E_FAIL, L"Failed to get EGL display");
+        }
+
+        if (eglInitialize(mEglDisplay, NULL, NULL) == EGL_FALSE)
+        {
+            // This call to eglInitialize will return EGL_FALSE if Feature Level 9_3 isn't supported either (for example, on a Surface RT).
+            // We must now use WARP, a fully-featured D3D11 software rasterizer. WARP supports all valid D3D11 feature levels.
+            mEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, warpDisplayAttributes);
+            if (mEglDisplay == EGL_NO_DISPLAY)
+            {
+                throw Exception::CreateException(E_FAIL, L"Failed to get EGL display");
+            }
+
+            if (eglInitialize(mEglDisplay, NULL, NULL) == EGL_FALSE)
+            {
+                // If all of the calls to eglInitialize returned EGL_FALSE then an error has occurred.
+                throw Exception::CreateException(E_FAIL, L"Failed to initialize EGL");
+            }
+        }
     }
 
     EGLint numConfigs = 0;
