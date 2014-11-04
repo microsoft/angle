@@ -8,6 +8,6 @@
     mc:Ignorable="d">
 
   <SwapChainPanel x:Name="swapChainPanel">
-    <TextBlock Text="OpenGL ES and XAML" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" />
+    <TextBlock Text="OpenGL ES and XAML" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" />
   </SwapChainPanel>
 </Page>
