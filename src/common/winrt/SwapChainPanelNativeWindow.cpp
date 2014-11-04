@@ -1,22 +1,24 @@
 //
-// Copyright (c) 2002-2014 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
 
-// swapchainpanelhost.cpp: Host for managing ISwapChainPanel native window types.
+// SwapChainPanelNativeWindow.cpp: NativeWindow for managing ISwapChainPanel native window types.
 
 #include "common/winrt/SwapChainPanelNativeWindow.h"
 #include <algorithm>
 #include <math.h>
 using namespace ABI::Windows::Foundation::Collections;
 
+namespace rx
+{
 SwapChainPanelNativeWindow::~SwapChainPanelNativeWindow()
 {
     unregisterForSizeChangeEvents();
 }
 
-bool SwapChainPanelNativeWindow::initialize(EGLNativeWindowType window, IPropertySet* propertySet)
+bool SwapChainPanelNativeWindow::initialize(EGLNativeWindowType window, IPropertySet *propertySet)
 {
     ComPtr<IPropertySet> props = propertySet;
     ComPtr<IInspectable> win = window;
@@ -24,7 +26,7 @@ bool SwapChainPanelNativeWindow::initialize(EGLNativeWindowType window, IPropert
     bool swapChainSizeSpecified = false;
     HRESULT result = S_OK;
 
-    // IPropertySet is an optional parameter and can null.
+    // IPropertySet is an optional parameter and can be null.
     // If one is specified, cache as an IMap and read the properties
     // used for initial host initialization.
     if (propertySet)
@@ -35,7 +37,7 @@ bool SwapChainPanelNativeWindow::initialize(EGLNativeWindowType window, IPropert
             // The EGLRenderSurfaceSizeProperty is optional and may be missing.  The IPropertySet
             // was prevalidated to contain the EGLNativeWindowType before being passed to
             // this host.
-            result = getOptionalSizePropertyValue(mPropertyMap, EGLRenderSurfaceSizeProperty, &swapChainSize, &swapChainSizeSpecified);
+            result = GetOptionalSizePropertyValue(mPropertyMap, EGLRenderSurfaceSizeProperty, &swapChainSize, &swapChainSizeSpecified);
         }
     }
 
@@ -51,7 +53,7 @@ bool SwapChainPanelNativeWindow::initialize(EGLNativeWindowType window, IPropert
         // will be still be scaled when being rendered to fit the bounds
         // of the host.
         // Scaling of the swapchain output needs to be handled by the
-        // host for swapchain panels even though the scaling mode setting 
+        // host for swapchain panels even though the scaling mode setting
         // DXGI_SCALING_STRETCH is configured on the swapchain.
         if (swapChainSizeSpecified)
         {
@@ -62,7 +64,7 @@ bool SwapChainPanelNativeWindow::initialize(EGLNativeWindowType window, IPropert
         }
         else
         {
-            result = getSwapChainPanelSize(mSwapChainPanel, &mClientRect);
+            result = GetSwapChainPanelSize(mSwapChainPanel, &mClientRect);
         }
     }
 
@@ -111,7 +113,7 @@ void SwapChainPanelNativeWindow::unregisterForSizeChangeEvents()
     mSizeChangedEventToken.value = 0;
 }
 
-HRESULT SwapChainPanelNativeWindow::createSwapChain(ID3D11Device* device, DXGIFactory* factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain** swapChain)
+HRESULT SwapChainPanelNativeWindow::createSwapChain(ID3D11Device *device, DXGIFactory *factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain **swapChain)
 {
     if (device == NULL || factory == NULL || swapChain == NULL || width == 0 || height == 0)
     {
@@ -163,7 +165,7 @@ HRESULT SwapChainPanelNativeWindow::createSwapChain(ID3D11Device* device, DXGIFa
     // first reading the current size of the swapchain panel, then scaling
     if (SUCCEEDED(result) && mRequiresSwapChainScaling)
     {
-        result = getSwapChainPanelSize(mSwapChainPanel, &currentPanelSize);
+        result = GetSwapChainPanelSize(mSwapChainPanel, &currentPanelSize);
     }
 
     // Scale the swapchain to fit inside the contents of the panel.
@@ -186,7 +188,7 @@ HRESULT SwapChainPanelNativeWindow::createSwapChain(ID3D11Device* device, DXGIFa
     return result;
 }
 
-HRESULT SwapChainPanelNativeWindow::scaleSwapChain(SIZE& newSize)
+HRESULT SwapChainPanelNativeWindow::scaleSwapChain(const SIZE &newSize)
 {
     ABI::Windows::Foundation::Size renderScale = { (float)newSize.cx/(float)mClientRect.right, (float)newSize.cy/(float)mClientRect.bottom };
     // Setup a scale matrix for the swap chain
@@ -204,7 +206,7 @@ HRESULT SwapChainPanelNativeWindow::scaleSwapChain(SIZE& newSize)
     return result;
 }
 
-HRESULT getSwapChainPanelSize(const ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel>& swapChainPanel, RECT* windowSize)
+HRESULT GetSwapChainPanelSize(const ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> &swapChainPanel, RECT *windowSize)
 {
     ComPtr<ABI::Windows::UI::Xaml::IUIElement> uiElement;
     ABI::Windows::Foundation::Size renderSize = { 0, 0 };
@@ -220,4 +222,5 @@ HRESULT getSwapChainPanelSize(const ComPtr<ABI::Windows::UI::Xaml::Controls::ISw
     }
 
     return result;
+}
 }

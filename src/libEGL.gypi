@@ -44,6 +44,8 @@
             'libEGL/Config.h',
             'libEGL/Display.cpp',
             'libEGL/Display.h',
+            'libEGL/Error.cpp',
+            'libEGL/Error.h',
             'libEGL/Surface.cpp',
             'libEGL/Surface.h',
             'libEGL/libEGL.cpp',
@@ -63,8 +65,8 @@
             'common/winrt/SwapChainPanelNativeWindow.h',
             'common/winrt/CoreWindowNativeWindow.cpp',
             'common/winrt/CoreWindowNativeWindow.h',
-            'common/winrt/IInspectableNativeWindow.cpp',
-            'common/winrt/IInspectableNativeWindow.h',
+            'common/winrt/InspectableNativeWindow.cpp',
+            'common/winrt/InspectableNativeWindow.h',
         ],
     },
     # Everything below this is duplicated in the GN build. If you change
@@ -171,11 +173,11 @@
                     },
                     'configurations':
                     {
-                        'Debug':
+                        'Debug_Base':
                         {
                             'defines':
                             [
-                                'ANGLE_ENABLE_PERF',
+                                'ANGLE_ENABLE_DEBUG_ANNOTATIONS',
                             ],
                         },
                     },

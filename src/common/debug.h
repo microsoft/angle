@@ -20,8 +20,8 @@
 
 namespace gl
 {
-    // Outputs text to the debugging log
-    void trace(bool traceFileDebugOnly, const char *format, ...);
+    // Outputs text to the debugging log, or the debugging window
+    void trace(bool traceInDebugOnly, const char *format, ...);
 
     // Returns whether D3DPERF is active.
     bool perfActive();
@@ -37,8 +37,8 @@ namespace gl
         DISALLOW_COPY_AND_ASSIGN(ScopedPerfEventHelper);
     };
 
-    void InitializeDebugEvents();
-    void UninitializeDebugEvents();
+    void InitializeDebugAnnotations();
+    void UninitializeDebugAnnotations();
 }
 
 // A macro to output a trace of a function call and its arguments to the debugging log
@@ -71,7 +71,7 @@ namespace gl
 #endif // _MSC_VER
 #else
 #define EVENT(message, ...) (void(0))
-#endif // ANGLE_ENABLE_DEBUG_TRACE || ANGLE_ENABLE_DEBUG_ANNOTATIONS
+#endif
 
 // A macro asserting a condition and outputting failures to the debug log
 #if !defined(NDEBUG)
@@ -91,6 +91,7 @@ namespace gl
 #else
 #define UNUSED_TRACE_VARIABLE(variable)
 #endif
+
 // A macro to indicate unimplemented functionality
 
 #if defined (ANGLE_TEST_CONFIG)

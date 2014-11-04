@@ -66,10 +66,10 @@
 
 #   if defined(ANGLE_ENABLE_WINDOWS_STORE)
 #       include <dxgi1_3.h>
-#       if defined(_DEBUG) && defined(ANGLE_ENABLE_D3D11) && defined(ANGLE_ENABLE_WINDOWS_STORE)
+#       if defined(_DEBUG)
 #           include <DXProgrammableCapture.h>
 #           include <dxgidebug.h>
-#       endif // ANGLE_ENABLE_D3D11 && ANGLE_ENABLE_WINDOWS_STORE
+#       endif
 #   endif
 
 #   undef near

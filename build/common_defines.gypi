@@ -13,12 +13,30 @@
         'angle_build_winphone%': '0',
     },
     'msvs_disabled_warnings': [ 4100, 4127, 4239, 4244, 4245, 4251, 4512, 4702, 4530, 4718, 4267, 4264, 4447, 4075 ],
-    'msvs_system_include_dirs':
+    'conditions':
     [
-        '<(windows_8_1_sdk_path)/Include/shared',
-        '<(windows_8_1_sdk_path)/Include/um',
-        '<(windows_sdk_path)/Include/shared',
-        '<(windows_sdk_path)/Include/um',
+        ['angle_build_winrt==0',
+        {
+             # Desktop windows, use windows 8.0 SDK
+            'msvs_system_include_dirs':
+            [
+                '<(windows_sdk_path)/Include/shared',
+                '<(windows_sdk_path)/Include/um',
+            ],
+        }],
+        ['angle_build_winrt==1',
+        {
+            # WinRT, use windows 8.1 sdk
+            'msvs_system_include_dirs':
+            [
+                '<(windows_8_1_sdk_path)/Include/shared',
+                '<(windows_8_1_sdk_path)/Include/um',
+            ],
+        }],
+        ['component=="shared_library"',
+        {
+            'defines': [ 'COMPONENT_BUILD' ],
+        }],
     ],
     'msvs_settings':
     {
@@ -68,58 +86,121 @@
             ],
         },
     },
+
+    # Windows SDK library directories for the configurations
     'configurations':
     {
-        'Debug':
+        'x86_Base':
         {
             'msvs_settings':
             {
-                'VCLinkerTool':
-                {
-                    'AdditionalLibraryDirectories':
-                    [
-                        '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x86',
-                        '<(windows_sdk_path)/Lib/win8/um/x86',
-                    ],
-                },
-                'VCLibrarianTool':
-                {
-                    'AdditionalLibraryDirectories':
-                    [
-                        '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x86',
-                        '<(windows_sdk_path)/Lib/win8/um/x86',
-                    ],
-                },
+                'conditions':
+                [
+                    ['angle_build_winrt==0',
+                    {
+                        'VCLinkerTool':
+                        {
+                            'AdditionalLibraryDirectories':
+                            [
+                                '<(windows_sdk_path)/Lib/win8/um/x86',
+                            ],
+                        },
+                        'VCLibrarianTool':
+                        {
+                            'AdditionalLibraryDirectories':
+                            [
+                                '<(windows_sdk_path)/Lib/win8/um/x86',
+                            ],
+                        },
+                    }],
+                    ['angle_build_winrt==1',
+                    {
+                        'VCLinkerTool':
+                        {
+                            'AdditionalLibraryDirectories':
+                            [
+                                '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x86',
+                            ],
+                        },
+                        'VCLibrarianTool':
+                        {
+                            'AdditionalLibraryDirectories':
+                            [
+                                '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x86',
+                            ],
+                        },
+                    }],
+                ],
             },
         },
-        'Release':
+        'x64_Base':
         {
             'msvs_settings':
             {
-                'VCLinkerTool':
-                {
-                    'AdditionalLibraryDirectories':
-                    [
-                        '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x86',
-                        '<(windows_sdk_path)/Lib/win8/um/x86',
-                    ],
-                },
-                'VCLibrarianTool':
-                {
-                    'AdditionalLibraryDirectories':
-                    [
-                        '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x86',
-                        '<(windows_sdk_path)/Lib/win8/um/x86',
-                    ],
-                },
+                'conditions':
+                [
+                    ['angle_build_winrt==0',
+                    {
+                        'VCLinkerTool':
+                        {
+                            'AdditionalLibraryDirectories':
+                            [
+                                '<(windows_sdk_path)/Lib/win8/um/x64',
+                            ],
+                        },
+                        'VCLibrarianTool':
+                        {
+                            'AdditionalLibraryDirectories':
+                            [
+                                '<(windows_sdk_path)/Lib/win8/um/x64',
+                            ],
+                        },
+                    }],
+                    ['angle_build_winrt==1',
+                    {
+                        'VCLinkerTool':
+                        {
+                            'AdditionalLibraryDirectories':
+                            [
+                                '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x64',
+                            ],
+                        },
+                        'VCLibrarianTool':
+                        {
+                            'AdditionalLibraryDirectories':
+                            [
+                                '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x64',
+                            ],
+                        },
+                    }],
+                ],
             },
         },
+        'conditions':
+        [
+            ['angle_build_winrt==1',
+            {
+                'arm_Base':
+                {
+                    'msvs_settings':
+                    {
+                        'VCLinkerTool':
+                        {
+                            'AdditionalLibraryDirectories':
+                            [
+                                '<(windows_8_1_sdk_path)/Lib/winv6.3/um/arm',
+                            ],
+                        },
+                        'VCLibrarianTool':
+                        {
+                            'AdditionalLibraryDirectories':
+                            [
+                                '<(windows_8_1_sdk_path)/Lib/winv6.3/um/arm',
+                            ],
+                        },
+                    },
+                },
+            }],
+        ],
     },
-    'conditions':
-    [
-        ['component=="shared_library"',
-        {
-            'defines': [ 'COMPONENT_BUILD' ],
-        }],
-    ],
 }

@@ -31,8 +31,8 @@ class Image9 : public ImageD3D
 
     static Image9 *makeImage9(Image *img);
 
-    static void generateMipmap(Image9 *dest, Image9 *source);
-    static void generateMip(IDirect3DSurface9 *destSurface, IDirect3DSurface9 *sourceSurface);
+    static gl::Error generateMipmap(Image9 *dest, Image9 *source);
+    static gl::Error generateMip(IDirect3DSurface9 *destSurface, IDirect3DSurface9 *sourceSurface);
     static gl::Error copyLockableSurfaces(IDirect3DSurface9 *dest, IDirect3DSurface9 *source);
 
     virtual bool redefine(Renderer *renderer, GLenum target, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, bool forceRelease);
@@ -40,7 +40,6 @@ class Image9 : public ImageD3D
     D3DFORMAT getD3DFormat() const;
 
     virtual bool isDirty() const;
-    IDirect3DSurface9 *getSurface();
 
     virtual gl::Error setManagedSurface2D(TextureStorage *storage, int level);
     virtual gl::Error setManagedSurfaceCube(TextureStorage *storage, int face, int level);
@@ -58,11 +57,13 @@ class Image9 : public ImageD3D
   private:
     DISALLOW_COPY_AND_ASSIGN(Image9);
 
-    void createSurface();
+    gl::Error getSurface(IDirect3DSurface9 **outSurface);
+
+    gl::Error createSurface();
     gl::Error setManagedSurface(IDirect3DSurface9 *surface);
     gl::Error copyToSurface(IDirect3DSurface9 *dest, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height);
 
-    HRESULT lock(D3DLOCKED_RECT *lockedRect, const RECT *rect);
+    gl::Error lock(D3DLOCKED_RECT *lockedRect, const RECT &rect);
     void unlock();
 
     Renderer9 *mRenderer;

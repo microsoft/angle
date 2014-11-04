@@ -18,25 +18,25 @@
 namespace gl
 {
 #if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
-// Wraps the D3D9/D3D11 event marker functions.
-class DebugEventWrapper
+// Wraps the D3D9/D3D11 debug annotation functions.
+class DebugAnnotationWrapper
 {
   public:
-    DebugEventWrapper() { };
-    virtual ~DebugEventWrapper() { };
-    virtual void beginEvent(LPCWSTR wszName) = 0;
+    DebugAnnotationWrapper() { };
+    virtual ~DebugAnnotationWrapper() { };
+    virtual void beginEvent(const std::wstring &eventName) = 0;
     virtual void endEvent() = 0;
-    virtual void setMarker(LPCWSTR wszName) = 0;
+    virtual void setMarker(const std::wstring &markerName) = 0;
     virtual bool getStatus() = 0;
 };
 
 #if defined(ANGLE_ENABLE_D3D9)
-class D3D9DebugEventWrapper : public DebugEventWrapper
-{ 
+class D3D9DebugAnnotationWrapper : public DebugAnnotationWrapper
+{
   public:
-    void beginEvent(LPCWSTR wszName)
+    void beginEvent(const std::wstring &eventName)
     {
-        D3DPERF_BeginEvent(0, wszName);
+        D3DPERF_BeginEvent(0, eventName.c_str());
     }
 
     void endEvent()
@@ -44,9 +44,9 @@ class D3D9DebugEventWrapper : public DebugEventWrapper
         D3DPERF_EndEvent();
     }
 
-    void setMarker(LPCWSTR wszName)
+    void setMarker(const std::wstring &markerName)
     {
-        D3DPERF_SetMarker(0, wszName);
+        D3DPERF_SetMarker(0, markerName.c_str());
     }
 
     bool getStatus()
@@ -54,16 +54,14 @@ class D3D9DebugEventWrapper : public DebugEventWrapper
         return !!D3DPERF_GetStatus();
     }
 };
-#elif defined(ANGLE_ENABLE_D3D11)
-// If the project uses D3D9 then we can use the D3D9 event markers, even with the D3D11 renderer.
-// However, if D3D9 is unavailable (e.g. in Windows Store), then we use D3D11 event markers.
-// The D3D11 event markers are methods on ID3DUserDefinedAnnotation, which is implemented by the DeviceContext.
-// This doesn't have to be the same DeviceContext that the renderer uses, though.
-class D3D11DebugEventWrapper : public DebugEventWrapper
+#endif // ANGLE_ENABLE_D3D9
+
+#if defined(ANGLE_ENABLE_D3D11)
+class D3D11DebugAnnotationWrapper : public DebugAnnotationWrapper
 {
   public:
 
-    D3D11DebugEventWrapper()
+    D3D11DebugAnnotationWrapper()
       : mInitialized(false),
         mD3d11Module(NULL),
         mUserDefinedAnnotation(NULL)
@@ -72,7 +70,7 @@ class D3D11DebugEventWrapper : public DebugEventWrapper
         // We defer device creation until the object is actually used.
     }
 
-    ~D3D11DebugEventWrapper()
+    ~D3D11DebugAnnotationWrapper()
     {
         if (mInitialized)
         {
@@ -81,11 +79,11 @@ class D3D11DebugEventWrapper : public DebugEventWrapper
         }
     }
 
-    virtual void beginEvent(LPCWSTR wszName)
+    virtual void beginEvent(const std::wstring &eventName)
     {
         initializeDevice();
 
-        mUserDefinedAnnotation->BeginEvent(wszName);
+        mUserDefinedAnnotation->BeginEvent(eventName.c_str());
     }
 
     virtual void endEvent()
@@ -95,11 +93,11 @@ class D3D11DebugEventWrapper : public DebugEventWrapper
         mUserDefinedAnnotation->EndEvent();
     }
 
-    virtual void setMarker(LPCWSTR wszName)
+    virtual void setMarker(const std::wstring &markerName)
     {
         initializeDevice();
 
-        mUserDefinedAnnotation->SetMarker(wszName);
+        mUserDefinedAnnotation->SetMarker(markerName.c_str());
     }
 
     virtual bool getStatus()
@@ -108,7 +106,7 @@ class D3D11DebugEventWrapper : public DebugEventWrapper
 
 #if defined(_DEBUG) && defined(ANGLE_ENABLE_WINDOWS_STORE)
         // In the Windows Store, we can use IDXGraphicsAnalysis. The call to GetDebugInterface1 only succeeds if the app is under capture.
-        // This should only be called in DEBUG mode. 
+        // This should only be called in DEBUG mode.
         // If an app links against DXGIGetDebugInterface1 in release mode then it will fail Windows Store ingestion checks.
         IDXGraphicsAnalysis* graphicsAnalysis;
         DXGIGetDebugInterface1(0, IID_PPV_ARGS(&graphicsAnalysis));
@@ -116,7 +114,7 @@ class D3D11DebugEventWrapper : public DebugEventWrapper
         SafeRelease(graphicsAnalysis);
         return underCapture;
 #endif
- 
+
         // Otherwise, we have to return true here.
         return true;
     }
@@ -137,19 +135,19 @@ class D3D11DebugEventWrapper : public DebugEventWrapper
 
             ID3D11Device* device = NULL;
             ID3D11DeviceContext* context = NULL;
-              
+
             HRESULT hr = E_FAIL;
 
             // Create a D3D_DRIVER_TYPE_NULL device, which is much cheaper than other types of device.
             hr =  D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_NULL, NULL, 0, NULL, 0, D3D11_SDK_VERSION, &device, NULL, &context);
             ASSERT(SUCCEEDED(hr));
-   
+
             hr = context->QueryInterface(__uuidof(mUserDefinedAnnotation), reinterpret_cast<void**>(&mUserDefinedAnnotation));
             ASSERT(SUCCEEDED(hr) && mUserDefinedAnnotation != NULL);
 
             SafeRelease(device);
             SafeRelease(context);
-        
+
             mInitialized = true;
         }
     }
@@ -158,25 +156,28 @@ class D3D11DebugEventWrapper : public DebugEventWrapper
     HMODULE mD3d11Module;
     ID3DUserDefinedAnnotation* mUserDefinedAnnotation;
 };
-#endif // ANGLE_ENABLE_D3D9 elif ANGLE_ENABLE_D3D11
+#endif // ANGLE_ENABLE_D3D11
 
-static DebugEventWrapper* g_DebugEventWrapper = NULL;
+static DebugAnnotationWrapper* g_DebugAnnotationWrapper = NULL;
 
-void InitializeDebugEvents()
+void InitializeDebugAnnotations()
 {
 #if defined(ANGLE_ENABLE_D3D9)
-    g_DebugEventWrapper = new D3D9DebugEventWrapper();
+    g_DebugAnnotationWrapper = new D3D9DebugAnnotationWrapper();
 #elif defined(ANGLE_ENABLE_D3D11)
-    g_DebugEventWrapper = new D3D11DebugEventWrapper();
+    // If the project uses D3D9 then we can use the D3D9 debug annotations, even with the D3D11 renderer.
+    // However, if D3D9 is unavailable (e.g. in Windows Store), then we use D3D11 debug annotations.
+    // The D3D11 debug annotations are methods on ID3DUserDefinedAnnotation, which is implemented by the DeviceContext.
+    // This doesn't have to be the same DeviceContext that the renderer uses, though.
+    g_DebugAnnotationWrapper = new D3D11DebugAnnotationWrapper();
 #endif
 }
 
-void UninitializeDebugEvents()
+void UninitializeDebugAnnotations()
 {
-    if (g_DebugEventWrapper != NULL)
+    if (g_DebugAnnotationWrapper != NULL)
     {
-        delete g_DebugEventWrapper;
-        g_DebugEventWrapper = NULL;
+        SafeDelete(g_DebugAnnotationWrapper);
     }
 }
 
@@ -189,14 +190,14 @@ enum DebugTraceOutputType
    DebugTraceOutputTypeBeginEvent
 };
 
-static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, const char *format, va_list vararg)
+static void output(bool traceInDebugOnly, DebugTraceOutputType outputType, const char *format, va_list vararg)
 {
 #if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
     static std::vector<char> buffer(512);
 
     if (perfActive())
     {
-        int len = FormatStringIntoVector(format, vararg, &buffer);
+        size_t len = FormatStringIntoVector(format, vararg, buffer);
         std::wstring formattedWideMessage(buffer.begin(), buffer.begin() + len);
 
         switch (outputType)
@@ -204,10 +205,10 @@ static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, con
             case DebugTraceOutputTypeNone:
                 break;
             case DebugTraceOutputTypeBeginEvent:
-                g_DebugEventWrapper->beginEvent(formattedWideMessage.c_str());
+                g_DebugAnnotationWrapper->beginEvent(formattedWideMessage);
                 break;
             case DebugTraceOutputTypeSetMarker:
-                g_DebugEventWrapper->setMarker(formattedWideMessage.c_str());
+                g_DebugAnnotationWrapper->setMarker(formattedWideMessage);
                 break;
         }
     }
@@ -215,12 +216,11 @@ static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, con
 
 #if defined(ANGLE_ENABLE_DEBUG_TRACE)
 #if defined(NDEBUG)
-    if (traceFileDebugOnly)
+    if (traceInDebugOnly)
     {
         return;
     }
 #endif // NDEBUG
-
     std::string formattedMessage = FormatString(format, vararg);
 
     static std::ofstream file(TRACE_OUTPUT_FILE, std::ofstream::app);
@@ -231,24 +231,20 @@ static void output(bool traceFileDebugOnly, DebugTraceOutputType outputType, con
     }
 
 #if defined(ANGLE_ENABLE_DEBUG_TRACE_TO_DEBUGGER)
-// Only output to the debugger window for debug builds only
-#ifdef _DEBUG
     OutputDebugStringA(formattedMessage.c_str());
-#endif // _DEBUG
 #endif // ANGLE_ENABLE_DEBUG_TRACE_TO_DEBUGGER
 
 #endif // ANGLE_ENABLE_DEBUG_TRACE
-
 }
 
-void trace(bool traceFileDebugOnly, const char *format, ...)
+void trace(bool traceInDebugOnly, const char *format, ...)
 {
     va_list vararg;
     va_start(vararg, format);
 #if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
-    output(traceFileDebugOnly, DebugTraceOutputTypeSetMarker, format, vararg);
+    output(traceInDebugOnly, DebugTraceOutputTypeSetMarker, format, vararg);
 #else
-    output(traceFileDebugOnly, DebugTraceOutputTypeNone, format, vararg);
+    output(traceInDebugOnly, DebugTraceOutputTypeNone, format, vararg);
 #endif
     va_end(vararg);
 }
@@ -256,7 +252,7 @@ void trace(bool traceFileDebugOnly, const char *format, ...)
 bool perfActive()
 {
 #if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
-    static bool active = g_DebugEventWrapper->getStatus();
+    static bool active = g_DebugAnnotationWrapper->getStatus();
     return active;
 #else
     return false;
@@ -286,7 +282,7 @@ ScopedPerfEventHelper::~ScopedPerfEventHelper()
 #if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
     if (perfActive())
     {
-        g_DebugEventWrapper->endEvent();
+        g_DebugAnnotationWrapper->endEvent();
     }
 #endif
 }

@@ -14,6 +14,7 @@
 #include <set>
 #include <vector>
 
+#include "libEGL/Error.h"
 #include "libEGL/Config.h"
 #include "libEGL/AttributeMap.h"
 
@@ -31,7 +32,7 @@ class Display
   public:
     ~Display();
 
-    bool initialize();
+    Error initialize();
     void terminate();
 
     static egl::Display *getDisplay(EGLNativeDisplayType displayId, const AttributeMap &attribMap);
@@ -44,9 +45,10 @@ class Display
     bool getConfigs(EGLConfig *configs, const EGLint *attribList, EGLint configSize, EGLint *numConfig);
     bool getConfigAttrib(EGLConfig config, EGLint attribute, EGLint *value);
 
-    EGLSurface createWindowSurface(EGLNativeWindowType window, EGLConfig config, const EGLint *attribList);
-    EGLSurface createOffscreenSurface(EGLConfig config, HANDLE shareHandle, const EGLint *attribList);
-    EGLContext createContext(EGLConfig configHandle, EGLint clientVersion, const gl::Context *shareContext, bool notifyResets, bool robustAccess);
+    Error createWindowSurface(EGLNativeWindowType window, EGLConfig config, const EGLint *attribList, EGLSurface *outSurface);
+    Error createOffscreenSurface(EGLConfig config, HANDLE shareHandle, const EGLint *attribList, EGLSurface *outSurface);
+    Error createContext(EGLConfig configHandle, EGLint clientVersion, const gl::Context *shareContext, bool notifyResets,
+                        bool robustAccess, EGLContext *outContext);
 
     void destroySurface(egl::Surface *surface);
     void destroyContext(gl::Context *context);
@@ -73,7 +75,7 @@ class Display
 
     void setAttributes(const AttributeMap &attribMap);
 
-    bool restoreLostDevice();
+    Error restoreLostDevice();
 
     EGLNativeDisplayType mDisplayId;
     AttributeMap mAttributeMap;

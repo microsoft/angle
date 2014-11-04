@@ -119,7 +119,7 @@
                     {
                         'Optimization': '0',    # /Od
                         'BasicRuntimeChecks': '3',
-                        'RuntimeLibrary': '3',    # /MTd (debug DLL)
+                        'RuntimeLibrary': '3',  # /MDd (Debug Multithreaded DLL)
                     },
                     'VCLinkerTool':
                     {
@@ -156,7 +156,7 @@
                     'VCCLCompilerTool':
                     {
                         'Optimization': '2',    # /Os
-                        'RuntimeLibrary': '2',    # /MT (DLL)
+                        'RuntimeLibrary': '2',  # /MD (Multithreaded DLL)
                     },
                     'VCLinkerTool':
                     {
@@ -174,21 +174,11 @@
                 {
                     'VCLinkerTool':
                     {
-                        'TargetMachine': '1',
-                        'AdditionalLibraryDirectories':
-                        [
-                            '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x86',
-                            '<(windows_sdk_path)/Lib/win8/um/x86',
-                        ],
+                        'TargetMachine': '1', # x86
                     },
                     'VCLibrarianTool':
                     {
-                        'TargetMachine': '1',
-                        'AdditionalLibraryDirectories':
-                        [
-                            '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x86',
-                            '<(windows_sdk_path)/Lib/win8/um/x86',
-                        ],
+                        'TargetMachine': '1', # x86
                     },
                 },
             }, # x86_Base
@@ -202,46 +192,13 @@
                     'VCLinkerTool':
                     {
                         'TargetMachine': '17', # x86 - 64
-                        'AdditionalLibraryDirectories':
-                        [
-                            '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x64',
-                            '<(windows_sdk_path)/Lib/win8/um/x64',
-                        ],
                     },
                     'VCLibrarianTool':
                     {
-                        'AdditionalLibraryDirectories':
-                        [
-                            '<(windows_8_1_sdk_path)/Lib/winv6.3/um/x64',
-                            '<(windows_sdk_path)/Lib/win8/um/x64',
-                        ],
+                        'TargetMachine': '17', # x86 - 64
                     },
                 },
             },    # x64_Base
-
-            'arm_Base':
-            {
-                'abstract': 1,
-                'msvs_configuration_platform': 'ARM',
-                'msvs_settings':
-                {
-                    'VCLinkerTool':
-                    {
-                        'TargetMachine': '3', # ARM
-                        'AdditionalLibraryDirectories':
-                        [
-                            '<(windows_8_1_sdk_path)/Lib/winv6.3/um/arm',
-                        ],
-                    },
-                    'VCLibrarianTool':
-                    {
-                        'AdditionalLibraryDirectories':
-                        [
-                            '<(windows_8_1_sdk_path)/Lib/winv6.3/um/arm',
-                        ],
-                    },
-                },
-            }, # arm_Base
 
             # Concrete configurations
             'Debug':
@@ -264,6 +221,25 @@
                     {
                         'inherit_from': ['Common_Base', 'x64_Base', 'Release_Base'],
                     },
+                }],
+                ['angle_build_winrt==1',
+                {
+                    'arm_Base':
+                    {
+                        'abstract': 1,
+                        'msvs_configuration_platform': 'ARM',
+                        'msvs_settings':
+                        {
+                            'VCLinkerTool':
+                            {
+                                'TargetMachine': '3', # ARM
+                            },
+                            'VCLibrarianTool':
+                            {
+                                'TargetMachine': '3', # ARM
+                            },
+                        },
+                    }, # arm_Base
                 }],
                 ['angle_build_winrt==1 and angle_build_winphone==0',
                 {

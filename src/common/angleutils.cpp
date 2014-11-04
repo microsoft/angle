@@ -5,32 +5,32 @@
 //
 
 #include "common/angleutils.h"
-
+#include "debug.h"
 #include <stdio.h>
 #include <vector>
 
-int FormatStringIntoVector(const char *fmt, va_list vararg, std::vector<char>* buffer)
+size_t FormatStringIntoVector(const char *fmt, va_list vararg, std::vector<char>& outBuffer)
 {
     // Attempt to just print to the current buffer
-    int len = vsnprintf(&(buffer->front()), buffer->size(), fmt, vararg);
-    if (len < 0 || static_cast<size_t>(len) >= buffer->size())
+    int len = vsnprintf(&(outBuffer.front()), outBuffer.size(), fmt, vararg);
+    if (len < 0 || static_cast<size_t>(len) >= outBuffer.size())
     {
         // Buffer was not large enough, calculate the required size and resize the buffer
         len = vsnprintf(NULL, 0, fmt, vararg);
-        buffer->resize(len + 1);
+        outBuffer.resize(len + 1);
 
         // Print again
-        len = vsnprintf(&(buffer->front()), buffer->size(), fmt, vararg);
+        len = vsnprintf(&(outBuffer.front()), outBuffer.size(), fmt, vararg);
     }
-    return len;
+    ASSERT(len >= 0);
+    return static_cast<size_t>(len);
 }
 
 std::string FormatString(const char *fmt, va_list vararg)
 {
     static std::vector<char> buffer(512);
 
-    int len = FormatStringIntoVector(fmt, vararg, &buffer);
-
+    size_t len = FormatStringIntoVector(fmt, vararg, buffer);
     return std::string(&buffer[0], len);
 }
 

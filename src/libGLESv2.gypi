@@ -31,6 +31,7 @@
             'common/debug.h',
             'common/event_tracer.cpp',
             'common/event_tracer.h',
+            'common/features.h',
             'common/mathutil.cpp',
             'common/mathutil.h',
             'common/platform.h',
@@ -101,6 +102,7 @@
             'libGLESv2/renderer/Image.h',
             'libGLESv2/renderer/IndexRangeCache.cpp',
             'libGLESv2/renderer/IndexRangeCache.h',
+            'libGLESv2/renderer/ProgramImpl.cpp',
             'libGLESv2/renderer/ProgramImpl.h',
             'libGLESv2/renderer/QueryImpl.h',
             'libGLESv2/renderer/RenderTarget.h',
@@ -149,8 +151,8 @@
             'common/winrt/SwapChainPanelNativeWindow.h',
             'common/winrt/CoreWindowNativeWindow.cpp',
             'common/winrt/CoreWindowNativeWindow.h',
-            'common/winrt/IInspectableNativeWindow.cpp',
-            'common/winrt/IInspectableNativeWindow.h',
+            'common/winrt/InspectableNativeWindow.cpp',
+            'common/winrt/InspectableNativeWindow.h',
         ],
         'angle_d3d_shared_sources':
         [
@@ -470,10 +472,11 @@
             ],
             'configurations':
             {
-                'Debug':
+                'Debug_Base':
                 {
                     'defines':
                     [
+                        'ANGLE_ENABLE_DEBUG_ANNOTATIONS',
                         'ANGLE_GENERATE_SHADER_DEBUG_INFO'
                     ],
                     'msvs_settings':
@@ -520,6 +523,16 @@
                     'msvs_enable_winphone' : '1',
                 }],
             ],
+            'configurations':
+            {
+                'Debug_Base':
+                {
+                    'defines':
+                    [
+                        'ANGLE_ENABLE_DEBUG_ANNOTATIONS',
+                    ],
+                },
+            },
         },
         {
             'target_name': 'libGLESv2_static',

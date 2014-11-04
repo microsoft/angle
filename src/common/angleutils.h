@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2002-2010 The ANGLE Project Authors. All rights reserved.
+// Copyright (c) 2002-2014 The ANGLE Project Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -96,6 +96,13 @@ inline void StructZero(T *obj)
     memset(obj, 0, sizeof(T));
 }
 
+template <typename T>
+inline bool IsMaskFlagSet(T mask, T flag)
+{
+    // Handles multibit flags as well
+    return (mask & flag) == flag;
+}
+
 inline const char* MakeStaticString(const std::string &str)
 {
     static std::set<std::string> strings;
@@ -133,7 +140,7 @@ inline std::string Str(int i)
     return strstr.str();
 }
 
-int FormatStringIntoVector(const char *fmt, va_list vararg, std::vector<char>* buffer);
+size_t FormatStringIntoVector(const char *fmt, va_list vararg, std::vector<char>& buffer);
 
 std::string FormatString(const char *fmt, va_list vararg);
 std::string FormatString(const char *fmt, ...);

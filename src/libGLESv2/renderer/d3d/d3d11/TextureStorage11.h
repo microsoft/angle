@@ -41,12 +41,12 @@ class TextureStorage11 : public TextureStorage
 
     UINT getBindFlags() const;
 
-    virtual ID3D11Resource *getResource() const = 0;
-    virtual ID3D11Resource *getResource(int includeLevel) { return getResource(); } ;
+    virtual gl::Error getResource(ID3D11Resource **outResource) = 0;
+    virtual gl::Error getResource(int includeLevel, ID3D11Resource **outResource) { return getResource(outResource); } ;
     virtual gl::Error getSRV(const gl::SamplerState &samplerState, ID3D11ShaderResourceView **outSRV);
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT) = 0;
 
-    virtual void generateMipmap(const gl::ImageIndex &sourceIndex, const gl::ImageIndex &destIndex);
+    virtual gl::Error generateMipmap(const gl::ImageIndex &sourceIndex, const gl::ImageIndex &destIndex);
 
     virtual int getTopLevel() const;
     virtual bool isRenderTarget() const;
@@ -148,8 +148,8 @@ class TextureStorage11_2D : public TextureStorage11
 
     static TextureStorage11_2D *makeTextureStorage11_2D(TextureStorage *storage);
 
-    virtual ID3D11Resource *getResource() const;
-    virtual ID3D11Resource *getResource(int includeLevel);
+    virtual gl::Error getResource(ID3D11Resource **outResource);
+    virtual gl::Error getResource(int includeLevel, ID3D11Resource **outResource);
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT);
     virtual gl::Error copyToStorage(TextureStorage *destStorage);
 
@@ -170,7 +170,7 @@ class TextureStorage11_2D : public TextureStorage11
     virtual gl::Error createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture,
                                 ID3D11ShaderResourceView **outSRV) const;
 
-    bool createTexture2DHelper(GLsizei width, GLsizei height, int levels, ID3D11Texture2D** texture);
+    gl::Error createTexture2DHelper(GLsizei width, GLsizei height, int levels, ID3D11Texture2D** texture);
 
     ID3D11Texture2D *mTexture;
     RenderTarget11 *mRenderTarget[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
@@ -203,7 +203,7 @@ class TextureStorage11_Cube : public TextureStorage11
 
     static TextureStorage11_Cube *makeTextureStorage11_Cube(TextureStorage *storage);
 
-    virtual ID3D11Resource *getResource() const;
+    virtual gl::Error getResource(ID3D11Resource **outResource);
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT);
 
     virtual void associateImage(Image11* image, const gl::ImageIndex &index);
@@ -241,7 +241,7 @@ class TextureStorage11_3D : public TextureStorage11
 
     static TextureStorage11_3D *makeTextureStorage11_3D(TextureStorage *storage);
 
-    virtual ID3D11Resource *getResource() const;
+    virtual gl::Error getResource(ID3D11Resource **outResource);
 
     // Handles both layer and non-layer RTs
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT);
@@ -283,7 +283,7 @@ class TextureStorage11_2DArray : public TextureStorage11
 
     static TextureStorage11_2DArray *makeTextureStorage11_2DArray(TextureStorage *storage);
 
-    virtual ID3D11Resource *getResource() const;
+    virtual gl::Error getResource(ID3D11Resource **outResource);
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTarget **outRT);
 
     virtual void associateImage(Image11* image, const gl::ImageIndex &index);

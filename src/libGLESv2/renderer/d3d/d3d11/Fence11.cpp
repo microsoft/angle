@@ -11,6 +11,8 @@
 #include "libGLESv2/main.h"
 #include "common/utilities.h"
 
+#include "common/utilities.h"
+
 namespace rx
 {
 

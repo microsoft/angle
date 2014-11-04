@@ -38,6 +38,7 @@
 
 #include "libEGL/Display.h"
 
+#include "common/features.h"
 #include "common/utilities.h"
 
 #include "third_party/trace_event/trace_event.h"
@@ -46,14 +47,6 @@
 
 // Can also be enabled by defining FORCE_REF_RAST in the project's predefined macros
 #define REF_RAST 0
-
-// The "Debug This Pixel..." feature in PIX often fails when using the
-// D3D9Ex interfaces.  In order to get debug pixel to work on a Vista/Win 7
-// machine, define "ANGLE_ENABLE_D3D9EX=0" in your project file.
-#if !defined(ANGLE_ENABLE_D3D9EX)
-// Enables use of the IDirect3D9Ex interface, when available
-#define ANGLE_ENABLE_D3D9EX 1
-#endif // !defined(ANGLE_ENABLE_D3D9EX)
 
 #if !defined(ANGLE_COMPILE_OPTIMIZATION_LEVEL)
 #define ANGLE_COMPILE_OPTIMIZATION_LEVEL D3DCOMPILE_OPTIMIZATION_LEVEL3
@@ -206,7 +199,7 @@ EGLint Renderer9::initialize()
     // Use Direct3D9Ex if available. Among other things, this version is less
     // inclined to report a lost context, for example when the user switches
     // desktop. Direct3D9Ex is available in Windows Vista and later if suitable drivers are available.
-    if (ANGLE_ENABLE_D3D9EX && Direct3DCreate9ExPtr && SUCCEEDED(Direct3DCreate9ExPtr(D3D_SDK_VERSION, &mD3d9Ex)))
+    if (ANGLE_D3D9EX == ANGLE_ENABLED && Direct3DCreate9ExPtr && SUCCEEDED(Direct3DCreate9ExPtr(D3D_SDK_VERSION, &mD3d9Ex)))
     {
         TRACE_EVENT0("gpu", "D3d9Ex_QueryInterface");
         ASSERT(mD3d9Ex);
@@ -732,7 +725,12 @@ gl::Error Renderer9::setTexture(gl::SamplerType type, int index, gl::Texture *te
         if (texStorage)
         {
             TextureStorage9 *storage9 = TextureStorage9::makeTextureStorage9(texStorage);
-            d3dTexture = storage9->getBaseTexture();
+
+            gl::Error error = storage9->getBaseTexture(&d3dTexture);
+            if (error.isError())
+            {
+                return error;
+            }
         }
         // If we get NULL back from getBaseTexture here, something went wrong
         // in the texture class and we're unexpectedly missing the d3d texture
@@ -1413,10 +1411,15 @@ gl::Error Renderer9::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indi
     // Get the raw indices for an indexed draw
     if (type != GL_NONE && elementArrayBuffer)
     {
-        gl::Buffer *indexBuffer = elementArrayBuffer;
-        BufferImpl *storage = indexBuffer->getImplementation();
+        BufferD3D *storage = BufferD3D::makeFromBuffer(elementArrayBuffer);
         intptr_t offset = reinterpret_cast<intptr_t>(indices);
-        indices = static_cast<const GLubyte*>(storage->getData()) + offset;
+        const uint8_t *bufferData = NULL;
+        gl::Error error = storage->getData(&bufferData);
+        if (error.isError())
+        {
+            return error;
+        }
+        indices = bufferData + offset;
     }
 
     unsigned int startIndex = 0;
@@ -1610,9 +1613,17 @@ gl::Error Renderer9::drawIndexedPoints(GLsizei count, GLenum type, const GLvoid 
 
     if (elementArrayBuffer)
     {
-        BufferImpl *storage = elementArrayBuffer->getImplementation();
+        BufferD3D *storage = BufferD3D::makeFromBuffer(elementArrayBuffer);
         intptr_t offset = reinterpret_cast<intptr_t>(indices);
-        indices = static_cast<const GLubyte*>(storage->getData()) + offset;
+
+        const uint8_t *bufferData = NULL;
+        gl::Error error = storage->getData(&bufferData);
+        if (error.isError())
+        {
+            return error;
+        }
+
+        indices = bufferData + offset;
     }
 
     switch (type)
@@ -1741,7 +1752,7 @@ gl::Error Renderer9::applyShaders(gl::ProgramBinary *programBinary, const gl::Ve
     unsigned int programSerial = programBinary->getSerial();
     if (programSerial != mAppliedProgramSerial)
     {
-        programBinary->dirtyAllUniforms();
+        programD3D->dirtyAllUniforms();
         mDxUniformsDirty = true;
         mAppliedProgramSerial = programSerial;
     }
@@ -2270,7 +2281,7 @@ bool Renderer9::isRemovedDeviceResettable() const
 {
     bool success = false;
 
-#ifdef ANGLE_ENABLE_D3D9EX
+#if ANGLE_D3D9EX == ANGLE_ENABLED
     IDirect3D9Ex *d3d9Ex = NULL;
     typedef HRESULT (WINAPI *Direct3DCreate9ExFunc)(UINT, IDirect3D9Ex**);
     Direct3DCreate9ExFunc Direct3DCreate9ExPtr = reinterpret_cast<Direct3DCreate9ExFunc>(GetProcAddress(mD3d9Module, "Direct3DCreate9Ex"));
@@ -3041,11 +3052,11 @@ Image *Renderer9::createImage()
     return new Image9();
 }
 
-void Renderer9::generateMipmap(Image *dest, Image *src)
+gl::Error Renderer9::generateMipmap(Image *dest, Image *src)
 {
     Image9 *src9 = Image9::makeImage9(src);
     Image9 *dst9 = Image9::makeImage9(dest);
-    Image9::generateMipmap(dst9, src9);
+    return Image9::generateMipmap(dst9, src9);
 }
 
 TextureStorage *Renderer9::createTextureStorage2D(SwapChain *swapChain)

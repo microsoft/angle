@@ -77,7 +77,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
             }
 
 #ifdef ANGLE_ENABLE_DEBUG_ANNOTATIONS
-            gl::InitializeDebugEvents();
+            gl::InitializeDebugAnnotations();
 #endif
         }
         // Fall through to initialize index
@@ -97,7 +97,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved
             DestroyTLSIndex(currentTLS);
 
 #ifdef ANGLE_ENABLE_DEBUG_ANNOTATIONS
-            gl::UninitializeDebugEvents();
+            gl::UninitializeDebugAnnotations();
 #endif
         }
         break;
@@ -120,11 +120,11 @@ Current *GetCurrentData()
     return (current ? current : AllocateCurrent());
 }
 
-void setCurrentError(EGLint error)
+void recordError(const Error &error)
 {
     Current *current = GetCurrentData();
 
-    current->error = error;
+    current->error = error.getCode();
 }
 
 EGLint getCurrentError()
@@ -188,11 +188,6 @@ EGLSurface getCurrentReadSurface()
     Current *current = GetCurrentData();
 
     return current->readSurface;
-}
-
-void error(EGLint errorCode)
-{
-    egl::setCurrentError(errorCode);
 }
 
 }

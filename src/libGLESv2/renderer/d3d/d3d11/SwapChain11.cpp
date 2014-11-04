@@ -20,6 +20,7 @@
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthrough2d11vs.h"
 #include "libGLESv2/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2d11ps.h"
 
+#include "common/features.h"
 #include "common/NativeWindow.h"
 
 namespace rx
@@ -553,11 +554,12 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 #endif
 
     ID3D11Device *device = mRenderer->getDevice();
-    ID3D11DeviceContext *deviceContext = mRenderer->getDeviceContext();
 
     HRESULT result = E_FAIL;
 
 #ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+    ID3D11DeviceContext *deviceContext = mRenderer->getDeviceContext();
+
     // Set vertices
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     result = deviceContext->Map(mQuadVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -619,7 +621,7 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     deviceContext->RSSetViewports(1, &viewport);
 
     // Apply textures
-    deviceContext->PSSetShaderResources(0, 1, &mOffscreenSRView);
+    mRenderer->setShaderResource(gl::SAMPLER_PIXEL, 0, mOffscreenSRView);
     deviceContext->PSSetSamplers(0, 1, &mPassThroughSampler);
      
     // Draw
@@ -627,7 +629,7 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 
 #endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
-#if ANGLE_FORCE_VSYNC_OFF
+#if ANGLE_VSYNC == ANGLE_DISABLED
     result = mSwapChain->Present(0, 0);
 #else
     result = mSwapChain->Present(mSwapInterval, 0);
@@ -651,8 +653,7 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     }
 
     // Unbind
-    static ID3D11ShaderResourceView *const nullSRV = NULL;
-    deviceContext->PSSetShaderResources(0, 1, &nullSRV);
+    mRenderer->setShaderResource(gl::SAMPLER_PIXEL, 0, NULL);
 
     mRenderer->unapplyRenderTargets();
     mRenderer->markAllStateDirty();
