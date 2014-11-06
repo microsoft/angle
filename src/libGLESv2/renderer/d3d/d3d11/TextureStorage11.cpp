@@ -965,6 +965,13 @@ gl::Error TextureStorage11_2D::getRenderTarget(const gl::ImageIndex &index, Rend
         {
             ID3D11Device *device = mRenderer->getDevice();
 
+            ID3D11Resource *texture = NULL;
+            gl::Error error = getResource(0, &texture);
+            if (error.isError())
+            {
+                return error;
+            }
+
             D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
             rtvDesc.Format = mRenderTargetFormat;
             rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
@@ -979,7 +986,7 @@ gl::Error TextureStorage11_2D::getRenderTarget(const gl::ImageIndex &index, Rend
                 return gl::Error(GL_OUT_OF_MEMORY, "Failed to create internal render target view for leveo zero texture, result: 0x%X.", result);
             }
 
-            mLevelZeroRenderTarget = new RenderTarget11(mRenderer, rtv, mLevelZeroTexture, NULL, getLevelWidth(level), getLevelHeight(level), 1, false);
+            mLevelZeroRenderTarget = new RenderTarget11(mRenderer, rtv, texture, NULL, getLevelWidth(level), getLevelHeight(level), 1, false);
 
             // RenderTarget will take ownership of these resources
             SafeRelease(rtv);
