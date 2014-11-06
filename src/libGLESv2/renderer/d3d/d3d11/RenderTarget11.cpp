@@ -177,7 +177,7 @@ static unsigned int getDSVSubresourceIndex(ID3D11Resource *resource, ID3D11Depth
 }
 
 RenderTarget11::RenderTarget11(Renderer *renderer, ID3D11RenderTargetView *rtv, ID3D11Resource *resource,
-                               ID3D11ShaderResourceView *srv, GLsizei width, GLsizei height, GLsizei depth)
+                               ID3D11ShaderResourceView *srv, GLsizei width, GLsizei height, GLsizei depth, bool renderToBackBuffer)
 {
     mRenderer = Renderer11::makeRenderer11(renderer);
 
@@ -203,6 +203,8 @@ RenderTarget11::RenderTarget11(Renderer *renderer, ID3D11RenderTargetView *rtv, 
 
     mSubresourceIndex = 0;
 
+    mRenderToBackBuffer = renderToBackBuffer;
+
     if (mRenderTarget && mTexture)
     {
         D3D11_RENDER_TARGET_VIEW_DESC desc;
@@ -224,7 +226,7 @@ RenderTarget11::RenderTarget11(Renderer *renderer, ID3D11RenderTargetView *rtv, 
 }
 
 RenderTarget11::RenderTarget11(Renderer *renderer, ID3D11DepthStencilView *dsv, ID3D11Resource *resource,
-                               ID3D11ShaderResourceView *srv, GLsizei width, GLsizei height, GLsizei depth)
+                               ID3D11ShaderResourceView *srv, GLsizei width, GLsizei height, GLsizei depth, bool renderToBackBuffer)
 {
     mRenderer = Renderer11::makeRenderer11(renderer);
 
@@ -249,6 +251,8 @@ RenderTarget11::RenderTarget11(Renderer *renderer, ID3D11DepthStencilView *dsv, 
     }
 
     mSubresourceIndex = 0;
+
+    mRenderToBackBuffer = renderToBackBuffer;
 
     if (mDepthStencil && mTexture)
     {
@@ -402,6 +406,7 @@ RenderTarget11::RenderTarget11(Renderer *renderer, GLsizei width, GLsizei height
     mSamples = supportedSamples;
     mActualFormat = dxgiFormatInfo.internalFormat;
     mSubresourceIndex = D3D11CalcSubresource(0, 0, 1);
+    mRenderToBackBuffer = false;
 }
 
 RenderTarget11::~RenderTarget11()

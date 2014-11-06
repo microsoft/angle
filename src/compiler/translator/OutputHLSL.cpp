@@ -527,9 +527,8 @@ void OutputHLSL::header()
             // The bytecode is the same whether we declare it or not, since D3DCompiler removes it if it's unused.
             out << "    float4 dx_ViewAdjust : packoffset(c1);\n";
 
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
+            // Similarly, D3DCompiler will remove dx_ViewScale if it's unused.
             out << "    float2 dx_ViewScale : packoffset(c2);\n";
-#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
             out << "};\n"
                     "\n";

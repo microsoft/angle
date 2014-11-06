@@ -20,7 +20,7 @@ class SwapChain11 : public SwapChain
 {
   public:
     SwapChain11(Renderer11 *renderer, rx::NativeWindow nativeWindow, HANDLE shareHandle,
-                GLenum backBufferFormat, GLenum depthBufferFormat);
+                GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer);
     virtual ~SwapChain11();
 
     EGLint resize(EGLint backbufferWidth, EGLint backbufferHeight);
@@ -39,6 +39,8 @@ class SwapChain11 : public SwapChain
     EGLint getWidth() const { return mWidth; }
     EGLint getHeight() const { return mHeight; }
 
+    bool renderToBackBuffer() const {return mRenderToBackBuffer; }
+
     static SwapChain11 *makeSwapChain11(SwapChain *swapChain);
 
   private:
@@ -56,16 +58,16 @@ class SwapChain11 : public SwapChain
     unsigned int mSwapInterval;
     bool mPassThroughResourcesInit;
 
+    bool mRenderToBackBuffer;
+
     DXGISwapChain *mSwapChain;
 
     ID3D11Texture2D *mBackBufferTexture;
     ID3D11RenderTargetView *mBackBufferRTView;
 
-#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     ID3D11Texture2D *mOffscreenTexture;
     ID3D11RenderTargetView *mOffscreenRTView;
     ID3D11ShaderResourceView *mOffscreenSRView;
-#endif // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
 
     ID3D11Texture2D *mDepthStencilTexture;
     ID3D11DepthStencilView *mDepthStencilDSView;

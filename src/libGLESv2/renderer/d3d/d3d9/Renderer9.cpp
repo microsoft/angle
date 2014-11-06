@@ -550,7 +550,7 @@ gl::Error Renderer9::sync(bool block)
     return gl::Error(GL_NO_ERROR);
 }
 
-SwapChain *Renderer9::createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
+SwapChain *Renderer9::createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackbuffer)
 {
     return new rx::SwapChain9(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat);
 }
@@ -2375,12 +2375,6 @@ bool Renderer9::getShareHandleSupport() const
 bool Renderer9::getPostSubBufferSupport() const
 {
     return true;
-}
-
-bool Renderer9::isRenderingToBackBuffer() const
-{
-    // We don't support rendering directly to the backbuffer in the d3d9 renderer.
-    return false;
 }
 
 int Renderer9::getMajorShaderModel() const

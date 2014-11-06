@@ -438,6 +438,12 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurfacePointerANGLE (EGLDisplay dpy, EGLSu
 #define EGL_ANGLE_surface_d3d_texture_2d_share_handle 1
 #endif /* EGL_ANGLE_surface_d3d_texture_2d_share_handle */
 
+#ifndef EGL_ANGLE_surface_d3d_render_to_back_buffer
+#define EGL_ANGLE_surface_d3d_render_to_back_buffer 1
+#define EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER 0x320B
+#define EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER 0x320C
+#endif /* EGL_ANGLE_surface_d3d_render_to_back_buffer */
+
 #ifndef EGL_ANGLE_platform_angle
 #define EGL_ANGLE_platform_angle 1
 #define EGL_PLATFORM_ANGLE_ANGLE          0x3201

@@ -1021,7 +1021,9 @@ gl::LinkResult ProgramD3D::link(gl::InfoLog &infoLog, gl::Shader *fragmentShader
         return gl::LinkResult(false, gl::Error(GL_NO_ERROR));
     }
 
-    if (!mDynamicHLSL->generateShaderLinkHLSL(infoLog, *registers, packing, mPixelHLSL, mVertexHLSL,
+    bool useViewScale = mRenderer->isRenderingToBackBufferEnabled();
+
+    if (!mDynamicHLSL->generateShaderLinkHLSL(infoLog, *registers, packing, useViewScale, mPixelHLSL, mVertexHLSL,
                                               fragmentShaderD3D, vertexShaderD3D, transformFeedbackVaryings,
                                               linkedVaryings, outputVariables, &mPixelShaderKey, &mUsesFragDepth))
     {

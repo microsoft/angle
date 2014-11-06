@@ -27,8 +27,8 @@
 namespace egl
 {
 
-Surface::Surface(Display *display, const Config *config, EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height, EGLint postSubBufferSupported) 
-    : mDisplay(display), mConfig(config), mNativeWindow(window), mPostSubBufferSupported(postSubBufferSupported)
+Surface::Surface(Display *display, const Config *config, EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height, EGLint postSubBufferSupported, EGLint renderToBackBuffer) 
+    : mDisplay(display), mConfig(config), mNativeWindow(window), mPostSubBufferSupported(postSubBufferSupported), mRenderToBackBuffer(renderToBackBuffer)
 {
     mRenderer = mDisplay->getRenderer();
     mSwapChain = NULL;
@@ -66,6 +66,7 @@ Surface::Surface(Display *display, const Config *config, HANDLE shareHandle, EGL
     setSwapInterval(1);
     // This constructor is for offscreen surfaces, which are always fixed-size.
     mFixedSize = EGL_TRUE;
+    mRenderToBackBuffer = EGL_FALSE;
 }
 
 Surface::~Surface()
@@ -134,7 +135,7 @@ Error Surface::resetSwapChain()
 
     mSwapChain = mRenderer->createSwapChain(mNativeWindow, mShareHandle,
                                             mConfig->mRenderTargetFormat,
-                                            mConfig->mDepthStencilFormat);
+                                            mConfig->mDepthStencilFormat, !!mRenderToBackBuffer);
     if (!mSwapChain)
     {
         return Error(EGL_BAD_ALLOC);
@@ -349,8 +350,7 @@ bool Surface::checkForOutOfDateSwapChain()
 
     bool wasDirty = (mSwapIntervalDirty || sizeDirty);
 
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-    if (wasDirty)
+    if (mRenderToBackBuffer && wasDirty)
     {
         // We must release any remaining resources acting on the swapchain, before we resize it below.
         // We do this by setting the surface to be NULL.
@@ -359,7 +359,6 @@ bool Surface::checkForOutOfDateSwapChain()
             glMakeCurrent(glGetCurrentContext(), static_cast<egl::Display*>(getCurrentDisplay()), NULL);
         }
     }
-#endif
 
     if (mSwapIntervalDirty)
     {

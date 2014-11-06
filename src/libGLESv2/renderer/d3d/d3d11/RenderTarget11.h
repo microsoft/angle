@@ -21,8 +21,8 @@ class RenderTarget11 : public RenderTarget
 {
   public:
     // RenderTarget11 takes ownership of any D3D11 resources it is given and will AddRef them
-    RenderTarget11(Renderer *renderer, ID3D11RenderTargetView *rtv, ID3D11Resource *resource, ID3D11ShaderResourceView *srv, GLsizei width, GLsizei height, GLsizei depth);
-    RenderTarget11(Renderer *renderer, ID3D11DepthStencilView *dsv, ID3D11Resource *resource, ID3D11ShaderResourceView *srv, GLsizei width, GLsizei height, GLsizei depth);
+    RenderTarget11(Renderer *renderer, ID3D11RenderTargetView *rtv, ID3D11Resource *resource, ID3D11ShaderResourceView *srv, GLsizei width, GLsizei height, GLsizei depth, bool renderToBackBuffer);
+    RenderTarget11(Renderer *renderer, ID3D11DepthStencilView *dsv, ID3D11Resource *resource, ID3D11ShaderResourceView *srv, GLsizei width, GLsizei height, GLsizei depth, bool renderToBackBuffer);
     RenderTarget11(Renderer *renderer, GLsizei width, GLsizei height, GLenum internalFormat, GLsizei samples);
     virtual ~RenderTarget11();
 
@@ -37,6 +37,8 @@ class RenderTarget11 : public RenderTarget
 
     unsigned int getSubresourceIndex() const;
 
+    bool renderToBackBuffer() const { return mRenderToBackBuffer; };
+
   private:
     DISALLOW_COPY_AND_ASSIGN(RenderTarget11);
 
@@ -47,6 +49,8 @@ class RenderTarget11 : public RenderTarget
     ID3D11ShaderResourceView *mShaderResource;
 
     Renderer11 *mRenderer;
+
+    bool mRenderToBackBuffer;
 };
 
 }

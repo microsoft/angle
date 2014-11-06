@@ -135,6 +135,11 @@ EGLDisplay __stdcall eglGetPlatformDisplayEXT(EGLenum platform, void *native_dis
     bool minorVersionSpecified = false;
     bool requestedWARP = false;
 
+    bool requestedAllowRenderToBackBuffer = false;
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    requestedAllowRenderToBackBuffer = true;
+#endif
+
     if (attrib_list)
     {
         for (const EGLint *curAttrib = attrib_list; curAttrib[0] != EGL_NONE; curAttrib += 2)
@@ -207,6 +212,21 @@ EGLDisplay __stdcall eglGetPlatformDisplayEXT(EGLenum platform, void *native_dis
                 requestedWARP = (curAttrib[1] == EGL_TRUE);
                 break;
 
+              case EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER:
+                switch (curAttrib[1])
+                {
+                  case EGL_FALSE:
+                  case EGL_TRUE:
+                    break;
+
+                  default:
+                    recordError(egl::Error(EGL_SUCCESS));
+                    return EGL_NO_DISPLAY;
+                }
+
+                requestedAllowRenderToBackBuffer = (curAttrib[1] == EGL_TRUE);
+                break;
+
               default:
                 break;
             }
@@ -220,6 +240,12 @@ EGLDisplay __stdcall eglGetPlatformDisplayEXT(EGLenum platform, void *native_dis
     }
 
     if (platformType != EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE && requestedWARP)
+    {
+        recordError(egl::Error(EGL_BAD_ATTRIBUTE));
+        return EGL_NO_DISPLAY;
+    }
+
+    if (platformType != EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE && requestedAllowRenderToBackBuffer)
     {
         recordError(egl::Error(EGL_BAD_ATTRIBUTE));
         return EGL_NO_DISPLAY;

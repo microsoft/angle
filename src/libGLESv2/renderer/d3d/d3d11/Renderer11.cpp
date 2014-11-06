@@ -67,13 +67,12 @@ static const DXGI_FORMAT RenderTargetFormats[] =
     {
         DXGI_FORMAT_B8G8R8A8_UNORM,
         DXGI_FORMAT_R8G8B8A8_UNORM,
-#ifndef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-        // These formats are typically not valid swapchain buffer formats.
-        // In particular, flip-model swapchains only support RGBA16, BGRA8 and RGBA8.
         DXGI_FORMAT_B5G6R5_UNORM,
+
+        // These formats are typically not valid swapchain buffer formats.
+        // TODO: find a way to support these formats when EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER is true.
         DXGI_FORMAT_B5G5R5A1_UNORM,
         DXGI_FORMAT_B4G4R4A4_UNORM
-#endif
     };
 
 static const DXGI_FORMAT DepthStencilFormats[] =
@@ -135,10 +134,6 @@ Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, const eg
     mCurPointGeometryShader = NULL;
     mAppliedPixelShader = NULL;
 
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-    mRenderingToBackBuffer = false;
-#endif
-
 #if defined (ANGLE_ENABLE_WINDOWS_STORE)
     mSuspendedEventToken.value = 0;
 #endif // defined (ANGLE_ENABLE_WINDOWS_STORE)
@@ -174,6 +169,14 @@ Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, const eg
 
     mDriverType = (attributes.get(EGL_PLATFORM_ANGLE_USE_WARP_ANGLE, EGL_FALSE) == EGL_TRUE) ? D3D_DRIVER_TYPE_WARP
                                                                                              : D3D_DRIVER_TYPE_HARDWARE;
+
+    EGLBoolean defaultRenderToBackBuffer = EGL_FALSE;
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    defaultRenderToBackBuffer = EGL_TRUE;
+#endif
+
+    mRenderToBackBufferEnabled = (attributes.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, defaultRenderToBackBuffer) == EGL_TRUE);
+    mRenderToBackBufferActive = false;
 }
 
 Renderer11::~Renderer11()
@@ -375,11 +378,9 @@ EGLint Renderer11::initialize()
     }
 #endif
 
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     // We should initialize the variables for rendering to a backbuffer.
     // They are configured to render to an offscreen texture by default, but they should get overwritten as necessary.
     setRenderToBackBufferVariables(false);
-#endif
 
     initializeDevice();
 
@@ -518,9 +519,9 @@ gl::Error Renderer11::sync(bool block)
     return gl::Error(GL_NO_ERROR);
 }
 
-SwapChain *Renderer11::createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
+SwapChain *Renderer11::createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer)
 {
-    return new rx::SwapChain11(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat);
+    return new rx::SwapChain11(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat, renderToBackBuffer);
 }
 
 gl::Error Renderer11::generateSwizzle(gl::Texture *texture)
@@ -837,7 +838,7 @@ void Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
         actualZNear = 0.0f;
         actualZFar = 1.0f;
     }
-    else if (isRenderingToBackBuffer())
+    else if (isCurrentlyRenderingToBackBuffer())
     {
         // When rendering directly to the swapchain backbuffer, we must invert the viewport in Y-axis.
         // This is due to the differences between the D3D and GL window origins.
@@ -1061,16 +1062,22 @@ gl::Error Renderer11::applyRenderTarget(gl::Framebuffer *framebuffer)
     {
         mDeviceContext->OMSetRenderTargets(getRendererCaps().maxDrawBuffers, framebufferRTVs, framebufferDSV);
 
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-        if (framebufferRTVs[0])
+        if (colorbuffers[0])
         {
+            RenderTarget11 *renderTarget = NULL;
+            gl::Error error = d3d11::GetAttachmentRenderTarget(colorbuffers[0], &renderTarget);
+            if (error.isError())
+            {
+                return error;
+            }
+            ASSERT(renderTarget);
+        
             ID3D11Resource* res = NULL;
             framebufferRTVs[0]->GetResource(&res);
-
+            ASSERT(d3d11::IsBackbuffer(res) == renderTarget->renderToBackBuffer());
             setRenderToBackBufferVariables(d3d11::IsBackbuffer(res));
             SafeRelease(res);
         }
-#endif
 
         mRenderTargetDesc.width = renderTargetWidth;
         mRenderTargetDesc.height = renderTargetHeight;
@@ -1797,9 +1804,7 @@ void Renderer11::markAllStateDirty()
     mForceSetScissor = true;
     mForceSetViewport = true;
 
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-    mRenderingToBackBuffer = true;
-#endif
+    mRenderToBackBufferActive = false;
 
     mAppliedIB = NULL;
     mAppliedIBFormat = DXGI_FORMAT_UNKNOWN;
@@ -2121,19 +2126,19 @@ int Renderer11::getMaxSwapInterval() const
     return 4;
 }
 
-bool Renderer11::isRenderingToBackBuffer() const
+bool Renderer11::isRenderingToBackBufferEnabled() const
 {
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-    return mRenderingToBackBuffer;
-#else
-    return false;
-#endif
+    return mRenderToBackBufferEnabled;
+}
+
+bool Renderer11::isCurrentlyRenderingToBackBuffer() const
+{
+    return mRenderToBackBufferActive;
 }
 
 void Renderer11::setRenderToBackBufferVariables(bool renderingToBackBuffer)
 {
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-    mRenderingToBackBuffer = renderingToBackBuffer;
+    mRenderToBackBufferActive = renderingToBackBuffer;
 
     // The rasterizer state must be updated, so that it will update its culling mode.
     mForceSetRasterState = true;
@@ -2149,15 +2154,11 @@ void Renderer11::setRenderToBackBufferVariables(bool renderingToBackBuffer)
     mPixelConstants.viewScale[3] = 1.0f;
 
     // When rendering to a texture, invert the rendering by setting these constants to -1 instead of +1.
-    if (!mRenderingToBackBuffer)
+    if (!mRenderToBackBufferActive)
     {
         mVertexConstants.viewScale[1] = -1.0f;
         mPixelConstants.viewScale[1] = -1.0f;
     }
-#else
-    // This shouldn't be called if ANGLE_ENABLE_RENDER_TO_BACK_BUFFER isn't defined.
-    UNIMPLEMENTED();
-#endif
 }
 
 gl::Error Renderer11::copyImage2D(gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,
@@ -2395,7 +2396,7 @@ RenderTarget *Renderer11::createRenderTarget(SwapChain *swapChain, bool depth)
         renderTarget = new RenderTarget11(this, swapChain11->getDepthStencil(),
                                           swapChain11->getDepthStencilTexture(),
                                           swapChain11->getDepthStencilShaderResource(),
-                                          swapChain11->getWidth(), swapChain11->getHeight(), 1);
+                                          swapChain11->getWidth(), swapChain11->getHeight(), 1, swapChain11->renderToBackBuffer());
     }
     else
     {
@@ -2403,7 +2404,7 @@ RenderTarget *Renderer11::createRenderTarget(SwapChain *swapChain, bool depth)
         renderTarget = new RenderTarget11(this, swapChain11->getRenderTarget(),
                                           swapChain11->getTargetTexture(),
                                           swapChain11->getRenderTargetShaderResource(),
-                                          swapChain11->getWidth(), swapChain11->getHeight(), 1);
+                                          swapChain11->getWidth(), swapChain11->getHeight(), 1, swapChain11->renderToBackBuffer());
     }
     return renderTarget;
 }

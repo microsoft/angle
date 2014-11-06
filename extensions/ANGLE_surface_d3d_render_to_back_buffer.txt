@@ -1,0 +1,103 @@
+Name
+
+    ANGLE_surface_d3d_render_to_back_buffer
+
+Name Strings
+
+    EGL_ANGLE_surface_d3d_render_to_back_buffer
+
+Contributors
+
+    Austin Kinross, Microsoft Corporation
+
+Contacts
+
+    Austin Kinross, Microsoft Corporation (aukinros 'at' microsoft 'dot' com)
+
+Status
+
+    Pre-Draft
+
+Version
+
+    Version 0.01, 2014-11-04
+
+Number
+
+    EGL Extension XXX
+
+Extension Type
+
+    EGL client extension
+
+Dependencies
+
+    Requires ANGLE_platform_angle_d3d.
+
+Overview
+
+    This extension enables ANGLE to render OpenGL ES content directly onto
+    a Direct3D swapchain in certain scenarios. This may provide large
+    performance gains on certain platforms.
+
+New Types
+
+    None
+
+New Procedures and Functions
+
+    None
+
+New Tokens
+
+    Accepted as an attribute name in the <attrib_list> argument of
+    eglGetPlatformDisplayEXT:
+
+        EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER      0x320B
+        
+    Accepted as an attribute name in the <attrib_list> argument of
+    eglCreateWindowSurface:
+
+        EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER            0x320C
+
+Additions to the EGL Specification
+
+    None.
+
+New Behavior
+
+    To request a display that allows the client to create window surfaces
+    that render OpenGL ES content directly onto a Direct3D swap chain, the 
+    value of EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER should be set to 
+    EGL_TRUE.
+    
+    If a value for EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER is not 
+    specified by the client then its value is implicitly set by the
+    implementation. The default value is left up to the implementation.
+    
+    If EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER is set to EGL_TRUE and 
+    EGL_PLATFORM_ANGLE_TYPE_ANGLE is not set to
+    EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE then an EGL_BAD_ATTRIBUTE error is
+    generated and EGL_NO_DISPLAY is returned.
+    
+    To create a window surface that renders directly onto the Direct3D swap
+    chain, the value of EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER should be set
+    to EGL_TRUE.
+    
+    If a value for EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER is not specified 
+    by the client then its value is implicitly set by the implementation. 
+    The default value is left up to the implementation.
+    
+    If EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER is set to EGL_TRUE and 
+    EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER is set to EGL_FALSE, then
+    an EGL_BAD_ATTRIBUTE error is generated and EGL_NO_SURFACE is returned.
+
+Issues
+
+    Using EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER may impact OpenGL ES
+    conformance. Details TBC.
+
+Revision History
+
+    Version 0.01, 2014-11-04 (Austin Kinross)
+      - Initial pre-draft

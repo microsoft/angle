@@ -217,6 +217,11 @@ Error Display::createWindowSurface(EGLNativeWindowType window, EGLConfig config,
     EGLint height = 0;
     EGLint fixedSize = EGL_FALSE;
 
+    bool renderToBackBuffer = false;
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    renderToBackBuffer = true;
+#endif
+
     if (attribList)
     {
         while (*attribList != EGL_NONE)
@@ -234,22 +239,42 @@ Error Display::createWindowSurface(EGLNativeWindowType window, EGLConfig config,
                     return Error(EGL_BAD_ATTRIBUTE);
                 }
                 break;
+
               case EGL_POST_SUB_BUFFER_SUPPORTED_NV:
                 postSubBufferSupported = attribList[1];
                 break;
+
               case EGL_WIDTH:
                 width = attribList[1];
                 break;
+
               case EGL_HEIGHT:
                 height = attribList[1];
                 break;
+
               case EGL_FIXED_SIZE_ANGLE:
                 fixedSize = attribList[1];
                 break;
+
+              case EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER:
+                switch (attribList[1])
+                {
+                  case EGL_FALSE:
+                  case EGL_TRUE:
+                    break;
+
+                  default:
+                    return Error(EGL_BAD_ATTRIBUTE);
+                }
+                renderToBackBuffer = (attribList[1] == EGL_TRUE);
+                break;
+
               case EGL_VG_COLORSPACE:
                 return Error(EGL_BAD_MATCH);
+
               case EGL_VG_ALPHA_FORMAT:
                 return Error(EGL_BAD_MATCH);
+
               default:
                 return Error(EGL_BAD_ATTRIBUTE);
             }
@@ -261,6 +286,16 @@ Error Display::createWindowSurface(EGLNativeWindowType window, EGLConfig config,
     if (width < 0 || height < 0)
     {
         return Error(EGL_BAD_PARAMETER);
+    }
+
+    EGLBoolean defaultAllowRenderToBackBuffer = EGL_FALSE;
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    defaultAllowRenderToBackBuffer = EGL_TRUE;
+#endif
+
+    if (renderToBackBuffer && (mAttributeMap.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, defaultAllowRenderToBackBuffer) != EGL_TRUE))
+    {
+        return Error(EGL_BAD_ATTRIBUTE);
     }
 
     if (!fixedSize)
@@ -283,7 +318,7 @@ Error Display::createWindowSurface(EGLNativeWindowType window, EGLConfig config,
         }
     }
 
-    Surface *surface = new Surface(this, configuration, window, fixedSize, width, height, postSubBufferSupported);
+    Surface *surface = new Surface(this, configuration, window, fixedSize, width, height, postSubBufferSupported, renderToBackBuffer);
     Error error = surface->initialize();
     if (error.isError())
     {

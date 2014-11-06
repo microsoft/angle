@@ -36,7 +36,7 @@ class Config;
 class Surface
 {
   public:
-    Surface(Display *display, const egl::Config *config, EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height, EGLint postSubBufferSupported);
+    Surface(Display *display, const egl::Config *config, EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height, EGLint postSubBufferSupported, EGLint renderToBackBuffer);
     Surface(Display *display, const egl::Config *config, HANDLE shareHandle, EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureTarget);
 
     virtual ~Surface();
@@ -109,6 +109,7 @@ private:
     EGLint mSwapInterval;
     EGLint mPostSubBufferSupported;
     EGLint mFixedSize;
+    EGLBoolean mRenderToBackBuffer;
 
     bool mSwapIntervalDirty;
     gl::Texture2D *mTexture;

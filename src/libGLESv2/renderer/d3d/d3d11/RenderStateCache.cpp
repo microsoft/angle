@@ -243,10 +243,7 @@ gl::Error RenderStateCache::getRasterizerState(const gl::RasterizerState &raster
             cullMode = D3D11_CULL_NONE;
         }
 
-        BOOL reverseCullMode = FALSE;
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-        reverseCullMode = rasterState.reverseCullMode;
-#endif
+        BOOL reverseCullMode = rasterState.reverseCullMode;
 
         D3D11_RASTERIZER_DESC rasterDesc;
         rasterDesc.FillMode = D3D11_FILL_SOLID;

@@ -60,7 +60,7 @@ class Renderer11 : public Renderer
 
     virtual gl::Error sync(bool block);
 
-    virtual SwapChain *createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
+    virtual SwapChain *createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer);
 
     virtual gl::Error generateSwizzle(gl::Texture *texture);
     virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler);
@@ -121,7 +121,8 @@ class Renderer11 : public Renderer
     virtual int getMinSwapInterval() const;
     virtual int getMaxSwapInterval() const;
 
-    virtual bool isRenderingToBackBuffer() const;
+    virtual bool isRenderingToBackBufferEnabled() const;
+    virtual bool isCurrentlyRenderingToBackBuffer() const;
 
     // Pixel operations
     virtual gl::Error copyImage2D(gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,
@@ -279,9 +280,8 @@ class Renderer11 : public Renderer
     bool mForceSetRasterState;
     gl::RasterizerState mCurRasterState;
 
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-    bool mRenderingToBackBuffer;
-#endif
+    bool mRenderToBackBufferEnabled;
+    bool mRenderToBackBufferActive;
 
     // Currently applied depth stencil state
     bool mForceSetDepthStencilState;

@@ -105,9 +105,7 @@ struct dx_VertexConstants
 {
     float depthRange[4];
     float viewAdjust[4];
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     float viewScale[4];
-#endif
 };
 
 struct dx_PixelConstants
@@ -115,9 +113,7 @@ struct dx_PixelConstants
     float depthRange[4];
     float viewCoords[4];
     float depthFront[4];
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
     float viewScale[4];
-#endif
 };
 
 enum ShaderType
@@ -141,7 +137,7 @@ class Renderer
 
     virtual gl::Error sync(bool block) = 0;
 
-    virtual SwapChain *createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;
+    virtual SwapChain *createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer = false) = 0;
 
     virtual gl::Error generateSwizzle(gl::Texture *texture) = 0;
     virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler) = 0;
@@ -207,7 +203,8 @@ class Renderer
     virtual int getMinSwapInterval() const = 0;
     virtual int getMaxSwapInterval() const = 0;
 
-    virtual bool isRenderingToBackBuffer() const = 0;
+    virtual bool isRenderingToBackBufferEnabled() const = 0;
+    virtual bool isCurrentlyRenderingToBackBuffer() const = 0;
 
     // Pixel operations
     virtual gl::Error copyImage2D(gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,

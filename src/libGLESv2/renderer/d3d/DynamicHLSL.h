@@ -64,7 +64,7 @@ class DynamicHLSL
                                                    const sh::Attribute shaderAttributes[]) const;
     std::string generatePixelShaderForOutputSignature(const std::string &sourceShader, const std::vector<PixelShaderOutputVariable> &outputVariables,
                                                       bool usesFragDepth, const std::vector<GLenum> &outputLayout) const;
-    bool generateShaderLinkHLSL(gl::InfoLog &infoLog, int registers, const VaryingPacking packing,
+    bool generateShaderLinkHLSL(gl::InfoLog &infoLog, int registers, const VaryingPacking packing, bool useViewScale,
                                 std::string& pixelHLSL, std::string& vertexHLSL,
                                 rx::ShaderD3D *fragmentShader, rx::ShaderD3D *vertexShader,
                                 const std::vector<std::string>& transformFeedbackVaryings,

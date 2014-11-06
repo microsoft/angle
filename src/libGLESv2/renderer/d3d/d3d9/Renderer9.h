@@ -55,7 +55,7 @@ class Renderer9 : public Renderer
 
     virtual gl::Error sync(bool block);
 
-    virtual SwapChain *createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
+    virtual SwapChain *createSwapChain(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackbuffer = false);
 
     gl::Error allocateEventQuery(IDirect3DQuery9 **outQuery);
     void freeEventQuery(IDirect3DQuery9* query);
@@ -127,7 +127,8 @@ class Renderer9 : public Renderer
     virtual int getMinSwapInterval() const;
     virtual int getMaxSwapInterval() const;
 
-    virtual bool isRenderingToBackBuffer() const;
+    virtual bool isRenderingToBackBufferEnabled() const { return false; }
+    virtual bool isCurrentlyRenderingToBackBuffer() const { return false; }
 
     // Pixel operations
     virtual gl::Error copyImage2D(gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,

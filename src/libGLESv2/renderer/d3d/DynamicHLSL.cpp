@@ -670,6 +670,7 @@ void DynamicHLSL::storeUserLinkedVaryings(const rx::ShaderD3D *vertexShader,
 }
 
 bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const VaryingPacking packing,
+                                         bool useViewScale,
                                          std::string& pixelHLSL, std::string& vertexHLSL,
                                          rx::ShaderD3D *fragmentShader, rx::ShaderD3D *vertexShader,
                                          const std::vector<std::string>& transformFeedbackVaryings,
@@ -698,6 +699,9 @@ bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const 
 
     // Write the HLSL input/output declarations
     const int shaderModel = mRenderer->getMajorShaderModel();
+
+    // useViewScale isn't supported below Shader Model 4
+    ASSERT(shaderModel >= 4 || !useViewScale);
 
     // TODO (geofflang):  Use context's caps
     const int maxVaryingVectors = mRenderer->getRendererCaps().maxVaryingVectors;
@@ -740,14 +744,19 @@ bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const 
                       "\n"
                       "    VS_OUTPUT output;\n"
                       "    output.gl_Position = gl_Position;\n"
-                      "    output.dx_Position.x = gl_Position.x;\n"
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-                      // This code assumes that dx_ViewScale.y = -1.0f when rendering to texture, and +1.0f when rendering to backbuffer. No other values are valid.
-                      "    output.dx_Position.y = dx_ViewScale.y * gl_Position.y;\n"
-#else
-                      "    output.dx_Position.y = - gl_Position.y;\n"
-#endif
-                      "    output.dx_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
+                      "    output.dx_Position.x = gl_Position.x;\n";
+
+        if (useViewScale)
+        {
+            // This code assumes that dx_ViewScale.y = -1.0f when rendering to texture, and +1.0f when rendering to backbuffer. No other values are valid.
+            vertexHLSL += "    output.dx_Position.y = dx_ViewScale.y * gl_Position.y;\n";
+        }
+        else
+        {
+            vertexHLSL += "    output.dx_Position.y = - gl_Position.y;\n";
+        }
+
+        vertexHLSL += "    output.dx_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
                       "    output.dx_Position.w = gl_Position.w;\n";
     }
     else
@@ -758,18 +767,18 @@ bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const 
                       "    VS_OUTPUT output;\n"
                       "    output.gl_Position = gl_Position;\n"
                       "    output.dx_Position.x = gl_Position.x * dx_ViewAdjust.z + dx_ViewAdjust.x * gl_Position.w;\n";
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-        // If ANGLE_ENABLE_RENDER_TO_BACK_BUFFER is enabled and we're using the D3D11 renderer via Feature Level 9_*, then we need to invert the dxPosition like above.
-        // ANGLE_ENABLE_RENDER_TO_BACK_BUFFER isn't supported when using the D3D9 renderer.
-        if (shaderModel >= 4 && mRenderer->getShaderModelSuffix() != "")
+
+        // If useViewScale is enabled and we're using the D3D11 renderer via Feature Level 9_*, then we need to multiply the gl_Position.y by the viewScale.
+        // useViewScale isn't supported when using the D3D9 renderer.
+        if (useViewScale && (shaderModel >= 4 && mRenderer->getShaderModelSuffix() != ""))
         {
             vertexHLSL += "    output.dx_Position.y = dx_ViewScale.y * (gl_Position.y * dx_ViewAdjust.w + dx_ViewAdjust.y * gl_Position.w);\n";
         }
         else
-#endif
         {
             vertexHLSL += "    output.dx_Position.y = -(gl_Position.y * dx_ViewAdjust.w + dx_ViewAdjust.y * gl_Position.w);\n";
         }
+
         vertexHLSL += "    output.dx_Position.z = (gl_Position.z + gl_Position.w) * 0.5;\n"
                       "    output.dx_Position.w = gl_Position.w;\n";
     }
@@ -914,17 +923,18 @@ bool DynamicHLSL::generateShaderLinkHLSL(InfoLog &infoLog, int registers, const 
                          "    gl_FragCoord.y = (input.gl_FragCoord.y * rhw) * dx_ViewCoords.y + dx_ViewCoords.w;\n";
         }
 
-#ifdef ANGLE_ENABLE_RENDER_TO_BACK_BUFFER
-		// This code assumes that dx_ViewScale.y = -1.0f when rendering to texture, and +1.0f when rendering to backbuffer. No other values are valid.
-		// It also assumes that gl_FragCoord.y has been set correctly above.
-		// When rendering to the backbuffer, the code inverts gl_FragCoord's y coordinate. This involves subtracting the y coordinate from the height of the area being rendered to.
-		// Render area height: (2.0f / (1 - input.gl_FragCoord.y * rhw)) * gl_FragCoord.y
-		// When rendering to backbuffer, ((1.0f + dx_ViewScale.y) / 2.0f) = 1.0f and dx_ViewScale.y = +1.0f
-		// When rendering to texture, ((1.0f + dx_ViewScale.y) / 2.0f) = 0.0f and dx_ViewScale.y = -1.0f
-		// Therefore, gl_FragCoord.y = ((1.0f + dx_ViewScale.y) / 2.0f) * (2.0f / (1 - input.gl_FragCoord.y * rhw)) * gl_FragCoord.y - dx_ViewScale.y * gl_FragCoord.y;
-		// Simplifying, this becomes:
-		pixelHLSL += "    gl_FragCoord.y = (1.0f + dx_ViewScale.y) * gl_FragCoord.y / (1 - input.gl_FragCoord.y * rhw)  - dx_ViewScale.y * gl_FragCoord.y;\n";
-#endif
+        if (useViewScale)
+        {
+		    // This code assumes that dx_ViewScale.y = -1.0f when rendering to texture, and +1.0f when rendering to backbuffer. No other values are valid.
+		    // It also assumes that gl_FragCoord.y has been set correctly above.
+		    // When rendering to the backbuffer, the code inverts gl_FragCoord's y coordinate. This involves subtracting the y coordinate from the height of the area being rendered to.
+		    // Render area height: (2.0f / (1 - input.gl_FragCoord.y * rhw)) * gl_FragCoord.y
+		    // When rendering to backbuffer, ((1.0f + dx_ViewScale.y) / 2.0f) = 1.0f and dx_ViewScale.y = +1.0f
+		    // When rendering to texture, ((1.0f + dx_ViewScale.y) / 2.0f) = 0.0f and dx_ViewScale.y = -1.0f
+		    // Therefore, gl_FragCoord.y = ((1.0f + dx_ViewScale.y) / 2.0f) * (2.0f / (1 - input.gl_FragCoord.y * rhw)) * gl_FragCoord.y - dx_ViewScale.y * gl_FragCoord.y;
+		    // Simplifying, this becomes:
+		    pixelHLSL += "    gl_FragCoord.y = (1.0f + dx_ViewScale.y) * gl_FragCoord.y / (1 - input.gl_FragCoord.y * rhw)  - dx_ViewScale.y * gl_FragCoord.y;\n";
+        }
 
         pixelHLSL += "    gl_FragCoord.z = (input.gl_FragCoord.z * rhw) * dx_DepthFront.x + dx_DepthFront.y;\n"
                      "    gl_FragCoord.w = rhw;\n";
