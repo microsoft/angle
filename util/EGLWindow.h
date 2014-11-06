@@ -31,10 +31,11 @@ struct EGLPlatformParameters
     EGLint majorVersion;
     EGLint minorVersion;
     EGLint useWarp;
+    EGLBoolean useRenderToBackBuffer;
 
     EGLPlatformParameters();
     explicit EGLPlatformParameters(EGLint renderer);
-    EGLPlatformParameters(EGLint renderer, EGLint majorVersion, EGLint minorVersion, EGLint useWarp);
+    EGLPlatformParameters(EGLint renderer, EGLint majorVersion, EGLint minorVersion, EGLint useWarp, EGLBoolean useRenderToBackBuffer);
 };
 
 class EGLWindow

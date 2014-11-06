@@ -28,15 +28,17 @@ EGLPlatformParameters::EGLPlatformParameters(EGLint renderer)
     : renderer(renderer),
       majorVersion(EGL_DONT_CARE),
       minorVersion(EGL_DONT_CARE),
-      useWarp(EGL_FALSE)
+      useWarp(EGL_FALSE),
+      useRenderToBackBuffer(EGL_FALSE)
 {
 }
 
-EGLPlatformParameters::EGLPlatformParameters(EGLint renderer, EGLint majorVersion, EGLint minorVersion, EGLint useWarp)
+EGLPlatformParameters::EGLPlatformParameters(EGLint renderer, EGLint majorVersion, EGLint minorVersion, EGLint useWarp, EGLBoolean useRenderToBackBuffer)
     : renderer(renderer),
       majorVersion(majorVersion),
       minorVersion(minorVersion),
-      useWarp(useWarp)
+      useWarp(useWarp),
+      useRenderToBackBuffer(useRenderToBackBuffer)
 {
 }
 
@@ -100,10 +102,11 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
 
     const EGLint displayAttributes[] =
     {
-        EGL_PLATFORM_ANGLE_TYPE_ANGLE,              mPlatform.renderer,
-        EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, mPlatform.majorVersion,
-        EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE, mPlatform.minorVersion,
-        EGL_PLATFORM_ANGLE_USE_WARP_ANGLE,          mPlatform.useWarp,
+        EGL_PLATFORM_ANGLE_TYPE_ANGLE,                 mPlatform.renderer,
+        EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE,    mPlatform.majorVersion,
+        EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE,    mPlatform.minorVersion,
+        EGL_PLATFORM_ANGLE_USE_WARP_ANGLE,             mPlatform.useWarp,
+        EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, mPlatform.useRenderToBackBuffer,
         EGL_NONE,
     };
 
@@ -156,8 +159,9 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
 
     const EGLint surfaceAttributes[] =
     {
-        EGL_POST_SUB_BUFFER_SUPPORTED_NV, EGL_TRUE,
-        EGL_NONE, EGL_NONE,
+        EGL_POST_SUB_BUFFER_SUPPORTED_NV,           EGL_TRUE,
+        EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER,    mPlatform.useRenderToBackBuffer,
+        EGL_NONE,
     };
 
     mSurface = eglCreateWindowSurface(mDisplay, mConfig, osWindow->getNativeWindow(), surfaceAttributes);
