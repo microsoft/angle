@@ -73,7 +73,24 @@ void OpenGLES::Initialize()
         throw Exception::CreateException(E_FAIL, L"Failed to get function eglGetPlatformDisplayEXT");
     }
 
-    // Firstly get the display, and apply the default display attributes. They correspond to D3D11 Feature Level 10_0+.
+    //
+    // To initialize the display, we make three sets of calls to eglGetPlatformDisplayEXT and eglInitialize, with varying 
+    // parameters passed to eglGetPlatformDisplayEXT:
+    // 1) The first calls uses "defaultDisplayAttributes" as a parameter. This corresponds to D3D11 Feature Level 10_0+.
+    // 2) If eglInitialize fails for step 1 (e.g. because 10_0+ isn't supported by the default GPU), then we try again 
+    //    using "fl9_3DisplayAttributes". This corresponds to D3D11 Feature Level 9_3.
+    // 3) If eglInitialize fails for step 2 (e.g. because 9_3+ isn't supported by the default GPU), then we try again 
+    //    using "warpDisplayAttributes".  This corresponds to D3D11 Feature Level 11_0 on WARP, a D3D11 software rasterizer.
+    //
+    // Note: On Windows Phone, we #ifdef out the first set of calls to eglPlatformDisplayEXT and eglInitialize.
+    //       Windows Phones devices only support D3D11 Feature Level 9_3, but the Windows Phone emulator supports 11_0+.
+    //       We use this #ifdef to limit the Phone emulator to Feature Level 9_3, making it behave more like
+    //       real Windows Phone devices.
+    //       If you wish to test Feature Level 10_0+ in the Windows Phone emulator then you should remove this #ifdef.
+    //
+    
+#if (WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP)
+    // This tries to initialize EGL to D3D11 Feature Level 10_0+. See above comment for details.
     mEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, defaultDisplayAttributes);
     if (mEglDisplay == EGL_NO_DISPLAY)
     {
@@ -81,10 +98,9 @@ void OpenGLES::Initialize()
     }
 
     if (eglInitialize(mEglDisplay, NULL, NULL) == EGL_FALSE)
+#endif    
     {
-        // This call to eglInitialize (after applying the default display attributes) will return EGL_FALSE if Feature Level 10_0+ 
-        // is not supported by the hardware graphics card. This could happen on Windows Phone devices or on certain Windows tablets.
-        // Instead, we try applying the D3D11 Feature Level 9_3 display attributes and try to initialize the display again.
+        // This tries to initialize EGL to D3D11 Feature Level 9_3, if 10_0+ is unavailable (e.g. on Windows Phone, or certain Windows tablets).
         mEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, fl9_3DisplayAttributes);
         if (mEglDisplay == EGL_NO_DISPLAY)
         {
@@ -93,8 +109,7 @@ void OpenGLES::Initialize()
 
         if (eglInitialize(mEglDisplay, NULL, NULL) == EGL_FALSE)
         {
-            // This call to eglInitialize will return EGL_FALSE if Feature Level 9_3 isn't supported either (for example, on a Surface RT).
-            // We must now use WARP, a fully-featured D3D11 software rasterizer. WARP supports all valid D3D11 feature levels.
+            // This initializes EGL to D3D11 Feature Level 11_0 on WARP, if 9_3+ is unavailable on the default GPU (e.g. on Surface RT).
             mEglDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, warpDisplayAttributes);
             if (mEglDisplay == EGL_NO_DISPLAY)
             {
