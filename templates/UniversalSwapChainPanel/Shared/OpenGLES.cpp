@@ -42,6 +42,10 @@ void OpenGLES::Initialize()
         // These are the default display attributes, used to request ANGLE's D3D11 renderer.
         // eglInitialize will only succeed with these attributes if the hardware supports D3D11 Feature Level 10_0+.
         EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
+
+        // EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER is an optimization that can have large performance benefits on mobile devices.
+        // Its syntax is subject to change, though. Please update your Visual Studio templates if you experience compilation issues with it.
+        EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, EGL_TRUE, 
         EGL_NONE,
     };
     
@@ -52,6 +56,7 @@ void OpenGLES::Initialize()
         EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, 9,
         EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE, 3,
+        EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, EGL_TRUE, 
         EGL_NONE,
     };
 
@@ -61,6 +66,7 @@ void OpenGLES::Initialize()
         // They are used if eglInitialize fails with both the default display attributes and the 9_3 display attributes.
         EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         EGL_PLATFORM_ANGLE_USE_WARP_ANGLE, EGL_TRUE,
+        EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, EGL_TRUE, 
         EGL_NONE,
     };
     
@@ -167,6 +173,14 @@ EGLSurface OpenGLES::CreateSurface(SwapChainPanel^ panel, const Size* renderSurf
 
     EGLSurface surface = EGL_NO_SURFACE;
 
+    const EGLint surfaceAttributes[] =
+    {
+        // EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER is part of the same optimization as EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER (see above).
+        // If you have compilation issues with it then please update your Visual Studio templates.
+        EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER, EGL_TRUE,
+        EGL_NONE
+    };
+    
     // Create a PropertySet and initialize with the EGLNativeWindowType.
     PropertySet^ surfaceCreationProperties = ref new PropertySet();
     surfaceCreationProperties->Insert(ref new String(EGLNativeWindowTypeProperty), panel);
@@ -177,7 +191,7 @@ EGLSurface OpenGLES::CreateSurface(SwapChainPanel^ panel, const Size* renderSurf
         surfaceCreationProperties->Insert(ref new String(EGLRenderSurfaceSizeProperty), PropertyValue::CreateSize(*renderSurfaceSize));
     }
 
-    surface = eglCreateWindowSurface(mEglDisplay, mEglConfig, reinterpret_cast<IInspectable*>(surfaceCreationProperties), NULL);
+    surface = eglCreateWindowSurface(mEglDisplay, mEglConfig, reinterpret_cast<IInspectable*>(surfaceCreationProperties), surfaceAttributes);
     if (surface == EGL_NO_SURFACE)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to create EGL surface");
