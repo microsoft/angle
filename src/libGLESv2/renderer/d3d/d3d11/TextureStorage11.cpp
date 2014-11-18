@@ -684,13 +684,7 @@ void TextureStorage11_2D::pickLevelZeroWorkaroundTexture(bool useLevelZeroTextur
             createTexture2DHelper(mTextureWidth, mTextureHeight, 1, &mLevelZeroTexture);
         }
 
-        if (mTexture == NULL)
-        {
-            // Ensure the texture has been created.
-            createTexture2DHelper(mTextureWidth, mTextureHeight, mMipLevels, &mTexture);
-        }
-
-        if (!mUseLevelZeroTexture)
+        if (!mUseLevelZeroTexture && mTexture != NULL)
         {
             // Pull data back from the mipped texture if necessary.
             ASSERT(mTexture);
@@ -708,13 +702,7 @@ void TextureStorage11_2D::pickLevelZeroWorkaroundTexture(bool useLevelZeroTextur
             createTexture2DHelper(mTextureWidth, mTextureHeight, mMipLevels, &mTexture);
         }
 
-        if (mLevelZeroTexture == NULL)
-        {
-            // Ensure the texture has been created.
-            createTexture2DHelper(mTextureWidth, mTextureHeight, 1, &mLevelZeroTexture);
-        }
-
-        if (mUseLevelZeroTexture)
+        if (mUseLevelZeroTexture && mLevelZeroTexture != NULL)
         {
             // Pull data back from the level zero texture if necessary.
             ASSERT(mLevelZeroTexture);

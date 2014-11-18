@@ -349,7 +349,7 @@ gl::Error TextureD3D::generateMipmaps()
     // Set up proper mipmap chain in our Image array.
     initMipmapsImages();
 
-    if (mRenderer->getWorkarounds().zeroMaxLodWorkaround)
+    if (mTexStorage && mRenderer->getWorkarounds().zeroMaxLodWorkaround)
     {
         // Switch to using the mipmaped texture.
         getNativeTexture()->pickLevelZeroWorkaroundTexture(false);
