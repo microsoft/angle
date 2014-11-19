@@ -486,10 +486,9 @@ void writeFile(const char* path, const void* content, size_t size)
 }
 #endif // !ANGLE_ENABLE_WINDOWS_STORE
 
-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
-
-void Sleep(unsigned long dwMilliseconds)
+void PlatformSleep(unsigned long dwMilliseconds)
 {
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
     static HANDLE singletonEvent = nullptr;
     HANDLE sleepEvent = singletonEvent;
     if (!sleepEvent)
@@ -511,6 +510,8 @@ void Sleep(unsigned long dwMilliseconds)
 
     // Emulate sleep by waiting with timeout on an event that is never signalled.
     WaitForSingleObjectEx(sleepEvent, dwMilliseconds, false);
+#else
+    Sleep(dwMilliseconds);
+#endif
 }
 
-#endif // ANGLE_ENABLE_WINDOWS_STORE

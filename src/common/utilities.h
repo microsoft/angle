@@ -51,8 +51,6 @@ std::string getTempPath();
 void writeFile(const char* path, const void* data, size_t size);
 #endif
 
-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
-void Sleep(_In_ unsigned long dwMilliseconds);
-#endif
+void PlatformSleep(_In_ unsigned long dwMilliseconds);
 
 #endif  // LIBGLESV2_UTILITIES_H
