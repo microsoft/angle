@@ -801,11 +801,18 @@ void Renderer11::setScissorRectangle(const gl::Rectangle &scissor, bool enabled)
     {
         if (enabled)
         {
+            gl::Rectangle actualScissor = scissor;
+
+            if (isCurrentlyRenderingToBackBuffer())
+            {
+                d3d11::InvertYAxis(mRenderTargetDesc.height, &actualScissor);
+            }
+
             D3D11_RECT rect;
-            rect.left = std::max(0, scissor.x);
-            rect.top = std::max(0, scissor.y);
-            rect.right = scissor.x + std::max(0, scissor.width);
-            rect.bottom = scissor.y + std::max(0, scissor.height);
+            rect.left = std::max(0, actualScissor.x);
+            rect.top = std::max(0, actualScissor.y);
+            rect.right = actualScissor.x + std::max(0, actualScissor.width);
+            rect.bottom = actualScissor.y + std::max(0, actualScissor.height);
 
             mDeviceContext->RSSetScissorRects(1, &rect);
         }
@@ -842,7 +849,7 @@ void Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
     {
         // When rendering directly to the swapchain backbuffer, we must invert the viewport in Y-axis.
         // This is due to the differences between the D3D and GL window origins.
-        actualViewport.y = mRenderTargetDesc.height - viewport.y - viewport.height;
+        d3d11::InvertYAxis(mRenderTargetDesc.height, &actualViewport);
     }
 
     const gl::Caps& caps = getRendererCaps();
@@ -2814,11 +2821,19 @@ gl::Error Renderer11::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y,
     area.width = width;
     area.height = height;
 
-    gl::Buffer *packBuffer = pack.pixelBuffer.get();
+    gl::PixelPackState actualPack = pack;
+
+    if (isCurrentlyRenderingToBackBuffer())
+    {
+        d3d11::InvertYAxis(colorbuffer->getHeight(), &area);
+        actualPack.reverseRowOrder = !actualPack.reverseRowOrder;
+    }
+
+    gl::Buffer *packBuffer = actualPack.pixelBuffer.get();
     if (packBuffer != NULL)
     {
         rx::Buffer11 *packBufferStorage = Buffer11::makeBuffer11(packBuffer->getImplementation());
-        PackPixelsParams packParams(area, format, type, outputPitch, pack, reinterpret_cast<ptrdiff_t>(pixels));
+        PackPixelsParams packParams(area, format, type, outputPitch, actualPack, reinterpret_cast<ptrdiff_t>(pixels));
 
         error = packBufferStorage->packPixels(colorBufferTexture, subresourceIndex, packParams);
         if (error.isError())
@@ -2831,7 +2846,7 @@ gl::Error Renderer11::readPixels(gl::Framebuffer *framebuffer, GLint x, GLint y,
     }
     else
     {
-        error = readTextureData(colorBufferTexture, subresourceIndex, area, format, type, outputPitch, pack, pixels);
+        error = readTextureData(colorBufferTexture, subresourceIndex, area, format, type, outputPitch, actualPack, pixels);
         if (error.isError())
         {
             SafeRelease(colorBufferTexture);

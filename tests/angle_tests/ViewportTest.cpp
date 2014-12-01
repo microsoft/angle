@@ -20,6 +20,25 @@ protected:
         mProgram = 0;
     }
 
+    void runNonScissoredTest()
+    {
+        glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        runTest();
+    }
+
+    void runScissoredTest()
+    {
+        glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(0, getWindowHeight() / 2, getWindowWidth(), getWindowHeight() / 2);
+
+        runTest();
+    }
+
     void runTest()
     {
         // Firstly ensure that no errors have been hit.
@@ -27,6 +46,10 @@ protected:
 
         GLint viewportSize[4];
         glGetIntegerv(GL_VIEWPORT, viewportSize);
+
+        // Clear to green. Might be a scissored clear, if scissorSize != window size
+        glClearColor(0, 1, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         // Draw a red quad centered in the middle of the viewport, with dimensions 25% of the size of the viewport.
         drawQuad(mProgram, "position", 0.5f, 0.25f);
@@ -61,14 +84,28 @@ protected:
         checkPixel(viewportSize[0] + viewportSize[2] - 1,  viewportSize[1] + viewportSize[3] - 1, false);
     }
 
-    void checkPixel(GLint x, GLint y, GLboolean expectRed)
+    void checkPixel(GLint x, GLint y, GLboolean renderedRed)
     {
-        GLint expectedRedChannel = expectRed ? 255 : 0;
+        // By default, expect the pixel to be black.
+        GLint expectedRedChannel = 0; 
+        GLint expectedGreenChannel = 0;
+
+        GLint scissorSize[4];
+        glGetIntegerv(GL_SCISSOR_BOX, scissorSize);
+
+        if (scissorSize[0] <= x && x < scissorSize[0] + scissorSize[2]
+            && scissorSize[1] <= y && y < scissorSize[1] + scissorSize[3])
+        {
+            // If the pixel lies within the scissor rect, then it should have been cleared to green.
+            // If we rendered a red square on top of it, then the pixel should be red (the green channel will have been reset to 0).
+            expectedRedChannel = renderedRed ? 255 : 0;
+            expectedGreenChannel = renderedRed ? 0 : 255;
+        }
 
         // If the pixel is within the bounds of the window, then we check it. Otherwise we skip it.
         if (0 <= x && x < getWindowWidth() && 0 <= y && y < getWindowHeight())
         {
-            EXPECT_PIXEL_EQ(x, y, expectedRedChannel, 0, 0, 255);
+            EXPECT_PIXEL_EQ(x, y, expectedRedChannel, expectedGreenChannel, 0, 255);
         }
     }
 
@@ -125,59 +162,89 @@ protected:
 TYPED_TEST(ViewportTest, QuarterWindow)
 {
     glViewport(0, 0, getWindowWidth() / 4, getWindowHeight() / 4);
-    runTest();
+
+    runNonScissoredTest();
+
+    runScissoredTest();
 }
 
 TYPED_TEST(ViewportTest, QuarterWindowCentered)
 {
     glViewport(getWindowWidth() * 3 / 8, getWindowHeight() * 3 / 8, getWindowWidth() / 4, getWindowHeight() / 4);
-    runTest();
+
+    runNonScissoredTest();
+
+    runScissoredTest();
 }
 
 TYPED_TEST(ViewportTest, FullWindow)
 {
     glViewport(0, 0, getWindowWidth(), getWindowHeight());
-    runTest();
+
+    runNonScissoredTest();
+
+    runScissoredTest();
 }
 
 TYPED_TEST(ViewportTest, FullWindowOffCenter)
 {
     glViewport(-getWindowWidth() / 2, getWindowHeight() / 2, getWindowWidth(), getWindowHeight());
-    runTest();
+
+    runNonScissoredTest();
+
+    runScissoredTest();
 }
 
 TYPED_TEST(ViewportTest, DoubleWindow)
 {
     glViewport(0, 0, getWindowWidth() * 2, getWindowHeight() * 2);
-    runTest();
+
+    runNonScissoredTest();
+
+    runScissoredTest();
 }
 
 TYPED_TEST(ViewportTest, DoubleWindowCentered)
 {
     glViewport(-getWindowWidth() / 2, -getWindowHeight() / 2, getWindowWidth() * 2, getWindowHeight() * 2);
-    runTest();
+
+    runNonScissoredTest();
+
+    runScissoredTest();
 }
 
 TYPED_TEST(ViewportTest, DoubleWindowOffCenter)
 {
     glViewport(-getWindowWidth() * 3 / 4, getWindowHeight() * 3 / 4, getWindowWidth(), getWindowHeight());
-    runTest();
+
+    runNonScissoredTest();
+
+    runScissoredTest();
 }
 
 TYPED_TEST(ViewportTest, TripleWindow)
 {
     glViewport(0, 0, getWindowWidth() * 3, getWindowHeight() * 3);
-    runTest();
+
+    runNonScissoredTest();
+
+    runScissoredTest();
 }
 
 TYPED_TEST(ViewportTest, TripleWindowCentered)
 {
     glViewport(-getWindowWidth(), -getWindowHeight(), getWindowWidth() * 3, getWindowHeight() * 3);
-    runTest();
+
+    runNonScissoredTest();
+
+    runScissoredTest();
 }
 
 TYPED_TEST(ViewportTest, TripleWindowOffCenter)
 {
     glViewport(-getWindowWidth() * 3 / 2, -getWindowHeight() * 3 / 2, getWindowWidth() * 3, getWindowHeight() * 3);
-    runTest();
+
+    runNonScissoredTest();
+
+    runScissoredTest();
 }

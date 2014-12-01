@@ -222,30 +222,6 @@ D3D11_QUERY ConvertQueryType(GLenum queryType)
 
 }
 
-namespace d3d11
-{
-    bool IsBackbuffer(ID3D11Resource* resource)
-    {
-        IDXGIResource* dxgiResource = NULL;
-        HRESULT hr = resource->QueryInterface(__uuidof(IDXGIResource), (void**)&dxgiResource);
-
-        if (SUCCEEDED(hr))
-        {
-            DXGI_USAGE usage;
-            hr = dxgiResource->GetUsage(&usage);
-
-            if (SUCCEEDED(hr))
-            {
-                SafeRelease(dxgiResource);
-                return ((usage & DXGI_USAGE_BACK_BUFFER) != 0);
-            }
-        }
-
-        SafeRelease(dxgiResource);
-        return false;
-    }
-}
-
 namespace d3d11_gl
 {
 
@@ -1068,6 +1044,32 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
 
 namespace d3d11
 {
+
+bool IsBackbuffer(ID3D11Resource *resource)
+{
+    IDXGIResource* dxgiResource = NULL;
+    HRESULT hr = resource->QueryInterface(__uuidof(IDXGIResource), (void**)&dxgiResource);
+
+    if (SUCCEEDED(hr))
+    {
+        DXGI_USAGE usage;
+        hr = dxgiResource->GetUsage(&usage);
+
+        if (SUCCEEDED(hr))
+        {
+            SafeRelease(dxgiResource);
+            return ((usage & DXGI_USAGE_BACK_BUFFER) != 0);
+        }
+    }
+
+    SafeRelease(dxgiResource);
+    return false;
+}
+
+void InvertYAxis(GLsizei renderTargetHeight, gl::Rectangle *outRect)
+{
+    outRect->y = renderTargetHeight - outRect->y - outRect->height;
+}
 
 void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsizei *requestHeight, int *levelOffset)
 {
