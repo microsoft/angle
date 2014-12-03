@@ -409,6 +409,22 @@ static bool GetDerivativeInstructionSupport(D3D_FEATURE_LEVEL featureLevel)
     }
 }
 
+static bool GetShaderTextureLODSupport(D3D_FEATURE_LEVEL featureLevel)
+{
+    switch (featureLevel)
+    {
+      case D3D_FEATURE_LEVEL_11_1:
+      case D3D_FEATURE_LEVEL_11_0:
+      case D3D_FEATURE_LEVEL_10_1:
+      case D3D_FEATURE_LEVEL_10_0: return true;
+      case D3D_FEATURE_LEVEL_9_3:
+      case D3D_FEATURE_LEVEL_9_2:
+      case D3D_FEATURE_LEVEL_9_1:  return false;
+
+      default: UNREACHABLE();      return false;
+    }
+}
+
 static size_t GetMaximumSimultaneousRenderTargets(D3D_FEATURE_LEVEL featureLevel)
 {
     // From http://msdn.microsoft.com/en-us/library/windows/desktop/ff476150.aspx ID3D11Device::CreateInputLayout
@@ -1034,7 +1050,7 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
     extensions->instancedArrays = GetInstancingSupport(featureLevel);
     extensions->packReverseRowOrder = true;
     extensions->standardDerivatives = GetDerivativeInstructionSupport(featureLevel);
-    extensions->shaderTextureLOD = true;
+    extensions->shaderTextureLOD = GetShaderTextureLODSupport(featureLevel);
     extensions->fragDepth = true;
     extensions->textureUsage = true; // This could be false since it has no effect in D3D11
     extensions->translatedShaderSource = true;
