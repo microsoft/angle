@@ -3871,7 +3871,7 @@ void GL_APIENTRY glRenderbufferStorageMultisampleANGLE(GLenum target, GLsizei sa
     if (context)
     {
         if (!ValidateRenderbufferStorageParameters(context, target, samples, internalformat,
-                                                   width, height, true))
+                                                   width, height, (samples != 0)))
         {
             return;
         }
