@@ -63,6 +63,7 @@ void InputLayoutCache::initialize(ID3D11Device *device, ID3D11DeviceContext *con
     clear();
     mDevice = device;
     mDeviceContext = context;
+    mFeatureLevel = device->GetFeatureLevel();
 }
 
 void InputLayoutCache::clear()
@@ -101,6 +102,9 @@ gl::Error InputLayoutCache::applyVertexBuffers(TranslatedAttribute attributes[gl
 
     static const char* semanticName = "TEXCOORD";
 
+    unsigned int firstIndexedElement = gl::MAX_VERTEX_ATTRIBS;
+    unsigned int firstInstancedElement = gl::MAX_VERTEX_ATTRIBS;
+
     for (unsigned int i = 0; i < gl::MAX_VERTEX_ATTRIBS; i++)
     {
         if (attributes[i].active)
@@ -122,7 +126,31 @@ gl::Error InputLayoutCache::applyVertexBuffers(TranslatedAttribute attributes[gl
             ilKey.elements[ilKey.elementCount].desc.AlignedByteOffset = 0;
             ilKey.elements[ilKey.elementCount].desc.InputSlotClass = inputClass;
             ilKey.elements[ilKey.elementCount].desc.InstanceDataStepRate = attributes[i].divisor;
+
+            if (inputClass == D3D11_INPUT_PER_VERTEX_DATA
+                && firstIndexedElement == gl::MAX_VERTEX_ATTRIBS)
+            {
+                firstIndexedElement = ilKey.elementCount;
+            }
+            else if(inputClass == D3D11_INPUT_PER_INSTANCE_DATA
+                && firstInstancedElement == gl::MAX_VERTEX_ATTRIBS)
+            {
+                firstInstancedElement = ilKey.elementCount;
+            }
+
             ilKey.elementCount++;
+        }
+    }
+
+    if (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3)
+    {
+        // On 9_3, we must ensure that slot 0 contains non-instanced data.
+        // If slot 0 currently contains instanced data then we swap it with a non-instanced element.
+        // As per the spec for ANGLE_instanced_arrays, not all attributes can be instanced simultaneously, so a non-instanced element must exist.
+        if (firstInstancedElement == 0 && firstIndexedElement != gl::MAX_VERTEX_ATTRIBS)
+        {
+            ilKey.elements[firstInstancedElement].desc.InputSlot = ilKey.elements[firstIndexedElement].desc.InputSlot;
+            ilKey.elements[firstIndexedElement].desc.InputSlot = 0;
         }
     }
 
@@ -220,6 +248,27 @@ gl::Error InputLayoutCache::applyVertexBuffers(TranslatedAttribute attributes[gl
             mCurrentBuffers[i] = buffer;
             mCurrentVertexStrides[i] = vertexStride;
             mCurrentVertexOffsets[i] = vertexOffset;
+        }
+    }
+
+    if (mFeatureLevel <= D3D_FEATURE_LEVEL_9_3)
+    {
+        if (firstInstancedElement == 0 && firstIndexedElement != gl::MAX_VERTEX_ATTRIBS)
+        {
+            // In this case, we swapped the slots of the first instanced element and the first indexed element, to ensure
+            // that the first slot contains non-instanced data (required by Feature Level 9_3).
+            // We must also swap the corresponding buffers sent to IASetVertexBuffers so that the correct data is sent to each slot.
+            ID3D11Buffer* tempBuffer = mCurrentBuffers[firstIndexedElement];
+            UINT tempStride = mCurrentVertexStrides[firstIndexedElement];
+            UINT tempOffset = mCurrentVertexOffsets[firstIndexedElement];
+
+            mCurrentBuffers[firstIndexedElement] = mCurrentBuffers[firstInstancedElement];
+            mCurrentVertexStrides[firstIndexedElement] = mCurrentVertexStrides[firstInstancedElement];
+            mCurrentVertexOffsets[firstIndexedElement] = mCurrentVertexOffsets[firstInstancedElement];
+
+            mCurrentBuffers[firstInstancedElement] = tempBuffer;
+            mCurrentVertexStrides[firstInstancedElement] = tempStride;
+            mCurrentVertexOffsets[firstInstancedElement] = tempOffset;
         }
     }
 

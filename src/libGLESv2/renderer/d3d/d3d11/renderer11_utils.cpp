@@ -376,10 +376,12 @@ static bool GetInstancingSupport(D3D_FEATURE_LEVEL featureLevel)
       case D3D_FEATURE_LEVEL_10_1:
       case D3D_FEATURE_LEVEL_10_0: return true;
 
-      // D3D_FEATURE_LEVEL_9_3 supports instancing, but the first input slot in the input layout must contain per-vertex data.
-      // This is difficult to enforce in ANGLE, so we disable instancing entirely. 
-      // TODO: Add support for instancing on 9_3.
-      case D3D_FEATURE_LEVEL_9_3:
+      // Feature Level 9_3 supports instancing, but slot 0 in the input layout must not be instanced.
+      // D3D9 has a similar restriction, where stream 0 must not be instanced.
+      // This restriction can be worked around by remapping any non-instanced slot to slot 0. 
+      // This works because HLSL uses shader semantics to match the vertex inputs to the elements in the input layout, rather than the slots.
+      case D3D_FEATURE_LEVEL_9_3:  return true;
+
       case D3D_FEATURE_LEVEL_9_2:
       case D3D_FEATURE_LEVEL_9_1:  return false;
 
