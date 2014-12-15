@@ -656,6 +656,12 @@ DefaultFramebuffer::DefaultFramebuffer(rx::Renderer *renderer, Colorbuffer *colo
         mDepthbuffer = (depthStencilFormatInfo.depthBits != 0 ? new RenderbufferAttachment(GL_DEPTH_ATTACHMENT, depthStencilBuffer) : NULL);
         mStencilbuffer = (depthStencilFormatInfo.stencilBits != 0 ? new RenderbufferAttachment(GL_STENCIL_ATTACHMENT, depthStencilBuffer) : NULL);
     }
+    else 
+    {
+        // depthStencilBuffer's destructor would be responsible for the deleting depthStencil.
+        // Since we've not created depthStencilBuffer, we should immediately delete depthStencil.
+        SafeDelete(depthStencil); 
+    }
 
     mDrawBufferStates[0] = GL_BACK;
     mReadBufferState = GL_BACK;
