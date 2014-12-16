@@ -732,7 +732,9 @@ gl::Error TextureD3D_2D::copyImage(GLenum target, GLint level, GLenum format, GL
     gl::Rectangle sourceRect(x, y, width, height);
     gl::ImageIndex index = gl::ImageIndex::Make2D(level);
 
-    if (!canCreateRenderTargetForImage(index))
+    // If the zero max LOD workaround is active, then we can't sample from individual layers of the framebuffer in shaders,
+    // so we should use the non-rendering copy path.
+    if (!canCreateRenderTargetForImage(index) || mRenderer->getWorkarounds().zeroMaxLodWorkaround)
     {
         gl::Error error = mImageArray[level]->copy(0, 0, 0, sourceRect, source);
         if (error.isError())
