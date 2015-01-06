@@ -1,6 +1,15 @@
-These Visual Studio 2013 templates demonstrate how to create different types of Windows applications for OpenGL ES.
+These Visual Studio 2013 templates demonstrate how to create different types of Windows applications
+for OpenGL ES.
 
-To add these templates to your installation of Visual Studio 2013:
+Template descriptions:
+    1) UniversalSwapChainPanel - for Windows Store (PC and Phone), uses XAML
+    2) UniversalCoreWindow     - for Windows Store (PC and Phone), no XAML
+    3) DesktopHelloTriangle    - for classic Windows desktop
+
+Requirements:
+    1)  Visual Studio Community 2013 (Update 4), or higher/later
+
+Template installation instructions:
     1)  Browse to your Visual Studio 2013 custom project templates folder. By default, this is 
         located here:
             %userprofile%\Documents\Visual Studio 2013\Templates\ProjectTemplates
@@ -13,12 +22,16 @@ To add these templates to your installation of Visual Studio 2013:
         directory.
     6)  Restart/Launch Visual Studio 2013, and then go File -> New Project -> Visual C++. The templates 
         should be available under 'Store Apps\Universal Apps' and 'Win32'.
-
-Before you can build a project based on these templates, you must:
-    1)  Clone an ANGLE repository that includes WinRT support (if you haven't already done so).
+        
+Building/configuring ANGLE to use in the templates:
+    1)  Clone an ANGLE repository if you haven't already done so.
     2)  Set the 'AngleRootPath' system environment variable to the location of your ANGLE source.
     3)  Open one of the following solution files to build Windows Store 8.1 compatible ANGLE binaries:
             $(AngleRootPath)\projects\winrt\windows\src\angle.sln
             $(AngleRootPath)\projects\winrt\windowsphone\src\angle.sln
-        and build the flavors of ANGLE that you wish to use in your project created above, 
-        e.g. Release/ARM/WindowsPhone.
+        Or use the following solution file to build classic Windows desktop compatible ANGLE binaries:
+            $(AngleRootPath)\projects\src\angle.sln
+    4)  Build the flavors of ANGLE that you wish to use, e.g. Release/ARM/WindowsPhone.
+        
+Now create a new project based on one of the templates. When you build your project, it should 
+automatically pick up the correct ANGLE binaries and successfully deploy to your chosen device.
