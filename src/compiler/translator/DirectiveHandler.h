@@ -4,8 +4,8 @@
 // found in the LICENSE file.
 //
 
-#ifndef COMPILER_DIRECTIVE_HANDLER_H_
-#define COMPILER_DIRECTIVE_HANDLER_H_
+#ifndef COMPILER_TRANSLATOR_DIRECTIVEHANDLER_H_
+#define COMPILER_TRANSLATOR_DIRECTIVEHANDLER_H_
 
 #include "compiler/translator/ExtensionBehavior.h"
 #include "compiler/translator/Pragma.h"
@@ -18,7 +18,8 @@ class TDirectiveHandler : public pp::DirectiveHandler
   public:
     TDirectiveHandler(TExtensionBehavior& extBehavior,
                       TDiagnostics& diagnostics,
-                      int& shaderVersion);
+                      int& shaderVersion,
+                      bool debugShaderPrecisionSupported);
     virtual ~TDirectiveHandler();
 
     const TPragma& pragma() const { return mPragma; }
@@ -44,6 +45,7 @@ class TDirectiveHandler : public pp::DirectiveHandler
     TExtensionBehavior& mExtensionBehavior;
     TDiagnostics& mDiagnostics;
     int& mShaderVersion;
+    bool mDebugShaderPrecisionSupported;
 };
 
-#endif  // COMPILER_DIRECTIVE_HANDLER_H_
+#endif  // COMPILER_TRANSLATOR_DIRECTIVEHANDLER_H_

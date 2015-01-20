@@ -6,6 +6,7 @@
 
 #include "compiler/translator/TranslatorESSL.h"
 
+#include "compiler/translator/EmulatePrecision.h"
 #include "compiler/translator/OutputESSL.h"
 #include "angle_gl.h"
 
@@ -21,6 +22,16 @@ void TranslatorESSL::translate(TIntermNode* root) {
     // Write built-in extension behaviors.
     writeExtensionBehavior();
 
+    bool precisionEmulation = getResources().WEBGL_debug_shader_precision && getPragma().debugShaderPrecision;
+
+    if (precisionEmulation)
+    {
+        EmulatePrecision emulatePrecision;
+        root->traverse(&emulatePrecision);
+        emulatePrecision.updateTree();
+        emulatePrecision.writeEmulationHelpers(sink, SH_ESSL_OUTPUT);
+    }
+
     // Write emulated built-in functions if needed.
     getBuiltInFunctionEmulator().OutputEmulatedFunctionDefinition(
         sink, getShaderType() == GL_FRAGMENT_SHADER);
@@ -29,7 +40,7 @@ void TranslatorESSL::translate(TIntermNode* root) {
     getArrayBoundsClamper().OutputClampingFunctionDefinition(sink);
 
     // Write translated shader.
-    TOutputESSL outputESSL(sink, getArrayIndexClampingStrategy(), getHashFunction(), getNameMap(), getSymbolTable(), getShaderVersion());
+    TOutputESSL outputESSL(sink, getArrayIndexClampingStrategy(), getHashFunction(), getNameMap(), getSymbolTable(), getShaderVersion(), precisionEmulation);
     root->traverse(&outputESSL);
 }
 
@@ -39,7 +50,10 @@ void TranslatorESSL::writeExtensionBehavior() {
     for (TExtensionBehavior::const_iterator iter = extensionBehavior.begin();
          iter != extensionBehavior.end(); ++iter) {
         if (iter->second != EBhUndefined) {
-            if (getResources().NV_draw_buffers && iter->first == "GL_EXT_draw_buffers") {
+            if (getResources().NV_shader_framebuffer_fetch && iter->first == "GL_EXT_shader_framebuffer_fetch") {
+                sink << "#extension GL_NV_shader_framebuffer_fetch : "
+                     << getBehaviorString(iter->second) << "\n";
+            } else if (getResources().NV_draw_buffers && iter->first == "GL_EXT_draw_buffers") {
                 sink << "#extension GL_NV_draw_buffers : "
                      << getBehaviorString(iter->second) << "\n";
             } else {

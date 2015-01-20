@@ -6,26 +6,27 @@
 
 #include "compiler/translator/OutputHLSL.h"
 
-#include "common/angleutils.h"
-#include "common/utilities.h"
-#include "common/blocklayout.h"
-#include "compiler/translator/compilerdebug.h"
-#include "compiler/translator/InfoSink.h"
-#include "compiler/translator/DetectDiscontinuity.h"
-#include "compiler/translator/SearchSymbol.h"
-#include "compiler/translator/UnfoldShortCircuit.h"
-#include "compiler/translator/FlagStd140Structs.h"
-#include "compiler/translator/NodeSearch.h"
-#include "compiler/translator/RewriteElseBlocks.h"
-#include "compiler/translator/UtilsHLSL.h"
-#include "compiler/translator/util.h"
-#include "compiler/translator/UniformHLSL.h"
-#include "compiler/translator/StructureHLSL.h"
-#include "compiler/translator/TranslatorHLSL.h"
-
 #include <algorithm>
 #include <cfloat>
 #include <stdio.h>
+
+#include "common/angleutils.h"
+#include "common/utilities.h"
+#include "compiler/translator/BuiltInFunctionEmulatorHLSL.h"
+#include "compiler/translator/DetectDiscontinuity.h"
+#include "compiler/translator/FlagStd140Structs.h"
+#include "compiler/translator/InfoSink.h"
+#include "compiler/translator/NodeSearch.h"
+#include "compiler/translator/RewriteElseBlocks.h"
+#include "compiler/translator/SearchSymbol.h"
+#include "compiler/translator/StructureHLSL.h"
+#include "compiler/translator/TranslatorHLSL.h"
+#include "compiler/translator/UnfoldShortCircuit.h"
+#include "compiler/translator/UniformHLSL.h"
+#include "compiler/translator/UtilsHLSL.h"
+#include "compiler/translator/blocklayout.h"
+#include "compiler/translator/compilerdebug.h"
+#include "compiler/translator/util.h"
 
 namespace sh
 {
@@ -111,21 +112,6 @@ OutputHLSL::OutputHLSL(TParseContext &context, TranslatorHLSL *parentTranslator)
     mUsesPointSize = false;
     mUsesFragDepth = false;
     mUsesXor = false;
-    mUsesMod1 = false;
-    mUsesMod2v = false;
-    mUsesMod2f = false;
-    mUsesMod3v = false;
-    mUsesMod3f = false;
-    mUsesMod4v = false;
-    mUsesMod4f = false;
-    mUsesFaceforward1 = false;
-    mUsesFaceforward2 = false;
-    mUsesFaceforward3 = false;
-    mUsesFaceforward4 = false;
-    mUsesAtan2_1 = false;
-    mUsesAtan2_2 = false;
-    mUsesAtan2_3 = false;
-    mUsesAtan2_4 = false;
     mUsesDiscardRewriting = false;
     mUsesNestedBreak = false;
 
@@ -135,6 +121,7 @@ OutputHLSL::OutputHLSL(TParseContext &context, TranslatorHLSL *parentTranslator)
     mUniqueIndex = 0;
 
     mContainsLoopDiscontinuity = false;
+    mContainsAnyLoop = false;
     mOutputLod0Function = false;
     mInsideDiscontinuousLoop = false;
     mNestedLoopDepth = 0;
@@ -153,8 +140,8 @@ OutputHLSL::OutputHLSL(TParseContext &context, TranslatorHLSL *parentTranslator)
         }
         else
         {
-            // Reserve registers for dx_DepthRange and dx_ViewAdjust
-            mUniformHLSL->reserveUniformRegisters(2);
+            // Reserve registers for dx_DepthRange, dx_ViewAdjust and dx_ViewCoords
+            mUniformHLSL->reserveUniformRegisters(3);
         }
     }
 
@@ -172,6 +159,7 @@ OutputHLSL::~OutputHLSL()
 void OutputHLSL::output()
 {
     mContainsLoopDiscontinuity = mContext.shaderType == GL_FRAGMENT_SHADER && containsLoopDiscontinuity(mContext.treeRoot);
+    mContainsAnyLoop = containsAnyLoop(mContext.treeRoot);
     const std::vector<TIntermTyped*> &flaggedStructs = FlagStd140ValueStructs(mContext.treeRoot);
     makeFlaggedStructMaps(flaggedStructs);
 
@@ -182,11 +170,16 @@ void OutputHLSL::output()
         RewriteElseBlocks(mContext.treeRoot);
     }
 
+    BuiltInFunctionEmulatorHLSL builtInFunctionEmulator;
+    builtInFunctionEmulator.MarkBuiltInFunctionsForEmulation(mContext.treeRoot);
     mContext.treeRoot->traverse(this);   // Output the body first to determine what has to go in the header
-    header();
+    header(&builtInFunctionEmulator);
 
-    mContext.infoSink().obj << mHeader.c_str();
-    mContext.infoSink().obj << mBody.c_str();
+    TInfoSinkBase& sink = mContext.infoSink().obj;
+    sink << mHeader.c_str();
+    sink << mBody.c_str();
+
+    builtInFunctionEmulator.Cleanup();
 }
 
 void OutputHLSL::makeFlaggedStructMaps(const std::vector<TIntermTyped *> &flaggedStructs)
@@ -275,7 +268,7 @@ TString OutputHLSL::structInitializerString(int indent, const TStructure &struct
     return init;
 }
 
-void OutputHLSL::header()
+void OutputHLSL::header(const BuiltInFunctionEmulatorHLSL *builtInFunctionEmulator)
 {
     TInfoSinkBase &out = mHeader;
 
@@ -428,11 +421,6 @@ void OutputHLSL::header()
                 out << "    float3 dx_DepthFront : packoffset(c2);\n";
             }
 
-            if (mUsesFragCoord)
-            {
-                out << "    float2 dx_ViewScale : packoffset(c3);\n";
-            }
-
             out << "};\n";
         }
         else
@@ -521,17 +509,15 @@ void OutputHLSL::header()
             {
                 out << "    float3 dx_DepthRange : packoffset(c0);\n";
             }
-            
-            // dx_ViewAdjust will only be used in Feature Level 9 shaders.
+
+            // dx_ViewAdjust and dx_ViewCoords will only be used in Feature Level 9 shaders.
             // However, we declare it for all shaders (including Feature Level 10+).
             // The bytecode is the same whether we declare it or not, since D3DCompiler removes it if it's unused.
             out << "    float4 dx_ViewAdjust : packoffset(c1);\n";
-
-            // Similarly, D3DCompiler will remove dx_ViewScale if it's unused.
-            out << "    float2 dx_ViewScale : packoffset(c2);\n";
+            out << "    float2 dx_ViewCoords : packoffset(c2);\n";
 
             out << "};\n"
-                    "\n";
+                   "\n";
         }
         else
         {
@@ -540,7 +526,8 @@ void OutputHLSL::header()
                 out << "uniform float3 dx_DepthRange : register(c0);\n";
             }
 
-            out << "uniform float4 dx_ViewAdjust : register(c1);\n"
+            out << "uniform float4 dx_ViewAdjust : register(c1);\n";
+            out << "uniform float2 dx_ViewCoords : register(c2);\n"
                    "\n";
         }
 
@@ -1218,174 +1205,7 @@ void OutputHLSL::header()
                "\n";
     }
 
-    if (mUsesMod1)
-    {
-        out << "float mod(float x, float y)\n"
-               "{\n"
-               "    return x - y * floor(x / y);\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesMod2v)
-    {
-        out << "float2 mod(float2 x, float2 y)\n"
-               "{\n"
-               "    return x - y * floor(x / y);\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesMod2f)
-    {
-        out << "float2 mod(float2 x, float y)\n"
-               "{\n"
-               "    return x - y * floor(x / y);\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesMod3v)
-    {
-        out << "float3 mod(float3 x, float3 y)\n"
-               "{\n"
-               "    return x - y * floor(x / y);\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesMod3f)
-    {
-        out << "float3 mod(float3 x, float y)\n"
-               "{\n"
-               "    return x - y * floor(x / y);\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesMod4v)
-    {
-        out << "float4 mod(float4 x, float4 y)\n"
-               "{\n"
-               "    return x - y * floor(x / y);\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesMod4f)
-    {
-        out << "float4 mod(float4 x, float y)\n"
-               "{\n"
-               "    return x - y * floor(x / y);\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesFaceforward1)
-    {
-        out << "float faceforward(float N, float I, float Nref)\n"
-               "{\n"
-               "    if(dot(Nref, I) >= 0)\n"
-               "    {\n"
-               "        return -N;\n"
-               "    }\n"
-               "    else\n"
-               "    {\n"
-               "        return N;\n"
-               "    }\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesFaceforward2)
-    {
-        out << "float2 faceforward(float2 N, float2 I, float2 Nref)\n"
-               "{\n"
-               "    if(dot(Nref, I) >= 0)\n"
-               "    {\n"
-               "        return -N;\n"
-               "    }\n"
-               "    else\n"
-               "    {\n"
-               "        return N;\n"
-               "    }\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesFaceforward3)
-    {
-        out << "float3 faceforward(float3 N, float3 I, float3 Nref)\n"
-               "{\n"
-               "    if(dot(Nref, I) >= 0)\n"
-               "    {\n"
-               "        return -N;\n"
-               "    }\n"
-               "    else\n"
-               "    {\n"
-               "        return N;\n"
-               "    }\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesFaceforward4)
-    {
-        out << "float4 faceforward(float4 N, float4 I, float4 Nref)\n"
-               "{\n"
-               "    if(dot(Nref, I) >= 0)\n"
-               "    {\n"
-               "        return -N;\n"
-               "    }\n"
-               "    else\n"
-               "    {\n"
-               "        return N;\n"
-               "    }\n"
-               "}\n"
-               "\n";
-    }
-
-    if (mUsesAtan2_1)
-    {
-        out << "float atanyx(float y, float x)\n"
-               "{\n"
-               "    if(x == 0 && y == 0) x = 1;\n"   // Avoid producing a NaN
-               "    return atan2(y, x);\n"
-               "}\n";
-    }
-
-    if (mUsesAtan2_2)
-    {
-        out << "float2 atanyx(float2 y, float2 x)\n"
-               "{\n"
-               "    if(x[0] == 0 && y[0] == 0) x[0] = 1;\n"
-               "    if(x[1] == 0 && y[1] == 0) x[1] = 1;\n"
-               "    return float2(atan2(y[0], x[0]), atan2(y[1], x[1]));\n"
-               "}\n";
-    }
-
-    if (mUsesAtan2_3)
-    {
-        out << "float3 atanyx(float3 y, float3 x)\n"
-               "{\n"
-               "    if(x[0] == 0 && y[0] == 0) x[0] = 1;\n"
-               "    if(x[1] == 0 && y[1] == 0) x[1] = 1;\n"
-               "    if(x[2] == 0 && y[2] == 0) x[2] = 1;\n"
-               "    return float3(atan2(y[0], x[0]), atan2(y[1], x[1]), atan2(y[2], x[2]));\n"
-               "}\n";
-    }
-
-    if (mUsesAtan2_4)
-    {
-        out << "float4 atanyx(float4 y, float4 x)\n"
-               "{\n"
-               "    if(x[0] == 0 && y[0] == 0) x[0] = 1;\n"
-               "    if(x[1] == 0 && y[1] == 0) x[1] = 1;\n"
-               "    if(x[2] == 0 && y[2] == 0) x[2] = 1;\n"
-               "    if(x[3] == 0 && y[3] == 0) x[3] = 1;\n"
-               "    return float4(atan2(y[0], x[0]), atan2(y[1], x[1]), atan2(y[2], x[2]), atan2(y[3], x[3]));\n"
-               "}\n";
-    }
+    builtInFunctionEmulator->OutputEmulatedFunctionDefinition(out);
 }
 
 void OutputHLSL::visitSymbol(TIntermSymbol *node)
@@ -1577,6 +1397,12 @@ bool OutputHLSL::visitBinary(Visit visit, TIntermBinary *node)
         }
         break;
       case EOpDivAssign:               outputTriplet(visit, "(", " /= ", ")");          break;
+      case EOpModAssign:               outputTriplet(visit, "(", " %= ", ")");          break;
+      case EOpBitShiftLeftAssign:      outputTriplet(visit, "(", " <<= ", ")");         break;
+      case EOpBitShiftRightAssign:     outputTriplet(visit, "(", " >>= ", ")");         break;
+      case EOpBitwiseAndAssign:        outputTriplet(visit, "(", " &= ", ")");          break;
+      case EOpBitwiseXorAssign:        outputTriplet(visit, "(", " ^= ", ")");          break;
+      case EOpBitwiseOrAssign:         outputTriplet(visit, "(", " |= ", ")");          break;
       case EOpIndexDirect:
         {
             const TType& leftType = node->getLeft()->getType();
@@ -1664,6 +1490,12 @@ bool OutputHLSL::visitBinary(Visit visit, TIntermBinary *node)
       case EOpSub:               outputTriplet(visit, "(", " - ", ")"); break;
       case EOpMul:               outputTriplet(visit, "(", " * ", ")"); break;
       case EOpDiv:               outputTriplet(visit, "(", " / ", ")"); break;
+      case EOpMod:               outputTriplet(visit, "(", " % ", ")"); break;
+      case EOpBitShiftLeft:      outputTriplet(visit, "(", " << ", ")"); break;
+      case EOpBitShiftRight:     outputTriplet(visit, "(", " >> ", ")"); break;
+      case EOpBitwiseAnd:        outputTriplet(visit, "(", " & ", ")"); break;
+      case EOpBitwiseXor:        outputTriplet(visit, "(", " ^ ", ")"); break;
+      case EOpBitwiseOr:         outputTriplet(visit, "(", " | ", ")"); break;
       case EOpEqual:
       case EOpNotEqual:
         if (node->getLeft()->isScalar())
@@ -1773,6 +1605,7 @@ bool OutputHLSL::visitUnary(Visit visit, TIntermUnary *node)
       case EOpPositive:         outputTriplet(visit, "(+", "", ")");         break;
       case EOpVectorLogicalNot: outputTriplet(visit, "(!", "", ")");         break;
       case EOpLogicalNot:       outputTriplet(visit, "(!", "", ")");         break;
+      case EOpBitwiseNot:       outputTriplet(visit, "(~", "", ")");         break;
       case EOpPostIncrement:    outputTriplet(visit, "(", "", "++)");        break;
       case EOpPostDecrement:    outputTriplet(visit, "(", "", "--)");        break;
       case EOpPreIncrement:     outputTriplet(visit, "(++", "", ")");        break;
@@ -1785,6 +1618,21 @@ bool OutputHLSL::visitUnary(Visit visit, TIntermUnary *node)
       case EOpAsin:             outputTriplet(visit, "asin(", "", ")");      break;
       case EOpAcos:             outputTriplet(visit, "acos(", "", ")");      break;
       case EOpAtan:             outputTriplet(visit, "atan(", "", ")");      break;
+      case EOpSinh:             outputTriplet(visit, "sinh(", "", ")");      break;
+      case EOpCosh:             outputTriplet(visit, "cosh(", "", ")");      break;
+      case EOpTanh:             outputTriplet(visit, "tanh(", "", ")");      break;
+      case EOpAsinh:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "asinh(");
+        break;
+      case EOpAcosh:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "acosh(");
+        break;
+      case EOpAtanh:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "atanh(");
+        break;
       case EOpExp:              outputTriplet(visit, "exp(", "", ")");       break;
       case EOpLog:              outputTriplet(visit, "log(", "", ")");       break;
       case EOpExp2:             outputTriplet(visit, "exp2(", "", ")");      break;
@@ -1796,6 +1644,34 @@ bool OutputHLSL::visitUnary(Visit visit, TIntermUnary *node)
       case EOpFloor:            outputTriplet(visit, "floor(", "", ")");     break;
       case EOpCeil:             outputTriplet(visit, "ceil(", "", ")");      break;
       case EOpFract:            outputTriplet(visit, "frac(", "", ")");      break;
+      case EOpFloatBitsToInt:   outputTriplet(visit, "asint(", "", ")");     break;
+      case EOpFloatBitsToUint:  outputTriplet(visit, "asuint(", "", ")");    break;
+      case EOpIntBitsToFloat:   outputTriplet(visit, "asfloat(", "", ")");   break;
+      case EOpUintBitsToFloat:  outputTriplet(visit, "asfloat(", "", ")");   break;
+      case EOpPackSnorm2x16:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "packSnorm2x16(");
+        break;
+      case EOpPackUnorm2x16:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "packUnorm2x16(");
+        break;
+      case EOpPackHalf2x16:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "packHalf2x16(");
+        break;
+      case EOpUnpackSnorm2x16:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "unpackSnorm2x16(");
+        break;
+      case EOpUnpackUnorm2x16:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "unpackUnorm2x16(");
+        break;
+      case EOpUnpackHalf2x16:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "unpackHalf2x16(");
+        break;
       case EOpLength:           outputTriplet(visit, "length(", "", ")");    break;
       case EOpNormalize:        outputTriplet(visit, "normalize(", "", ")"); break;
       case EOpDFdx:
@@ -1828,6 +1704,13 @@ bool OutputHLSL::visitUnary(Visit visit, TIntermUnary *node)
             outputTriplet(visit, "fwidth(", "", ")");
         }
         break;
+      case EOpTranspose:        outputTriplet(visit, "transpose(", "", ")");   break;
+      case EOpDeterminant:      outputTriplet(visit, "determinant(transpose(", "", "))"); break;
+      case EOpInverse:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "inverse(");
+        break;
+
       case EOpAny:              outputTriplet(visit, "any(", "", ")");       break;
       case EOpAll:              outputTriplet(visit, "all(", "", ")");       break;
       default: UNREACHABLE();
@@ -1954,7 +1837,7 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
       case EOpPrototype:
         if (visit == PreVisit)
         {
-            out << TypeString(node->getType()) << " " << Decorate(node->getName()) << (mOutputLod0Function ? "Lod0(" : "(");
+            out << TypeString(node->getType()) << " " << Decorate(TFunction::unmangleName(node->getName())) << (mOutputLod0Function ? "Lod0(" : "(");
 
             TIntermSequence *arguments = node->getSequence();
 
@@ -2240,37 +2123,14 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
       case EOpVectorEqual:      outputTriplet(visit, "(", " == ", ")");                break;
       case EOpVectorNotEqual:   outputTriplet(visit, "(", " != ", ")");                break;
       case EOpMod:
-        {
-            // We need to look at the number of components in both arguments
-            const int modValue = (*node->getSequence())[0]->getAsTyped()->getNominalSize() * 10 +
-                (*node->getSequence())[1]->getAsTyped()->getNominalSize();
-            switch (modValue)
-            {
-              case 11: mUsesMod1 = true; break;
-              case 22: mUsesMod2v = true; break;
-              case 21: mUsesMod2f = true; break;
-              case 33: mUsesMod3v = true; break;
-              case 31: mUsesMod3f = true; break;
-              case 44: mUsesMod4v = true; break;
-              case 41: mUsesMod4f = true; break;
-              default: UNREACHABLE();
-            }
-
-            outputTriplet(visit, "mod(", ", ", ")");
-        }
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "mod(");
         break;
       case EOpPow:              outputTriplet(visit, "pow(", ", ", ")");               break;
       case EOpAtan:
         ASSERT(node->getSequence()->size() == 2);   // atan(x) is a unary operator
-        switch ((*node->getSequence())[0]->getAsTyped()->getNominalSize())
-        {
-          case 1: mUsesAtan2_1 = true; break;
-          case 2: mUsesAtan2_2 = true; break;
-          case 3: mUsesAtan2_3 = true; break;
-          case 4: mUsesAtan2_4 = true; break;
-          default: UNREACHABLE();
-        }
-        outputTriplet(visit, "atanyx(", ", ", ")");
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "atan(");
         break;
       case EOpMin:           outputTriplet(visit, "min(", ", ", ")");           break;
       case EOpMax:           outputTriplet(visit, "max(", ", ", ")");           break;
@@ -2282,21 +2142,15 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
       case EOpDot:           outputTriplet(visit, "dot(", ", ", ")");           break;
       case EOpCross:         outputTriplet(visit, "cross(", ", ", ")");         break;
       case EOpFaceForward:
-        {
-            switch ((*node->getSequence())[0]->getAsTyped()->getNominalSize())   // Number of components in the first argument
-            {
-            case 1: mUsesFaceforward1 = true; break;
-            case 2: mUsesFaceforward2 = true; break;
-            case 3: mUsesFaceforward3 = true; break;
-            case 4: mUsesFaceforward4 = true; break;
-            default: UNREACHABLE();
-            }
-
-            outputTriplet(visit, "faceforward(", ", ", ")");
-        }
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "faceforward(");
         break;
       case EOpReflect:       outputTriplet(visit, "reflect(", ", ", ")");       break;
       case EOpRefract:       outputTriplet(visit, "refract(", ", ", ")");       break;
+      case EOpOuterProduct:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "outerProduct(");
+        break;
       case EOpMul:           outputTriplet(visit, "(", " * ", ")");             break;
       default: UNREACHABLE();
     }
@@ -2316,7 +2170,16 @@ bool OutputHLSL::visitSelection(Visit visit, TIntermSelection *node)
     {
         mUnfoldShortCircuit->traverse(node->getCondition());
 
-        out << "FLATTEN if (";
+        // D3D errors when there is a gradient operation in a loop in an unflattened if
+        // however flattening all the ifs in branch heavy shaders made D3D error too.
+        // As a temporary workaround we flatten the ifs only if there is at least a loop
+        // present somewhere in the shader.
+        if (mContext.shaderType == GL_FRAGMENT_SHADER && mContainsAnyLoop)
+        {
+            out << "FLATTEN ";
+        }
+
+        out << "if (";
 
         node->getCondition()->traverse(this);
 
@@ -2914,6 +2777,12 @@ const ConstantUnion *OutputHLSL::writeConstantUnion(const TType &type, const Con
     }
 
     return constUnion;
+}
+
+void OutputHLSL::writeEmulatedFunctionTriplet(Visit visit, const char *preStr)
+{
+    TString preString = BuiltInFunctionEmulator::GetEmulatedFunctionName(preStr);
+    outputTriplet(visit, preString.c_str(), ", ", ")");
 }
 
 }

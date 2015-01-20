@@ -26,8 +26,6 @@
 #include <windows.h>
 #include "common/platform.h"
 
-#if !defined(ANGLE_ENABLE_WINDOWS_STORE)
-
 #if _WIN32_WINNT_WINBLUE
 #include <versionhelpers.h>
 #endif
@@ -65,5 +63,3 @@ bool isWindowsVistaOrGreater()
 }
 
 } // namespace rx
-
-#endif // !defined (ANGLE_ENABLE_WINDOWS_STORE)

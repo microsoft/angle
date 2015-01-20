@@ -1,12 +1,13 @@
 #include "ANGLETest.h"
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
+// D3D11 Feature Level 9 and D3D9 emulate large and negative viewports in the vertex shader. We should test both of these as well as D3D11 Feature Level 10_0+.
 ANGLE_TYPED_TEST_CASE(ViewportTest, ES2_D3D9, ES2_D3D11, ES2_D3D11_FL9_3);
 
 template<typename T>
 class ViewportTest : public ANGLETest
 {
-protected:
+  protected:
     ViewportTest() : ANGLETest(T::GetGlesMajorVersion(), T::GetPlatform())
     {
         setWindowWidth(512);
@@ -56,7 +57,7 @@ protected:
 
         GLint centerViewportX = viewportSize[0] + (viewportSize[2] / 2);
         GLint centerViewportY = viewportSize[1] + (viewportSize[3] / 2);
-        
+
         GLint redQuadLeftSideX   = viewportSize[0] + viewportSize[2] * 3 / 8;
         GLint redQuadRightSideX  = viewportSize[0] + viewportSize[2] * 5 / 8;
         GLint redQuadTopSideY    = viewportSize[1] + viewportSize[3] * 3 / 8;
@@ -71,13 +72,13 @@ protected:
         checkPixel(redQuadRightSideX - 1, redQuadTopSideY,        true);
         checkPixel(redQuadRightSideX - 1, redQuadBottomSideY - 1, true);
 
-        // Pixels just outside the red quad should be black.
+        // Pixels just outside the red quad shouldn't be red.
         checkPixel(redQuadLeftSideX - 1,  redQuadTopSideY - 1, false);
         checkPixel(redQuadLeftSideX - 1,  redQuadBottomSideY,  false);
         checkPixel(redQuadRightSideX,     redQuadTopSideY - 1, false);
         checkPixel(redQuadRightSideX,     redQuadBottomSideY,  false);
 
-        // Pixels just within the viewport should be black.
+        // Pixels just within the viewport shouldn't be red.
         checkPixel(viewportSize[0],                        viewportSize[1],                       false);
         checkPixel(viewportSize[0],                        viewportSize[1] + viewportSize[3] - 1, false);
         checkPixel(viewportSize[0] + viewportSize[2] - 1,  viewportSize[1],                       false);
@@ -87,11 +88,13 @@ protected:
     void checkPixel(GLint x, GLint y, GLboolean renderedRed)
     {
         // By default, expect the pixel to be black.
-        GLint expectedRedChannel = 0; 
+        GLint expectedRedChannel = 0;
         GLint expectedGreenChannel = 0;
 
         GLint scissorSize[4];
         glGetIntegerv(GL_SCISSOR_BOX, scissorSize);
+
+        EXPECT_GL_NO_ERROR();
 
         if (scissorSize[0] <= x && x < scissorSize[0] + scissorSize[2]
             && scissorSize[1] <= y && y < scissorSize[1] + scissorSize[3])
@@ -139,7 +142,7 @@ protected:
 
         glUseProgram(mProgram);
 
-        glClearColor(0, 0, 0, 255);
+        glClearColor(0, 0, 0, 1);
         glClearDepthf(0.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

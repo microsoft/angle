@@ -134,7 +134,6 @@ protected:
 
     void runTest2D()
     {
-        glGetError();
         glUseProgram(mProgram);
         glBindTexture(GL_TEXTURE_2D, mTexture);
         glUniform1i(mTextureUniformLocation, 0);
@@ -209,7 +208,7 @@ TYPED_TEST(SwizzleTest, RG8_2D)
 TYPED_TEST(SwizzleTest, R8_2D)
 {
     GLubyte data[] = { 2 };
-    init2DTexture<GLubyte>(GL_R8, GL_RED, GL_UNSIGNED_BYTE, data);
+    init2DTexture(GL_R8, GL_RED, GL_UNSIGNED_BYTE, data);
     runTest2D();
 }
 

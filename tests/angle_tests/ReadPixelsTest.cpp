@@ -202,13 +202,11 @@ TYPED_TEST(ReadPixelsTest, PBOAndSubData)
     unsigned char *dataPtr = static_cast<unsigned char *>(mappedPtr);
     EXPECT_GL_NO_ERROR();
 
-    if (dataPtr)
-    {
-        EXPECT_EQ(1, dataPtr[0]);
-        EXPECT_EQ(2, dataPtr[1]);
-        EXPECT_EQ(3, dataPtr[2]);
-        EXPECT_EQ(4, dataPtr[3]);
-    }
+    EXPECT_EQ(1, dataPtr[0]);
+    EXPECT_EQ(2, dataPtr[1]);
+    EXPECT_EQ(3, dataPtr[2]);
+    EXPECT_EQ(4, dataPtr[3]);
+
     glUnmapBuffer(GL_ARRAY_BUFFER);
     EXPECT_GL_NO_ERROR();
 }
@@ -232,25 +230,22 @@ TYPED_TEST(ReadPixelsTest, PBOAndSubDataOffset)
     unsigned char *dataPtr = static_cast<unsigned char *>(mappedPtr);
     EXPECT_GL_NO_ERROR();
 
-    if (dataPtr)
-    {
-        EXPECT_EQ(255, dataPtr[0]);
-        EXPECT_EQ(0, dataPtr[1]);
-        EXPECT_EQ(0, dataPtr[2]);
-        EXPECT_EQ(255, dataPtr[3]);
+    EXPECT_EQ(255, dataPtr[0]);
+    EXPECT_EQ(0, dataPtr[1]);
+    EXPECT_EQ(0, dataPtr[2]);
+    EXPECT_EQ(255, dataPtr[3]);
 
-        EXPECT_EQ(1, dataPtr[16]);
-        EXPECT_EQ(2, dataPtr[17]);
-        EXPECT_EQ(3, dataPtr[18]);
-        EXPECT_EQ(4, dataPtr[19]);
-    }
+    EXPECT_EQ(1, dataPtr[16]);
+    EXPECT_EQ(2, dataPtr[17]);
+    EXPECT_EQ(3, dataPtr[18]);
+    EXPECT_EQ(4, dataPtr[19]);
+
     glUnmapBuffer(GL_ARRAY_BUFFER);
     EXPECT_GL_NO_ERROR();
 }
 
 TYPED_TEST(ReadPixelsTest, DrawWithPBO)
 {
-    glGetError();
     unsigned char data[4] = { 1, 2, 3, 4 };
 
     glBindTexture(GL_TEXTURE_2D, mTexture);

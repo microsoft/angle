@@ -7,11 +7,42 @@
     {
         'angle_build_conformance_tests%': '0',
         'angle_build_deqp_tests%': '0',
+        # build/gyp_angle sets this to 1.
+        'angle_standalone%': 0,
+
+        'rapidjson_include_dir': 'third_party/rapidjson/include',
+        'rapidjson_headers':
+        [
+            'third_party/rapidjson/include/rapidjson/allocators.h',
+            'third_party/rapidjson/include/rapidjson/document.h',
+            'third_party/rapidjson/include/rapidjson/encodedstream.h',
+            'third_party/rapidjson/include/rapidjson/encodings.h',
+            'third_party/rapidjson/include/rapidjson/filereadstream.h',
+            'third_party/rapidjson/include/rapidjson/filestream.h',
+            'third_party/rapidjson/include/rapidjson/filewritestream.h',
+            'third_party/rapidjson/include/rapidjson/memorybuffer.h',
+            'third_party/rapidjson/include/rapidjson/memorystream.h',
+            'third_party/rapidjson/include/rapidjson/prettywriter.h',
+            'third_party/rapidjson/include/rapidjson/rapidjson.h',
+            'third_party/rapidjson/include/rapidjson/reader.h',
+            'third_party/rapidjson/include/rapidjson/stringbuffer.h',
+            'third_party/rapidjson/include/rapidjson/writer.h',
+            'third_party/rapidjson/include/rapidjson/error/en.h',
+            'third_party/rapidjson/include/rapidjson/error/error.h',
+            'third_party/rapidjson/include/rapidjson/internal/dtoa.h',
+            'third_party/rapidjson/include/rapidjson/internal/itoa.h',
+            'third_party/rapidjson/include/rapidjson/internal/meta.h',
+            'third_party/rapidjson/include/rapidjson/internal/pow10.h',
+            'third_party/rapidjson/include/rapidjson/internal/stack.h',
+            'third_party/rapidjson/include/rapidjson/internal/strfunc.h',
+            'third_party/rapidjson/include/rapidjson/msinttypes/inttypes.h',
+            'third_party/rapidjson/include/rapidjson/msinttypes/stdint.h',
+        ],
     },
     'targets':
     [
         {
-            'target_name': 'gtest',
+            'target_name': 'angle_internal_gtest',
             'type': 'static_library',
             'includes': [ '../build/common_defines.gypi', ],
             'include_dirs':
@@ -27,17 +58,22 @@
             [
                 '_VARIADIC_MAX=10',
             ],
-            'direct_dependent_settings':
+            'all_dependent_settings':
             {
                 'defines':
                 [
                     '_VARIADIC_MAX=10',
                 ],
+                'include_dirs':
+                [
+                    'third_party/googletest',
+                    'third_party/googletest/include',
+                ],
             },
         },
 
         {
-            'target_name': 'gmock',
+            'target_name': 'angle_internal_gmock',
             'type': 'static_library',
             'includes': [ '../build/common_defines.gypi', ],
             'include_dirs':
@@ -54,131 +90,116 @@
             [
                 '_VARIADIC_MAX=10',
             ],
-            'direct_dependent_settings':
+            'all_dependent_settings':
             {
                 'defines':
                 [
                     '_VARIADIC_MAX=10',
                 ],
+                'include_dirs':
+                [
+                    'third_party/googlemock',
+                    'third_party/googlemock/include',
+                    'third_party/googletest/include',
+                ],
             },
         },
-
         {
-            'target_name': 'preprocessor_tests',
-            'type': 'executable',
-            'dependencies':
+            'target_name': 'angle_test_support',
+            'type': 'none',
+            'conditions':
             [
-                '../src/angle.gyp:preprocessor',
-                'gtest',
-                'gmock',
-            ],
-            'include_dirs':
-            [
-                '../src/compiler/preprocessor',
-                'third_party/googletest/include',
-                'third_party/googlemock/include',
-            ],
-            'includes':
-            [
-                '../build/common_defines.gypi',
-                'preprocessor_tests/preprocessor_tests.gypi',
-            ],
-            'sources':
-            [
-                'preprocessor_tests/preprocessor_test_main.cpp',
-            ],
-        },
-        {
-            'target_name': 'compiler_tests',
-            'type': 'executable',
-            'dependencies':
-            [
-                '../src/angle.gyp:translator_static',
-                'gtest',
-            ],
-            'include_dirs':
-            [
-                '../include',
-                '../src',
-                'third_party/googletest/include',
-            ],
-            'includes':
-            [
-                '../build/common_defines.gypi',
-                'compiler_tests/compiler_tests.gypi',
-            ],
-            'sources':
-            [
-                'compiler_tests/compiler_test_main.cpp',
-            ],
-            'msvs_settings':
-            {
-                'VCLinkerTool':
+                ['angle_standalone==1',
                 {
-                    'conditions':
-                    [
-                        ['angle_build_winrt==1',
-                        {
-                            'AdditionalDependencies':
-                            [
-                                'runtimeobject.lib',
-                            ],
-                        }],
+                    'dependencies': [
+                        'angle_internal_gmock',
+                        'angle_internal_gtest',
                     ],
                 },
-            },
+                {
+                    'dependencies': [
+                        '<(DEPTH)/testing/gmock.gyp:gmock',
+                        '<(DEPTH)/testing/gtest.gyp:gtest',
+                    ],
+                    'all_dependent_settings':
+                    {
+                        'include_dirs':
+                        [
+                            '<(DEPTH)/testing/gmock/include',
+                            '<(DEPTH)/testing/gtest/include',
+                        ],
+                    },
+                }],
+            ],
         },
     ],
 
     'conditions':
     [
+        ['angle_standalone==1',
+        {
+            # These same target names exist on the Chromium side,
+            # which is forbidden, so we make them conditional on
+            # ANGLE's standalone build.
+            'targets':
+            [
+                {
+                    'target_name': 'angle_unittests',
+                    'type': 'executable',
+                    'includes':
+                    [
+                        '../build/common_defines.gypi',
+                        'angle_unittests.gypi',
+                    ],
+                    'sources':
+                    [
+                        'angle_unittests_main.cpp',
+                    ],
+                    'msvs_settings':
+                    {
+                        'VCLinkerTool':
+                        {
+                            'conditions':
+                            [
+                                ['angle_build_winrt==1',
+                                {
+                                    'AdditionalDependencies':
+                                    [
+                                        'runtimeobject.lib',
+                                    ],
+                                }],
+                            ],
+                        },
+                    },
+                },
+            ],
+            'conditions':
+            [
+                ['OS=="win"',
+                {
+                    'targets':
+                    [
+                        {
+                            'target_name': 'angle_end2end_tests',
+                            'type': 'executable',
+                            'includes':
+                            [
+                                '../build/common_defines.gypi',
+                                'angle_end2end_tests.gypi',
+                            ],
+                            'sources':
+                            [
+                                'angle_end2end_tests_main.cpp',
+                            ],
+                        },
+                    ],
+                }],
+            ],
+        }],
         ['OS=="win"',
         {
             'targets':
             [
-                {
-                    'target_name': 'angle_tests',
-                    'type': 'executable',
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'dependencies':
-                    [
-                        '../src/angle.gyp:libGLESv2',
-                        '../src/angle.gyp:libEGL',
-                        'gtest',
-                        '../util/util.gyp:angle_util',
-                    ],
-                    'include_dirs':
-                    [
-                        '../include',
-                        'angle_tests',
-                        'third_party/googletest/include',
-                    ],
-                    'sources':
-                    [
-                        '<!@(python <(angle_path)/enumerate_files.py angle_tests -types *.cpp *.h *.inl)'
-                    ],
-                },
-                {
-                    'target_name': 'standalone_tests',
-                    'type': 'executable',
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'dependencies':
-                    [
-                        'gtest',
-                        'gmock',
-                    ],
-                    'include_dirs':
-                    [
-                        '../include',
-                        'angle_tests',
-                        'third_party/googletest/include',
-                        'third_party/googlemock/include',
-                    ],
-                    'sources':
-                    [
-                        '<!@(python <(angle_path)/enumerate_files.py standalone_tests -types *.cpp *.h)'
-                    ],
-                },
                 {
                     'target_name': 'angle_perf_tests',
                     'type': 'executable',
@@ -188,11 +209,12 @@
                         '../src/angle.gyp:libGLESv2',
                         '../src/angle.gyp:libEGL',
                         '../util/util.gyp:angle_util',
+                        'angle_test_support',
                     ],
                     'include_dirs':
                     [
                         '../include',
-                        'third_party/googletest/include',
+                        '<(rapidjson_include_dir)',
                     ],
                     'sources':
                     [
@@ -207,60 +229,10 @@
                         'perf_tests/TexSubImage.h',
                         'perf_tests/third_party/perf/perf_test.cc',
                         'perf_tests/third_party/perf/perf_test.h',
+                        '<@(rapidjson_headers)',
                     ],
                 },
 
-                {
-                    'target_name': 'angle_implementation_unit_tests',
-                    'type': 'executable',
-                    'dependencies':
-                    [
-                        '../src/angle.gyp:libGLESv2_static',
-                        'gtest',
-                        'gmock',
-                    ],
-                    'include_dirs':
-                    [
-                        '../include',
-                        '../src',
-                        'third_party/googletest/include',
-                        'third_party/googlemock/include',
-                    ],
-                    'includes':
-                    [
-                        '../build/common_defines.gypi',
-                        'angle_implementation_unit_tests/angle_implementation_unit_tests.gypi',
-                    ],
-                    'sources':
-                    [
-                        'angle_implementation_unit_tests/angle_implementation_unit_tests_main.cpp',
-                    ],
-                    'conditions':
-                    [
-                        ['angle_build_winrt==1',
-                        {
-                            'sources':
-                            [
-                                'angle_implementation_unit_tests/CoreWindowNativeWindow_unittest.cpp',
-                                'angle_implementation_unit_tests/SwapChainPanelNativeWindow_unittest.cpp',
-                            ],
-                            'defines':
-                            [
-                                'ANGLE_ENABLE_D3D11',
-                            ],
-                            'msvs_settings':
-                            {
-                                'VCLinkerTool':
-                                {
-                                    'AdditionalDependencies':
-                                    [
-                                        'runtimeobject.lib',
-                                    ],
-                                },
-                            },
-                        }],
-                    ],
-                },
             ],
             'conditions':
             [
@@ -275,16 +247,16 @@
                     'targets':
                     [
                         {
-                            'target_name': 'gles2_conformance_tests',
+                            'target_name': 'angle_gles2_conformance_tests',
                             'type': 'executable',
                             'includes': [ '../build/common_defines.gypi', ],
                             'dependencies':
                             [
                                 '../src/angle.gyp:libGLESv2',
                                 '../src/angle.gyp:libEGL',
-                                'gtest',
                                 'third_party/gles_conformance_tests/conform/GTF_ES/glsl/GTF/es_cts.gyp:es_cts_test_data',
                                 'third_party/gles_conformance_tests/conform/GTF_ES/glsl/GTF/es_cts.gyp:es2_cts',
+                                'angle_test_support',
                             ],
                             'variables':
                             {
@@ -300,12 +272,19 @@
                             [
                                 '../include',
                                 'gles_conformance_tests',
-                                'third_party/googletest/include',
                             ],
                             'defines':
                             [
                                 'CONFORMANCE_TESTS_TYPE=CONFORMANCE_TESTS_ES2',
                             ],
+                            'msvs_settings':
+                            {
+                                'VCCLCompilerTool':
+                                {
+                                    # MSVS has trouble compiling this due to the obj files becoming too large.
+                                    'AdditionalOptions': [ '/bigobj' ],
+                                },
+                            },
                             'actions':
                             [
                                 {
@@ -333,16 +312,16 @@
                             ],
                         },
                         {
-                            'target_name': 'gles3_conformance_tests',
+                            'target_name': 'angle_gles3_conformance_tests',
                             'type': 'executable',
                             'includes': [ '../build/common_defines.gypi', ],
                             'dependencies':
                             [
                                 '../src/angle.gyp:libGLESv2',
                                 '../src/angle.gyp:libEGL',
-                                'gtest',
                                 'third_party/gles_conformance_tests/conform/GTF_ES/glsl/GTF/es_cts.gyp:es_cts_test_data',
                                 'third_party/gles_conformance_tests/conform/GTF_ES/glsl/GTF/es_cts.gyp:es3_cts',
+                                'angle_test_support',
                             ],
                             'variables':
                             {
@@ -358,7 +337,6 @@
                             [
                                 '../include',
                                 'gles_conformance_tests',
-                                'third_party/googletest/include',
                             ],
                             'defines':
                             [
@@ -405,21 +383,20 @@
                     'targets':
                     [
                         {
-                            'target_name': 'deqp_tests',
+                            'target_name': 'angle_deqp_tests',
                             'type': 'executable',
                             'includes': [ '../build/common_defines.gypi', ],
                             'dependencies':
                             [
                                 '../src/angle.gyp:libGLESv2',
                                 '../src/angle.gyp:libEGL',
-                                'gtest',
                                 'third_party/deqp/src/deqp/modules/gles3/gles3.gyp:deqp-gles3',
                                 'third_party/deqp/src/deqp/framework/platform/platform.gyp:tcutil-platform',
+                                'angle_test_support',
                             ],
                             'include_dirs':
                             [
                                 '../include',
-                                'third_party/googletest/include',
                                 'deqp_tests',
                             ],
                             'variables':

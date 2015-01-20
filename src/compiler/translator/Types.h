@@ -4,8 +4,8 @@
 // found in the LICENSE file.
 //
 
-#ifndef _TYPES_INCLUDED
-#define _TYPES_INCLUDED
+#ifndef COMPILER_TRANSLATOR_TYPES_H_
+#define COMPILER_TRANSLATOR_TYPES_H_
 
 #include "common/angleutils.h"
 
@@ -325,6 +325,10 @@ class TType
     {
         return primarySize > 1 && secondarySize > 1;
     }
+    bool isNonSquareMatrix() const
+    {
+        return isMatrix() && primarySize != secondarySize;
+    }
     bool isArray() const
     {
         return array ? true : false;
@@ -584,4 +588,4 @@ struct TPublicType
     }
 };
 
-#endif // _TYPES_INCLUDED_
+#endif // COMPILER_TRANSLATOR_TYPES_H_

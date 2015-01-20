@@ -4,8 +4,8 @@
 // found in the LICENSE file.
 //
 
-#ifndef _SHHANDLE_INCLUDED_
-#define _SHHANDLE_INCLUDED_
+#ifndef COMPILER_TRANSLATOR_COMPILER_H_
+#define COMPILER_TRANSLATOR_COMPILER_H_
 
 //
 // Machine independent part of the compiler private objects
@@ -14,7 +14,7 @@
 // This should not be included by driver code.
 //
 
-#include "compiler/translator/BuiltInFunctionEmulator.h"
+#include "compiler/translator/BuiltInFunctionEmulatorGLSL.h"
 #include "compiler/translator/ExtensionBehavior.h"
 #include "compiler/translator/HashNames.h"
 #include "compiler/translator/InfoSink.h"
@@ -135,7 +135,7 @@ class TCompiler : public TShHandleBase
 
     const ArrayBoundsClamper& getArrayBoundsClamper() const;
     ShArrayIndexClampingStrategy getArrayIndexClampingStrategy() const;
-    const BuiltInFunctionEmulator& getBuiltInFunctionEmulator() const;
+    const BuiltInFunctionEmulatorGLSL& getBuiltInFunctionEmulator() const;
 
     std::vector<sh::Attribute> attributes;
     std::vector<sh::Attribute> outputVariables;
@@ -165,7 +165,7 @@ class TCompiler : public TShHandleBase
 
     ArrayBoundsClamper arrayBoundsClamper;
     ShArrayIndexClampingStrategy clampingStrategy;
-    BuiltInFunctionEmulator builtInFunctionEmulator;
+    BuiltInFunctionEmulatorGLSL builtInFunctionEmulator;
 
     // Results of compilation.
     int shaderVersion;
@@ -191,4 +191,4 @@ TCompiler* ConstructCompiler(
     sh::GLenum type, ShShaderSpec spec, ShShaderOutput output);
 void DeleteCompiler(TCompiler*);
 
-#endif // _SHHANDLE_INCLUDED_
+#endif // COMPILER_TRANSLATOR_COMPILER_H_

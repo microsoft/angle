@@ -14,11 +14,11 @@
 #elif defined(__APPLE__)
 #   define ANGLE_PLATFORM_APPLE 1
 #   define ANGLE_PLATFORM_POSIX 1
-#elif defined(__linux__)
-#   define ANGLE_PLATFORM_LINUX 1
-#   define ANGLE_PLATFORM_POSIX 1
 #elif defined(ANDROID)
 #   define ANGLE_PLATFORM_ANDROID 1
+#   define ANGLE_PLATFORM_POSIX 1
+#elif defined(__linux__) || defined(EMSCRIPTEN)
+#   define ANGLE_PLATFORM_LINUX 1
 #   define ANGLE_PLATFORM_POSIX 1
 #elif defined(__FreeBSD__) || \
       defined(__OpenBSD__) || \
@@ -34,7 +34,7 @@
 #endif
 
 #ifdef ANGLE_PLATFORM_WINDOWS
-#   if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
+#   if defined(WINAPI_FAMILY) && WINAPI_FAMILY == WINAPI_FAMILY_PC_APP
 #       define ANGLE_ENABLE_WINDOWS_STORE 1
 #   endif
 #   ifndef STRICT
@@ -48,7 +48,6 @@
 #   endif
 
 #   include <windows.h>
-#   include <intrin.h>
 
 #   if defined(ANGLE_ENABLE_D3D9)
 #       include <d3d9.h>
@@ -74,6 +73,10 @@
 
 #   undef near
 #   undef far
+#endif
+
+#if !defined(_M_ARM) && !defined(ANGLE_PLATFORM_ANDROID)
+#   define ANGLE_USE_SSE
 #endif
 
 #endif // COMMON_PLATFORM_H_

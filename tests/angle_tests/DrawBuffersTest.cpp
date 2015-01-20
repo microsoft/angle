@@ -1,7 +1,7 @@
 #include "ANGLETest.h"
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(DrawBuffersTest, ES2_D3D11, ES2_D3D11_FL9_3, ES3_D3D11);
+ANGLE_TYPED_TEST_CASE(DrawBuffersTest, ES2_D3D11, ES3_D3D11);
 
 template<typename T>
 class DrawBuffersTest : public ANGLETest
@@ -282,6 +282,41 @@ TYPED_TEST(DrawBuffersTest, FirstHalfNULL)
     {
         verifyAttachment(texIndex + 4, mTextures[texIndex]);
     }
+
+    EXPECT_GL_NO_ERROR();
+
+    glDeleteProgram(program);
+}
+
+TYPED_TEST(DrawBuffersTest, UnwrittenOutputVariablesShouldNotCrash)
+{
+    // Bind two render targets but use a shader which writes only to the first one.
+    glBindTexture(GL_TEXTURE_2D, mTextures[0]);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextures[0], 0);
+
+    glBindTexture(GL_TEXTURE_2D, mTextures[1]);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, mTextures[1], 0);
+
+    bool flags[8] = { true, false };
+
+    GLuint program;
+    setupMRTProgram(flags, &program);
+
+    const GLenum bufs[] =
+    {
+        GL_COLOR_ATTACHMENT0,
+        GL_COLOR_ATTACHMENT1,
+        GL_NONE,
+        GL_NONE,
+    };
+
+    glUseProgram(program);
+    glDrawBuffersEXT(4, bufs);
+
+    // This call should not crash when we dynamically generate the HLSL code.
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    verifyAttachment(0, mTextures[0]);
 
     EXPECT_GL_NO_ERROR();
 

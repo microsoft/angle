@@ -4,7 +4,6 @@
 // found in the LICENSE file.
 //
 
-#include "compiler/translator/BuiltInFunctionEmulator.h"
 #include "compiler/translator/Compiler.h"
 #include "compiler/translator/DetectCallDepth.h"
 #include "compiler/translator/ForLoopUnroll.h"
@@ -182,10 +181,12 @@ bool TCompiler::compile(const char* const shaderStrings[],
         ++firstSource;
     }
 
+    bool debugShaderPrecision = getResources().WEBGL_debug_shader_precision == 1;
     TIntermediate intermediate(infoSink);
     TParseContext parseContext(symbolTable, extensionBehavior, intermediate,
                                shaderType, shaderSpec, compileOptions, true,
-                               sourcePath, infoSink);
+                               sourcePath, infoSink, debugShaderPrecision);
+
     parseContext.fragmentPrecisionHigh = fragmentPrecisionHigh;
     SetGlobalParseContext(&parseContext);
 
@@ -309,8 +310,8 @@ bool TCompiler::compile(const char* const shaderStrings[],
             translate(root);
     }
 
-    // Cleanup memory.
-    intermediate.remove(parseContext.treeRoot);
+    // Cleanup. The IntermNode tree doesn't need to be deleted here, since the
+    // memory will be freed in a big chunk by the PoolAllocator.
     SetGlobalParseContext(NULL);
     return success;
 }
@@ -390,11 +391,15 @@ void TCompiler::setResourceString()
               << ":MaxCallStackDepth:" << compileResources.MaxCallStackDepth
               << ":EXT_frag_depth:" << compileResources.EXT_frag_depth
               << ":EXT_shader_texture_lod:" << compileResources.EXT_shader_texture_lod
+              << ":EXT_shader_framebuffer_fetch:" << compileResources.EXT_shader_framebuffer_fetch
+              << ":NV_shader_framebuffer_fetch:" << compileResources.NV_shader_framebuffer_fetch
+              << ":ARM_shader_framebuffer_fetch:" << compileResources.ARM_shader_framebuffer_fetch
               << ":MaxVertexOutputVectors:" << compileResources.MaxVertexOutputVectors
               << ":MaxFragmentInputVectors:" << compileResources.MaxFragmentInputVectors
               << ":MinProgramTexelOffset:" << compileResources.MinProgramTexelOffset
               << ":MaxProgramTexelOffset:" << compileResources.MaxProgramTexelOffset
-              << ":NV_draw_buffers:" << compileResources.NV_draw_buffers;
+              << ":NV_draw_buffers:" << compileResources.NV_draw_buffers
+              << ":WEBGL_debug_shader_precision:" << compileResources.WEBGL_debug_shader_precision;
 
     builtInResourcesString = strstream.str();
 }
@@ -609,7 +614,7 @@ ShArrayIndexClampingStrategy TCompiler::getArrayIndexClampingStrategy() const
     return clampingStrategy;
 }
 
-const BuiltInFunctionEmulator& TCompiler::getBuiltInFunctionEmulator() const
+const BuiltInFunctionEmulatorGLSL& TCompiler::getBuiltInFunctionEmulator() const
 {
     return builtInFunctionEmulator;
 }

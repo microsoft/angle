@@ -4,8 +4,8 @@
 // found in the LICENSE file.
 //
 
-#ifndef _SYMBOL_TABLE_INCLUDED_
-#define _SYMBOL_TABLE_INCLUDED_
+#ifndef COMPILER_TRANSLATOR_SYMBOLTABLE_H_
+#define COMPILER_TRANSLATOR_SYMBOLTABLE_H_
 
 //
 // Symbol table for parsing.  Has these design characteristics:
@@ -413,7 +413,7 @@ class TSymbolTable
 
     // This records invariant varyings declared through
     // "invariant varying_name;".
-    void addInvariantVarying(const TString &originalName)
+    void addInvariantVarying(const std::string &originalName)
     {
         mInvariantVaryings.insert(originalName);
     }
@@ -421,7 +421,7 @@ class TSymbolTable
     // if it is set as invariant during the varying variable
     // declaration - this piece of information is stored in the
     // variable's type, not here.
-    bool isVaryingInvariant(const TString &originalName) const
+    bool isVaryingInvariant(const std::string &originalName) const
     {
       return (mGlobalInvariant ||
               mInvariantVaryings.count(originalName) > 0);
@@ -445,10 +445,10 @@ class TSymbolTable
     typedef TMap<TBasicType, TPrecision> PrecisionStackLevel;
     std::vector< PrecisionStackLevel *> precisionStack;
 
-    std::set<TString> mInvariantVaryings;
+    std::set<std::string> mInvariantVaryings;
     bool mGlobalInvariant;
 
     static int uniqueIdCounter;
 };
 
-#endif // _SYMBOL_TABLE_INCLUDED_
+#endif // COMPILER_TRANSLATOR_SYMBOLTABLE_H_

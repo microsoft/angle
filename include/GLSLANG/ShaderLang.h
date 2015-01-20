@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
-#ifndef _COMPILER_INTERFACE_INCLUDED_
-#define _COMPILER_INTERFACE_INCLUDED_
+#ifndef GLSLANG_SHADERLANG_H_
+#define GLSLANG_SHADERLANG_H_
 
 #if defined(COMPONENT_BUILD) && !defined(ANGLE_TRANSLATOR_STATIC)
 #if defined(_WIN32) || defined(_WIN64)
@@ -48,7 +48,7 @@ typedef unsigned int GLenum;
 
 // Version number for shader translation API.
 // It is incremented every time the API changes.
-#define ANGLE_SH_VERSION 132
+#define ANGLE_SH_VERSION 133
 
 typedef enum {
   SH_GLES2_SPEC = 0x8B40,
@@ -223,6 +223,10 @@ typedef struct
     int EXT_draw_buffers;
     int EXT_frag_depth;
     int EXT_shader_texture_lod;
+    int WEBGL_debug_shader_precision;
+    int EXT_shader_framebuffer_fetch;
+    int NV_shader_framebuffer_fetch;
+    int ARM_shader_framebuffer_fetch;
 
     // Set to 1 to enable replacing GL_EXT_draw_buffers #extension directives
     // with GL_NV_draw_buffers in ESSL output. This flag can be used to emulate
@@ -408,4 +412,4 @@ COMPILER_EXPORT bool ShGetUniformRegister(const ShHandle handle,
                                           const std::string &uniformName,
                                           unsigned int *indexOut);
 
-#endif // _COMPILER_INTERFACE_INCLUDED_
+#endif // GLSLANG_SHADERLANG_H_

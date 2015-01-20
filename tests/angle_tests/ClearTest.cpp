@@ -1,7 +1,7 @@
 #include "ANGLETest.h"
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(ClearTest, ES2_D3D9, ES2_D3D11, ES2_D3D11_FL9_3, ES3_D3D11);
+ANGLE_TYPED_TEST_CASE(ClearTest, ES2_D3D9, ES2_D3D11, ES3_D3D11);
 ANGLE_TYPED_TEST_CASE(ClearTestES3, ES3_D3D11);
 
 template<typename T>
@@ -118,11 +118,6 @@ TYPED_TEST(ClearTest, ClearIssue)
 // mistakenly clear every channel (including the masked-out ones)
 TYPED_TEST(ClearTestES3, MaskedClearBufferBug)
 {
-    if (getClientVersion() < 3)
-    {
-        return;
-    }
-
     unsigned char pixelData[] = { 255, 255, 255, 255 };
 
     glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
@@ -153,18 +148,15 @@ TYPED_TEST(ClearTestES3, MaskedClearBufferBug)
     // TODO: glReadBuffer support
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textures[1], 0);
-    EXPECT_PIXEL_EQ(0, 0, 0, 127, 255, 255);
+
+    //TODO(jmadill): Robust handling of pixel test error ranges
+    EXPECT_PIXEL_NEAR(0, 0, 0, 127, 255, 255, 1);
 
     glDeleteTextures(2, textures);
 }
 
 TYPED_TEST(ClearTestES3, BadFBOSerialBug)
 {
-    if (getClientVersion() < 3)
-    {
-        return;
-    }
-
     // First make a simple framebuffer, and clear it to green
     glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 

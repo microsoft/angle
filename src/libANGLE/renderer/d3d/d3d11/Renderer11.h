@@ -1,0 +1,376 @@
+//
+// Copyright (c) 2012-2014 The ANGLE Project Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+
+// Renderer11.h: Defines a back-end specific class for the D3D11 renderer.
+
+#ifndef LIBANGLE_RENDERER_D3D_D3D11_RENDERER11_H_
+#define LIBANGLE_RENDERER_D3D_D3D11_RENDERER11_H_
+
+#include "common/angleutils.h"
+#include "libANGLE/angletypes.h"
+#include "common/mathutil.h"
+
+#include "libANGLE/renderer/d3d/d3d11/RenderStateCache.h"
+#include "libANGLE/renderer/d3d/d3d11/InputLayoutCache.h"
+#include "libANGLE/renderer/d3d/HLSLCompiler.h"
+#include "libANGLE/renderer/d3d/RendererD3D.h"
+#include "libANGLE/renderer/d3d/RenderTargetD3D.h"
+
+#include "libANGLE/AttributeMap.h"
+
+namespace gl
+{
+class FramebufferAttachment;
+struct ImageIndex;
+}
+
+namespace rx
+{
+
+class VertexDataManager;
+class IndexDataManager;
+class StreamingIndexBufferInterface;
+class Blit11;
+class Clear11;
+class PixelTransfer11;
+class RenderTarget11;
+class Trim11;
+struct PackPixelsParams;
+
+enum
+{
+    MAX_VERTEX_UNIFORM_VECTORS_D3D11 = 1024,
+    MAX_FRAGMENT_UNIFORM_VECTORS_D3D11 = 1024
+};
+
+class Renderer11 : public RendererD3D
+{
+  public:
+    Renderer11(egl::Display *display, EGLNativeDisplayType hDc, const egl::AttributeMap &attributes);
+    virtual ~Renderer11();
+
+    static Renderer11 *makeRenderer11(Renderer *renderer);
+
+    virtual EGLint initialize();
+    virtual bool resetDevice();
+
+    virtual int generateConfigs(ConfigDesc **configDescList);
+    virtual void deleteConfigs(ConfigDesc *configDescList);
+
+    gl::Error flush() override;
+    gl::Error finish() override;
+
+    virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
+
+    virtual gl::Error generateSwizzle(gl::Texture *texture);
+    virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler);
+    virtual gl::Error setTexture(gl::SamplerType type, int index, gl::Texture *texture);
+
+    virtual gl::Error setUniformBuffers(const gl::Buffer *vertexUniformBuffers[], const gl::Buffer *fragmentUniformBuffers[]);
+
+    virtual gl::Error setRasterizerState(const gl::RasterizerState &rasterState);
+    gl::Error setBlendState(const gl::Framebuffer *framebuffer, const gl::BlendState &blendState, const gl::ColorF &blendColor,
+                            unsigned int sampleMask) override;
+    virtual gl::Error setDepthStencilState(const gl::DepthStencilState &depthStencilState, int stencilRef,
+                                           int stencilBackRef, bool frontFaceCCW);
+
+    virtual void setScissorRectangle(const gl::Rectangle &scissor, bool enabled);
+    virtual void setViewport(const gl::Rectangle &viewport, float zNear, float zFar, GLenum drawMode, GLenum frontFace,
+                             bool ignoreViewport);
+
+    virtual bool applyPrimitiveType(GLenum mode, GLsizei count, bool usesPointSize);
+    gl::Error applyRenderTarget(const gl::Framebuffer *frameBuffer) override;
+    virtual gl::Error applyShaders(gl::Program *program, const gl::VertexFormat inputLayout[], const gl::Framebuffer *framebuffer,
+                                   bool rasterizerDiscard, bool transformFeedbackActive);
+
+    virtual gl::Error applyUniforms(const ProgramImpl &program, const std::vector<gl::LinkedUniform*> &uniformArray);
+    virtual gl::Error applyVertexBuffer(const gl::State &state, GLint first, GLsizei count, GLsizei instances);
+    virtual gl::Error applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo);
+    virtual void applyTransformFeedbackBuffers(const gl::State &state);
+
+    virtual gl::Error drawArrays(GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive, bool usesPointSize);
+    virtual gl::Error drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,
+                                   gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei instances);
+
+    virtual void markAllStateDirty();
+
+    // lost device
+    bool testDeviceLost() override;
+    bool testDeviceResettable() override;
+
+    VendorID getVendorId() const override;
+    std::string getRendererDescription() const override;
+    GUID getAdapterIdentifier() const override;
+
+    virtual unsigned int getReservedVertexUniformVectors() const;
+    virtual unsigned int getReservedFragmentUniformVectors() const;
+    virtual unsigned int getReservedVertexUniformBuffers() const;
+    virtual unsigned int getReservedFragmentUniformBuffers() const;
+    virtual bool getShareHandleSupport() const;
+    virtual bool getPostSubBufferSupport() const;
+
+    virtual int getMajorShaderModel() const;
+    int getMinorShaderModel() const override;
+    std::string getShaderModelSuffix() const override;
+    virtual int getMinSwapInterval() const;
+    virtual int getMaxSwapInterval() const;
+
+    // Pixel operations
+    virtual gl::Error copyImage2D(const gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,
+                                  const gl::Offset &destOffset, TextureStorage *storage, GLint level);
+    virtual gl::Error copyImageCube(const gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,
+                                    const gl::Offset &destOffset, TextureStorage *storage, GLenum target, GLint level);
+    virtual gl::Error copyImage3D(const gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,
+                                  const gl::Offset &destOffset, TextureStorage *storage, GLint level);
+    virtual gl::Error copyImage2DArray(const gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,
+                                       const gl::Offset &destOffset, TextureStorage *storage, GLint level);
+
+    // RenderTarget creation
+    virtual gl::Error createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT);
+
+    // Framebuffer creation
+    virtual DefaultAttachmentImpl *createDefaultAttachment(GLenum type, egl::Surface *surface) override;
+    virtual FramebufferImpl *createFramebuffer() override;
+
+    // Shader creation
+    virtual CompilerImpl *createCompiler(const gl::Data &data);
+    virtual ShaderImpl *createShader(GLenum type);
+    virtual ProgramImpl *createProgram();
+
+    // Shader operations
+    virtual gl::Error loadExecutable(const void *function, size_t length, ShaderType type,
+                                     const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
+                                     bool separatedOutputBuffers, ShaderExecutableD3D **outExecutable);
+    virtual gl::Error compileToExecutable(gl::InfoLog &infoLog, const std::string &shaderHLSL, ShaderType type,
+                                          const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
+                                          bool separatedOutputBuffers, D3DWorkaroundType workaround,
+                                          ShaderExecutableD3D **outExectuable);
+    virtual UniformStorageD3D *createUniformStorage(size_t storageSize);
+
+    // Image operations
+    virtual ImageD3D *createImage();
+    gl::Error generateMipmap(ImageD3D *dest, ImageD3D *source) override;
+    virtual TextureStorage *createTextureStorage2D(SwapChainD3D *swapChain);
+    virtual TextureStorage *createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly);
+    virtual TextureStorage *createTextureStorageCube(GLenum internalformat, bool renderTarget, int size, int levels);
+    virtual TextureStorage *createTextureStorage3D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, GLsizei depth, int levels);
+    virtual TextureStorage *createTextureStorage2DArray(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, GLsizei depth, int levels);
+
+    // Texture creation
+    virtual TextureImpl *createTexture(GLenum target);
+
+    // Renderbuffer creation
+    virtual RenderbufferImpl *createRenderbuffer();
+
+    // Buffer creation
+    virtual BufferImpl *createBuffer();
+    virtual VertexBuffer *createVertexBuffer();
+    virtual IndexBuffer *createIndexBuffer();
+
+    // Vertex Array creation
+    virtual VertexArrayImpl *createVertexArray();
+
+    // Query and Fence creation
+    virtual QueryImpl *createQuery(GLenum type);
+    virtual FenceNVImpl *createFenceNV();
+    virtual FenceSyncImpl *createFenceSync();
+
+    // Transform Feedback creation
+    virtual TransformFeedbackImpl* createTransformFeedback();
+
+    // D3D11-renderer specific methods
+    ID3D11Device *getDevice() { return mDevice; }
+    ID3D11DeviceContext *getDeviceContext() { return mDeviceContext; };
+    ID3D11DeviceContext1 *getDeviceContext1IfSupported() { return mDeviceContext1; };
+    DXGIFactory *getDxgiFactory() { return mDxgiFactory; };
+
+    Blit11 *getBlitter() { return mBlit; }
+    Clear11 *getClearer() { return mClear; }
+
+    // Buffer-to-texture and Texture-to-buffer copies
+    virtual bool supportsFastCopyBufferToTexture(GLenum internalFormat) const;
+    virtual gl::Error fastCopyBufferToTexture(const gl::PixelUnpackState &unpack, unsigned int offset, RenderTargetD3D *destRenderTarget,
+                                              GLenum destinationFormat, GLenum sourcePixelsType, const gl::Box &destArea);
+
+    void unapplyRenderTargets();
+    void setOneTimeRenderTarget(ID3D11RenderTargetView *renderTargetView);
+    gl::Error packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams &params, uint8_t *pixelsOut);
+
+    bool getLUID(LUID *adapterLuid) const override;
+    virtual VertexConversionType getVertexConversionType(const gl::VertexFormat &vertexFormat) const;
+    virtual GLenum getVertexComponentType(const gl::VertexFormat &vertexFormat) const;
+
+    gl::Error readTextureData(ID3D11Texture2D *texture, unsigned int subResource, const gl::Rectangle &area, GLenum format,
+                              GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels);
+
+    void setShaderResource(gl::SamplerType shaderType, UINT resourceSlot, ID3D11ShaderResourceView *srv);
+
+    gl::Error blitRenderbufferRect(const gl::Rectangle &readRect, const gl::Rectangle &drawRect, RenderTargetD3D *readRenderTarget,
+                                   RenderTargetD3D *drawRenderTarget, GLenum filter, const gl::Rectangle *scissor,
+                                   bool colorBlit, bool depthBlit, bool stencilBlit);
+
+    bool isES3Capable() const { return mFeatureLevel >= D3D_FEATURE_LEVEL_10_0; };
+    D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; };
+
+  private:
+    DISALLOW_COPY_AND_ASSIGN(Renderer11);
+
+    void generateCaps(gl::Caps *outCaps, gl::TextureCapsMap *outTextureCaps, gl::Extensions *outExtensions) const override;
+    Workarounds generateWorkarounds() const override;
+
+    gl::Error drawLineLoop(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer);
+    gl::Error drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer, int instances);
+
+    ID3D11Texture2D *resolveMultisampledTexture(ID3D11Texture2D *source, unsigned int subresource);
+    void unsetConflictingSRVs(gl::SamplerType shaderType, const ID3D11Resource *resource, const gl::ImageIndex *index);
+
+    static void invalidateFBOAttachmentSwizzles(gl::FramebufferAttachment *attachment, int mipLevel);
+    static void invalidateFramebufferSwizzles(const gl::Framebuffer *framebuffer);
+
+    HMODULE mD3d11Module;
+    HMODULE mDxgiModule;
+    HDC mDc;
+    std::vector<D3D_FEATURE_LEVEL> mAvailableFeatureLevels;
+    D3D_DRIVER_TYPE mDriverType;
+
+    HLSLCompiler mCompiler;
+
+    void initializeDevice();
+    void releaseDeviceResources();
+    void release();
+
+    RenderStateCache mStateCache;
+
+    // current render target states
+    unsigned int mAppliedRenderTargetSerials[gl::IMPLEMENTATION_MAX_DRAW_BUFFERS];
+    unsigned int mAppliedDepthbufferSerial;
+    unsigned int mAppliedStencilbufferSerial;
+    bool mDepthStencilInitialized;
+    bool mRenderTargetDescInitialized;
+
+    struct RenderTargetDesc
+    {
+        size_t width;
+        size_t height;
+        DXGI_FORMAT format;
+    };
+    RenderTargetDesc mRenderTargetDesc;
+
+    // Currently applied sampler states
+    std::vector<bool> mForceSetVertexSamplerStates;
+    std::vector<gl::SamplerState> mCurVertexSamplerStates;
+
+    std::vector<bool> mForceSetPixelSamplerStates;
+    std::vector<gl::SamplerState> mCurPixelSamplerStates;
+
+    // Currently applied textures
+    struct SRVRecord
+    {
+        ID3D11ShaderResourceView *srv;
+        ID3D11Resource *resource;
+        D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+    };
+    std::vector<SRVRecord> mCurVertexSRVs;
+    std::vector<SRVRecord> mCurPixelSRVs;
+
+    // Currently applied blend state
+    bool mForceSetBlendState;
+    gl::BlendState mCurBlendState;
+    gl::ColorF mCurBlendColor;
+    unsigned int mCurSampleMask;
+
+    // Currently applied rasterizer state
+    bool mForceSetRasterState;
+    gl::RasterizerState mCurRasterState;
+
+    // Currently applied depth stencil state
+    bool mForceSetDepthStencilState;
+    gl::DepthStencilState mCurDepthStencilState;
+    int mCurStencilRef;
+    int mCurStencilBackRef;
+
+    // Currently applied scissor rectangle
+    bool mForceSetScissor;
+    bool mScissorEnabled;
+    gl::Rectangle mCurScissor;
+
+    // Currently applied viewport
+    bool mForceSetViewport;
+    gl::Rectangle mCurViewport;
+    float mCurNear;
+    float mCurFar;
+
+    // Currently applied primitive topology
+    D3D11_PRIMITIVE_TOPOLOGY mCurrentPrimitiveTopology;
+
+    // Currently applied index buffer
+    ID3D11Buffer *mAppliedIB;
+    DXGI_FORMAT mAppliedIBFormat;
+    unsigned int mAppliedIBOffset;
+
+    // Currently applied transform feedback buffers
+    ID3D11Buffer *mAppliedTFBuffers[gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS]; // Tracks the current D3D buffers
+                                                                                        // in use for streamout
+    GLintptr mAppliedTFOffsets[gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS]; // Tracks the current GL-specified
+                                                                                   // buffer offsets to transform feedback
+                                                                                   // buffers
+    UINT mCurrentD3DOffsets[gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS];  // Tracks the D3D buffer offsets,
+                                                                                 // which may differ from GLs, due
+                                                                                 // to different append behavior
+
+    // Currently applied shaders
+    ID3D11VertexShader *mAppliedVertexShader;
+    ID3D11GeometryShader *mAppliedGeometryShader;
+    ID3D11GeometryShader *mCurPointGeometryShader;
+    ID3D11PixelShader *mAppliedPixelShader;
+
+    dx_VertexConstants mVertexConstants;
+    dx_VertexConstants mAppliedVertexConstants;
+    ID3D11Buffer *mDriverConstantBufferVS;
+    ID3D11Buffer *mCurrentVertexConstantBuffer;
+    unsigned int mCurrentConstantBufferVS[gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS];
+
+    dx_PixelConstants mPixelConstants;
+    dx_PixelConstants mAppliedPixelConstants;
+    ID3D11Buffer *mDriverConstantBufferPS;
+    ID3D11Buffer *mCurrentPixelConstantBuffer;
+    unsigned int mCurrentConstantBufferPS[gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS];
+
+    ID3D11Buffer *mCurrentGeometryConstantBuffer;
+
+    // Vertex, index and input layouts
+    VertexDataManager *mVertexDataManager;
+    IndexDataManager *mIndexDataManager;
+    InputLayoutCache mInputLayoutCache;
+
+    StreamingIndexBufferInterface *mLineLoopIB;
+    StreamingIndexBufferInterface *mTriangleFanIB;
+
+    // Texture copy resources
+    Blit11 *mBlit;
+    PixelTransfer11 *mPixelTransfer;
+
+    // Masked clear resources
+    Clear11 *mClear;
+
+    // Perform trim for D3D resources
+    Trim11 *mTrim;
+
+    // Sync query
+    ID3D11Query *mSyncQuery;
+
+    ID3D11Device *mDevice;
+    D3D_FEATURE_LEVEL mFeatureLevel;
+    ID3D11DeviceContext *mDeviceContext;
+    ID3D11DeviceContext1 *mDeviceContext1;
+    IDXGIAdapter *mDxgiAdapter;
+    DXGI_ADAPTER_DESC mAdapterDescription;
+    char mDescription[128];
+    DXGIFactory *mDxgiFactory;
+};
+
+}
+#endif // LIBANGLE_RENDERER_D3D_D3D11_RENDERER11_H_

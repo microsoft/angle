@@ -13,7 +13,6 @@
 #include <algorithm>
 
 #include "compiler/translator/Intermediate.h"
-#include "compiler/translator/RemoveTree.h"
 #include "compiler/translator/SymbolTable.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -77,12 +76,25 @@ TIntermTyped *TIntermediate::addBinaryMath(
       case EOpDiv:
       case EOpMul:
         if (left->getBasicType() == EbtStruct || left->getBasicType() == EbtBool)
+        {
             return NULL;
+        }
+        break;
+      case EOpMod:
+        // Note that this is only for the % operator, not for mod()
+        if (left->getBasicType() == EbtStruct || left->getBasicType() == EbtBool || left->getBasicType() == EbtFloat)
+        {
+            return NULL;
+        }
+        break;
+      // Note that for bitwise ops, type checking is done in promote() to
+      // share code between ops and compound assignment
       default:
         break;
     }
 
-    if (left->getBasicType() != right->getBasicType())
+    // This check is duplicated between here and node->promote() as an optimization.
+    if (left->getBasicType() != right->getBasicType() && op != EOpBitShiftLeft && op != EOpBitShiftRight)
     {
         return NULL;
     }
@@ -184,23 +196,30 @@ TIntermTyped *TIntermediate::addUnaryMath(
     switch (op)
     {
       case EOpLogicalNot:
-        if (child->getType().getBasicType() != EbtBool ||
-            child->getType().isMatrix() ||
-            child->getType().isArray() ||
-            child->getType().isVector())
+        if (child->getBasicType() != EbtBool ||
+            child->isMatrix() ||
+            child->isArray() ||
+            child->isVector())
         {
             return NULL;
         }
         break;
-
+      case EOpBitwiseNot:
+        if ((child->getBasicType() != EbtInt && child->getBasicType() != EbtUInt) ||
+            child->isMatrix() ||
+            child->isArray())
+        {
+            return NULL;
+        }
+        break;
       case EOpPostIncrement:
       case EOpPreIncrement:
       case EOpPostDecrement:
       case EOpPreDecrement:
       case EOpNegative:
       case EOpPositive:
-        if (child->getType().getBasicType() == EbtStruct ||
-            child->getType().isArray())
+        if (child->getBasicType() == EbtStruct ||
+            child->isArray())
         {
             return NULL;
         }
@@ -221,6 +240,22 @@ TIntermTyped *TIntermediate::addUnaryMath(
 
     if (!node->promote(mInfoSink))
         return 0;
+
+    switch (op)
+    {
+      case EOpPackSnorm2x16:
+      case EOpPackUnorm2x16:
+      case EOpPackHalf2x16:
+      case EOpUnpackSnorm2x16:
+      case EOpUnpackUnorm2x16:
+        node->getTypePointer()->setPrecision(EbpHigh);
+        break;
+      case EOpUnpackHalf2x16:
+        node->getTypePointer()->setPrecision(EbpMedium);
+        break;
+      default:
+        break;
+    }
 
     if (childTempConstant)
     {
@@ -509,13 +544,4 @@ bool TIntermediate::postProcess(TIntermNode *root)
         aggRoot->setOp(EOpSequence);
 
     return true;
-}
-
-//
-// This deletes the tree.
-//
-void TIntermediate::remove(TIntermNode *root)
-{
-    if (root)
-        RemoveAllTreeNodes(root);
 }

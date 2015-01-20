@@ -254,7 +254,7 @@ int VariableColumnCount(GLenum type)
     return 0;
 }
 
-bool IsSampler(GLenum type)
+bool IsSamplerType(GLenum type)
 {
     switch (type)
     {
@@ -343,9 +343,27 @@ int AllocateFirstFreeBits(unsigned int *bits, unsigned int allocationSize, unsig
     return -1;
 }
 
-bool IsCubemapTextureTarget(GLenum target)
+META_ASSERT(GL_TEXTURE_CUBE_MAP_NEGATIVE_X - GL_TEXTURE_CUBE_MAP_POSITIVE_X == 1);
+META_ASSERT(GL_TEXTURE_CUBE_MAP_POSITIVE_Y - GL_TEXTURE_CUBE_MAP_POSITIVE_X == 2);
+META_ASSERT(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y - GL_TEXTURE_CUBE_MAP_POSITIVE_X == 3);
+META_ASSERT(GL_TEXTURE_CUBE_MAP_POSITIVE_Z - GL_TEXTURE_CUBE_MAP_POSITIVE_X == 4);
+META_ASSERT(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z - GL_TEXTURE_CUBE_MAP_POSITIVE_X == 5);
+
+bool IsCubeMapTextureTarget(GLenum target)
 {
-    return (target >= GL_TEXTURE_CUBE_MAP_POSITIVE_X && target <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
+    return (target >= FirstCubeMapTextureTarget && target <= LastCubeMapTextureTarget);
+}
+
+size_t CubeMapTextureTargetToLayerIndex(GLenum target)
+{
+    ASSERT(IsCubeMapTextureTarget(target));
+    return target - static_cast<size_t>(FirstCubeMapTextureTarget);
+}
+
+GLenum LayerIndexToCubeMapTextureTarget(size_t index)
+{
+    ASSERT(index <= (LastCubeMapTextureTarget - FirstCubeMapTextureTarget));
+    return FirstCubeMapTextureTarget + static_cast<GLenum>(index);
 }
 
 bool IsTriangleMode(GLenum drawMode)
@@ -486,9 +504,15 @@ void writeFile(const char* path, const void* content, size_t size)
 }
 #endif // !ANGLE_ENABLE_WINDOWS_STORE
 
-void PlatformSleep(unsigned long dwMilliseconds)
+#if defined (ANGLE_PLATFORM_WINDOWS)
+
+// Causes the thread to relinquish the remainder of its time slice to any
+// other thread that is ready to run.If there are no other threads ready
+// to run, the function returns immediately, and the thread continues execution.
+void ScheduleYield()
 {
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    // This implementation of Sleep exists because it is not available prior to Update 4.
     static HANDLE singletonEvent = nullptr;
     HANDLE sleepEvent = singletonEvent;
     if (!sleepEvent)
@@ -509,9 +533,10 @@ void PlatformSleep(unsigned long dwMilliseconds)
     }
 
     // Emulate sleep by waiting with timeout on an event that is never signalled.
-    WaitForSingleObjectEx(sleepEvent, dwMilliseconds, false);
+    WaitForSingleObjectEx(sleepEvent, 0, false);
 #else
-    Sleep(dwMilliseconds);
+    Sleep(0);
 #endif
 }
 
+#endif

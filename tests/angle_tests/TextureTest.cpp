@@ -1,7 +1,7 @@
 #include "ANGLETest.h"
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(TextureTest, ES2_D3D9, ES2_D3D11, ES2_D3D11_FL9_3);
+ANGLE_TYPED_TEST_CASE(TextureTest, ES2_D3D9, ES2_D3D11);
 
 template<typename T>
 class TextureTest : public ANGLETest
@@ -223,4 +223,22 @@ TYPED_TEST(TextureTest, MipmapsTwice)
 
     EXPECT_GL_NO_ERROR();
     EXPECT_PIXEL_EQ(px, py, 0, 255, 0, 255);
+}
+
+// Test creating a FBO with a cube map render target, to test an ANGLE bug
+// https://code.google.com/p/angleproject/issues/detail?id=849
+TYPED_TEST(TextureTest, CubeMapFBO)
+{
+    GLuint fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, mTextureCube);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, mTextureCube, 0);
+
+    EXPECT_EQ(GL_FRAMEBUFFER_COMPLETE, glCheckFramebufferStatus(GL_FRAMEBUFFER));
+
+    glDeleteFramebuffers(1, &fbo);
+
+    EXPECT_GL_NO_ERROR();
 }

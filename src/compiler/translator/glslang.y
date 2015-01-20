@@ -41,12 +41,11 @@ WHICH GENERATES THE GLSL ES PARSER (glslang_tab.cpp AND glslang_tab.h).
 
 #define YYENABLE_NLS 0
 
-#define YYLEX_PARAM context->scanner
-
 %}
 %expect 1 /* One shift reduce conflict because of if | else */
-%pure-parser
 %parse-param {TParseContext* context}
+%param   {void *scanner}
+%define api.pure full
 %locations
 
 %code requires {
@@ -88,11 +87,11 @@ WHICH GENERATES THE GLSL ES PARSER (glslang_tab.cpp AND glslang_tab.h).
 
 %{
 extern int yylex(YYSTYPE* yylval, YYLTYPE* yylloc, void* yyscanner);
-extern void yyerror(YYLTYPE* yylloc, TParseContext* context, const char* reason);
+extern void yyerror(YYLTYPE* yylloc, TParseContext* context, void *scanner, const char* reason);
 
 #define YYLLOC_DEFAULT(Current, Rhs, N)                      \
   do {                                                       \
-      if (YYID(N)) {                                         \
+      if (N) {                                         \
         (Current).first_file = YYRHSLOC(Rhs, 1).first_file;  \
         (Current).first_line = YYRHSLOC(Rhs, 1).first_line;  \
         (Current).last_file = YYRHSLOC(Rhs, N).last_file;    \
@@ -354,6 +353,13 @@ function_call
                         // Treat it like a built-in unary operator.
                         //
                         $$ = context->intermediate.addUnaryMath(op, $1.intermNode, @1);
+                        if ($$ == 0)  {
+                            std::stringstream extraInfoStream;
+                            extraInfoStream << "built in unary operator function.  Type: " << static_cast<TIntermTyped*>($1.intermNode)->getCompleteString();
+                            std::string extraInfo = extraInfoStream.str();
+                            context->error($1.intermNode->getLine(), " wrong operand type", "Internal Error", extraInfo.c_str());
+                            YYERROR;
+                        }
                         const TType& returnType = fnCandidate->getReturnType();
                         if (returnType.getBasicType() == EbtBool) {
                             // Bool types should not have precision, so we'll override any precision
@@ -362,13 +368,6 @@ function_call
                         } else {
                             // addUnaryMath has set the precision of the node based on the operand.
                             $$->setTypePreservePrecision(returnType);
-                        }
-                        if ($$ == 0)  {
-                            std::stringstream extraInfoStream;
-                            extraInfoStream << "built in unary operator function.  Type: " << static_cast<TIntermTyped*>($1.intermNode)->getCompleteString();
-                            std::string extraInfo = extraInfoStream.str();
-                            context->error($1.intermNode->getLine(), " wrong operand type", "Internal Error", extraInfo.c_str());
-                            YYERROR;
                         }
                     } else {
                         TIntermAggregate *aggregate = context->intermediate.setAggregateOperator($1.intermAggregate, op, @1);
@@ -516,10 +515,11 @@ unary_expression
             if ($$ == 0) {
                 const char* errorOp = "";
                 switch($1.op) {
-                case EOpNegative:   errorOp = "-"; break;
-                case EOpPositive:   errorOp = "+"; break;
-                case EOpLogicalNot: errorOp = "!"; break;
-                default: break;
+                  case EOpNegative:   errorOp = "-"; break;
+                  case EOpPositive:   errorOp = "+"; break;
+                  case EOpLogicalNot: errorOp = "!"; break;
+                  case EOpBitwiseNot: errorOp = "~"; break;
+                  default: break;
                 }
                 context->unaryOpError(@1, errorOp, $2->getCompleteString());
                 context->recover();
@@ -535,6 +535,10 @@ unary_operator
     : PLUS  { $$.op = EOpPositive; }
     | DASH  { $$.op = EOpNegative; }
     | BANG  { $$.op = EOpLogicalNot; }
+    | TILDE {
+        ES3_ONLY("~", @$, "bit-wise operator");
+        $$.op = EOpBitwiseNot;
+    }
     ;
 // Grammar Note:  No '*' or '&' unary ops.  Pointers are not supported.
 
@@ -552,6 +556,15 @@ multiplicative_expression
         $$ = context->intermediate.addBinaryMath(EOpDiv, $1, $3, @2);
         if ($$ == 0) {
             context->binaryOpError(@2, "/", $1->getCompleteString(), $3->getCompleteString());
+            context->recover();
+            $$ = $1;
+        }
+    }
+    | multiplicative_expression PERCENT unary_expression {
+        ES3_ONLY("%", @2, "integer modulus operator");
+        $$ = context->intermediate.addBinaryMath(EOpMod, $1, $3, @2);
+        if ($$ == 0) {
+            context->binaryOpError(@2, "%", $1->getCompleteString(), $3->getCompleteString());
             context->recover();
             $$ = $1;
         }
@@ -580,6 +593,24 @@ additive_expression
 
 shift_expression
     : additive_expression { $$ = $1; }
+    | shift_expression LEFT_OP additive_expression {
+        ES3_ONLY("<<", @2, "bit-wise operator");
+        $$ = context->intermediate.addBinaryMath(EOpBitShiftLeft, $1, $3, @2);
+        if ($$ == 0) {
+            context->binaryOpError(@2, "<<", $1->getCompleteString(), $3->getCompleteString());
+            context->recover();
+            $$ = $1;
+        }
+    }
+    | shift_expression RIGHT_OP additive_expression {
+        ES3_ONLY(">>", @2, "bit-wise operator");
+        $$ = context->intermediate.addBinaryMath(EOpBitShiftRight, $1, $3, @2);
+        if ($$ == 0) {
+            context->binaryOpError(@2, ">>", $1->getCompleteString(), $3->getCompleteString());
+            context->recover();
+            $$ = $1;
+        }
+    }
     ;
 
 relational_expression
@@ -652,14 +683,41 @@ equality_expression
 
 and_expression
     : equality_expression { $$ = $1; }
+    | and_expression AMPERSAND equality_expression {
+        ES3_ONLY("&", @2, "bit-wise operator");
+        $$ = context->intermediate.addBinaryMath(EOpBitwiseAnd, $1, $3, @2);
+        if ($$ == 0) {
+            context->binaryOpError(@2, "&", $1->getCompleteString(), $3->getCompleteString());
+            context->recover();
+            $$ = $1;
+        }
+    }
     ;
 
 exclusive_or_expression
     : and_expression { $$ = $1; }
+    | exclusive_or_expression CARET and_expression {
+        ES3_ONLY("^", @2, "bit-wise operator");
+        $$ = context->intermediate.addBinaryMath(EOpBitwiseXor, $1, $3, @2);
+        if ($$ == 0) {
+            context->binaryOpError(@2, "^", $1->getCompleteString(), $3->getCompleteString());
+            context->recover();
+            $$ = $1;
+        }
+    }
     ;
 
 inclusive_or_expression
     : exclusive_or_expression { $$ = $1; }
+    | inclusive_or_expression VERTICAL_BAR exclusive_or_expression {
+        ES3_ONLY("|", @2, "bit-wise operator");
+        $$ = context->intermediate.addBinaryMath(EOpBitwiseOr, $1, $3, @2);
+        if ($$ == 0) {
+            context->binaryOpError(@2, "|", $1->getCompleteString(), $3->getCompleteString());
+            context->recover();
+            $$ = $1;
+        }
+    }
     ;
 
 logical_and_expression
@@ -740,8 +798,32 @@ assignment_operator
     : EQUAL        { $$.op = EOpAssign; }
     | MUL_ASSIGN   { $$.op = EOpMulAssign; }
     | DIV_ASSIGN   { $$.op = EOpDivAssign; }
+    | MOD_ASSIGN   {
+        ES3_ONLY("%=", @$, "integer modulus operator");
+        $$.op = EOpModAssign;
+    }
     | ADD_ASSIGN   { $$.op = EOpAddAssign; }
     | SUB_ASSIGN   { $$.op = EOpSubAssign; }
+    | LEFT_ASSIGN {
+        ES3_ONLY("<<=", @$, "bit-wise operator");
+        $$.op = EOpBitShiftLeftAssign;
+    }
+    | RIGHT_ASSIGN {
+        ES3_ONLY(">>=", @$, "bit-wise operator");
+        $$.op = EOpBitShiftRightAssign;
+    }
+    | AND_ASSIGN {
+        ES3_ONLY("&=", @$, "bit-wise operator");
+        $$.op = EOpBitwiseAndAssign;
+    }
+    | XOR_ASSIGN {
+        ES3_ONLY("^=", @$, "bit-wise operator");
+        $$.op = EOpBitwiseXorAssign;
+    }
+    | OR_ASSIGN {
+        ES3_ONLY("|=", @$, "bit-wise operator");
+        $$.op = EOpBitwiseOrAssign;
+    }
     ;
 
 expression
@@ -780,7 +862,7 @@ declaration
         
         TIntermAggregate *prototype = new TIntermAggregate;
         prototype->setType(function.getReturnType());
-        prototype->setName(function.getName());
+        prototype->setName(function.getMangledName());
         
         for (size_t i = 0; i < function.getParamCount(); i++)
         {
@@ -1923,5 +2005,5 @@ function_definition
 %%
 
 int glslang_parse(TParseContext* context) {
-    return yyparse(context);
+    return yyparse(context, context->scanner);
 }

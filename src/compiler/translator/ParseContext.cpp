@@ -796,9 +796,24 @@ bool TParseContext::arrayErrorCheck(const TSourceLoc& line, const TString& ident
     bool sameScope = false;
     TSymbol* symbol = symbolTable.find(identifier, 0, &builtIn, &sameScope);
     if (symbol == 0 || !sameScope) {
-        if (reservedErrorCheck(line, identifier))
-            return true;
-        
+        bool needsReservedErrorCheck = true;
+
+        // gl_LastFragData may be redeclared with a new precision qualifier
+        if (identifier.compare(0, 15, "gl_LastFragData") == 0) {
+            if (type.arraySize == static_cast<const TVariable*>(symbolTable.findBuiltIn("gl_MaxDrawBuffers", shaderVersion))->getConstPointer()->getIConst()) {
+                if (TSymbol* builtInSymbol = symbolTable.findBuiltIn(identifier, shaderVersion)) {
+                    needsReservedErrorCheck = extensionErrorCheck(line, builtInSymbol->getExtension());
+                }
+            } else {
+                error(line, "redeclaration of array with size != gl_MaxDrawBuffers", identifier.c_str());
+                return true;
+            }
+        }
+
+        if (needsReservedErrorCheck)
+            if (reservedErrorCheck(line, identifier))
+                return true;
+
         variable = new TVariable(&identifier, TType(type));
 
         if (type.arraySize)
@@ -1375,7 +1390,7 @@ TIntermAggregate* TParseContext::parseInvariantDeclaration(const TSourceLoc &inv
             recover();
             return NULL;
         }
-        symbolTable.addInvariantVarying(*identifier);
+        symbolTable.addInvariantVarying(std::string(identifier->c_str()));
         const TVariable *variable = getNamedVariable(identifierLoc, identifier, symbol);
         ASSERT(variable);
         const TType &type = variable->getType();
@@ -1605,7 +1620,7 @@ TFunction *TParseContext::addConstructorFunc(TPublicType publicType)
 //
 // Returns 0 for an error or the constructed node (aggregate or typed) for no error.
 //
-TIntermTyped *TParseContext::addConstructor(TIntermNode *arguments, const TType *type, TOperator op, TFunction *fnCall, const TSourceLoc &line)
+TIntermTyped *TParseContext::addConstructor(TIntermNode *arguments, TType *type, TOperator op, TFunction *fnCall, const TSourceLoc &line)
 {
     TIntermAggregate *aggregateArguments = arguments->getAsAggregate();
 
@@ -1633,11 +1648,19 @@ TIntermTyped *TParseContext::addConstructor(TIntermNode *arguments, const TType 
     }
 
     // Turn the argument list itself into a constructor
-    TIntermTyped *constructor = intermediate.setAggregateOperator(aggregateArguments, op, line);
-    TIntermTyped *constConstructor = foldConstConstructor(constructor->getAsAggregate(), *type);
+    TIntermAggregate *constructor = intermediate.setAggregateOperator(aggregateArguments, op, line);
+    TIntermTyped *constConstructor = foldConstConstructor(constructor, *type);
     if (constConstructor)
     {
         return constConstructor;
+    }
+
+    // Structs should not be precision qualified, the individual members may be.
+    // Built-in types on the other hand should be precision qualified.
+    if (op != EOpConstructStruct)
+    {
+        constructor->setPrecisionFromChildren();
+        type->setPrecision(constructor->getPrecision());
     }
 
     return constructor;
@@ -2028,9 +2051,11 @@ TIntermTyped* TParseContext::addIndexExpression(TIntermTyped *baseExpression, co
         recover();
     }
 
-    if (indexExpression->getQualifier() == EvqConst)
+    TIntermConstantUnion *indexConstantUnion = indexExpression->getAsConstantUnion();
+
+    if (indexExpression->getQualifier() == EvqConst && indexConstantUnion)
     {
-        int index = indexExpression->getAsConstantUnion()->getIConst(0);
+        int index = indexConstantUnion->getIConst(0);
         if (index < 0)
         {
             std::stringstream infoStream;
@@ -2091,7 +2116,7 @@ TIntermTyped* TParseContext::addIndexExpression(TIntermTyped *baseExpression, co
                 index = baseExpression->getType().getNominalSize() - 1;
             }
 
-            indexExpression->getAsConstantUnion()->getUnionArrayPointer()->setIConst(index);
+            indexConstantUnion->getUnionArrayPointer()->setIConst(index);
             indexedExpression = intermediate.addIndex(EOpIndexDirect, baseExpression, indexExpression, location);
         }
     }

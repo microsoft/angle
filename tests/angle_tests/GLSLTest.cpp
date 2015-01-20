@@ -1,7 +1,7 @@
 #include "ANGLETest.h"
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(GLSLTest, ES2_D3D9, ES2_D3D11, ES2_D3D11_FL9_3);
+ANGLE_TYPED_TEST_CASE(GLSLTest, ES2_D3D9, ES2_D3D11);
 
 template<typename T>
 class GLSLTest : public ANGLETest
@@ -728,4 +728,149 @@ TYPED_TEST(GLSLTest, MaxVaryingVec3ArrayAndMaxPlusOneFloatArray)
 
     GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
     EXPECT_EQ(0u, program);
+}
+
+// Verify shader source with a fixed length that is less than the null-terminated length will compile.
+TYPED_TEST(GLSLTest, FixedShaderLength)
+{
+    GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    const std::string appendGarbage = "abcasdfasdfasdfasdfasdf";
+    const std::string source = "void main() { gl_FragColor = vec4(0, 0, 0, 0); }" + appendGarbage;
+    const char *sourceArray[1] = { source.c_str() };
+    GLint lengths[1] = { source.length() - appendGarbage.length() };
+    glShaderSource(shader, ArraySize(sourceArray), sourceArray, lengths);
+    glCompileShader(shader);
+
+    GLint compileResult;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compileResult);
+    EXPECT_NE(compileResult, 0);
+}
+
+// Verify that a negative shader source length is treated as a null-terminated length.
+TYPED_TEST(GLSLTest, NegativeShaderLength)
+{
+    GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    const char *sourceArray[1] = { "void main() { gl_FragColor = vec4(0, 0, 0, 0); }" };
+    GLint lengths[1] = { -10 };
+    glShaderSource(shader, ArraySize(sourceArray), sourceArray, lengths);
+    glCompileShader(shader);
+
+    GLint compileResult;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compileResult);
+    EXPECT_NE(compileResult, 0);
+}
+
+// Verify that a length array with mixed positive and negative values compiles.
+TYPED_TEST(GLSLTest, MixedShaderLengths)
+{
+    GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    const char *sourceArray[] =
+    {
+        "void main()",
+        "{",
+        "    gl_FragColor = vec4(0, 0, 0, 0);",
+        "}",
+    };
+    GLint lengths[] =
+    {
+        -10,
+        1,
+        std::strlen(sourceArray[2]),
+        -1,
+    };
+    ASSERT_EQ(ArraySize(sourceArray), ArraySize(lengths));
+
+    glShaderSource(shader, ArraySize(sourceArray), sourceArray, lengths);
+    glCompileShader(shader);
+
+    GLint compileResult;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compileResult);
+    EXPECT_NE(compileResult, 0);
+}
+
+// Verify that zero-length shader source does not affect shader compilation.
+TYPED_TEST(GLSLTest, ZeroShaderLength)
+{
+    GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    const char *sourceArray[] =
+    {
+        "adfasdf",
+        "34534",
+        "void main() { gl_FragColor = vec4(0, 0, 0, 0); }",
+        "",
+        "asdfasdfsdsdf",
+    };
+    GLint lengths[] =
+    {
+        0,
+        0,
+        -1,
+        0,
+        0,
+    };
+    ASSERT_EQ(ArraySize(sourceArray), ArraySize(lengths));
+
+    glShaderSource(shader, ArraySize(sourceArray), sourceArray, lengths);
+    glCompileShader(shader);
+
+    GLint compileResult;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compileResult);
+    EXPECT_NE(compileResult, 0);
+}
+
+// Tests that bad index expressions don't crash ANGLE's translator.
+// https://code.google.com/p/angleproject/issues/detail?id=857
+TYPED_TEST(GLSLTest, BadIndexBug)
+{
+    const std::string &fragmentShaderSourceVec =
+        "precision mediump float;\n"
+        "uniform vec4 uniformVec;\n"
+        "void main()\n"
+        "{\n"
+        "    gl_FragColor = vec4(uniformVec[int()]);\n"
+        "}";
+
+    GLuint shader = CompileShader(GL_FRAGMENT_SHADER, fragmentShaderSourceVec);
+    EXPECT_EQ(0u, shader);
+
+    if (shader != 0)
+    {
+        glDeleteShader(shader);
+    }
+
+    const std::string &fragmentShaderSourceMat =
+        "precision mediump float;\n"
+        "uniform mat4 uniformMat;\n"
+        "void main()\n"
+        "{\n"
+        "    gl_FragColor = vec4(uniformMat[int()]);\n"
+        "}";
+
+    shader = CompileShader(GL_FRAGMENT_SHADER, fragmentShaderSourceMat);
+    EXPECT_EQ(0u, shader);
+
+    if (shader != 0)
+    {
+        glDeleteShader(shader);
+    }
+
+    const std::string &fragmentShaderSourceArray =
+        "precision mediump float;\n"
+        "uniform vec4 uniformArray;\n"
+        "void main()\n"
+        "{\n"
+        "    gl_FragColor = vec4(uniformArray[int()]);\n"
+        "}";
+
+    shader = CompileShader(GL_FRAGMENT_SHADER, fragmentShaderSourceArray);
+    EXPECT_EQ(0u, shader);
+
+    if (shader != 0)
+    {
+        glDeleteShader(shader);
+    }
 }

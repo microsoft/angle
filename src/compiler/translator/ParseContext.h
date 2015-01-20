@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
-#ifndef _PARSER_HELPER_INCLUDED_
-#define _PARSER_HELPER_INCLUDED_
+#ifndef COMPILER_TRANSLATOR_PARSECONTEXT_H_
+#define COMPILER_TRANSLATOR_PARSECONTEXT_H_
 
 #include "compiler/translator/Compiler.h"
 #include "compiler/translator/Diagnostics.h"
@@ -25,7 +25,7 @@ struct TMatrixFields {
 // they can be passed to the parser without needing a global.
 //
 struct TParseContext {
-    TParseContext(TSymbolTable& symt, TExtensionBehavior& ext, TIntermediate& interm, sh::GLenum type, ShShaderSpec spec, int options, bool checksPrecErrors, const char* sourcePath, TInfoSink& is) :
+    TParseContext(TSymbolTable& symt, TExtensionBehavior& ext, TIntermediate& interm, sh::GLenum type, ShShaderSpec spec, int options, bool checksPrecErrors, const char* sourcePath, TInfoSink& is, bool debugShaderPrecisionSupported) :
             intermediate(interm),
             symbolTable(symt),
             shaderType(type),
@@ -42,7 +42,7 @@ struct TParseContext {
             defaultBlockStorage(EbsShared),
             diagnostics(is),
             shaderVersion(100),
-            directiveHandler(ext, diagnostics, shaderVersion),
+            directiveHandler(ext, diagnostics, shaderVersion, debugShaderPrecisionSupported),
             preprocessor(&diagnostics, &directiveHandler),
             scanner(NULL) {  }
     TIntermediate& intermediate; // to hold and build a parse tree
@@ -136,7 +136,7 @@ struct TParseContext {
     TIntermAggregate* parseInitDeclarator(TPublicType &publicType, TIntermAggregate *declaratorList, const TSourceLoc& identifierLocation, const TString &identifier, const TSourceLoc& initLocation, TIntermTyped *initializer);
     void parseGlobalLayoutQualifier(const TPublicType &typeQualifier);
     TFunction *addConstructorFunc(TPublicType publicType);
-    TIntermTyped* addConstructor(TIntermNode*, const TType*, TOperator, TFunction*, const TSourceLoc&);
+    TIntermTyped* addConstructor(TIntermNode*, TType*, TOperator, TFunction*, const TSourceLoc&);
     TIntermTyped* foldConstConstructor(TIntermAggregate* aggrNode, const TType& type);
     TIntermTyped* addConstVectorNode(TVectorFields&, TIntermTyped*, const TSourceLoc&);
     TIntermTyped* addConstMatrixNode(int , TIntermTyped*, const TSourceLoc&);
@@ -169,4 +169,4 @@ struct TParseContext {
 int PaParseStrings(size_t count, const char* const string[], const int length[],
                    TParseContext* context);
 
-#endif // _PARSER_HELPER_INCLUDED_
+#endif // COMPILER_TRANSLATOR_PARSECONTEXT_H_

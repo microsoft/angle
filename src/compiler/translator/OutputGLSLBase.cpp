@@ -223,6 +223,9 @@ bool TOutputGLSLBase::visitBinary(Visit visit, TIntermBinary *node)
       case EOpDivAssign:
         writeTriplet(visit, "(", " /= ", ")");
         break;
+      case EOpModAssign:
+        writeTriplet(visit, "(", " %= ", ")");
+        break;
       // Notice the fall-through.
       case EOpMulAssign:
       case EOpVectorTimesMatrixAssign:
@@ -230,6 +233,21 @@ bool TOutputGLSLBase::visitBinary(Visit visit, TIntermBinary *node)
       case EOpMatrixTimesScalarAssign:
       case EOpMatrixTimesMatrixAssign:
         writeTriplet(visit, "(", " *= ", ")");
+        break;
+      case EOpBitShiftLeftAssign:
+        writeTriplet(visit, "(", " <<= ", ")");
+        break;
+      case EOpBitShiftRightAssign:
+        writeTriplet(visit, "(", " >>= ", ")");
+        break;
+      case EOpBitwiseAndAssign:
+        writeTriplet(visit, "(", " &= ", ")");
+        break;
+      case EOpBitwiseXorAssign:
+        writeTriplet(visit, "(", " ^= ", ")");
+        break;
+      case EOpBitwiseOrAssign:
+        writeTriplet(visit, "(", " |= ", ")");
         break;
 
       case EOpIndexDirect:
@@ -341,8 +359,24 @@ bool TOutputGLSLBase::visitBinary(Visit visit, TIntermBinary *node)
         writeTriplet(visit, "(", " / ", ")");
         break;
       case EOpMod:
-        UNIMPLEMENTED();
+        writeTriplet(visit, "(", " % ", ")");
         break;
+      case EOpBitShiftLeft:
+        writeTriplet(visit, "(", " << ", ")");
+        break;
+      case EOpBitShiftRight:
+        writeTriplet(visit, "(", " >> ", ")");
+        break;
+      case EOpBitwiseAnd:
+        writeTriplet(visit, "(", " & ", ")");
+        break;
+      case EOpBitwiseXor:
+        writeTriplet(visit, "(", " ^ ", ")");
+        break;
+      case EOpBitwiseOr:
+        writeTriplet(visit, "(", " | ", ")");
+        break;
+
       case EOpEqual:
         writeTriplet(visit, "(", " == ", ")");
         break;
@@ -398,6 +432,7 @@ bool TOutputGLSLBase::visitUnary(Visit visit, TIntermUnary *node)
       case EOpPositive: preString = "(+"; break;
       case EOpVectorLogicalNot: preString = "not("; break;
       case EOpLogicalNot: preString = "(!"; break;
+      case EOpBitwiseNot: preString = "(~"; break;
 
       case EOpPostIncrement: preString = "("; postString = "++)"; break;
       case EOpPostDecrement: preString = "("; postString = "--)"; break;
@@ -427,6 +462,25 @@ bool TOutputGLSLBase::visitUnary(Visit visit, TIntermUnary *node)
         break;
       case EOpAtan:
         preString = "atan(";
+        break;
+
+      case EOpSinh:
+        preString = "sinh(";
+        break;
+      case EOpCosh:
+        preString = "cosh(";
+        break;
+      case EOpTanh:
+        preString = "tanh(";
+        break;
+      case EOpAsinh:
+        preString = "asinh(";
+        break;
+      case EOpAcosh:
+        preString = "acosh(";
+        break;
+      case EOpAtanh:
+        preString = "atanh(";
         break;
 
       case EOpExp:
@@ -464,6 +518,38 @@ bool TOutputGLSLBase::visitUnary(Visit visit, TIntermUnary *node)
         preString = "fract(";
         break;
 
+      case EOpFloatBitsToInt:
+        preString = "floatBitsToInt(";
+        break;
+      case EOpFloatBitsToUint:
+        preString = "floatBitsToUint(";
+        break;
+      case EOpIntBitsToFloat:
+        preString = "intBitsToFloat(";
+        break;
+      case EOpUintBitsToFloat:
+        preString = "uintBitsToFloat(";
+        break;
+
+      case EOpPackSnorm2x16:
+        preString = "packSnorm2x16(";
+        break;
+      case EOpPackUnorm2x16:
+        preString = "packUnorm2x16(";
+        break;
+      case EOpPackHalf2x16:
+        preString = "packHalf2x16(";
+        break;
+      case EOpUnpackSnorm2x16:
+        preString = "unpackSnorm2x16(";
+        break;
+      case EOpUnpackUnorm2x16:
+        preString = "unpackUnorm2x16(";
+        break;
+      case EOpUnpackHalf2x16:
+        preString = "unpackHalf2x16(";
+        break;
+
       case EOpLength:
         preString = "length(";
         break;
@@ -479,6 +565,16 @@ bool TOutputGLSLBase::visitUnary(Visit visit, TIntermUnary *node)
         break;
       case EOpFwidth:
         preString = "fwidth(";
+        break;
+
+      case EOpTranspose:
+        preString = "transpose(";
+        break;
+      case EOpDeterminant:
+        preString = "determinant(";
+        break;
+      case EOpInverse:
+        preString = "inverse(";
         break;
 
       case EOpAny:
@@ -575,7 +671,7 @@ bool TOutputGLSLBase::visitAggregate(Visit visit, TIntermAggregate *node)
         // Function declaration.
         ASSERT(visit == PreVisit);
         writeVariableType(node->getType());
-        out << " " << hashName(node->getName());
+        out << " " << hashFunctionName(node->getName());
 
         out << "(";
         writeFunctionParameters(*(node->getSequence()));
@@ -617,6 +713,15 @@ bool TOutputGLSLBase::visitAggregate(Visit visit, TIntermAggregate *node)
         // Function call.
         if (visit == PreVisit)
             out << hashFunctionName(node->getName()) << "(";
+        else if (visit == InVisit)
+            out << ", ";
+        else
+            out << ")";
+        break;
+      case EOpInternalFunctionCall:
+        // Function call to an internal helper function.
+        if (visit == PreVisit)
+            out << node->getName() << "(";
         else if (visit == InVisit)
             out << ", ";
         else
@@ -722,6 +827,10 @@ bool TOutputGLSLBase::visitAggregate(Visit visit, TIntermAggregate *node)
         {
             out << ")";
         }
+        break;
+
+      case EOpOuterProduct:
+        writeBuiltInFunctionTriplet(visit, "outerProduct(", useEmulatedFunction);
         break;
 
       case EOpLessThan:

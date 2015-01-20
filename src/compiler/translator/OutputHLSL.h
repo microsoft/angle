@@ -4,17 +4,18 @@
 // found in the LICENSE file.
 //
 
-#ifndef COMPILER_OUTPUTHLSL_H_
-#define COMPILER_OUTPUTHLSL_H_
+#ifndef COMPILER_TRANSLATOR_OUTPUTHLSL_H_
+#define COMPILER_TRANSLATOR_OUTPUTHLSL_H_
 
 #include <list>
 #include <set>
 #include <map>
 
 #include "angle_gl.h"
-
 #include "compiler/translator/IntermNode.h"
 #include "compiler/translator/ParseContext.h"
+
+class BuiltInFunctionEmulatorHLSL;
 
 namespace sh
 {
@@ -40,7 +41,7 @@ class OutputHLSL : public TIntermTraverser
     static TString initializer(const TType &type);
 
   protected:
-    void header();
+    void header(const BuiltInFunctionEmulatorHLSL *builtInFunctionEmulator);
 
     // Visit AST nodes and output their code to the body stream
     void visitSymbol(TIntermSymbol*);
@@ -63,6 +64,8 @@ class OutputHLSL : public TIntermTraverser
 
     void outputConstructor(Visit visit, const TType &type, const TString &name, const TIntermSequence *parameters);
     const ConstantUnion *writeConstantUnion(const TType &type, const ConstantUnion *constUnion);
+
+    void writeEmulatedFunctionTriplet(Visit visit, const char *preStr);
 
     TParseContext &mContext;
     const ShShaderOutput mOutputType;
@@ -121,21 +124,6 @@ class OutputHLSL : public TIntermTraverser
     bool mUsesPointSize;
     bool mUsesFragDepth;
     bool mUsesXor;
-    bool mUsesMod1;
-    bool mUsesMod2v;
-    bool mUsesMod2f;
-    bool mUsesMod3v;
-    bool mUsesMod3f;
-    bool mUsesMod4v;
-    bool mUsesMod4f;
-    bool mUsesFaceforward1;
-    bool mUsesFaceforward2;
-    bool mUsesFaceforward3;
-    bool mUsesFaceforward4;
-    bool mUsesAtan2_1;
-    bool mUsesAtan2_2;
-    bool mUsesAtan2_3;
-    bool mUsesAtan2_4;
     bool mUsesDiscardRewriting;
     bool mUsesNestedBreak;
 
@@ -144,6 +132,7 @@ class OutputHLSL : public TIntermTraverser
     int mUniqueIndex;   // For creating unique names
 
     bool mContainsLoopDiscontinuity;
+    bool mContainsAnyLoop;
     bool mOutputLod0Function;
     bool mInsideDiscontinuousLoop;
     int mNestedLoopDepth;
@@ -160,4 +149,4 @@ class OutputHLSL : public TIntermTraverser
 
 }
 
-#endif   // COMPILER_OUTPUTHLSL_H_
+#endif   // COMPILER_TRANSLATOR_OUTPUTHLSL_H_

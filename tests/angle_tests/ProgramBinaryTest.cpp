@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(ProgramBinaryTest, ES2_D3D9, ES2_D3D11, ES2_D3D11_FL9_3);
+ANGLE_TYPED_TEST_CASE(ProgramBinaryTest, ES2_D3D9, ES2_D3D11);
 
 template<typename T>
 class ProgramBinaryTest : public ANGLETest
@@ -130,12 +130,11 @@ TYPED_TEST(ProgramBinaryTest, SaveAndLoadBinary)
             {
                 std::vector<GLchar> infoLog(infoLogLength);
                 glGetProgramInfoLog(program2, infoLog.size(), NULL, &infoLog[0]);
-
                 FAIL() << "program link failed: " << &infoLog[0];
             }
             else
             {
-                FAIL() << "program link failed: No infoLog returned";
+                FAIL() << "program link failed.";
             }
         }
         else

@@ -6,8 +6,8 @@
 
 // mathutil.h: Math and bit manipulation functions.
 
-#ifndef LIBGLESV2_MATHUTIL_H_
-#define LIBGLESV2_MATHUTIL_H_
+#ifndef COMMON_MATHUTIL_H_
+#define COMMON_MATHUTIL_H_
 
 #include "common/debug.h"
 #include "common/platform.h"
@@ -15,6 +15,7 @@
 #include <limits>
 #include <algorithm>
 #include <string.h>
+#include <stdlib.h>
 
 namespace gl
 {
@@ -109,7 +110,7 @@ inline unsigned int unorm(float x)
 
 inline bool supportsSSE2()
 {
-#if ANGLE_PLATFORM_WINDOWS && !defined(_M_ARM)
+#if defined(ANGLE_PLATFORM_WINDOWS) && !defined(_M_ARM)
     static bool checked = false;
     static bool supports = false;
 
@@ -503,6 +504,7 @@ inline unsigned int averageFloat10(unsigned int a, unsigned int b)
 namespace rx
 {
 
+// Represents intervals of the type [a, b)
 template <typename T>
 struct Range
 {
@@ -513,6 +515,18 @@ struct Range
     T end;
 
     T length() const { return end - start; }
+
+    bool intersects(Range<T> other)
+    {
+        if (start <= other.start)
+        {
+            return other.start < end;
+        }
+        else
+        {
+            return start < other.end;
+        }
+    }
 };
 
 typedef Range<int> RangeI;
@@ -550,6 +564,21 @@ inline bool IsIntegerCastSafe(BigIntT bigValue)
     return (static_cast<BigIntT>(static_cast<SmallIntT>(bigValue)) == bigValue);
 }
 
+#if defined(_MSC_VER)
+
+#define ANGLE_ROTL(x,y) _rotl(x,y)
+
+#else
+
+inline uint32_t RotL(uint32_t x, int8_t r)
+{
+    return (x << r) | (x >> (32 - r));
 }
 
-#endif   // LIBGLESV2_MATHUTIL_H_
+#define ANGLE_ROTL(x,y) RotL(x,y)
+
+#endif // namespace rx
+
+}
+
+#endif   // COMMON_MATHUTIL_H_

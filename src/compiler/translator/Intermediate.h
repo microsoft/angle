@@ -4,8 +4,8 @@
 // found in the LICENSE file.
 //
 
-#ifndef COMPILER_TRANSLATOR_LOCAL_INTERMEDIATE_H_
-#define COMPILER_TRANSLATOR_LOCAL_INTERMEDIATE_H_
+#ifndef COMPILER_TRANSLATOR_INTERMEDIATE_H_
+#define COMPILER_TRANSLATOR_INTERMEDIATE_H_
 
 #include "compiler/translator/IntermNode.h"
 
@@ -55,7 +55,6 @@ class TIntermediate
     TIntermBranch *addBranch(TOperator, TIntermTyped *, const TSourceLoc &);
     TIntermTyped *addSwizzle(TVectorFields &, const TSourceLoc &);
     bool postProcess(TIntermNode *);
-    void remove(TIntermNode *);
     void outputTree(TIntermNode *);
 
   private:
@@ -64,4 +63,4 @@ class TIntermediate
     TInfoSink & mInfoSink;
 };
 
-#endif  // COMPILER_TRANSLATOR_LOCAL_INTERMEDIATE_H_
+#endif  // COMPILER_TRANSLATOR_INTERMEDIATE_H_

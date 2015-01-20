@@ -157,39 +157,11 @@ bool TIntermLoop::replaceChildNode(
     return false;
 }
 
-void TIntermLoop::enqueueChildren(std::queue<TIntermNode *> *nodeQueue) const
-{
-    if (mInit)
-    {
-        nodeQueue->push(mInit);
-    }
-    if (mCond)
-    {
-        nodeQueue->push(mCond);
-    }
-    if (mExpr)
-    {
-        nodeQueue->push(mExpr);
-    }
-    if (mBody)
-    {
-        nodeQueue->push(mBody);
-    }
-}
-
 bool TIntermBranch::replaceChildNode(
     TIntermNode *original, TIntermNode *replacement)
 {
     REPLACE_IF_IS(mExpression, TIntermTyped, original, replacement);
     return false;
-}
-
-void TIntermBranch::enqueueChildren(std::queue<TIntermNode *> *nodeQueue) const
-{
-    if (mExpression)
-    {
-        nodeQueue->push(mExpression);
-    }
 }
 
 bool TIntermBinary::replaceChildNode(
@@ -200,31 +172,11 @@ bool TIntermBinary::replaceChildNode(
     return false;
 }
 
-void TIntermBinary::enqueueChildren(std::queue<TIntermNode *> *nodeQueue) const
-{
-    if (mLeft)
-    {
-        nodeQueue->push(mLeft);
-    }
-    if (mRight)
-    {
-        nodeQueue->push(mRight);
-    }
-}
-
 bool TIntermUnary::replaceChildNode(
     TIntermNode *original, TIntermNode *replacement)
 {
     REPLACE_IF_IS(mOperand, TIntermTyped, original, replacement);
     return false;
-}
-
-void TIntermUnary::enqueueChildren(std::queue<TIntermNode *> *nodeQueue) const
-{
-    if (mOperand)
-    {
-        nodeQueue->push(mOperand);
-    }
 }
 
 bool TIntermAggregate::replaceChildNode(
@@ -235,14 +187,6 @@ bool TIntermAggregate::replaceChildNode(
         REPLACE_IF_IS(mSequence[ii], TIntermNode, original, replacement);
     }
     return false;
-}
-
-void TIntermAggregate::enqueueChildren(std::queue<TIntermNode *> *nodeQueue) const
-{
-    for (size_t childIndex = 0; childIndex < mSequence.size(); childIndex++)
-    {
-        nodeQueue->push(mSequence[childIndex]);
-    }
 }
 
 void TIntermAggregate::setPrecisionFromChildren()
@@ -300,22 +244,6 @@ bool TIntermSelection::replaceChildNode(
     return false;
 }
 
-void TIntermSelection::enqueueChildren(std::queue<TIntermNode *> *nodeQueue) const
-{
-    if (mCondition)
-    {
-        nodeQueue->push(mCondition);
-    }
-    if (mTrueBlock)
-    {
-        nodeQueue->push(mTrueBlock);
-    }
-    if (mFalseBlock)
-    {
-        nodeQueue->push(mFalseBlock);
-    }
-}
-
 //
 // Say whether or not an operation node changes the value of a variable.
 //
@@ -336,6 +264,12 @@ bool TIntermOperator::isAssignment() const
       case EOpMatrixTimesScalarAssign:
       case EOpMatrixTimesMatrixAssign:
       case EOpDivAssign:
+      case EOpModAssign:
+      case EOpBitShiftLeftAssign:
+      case EOpBitShiftRightAssign:
+      case EOpBitwiseAndAssign:
+      case EOpBitwiseXorAssign:
+      case EOpBitwiseOrAssign:
         return true;
       default:
         return false;
@@ -389,6 +323,10 @@ bool TIntermUnary::promote(TInfoSink &)
         if (mOperand->getBasicType() != EbtBool)
             return false;
         break;
+      // bit-wise not is already checked
+      case EOpBitwiseNot:
+        break;
+
       case EOpNegative:
       case EOpPositive:
       case EOpPostIncrement:
@@ -403,6 +341,11 @@ bool TIntermUnary::promote(TInfoSink &)
       case EOpAny:
       case EOpAll:
       case EOpVectorLogicalNot:
+      case EOpIntBitsToFloat:
+      case EOpUintBitsToFloat:
+      case EOpUnpackSnorm2x16:
+      case EOpUnpackUnorm2x16:
+      case EOpUnpackHalf2x16:
         return true;
 
       default:
@@ -433,8 +376,42 @@ bool TIntermBinary::promote(TInfoSink &infoSink)
     }
 
     // GLSL ES 2.0 does not support implicit type casting.
-    // So the basic type should always match.
-    if (mLeft->getBasicType() != mRight->getBasicType())
+    // So the basic type should usually match.
+    bool basicTypesMustMatch = true;
+
+    // Check ops which require integer / ivec parameters
+    switch (mOp)
+    {
+      case EOpBitShiftLeft:
+      case EOpBitShiftRight:
+      case EOpBitShiftLeftAssign:
+      case EOpBitShiftRightAssign:
+        // Unsigned can be bit-shifted by signed and vice versa, but we need to
+        // check that the basic type is an integer type.
+        basicTypesMustMatch = false;
+        if (!IsInteger(mLeft->getBasicType()) || !IsInteger(mRight->getBasicType()))
+        {
+            return false;
+        }
+        break;
+      case EOpBitwiseAnd:
+      case EOpBitwiseXor:
+      case EOpBitwiseOr:
+      case EOpBitwiseAndAssign:
+      case EOpBitwiseXorAssign:
+      case EOpBitwiseOrAssign:
+        // It is enough to check the type of only one operand, since later it
+        // is checked that the operand types match.
+        if (!IsInteger(mLeft->getBasicType()))
+        {
+            return false;
+        }
+        break;
+      default:
+        break;
+    }
+
+    if (basicTypesMustMatch && mLeft->getBasicType() != mRight->getBasicType())
     {
         return false;
     }
@@ -628,9 +605,21 @@ bool TIntermBinary::promote(TInfoSink &infoSink)
       case EOpAdd:
       case EOpSub:
       case EOpDiv:
+      case EOpMod:
+      case EOpBitShiftLeft:
+      case EOpBitShiftRight:
+      case EOpBitwiseAnd:
+      case EOpBitwiseXor:
+      case EOpBitwiseOr:
       case EOpAddAssign:
       case EOpSubAssign:
       case EOpDivAssign:
+      case EOpModAssign:
+      case EOpBitShiftLeftAssign:
+      case EOpBitShiftRightAssign:
+      case EOpBitwiseAndAssign:
+      case EOpBitwiseXorAssign:
+      case EOpBitwiseOrAssign:
         if ((mLeft->isMatrix() && mRight->isVector()) ||
             (mLeft->isVector() && mRight->isMatrix()))
         {
@@ -641,9 +630,19 @@ bool TIntermBinary::promote(TInfoSink &infoSink)
         if (mLeft->getNominalSize() != mRight->getNominalSize() ||
             mLeft->getSecondarySize() != mRight->getSecondarySize())
         {
-            // If the nominal size of operands do not match:
-            // One of them must be scalar.
+            // If the nominal sizes of operands do not match:
+            // One of them must be a scalar.
             if (!mLeft->isScalar() && !mRight->isScalar())
+                return false;
+
+            // In the case of compound assignment other than multiply-assign,
+            // the right side needs to be a scalar. Otherwise a vector/matrix
+            // would be assigned to a scalar. A scalar can't be shifted by a
+            // vector either.
+            if (!mRight->isScalar() &&
+                (isAssignment() ||
+                mOp == EOpBitShiftLeft ||
+                mOp == EOpBitShiftRight))
                 return false;
 
             // Operator cannot be of type pure assignment.
@@ -793,6 +792,7 @@ TIntermTyped *TIntermConstantUnion::fold(
             break;
 
           case EOpDiv:
+          case EOpMod:
             {
                 tempConstArray = new ConstantUnion[objectSize];
                 for (size_t i = 0; i < objectSize; i++)
@@ -966,6 +966,32 @@ TIntermTyped *TIntermConstantUnion::fold(
                     }
                 }
             }
+            break;
+
+          case EOpBitwiseAnd:
+            tempConstArray = new ConstantUnion[objectSize];
+            for (size_t i = 0; i < objectSize; i++)
+                tempConstArray[i] = unionArray[i] & rightUnionArray[i];
+            break;
+          case EOpBitwiseXor:
+            tempConstArray = new ConstantUnion[objectSize];
+            for (size_t i = 0; i < objectSize; i++)
+                tempConstArray[i] = unionArray[i] ^ rightUnionArray[i];
+            break;
+          case EOpBitwiseOr:
+            tempConstArray = new ConstantUnion[objectSize];
+            for (size_t i = 0; i < objectSize; i++)
+                tempConstArray[i] = unionArray[i] | rightUnionArray[i];
+            break;
+          case EOpBitShiftLeft:
+            tempConstArray = new ConstantUnion[objectSize];
+            for (size_t i = 0; i < objectSize; i++)
+                tempConstArray[i] = unionArray[i] << rightUnionArray[i];
+            break;
+          case EOpBitShiftRight:
+            tempConstArray = new ConstantUnion[objectSize];
+            for (size_t i = 0; i < objectSize; i++)
+                tempConstArray[i] = unionArray[i] >> rightUnionArray[i];
             break;
 
           case EOpLessThan:
@@ -1160,6 +1186,23 @@ TIntermTyped *TIntermConstantUnion::fold(
                 }
                 break;
 
+              case EOpBitwiseNot:
+                switch (getType().getBasicType())
+                {
+                  case EbtInt:
+                    tempConstArray[i].setIConst(~unionArray[i].getIConst());
+                    break;
+                  case EbtUInt:
+                    tempConstArray[i].setUConst(~unionArray[i].getUConst());
+                    break;
+                  default:
+                    infoSink.info.message(
+                        EPrefixInternalError, getLine(),
+                        "Unary operation not folded into constant");
+                    return NULL;
+                }
+                break;
+
               default:
                 return NULL;
             }
@@ -1180,4 +1223,30 @@ TString TIntermTraverser::hash(const TString &name, ShHashFunction64 hashFunctio
     stream << HASHED_NAME_PREFIX << std::hex << number;
     TString hashedName = stream.str();
     return hashedName;
+}
+
+void TIntermTraverser::updateTree()
+{
+    for (size_t ii = 0; ii < mReplacements.size(); ++ii)
+    {
+        const NodeUpdateEntry& entry = mReplacements[ii];
+        ASSERT(entry.parent);
+        bool replaced = entry.parent->replaceChildNode(
+            entry.original, entry.replacement);
+        ASSERT(replaced);
+
+        if (!entry.originalBecomesChildOfReplacement)
+        {
+            // In AST traversing, a parent is visited before its children.
+            // After we replace a node, if an immediate child is to
+            // be replaced, we need to make sure we don't update the replaced
+            // node; instead, we update the replacement node.
+            for (size_t jj = ii + 1; jj < mReplacements.size(); ++jj)
+            {
+                NodeUpdateEntry& entry2 = mReplacements[jj];
+                if (entry2.parent == entry.original)
+                    entry2.parent = entry.replacement;
+            }
+        }
+    }
 }

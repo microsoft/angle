@@ -75,6 +75,36 @@ void InsertBuiltInFunctions(sh::GLenum type, ShShaderSpec spec, const ShBuiltInR
     symbolTable.insertBuiltIn(COMMON_BUILTINS, float3, "atan", float3);
     symbolTable.insertBuiltIn(COMMON_BUILTINS, float4, "atan", float4);
 
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "sinh", float1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "sinh", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float3, "sinh", float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float4, "sinh", float4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "cosh", float1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "cosh", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float3, "cosh", float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float4, "cosh", float4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "tanh", float1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "tanh", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float3, "tanh", float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float4, "tanh", float4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "asinh", float1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "asinh", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float3, "asinh", float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float4, "asinh", float4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "acosh", float1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "acosh", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float3, "acosh", float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float4, "acosh", float4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "atanh", float1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "atanh", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float3, "atanh", float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float4, "atanh", float4);
+
     //
     // Exponential Functions.
     //
@@ -197,6 +227,38 @@ void InsertBuiltInFunctions(sh::GLenum type, ShShaderSpec spec, const ShBuiltInR
     symbolTable.insertBuiltIn(COMMON_BUILTINS, float3, "smoothstep", float1, float1, float3);
     symbolTable.insertBuiltIn(COMMON_BUILTINS, float4, "smoothstep", float1, float1, float4);
 
+    TType *uint1 = new TType(EbtUInt);
+    TType *uint2 = new TType(EbtUInt, 2);
+    TType *uint3 = new TType(EbtUInt, 3);
+    TType *uint4 = new TType(EbtUInt, 4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, int1, "floatBitsToInt", float1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, int2, "floatBitsToInt", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, int3, "floatBitsToInt", float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, int4, "floatBitsToInt", float4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, uint1, "floatBitsToUint", float1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, uint2, "floatBitsToUint", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, uint3, "floatBitsToUint", float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, uint4, "floatBitsToUint", float4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "intBitsToFloat", int1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "intBitsToFloat", int2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float3, "intBitsToFloat", int3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float4, "intBitsToFloat", int4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "uintBitsToFloat", uint1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "uintBitsToFloat", uint2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float3, "uintBitsToFloat", uint3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float4, "uintBitsToFloat", uint4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, uint1, "packSnorm2x16", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, uint1, "packUnorm2x16", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, uint1, "packHalf2x16", float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "unpackSnorm2x16", uint1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "unpackUnorm2x16", uint1);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float2, "unpackHalf2x16", uint1);
+
     //
     // Geometric Functions.
     //
@@ -239,6 +301,12 @@ void InsertBuiltInFunctions(sh::GLenum type, ShShaderSpec spec, const ShBuiltInR
     TType *mat2 = new TType(EbtFloat, 2, 2);
     TType *mat3 = new TType(EbtFloat, 3, 3);
     TType *mat4 = new TType(EbtFloat, 4, 4);
+    TType *mat2x3 = new TType(EbtFloat, 2, 3);
+    TType *mat3x2 = new TType(EbtFloat, 3, 2);
+    TType *mat2x4 = new TType(EbtFloat, 2, 4);
+    TType *mat4x2 = new TType(EbtFloat, 4, 2);
+    TType *mat3x4 = new TType(EbtFloat, 3, 4);
+    TType *mat4x3 = new TType(EbtFloat, 4, 3);
 
     //
     // Matrix Functions.
@@ -246,6 +314,40 @@ void InsertBuiltInFunctions(sh::GLenum type, ShShaderSpec spec, const ShBuiltInR
     symbolTable.insertBuiltIn(COMMON_BUILTINS, mat2, "matrixCompMult", mat2, mat2);
     symbolTable.insertBuiltIn(COMMON_BUILTINS, mat3, "matrixCompMult", mat3, mat3);
     symbolTable.insertBuiltIn(COMMON_BUILTINS, mat4, "matrixCompMult", mat4, mat4);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat2x3, "matrixCompMult", mat2x3, mat2x3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat3x2, "matrixCompMult", mat3x2, mat3x2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat2x4, "matrixCompMult", mat2x4, mat2x4);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat4x2, "matrixCompMult", mat4x2, mat4x2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat3x4, "matrixCompMult", mat3x4, mat3x4);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat4x3, "matrixCompMult", mat4x3, mat4x3);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat2, "outerProduct", float2, float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat3, "outerProduct", float3, float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat4, "outerProduct", float4, float4);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat2x3, "outerProduct", float3, float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat3x2, "outerProduct", float2, float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat2x4, "outerProduct", float4, float2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat4x2, "outerProduct", float2, float4);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat3x4, "outerProduct", float4, float3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat4x3, "outerProduct", float3, float4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat2, "transpose", mat2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat3, "transpose", mat3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat4, "transpose", mat4);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat2x3, "transpose", mat3x2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat3x2, "transpose", mat2x3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat2x4, "transpose", mat4x2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat4x2, "transpose", mat2x4);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat3x4, "transpose", mat4x3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat4x3, "transpose", mat3x4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "determinant", mat2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "determinant", mat3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, float1, "determinant", mat4);
+
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat2, "inverse", mat2);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat3, "inverse", mat3);
+    symbolTable.insertBuiltIn(ESSL3_BUILTINS, mat4, "inverse", mat4);
 
     TType *bool1 = new TType(EbtBool);
     TType *bool2 = new TType(EbtBool, 2);
@@ -559,12 +661,12 @@ void InsertBuiltInFunctions(sh::GLenum type, ShShaderSpec spec, const ShBuiltInR
     //
     TFieldList *fields = NewPoolTFieldList();
     TSourceLoc zeroSourceLoc = {0, 0, 0, 0};
-    TField *nearField = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("near"), zeroSourceLoc);
-    TField *farField = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("far"), zeroSourceLoc);
-    TField *diffField = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("diff"), zeroSourceLoc);
-    fields->push_back(nearField);
-    fields->push_back(farField);
-    fields->push_back(diffField);
+    TField *near = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("near"), zeroSourceLoc);
+    TField *far = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("far"), zeroSourceLoc);
+    TField *diff = new TField(new TType(EbtFloat, EbpHigh, EvqGlobal, 1), NewPoolTString("diff"), zeroSourceLoc);
+    fields->push_back(near);
+    fields->push_back(far);
+    fields->push_back(diff);
     TStructure *depthRangeStruct = new TStructure(NewPoolTString("gl_DepthRangeParameters"), fields);
     TVariable *depthRangeParameters = new TVariable(&depthRangeStruct->name(), depthRangeStruct, true);
     symbolTable.insert(COMMON_BUILTINS, depthRangeParameters);
@@ -620,6 +722,19 @@ void IdentifyBuiltIns(sh::GLenum type, ShShaderSpec spec,
                 symbolTable.insert(ESSL1_BUILTINS, new TVariable(NewPoolTString("gl_FragDepthEXT"), TType(EbtFloat, resources.FragmentPrecisionHigh ? EbpHigh : EbpMedium, EvqFragDepth, 1)));
                 symbolTable.relateToExtension(ESSL1_BUILTINS, "gl_FragDepthEXT", "GL_EXT_frag_depth");
             }
+            if (resources.EXT_shader_framebuffer_fetch)
+            {
+                symbolTable.insert(ESSL1_BUILTINS, new TVariable(NewPoolTString("gl_LastFragData[gl_MaxDrawBuffers]"), TType(EbtFloat, EbpMedium, EvqLastFragData,   4)));
+            }
+            else if (resources.NV_shader_framebuffer_fetch)
+            {
+                symbolTable.insert(ESSL1_BUILTINS, new TVariable(NewPoolTString("gl_LastFragColor"), TType(EbtFloat, EbpMedium, EvqLastFragColor,   4)));
+                symbolTable.insert(ESSL1_BUILTINS, new TVariable(NewPoolTString("gl_LastFragData[gl_MaxDrawBuffers]"), TType(EbtFloat, EbpMedium, EvqLastFragData,   4)));
+            }
+            else if (resources.ARM_shader_framebuffer_fetch)
+            {
+                symbolTable.insert(ESSL1_BUILTINS, new TVariable(NewPoolTString("gl_LastFragColorARM"), TType(EbtFloat, EbpMedium, EvqLastFragColor,   4)));
+            }
         } else {
             symbolTable.insert(ESSL1_BUILTINS, new TVariable(NewPoolTString("css_MixColor"), TType(EbtFloat, EbpMedium, EvqGlobal,      4)));
             symbolTable.insert(ESSL1_BUILTINS, new TVariable(NewPoolTString("css_ColorMatrix"), TType(EbtFloat, EbpMedium, EvqGlobal,      4, 4)));
@@ -642,6 +757,7 @@ void IdentifyBuiltIns(sh::GLenum type, ShShaderSpec spec,
     // operations.
     //
     symbolTable.relateToOperator(COMMON_BUILTINS, "matrixCompMult",   EOpMul);
+    symbolTable.relateToOperator(ESSL3_BUILTINS,  "matrixCompMult",   EOpMul);
 
     symbolTable.relateToOperator(COMMON_BUILTINS, "equal",            EOpVectorEqual);
     symbolTable.relateToOperator(COMMON_BUILTINS, "notEqual",         EOpVectorNotEqual);
@@ -658,6 +774,13 @@ void IdentifyBuiltIns(sh::GLenum type, ShShaderSpec spec,
     symbolTable.relateToOperator(COMMON_BUILTINS, "asin",         EOpAsin);
     symbolTable.relateToOperator(COMMON_BUILTINS, "acos",         EOpAcos);
     symbolTable.relateToOperator(COMMON_BUILTINS, "atan",         EOpAtan);
+
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "sinh",          EOpSinh);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "cosh",          EOpCosh);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "tanh",          EOpTanh);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "asinh",         EOpAsinh);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "acosh",         EOpAcosh);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "atanh",         EOpAtanh);
 
     symbolTable.relateToOperator(COMMON_BUILTINS, "pow",          EOpPow);
     symbolTable.relateToOperator(COMMON_BUILTINS, "exp2",         EOpExp2);
@@ -680,6 +803,19 @@ void IdentifyBuiltIns(sh::GLenum type, ShShaderSpec spec,
     symbolTable.relateToOperator(COMMON_BUILTINS, "step",         EOpStep);
     symbolTable.relateToOperator(COMMON_BUILTINS, "smoothstep",   EOpSmoothStep);
 
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "floatBitsToInt",  EOpFloatBitsToInt);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "floatBitsToUint", EOpFloatBitsToUint);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "intBitsToFloat",  EOpIntBitsToFloat);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "uintBitsToFloat", EOpUintBitsToFloat);
+
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "packSnorm2x16", EOpPackSnorm2x16);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "packUnorm2x16", EOpPackUnorm2x16);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "packHalf2x16",  EOpPackHalf2x16);
+
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "unpackSnorm2x16", EOpUnpackSnorm2x16);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "unpackUnorm2x16", EOpUnpackUnorm2x16);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "unpackHalf2x16",  EOpUnpackHalf2x16);
+
     symbolTable.relateToOperator(COMMON_BUILTINS, "length",       EOpLength);
     symbolTable.relateToOperator(COMMON_BUILTINS, "distance",     EOpDistance);
     symbolTable.relateToOperator(COMMON_BUILTINS, "dot",          EOpDot);
@@ -688,6 +824,11 @@ void IdentifyBuiltIns(sh::GLenum type, ShShaderSpec spec,
     symbolTable.relateToOperator(COMMON_BUILTINS, "faceforward",  EOpFaceForward);
     symbolTable.relateToOperator(COMMON_BUILTINS, "reflect",      EOpReflect);
     symbolTable.relateToOperator(COMMON_BUILTINS, "refract",      EOpRefract);
+
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "outerProduct",  EOpOuterProduct);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "transpose",     EOpTranspose);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "determinant",   EOpDeterminant);
+    symbolTable.relateToOperator(ESSL3_BUILTINS, "inverse",       EOpInverse);
 
     symbolTable.relateToOperator(COMMON_BUILTINS, "any",          EOpAny);
     symbolTable.relateToOperator(COMMON_BUILTINS, "all",          EOpAll);
@@ -714,6 +855,14 @@ void IdentifyBuiltIns(sh::GLenum type, ShShaderSpec spec,
             symbolTable.relateToExtension(ESSL1_BUILTINS, "texture2DProjLodEXT", "GL_EXT_shader_texture_lod");
             symbolTable.relateToExtension(ESSL1_BUILTINS, "textureCubeLodEXT", "GL_EXT_shader_texture_lod");
         }
+        if (resources.NV_shader_framebuffer_fetch)
+        {
+            symbolTable.relateToExtension(ESSL1_BUILTINS, "gl_LastFragColor", "GL_NV_shader_framebuffer_fetch");
+        }
+        else if (resources.ARM_shader_framebuffer_fetch)
+        {
+            symbolTable.relateToExtension(ESSL1_BUILTINS, "gl_LastFragColorARM", "GL_ARM_shader_framebuffer_fetch");
+        }
         break;
     default: break;
     }
@@ -737,6 +886,22 @@ void IdentifyBuiltIns(sh::GLenum type, ShShaderSpec spec,
             TType fragData(EbtFloat, EbpMedium, EvqFragData, 4, 1, true);
             fragData.setArraySize(resources.MaxDrawBuffers);
             symbolTable.insert(ESSL1_BUILTINS, new TVariable(NewPoolTString("gl_FragData"), fragData));
+
+            if (resources.EXT_shader_framebuffer_fetch || resources.NV_shader_framebuffer_fetch) {
+                // Set up gl_LastFragData.  The array size.
+                TType lastFragData(EbtFloat, EbpMedium, EvqLastFragData, 4, 1, true);
+                lastFragData.setArraySize(resources.MaxDrawBuffers);
+                symbolTable.insert(ESSL1_BUILTINS, new TVariable(NewPoolTString("gl_LastFragData"), lastFragData));
+
+                if (resources.EXT_shader_framebuffer_fetch)
+                {
+                    symbolTable.relateToExtension(ESSL1_BUILTINS, "gl_LastFragData", "GL_EXT_shader_framebuffer_fetch");
+                }
+                else if (resources.NV_shader_framebuffer_fetch)
+                {
+                    symbolTable.relateToExtension(ESSL1_BUILTINS, "gl_LastFragData", "GL_NV_shader_framebuffer_fetch");
+                }
+            }
         }
         break;
     default: break;
@@ -758,4 +923,10 @@ void InitExtensionBehavior(const ShBuiltInResources& resources,
         extBehavior["GL_EXT_frag_depth"] = EBhUndefined;
     if (resources.EXT_shader_texture_lod)
         extBehavior["GL_EXT_shader_texture_lod"] = EBhUndefined;
+    if (resources.EXT_shader_framebuffer_fetch)
+        extBehavior["GL_EXT_shader_framebuffer_fetch"] = EBhUndefined;
+    if (resources.NV_shader_framebuffer_fetch)
+        extBehavior["GL_NV_shader_framebuffer_fetch"] = EBhUndefined;
+    if (resources.ARM_shader_framebuffer_fetch)
+        extBehavior["GL_ARM_shader_framebuffer_fetch"] = EBhUndefined;
 }
