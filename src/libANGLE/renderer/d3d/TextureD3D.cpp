@@ -352,9 +352,6 @@ gl::Error TextureD3D::generateMipmaps()
         return gl::Error(GL_NO_ERROR); // no-op
     }
 
-    // Set up proper mipmap chain in our Image array.
-    initMipmapsImages();
-
     if (mTexStorage && mRenderer->getWorkarounds().zeroMaxLodWorkaround)
     {
         // Switch to using the mipmapped texture.
@@ -364,6 +361,9 @@ gl::Error TextureD3D::generateMipmaps()
             return error;
         }
     }
+
+    // Set up proper mipmap chain in our Image array.
+    initMipmapsImages();
 
     // We know that all layers have the same dimension, for the texture to be complete
     GLint layerCount = static_cast<GLint>(getLayerCount(0));
@@ -728,7 +728,9 @@ gl::Error TextureD3D_2D::copyImage(GLenum target, size_t level, const gl::Rectan
     gl::ImageIndex index = gl::ImageIndex::Make2D(level);
     gl::Offset destOffset(0, 0, 0);
 
-    if (!canCreateRenderTargetForImage(index))
+    // If the zero max LOD workaround is active, then we can't sample from individual layers of the framebuffer in shaders,
+    // so we should use the non-rendering copy path.
+    if (!canCreateRenderTargetForImage(index) || mRenderer->getWorkarounds().zeroMaxLodWorkaround)
     {
         gl::Error error = mImageArray[level]->copy(destOffset, sourceArea, source);
         if (error.isError())
@@ -771,7 +773,9 @@ gl::Error TextureD3D_2D::copySubImage(GLenum target, size_t level, const gl::Off
 
     gl::ImageIndex index = gl::ImageIndex::Make2D(level);
 
-    if (!canCreateRenderTargetForImage(index))
+    // If the zero max LOD workaround is active, then we can't sample from individual layers of the framebuffer in shaders,
+    // so we should use the non-rendering copy path.
+    if (!canCreateRenderTargetForImage(index) || mRenderer->getWorkarounds().zeroMaxLodWorkaround)
     {
         gl::Error error = mImageArray[level]->copy(destOffset, sourceArea, source);
         if (error.isError())
@@ -1381,7 +1385,9 @@ gl::Error TextureD3D_Cube::setStorage(GLenum target, size_t levels, GLenum inter
 
     // TODO(geofflang): Verify storage creation had no errors
     bool renderTarget = IsRenderTargetUsage(mUsage);
-    TextureStorage *storage = mRenderer->createTextureStorageCube(internalFormat, renderTarget, size.width, levels);
+
+    // Hint to use the level zero-workaround (if applicable). TextureCubes are less likely to have mipmaps than Texture2Ds
+    TextureStorage *storage = mRenderer->createTextureStorageCube(internalFormat, renderTarget, size.width, levels, true);
 
     gl::Error error = setCompleteTexStorage(storage);
     if (error.isError())
@@ -1524,8 +1530,25 @@ gl::Error TextureD3D_Cube::createCompleteStorage(bool renderTarget, TextureStora
     // use existing storage level count, when previously specified by TexStorage*D
     GLint levels = (mTexStorage ? mTexStorage->getLevelCount() : creationLevels(size, size, 1));
 
+    bool hintLevelZeroOnly = false;
+    if (mRenderer->getWorkarounds().zeroMaxLodWorkaround)
+    {
+        // If any of the CPU images (levels >= 1) are dirty, then the textureStorage should use the mipped texture to begin with.
+        // Otherwise, it should use the level-zero-only texture.
+        hintLevelZeroOnly = true;
+        for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+        {
+            int level = 1;
+            while (hintLevelZeroOnly && level < levels)
+            {
+                hintLevelZeroOnly = !(mImageArray[faceIndex][level]->isDirty() && isFaceLevelComplete(faceIndex, level));
+                level += 1;
+            }
+        }
+    }
+
     // TODO (geofflang): detect if storage creation succeeded
-    *outTexStorage = mRenderer->createTextureStorageCube(getBaseLevelInternalFormat(), renderTarget, size, levels);
+    *outTexStorage = mRenderer->createTextureStorageCube(getBaseLevelInternalFormat(), renderTarget, size, levels, hintLevelZeroOnly);
 
     return gl::Error(GL_NO_ERROR);
 }

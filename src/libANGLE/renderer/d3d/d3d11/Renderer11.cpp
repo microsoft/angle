@@ -69,7 +69,13 @@ namespace
 static const DXGI_FORMAT RenderTargetFormats[] =
     {
         DXGI_FORMAT_B8G8R8A8_UNORM,
-        DXGI_FORMAT_R8G8B8A8_UNORM
+        DXGI_FORMAT_R8G8B8A8_UNORM,
+        DXGI_FORMAT_B5G6R5_UNORM,
+
+        // These formats are typically not valid swapchain buffer formats.
+        // TODO: find a way to support these formats when EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER is true.
+        DXGI_FORMAT_B5G5R5A1_UNORM,
+        DXGI_FORMAT_B4G4R4A4_UNORM
     };
 
 static const DXGI_FORMAT DepthStencilFormats[] =
@@ -2816,9 +2822,9 @@ TextureStorage *Renderer11::createTextureStorage2D(GLenum internalformat, bool r
     return new TextureStorage11_2D(this, internalformat, renderTarget, width, height, levels, hintLevelZeroOnly);
 }
 
-TextureStorage *Renderer11::createTextureStorageCube(GLenum internalformat, bool renderTarget, int size, int levels)
+TextureStorage *Renderer11::createTextureStorageCube(GLenum internalformat, bool renderTarget, int size, int levels, bool hintLevelZeroOnly)
 {
-    return new TextureStorage11_Cube(this, internalformat, renderTarget, size, levels);
+    return new TextureStorage11_Cube(this, internalformat, renderTarget, size, levels, hintLevelZeroOnly);
 }
 
 TextureStorage *Renderer11::createTextureStorage3D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, GLsizei depth, int levels)

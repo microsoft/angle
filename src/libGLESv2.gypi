@@ -10,8 +10,6 @@
         [
             'common/angleutils.cpp',
             'common/angleutils.h',
-            'common/debug.cpp',
-            'common/debug.h',
             'common/mathutil.cpp',
             'common/mathutil.h',
             'common/platform.h',
@@ -39,6 +37,8 @@
         ],
         'libangle_sources':
         [
+            'common/debug.cpp', # D3D9/D3D11 debug annotations need debug.cpp/h in libANGLE to work
+            'common/debug.h',   # TODO: refactor debug.cpp so it can be moved into libangle_common
             'common/event_tracer.cpp',
             'common/event_tracer.h',
             'libANGLE/AttributeMap.cpp',
@@ -625,6 +625,19 @@
                 ['angle_build_winphone==1',
                 {
                     'msvs_enable_winphone' : '1',
+                }],
+                ['OS=="win"',
+                {
+                    'configurations':
+                    {
+                        'Debug_Base':
+                        {
+                            'defines':
+                            [
+                                'ANGLE_ENABLE_DEBUG_ANNOTATIONS',
+                            ],
+                        },
+                    },
                 }],
             ],
         },

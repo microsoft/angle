@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="compiler_tests">
+      <UniqueIdentifier>{47629FA2-A2F0-F652-6220-97FEBB2815C2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests">
+      <UniqueIdentifier>{71685B5B-5DB1-D3F0-6DF4-FE19B5454C87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests\compiler_tests">
+      <UniqueIdentifier>{47629FA2-A2F0-F652-6220-97FEBB2815C2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests">
+      <UniqueIdentifier>{71685B5B-5DB1-D3F0-6DF4-FE19B5454C87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests\compiler_tests">
+      <UniqueIdentifier>{47629FA2-A2F0-F652-6220-97FEBB2815C2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests">
+      <UniqueIdentifier>{71685B5B-5DB1-D3F0-6DF4-FE19B5454C87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests\compiler_tests">
+      <UniqueIdentifier>{47629FA2-A2F0-F652-6220-97FEBB2815C2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests">
+      <UniqueIdentifier>{71685B5B-5DB1-D3F0-6DF4-FE19B5454C87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests\compiler_tests">
+      <UniqueIdentifier>{47629FA2-A2F0-F652-6220-97FEBB2815C2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests">
+      <UniqueIdentifier>{71685B5B-5DB1-D3F0-6DF4-FE19B5454C87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests\compiler_tests">
+      <UniqueIdentifier>{47629FA2-A2F0-F652-6220-97FEBB2815C2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests">
+      <UniqueIdentifier>{71685B5B-5DB1-D3F0-6DF4-FE19B5454C87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests\compiler_tests">
+      <UniqueIdentifier>{47629FA2-A2F0-F652-6220-97FEBB2815C2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests">
+      <UniqueIdentifier>{71685B5B-5DB1-D3F0-6DF4-FE19B5454C87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\tests\compiler_tests">
+      <UniqueIdentifier>{47629FA2-A2F0-F652-6220-97FEBB2815C2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="compiler_tests\compiler_test_main.cpp">
+      <Filter>compiler_tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\compiler_tests\API_test.cpp">
+      <Filter>..\tests\compiler_tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\compiler_tests\CollectVariables_test.cpp">
+      <Filter>..\tests\compiler_tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\compiler_tests\ExpressionLimit_test.cpp">
+      <Filter>..\tests\compiler_tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\compiler_tests\NV_draw_buffers_test.cpp">
+      <Filter>..\tests\compiler_tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\compiler_tests\ShaderVariable_test.cpp">
+      <Filter>..\tests\compiler_tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\compiler_tests\TypeTracking_test.cpp">
+      <Filter>..\tests\compiler_tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\compiler_tests\VariablePacker_test.cpp">
+      <Filter>..\tests\compiler_tests</Filter>
+    </ClCompile>
+    <None Include="tests.gyp"/>
+  </ItemGroup>
+</Project>

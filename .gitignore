@@ -9,10 +9,6 @@ Release_ARM/
 *.sdf
 *.ncb
 *.suo
-*.sln
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
 patches-*
 *.target.mk
 ipch

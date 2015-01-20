@@ -49,6 +49,7 @@ class Clear11
 
     struct MaskedRenderTarget
     {
+        MaskedRenderTarget() : renderTarget(NULL){}
         bool colorMask[4];
         RenderTarget11 *renderTarget;
     };
@@ -57,6 +58,7 @@ class Clear11
 
     struct ClearShader
     {
+        ClearShader() : inputLayout(NULL), vertexShader(NULL), pixelShader(NULL){}
         ID3D11InputLayout *inputLayout;
         ID3D11VertexShader *vertexShader;
         ID3D11PixelShader *pixelShader;

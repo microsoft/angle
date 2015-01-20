@@ -227,6 +227,21 @@ D3D11_QUERY ConvertQueryType(GLenum queryType)
 namespace d3d11_gl
 {
 
+static bool IsCompressedTextureFormat(GLenum format)
+{
+    switch (format)
+    {
+    case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
+    case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+    case GL_COMPRESSED_RGBA_S3TC_DXT3_ANGLE:
+    case GL_COMPRESSED_RGBA_S3TC_DXT5_ANGLE:
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
 static gl::TextureCaps GenerateTextureFormatCaps(GLenum internalFormat, ID3D11Device *device)
 {
     gl::TextureCaps textureCaps;
@@ -240,6 +255,11 @@ static gl::TextureCaps GenerateTextureFormatCaps(GLenum internalFormat, ID3D11De
         if (formatInfo.depthBits > 0 || formatInfo.stencilBits > 0)
         {
             textureCaps.texturable = ((formatSupport & D3D11_FORMAT_SUPPORT_TEXTURE2D) != 0);
+        }
+        else if (IsCompressedTextureFormat(internalFormat))
+        {
+            textureCaps.texturable = ((formatSupport & D3D11_FORMAT_SUPPORT_TEXTURE2D) != 0) &&
+                                     ((formatSupport & D3D11_FORMAT_SUPPORT_TEXTURECUBE) != 0);
         }
         else
         {

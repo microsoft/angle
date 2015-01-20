@@ -62,7 +62,7 @@ Clear11::ClearShader Clear11::CreateClearShader(ID3D11Device *device, DXGI_FORMA
 {
     HRESULT result;
 
-    ClearShader shader = { 0 };
+    ClearShader shader;
 
     D3D11_INPUT_ELEMENT_DESC quadLayout[] =
     {
