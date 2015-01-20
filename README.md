@@ -1,16 +1,24 @@
 ANGLE -- future-dev branch
 =====
 
-This is a development branch for Windows Store versions of ANGLE. It contains
+This is an active branch with Windows Store versions of ANGLE. It contains
 full support for Windows 8.1 and Windows Phone 8.1, and other features such as
 performance improvements and memory savings.
 
 If you are developing for Windows 8.0 or Windows Phone 8.0 then please see the
 version of ANGLE in the 'winrt' branch.
 
+About ANGLE
+=====
+ANGLE allows Windows users to seamlessly run OpenGL ES content, by translating 
+OpenGL ES API into DirectX 11 API calls.
+
+More information about the ANGLE project is available here: 
+https://code.google.com/p/angleproject/
+
 Requirements
 =====
-* Visual Studio 2013 Update 2 Express for Windows, or later.
+* Visual Studio Community 2013 (Update 4), or higher/later.
 * Windows 8.1 for local Windows development.
 
 Getting Started
@@ -55,11 +63,3 @@ Microsoft Open Tech Inc. Contributors
 =====
 * Cooper Partin (coopp-at-microsoft-dot-com)
 * Austin Kinross (aukinros-at-microsoft-dot-com)
-
-About ANGLE
-=====
-ANGLE allows Windows users to seamlessly run OpenGL ES content, by 
-translating OpenGL ES API into DirectX 11 API calls.
-
-More information about the ANGLE project is available here: 
-https://code.google.com/p/angleproject/
