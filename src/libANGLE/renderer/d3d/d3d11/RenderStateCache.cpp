@@ -245,10 +245,12 @@ gl::Error RenderStateCache::getRasterizerState(const gl::RasterizerState &raster
             cullMode = D3D11_CULL_NONE;
         }
 
+        BOOL reverseCullMode = rasterState.reverseCullMode;
+
         D3D11_RASTERIZER_DESC rasterDesc;
         rasterDesc.FillMode = D3D11_FILL_SOLID;
         rasterDesc.CullMode = cullMode;
-        rasterDesc.FrontCounterClockwise = (rasterState.frontFace == GL_CCW) ? FALSE: TRUE;
+        rasterDesc.FrontCounterClockwise = (rasterState.frontFace == GL_CCW) ? reverseCullMode : !reverseCullMode;
         rasterDesc.DepthBiasClamp = 0.0f; // MSDN documentation of DepthBiasClamp implies a value of zero will preform no clamping, must be tested though.
         rasterDesc.DepthClipEnable = TRUE;
         rasterDesc.ScissorEnable = scissorEnabled ? TRUE : FALSE;

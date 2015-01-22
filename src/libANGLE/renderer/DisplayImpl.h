@@ -33,10 +33,10 @@ class DisplayImpl
 
     virtual SurfaceImpl *createWindowSurface(egl::Display *display, const egl::Config *config,
                                              EGLNativeWindowType window, EGLint fixedSize,
-                                             EGLint width, EGLint height, EGLint postSubBufferSupported) = 0;
+                                             EGLint width, EGLint height, EGLint postSubBufferSupported, bool renderToBackBuffer) = 0;
     virtual SurfaceImpl *createOffscreenSurface(egl::Display *display, const egl::Config *config,
                                                 EGLClientBuffer shareHandle, EGLint width, EGLint height,
-                                                EGLenum textureFormat, EGLenum textureTarget) = 0;
+                                                EGLenum textureFormat, EGLenum textureTarget, bool renderToBackBuffer) = 0;
     virtual egl::Error restoreLostDevice() = 0;
 
     virtual bool isValidNativeWindow(EGLNativeWindowType window) const = 0;

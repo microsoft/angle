@@ -1067,6 +1067,32 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
 namespace d3d11
 {
 
+bool IsBackbuffer(ID3D11Resource *resource)
+{
+    IDXGIResource* dxgiResource = NULL;
+    HRESULT hr = resource->QueryInterface(__uuidof(IDXGIResource), (void**)&dxgiResource);
+
+    if (SUCCEEDED(hr))
+    {
+        DXGI_USAGE usage;
+        hr = dxgiResource->GetUsage(&usage);
+
+        if (SUCCEEDED(hr))
+        {
+            SafeRelease(dxgiResource);
+            return ((usage & DXGI_USAGE_BACK_BUFFER) != 0);
+        }
+    }
+
+    SafeRelease(dxgiResource);
+    return false;
+}
+
+void InvertYAxis(GLsizei renderTargetHeight, gl::Rectangle *outRect)
+{
+    outRect->y = renderTargetHeight - outRect->y - outRect->height;
+}
+
 void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsizei *requestHeight, int *levelOffset)
 {
     const DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(format);
@@ -1162,7 +1188,10 @@ Workarounds GenerateWorkarounds(D3D_FEATURE_LEVEL featureLevel)
     workarounds.mrtPerfWorkaround = true;
     workarounds.setDataFasterThanImageUpload = true;
     workarounds.zeroMaxLodWorkaround = (featureLevel <= D3D_FEATURE_LEVEL_9_3);
-    workarounds.useInstancedPointSpriteEmulation = (featureLevel <= D3D_FEATURE_LEVEL_9_3);
+
+    // TODO: make render-to-backbuffer work with Geometry Shaders
+    // Until then, use the instanced point sprites everywhere, which work with render-to-backbuffer
+    workarounds.useInstancedPointSpriteEmulation = true; // (featureLevel <= D3D_FEATURE_LEVEL_9_3);
     return workarounds;
 }
 

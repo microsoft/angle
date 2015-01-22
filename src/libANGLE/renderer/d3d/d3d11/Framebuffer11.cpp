@@ -117,11 +117,26 @@ gl::Error Framebuffer11::readPixels(const gl::Rectangle &area, GLenum format, GL
         return error;
     }
 
+    gl::PixelPackState actualPack;
+
+    // We can't just assign pack to actualPack, because that clones the ref count on pixelBuffer!
+    actualPack.alignment = pack.alignment;
+    actualPack.pixelBuffer.set(pack.pixelBuffer.get()); // Increments pack.pixelBuffer's ref count
+    actualPack.reverseRowOrder = pack.reverseRowOrder;
+    
+    gl::Rectangle actualArea = area;
+
+    if (mRenderer->isCurrentlyRenderingToBackBuffer())
+    {
+        d3d11::InvertYAxis(colorbuffer->getHeight(), &actualArea);
+        actualPack.reverseRowOrder = !actualPack.reverseRowOrder;
+    }
+
     gl::Buffer *packBuffer = pack.pixelBuffer.get();
     if (packBuffer != NULL)
     {
         Buffer11 *packBufferStorage = Buffer11::makeBuffer11(packBuffer->getImplementation());
-        PackPixelsParams packParams(area, format, type, outputPitch, pack, reinterpret_cast<ptrdiff_t>(pixels));
+        PackPixelsParams packParams(actualArea, format, type, outputPitch, actualPack, reinterpret_cast<ptrdiff_t>(pixels));
 
         error = packBufferStorage->packPixels(colorBufferTexture, subresourceIndex, packParams);
         if (error.isError())
@@ -134,7 +149,7 @@ gl::Error Framebuffer11::readPixels(const gl::Rectangle &area, GLenum format, GL
     }
     else
     {
-        error = mRenderer->readTextureData(colorBufferTexture, subresourceIndex, area, format, type, outputPitch, pack, pixels);
+        error = mRenderer->readTextureData(colorBufferTexture, subresourceIndex, actualArea, format, type, outputPitch, actualPack, pixels);
         if (error.isError())
         {
             SafeRelease(colorBufferTexture);
@@ -143,6 +158,10 @@ gl::Error Framebuffer11::readPixels(const gl::Rectangle &area, GLenum format, GL
     }
 
     SafeRelease(colorBufferTexture);
+
+    // The destructor of pixelBuffer's "smart" pointer doesn't release the object when actualPack goes out of scope, leaking the object!
+    // We therefore set the "smart" pointer back to NULL. This calls release on the actual pixelBuffer used in 'pack', preventing a leak.
+    actualPack.pixelBuffer.set(NULL);
 
     return gl::Error(GL_NO_ERROR);
 }

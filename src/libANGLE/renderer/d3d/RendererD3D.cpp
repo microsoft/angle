@@ -296,6 +296,7 @@ gl::Error RendererD3D::applyState(const gl::Data &data, GLenum drawMode)
     gl::RasterizerState rasterizer = data.state->getRasterizerState();
     rasterizer.pointDrawMode = (drawMode == GL_POINTS);
     rasterizer.multiSample = (samples != 0);
+    rasterizer.reverseCullMode = isCurrentlyRenderingToBackBuffer();
 
     gl::Error error = setRasterizerState(rasterizer);
     if (error.isError())

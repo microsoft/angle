@@ -21,7 +21,7 @@ class SwapChain11 : public SwapChainD3D
 {
   public:
     SwapChain11(Renderer11 *renderer, NativeWindow nativeWindow, HANDLE shareHandle,
-                GLenum backBufferFormat, GLenum depthBufferFormat);
+                GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer);
     virtual ~SwapChain11();
 
     EGLint resize(EGLint backbufferWidth, EGLint backbufferHeight);
@@ -29,7 +29,7 @@ class SwapChain11 : public SwapChainD3D
     virtual EGLint swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
     virtual void recreate();
 
-    virtual ID3D11Texture2D *getOffscreenTexture();
+    virtual ID3D11Texture2D *getTargetTexture();
     virtual ID3D11RenderTargetView *getRenderTarget();
     virtual ID3D11ShaderResourceView *getRenderTargetShaderResource();
 
@@ -39,6 +39,8 @@ class SwapChain11 : public SwapChainD3D
 
     EGLint getWidth() const { return mWidth; }
     EGLint getHeight() const { return mHeight; }
+
+    bool renderToBackBuffer() const { return mRenderToBackBuffer; }
 
     static SwapChain11 *makeSwapChain11(SwapChainD3D *swapChain);
 
@@ -56,6 +58,8 @@ class SwapChain11 : public SwapChainD3D
     bool mAppCreatedShareHandle;
     unsigned int mSwapInterval;
     bool mPassThroughResourcesInit;
+
+    bool mRenderToBackBuffer;
 
     DXGISwapChain *mSwapChain;
 

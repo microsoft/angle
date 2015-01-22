@@ -312,6 +312,11 @@ Error Display::createWindowSurface(EGLNativeWindowType window, EGLConfig config,
     EGLint height = 0;
     EGLint fixedSize = EGL_FALSE;
 
+    bool renderToBackBuffer = false;
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    renderToBackBuffer = true;
+#endif
+
     if (attribList)
     {
         while (*attribList != EGL_NONE)
@@ -341,6 +346,18 @@ Error Display::createWindowSurface(EGLNativeWindowType window, EGLConfig config,
               case EGL_FIXED_SIZE_ANGLE:
                 fixedSize = attribList[1];
                 break;
+              case EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER:
+                switch (attribList[1])
+                {
+                case EGL_FALSE:
+                case EGL_TRUE:
+                    break;
+
+                default:
+                    return Error(EGL_BAD_ATTRIBUTE);
+                }
+                renderToBackBuffer = (attribList[1] == EGL_TRUE);
+                break;
               case EGL_VG_COLORSPACE:
                 return Error(EGL_BAD_MATCH);
               case EGL_VG_ALPHA_FORMAT:
@@ -356,6 +373,16 @@ Error Display::createWindowSurface(EGLNativeWindowType window, EGLConfig config,
     if (width < 0 || height < 0)
     {
         return Error(EGL_BAD_PARAMETER);
+    }
+
+    EGLBoolean defaultAllowRenderToBackBuffer = EGL_FALSE;
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    defaultAllowRenderToBackBuffer = EGL_TRUE;
+#endif
+
+    if (renderToBackBuffer && (mAttributeMap.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, defaultAllowRenderToBackBuffer) != EGL_TRUE))
+    {
+        return Error(EGL_BAD_ATTRIBUTE);
     }
 
     if (!fixedSize)
@@ -380,7 +407,7 @@ Error Display::createWindowSurface(EGLNativeWindowType window, EGLConfig config,
 
     rx::SurfaceImpl *surfaceImpl = mImplementation->createWindowSurface(this, configuration, window,
                                                                         fixedSize, width, height,
-                                                                        postSubBufferSupported);
+                                                                        postSubBufferSupported, renderToBackBuffer);
 
     Surface *surface = new Surface(surfaceImpl);
     Error error = surface->initialize();
@@ -501,7 +528,7 @@ Error Display::createOffscreenSurface(EGLConfig config, EGLClientBuffer shareHan
     }
 
     rx::SurfaceImpl *surfaceImpl = mImplementation->createOffscreenSurface(this, configuration, shareHandle,
-                                                                           width, height, textureFormat, textureTarget);
+                                                                           width, height, textureFormat, textureTarget, false);
 
     Surface *surface = new Surface(surfaceImpl);
     Error error = surface->initialize();

@@ -226,6 +226,14 @@ Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, const eg
 
     mDriverType = (attributes.get(EGL_PLATFORM_ANGLE_USE_WARP_ANGLE, EGL_FALSE) == EGL_TRUE) ? D3D_DRIVER_TYPE_WARP
                                                                                              : D3D_DRIVER_TYPE_HARDWARE;
+
+    EGLBoolean defaultRenderToBackBuffer = EGL_FALSE;
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    defaultRenderToBackBuffer = EGL_TRUE;
+#endif
+
+    mRenderToBackBufferEnabled = (attributes.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, defaultRenderToBackBuffer) == EGL_TRUE);
+    mRenderToBackBufferActive = false;
 }
 
 Renderer11::~Renderer11()
@@ -561,9 +569,9 @@ gl::Error Renderer11::finish()
     return gl::Error(GL_NO_ERROR);
 }
 
-SwapChainD3D *Renderer11::createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
+SwapChainD3D *Renderer11::createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackbuffer)
 {
-    return new SwapChain11(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat);
+    return new SwapChain11(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat, renderToBackbuffer);
 }
 
 gl::Error Renderer11::generateSwizzle(gl::Texture *texture)
@@ -843,11 +851,18 @@ void Renderer11::setScissorRectangle(const gl::Rectangle &scissor, bool enabled)
     {
         if (enabled)
         {
+            gl::Rectangle actualScissor = scissor;
+
+            if (isCurrentlyRenderingToBackBuffer())
+            {
+                d3d11::InvertYAxis(mRenderTargetDesc.height, &actualScissor);
+            }
+
             D3D11_RECT rect;
-            rect.left = std::max(0, scissor.x);
-            rect.top = std::max(0, scissor.y);
-            rect.right = scissor.x + std::max(0, scissor.width);
-            rect.bottom = scissor.y + std::max(0, scissor.height);
+            rect.left = std::max(0, actualScissor.x);
+            rect.top = std::max(0, actualScissor.y);
+            rect.right = actualScissor.x + std::max(0, actualScissor.width);
+            rect.bottom = actualScissor.y + std::max(0, actualScissor.height);
 
             mDeviceContext->RSSetScissorRects(1, &rect);
         }
@@ -878,6 +893,12 @@ void Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
         actualViewport.height = mRenderTargetDesc.height;
         actualZNear = 0.0f;
         actualZFar = 1.0f;
+    }
+    else if (isCurrentlyRenderingToBackBuffer())
+    {
+        // When rendering directly to the swapchain backbuffer, we must invert the viewport in Y-axis.
+        // This is due to the differences between the D3D and GL window origins.
+        d3d11::InvertYAxis(mRenderTargetDesc.height, &actualViewport);
     }
 
     bool viewportChanged = mForceSetViewport || memcmp(&actualViewport, &mCurViewport, sizeof(gl::Rectangle)) != 0 ||
@@ -1121,6 +1142,23 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
         stencilbufferSerial != mAppliedStencilbufferSerial)
     {
         mDeviceContext->OMSetRenderTargets(getRendererCaps().maxDrawBuffers, framebufferRTVs, framebufferDSV);
+
+        if (colorbuffers[0])
+        {
+            RenderTarget11 *renderTarget = NULL;
+            gl::Error error = d3d11::GetAttachmentRenderTarget(colorbuffers[0], &renderTarget);
+            if (error.isError())
+            {
+                return error;
+            }
+            ASSERT(renderTarget);
+
+            ID3D11Resource* res = NULL;
+            framebufferRTVs[0]->GetResource(&res);
+            ASSERT(d3d11::IsBackbuffer(res) == renderTarget->renderToBackBuffer());
+            setRenderToBackBufferVariables(d3d11::IsBackbuffer(res));
+            SafeRelease(res);
+        }
 
         mRenderTargetDesc.width = renderTargetWidth;
         mRenderTargetDesc.height = renderTargetHeight;
@@ -1850,6 +1888,8 @@ void Renderer11::markAllStateDirty()
     mForceSetScissor = true;
     mForceSetViewport = true;
 
+    mRenderToBackBufferActive = false;
+
     mAppliedIB = NULL;
     mAppliedIBFormat = DXGI_FORMAT_UNKNOWN;
     mAppliedIBOffset = 0;
@@ -2131,6 +2171,41 @@ int Renderer11::getMinSwapInterval() const
 int Renderer11::getMaxSwapInterval() const
 {
     return 4;
+}
+
+bool Renderer11::isRenderingToBackBufferEnabled() const
+{
+    return mRenderToBackBufferEnabled;
+}
+
+bool Renderer11::isCurrentlyRenderingToBackBuffer() const
+{
+    return mRenderToBackBufferActive;
+}
+
+void Renderer11::setRenderToBackBufferVariables(bool renderingToBackBuffer)
+{
+    mRenderToBackBufferActive = renderingToBackBuffer;
+
+    // The rasterizer state must be updated, so that it will update its culling mode.
+    mForceSetRasterState = true;
+
+    mVertexConstants.viewScale[0] = 1.0f;
+    mVertexConstants.viewScale[1] = 1.0f;
+    mVertexConstants.viewScale[2] = 1.0f;
+    mVertexConstants.viewScale[3] = 1.0f;
+
+    mPixelConstants.viewScale[0] = 1.0f;
+    mPixelConstants.viewScale[1] = 1.0f;
+    mPixelConstants.viewScale[2] = 1.0f;
+    mPixelConstants.viewScale[3] = 1.0f;
+
+    // When rendering to a texture, invert the rendering by setting these constants to -1 instead of +1.
+    if (!mRenderToBackBufferActive)
+    {
+        mVertexConstants.viewScale[1] = -1.0f;
+        mPixelConstants.viewScale[1] = -1.0f;
+    }
 }
 
 gl::Error Renderer11::copyImage2D(const gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,
@@ -2500,12 +2575,12 @@ DefaultAttachmentImpl *Renderer11::createDefaultAttachment(GLenum type, egl::Sur
     switch (type)
     {
       case GL_BACK:
-        return new DefaultAttachmentD3D(new SurfaceRenderTarget11(swapChain, this, false));
+        return new DefaultAttachmentD3D(new SurfaceRenderTarget11(swapChain, this, false, swapChain->renderToBackBuffer()));
 
       case GL_DEPTH:
         if (gl::GetInternalFormatInfo(swapChain->GetDepthBufferInternalFormat()).depthBits > 0)
         {
-            return new DefaultAttachmentD3D(new SurfaceRenderTarget11(swapChain, this, true));
+            return new DefaultAttachmentD3D(new SurfaceRenderTarget11(swapChain, this, true, swapChain->renderToBackBuffer()));
         }
         else
         {
@@ -2515,7 +2590,7 @@ DefaultAttachmentImpl *Renderer11::createDefaultAttachment(GLenum type, egl::Sur
       case GL_STENCIL:
         if (gl::GetInternalFormatInfo(swapChain->GetDepthBufferInternalFormat()).stencilBits > 0)
         {
-            return new DefaultAttachmentD3D(new SurfaceRenderTarget11(swapChain, this, true));
+            return new DefaultAttachmentD3D(new SurfaceRenderTarget11(swapChain, this, true, swapChain->renderToBackBuffer()));
         }
         else
         {

@@ -27,10 +27,10 @@ class SurfaceD3D : public SurfaceImpl
   public:
     static SurfaceD3D *createFromWindow(egl::Display *display, const egl::Config *config,
                                         EGLNativeWindowType window, EGLint fixedSize,
-                                        EGLint width, EGLint height, EGLint postSubBufferSupported);
+                                        EGLint width, EGLint height, EGLint postSubBufferSupported, bool renderToBackBuffer);
     static SurfaceD3D *createOffscreen(egl::Display *display, const egl::Config *config,
                                        EGLClientBuffer shareHandle, EGLint width, EGLint height,
-                                       EGLenum textureFormat, EGLenum textureTarget);
+                                       EGLenum textureFormat, EGLenum textureTarget, bool renderToBackBuffer);
     ~SurfaceD3D() override;
     void releaseSwapChain();
 
@@ -60,7 +60,7 @@ class SurfaceD3D : public SurfaceImpl
 
     SurfaceD3D(egl::Display *display, const egl::Config *config, EGLint width, EGLint height,
                EGLint fixedSize, EGLint postSubBufferSupported, EGLenum textureFormat,
-               EGLenum textureType, EGLClientBuffer shareHandle, EGLNativeWindowType window);
+               EGLenum textureType, EGLClientBuffer shareHandle, EGLNativeWindowType window, bool renderToBackBuffer);
     egl::Error swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
     egl::Error resetSwapChain(int backbufferWidth, int backbufferHeight);
     egl::Error resizeSwapChain(int backbufferWidth, int backbufferHeight);
@@ -73,6 +73,8 @@ class SurfaceD3D : public SurfaceImpl
     SwapChainD3D *mSwapChain;
     bool mSwapIntervalDirty;
     bool mWindowSubclassed;        // Indicates whether we successfully subclassed mWindow for WM_RESIZE hooking
+
+    bool mRenderToBackBuffer;
 
     NativeWindow mNativeWindow;   // Handler for the Window that the surface is created for.
 };

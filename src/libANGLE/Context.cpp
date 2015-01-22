@@ -661,12 +661,12 @@ void Context::setFramebufferZero(Framebuffer *buffer)
     // First, check to see if the old default framebuffer
     // was set for draw or read framebuffer, and change
     // the bindings to point to the new one before deleting it.
-    if (mState.getDrawFramebuffer()->id() == 0)
+    if (mState.getDrawFramebuffer() == NULL || mState.getDrawFramebuffer()->id() == 0)
     {
         mState.setDrawFramebufferBinding(buffer);
     }
 
-    if (mState.getReadFramebuffer()->id() == 0)
+    if (mState.getReadFramebuffer() == NULL || mState.getReadFramebuffer()->id() == 0)
     {
         mState.setReadFramebufferBinding(buffer);
     }

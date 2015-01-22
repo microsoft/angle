@@ -21,10 +21,10 @@ class DisplayD3D : public DisplayImpl
     DisplayD3D(rx::RendererD3D *renderer);
     SurfaceImpl *createWindowSurface(egl::Display *display, const egl::Config *config,
                                      EGLNativeWindowType window, EGLint fixedSize,
-                                     EGLint width, EGLint height, EGLint postSubBufferSupported) override;
+                                     EGLint width, EGLint height, EGLint postSubBufferSupported, bool renderToBackBuffer) override;
     SurfaceImpl *createOffscreenSurface(egl::Display *display, const egl::Config *config,
                                         EGLClientBuffer shareHandle, EGLint width, EGLint height,
-                                        EGLenum textureFormat, EGLenum textureTarget) override;
+                                        EGLenum textureFormat, EGLenum textureTarget, bool renderToBackBuffer) override;
     egl::Error restoreLostDevice() override;
 
     bool isValidNativeWindow(EGLNativeWindowType window) const override;

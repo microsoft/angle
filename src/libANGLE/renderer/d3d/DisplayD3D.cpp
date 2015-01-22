@@ -18,18 +18,18 @@ namespace rx
 
 SurfaceImpl *DisplayD3D::createWindowSurface(egl::Display *display, const egl::Config *config,
                                              EGLNativeWindowType window, EGLint fixedSize,
-                                             EGLint width, EGLint height, EGLint postSubBufferSupported)
+                                             EGLint width, EGLint height, EGLint postSubBufferSupported, bool renderToBackBuffer)
 {
     return SurfaceD3D::createFromWindow(display, config, window, fixedSize,
-                                        width, height, postSubBufferSupported);
+                                        width, height, postSubBufferSupported, renderToBackBuffer);
 }
 
 SurfaceImpl *DisplayD3D::createOffscreenSurface(egl::Display *display, const egl::Config *config,
                                                 EGLClientBuffer shareHandle, EGLint width, EGLint height,
-                                                EGLenum textureFormat, EGLenum textureTarget)
+                                                EGLenum textureFormat, EGLenum textureTarget, bool renderToBackBuffer)
 {
     return SurfaceD3D::createOffscreen(display, config, shareHandle,
-                                       width, height, textureFormat, textureTarget);
+                                       width, height, textureFormat, textureTarget, renderToBackBuffer);
 }
 
 DisplayD3D::DisplayD3D(rx::RendererD3D *renderer)

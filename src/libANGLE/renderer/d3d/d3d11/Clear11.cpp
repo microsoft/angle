@@ -234,9 +234,16 @@ gl::Error Clear11::clearFramebuffer(const gl::ClearParameters &clearParams, cons
         return gl::Error(GL_NO_ERROR);
     }
 
-    bool needScissoredClear = clearParams.scissorEnabled && (clearParams.scissor.x > 0 || clearParams.scissor.y > 0 ||
-                                                             clearParams.scissor.x + clearParams.scissor.width < framebufferSize.width ||
-                                                             clearParams.scissor.y + clearParams.scissor.height < framebufferSize.height);
+    gl::Rectangle actualScissor = clearParams.scissor;
+
+    if (mRenderer->isCurrentlyRenderingToBackBuffer())
+    {
+        d3d11::InvertYAxis(framebufferSize.height, &actualScissor);
+    }
+
+    bool needScissoredClear = clearParams.scissorEnabled && (actualScissor.x > 0 || clearParams.scissor.y > 0 ||
+                                                             actualScissor.x + actualScissor.width < framebufferSize.width ||
+                                                             actualScissor.y + actualScissor.height < framebufferSize.height);
 
     std::vector<MaskedRenderTarget> maskedClearRenderTargets;
     RenderTarget11* maskedClearDepthStencil = NULL;
@@ -321,10 +328,10 @@ gl::Error Clear11::clearFramebuffer(const gl::ClearParameters &clearParams, cons
                     ASSERT(deviceContext1);
 
                     D3D11_RECT rect;
-                    rect.left = clearParams.scissor.x;
-                    rect.right = clearParams.scissor.x + clearParams.scissor.width;
-                    rect.top = clearParams.scissor.y;
-                    rect.bottom = clearParams.scissor.y + clearParams.scissor.height;
+                    rect.left = actualScissor.x;
+                    rect.right = actualScissor.x + actualScissor.width;
+                    rect.top = actualScissor.y;
+                    rect.bottom = actualScissor.y + actualScissor.height;
 
                     deviceContext1->ClearView(framebufferRTV, clearValues, &rect, 1);
                 }
@@ -433,7 +440,7 @@ gl::Error Clear11::clearFramebuffer(const gl::ClearParameters &clearParams, cons
             return gl::Error(GL_OUT_OF_MEMORY, "Failed to map internal masked clear vertex buffer, HRESULT: 0x%X.", result);
         }
 
-        const gl::Rectangle *scissorPtr = clearParams.scissorEnabled ? &clearParams.scissor : NULL;
+        const gl::Rectangle *scissorPtr = clearParams.scissorEnabled ? &actualScissor : NULL;
         switch (clearParams.colorClearType)
         {
           case GL_FLOAT:
