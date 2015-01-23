@@ -17,6 +17,7 @@
 #include "libANGLE/Program.h"
 #include "libANGLE/State.h"
 #include "libANGLE/Surface.h"
+#include "libANGLE/formatutils.h"
 #include "libANGLE/renderer/d3d/CompilerD3D.h"
 #include "libANGLE/renderer/d3d/FramebufferD3D.h"
 #include "libANGLE/renderer/d3d/IndexDataManager.h"
@@ -193,7 +194,6 @@ Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, const eg
 
     mAppliedVertexShader = NULL;
     mAppliedGeometryShader = NULL;
-    mCurPointGeometryShader = NULL;
     mAppliedPixelShader = NULL;
 
     EGLint requestedMajorVersion = attributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, EGL_DONT_CARE);
@@ -1285,7 +1285,7 @@ void Renderer11::applyTransformFeedbackBuffers(const gl::State& state)
     }
 }
 
-gl::Error Renderer11::drawArrays(GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive, bool usesPointSize)
+gl::Error Renderer11::drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive, bool usesPointSize)
 {
     bool useInstancedPointSpriteEmulation = usesPointSize && getWorkarounds().useInstancedPointSpriteEmulation;
     if (mode == GL_POINTS && transformFeedbackActive)
@@ -1306,19 +1306,38 @@ gl::Error Renderer11::drawArrays(GLenum mode, GLsizei count, GLsizei instances, 
             mDeviceContext->Draw(count, 0);
         }
 
-        mDeviceContext->GSSetShader(mCurPointGeometryShader, NULL, 0);
-        mDeviceContext->PSSetShader(mAppliedPixelShader, NULL, 0);
+        ProgramD3D *programD3D = ProgramD3D::makeProgramD3D(data.state->getProgram()->getImplementation());
 
-        if (instances > 0)
+        rx::ShaderExecutableD3D *pixelExe = NULL;
+        gl::Error error = programD3D->getPixelExecutableForFramebuffer(data.state->getDrawFramebuffer(), &pixelExe);
+        if (error.isError())
         {
-            mDeviceContext->DrawInstanced(count, instances, 0, 0);
-        }
-        else
-        {
-            mDeviceContext->Draw(count, 0);
+            return error;
         }
 
-        mDeviceContext->GSSetShader(mAppliedGeometryShader, NULL, 0);
+        // Skip this step if we're doing rasterizer discard.
+        if (pixelExe && !data.state->getRasterizerState().rasterizerDiscard)
+        {
+            ID3D11PixelShader *pixelShader = ShaderExecutable11::makeShaderExecutable11(pixelExe)->getPixelShader();
+            ASSERT(reinterpret_cast<uintptr_t>(pixelShader) == mAppliedPixelShader);
+            mDeviceContext->PSSetShader(pixelShader, NULL, 0);
+
+            // Retrieve the point sprite geometry shader
+            rx::ShaderExecutableD3D *geometryExe = programD3D->getGeometryExecutable();
+            ID3D11GeometryShader *geometryShader = (geometryExe ? ShaderExecutable11::makeShaderExecutable11(geometryExe)->getGeometryShader() : NULL);
+            mAppliedGeometryShader = reinterpret_cast<uintptr_t>(geometryShader);
+            ASSERT(geometryShader);
+            mDeviceContext->GSSetShader(geometryShader, NULL, 0);
+
+            if (instances > 0)
+            {
+                mDeviceContext->DrawInstanced(count, instances, 0, 0);
+            }
+            else
+            {
+                mDeviceContext->Draw(count, 0);
+            }
+        }
 
         return gl::Error(GL_NO_ERROR);
     }
@@ -1654,33 +1673,24 @@ gl::Error Renderer11::applyShaders(gl::Program *program, const gl::VertexFormat 
 
     bool dirtyUniforms = false;
 
-    if (vertexShader != mAppliedVertexShader)
+    if (reinterpret_cast<uintptr_t>(vertexShader) != mAppliedVertexShader)
     {
         mDeviceContext->VSSetShader(vertexShader, NULL, 0);
-        mAppliedVertexShader = vertexShader;
+        mAppliedVertexShader = reinterpret_cast<uintptr_t>(vertexShader);
         dirtyUniforms = true;
     }
 
-    if (geometryShader != mAppliedGeometryShader)
+    if (reinterpret_cast<uintptr_t>(geometryShader) != mAppliedGeometryShader)
     {
         mDeviceContext->GSSetShader(geometryShader, NULL, 0);
-        mAppliedGeometryShader = geometryShader;
+        mAppliedGeometryShader = reinterpret_cast<uintptr_t>(geometryShader);
         dirtyUniforms = true;
     }
 
-    if (geometryExe && mCurRasterState.pointDrawMode)
-    {
-        mCurPointGeometryShader = ShaderExecutable11::makeShaderExecutable11(geometryExe)->getGeometryShader();
-    }
-    else
-    {
-        mCurPointGeometryShader = NULL;
-    }
-
-    if (pixelShader != mAppliedPixelShader)
+    if (reinterpret_cast<uintptr_t>(pixelShader) != mAppliedPixelShader)
     {
         mDeviceContext->PSSetShader(pixelShader, NULL, 0);
-        mAppliedPixelShader = pixelShader;
+        mAppliedPixelShader = reinterpret_cast<uintptr_t>(pixelShader);
         dirtyUniforms = true;
     }
 
@@ -1894,10 +1904,13 @@ void Renderer11::markAllStateDirty()
     mAppliedIBFormat = DXGI_FORMAT_UNKNOWN;
     mAppliedIBOffset = 0;
 
-    mAppliedVertexShader = NULL;
-    mAppliedGeometryShader = NULL;
-    mCurPointGeometryShader = NULL;
-    mAppliedPixelShader = NULL;
+
+    // dirtyPointer is a special value that will make the comparison with any valid pointer fail and force the renderer to re-apply the state.
+    const uintptr_t dirtyPointer = -1;
+
+    mAppliedVertexShader = dirtyPointer;
+    mAppliedGeometryShader = dirtyPointer;
+    mAppliedPixelShader = dirtyPointer;
 
     for (size_t i = 0; i < gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS; i++)
     {
@@ -3075,8 +3088,8 @@ gl::Error Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsP
         const d3d11::DXGIFormat &sourceDXGIFormatInfo = d3d11::GetDXGIFormatInfo(textureDesc.Format);
         ColorCopyFunction fastCopyFunc = sourceDXGIFormatInfo.getFastCopyFunction(params.format, params.type);
 
-        const gl::FormatType &destFormatTypeInfo = gl::GetFormatTypeInfo(params.format, params.type);
-        const gl::InternalFormat &destFormatInfo = gl::GetInternalFormatInfo(destFormatTypeInfo.internalFormat);
+        GLenum sizedDestInternalFormat = gl::GetSizedInternalFormat(params.format, params.type);
+        const gl::InternalFormat &destFormatInfo = gl::GetInternalFormatInfo(sizedDestInternalFormat);
 
         if (fastCopyFunc)
         {
@@ -3094,6 +3107,9 @@ gl::Error Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsP
         }
         else
         {
+            ColorReadFunction colorReadFunction = sourceDXGIFormatInfo.colorReadFunction;
+            ColorWriteFunction colorWriteFunction = GetColorWriteFunction(params.format, params.type);
+
             uint8_t temp[16]; // Maximum size of any Color<T> type used.
             META_ASSERT(sizeof(temp) >= sizeof(gl::ColorF)  &&
                         sizeof(temp) >= sizeof(gl::ColorUI) &&
@@ -3108,8 +3124,8 @@ gl::Error Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsP
 
                     // readFunc and writeFunc will be using the same type of color, CopyTexImage
                     // will not allow the copy otherwise.
-                    sourceDXGIFormatInfo.colorReadFunction(src, temp);
-                    destFormatTypeInfo.colorWriteFunction(temp, dest);
+                    colorReadFunction(src, temp);
+                    colorWriteFunction(temp, dest);
                 }
             }
         }

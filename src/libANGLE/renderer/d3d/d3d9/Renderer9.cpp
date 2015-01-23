@@ -20,6 +20,7 @@
 #include "libANGLE/Texture.h"
 #include "libANGLE/angletypes.h"
 #include "libANGLE/features.h"
+#include "libANGLE/formatutils.h"
 #include "libANGLE/renderer/d3d/CompilerD3D.h"
 #include "libANGLE/renderer/d3d/FramebufferD3D.h"
 #include "libANGLE/renderer/d3d/IndexDataManager.h"
@@ -1389,7 +1390,7 @@ void Renderer9::applyTransformFeedbackBuffers(const gl::State& state)
     UNREACHABLE();
 }
 
-gl::Error Renderer9::drawArrays(GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive, bool usesPointSize)
+gl::Error Renderer9::drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive, bool usesPointSize)
 {
     ASSERT(!transformFeedbackActive);
 
