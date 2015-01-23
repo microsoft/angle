@@ -317,6 +317,7 @@
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\copyimage.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\DisplayD3D.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\DynamicHLSL.h"/>
+    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\formatutilsD3D.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\FramebufferD3D.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\generatemip.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\HLSLCompiler.h"/>
@@ -468,6 +469,7 @@
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\copyimage.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\DisplayD3D.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\DynamicHLSL.cpp"/>
+    <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\formatutilsD3D.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\FramebufferD3D.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\HLSLCompiler.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\ImageD3D.cpp"/>

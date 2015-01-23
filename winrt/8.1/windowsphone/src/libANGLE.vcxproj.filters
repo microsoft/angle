@@ -1420,6 +1420,30 @@
     <Filter Include="src\libANGLE\renderer\d3d">
       <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\libANGLE\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
@@ -3643,6 +3667,12 @@
       <Filter>src\libANGLE\renderer\d3d</Filter>
     </ClCompile>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\DynamicHLSL.h">
+      <Filter>src\libANGLE\renderer\d3d</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\formatutilsD3D.cpp">
+      <Filter>src\libANGLE\renderer\d3d</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\formatutilsD3D.h">
       <Filter>src\libANGLE\renderer\d3d</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\FramebufferD3D.cpp">

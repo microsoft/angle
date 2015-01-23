@@ -991,6 +991,24 @@
     <Filter Include="libANGLE\renderer\d3d">
       <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
     <Filter Include="libANGLE\renderer\d3d\d3d9">
       <UniqueIdentifier>{8BB193D2-4A8B-A094-A81E-D5E262AB1F92}</UniqueIdentifier>
     </Filter>
@@ -3355,6 +3373,12 @@
       <Filter>libANGLE\renderer\d3d</Filter>
     </ClCompile>
     <ClInclude Include="libANGLE\renderer\d3d\DynamicHLSL.h">
+      <Filter>libANGLE\renderer\d3d</Filter>
+    </ClInclude>
+    <ClCompile Include="libANGLE\renderer\d3d\formatutilsD3D.cpp">
+      <Filter>libANGLE\renderer\d3d</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\renderer\d3d\formatutilsD3D.h">
       <Filter>libANGLE\renderer\d3d</Filter>
     </ClInclude>
     <ClCompile Include="libANGLE\renderer\d3d\FramebufferD3D.cpp">
