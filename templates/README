@@ -27,10 +27,10 @@ Building/configuring ANGLE to use in the templates:
     1)  Clone an ANGLE repository if you haven't already done so.
     2)  Set the 'AngleRootPath' system environment variable to the location of your ANGLE source.
     3)  Open one of the following solution files to build Windows Store 8.1 compatible ANGLE binaries:
-            $(AngleRootPath)\projects\winrt\windows\src\angle.sln
-            $(AngleRootPath)\projects\winrt\windowsphone\src\angle.sln
+            $(AngleRootPath)\winrt\8.1\windows\src\angle.sln
+            $(AngleRootPath)\winrt\8.1\windowsphone\src\angle.sln
         Or use the following solution file to build classic Windows desktop compatible ANGLE binaries:
-            $(AngleRootPath)\projects\src\angle.sln
+            $(AngleRootPath)\src\angle.sln
     4)  Build the flavors of ANGLE that you wish to use, e.g. Release/ARM/WindowsPhone.
         
 Now create a new project based on one of the templates. When you build your project, it should 

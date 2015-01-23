@@ -27,14 +27,14 @@ The /templates/ directory contains easy-to-use Visual Studio templates for
 OpenGL ES/ANGLE. View the README in that directory for installation 
 instructions.
 
-The Windows Store projects for ANGLE are located here:
+The Windows Store solutions for ANGLE are located here:
 
-* projects/winrt/windows/src/
-* projects/winrt/windowsphone/src/
+* /winrt/8.1/windows/src/angle.sln
+* /winrt/8.1/windowsphone/src/angle.sln
 
-The ANGLE projects for Windows desktop applications are located here:
+The ANGLE solution for Windows desktop applications is located here:
 
-* projects/src/
+* /src/angle.sln
 
 Features (available now)
 =====
