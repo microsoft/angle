@@ -29,7 +29,8 @@ EGLPlatformParameters::EGLPlatformParameters(EGLint renderer)
     : renderer(renderer),
       majorVersion(EGL_DONT_CARE),
       minorVersion(EGL_DONT_CARE),
-      useWarp(EGL_FALSE)
+      useWarp(EGL_FALSE),
+      useRenderToBackBuffer(EGL_FALSE)
 {
 }
 
