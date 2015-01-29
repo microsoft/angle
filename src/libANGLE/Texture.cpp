@@ -10,6 +10,7 @@
 #include "libANGLE/Data.h"
 #include "libANGLE/formatutils.h"
 
+#include "libANGLE/Config.h"
 #include "libANGLE/Surface.h"
 
 #include "common/mathutil.h"
@@ -106,9 +107,9 @@ GLenum Texture::getInternalFormat(GLenum target, size_t level) const
 bool Texture::isSamplerComplete(const SamplerState &samplerState, const Data &data) const
 {
     GLenum baseTarget = getBaseImageTarget();
-    size_t width = getWidth(baseTarget, 0);
-    size_t height = getHeight(baseTarget, 0);
-    size_t depth = getDepth(baseTarget, 0);
+    size_t width = getWidth(baseTarget, samplerState.baseLevel);
+    size_t height = getHeight(baseTarget, samplerState.baseLevel);
+    size_t depth = getDepth(baseTarget, samplerState.baseLevel);
     if (width == 0 || height == 0 || depth == 0)
     {
         return false;
@@ -119,7 +120,7 @@ bool Texture::isSamplerComplete(const SamplerState &samplerState, const Data &da
         return false;
     }
 
-    GLenum internalFormat = getInternalFormat(baseTarget, 0);
+    GLenum internalFormat = getInternalFormat(baseTarget, samplerState.baseLevel);
     const TextureCaps &textureCaps = data.textureCaps->get(internalFormat);
     if (!textureCaps.filterable && !IsPointSampled(samplerState))
     {
@@ -146,7 +147,7 @@ bool Texture::isSamplerComplete(const SamplerState &samplerState, const Data &da
             }
         }
 
-        if (!isMipmapComplete())
+        if (!isMipmapComplete(samplerState))
         {
             return false;
         }
@@ -390,6 +391,15 @@ void Texture::setImageDesc(const ImageIndex &index, const ImageDesc &desc)
     mImageDescs[index] = desc;
 }
 
+void Texture::clearImageDesc(const ImageIndex &index)
+{
+    ImageDescMap::iterator iter = mImageDescs.find(index);
+    if (iter != mImageDescs.end())
+    {
+        mImageDescs.erase(iter);
+    }
+}
+
 void Texture::clearImageDescs()
 {
     mImageDescs.clear();
@@ -397,9 +407,17 @@ void Texture::clearImageDescs()
 
 void Texture::bindTexImage(egl::Surface *surface)
 {
+    ASSERT(surface);
+
     releaseTexImage();
     mTexture->bindTexImage(surface);
     mBoundSurface = surface;
+
+    // Set the image info to the size and format of the surface
+    ASSERT(mTarget == GL_TEXTURE_2D);
+    Extents size(surface->getWidth(), surface->getHeight(), 1);
+    ImageDesc desc(size, surface->getConfig()->mRenderTargetFormat);
+    setImageDesc(ImageIndex::MakeGeneric(mTarget, 0), desc);
 }
 
 void Texture::releaseTexImage()
@@ -408,6 +426,10 @@ void Texture::releaseTexImage()
     {
         mBoundSurface = NULL;
         mTexture->releaseTexImage();
+
+        // Erase the image info for level 0
+        ASSERT(mTarget == GL_TEXTURE_2D);
+        clearImageDesc(ImageIndex::MakeGeneric(mTarget, 0));
     }
 }
 
@@ -432,16 +454,19 @@ size_t Texture::getExpectedMipLevels() const
     }
 }
 
-bool Texture::isMipmapComplete() const
+bool Texture::isMipmapComplete(const gl::SamplerState &samplerState) const
 {
     size_t expectedMipLevels = getExpectedMipLevels();
-    for (size_t level = 0; level < expectedMipLevels; level++)
+
+    size_t maxLevel = std::min<size_t>(expectedMipLevels, samplerState.maxLevel + 1);
+
+    for (size_t level = samplerState.baseLevel; level < maxLevel; level++)
     {
         if (mTarget == GL_TEXTURE_CUBE_MAP)
         {
             for (GLenum face = FirstCubeMapTextureTarget; face <= LastCubeMapTextureTarget; face++)
             {
-                if (!isLevelComplete(face, level))
+                if (!isLevelComplete(face, level, samplerState))
                 {
                     return false;
                 }
@@ -449,7 +474,7 @@ bool Texture::isMipmapComplete() const
         }
         else
         {
-            if (!isLevelComplete(mTarget, level))
+            if (!isLevelComplete(mTarget, level, samplerState))
             {
                 return false;
             }
@@ -460,7 +485,8 @@ bool Texture::isMipmapComplete() const
 }
 
 
-bool Texture::isLevelComplete(GLenum target, size_t level) const
+bool Texture::isLevelComplete(GLenum target, size_t level,
+                              const gl::SamplerState &samplerState) const
 {
     ASSERT(level < IMPLEMENTATION_MAX_TEXTURE_LEVELS);
 
@@ -469,9 +495,9 @@ bool Texture::isLevelComplete(GLenum target, size_t level) const
         return true;
     }
 
-    size_t width = getWidth(target, 0);
-    size_t height = getHeight(target, 0);
-    size_t depth = getHeight(target, 0);
+    size_t width = getWidth(target, samplerState.baseLevel);
+    size_t height = getHeight(target, samplerState.baseLevel);
+    size_t depth = getDepth(target, samplerState.baseLevel);
     if (width == 0 || height == 0 || depth == 0)
     {
         return false;
@@ -483,7 +509,7 @@ bool Texture::isLevelComplete(GLenum target, size_t level) const
         return true;
     }
 
-    if (getInternalFormat(target, level) != getInternalFormat(target, 0))
+    if (getInternalFormat(target, level) != getInternalFormat(target, samplerState.baseLevel))
     {
         return false;
     }

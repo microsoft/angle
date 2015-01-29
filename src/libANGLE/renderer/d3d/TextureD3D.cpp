@@ -166,8 +166,6 @@ gl::Error TextureD3D::setImage(const gl::ImageIndex &index, GLenum type, const g
 
     if (pixelData != NULL)
     {
-        gl::Error error(GL_NO_ERROR);
-
         if (shouldUseSetData(image))
         {
             error = mTexStorage->setData(index, image, NULL, type, unpack, pixelData);
@@ -210,7 +208,7 @@ gl::Error TextureD3D::subImage(const gl::ImageIndex &index, const gl::Box &area,
             return mTexStorage->setData(index, image, &area, type, unpack, pixelData);
         }
 
-        gl::Error error = image->loadData(area, unpack.alignment, type, pixelData);
+        error = image->loadData(area, unpack.alignment, type, pixelData);
         if (error.isError())
         {
             return error;
@@ -245,7 +243,7 @@ gl::Error TextureD3D::setCompressedImage(const gl::ImageIndex &index, const gl::
         ASSERT(image);
 
         gl::Box fullImageArea(0, 0, 0, image->getWidth(), image->getHeight(), image->getDepth());
-        gl::Error error = image->loadCompressedData(fullImageArea, pixelData);
+        error = image->loadCompressedData(fullImageArea, pixelData);
         if (error.isError())
         {
             return error;
@@ -272,7 +270,7 @@ gl::Error TextureD3D::subImageCompressed(const gl::ImageIndex &index, const gl::
         ImageD3D *image = getImage(index);
         ASSERT(image);
 
-        gl::Error error = image->loadCompressedData(area, pixelData);
+        error = image->loadCompressedData(area, pixelData);
         if (error.isError())
         {
             return error;
@@ -752,7 +750,7 @@ gl::Error TextureD3D_2D::copyImage(GLenum target, size_t level, const gl::Rectan
 
         if (sourceArea.width != 0 && sourceArea.height != 0 && isValidLevel(level))
         {
-            gl::Error error = mRenderer->copyImage2D(source, sourceArea, internalFormat, destOffset, mTexStorage, level);
+            error = mRenderer->copyImage2D(source, sourceArea, internalFormat, destOffset, mTexStorage, level);
             if (error.isError())
             {
                 return error;
@@ -1034,11 +1032,9 @@ gl::Error TextureD3D_2D::createCompleteStorage(bool renderTarget, TextureStorage
         // If any of the CPU images (levels >= 1) are dirty, then the textureStorage2D should use the mipped texture to begin with.
         // Otherwise, it should use the level-zero-only texture.
         hintLevelZeroOnly = true;
-        int level = 1;
-        while (hintLevelZeroOnly && level < levels)
+        for (int level = 1; level < levels && hintLevelZeroOnly; level++)
         {
             hintLevelZeroOnly = !(mImageArray[level]->isDirty() && isLevelComplete(level));
-            level += 1;
         }
     }
 
@@ -1386,8 +1382,7 @@ gl::Error TextureD3D_Cube::setStorage(GLenum target, size_t levels, GLenum inter
     // TODO(geofflang): Verify storage creation had no errors
     bool renderTarget = IsRenderTargetUsage(mUsage);
 
-    // Hint to use the level zero-workaround (if applicable). TextureCubes are less likely to have mipmaps than Texture2Ds
-    TextureStorage *storage = mRenderer->createTextureStorageCube(internalFormat, renderTarget, size.width, levels, true);
+    TextureStorage *storage = mRenderer->createTextureStorageCube(internalFormat, renderTarget, size.width, levels, false);
 
     gl::Error error = setCompleteTexStorage(storage);
     if (error.isError())
@@ -1536,13 +1531,11 @@ gl::Error TextureD3D_Cube::createCompleteStorage(bool renderTarget, TextureStora
         // If any of the CPU images (levels >= 1) are dirty, then the textureStorage should use the mipped texture to begin with.
         // Otherwise, it should use the level-zero-only texture.
         hintLevelZeroOnly = true;
-        for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+        for (int faceIndex = 0; faceIndex < 6 && hintLevelZeroOnly; faceIndex++)
         {
-            int level = 1;
-            while (hintLevelZeroOnly && level < levels)
+            for (int level = 1; level < levels && hintLevelZeroOnly; level++)
             {
                 hintLevelZeroOnly = !(mImageArray[faceIndex][level]->isDirty() && isFaceLevelComplete(faceIndex, level));
-                level += 1;
             }
         }
     }
@@ -1687,11 +1680,11 @@ void TextureD3D_Cube::redefineImage(int faceIndex, GLint level, GLenum internalf
             size.height != storageHeight ||
             internalformat != storageFormat)   // Discard mismatched storage
         {
-            for (int level = 0; level < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS; level++)
+            for (int dirtyLevel = 0; dirtyLevel < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS; dirtyLevel++)
             {
-                for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+                for (int dirtyFace = 0; dirtyFace < 6; dirtyFace++)
                 {
-                    mImageArray[faceIndex][level]->markDirty();
+                    mImageArray[dirtyFace][dirtyLevel]->markDirty();
                 }
             }
 
@@ -2816,11 +2809,11 @@ void TextureD3D_2DArray::redefineImage(GLint level, GLenum internalformat, const
             size.depth != storageDepth ||
             internalformat != storageFormat)   // Discard mismatched storage
         {
-            for (int level = 0; level < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS; level++)
+            for (int dirtyLevel = 0; dirtyLevel < gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS; dirtyLevel++)
             {
-                for (int layer = 0; layer < mLayerCounts[level]; layer++)
+                for (int dirtyLayer = 0; dirtyLayer < mLayerCounts[dirtyLevel]; dirtyLayer++)
                 {
-                    mImageArray[level][layer]->markDirty();
+                    mImageArray[dirtyLevel][dirtyLayer]->markDirty();
                 }
             }
 

@@ -10,6 +10,7 @@
 #include <list>
 #include <set>
 #include <map>
+#include <stack>
 
 #include "angle_gl.h"
 #include "compiler/translator/IntermNode.h"
@@ -33,12 +34,12 @@ class OutputHLSL : public TIntermTraverser
 
     void output();
 
-    TInfoSinkBase &getBodyStream();
-
     const std::map<std::string, unsigned int> &getInterfaceBlockRegisterMap() const;
     const std::map<std::string, unsigned int> &getUniformRegisterMap() const;
 
     static TString initializer(const TType &type);
+
+    TInfoSinkBase &getInfoSink() { ASSERT(!mInfoSinkStack.empty()); return *mInfoSinkStack.top(); }
 
   protected:
     void header(const BuiltInFunctionEmulatorHLSL *builtInFunctionEmulator);
@@ -66,6 +67,11 @@ class OutputHLSL : public TIntermTraverser
     const ConstantUnion *writeConstantUnion(const TType &type, const ConstantUnion *constUnion);
 
     void writeEmulatedFunctionTriplet(Visit visit, const char *preStr);
+    void makeFlaggedStructMaps(const std::vector<TIntermTyped *> &flaggedStructs);
+
+    // Returns true if it found a 'same symbol' initializer (initializer that references the variable it's initting)
+    bool writeSameSymbolInitializer(TInfoSinkBase &out, TIntermSymbol *symbolNode, TIntermTyped *expression);
+    void writeDeferredGlobalInitializers(TInfoSinkBase &out);
 
     TParseContext &mContext;
     const ShShaderOutput mOutputType;
@@ -76,6 +82,10 @@ class OutputHLSL : public TIntermTraverser
     TInfoSinkBase mHeader;
     TInfoSinkBase mBody;
     TInfoSinkBase mFooter;
+
+    // A stack is useful when we want to traverse in the header, or in helper functions, but not always
+    // write to the body. Instead use an InfoSink stack to keep our current state intact.
+    std::stack<TInfoSinkBase *> mInfoSinkStack;
 
     ReferencedSymbols mReferencedUniforms;
     ReferencedSymbols mReferencedInterfaceBlocks;
@@ -144,7 +154,11 @@ class OutputHLSL : public TIntermTraverser
     std::map<TIntermTyped*, TString> mFlaggedStructMappedNames;
     std::map<TIntermTyped*, TString> mFlaggedStructOriginalNames;
 
-    void makeFlaggedStructMaps(const std::vector<TIntermTyped *> &flaggedStructs);
+    // Some initializers use varyings, uniforms or attributes, thus we can't evaluate some variables
+    // at global static scope in HLSL. These variables depend on values which we retrieve from the
+    // shader input structure, which we set in the D3D main function. Instead, we can initialize
+    // these static globals after we initialize our other globals.
+    std::vector<std::pair<TIntermSymbol*, TIntermTyped*>> mDeferredGlobalInitializers;
 };
 
 }

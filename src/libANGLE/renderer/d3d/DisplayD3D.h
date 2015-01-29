@@ -25,12 +25,17 @@ class DisplayD3D : public DisplayImpl
     SurfaceImpl *createOffscreenSurface(egl::Display *display, const egl::Config *config,
                                         EGLClientBuffer shareHandle, EGLint width, EGLint height,
                                         EGLenum textureFormat, EGLenum textureTarget, bool renderToBackBuffer) override;
+
+    std::vector<ConfigDesc> generateConfigs() const override;
+
     egl::Error restoreLostDevice() override;
 
     bool isValidNativeWindow(EGLNativeWindowType window) const override;
 
   private:
     DISALLOW_COPY_AND_ASSIGN(DisplayD3D);
+
+    void generateExtensions(egl::DisplayExtensions *outExtensions) const override;
 
     rx::RendererD3D *mRenderer;
 };

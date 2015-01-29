@@ -379,8 +379,6 @@ gl::Error TextureStorage11::updateSubresourceLevel(ID3D11Resource *srcTexture, u
     }
     else
     {
-        const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(mTextureFormat);
-
         D3D11_BOX srcBox;
         srcBox.left = copyArea.x;
         srcBox.top = copyArea.y;
@@ -427,10 +425,27 @@ gl::Error TextureStorage11::copySubresourceLevel(ID3D11Resource* dstTexture, uns
 
     ID3D11DeviceContext *context = mRenderer->getDeviceContext();
 
-    // D3D10Level9 doesn't always perform CopySubresourceRegion correctly unless the source box is specified
-    D3D11_BOX srcBox = { region.x, region.y, region.z, region.width, region.height, region.depth };
+    // D3D11 can't perform partial CopySubresourceRegion on depth/stencil textures, so pSrcBox should be NULL.
+    D3D11_BOX srcBox;
+    D3D11_BOX *pSrcBox = NULL;
+    if (mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
+    {
+        // However, D3D10Level9 doesn't always perform CopySubresourceRegion correctly unless the source box
+        // is specified. This is okay, since we don't perform CopySubresourceRegion on depth/stencil
+        // textures on 9_3.
+        ASSERT(d3d11::GetDXGIFormatInfo(mTextureFormat).depthBits == 0);
+        ASSERT(d3d11::GetDXGIFormatInfo(mTextureFormat).stencilBits == 0);
+        srcBox.left = region.x;
+        srcBox.right = region.x + region.width;
+        srcBox.top = region.y;
+        srcBox.bottom = region.y + region.height;
+        srcBox.front = region.z;
+        srcBox.back = region.z + region.depth;
+        pSrcBox = &srcBox;
+    }
+
     context->CopySubresourceRegion(dstTexture, dstSubresource, region.x, region.y, region.z,
-                                   srcTexture, srcSubresource, &srcBox);
+                                   srcTexture, srcSubresource, pSrcBox);
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -520,7 +535,8 @@ gl::Error TextureStorage11::setData(const gl::ImageIndex &index, ImageD3D *image
 
     const gl::InternalFormat &internalFormatInfo = gl::GetInternalFormatInfo(image->getInternalFormat());
 
-    bool fullUpdate = (destBox == NULL || *destBox == gl::Box(0, 0, 0, mTextureWidth, mTextureHeight, mTextureDepth));
+    gl::Box levelBox(0, 0, 0, getLevelWidth(index.mipIndex), getLevelHeight(index.mipIndex), getLevelDepth(index.mipIndex));
+    bool fullUpdate = (destBox == NULL || *destBox == levelBox);
     ASSERT(internalFormatInfo.depthBits == 0 || fullUpdate);
 
     // TODO(jmadill): Handle compressed formats
@@ -568,8 +584,8 @@ gl::Error TextureStorage11::setData(const gl::ImageIndex &index, ImageD3D *image
         destD3DBox.right = destBox->x + destBox->width;
         destD3DBox.top = destBox->y;
         destD3DBox.bottom = destBox->y + destBox->height;
-        destD3DBox.front = 0;
-        destD3DBox.back = 1;
+        destD3DBox.front = destBox->z;
+        destD3DBox.back = destBox->z + destBox->depth;
 
         immediateContext->UpdateSubresource(resource, destSubresource,
                                             &destD3DBox, conversionBuffer->data(),
@@ -771,7 +787,6 @@ gl::Error TextureStorage11_2D::copyToStorage(TextureStorage *destStorage)
             return error;
         }
 
-        TextureStorage11 *dest11 = TextureStorage11::makeTextureStorage11(destStorage);
         ID3D11Resource *destResource = NULL;
         error = dest11->getResource(&destResource);
         if (error.isError())
@@ -951,7 +966,8 @@ gl::Error TextureStorage11_2D::getMippedResource(ID3D11Resource **outResource)
 gl::Error TextureStorage11_2D::ensureTextureExists(int mipLevels)
 {
     // If mMipLevels = 1 then always use mTexture rather than mLevelZeroTexture.
-    ID3D11Texture2D **outputTexture = ((mipLevels == 1) && (mMipLevels > 1) && mRenderer->getWorkarounds().zeroMaxLodWorkaround) ? &mLevelZeroTexture : &mTexture;
+    bool useLevelZeroTexture = mRenderer->getWorkarounds().zeroMaxLodWorkaround ? (mipLevels == 1) && (mMipLevels > 1) : false;
+    ID3D11Texture2D **outputTexture = useLevelZeroTexture ? &mLevelZeroTexture : &mTexture;
 
     // if the width or height is not positive this should be treated as an incomplete texture
     // we handle that here by skipping the d3d texture creation
@@ -1398,7 +1414,6 @@ gl::Error TextureStorage11_Cube::copyToStorage(TextureStorage *destStorage)
             return error;
         }
 
-        TextureStorage11 *dest11 = TextureStorage11::makeTextureStorage11(destStorage);
         ID3D11Resource *destResource = NULL;
         error = dest11->getResource(&destResource);
         if (error.isError())
@@ -1433,7 +1448,7 @@ gl::Error TextureStorage11_Cube::useLevelZeroWorkaroundTexture(bool useLevelZero
 
             for (int face = 0; face < 6; face++)
             {
-                context->CopySubresourceRegion(mLevelZeroTexture, face, 0, 0, 0, mTexture, face * mMipLevels, NULL);
+                context->CopySubresourceRegion(mLevelZeroTexture, D3D11CalcSubresource(0, face, 1), 0, 0, 0, mTexture, face * mMipLevels, NULL);
             }
         }
 
@@ -1455,7 +1470,7 @@ gl::Error TextureStorage11_Cube::useLevelZeroWorkaroundTexture(bool useLevelZero
 
             for (int face = 0; face < 6; face++)
             {
-                context->CopySubresourceRegion(mTexture, face * mMipLevels, 0, 0, 0, mLevelZeroTexture, face, NULL);
+                context->CopySubresourceRegion(mTexture, D3D11CalcSubresource(0, face, mMipLevels), 0, 0, 0, mLevelZeroTexture, face, NULL);
             }
         }
 
@@ -1605,7 +1620,8 @@ gl::Error TextureStorage11_Cube::getMippedResource(ID3D11Resource **outResource)
 gl::Error TextureStorage11_Cube::ensureTextureExists(int mipLevels)
 {
     // If mMipLevels = 1 then always use mTexture rather than mLevelZeroTexture.
-    ID3D11Texture2D **outputTexture = ((mipLevels == 1) && (mMipLevels > 1) && mRenderer->getWorkarounds().zeroMaxLodWorkaround) ? &mLevelZeroTexture : &mTexture;
+    bool useLevelZeroTexture = mRenderer->getWorkarounds().zeroMaxLodWorkaround ? (mipLevels == 1) && (mMipLevels > 1) : false;
+    ID3D11Texture2D **outputTexture = useLevelZeroTexture ? &mLevelZeroTexture : &mTexture;
 
     // if the size is not positive this should be treated as an incomplete texture
     // we handle that here by skipping the d3d texture creation

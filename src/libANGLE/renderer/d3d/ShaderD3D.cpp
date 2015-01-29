@@ -106,17 +106,18 @@ void ShaderD3D::parseVaryings(ShHandle compiler)
             mVaryings.push_back(gl::PackedVarying((*varyings)[varyingIndex]));
         }
 
-        mUsesMultipleRenderTargets = mHlsl.find("GL_USES_MRT")          != std::string::npos;
-        mUsesFragColor             = mHlsl.find("GL_USES_FRAG_COLOR")   != std::string::npos;
-        mUsesFragData              = mHlsl.find("GL_USES_FRAG_DATA")    != std::string::npos;
-        mUsesFragCoord             = mHlsl.find("GL_USES_FRAG_COORD")   != std::string::npos;
-        mUsesFrontFacing           = mHlsl.find("GL_USES_FRONT_FACING") != std::string::npos;
-        mUsesPointSize             = mHlsl.find("GL_USES_POINT_SIZE")   != std::string::npos;
-        mUsesPointCoord            = mHlsl.find("GL_USES_POINT_COORD")  != std::string::npos;
-        mUsesDepthRange            = mHlsl.find("GL_USES_DEPTH_RANGE")  != std::string::npos;
-        mUsesFragDepth             = mHlsl.find("GL_USES_FRAG_DEPTH")   != std::string::npos;
+        mUsesMultipleRenderTargets = mHlsl.find("GL_USES_MRT")                  != std::string::npos;
+        mUsesFragColor             = mHlsl.find("GL_USES_FRAG_COLOR")           != std::string::npos;
+        mUsesFragData              = mHlsl.find("GL_USES_FRAG_DATA")            != std::string::npos;
+        mUsesFragCoord             = mHlsl.find("GL_USES_FRAG_COORD")           != std::string::npos;
+        mUsesFrontFacing           = mHlsl.find("GL_USES_FRONT_FACING")         != std::string::npos;
+        mUsesPointSize             = mHlsl.find("GL_USES_POINT_SIZE")           != std::string::npos;
+        mUsesPointCoord            = mHlsl.find("GL_USES_POINT_COORD")          != std::string::npos;
+        mUsesDepthRange            = mHlsl.find("GL_USES_DEPTH_RANGE")          != std::string::npos;
+        mUsesFragDepth             = mHlsl.find("GL_USES_FRAG_DEPTH")           != std::string::npos;
         mUsesDiscardRewriting      = mHlsl.find("ANGLE_USES_DISCARD_REWRITING") != std::string::npos;
-        mUsesNestedBreak           = mHlsl.find("ANGLE_USES_NESTED_BREAK") != std::string::npos;
+        mUsesNestedBreak           = mHlsl.find("ANGLE_USES_NESTED_BREAK")      != std::string::npos;
+        mUsesDeferredInit          = mHlsl.find("ANGLE_USES_DEFERRED_INIT")     != std::string::npos;
     }
 }
 
@@ -148,6 +149,7 @@ void ShaderD3D::uncompile()
     mShaderVersion = 100;
     mUsesDiscardRewriting = false;
     mUsesNestedBreak = false;
+    mUsesDeferredInit = false;
 
     mVaryings.clear();
     mUniforms.clear();
@@ -229,9 +231,9 @@ void ShaderD3D::compileToHLSL(ShHandle compiler, const std::string &source)
             if (uniform.staticUse)
             {
                 unsigned int index = -1;
-                bool result = ShGetUniformRegister(compiler, uniform.name, &index);
-                UNUSED_ASSERTION_VARIABLE(result);
-                ASSERT(result);
+                bool getUniformRegisterResult = ShGetUniformRegister(compiler, uniform.name, &index);
+                UNUSED_ASSERTION_VARIABLE(getUniformRegisterResult);
+                ASSERT(getUniformRegisterResult);
 
                 mUniformRegisterMap[uniform.name] = index;
             }
@@ -246,9 +248,9 @@ void ShaderD3D::compileToHLSL(ShHandle compiler, const std::string &source)
             if (interfaceBlock.staticUse)
             {
                 unsigned int index = -1;
-                bool result = ShGetInterfaceBlockRegister(compiler, interfaceBlock.name, &index);
-                UNUSED_ASSERTION_VARIABLE(result);
-                ASSERT(result);
+                bool blockRegisterResult = ShGetInterfaceBlockRegister(compiler, interfaceBlock.name, &index);
+                UNUSED_ASSERTION_VARIABLE(blockRegisterResult);
+                ASSERT(blockRegisterResult);
 
                 mInterfaceBlockRegisterMap[interfaceBlock.name] = index;
             }

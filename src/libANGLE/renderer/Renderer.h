@@ -72,9 +72,6 @@ class Renderer
 
     virtual EGLint initialize() = 0;
 
-    virtual int generateConfigs(ConfigDesc **configDescList) = 0;
-    virtual void deleteConfigs(ConfigDesc *configDescList) = 0;
-
     virtual gl::Error flush() = 0;
     virtual gl::Error finish() = 0;
 
@@ -83,10 +80,6 @@ class Renderer
     virtual gl::Error drawElements(const gl::Data &data, GLenum mode, GLsizei count, GLenum type,
                                    const GLvoid *indices, GLsizei instances,
                                    const RangeUI &indexRange) = 0;
-
-    // TODO(jmadill): caps? and virtual for egl::Display
-    virtual bool getShareHandleSupport() const = 0;
-    virtual bool getPostSubBufferSupport() const = 0;
 
     // Shader creation
     virtual CompilerImpl *createCompiler(const gl::Data &data) = 0;
