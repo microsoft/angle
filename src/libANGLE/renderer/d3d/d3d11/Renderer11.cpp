@@ -1138,7 +1138,7 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
     {
         mDeviceContext->OMSetRenderTargets(getRendererCaps().maxDrawBuffers, framebufferRTVs, framebufferDSV);
 
-        if (colorbuffers[0])
+        if (colorbuffers.size() > 0)
         {
             RenderTarget11 *renderTarget = NULL;
             gl::Error error = d3d11::GetAttachmentRenderTarget(colorbuffers[0], &renderTarget);
