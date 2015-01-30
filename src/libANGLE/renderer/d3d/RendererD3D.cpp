@@ -103,7 +103,7 @@ gl::Error RendererD3D::drawElements(const gl::Data &data,
     }
 
     GLsizei vertexCount = indexInfo.indexRange.length() + 1;
-    error = applyVertexBuffer(*data.state, indexInfo.indexRange.start, vertexCount, instances);
+    error = applyVertexBuffer(*data.state, mode, indexInfo.indexRange.start, vertexCount, instances);
     if (error.isError())
     {
         return error;
@@ -176,7 +176,7 @@ gl::Error RendererD3D::drawArrays(const gl::Data &data,
         return error;
     }
 
-    error = applyVertexBuffer(*data.state, first, count, instances);
+    error = applyVertexBuffer(*data.state, mode, first, count, instances);
     if (error.isError())
     {
         return error;
