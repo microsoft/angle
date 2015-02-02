@@ -47,9 +47,28 @@ class DrawBuffersTest : public ANGLETest
         glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
         glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6, data, GL_STATIC_DRAW);
 
-        GLint maxDrawBuffers;
-        glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxDrawBuffers);
-        ASSERT_EQ(maxDrawBuffers, 8);
+        glGetIntegerv(GL_MAX_DRAW_BUFFERS, &mMaxDrawBuffers);
+
+        EGLPlatformParameters platform = fixtureType.GetPlatform();
+
+        if (platform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
+        {
+            if (platform.majorVersion == 9 && platform.minorVersion == 3)
+            {
+                // D3D11 Feature Level 9_3 supports 4 draw buffers
+                ASSERT_EQ(mMaxDrawBuffers, 4);
+            }
+            else
+            {
+                // D3D11 Feature Level 10_0+ supports 8 draw buffers
+                ASSERT_EQ(mMaxDrawBuffers, 8);
+            }
+        }
+        else
+        {
+            // If any other renderer is used then more checks should be added here.
+            ASSERT_TRUE(false);
+        }
 
         ASSERT_GL_NO_ERROR();
     }
@@ -181,7 +200,7 @@ class DrawBuffersTest : public ANGLETest
 
     void verifyAttachment(unsigned int index, GLuint textureName)
     {
-        for (unsigned int colorAttachment = 0; colorAttachment < 8; colorAttachment++)
+        for (GLint colorAttachment = 0; colorAttachment < mMaxDrawBuffers; colorAttachment++)
         {
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + colorAttachment, GL_TEXTURE_2D, 0, 0);
         }
@@ -196,9 +215,12 @@ class DrawBuffersTest : public ANGLETest
         EXPECT_PIXEL_EQ(getWindowWidth() / 2, getWindowHeight() / 2, r, g, b, 255);
     }
 
+    T fixtureType;
+
     GLuint mFBO;
     GLuint mTextures[4];
     GLuint mBuffer;
+    GLint mMaxDrawBuffers;
 };
 
 TYPED_TEST(DrawBuffersTest, Gaps)
@@ -263,24 +285,24 @@ TYPED_TEST(DrawBuffersTest, FirstHalfNULL)
     bool flags[8] = { false };
     GLenum bufs[8] = { GL_NONE };
 
-    for (unsigned int texIndex = 0; texIndex < 4; texIndex++)
+    for (GLint texIndex = 0; texIndex < mMaxDrawBuffers / 2; texIndex++)
     {
         glBindTexture(GL_TEXTURE_2D, mTextures[texIndex]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4 + texIndex, GL_TEXTURE_2D, mTextures[texIndex], 0);
-        flags[texIndex + 4] = true;
-        bufs[texIndex + 4] = GL_COLOR_ATTACHMENT4 + texIndex;
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + mMaxDrawBuffers / 2 + texIndex, GL_TEXTURE_2D, mTextures[texIndex], 0);
+        flags[texIndex + mMaxDrawBuffers / 2] = true;
+        bufs[texIndex + mMaxDrawBuffers / 2] = GL_COLOR_ATTACHMENT0 + mMaxDrawBuffers / 2 + texIndex;
     }
 
     GLuint program;
     setupMRTProgram(flags, &program);
 
     glUseProgram(program);
-    glDrawBuffersEXT(8, bufs);
+    glDrawBuffersEXT(mMaxDrawBuffers, bufs);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    for (unsigned int texIndex = 0; texIndex < 4; texIndex++)
+    for (GLint texIndex = 0; texIndex < mMaxDrawBuffers / 2; texIndex++)
     {
-        verifyAttachment(texIndex + 4, mTextures[texIndex]);
+        verifyAttachment(texIndex + mMaxDrawBuffers / 2, mTextures[texIndex]);
     }
 
     EXPECT_GL_NO_ERROR();
