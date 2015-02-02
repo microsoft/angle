@@ -573,7 +573,7 @@ gl::Error Renderer11::generateSwizzle(gl::Texture *texture)
 {
     if (texture)
     {
-        TextureD3D *textureD3D = TextureD3D::makeTextureD3D(texture->getImplementation());
+        TextureD3D *textureD3D = GetImplAs<TextureD3D>(texture);
         ASSERT(textureD3D);
 
         TextureStorage *texStorage = textureD3D->getNativeTexture();
@@ -597,7 +597,7 @@ gl::Error Renderer11::generateSwizzle(gl::Texture *texture)
 gl::Error Renderer11::setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &samplerStateParam)
 {
     // Make sure to add the level offset for our tiny compressed texture workaround
-    TextureD3D *textureD3D = TextureD3D::makeTextureD3D(texture->getImplementation());
+    TextureD3D *textureD3D = GetImplAs<TextureD3D>(texture);
     gl::SamplerState samplerStateInternal = samplerStateParam;
     samplerStateInternal.baseLevel += textureD3D->getNativeTexture()->getTopLevel();
 
@@ -654,7 +654,7 @@ gl::Error Renderer11::setTexture(gl::SamplerType type, int index, gl::Texture *t
 
     if (texture)
     {
-        TextureD3D *textureImpl = TextureD3D::makeTextureD3D(texture->getImplementation());
+        TextureD3D *textureImpl = GetImplAs<TextureD3D>(texture);
         TextureStorage *texStorage = textureImpl->getNativeTexture();
         ASSERT(texStorage != NULL);
 
@@ -1301,7 +1301,7 @@ gl::Error Renderer11::drawArrays(const gl::Data &data, GLenum mode, GLsizei coun
             mDeviceContext->Draw(count, 0);
         }
 
-        ProgramD3D *programD3D = ProgramD3D::makeProgramD3D(data.state->getProgram()->getImplementation());
+        ProgramD3D *programD3D = GetImplAs<ProgramD3D>(data.state->getProgram());
 
         rx::ShaderExecutableD3D *pixelExe = NULL;
         gl::Error error = programD3D->getPixelExecutableForFramebuffer(data.state->getDrawFramebuffer(), &pixelExe);
@@ -1396,7 +1396,7 @@ gl::Error Renderer11::drawLineLoop(GLsizei count, GLenum type, const GLvoid *ind
     // Get the raw indices for an indexed draw
     if (type != GL_NONE && elementArrayBuffer)
     {
-        BufferD3D *storage = BufferD3D::makeFromBuffer(elementArrayBuffer);
+        BufferD3D *storage = GetImplAs<BufferD3D>(elementArrayBuffer);
         intptr_t offset = reinterpret_cast<intptr_t>(indices);
 
         const uint8_t *bufferData = NULL;
@@ -1507,7 +1507,7 @@ gl::Error Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *
     // Get the raw indices for an indexed draw
     if (type != GL_NONE && elementArrayBuffer)
     {
-        BufferD3D *storage = BufferD3D::makeFromBuffer(elementArrayBuffer);
+        BufferD3D *storage = GetImplAs<BufferD3D>(elementArrayBuffer);
         intptr_t offset = reinterpret_cast<intptr_t>(indices);
 
         const uint8_t *bufferData = NULL;
@@ -1629,7 +1629,7 @@ gl::Error Renderer11::drawTriangleFan(GLsizei count, GLenum type, const GLvoid *
 gl::Error Renderer11::applyShaders(gl::Program *program, const gl::VertexFormat inputLayout[], const gl::Framebuffer *framebuffer,
                                    bool rasterizerDiscard, bool transformFeedbackActive)
 {
-    ProgramD3D *programD3D = ProgramD3D::makeProgramD3D(program->getImplementation());
+    ProgramD3D *programD3D = GetImplAs<ProgramD3D>(program);
 
     ShaderExecutableD3D *vertexExe = NULL;
     gl::Error error = programD3D->getVertexExecutableForInputLayout(inputLayout, &vertexExe, nullptr);
@@ -1722,7 +1722,7 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
         }
     }
 
-    const ProgramD3D *programD3D = ProgramD3D::makeProgramD3D(&program);
+    const ProgramD3D *programD3D = GetAs<ProgramD3D>(&program);
     const UniformStorage11 *vertexUniformStorage = UniformStorage11::makeUniformStorage11(&programD3D->getVertexUniformStorage());
     const UniformStorage11 *fragmentUniformStorage = UniformStorage11::makeUniformStorage11(&programD3D->getFragmentUniformStorage());
     ASSERT(vertexUniformStorage);
@@ -2577,7 +2577,7 @@ gl::Error Renderer11::createRenderTarget(int width, int height, GLenum format, G
 
 DefaultAttachmentImpl *Renderer11::createDefaultAttachment(GLenum type, egl::Surface *surface)
 {
-    SurfaceD3D *surfaceD3D = SurfaceD3D::makeSurfaceD3D(surface);
+    SurfaceD3D *surfaceD3D = GetImplAs<SurfaceD3D>(surface);
     SwapChain11 *swapChain = SwapChain11::makeSwapChain11(surfaceD3D->getSwapChain());
 
     switch (type)
@@ -3348,7 +3348,7 @@ void Renderer11::invalidateFBOAttachmentSwizzles(gl::FramebufferAttachment *atta
     ASSERT(attachment->type() == GL_TEXTURE);
     gl::Texture *texture = attachment->getTexture();
 
-    TextureD3D *textureD3D = TextureD3D::makeTextureD3D(texture->getImplementation());
+    TextureD3D *textureD3D = GetImplAs<TextureD3D>(texture);
     TextureStorage *texStorage = textureD3D->getNativeTexture();
     if (texStorage)
     {

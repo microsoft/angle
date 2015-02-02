@@ -209,13 +209,16 @@ struct PixelUnpackState
 {
     BindingPointer<Buffer> pixelBuffer;
     GLint alignment;
+    GLint rowLength;
 
     PixelUnpackState()
-        : alignment(4)
+        : alignment(4),
+          rowLength(0)
     {}
 
-    explicit PixelUnpackState(GLint alignmentIn)
-        : alignment(alignmentIn)
+    PixelUnpackState(GLint alignmentIn, GLint rowLengthIn)
+        : alignment(alignmentIn),
+          rowLength(rowLengthIn)
     {}
 };
 
@@ -268,6 +271,34 @@ enum VendorID : uint32_t
     VENDOR_ID_INTEL = 0x8086,
     VENDOR_ID_NVIDIA = 0x10DE,
 };
+
+// Downcast a base implementation object (EG TextureImpl to TextureD3D)
+template <typename DestT, typename SrcT>
+inline DestT *GetAs(SrcT *src)
+{
+    ASSERT(HAS_DYNAMIC_TYPE(DestT*, src));
+    return static_cast<DestT*>(src);
+}
+
+template <typename DestT, typename SrcT>
+inline const DestT *GetAs(const SrcT *src)
+{
+    ASSERT(HAS_DYNAMIC_TYPE(const DestT*, src));
+    return static_cast<const DestT*>(src);
+}
+
+// Downcast a GL object to an Impl (EG gl::Texture to rx::TextureD3D)
+template <typename DestT, typename SrcT>
+inline DestT *GetImplAs(SrcT *src)
+{
+    return GetAs<DestT>(src->getImplementation());
+}
+
+template <typename DestT, typename SrcT>
+inline const DestT *GetImplAs(const SrcT *src)
+{
+    return GetAs<const DestT>(src->getImplementation());
+}
 
 }
 
