@@ -29,6 +29,8 @@ Error::Error(GLenum errorCode, const char *msg, ...)
     va_list vararg;
     va_start(vararg, msg);
     createMessageString();
+
+    // gl::Errors can be created across multiple threads, so we must make sure they're thread safe.
     *mMessage = FormatString(msg, vararg);
     va_end(vararg);
 }
@@ -68,7 +70,7 @@ Error &Error::operator=(const Error &other)
 
 void Error::createMessageString() const
 {
-    if (mMessage != NULL)
+    if (mMessage == nullptr)
     {
         mMessage = new std::string();
     }
@@ -137,7 +139,7 @@ Error &Error::operator=(const Error &other)
 
 void Error::createMessageString() const
 {
-    if (mMessage != NULL)
+    if (mMessage == nullptr)
     {
         mMessage = new std::string();
     }
