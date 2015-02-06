@@ -54,23 +54,11 @@ struct TranslatedIndexData;
 struct Workarounds;
 class DisplayImpl;
 
-struct ConfigDesc
-{
-    GLenum  renderTargetFormat;
-    GLenum  depthStencilFormat;
-    GLint   multiSample;
-    bool    fastConfig;
-    bool    es2Conformant;
-    bool    es3Capable;
-};
-
 class Renderer
 {
   public:
     Renderer();
     virtual ~Renderer();
-
-    virtual EGLint initialize() = 0;
 
     virtual gl::Error flush() = 0;
     virtual gl::Error finish() = 0;
@@ -127,13 +115,6 @@ class Renderer
     const Workarounds &getWorkarounds() const;
 
     virtual std::string getVendorString() const = 0;
-
-    // TODO(jmadill): needed by egl::Display, probably should be removed
-    virtual int getMajorShaderModel() const = 0;
-    virtual int getMinSwapInterval() const = 0;
-    virtual int getMaxSwapInterval() const = 0;
-
-    virtual DisplayImpl *createDisplay() = 0;
 
   private:
     DISALLOW_COPY_AND_ASSIGN(Renderer);

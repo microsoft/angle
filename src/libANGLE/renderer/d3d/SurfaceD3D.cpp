@@ -20,25 +20,25 @@
 namespace rx
 {
 
-SurfaceD3D *SurfaceD3D::createOffscreen(egl::Display *display, const egl::Config *config, EGLClientBuffer shareHandle,
+SurfaceD3D *SurfaceD3D::createOffscreen(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLClientBuffer shareHandle,
                                         EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType, bool renderToBackBuffer)
 {
-    return new SurfaceD3D(display, config, width, height, EGL_TRUE, EGL_FALSE,
+    return new SurfaceD3D(renderer, display, config, width, height, EGL_TRUE, EGL_FALSE,
                           textureFormat, textureType, shareHandle, NULL, renderToBackBuffer);
 }
 
-SurfaceD3D *SurfaceD3D::createFromWindow(egl::Display *display, const egl::Config *config, EGLNativeWindowType window,
+SurfaceD3D *SurfaceD3D::createFromWindow(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLNativeWindowType window,
                                          EGLint fixedSize, EGLint width, EGLint height, EGLint postSubBufferSupported, bool renderToBackBuffer)
 {
-    return new SurfaceD3D(display, config, width, height, fixedSize, postSubBufferSupported,
+    return new SurfaceD3D(renderer, display, config, width, height, fixedSize, postSubBufferSupported,
                           EGL_NO_TEXTURE, EGL_NO_TEXTURE, static_cast<EGLClientBuffer>(0), window, renderToBackBuffer);
 }
 
-SurfaceD3D::SurfaceD3D(egl::Display *display, const egl::Config *config, EGLint width, EGLint height,
+SurfaceD3D::SurfaceD3D(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLint width, EGLint height,
                        EGLint fixedSize, EGLint postSubBufferSupported, EGLenum textureFormat,
                        EGLenum textureType, EGLClientBuffer shareHandle, EGLNativeWindowType window, bool renderToBackBuffer)
     : SurfaceImpl(display, config, width, height, fixedSize, postSubBufferSupported, textureFormat, textureType, shareHandle),
-      mRenderer(static_cast<rx::RendererD3D*>(mDisplay->getRenderer())),
+      mRenderer(renderer),
       mSwapChain(NULL),
       mWindowSubclassed(false),
       mNativeWindow(window),
@@ -115,8 +115,8 @@ egl::Error SurfaceD3D::resetSwapChain()
     }
 
     mSwapChain = mRenderer->createSwapChain(mNativeWindow, static_cast<HANDLE>(mShareHandle),
-                                            mConfig->mRenderTargetFormat,
-                                            mConfig->mDepthStencilFormat, mRenderToBackBuffer);
+                                            mConfig->renderTargetFormat,
+                                            mConfig->depthStencilFormat, mRenderToBackBuffer);
     if (!mSwapChain)
     {
         return egl::Error(EGL_BAD_ALLOC);
@@ -366,8 +366,8 @@ void SurfaceD3D::setSwapInterval(EGLint interval)
     }
 
     mSwapInterval = interval;
-    mSwapInterval = std::max(mSwapInterval, mRenderer->getMinSwapInterval());
-    mSwapInterval = std::min(mSwapInterval, mRenderer->getMaxSwapInterval());
+    mSwapInterval = std::max(mSwapInterval, mConfig->minSwapInterval);
+    mSwapInterval = std::min(mSwapInterval, mConfig->maxSwapInterval);
 
     mSwapIntervalDirty = true;
 }

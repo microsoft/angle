@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "libANGLE/Error.h"
+#include "libANGLE/Caps.h"
 #include "libANGLE/Config.h"
 #include "libANGLE/AttributeMap.h"
 
@@ -45,28 +46,29 @@ class Display final
     static const ClientExtensions &getClientExtensions();
     static const std::string &getClientExtensionString();
 
-    bool getConfigs(EGLConfig *configs, const EGLint *attribList, EGLint configSize, EGLint *numConfig);
-    bool getConfigAttrib(EGLConfig config, EGLint attribute, EGLint *value);
+    std::vector<const Config*> getConfigs(const egl::AttributeMap &attribs) const;
+    bool getConfigAttrib(const Config *configuration, EGLint attribute, EGLint *value);
 
-    Error createWindowSurface(EGLNativeWindowType window, EGLConfig config, const EGLint *attribList, EGLSurface *outSurface);
-    Error createOffscreenSurface(EGLConfig config, EGLClientBuffer shareHandle, const EGLint *attribList, EGLSurface *outSurface);
-    Error createContext(EGLConfig configHandle, EGLint clientVersion, const gl::Context *shareContext, bool notifyResets,
-                        bool robustAccess, EGLContext *outContext);
+    Error createWindowSurface(EGLNativeWindowType window, const Config *configuration, const EGLint *attribList, EGLSurface *outSurface);
+    Error createOffscreenSurface(const Config *configuration, EGLClientBuffer shareHandle, const EGLint *attribList, EGLSurface *outSurface);
+    Error createContext(const Config *configuration, EGLContext shareContext, const egl::AttributeMap &attribs, EGLContext *outContext);
 
     void destroySurface(egl::Surface *surface);
     void destroyContext(gl::Context *context);
 
     bool isInitialized() const;
-    bool isValidConfig(EGLConfig config);
-    bool isValidContext(gl::Context *context);
-    bool isValidSurface(egl::Surface *surface);
-    bool hasExistingWindowSurface(EGLNativeWindowType window);
+    bool isValidConfig(const Config *config) const;
+    bool isValidContext(gl::Context *context) const;
+    bool isValidSurface(egl::Surface *surface) const;
+    bool hasExistingWindowSurface(EGLNativeWindowType window) const;
     bool isValidNativeWindow(EGLNativeWindowType window) const;
     bool isValidNativeDisplay(EGLNativeDisplayType display) const;
 
-    rx::Renderer *getRenderer() { return mRenderer; };
-
+    bool isDeviceLost() const;
+    bool testDeviceLost();
     void notifyDeviceLost();
+
+    const Caps &getCaps() const;
 
     const DisplayExtensions &getExtensions() const;
     const std::string &getExtensionString() const;
@@ -75,7 +77,7 @@ class Display final
   private:
     DISALLOW_COPY_AND_ASSIGN(Display);
 
-    Display(EGLNativeDisplayType displayId);
+    Display(rx::DisplayImpl *impl, EGLNativeDisplayType displayId);
 
     void setAttributes(const AttributeMap &attribMap);
 
@@ -94,7 +96,9 @@ class Display final
     typedef std::set<gl::Context*> ContextSet;
     ContextSet mContextSet;
 
-    rx::Renderer *mRenderer;
+    bool mInitialized;
+
+    Caps mCaps;
 
     DisplayExtensions mDisplayExtensions;
     std::string mDisplayExtensionString;

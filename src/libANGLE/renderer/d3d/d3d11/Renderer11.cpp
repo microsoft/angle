@@ -67,6 +67,7 @@ namespace rx
 
 namespace
 {
+
 static const DXGI_FORMAT RenderTargetFormats[] =
     {
         DXGI_FORMAT_B8G8R8A8_UNORM,
@@ -90,6 +91,9 @@ enum
 {
     MAX_TEXTURE_IMAGE_UNITS_VTF_SM4 = 16
 };
+
+// dirtyPointer is a special value that will make the comparison with any valid pointer fail and force the renderer to re-apply the state.
+static const uintptr_t DirtyPointer = -1;
 
 static bool ImageIndexConflictsWithSRV(const gl::ImageIndex *index, D3D11_SHADER_RESOURCE_VIEW_DESC desc)
 {
@@ -149,11 +153,11 @@ static bool ImageIndexConflictsWithSRV(const gl::ImageIndex *index, D3D11_SHADER
 }
 
 // Does *not* increment the resource ref count!!
-ID3D11Resource *GetSRVResource(ID3D11ShaderResourceView *srv)
+ID3D11Resource *GetViewResource(ID3D11View *view)
 {
     ID3D11Resource *resource = NULL;
-    ASSERT(srv);
-    srv->GetResource(&resource);
+    ASSERT(view);
+    view->GetResource(&resource);
     resource->Release();
     return resource;
 }
@@ -476,42 +480,86 @@ void Renderer11::initializeDevice()
     markAllStateDirty();
 }
 
-std::vector<ConfigDesc> Renderer11::generateConfigs() const
+egl::ConfigSet Renderer11::generateConfigs() const
 {
-    std::vector<ConfigDesc> configs;
-
-    unsigned int numRenderFormats = ArraySize(RenderTargetFormats);
-    unsigned int numDepthFormats = ArraySize(DepthStencilFormats);
-
-    for (unsigned int formatIndex = 0; formatIndex < numRenderFormats; formatIndex++)
+    static const GLenum colorBufferFormats[] =
     {
-        const d3d11::DXGIFormat &renderTargetFormatInfo = d3d11::GetDXGIFormatInfo(RenderTargetFormats[formatIndex]);
-        const gl::TextureCaps &renderTargetFormatCaps = getRendererTextureCaps().get(renderTargetFormatInfo.internalFormat);
-        if (renderTargetFormatCaps.renderable)
+        GL_BGRA8_EXT,
+        GL_RGBA8_OES,
+    };
+
+    static const GLenum depthStencilBufferFormats[] =
+    {
+        GL_NONE,
+        GL_DEPTH24_STENCIL8_OES,
+        GL_DEPTH_COMPONENT16,
+    };
+
+    const gl::Caps &rendererCaps = getRendererCaps();
+    const gl::TextureCapsMap &rendererTextureCaps = getRendererTextureCaps();
+
+    egl::ConfigSet configs;
+    for (size_t formatIndex = 0; formatIndex < ArraySize(colorBufferFormats); formatIndex++)
+    {
+        GLenum colorBufferInternalFormat = colorBufferFormats[formatIndex];
+        const gl::TextureCaps &colorBufferFormatCaps = rendererTextureCaps.get(colorBufferInternalFormat);
+        if (colorBufferFormatCaps.renderable)
         {
-            for (unsigned int depthStencilIndex = 0; depthStencilIndex < numDepthFormats; depthStencilIndex++)
+            for (size_t depthStencilIndex = 0; depthStencilIndex < ArraySize(depthStencilBufferFormats); depthStencilIndex++)
             {
-                const d3d11::DXGIFormat &depthStencilFormatInfo = d3d11::GetDXGIFormatInfo(DepthStencilFormats[depthStencilIndex]);
-                const gl::TextureCaps &depthStencilFormatCaps = getRendererTextureCaps().get(depthStencilFormatInfo.internalFormat);
-                if (depthStencilFormatCaps.renderable || DepthStencilFormats[depthStencilIndex] == DXGI_FORMAT_UNKNOWN)
+                GLenum depthStencilBufferInternalFormat = depthStencilBufferFormats[depthStencilIndex];
+                const gl::TextureCaps &depthStencilBufferFormatCaps = rendererTextureCaps.get(depthStencilBufferInternalFormat);
+                if (depthStencilBufferFormatCaps.renderable || depthStencilBufferInternalFormat == GL_NONE)
                 {
-                    ConfigDesc newConfig;
-                    newConfig.renderTargetFormat = renderTargetFormatInfo.internalFormat;
-                    newConfig.depthStencilFormat = depthStencilFormatInfo.internalFormat;
-                    newConfig.multiSample = 0;     // FIXME: enumerate multi-sampling
-                    newConfig.fastConfig = true;   // Assume all DX11 format conversions to be fast
+                    const gl::InternalFormat &colorBufferFormatInfo = gl::GetInternalFormatInfo(colorBufferInternalFormat);
+                    const gl::InternalFormat &depthStencilBufferFormatInfo = gl::GetInternalFormatInfo(depthStencilBufferInternalFormat);
 
-                    // Before we check mFeatureLevel, we need to ensure that the D3D device has been created.
-                    ASSERT(mDevice != NULL);
-                    newConfig.es2Conformant = (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
-                    newConfig.es3Capable = isES3Capable();
+                    egl::Config config;
+                    config.renderTargetFormat = colorBufferInternalFormat;
+                    config.depthStencilFormat = depthStencilBufferInternalFormat;
+                    config.bufferSize = colorBufferFormatInfo.pixelBytes * 8;
+                    config.redSize = colorBufferFormatInfo.redBits;
+                    config.greenSize = colorBufferFormatInfo.greenBits;
+                    config.blueSize = colorBufferFormatInfo.blueBits;
+                    config.luminanceSize = colorBufferFormatInfo.luminanceBits;
+                    config.alphaSize = colorBufferFormatInfo.alphaBits;
+                    config.alphaMaskSize = 0;
+                    config.bindToTextureRGB = (colorBufferFormatInfo.format == GL_RGB);
+                    config.bindToTextureRGBA = (colorBufferFormatInfo.format == GL_RGBA || colorBufferFormatInfo.format == GL_BGRA_EXT);
+                    config.colorBufferType = EGL_RGB_BUFFER;
+                    config.configCaveat = EGL_NONE;
+                    config.configID = static_cast<EGLint>(configs.size() + 1);
+                    // Can only support a conformant ES2 with feature level greater than 10.0.
+                    config.conformant = (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0) ? (EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES3_BIT_KHR) : EGL_NONE;
+                    config.depthSize = depthStencilBufferFormatInfo.depthBits;
+                    config.level = 0;
+                    config.matchNativePixmap = EGL_NONE;
+                    config.maxPBufferWidth = rendererCaps.max2DTextureSize;
+                    config.maxPBufferHeight = rendererCaps.max2DTextureSize;
+                    config.maxPBufferPixels = rendererCaps.max2DTextureSize * rendererCaps.max2DTextureSize;
+                    config.maxSwapInterval = 4;
+                    config.minSwapInterval = 0;
+                    config.nativeRenderable = EGL_FALSE;
+                    config.nativeVisualID = 0;
+                    config.nativeVisualType = EGL_NONE;
+                    // Can't support ES3 at all without feature level 10.0
+                    config.renderableType = EGL_OPENGL_ES2_BIT | ((mFeatureLevel >= D3D_FEATURE_LEVEL_10_0) ? EGL_OPENGL_ES3_BIT_KHR : 0);
+                    config.sampleBuffers = 0; // FIXME: enumerate multi-sampling
+                    config.samples = 0;
+                    config.stencilSize = depthStencilBufferFormatInfo.stencilBits;
+                    config.surfaceType = EGL_PBUFFER_BIT | EGL_WINDOW_BIT | EGL_SWAP_BEHAVIOR_PRESERVED_BIT;
+                    config.transparentType = EGL_NONE;
+                    config.transparentRedValue = 0;
+                    config.transparentGreenValue = 0;
+                    config.transparentBlueValue = 0;
 
-                    configs.push_back(newConfig);
+                    configs.add(config);
                 }
             }
         }
     }
 
+    ASSERT(configs.size() > 0);
     return configs;
 }
 
@@ -1010,7 +1058,7 @@ bool Renderer11::applyPrimitiveType(GLenum mode, GLsizei count, bool usesPointSi
     return count >= minCount;
 }
 
-void Renderer11::unsetConflictingSRVs(gl::SamplerType samplerType, const ID3D11Resource *resource, const gl::ImageIndex* index)
+void Renderer11::unsetConflictingSRVs(gl::SamplerType samplerType, uintptr_t resource, const gl::ImageIndex *index)
 {
     auto &currentSRVs = (samplerType == gl::SAMPLER_VERTEX ? mCurVertexSRVs : mCurPixelSRVs);
 
@@ -1032,7 +1080,6 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
     unsigned int renderTargetWidth = 0;
     unsigned int renderTargetHeight = 0;
     DXGI_FORMAT renderTargetFormat = DXGI_FORMAT_UNKNOWN;
-    unsigned int renderTargetSerials[gl::IMPLEMENTATION_MAX_DRAW_BUFFERS] = {0};
     ID3D11RenderTargetView* framebufferRTVs[gl::IMPLEMENTATION_MAX_DRAW_BUFFERS] = {NULL};
     bool missingColorRenderTarget = true;
 
@@ -1053,8 +1100,6 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
             {
                 return gl::Error(GL_NO_ERROR);
             }
-
-            renderTargetSerials[colorAttachment] = GetAttachmentSerial(colorbuffer);
 
             // Extract the render target dimensions and view
             RenderTarget11 *renderTarget = NULL;
@@ -1079,33 +1124,20 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
             // Unbind render target SRVs from the shader here to prevent D3D11 warnings.
             if (colorbuffer->type() == GL_TEXTURE)
             {
-                ID3D11Resource *renderTargetResource = renderTarget->getTexture();
+                uintptr_t rtResource = reinterpret_cast<uintptr_t>(GetViewResource(framebufferRTVs[colorAttachment]));
                 const gl::ImageIndex *index = colorbuffer->getTextureImageIndex();
                 ASSERT(index);
                 // The index doesn't need to be corrected for the small compressed texture workaround
                 // because a rendertarget is never compressed.
-                unsetConflictingSRVs(gl::SAMPLER_VERTEX, renderTargetResource, index);
-                unsetConflictingSRVs(gl::SAMPLER_PIXEL, renderTargetResource, index);
+                unsetConflictingSRVs(gl::SAMPLER_VERTEX, rtResource, index);
+                unsetConflictingSRVs(gl::SAMPLER_PIXEL, rtResource, index);
             }
-
         }
     }
 
-    // Get the depth stencil render buffter and serials
-    gl::FramebufferAttachment *depthStencil = framebuffer->getDepthbuffer();
-    unsigned int depthbufferSerial = 0;
-    unsigned int stencilbufferSerial = 0;
-    if (depthStencil)
-    {
-        depthbufferSerial = GetAttachmentSerial(depthStencil);
-    }
-    else if (framebuffer->getStencilbuffer())
-    {
-        depthStencil = framebuffer->getStencilbuffer();
-        stencilbufferSerial = GetAttachmentSerial(depthStencil);
-    }
-
+    // Get the depth stencil buffers
     ID3D11DepthStencilView* framebufferDSV = NULL;
+    gl::FramebufferAttachment *depthStencil = framebuffer->getDepthOrStencilbuffer();
     if (depthStencil)
     {
         RenderTarget11 *depthStencilRenderTarget = NULL;
@@ -1128,13 +1160,24 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
             renderTargetHeight = depthStencilRenderTarget->getHeight();
             renderTargetFormat = depthStencilRenderTarget->getDXGIFormat();
         }
+
+        // Unbind render target SRVs from the shader here to prevent D3D11 warnings.
+        if (depthStencil->type() == GL_TEXTURE)
+        {
+            uintptr_t depthStencilResource = reinterpret_cast<uintptr_t>(GetViewResource(framebufferDSV));
+            const gl::ImageIndex *index = depthStencil->getTextureImageIndex();
+            ASSERT(index);
+            // The index doesn't need to be corrected for the small compressed texture workaround
+            // because a rendertarget is never compressed.
+            unsetConflictingSRVs(gl::SAMPLER_VERTEX, depthStencilResource, index);
+            unsetConflictingSRVs(gl::SAMPLER_PIXEL, depthStencilResource, index);
+        }
     }
 
     // Apply the render target and depth stencil
     if (!mRenderTargetDescInitialized || !mDepthStencilInitialized ||
-        memcmp(renderTargetSerials, mAppliedRenderTargetSerials, sizeof(renderTargetSerials)) != 0 ||
-        depthbufferSerial != mAppliedDepthbufferSerial ||
-        stencilbufferSerial != mAppliedStencilbufferSerial)
+        memcmp(framebufferRTVs, mAppliedRTVs, sizeof(framebufferRTVs)) != 0 ||
+        reinterpret_cast<uintptr_t>(framebufferDSV) != mAppliedDSV)
     {
         mDeviceContext->OMSetRenderTargets(getRendererCaps().maxDrawBuffers, framebufferRTVs, framebufferDSV);
 
@@ -1169,10 +1212,9 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
 
         for (unsigned int rtIndex = 0; rtIndex < gl::IMPLEMENTATION_MAX_DRAW_BUFFERS; rtIndex++)
         {
-            mAppliedRenderTargetSerials[rtIndex] = renderTargetSerials[rtIndex];
+            mAppliedRTVs[rtIndex] = reinterpret_cast<uintptr_t>(framebufferRTVs[rtIndex]);
         }
-        mAppliedDepthbufferSerial = depthbufferSerial;
-        mAppliedStencilbufferSerial = stencilbufferSerial;
+        mAppliedDSV = reinterpret_cast<uintptr_t>(framebufferDSV);
         mRenderTargetDescInitialized = true;
         mDepthStencilInitialized = true;
     }
@@ -1862,10 +1904,9 @@ void Renderer11::markAllStateDirty()
 {
     for (unsigned int rtIndex = 0; rtIndex < gl::IMPLEMENTATION_MAX_DRAW_BUFFERS; rtIndex++)
     {
-        mAppliedRenderTargetSerials[rtIndex] = 0;
+        mAppliedRTVs[rtIndex] = DirtyPointer;
     }
-    mAppliedDepthbufferSerial = 0;
-    mAppliedStencilbufferSerial = 0;
+    mAppliedDSV = DirtyPointer;
     mDepthStencilInitialized = false;
     mRenderTargetDescInitialized = false;
 
@@ -1899,13 +1940,9 @@ void Renderer11::markAllStateDirty()
     mAppliedIBFormat = DXGI_FORMAT_UNKNOWN;
     mAppliedIBOffset = 0;
 
-
-    // dirtyPointer is a special value that will make the comparison with any valid pointer fail and force the renderer to re-apply the state.
-    const uintptr_t dirtyPointer = -1;
-
-    mAppliedVertexShader = dirtyPointer;
-    mAppliedGeometryShader = dirtyPointer;
-    mAppliedPixelShader = dirtyPointer;
+    mAppliedVertexShader = DirtyPointer;
+    mAppliedGeometryShader = DirtyPointer;
+    mAppliedPixelShader = DirtyPointer;
 
     for (size_t i = 0; i < gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS; i++)
     {
@@ -2171,16 +2208,6 @@ std::string Renderer11::getShaderModelSuffix() const
     }
 }
 
-int Renderer11::getMinSwapInterval() const
-{
-    return 0;
-}
-
-int Renderer11::getMaxSwapInterval() const
-{
-    return 4;
-}
-
 bool Renderer11::isRenderingToBackBufferEnabled() const
 {
     return mRenderToBackBufferEnabled;
@@ -2437,8 +2464,9 @@ void Renderer11::setOneTimeRenderTarget(ID3D11RenderTargetView *renderTargetView
     // Do not preserve the serial for this one-time-use render target
     for (unsigned int rtIndex = 0; rtIndex < gl::IMPLEMENTATION_MAX_DRAW_BUFFERS; rtIndex++)
     {
-        mAppliedRenderTargetSerials[rtIndex] = 0;
+        mAppliedRTVs[rtIndex] = DirtyPointer;
     }
+    mAppliedDSV = DirtyPointer;
 }
 
 gl::Error Renderer11::createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT)
@@ -3434,7 +3462,7 @@ void Renderer11::setShaderResource(gl::SamplerType shaderType, UINT resourceSlot
     ASSERT(static_cast<size_t>(resourceSlot) < currentSRVs.size());
     auto &record = currentSRVs[resourceSlot];
 
-    if (record.srv != srv)
+    if (record.srv != reinterpret_cast<uintptr_t>(srv))
     {
         if (shaderType == gl::SAMPLER_VERTEX)
         {
@@ -3445,11 +3473,15 @@ void Renderer11::setShaderResource(gl::SamplerType shaderType, UINT resourceSlot
             mDeviceContext->PSSetShaderResources(resourceSlot, 1, &srv);
         }
 
-        record.srv = srv;
+        record.srv = reinterpret_cast<uintptr_t>(srv);
         if (srv)
         {
-            record.resource = GetSRVResource(srv);
+            record.resource = reinterpret_cast<uintptr_t>(GetViewResource(srv));
             srv->GetDesc(&record.desc);
+        }
+        else
+        {
+            record.resource = 0;
         }
     }
 }

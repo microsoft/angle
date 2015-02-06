@@ -47,7 +47,7 @@ class Renderer9 : public RendererD3D
     virtual EGLint initialize();
     virtual bool resetDevice();
 
-    std::vector<ConfigDesc> generateConfigs() const override;
+    egl::ConfigSet generateConfigs() const override;
 
     void startScene();
     void endScene();
@@ -123,8 +123,6 @@ class Renderer9 : public RendererD3D
     std::string getShaderModelSuffix() const override;
 
     DWORD getCapsDeclTypes() const;
-    virtual int getMinSwapInterval() const;
-    virtual int getMaxSwapInterval() const;
 
     virtual bool isRenderingToBackBufferEnabled() const { return false; }
     virtual bool isCurrentlyRenderingToBackBuffer() const { return false; }
@@ -261,14 +259,12 @@ class Renderer9 : public RendererD3D
     GLsizei mRepeatDraw;
 
     bool mSceneStarted;
-    int mMinSwapInterval;
-    int mMaxSwapInterval;
 
     bool mVertexTextureSupport;
 
     // current render target states
-    unsigned int mAppliedRenderTargetSerial;
-    unsigned int mAppliedDepthStencilSerial;
+    uintptr_t mAppliedRenderTarget;
+    uintptr_t mAppliedDepthStencil;
     bool mDepthStencilInitialized;
     bool mRenderTargetDescInitialized;
     unsigned int mCurStencilSize;

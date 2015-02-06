@@ -65,29 +65,6 @@
 
 namespace rx
 {
-static const D3DFORMAT RenderTargetFormats[] =
-    {
-        D3DFMT_A1R5G5B5,
-    //  D3DFMT_A2R10G10B10,   // The color_ramp conformance test uses ReadPixels with UNSIGNED_BYTE causing it to think that rendering skipped a colour value.
-        D3DFMT_A8R8G8B8,
-        D3DFMT_R5G6B5,
-    //  D3DFMT_X1R5G5B5,      // Has no compatible OpenGL ES renderbuffer format
-        D3DFMT_X8R8G8B8
-    };
-
-static const D3DFORMAT DepthStencilFormats[] =
-    {
-        D3DFMT_UNKNOWN,
-    //  D3DFMT_D16_LOCKABLE,
-        D3DFMT_D32,
-    //  D3DFMT_D15S1,
-        D3DFMT_D24S8,
-        D3DFMT_D24X8,
-    //  D3DFMT_D24X4S4,
-        D3DFMT_D16,
-    //  D3DFMT_D32F_LOCKABLE,
-    //  D3DFMT_D24FS8
-    };
 
 enum
 {
@@ -279,35 +256,6 @@ EGLint Renderer9::initialize()
         mD3d9->GetAdapterIdentifier(mAdapter, 0, &mAdapterIdentifier);
     }
 
-    mMinSwapInterval = 4;
-    mMaxSwapInterval = 0;
-
-    if (mDeviceCaps.PresentationIntervals & D3DPRESENT_INTERVAL_IMMEDIATE)
-    {
-        mMinSwapInterval = std::min(mMinSwapInterval, 0);
-        mMaxSwapInterval = std::max(mMaxSwapInterval, 0);
-    }
-    if (mDeviceCaps.PresentationIntervals & D3DPRESENT_INTERVAL_ONE)
-    {
-        mMinSwapInterval = std::min(mMinSwapInterval, 1);
-        mMaxSwapInterval = std::max(mMaxSwapInterval, 1);
-    }
-    if (mDeviceCaps.PresentationIntervals & D3DPRESENT_INTERVAL_TWO)
-    {
-        mMinSwapInterval = std::min(mMinSwapInterval, 2);
-        mMaxSwapInterval = std::max(mMaxSwapInterval, 2);
-    }
-    if (mDeviceCaps.PresentationIntervals & D3DPRESENT_INTERVAL_THREE)
-    {
-        mMinSwapInterval = std::min(mMinSwapInterval, 3);
-        mMaxSwapInterval = std::max(mMaxSwapInterval, 3);
-    }
-    if (mDeviceCaps.PresentationIntervals & D3DPRESENT_INTERVAL_FOUR)
-    {
-        mMinSwapInterval = std::min(mMinSwapInterval, 4);
-        mMaxSwapInterval = std::max(mMaxSwapInterval, 4);
-    }
-
     static const TCHAR windowName[] = TEXT("AngleHiddenWindow");
     static const TCHAR className[] = TEXT("STATIC");
 
@@ -317,7 +265,7 @@ EGLint Renderer9::initialize()
     }
 
     D3DPRESENT_PARAMETERS presentParameters = getDefaultPresentParameters();
-    DWORD behaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_NOWINDOWCHANGES;
+    DWORD behaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_NOWINDOWCHANGES | D3DCREATE_MULTITHREADED;
 
     {
         TRACE_EVENT0("gpu", "D3d9_CreateDevice");
@@ -432,42 +380,123 @@ D3DPRESENT_PARAMETERS Renderer9::getDefaultPresentParameters()
     return presentParameters;
 }
 
-std::vector<ConfigDesc> Renderer9::generateConfigs() const
+egl::ConfigSet Renderer9::generateConfigs() const
 {
-    std::vector<ConfigDesc> configs;
+    static const GLenum colorBufferFormats[] =
+    {
+        GL_BGR5_A1_ANGLEX,
+        GL_BGRA8_EXT,
+        GL_RGB565,
+
+    };
+
+    static const GLenum depthStencilBufferFormats[] =
+    {
+        GL_NONE,
+        GL_DEPTH_COMPONENT32_OES,
+        GL_DEPTH24_STENCIL8_OES,
+        GL_DEPTH_COMPONENT24_OES,
+        GL_DEPTH_COMPONENT16,
+    };
+
+    const gl::Caps &rendererCaps = getRendererCaps();
+    const gl::TextureCapsMap &rendererTextureCaps = getRendererTextureCaps();
 
     D3DDISPLAYMODE currentDisplayMode;
     mD3d9->GetAdapterDisplayMode(mAdapter, &currentDisplayMode);
 
-    unsigned int numRenderFormats = ArraySize(RenderTargetFormats);
-    unsigned int numDepthFormats = ArraySize(DepthStencilFormats);
+    // Determine the min and max swap intervals
+    int minSwapInterval = 4;
+    int maxSwapInterval = 0;
 
-    for (unsigned int formatIndex = 0; formatIndex < numRenderFormats; formatIndex++)
+    if (mDeviceCaps.PresentationIntervals & D3DPRESENT_INTERVAL_IMMEDIATE)
     {
-        const d3d9::D3DFormat &renderTargetFormatInfo = d3d9::GetD3DFormatInfo(RenderTargetFormats[formatIndex]);
-        const gl::TextureCaps &renderTargetFormatCaps = getRendererTextureCaps().get(renderTargetFormatInfo.internalFormat);
-        if (renderTargetFormatCaps.renderable)
-        {
-            for (unsigned int depthStencilIndex = 0; depthStencilIndex < numDepthFormats; depthStencilIndex++)
-            {
-                const d3d9::D3DFormat &depthStencilFormatInfo = d3d9::GetD3DFormatInfo(DepthStencilFormats[depthStencilIndex]);
-                const gl::TextureCaps &depthStencilFormatCaps = getRendererTextureCaps().get(depthStencilFormatInfo.internalFormat);
-                if (depthStencilFormatCaps.renderable || DepthStencilFormats[depthStencilIndex] == D3DFMT_UNKNOWN)
-                {
-                    ConfigDesc newConfig;
-                    newConfig.renderTargetFormat = renderTargetFormatInfo.internalFormat;
-                    newConfig.depthStencilFormat = depthStencilFormatInfo.internalFormat;
-                    newConfig.multiSample = 0; // FIXME: enumerate multi-sampling
-                    newConfig.fastConfig = (currentDisplayMode.Format == RenderTargetFormats[formatIndex]);
-                    newConfig.es2Conformant = true;
-                    newConfig.es3Capable = false;
+        minSwapInterval = std::min(minSwapInterval, 0);
+        maxSwapInterval = std::max(maxSwapInterval, 0);
+    }
+    if (mDeviceCaps.PresentationIntervals & D3DPRESENT_INTERVAL_ONE)
+    {
+        minSwapInterval = std::min(minSwapInterval, 1);
+        maxSwapInterval = std::max(maxSwapInterval, 1);
+    }
+    if (mDeviceCaps.PresentationIntervals & D3DPRESENT_INTERVAL_TWO)
+    {
+        minSwapInterval = std::min(minSwapInterval, 2);
+        maxSwapInterval = std::max(maxSwapInterval, 2);
+    }
+    if (mDeviceCaps.PresentationIntervals & D3DPRESENT_INTERVAL_THREE)
+    {
+        minSwapInterval = std::min(minSwapInterval, 3);
+        maxSwapInterval = std::max(maxSwapInterval, 3);
+    }
+    if (mDeviceCaps.PresentationIntervals & D3DPRESENT_INTERVAL_FOUR)
+    {
+        minSwapInterval = std::min(minSwapInterval, 4);
+        maxSwapInterval = std::max(maxSwapInterval, 4);
+    }
 
-                    configs.push_back(newConfig);
+    egl::ConfigSet configs;
+    for (size_t formatIndex = 0; formatIndex < ArraySize(colorBufferFormats); formatIndex++)
+    {
+        GLenum colorBufferInternalFormat = colorBufferFormats[formatIndex];
+        const gl::TextureCaps &colorBufferFormatCaps = rendererTextureCaps.get(colorBufferInternalFormat);
+        if (colorBufferFormatCaps.renderable)
+        {
+            for (size_t depthStencilIndex = 0; depthStencilIndex < ArraySize(depthStencilBufferFormats); depthStencilIndex++)
+            {
+                GLenum depthStencilBufferInternalFormat = depthStencilBufferFormats[depthStencilIndex];
+                const gl::TextureCaps &depthStencilBufferFormatCaps = rendererTextureCaps.get(depthStencilBufferInternalFormat);
+                if (depthStencilBufferFormatCaps.renderable || depthStencilBufferInternalFormat == GL_NONE)
+                {
+                    const gl::InternalFormat &colorBufferFormatInfo = gl::GetInternalFormatInfo(colorBufferInternalFormat);
+                    const gl::InternalFormat &depthStencilBufferFormatInfo = gl::GetInternalFormatInfo(depthStencilBufferInternalFormat);
+                    const d3d9::TextureFormat &d3d9ColorBufferFormatInfo = d3d9::GetTextureFormatInfo(colorBufferInternalFormat);
+
+                    egl::Config config;
+                    config.renderTargetFormat = colorBufferInternalFormat;
+                    config.depthStencilFormat = depthStencilBufferInternalFormat;
+                    config.bufferSize = colorBufferFormatInfo.pixelBytes * 8;
+                    config.redSize = colorBufferFormatInfo.redBits;
+                    config.greenSize = colorBufferFormatInfo.greenBits;
+                    config.blueSize = colorBufferFormatInfo.blueBits;
+                    config.luminanceSize = colorBufferFormatInfo.luminanceBits;
+                    config.alphaSize = colorBufferFormatInfo.alphaBits;
+                    config.alphaMaskSize = 0;
+                    config.bindToTextureRGB = (colorBufferFormatInfo.format == GL_RGB);
+                    config.bindToTextureRGBA = (colorBufferFormatInfo.format == GL_RGBA || colorBufferFormatInfo.format == GL_BGRA_EXT);
+                    config.colorBufferType = EGL_RGB_BUFFER;
+                    // Mark as slow if blits to the back-buffer won't be straight forward
+                    config.configCaveat = (currentDisplayMode.Format == d3d9ColorBufferFormatInfo.renderFormat) ? EGL_NONE : EGL_SLOW_CONFIG;
+                    config.configID = static_cast<EGLint>(configs.size() + 1);
+                    config.conformant = EGL_OPENGL_ES2_BIT;
+                    config.depthSize = depthStencilBufferFormatInfo.depthBits;
+                    config.level = 0;
+                    config.matchNativePixmap = EGL_NONE;
+                    config.maxPBufferWidth = rendererCaps.max2DTextureSize;
+                    config.maxPBufferHeight = rendererCaps.max2DTextureSize;
+                    config.maxPBufferPixels = rendererCaps.max2DTextureSize * rendererCaps.max2DTextureSize;
+                    config.maxSwapInterval = maxSwapInterval;
+                    config.minSwapInterval = minSwapInterval;
+                    config.nativeRenderable = EGL_FALSE;
+                    config.nativeVisualID = 0;
+                    config.nativeVisualType = EGL_NONE;
+                    config.renderableType = EGL_OPENGL_ES2_BIT;
+                    config.sampleBuffers = 0; // FIXME: enumerate multi-sampling
+                    config.samples = 0;
+                    config.stencilSize = depthStencilBufferFormatInfo.stencilBits;
+                    config.surfaceType = EGL_PBUFFER_BIT | EGL_WINDOW_BIT | EGL_SWAP_BEHAVIOR_PRESERVED_BIT;
+                    config.transparentType = EGL_NONE;
+                    config.transparentRedValue = 0;
+                    config.transparentGreenValue = 0;
+                    config.transparentBlueValue = 0;
+
+                    configs.add(config);
                 }
             }
         }
     }
 
+    ASSERT(configs.size() > 0);
     return configs;
 }
 
@@ -1252,21 +1281,22 @@ gl::Error Renderer9::applyRenderTarget(const gl::FramebufferAttachment *colorBuf
     D3DFORMAT renderTargetFormat = D3DFMT_UNKNOWN;
 
     bool renderTargetChanged = false;
-    unsigned int renderTargetSerial = GetAttachmentSerial(colorBuffer);
-    if (renderTargetSerial != mAppliedRenderTargetSerial)
+
+    // Apply the render target on the device
+    RenderTarget9 *renderTarget = NULL;
+    gl::Error error = d3d9::GetAttachmentRenderTarget(colorBuffer, &renderTarget);
+    if (error.isError())
     {
-        // Apply the render target on the device
-        RenderTarget9 *renderTarget = NULL;
-        gl::Error error = d3d9::GetAttachmentRenderTarget(colorBuffer, &renderTarget);
-        if (error.isError())
-        {
-            return error;
-        }
-        ASSERT(renderTarget);
+        return error;
+    }
+    ASSERT(renderTarget);
 
-        IDirect3DSurface9 *renderTargetSurface = renderTarget->getSurface();
-        ASSERT(renderTargetSurface);
+    IDirect3DSurface9 *renderTargetSurface = renderTarget->getSurface();
+    uintptr_t renderTargetUintPtr = reinterpret_cast<uintptr_t>(renderTargetSurface);
+    ASSERT(renderTargetSurface);
 
+    if (renderTargetUintPtr != mAppliedRenderTarget)
+    {
         mDevice->SetRenderTarget(0, renderTargetSurface);
         SafeRelease(renderTargetSurface);
 
@@ -1274,56 +1304,58 @@ gl::Error Renderer9::applyRenderTarget(const gl::FramebufferAttachment *colorBuf
         renderTargetHeight = renderTarget->getHeight();
         renderTargetFormat = renderTarget->getD3DFormat();
 
-        mAppliedRenderTargetSerial = renderTargetSerial;
+        mAppliedRenderTarget = renderTargetUintPtr;
         renderTargetChanged = true;
     }
 
-    unsigned int depthStencilSerial = (depthStencilBuffer != nullptr) ? GetAttachmentSerial(depthStencilBuffer) : 0;
-    if (depthStencilSerial != mAppliedDepthStencilSerial || !mDepthStencilInitialized)
+    unsigned int depthSize = 0;
+    unsigned int stencilSize = 0;
+
+    // Apply the depth stencil on the device
+    if (depthStencilBuffer)
     {
-        unsigned int depthSize = 0;
-        unsigned int stencilSize = 0;
-
-        // Apply the depth stencil on the device
-        if (depthStencilBuffer)
+        RenderTarget9 *depthStencilRenderTarget = NULL;
+        gl::Error error = d3d9::GetAttachmentRenderTarget(depthStencilBuffer, &depthStencilRenderTarget);
+        if (error.isError())
         {
-            RenderTarget9 *depthStencilRenderTarget = NULL;
-            gl::Error error = d3d9::GetAttachmentRenderTarget(depthStencilBuffer, &depthStencilRenderTarget);
-            if (error.isError())
-            {
-                return error;
-            }
-            ASSERT(depthStencilRenderTarget);
+            return error;
+        }
+        ASSERT(depthStencilRenderTarget);
 
-            IDirect3DSurface9 *depthStencilSurface = depthStencilRenderTarget->getSurface();
-            ASSERT(depthStencilSurface);
+        IDirect3DSurface9 *depthStencilSurface = depthStencilRenderTarget->getSurface();
+        uintptr_t depthStencilUintPtr = reinterpret_cast<uintptr_t>(depthStencilSurface);
+        ASSERT(depthStencilSurface);
 
+        if (depthStencilUintPtr != mAppliedDepthStencil || !mDepthStencilInitialized)
+        {
             mDevice->SetDepthStencilSurface(depthStencilSurface);
             SafeRelease(depthStencilSurface);
 
             depthSize = depthStencilBuffer->getDepthSize();
             stencilSize = depthStencilBuffer->getStencilSize();
-        }
-        else
-        {
-            mDevice->SetDepthStencilSurface(NULL);
-        }
 
-        if (!mDepthStencilInitialized || depthSize != mCurDepthSize)
-        {
-            mCurDepthSize = depthSize;
-            mForceSetRasterState = true;
+            mAppliedDepthStencil = depthStencilUintPtr;
         }
-
-        if (!mDepthStencilInitialized || stencilSize != mCurStencilSize)
-        {
-            mCurStencilSize = stencilSize;
-            mForceSetDepthStencilState = true;
-        }
-
-        mAppliedDepthStencilSerial = depthStencilSerial;
-        mDepthStencilInitialized = true;
     }
+    else if (mAppliedDepthStencil != 0)
+    {
+        mDevice->SetDepthStencilSurface(NULL);
+        mAppliedDepthStencil = 0;
+    }
+
+    if (!mDepthStencilInitialized || depthSize != mCurDepthSize)
+    {
+        mCurDepthSize = depthSize;
+        mForceSetRasterState = true;
+    }
+
+    if (!mDepthStencilInitialized || stencilSize != mCurStencilSize)
+    {
+        mCurStencilSize = stencilSize;
+        mForceSetDepthStencilState = true;
+    }
+
+    mDepthStencilInitialized = true;
 
     if (renderTargetChanged || !mRenderTargetDescInitialized)
     {
@@ -2144,8 +2176,11 @@ gl::Error Renderer9::clear(const gl::ClearParameters &clearParams, const gl::Fra
 
 void Renderer9::markAllStateDirty()
 {
-    mAppliedRenderTargetSerial = 0;
-    mAppliedDepthStencilSerial = 0;
+    // dirtyPointer is a special value that will make the comparison with any valid pointer fail and force the renderer to re-apply the state.
+    const uintptr_t dirtyPointer = -1;
+
+    mAppliedRenderTarget = dirtyPointer;
+    mAppliedDepthStencil = dirtyPointer;
     mDepthStencilInitialized = false;
     mRenderTargetDescInitialized = false;
 
@@ -2440,16 +2475,6 @@ std::string Renderer9::getShaderModelSuffix() const
 DWORD Renderer9::getCapsDeclTypes() const
 {
     return mDeviceCaps.DeclTypes;
-}
-
-int Renderer9::getMinSwapInterval() const
-{
-    return mMinSwapInterval;
-}
-
-int Renderer9::getMaxSwapInterval() const
-{
-    return mMaxSwapInterval;
 }
 
 D3DPOOL Renderer9::getBufferPool(DWORD usage) const
