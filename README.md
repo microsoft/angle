@@ -1,4 +1,4 @@
-ANGLE -- future-dev branch
+ANGLE -- ms-master branch
 =====
 
 This is an active branch with Windows Store versions of ANGLE. It contains
@@ -6,7 +6,7 @@ full support for Windows 8.1 and Windows Phone 8.1, and other features such as
 performance improvements and memory savings.
 
 If you are developing for Windows 8.0 or Windows Phone 8.0 then please see the
-version of ANGLE in the 'winrt' branch.
+version of ANGLE in the 'winrt' branch of https://github.com/MSOpenTech/angle-win8.0
 
 About ANGLE
 =====
