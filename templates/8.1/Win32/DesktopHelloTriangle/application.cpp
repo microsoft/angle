@@ -126,7 +126,6 @@ bool Application::InitializeEGL()
 
     const EGLint surfaceAttributes[] =
     {
-        EGL_POST_SUB_BUFFER_SUPPORTED_NV, EGL_TRUE,
         EGL_NONE
     };
 
