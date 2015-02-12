@@ -164,9 +164,10 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
     {
         surfaceAttributes.push_back(EGL_POST_SUB_BUFFER_SUPPORTED_NV);
         surfaceAttributes.push_back(EGL_TRUE);
-        surfaceAttributes.push_back(EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER);
-        surfaceAttributes.push_back(mPlatform.useRenderToBackBuffer);
     }
+
+    surfaceAttributes.push_back(EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER);
+    surfaceAttributes.push_back(mPlatform.useRenderToBackBuffer);
 
     surfaceAttributes.push_back(EGL_NONE);
     surfaceAttributes.push_back(EGL_NONE);
