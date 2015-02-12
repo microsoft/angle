@@ -10,6 +10,7 @@
 
 #include "libANGLE/Context.h"
 #include "libANGLE/Config.h"
+#include "libANGLE/Display.h"
 #include "libANGLE/Surface.h"
 #include "libANGLE/renderer/d3d/RendererD3D.h"
 #include "libANGLE/renderer/d3d/SurfaceD3D.h"
@@ -37,19 +38,22 @@
 namespace rx
 {
 
-typedef RendererD3D *(*CreateRendererD3DFunction)(egl::Display*, EGLNativeDisplayType, const egl::AttributeMap &);
+typedef RendererD3D *(*CreateRendererD3DFunction)(egl::Display*);
 
 template <typename RendererType>
-static RendererD3D *CreateTypedRendererD3D(egl::Display *display, EGLNativeDisplayType nativeDisplay, const egl::AttributeMap &attributes)
+static RendererD3D *CreateTypedRendererD3D(egl::Display *display)
 {
-    return new RendererType(display, nativeDisplay, attributes);
+    return new RendererType(display);
 }
 
-egl::Error CreateRendererD3D(egl::Display *display, EGLNativeDisplayType nativeDisplay, const egl::AttributeMap &attribMap, RendererD3D **outRenderer)
+egl::Error CreateRendererD3D(egl::Display *display, RendererD3D **outRenderer)
 {
     ASSERT(outRenderer != nullptr);
 
     std::vector<CreateRendererD3DFunction> rendererCreationFunctions;
+
+    const auto &attribMap = display->getAttributeMap();
+    EGLNativeDisplayType nativeDisplay = display->getNativeDisplayId();
 
     EGLint requestedDisplayType = attribMap.get(EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
 
@@ -93,12 +97,12 @@ egl::Error CreateRendererD3D(egl::Display *display, EGLNativeDisplayType nativeD
 #       endif
     }
 
-    EGLint result = EGL_NOT_INITIALIZED;
+    egl::Error result(EGL_NOT_INITIALIZED, "No available renderers.");
     for (size_t i = 0; i < rendererCreationFunctions.size(); i++)
     {
-        RendererD3D *renderer = rendererCreationFunctions[i](display, nativeDisplay, attribMap);
+        RendererD3D *renderer = rendererCreationFunctions[i](display);
         result = renderer->initialize();
-        if (result == EGL_SUCCESS)
+        if (!result.isError())
         {
             *outRenderer = renderer;
             break;
@@ -110,7 +114,7 @@ egl::Error CreateRendererD3D(egl::Display *display, EGLNativeDisplayType nativeD
         }
     }
 
-    return egl::Error(result);
+    return result;
 }
 
 DisplayD3D::DisplayD3D()
@@ -147,14 +151,19 @@ egl::Error DisplayD3D::createContext(const egl::Config *config, const gl::Contex
     bool notifyResets = (attribs.get(EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY_EXT, EGL_NO_RESET_NOTIFICATION_EXT) == EGL_LOSE_CONTEXT_ON_RESET_EXT);
     bool robustAccess = (attribs.get(EGL_CONTEXT_OPENGL_ROBUST_ACCESS_EXT, EGL_FALSE) == EGL_TRUE);
 
-    *outContext = new gl::Context(clientVersion, shareContext, mRenderer, notifyResets, robustAccess);
+    *outContext = new gl::Context(config, clientVersion, shareContext, mRenderer, notifyResets, robustAccess);
     return egl::Error(EGL_SUCCESS);
 }
 
-egl::Error DisplayD3D::initialize(egl::Display *display, EGLNativeDisplayType nativeDisplay, const egl::AttributeMap &attribMap)
+egl::Error DisplayD3D::makeCurrent(egl::Surface *drawSurface, egl::Surface *readSurface, gl::Context *context)
 {
-    ASSERT(mRenderer == nullptr);
-    return CreateRendererD3D(display, nativeDisplay, attribMap, &mRenderer);
+    return egl::Error(EGL_SUCCESS);
+}
+
+egl::Error DisplayD3D::initialize(egl::Display *display)
+{
+    ASSERT(mRenderer == nullptr && display != nullptr);
+    return CreateRendererD3D(display, &mRenderer);
 }
 
 void DisplayD3D::terminate()

@@ -327,6 +327,7 @@
     <None Include="..\..\..\..\src\angle.gyp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\common\MemoryBuffer.h"/>
     <ClInclude Include="..\..\..\..\src\common\angleutils.h"/>
     <ClInclude Include="..\..\..\..\src\common\mathutil.h"/>
     <ClInclude Include="..\..\..\..\src\common\platform.h"/>
@@ -335,6 +336,7 @@
     <ClInclude Include="..\..\..\..\src\common\version.h"/>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\common\MemoryBuffer.cpp"/>
     <ClCompile Include="..\..\..\..\src\common\angleutils.cpp"/>
     <ClCompile Include="..\..\..\..\src\common\mathutil.cpp"/>
     <ClCompile Include="..\..\..\..\src\common\tls.cpp"/>

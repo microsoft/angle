@@ -16,6 +16,7 @@
 #include "libANGLE/Display.h"
 #include "libANGLE/Texture.h"
 #include "libANGLE/Surface.h"
+#include "libANGLE/validationEGL.h"
 
 #include "common/debug.h"
 #include "common/version.h"
@@ -24,72 +25,6 @@
 
 namespace egl
 {
-
-// EGL object validation
-static bool ValidateDisplay(const Display *display)
-{
-    if (display == EGL_NO_DISPLAY)
-    {
-        SetGlobalError(Error(EGL_BAD_DISPLAY));
-        return false;
-    }
-
-    if (!display->isInitialized())
-    {
-        SetGlobalError(Error(EGL_NOT_INITIALIZED));
-        return false;
-    }
-
-    return true;
-}
-
-static bool ValidateConfig(const Display *display, const Config *config)
-{
-    if (!ValidateDisplay(display))
-    {
-        return false;
-    }
-
-    if (!display->isValidConfig(config))
-    {
-        SetGlobalError(Error(EGL_BAD_CONFIG));
-        return false;
-    }
-
-    return true;
-}
-
-static bool ValidateContext(const Display *display, gl::Context *context)
-{
-    if (!ValidateDisplay(display))
-    {
-        return false;
-    }
-
-    if (!display->isValidContext(context))
-    {
-        SetGlobalError(Error(EGL_BAD_CONTEXT));
-        return false;
-    }
-
-    return true;
-}
-
-static bool ValidateSurface(Display *display, Surface *surface)
-{
-    if (!ValidateDisplay(display))
-    {
-        return false;
-    }
-
-    if (!display->isValidSurface(surface))
-    {
-        SetGlobalError(Error(EGL_BAD_SURFACE));
-        return false;
-    }
-
-    return true;
-}
 
 // EGL 1.0
 EGLint EGLAPIENTRY GetError(void)
@@ -165,9 +100,14 @@ const char *EGLAPIENTRY QueryString(EGLDisplay dpy, EGLint name)
     EVENT("(EGLDisplay dpy = 0x%0.8p, EGLint name = %d)", dpy, name);
 
     Display *display = static_cast<Display*>(dpy);
-    if (!(display == EGL_NO_DISPLAY && name == EGL_EXTENSIONS) && !ValidateDisplay(display))
+    if (!(display == EGL_NO_DISPLAY && name == EGL_EXTENSIONS))
     {
-        return NULL;
+        Error error = ValidateDisplay(display);
+        if (error.isError())
+        {
+            SetGlobalError(error);
+            return NULL;
+        }
     }
 
     const char *result;
@@ -209,8 +149,10 @@ EGLBoolean EGLAPIENTRY GetConfigs(EGLDisplay dpy, EGLConfig *configs, EGLint con
 
     Display *display = static_cast<Display*>(dpy);
 
-    if (!ValidateDisplay(display))
+    Error error = ValidateDisplay(display);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -243,8 +185,10 @@ EGLBoolean EGLAPIENTRY ChooseConfig(EGLDisplay dpy, const EGLint *attrib_list, E
 
     Display *display = static_cast<Display*>(dpy);
 
-    if (!ValidateDisplay(display))
+    Error error = ValidateDisplay(display);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -277,8 +221,10 @@ EGLBoolean EGLAPIENTRY GetConfigAttrib(EGLDisplay dpy, EGLConfig config, EGLint 
     Display *display = static_cast<Display*>(dpy);
     Config *configuration = static_cast<Config*>(config);
 
-    if (!ValidateConfig(display, configuration))
+    Error error = ValidateConfig(display, configuration);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -299,27 +245,24 @@ EGLSurface EGLAPIENTRY CreateWindowSurface(EGLDisplay dpy, EGLConfig config, EGL
 
     Display *display = static_cast<Display*>(dpy);
     Config *configuration = static_cast<Config*>(config);
+    AttributeMap attributes(attrib_list);
 
-    if (!ValidateConfig(display, configuration))
-    {
-        return EGL_NO_SURFACE;
-    }
-
-    if (!display->isValidNativeWindow(win))
-    {
-        SetGlobalError(Error(EGL_BAD_NATIVE_WINDOW));
-        return EGL_NO_SURFACE;
-    }
-
-    EGLSurface surface = EGL_NO_SURFACE;
-    Error error = display->createWindowSurface(win, configuration, attrib_list, &surface);
+    Error error = ValidateCreateWindowSurface(display, configuration, win, attributes);
     if (error.isError())
     {
         SetGlobalError(error);
         return EGL_NO_SURFACE;
     }
 
-    return surface;
+    egl::Surface *surface = nullptr;
+    error = display->createWindowSurface(configuration, win, attributes, &surface);
+    if (error.isError())
+    {
+        SetGlobalError(error);
+        return EGL_NO_SURFACE;
+    }
+
+    return static_cast<EGLSurface>(surface);
 }
 
 EGLSurface EGLAPIENTRY CreatePbufferSurface(EGLDisplay dpy, EGLConfig config, const EGLint *attrib_list)
@@ -329,21 +272,24 @@ EGLSurface EGLAPIENTRY CreatePbufferSurface(EGLDisplay dpy, EGLConfig config, co
 
     Display *display = static_cast<Display*>(dpy);
     Config *configuration = static_cast<Config*>(config);
+    AttributeMap attributes(attrib_list);
 
-    if (!ValidateConfig(display, configuration))
-    {
-        return EGL_NO_SURFACE;
-    }
-
-    EGLSurface surface = EGL_NO_SURFACE;
-    Error error = display->createOffscreenSurface(configuration, NULL, attrib_list, &surface);
+    Error error = ValidateCreatePbufferSurface(display, configuration, attributes);
     if (error.isError())
     {
         SetGlobalError(error);
         return EGL_NO_SURFACE;
     }
 
-    return surface;
+    egl::Surface *surface = nullptr;
+    error = display->createOffscreenSurface(configuration, NULL, attributes, &surface);
+    if (error.isError())
+    {
+        SetGlobalError(error);
+        return EGL_NO_SURFACE;
+    }
+
+    return static_cast<EGLSurface>(surface);
 }
 
 EGLSurface EGLAPIENTRY CreatePixmapSurface(EGLDisplay dpy, EGLConfig config, EGLNativePixmapType pixmap, const EGLint *attrib_list)
@@ -354,8 +300,10 @@ EGLSurface EGLAPIENTRY CreatePixmapSurface(EGLDisplay dpy, EGLConfig config, EGL
     Display *display = static_cast<Display*>(dpy);
     Config *configuration = static_cast<Config*>(config);
 
-    if (!ValidateConfig(display, configuration))
+    Error error = ValidateConfig(display, configuration);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_NO_SURFACE;
     }
 
@@ -372,8 +320,10 @@ EGLBoolean EGLAPIENTRY DestroySurface(EGLDisplay dpy, EGLSurface surface)
     Display *display = static_cast<Display*>(dpy);
     Surface *eglSurface = static_cast<Surface*>(surface);
 
-    if (!ValidateSurface(display, eglSurface))
+    Error error = ValidateSurface(display, eglSurface);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -397,8 +347,10 @@ EGLBoolean EGLAPIENTRY QuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint a
     Display *display = static_cast<Display*>(dpy);
     Surface *eglSurface = (Surface*)surface;
 
-    if (!ValidateSurface(display, eglSurface))
+    Error error = ValidateSurface(display, eglSurface);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -489,149 +441,27 @@ EGLContext EGLAPIENTRY CreateContext(EGLDisplay dpy, EGLConfig config, EGLContex
           "const EGLint *attrib_list = 0x%0.8p)", dpy, config, share_context, attrib_list);
 
     Display *display = static_cast<Display*>(dpy);
-    if (!ValidateDisplay(display))
-    {
-        return EGL_NO_CONTEXT;
-    }
-
-    // Get the requested client version (default is 1) and check it is 2 or 3.
-    EGLint clientMajorVersion = 1;
-    EGLint clientMinorVersion = 0;
-    EGLint contextFlags = 0;
-    bool resetNotification = false;
-    bool robustAccess = false;
-
-    if (attrib_list)
-    {
-        for (const EGLint* attribute = attrib_list; attribute[0] != EGL_NONE; attribute += 2)
-        {
-            switch (attribute[0])
-            {
-              case EGL_CONTEXT_CLIENT_VERSION:
-                clientMajorVersion = attribute[1];
-                break;
-
-              case EGL_CONTEXT_MINOR_VERSION:
-                clientMinorVersion = attribute[1];
-                break;
-
-              case EGL_CONTEXT_FLAGS_KHR:
-                contextFlags = attribute[1];
-                break;
-
-              case EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR:
-                // Only valid for OpenGL (non-ES) contexts
-                SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
-                return EGL_NO_CONTEXT;
-
-              case EGL_CONTEXT_OPENGL_ROBUST_ACCESS_EXT:
-                if (!display->getExtensions().createContextRobustness)
-                {
-                    SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
-                    return EGL_NO_CONTEXT;
-                }
-                if (attribute[1] != EGL_TRUE && attribute[1] != EGL_FALSE)
-                {
-                    SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
-                    return EGL_NO_CONTEXT;
-                }
-                robustAccess = (attribute[1] == EGL_TRUE);
-                break;
-
-              case EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY_KHR:
-                META_ASSERT(EGL_LOSE_CONTEXT_ON_RESET_EXT == EGL_LOSE_CONTEXT_ON_RESET_KHR);
-                META_ASSERT(EGL_NO_RESET_NOTIFICATION_EXT == EGL_NO_RESET_NOTIFICATION_KHR);
-                // same as EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY_EXT, fall through
-              case EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY_EXT:
-                if (!display->getExtensions().createContextRobustness)
-                {
-                    SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
-                    return EGL_NO_CONTEXT;
-                }
-                if (attribute[1] == EGL_LOSE_CONTEXT_ON_RESET_EXT)
-                {
-                    resetNotification = true;
-                }
-                else if (attribute[1] != EGL_NO_RESET_NOTIFICATION_EXT)
-                {
-                    SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
-                    return EGL_NO_CONTEXT;
-                }
-                break;
-
-              default:
-                SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
-                return EGL_NO_CONTEXT;
-            }
-        }
-    }
-
-    if ((clientMajorVersion != 2 && clientMajorVersion != 3) || clientMinorVersion != 0)
-    {
-        SetGlobalError(Error(EGL_BAD_CONFIG));
-        return EGL_NO_CONTEXT;
-    }
-
-    // Note: EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR does not apply to ES
-    const EGLint validContextFlags = (EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR |
-                                      EGL_CONTEXT_OPENGL_ROBUST_ACCESS_BIT_KHR);
-    if ((contextFlags & ~validContextFlags) != 0)
-    {
-        SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
-        return EGL_NO_CONTEXT;
-    }
-
-    if ((contextFlags & EGL_CONTEXT_OPENGL_ROBUST_ACCESS_BIT_KHR) > 0)
-    {
-        robustAccess = true;
-    }
-
-    if (robustAccess)
-    {
-        // Unimplemented
-        SetGlobalError(Error(EGL_BAD_CONFIG));
-        return EGL_NO_CONTEXT;
-    }
-
-    if (share_context)
-    {
-        gl::Context* sharedGLContext = static_cast<gl::Context*>(share_context);
-
-        // Shared context is invalid or is owned by another display
-        if (!display->isValidContext(sharedGLContext))
-        {
-            SetGlobalError(Error(EGL_BAD_MATCH));
-            return EGL_NO_CONTEXT;
-        }
-
-        if (sharedGLContext->isResetNotificationEnabled() != resetNotification)
-        {
-            SetGlobalError(Error(EGL_BAD_MATCH));
-            return EGL_NO_CONTEXT;
-        }
-
-        if (sharedGLContext->getClientVersion() != clientMajorVersion)
-        {
-            SetGlobalError(Error(EGL_BAD_CONTEXT));
-            return EGL_NO_CONTEXT;
-        }
-    }
-
     Config *configuration = static_cast<Config*>(config);
-    if (!ValidateConfig(display, configuration))
-    {
-        return EGL_NO_CONTEXT;
-    }
+    gl::Context* sharedGLContext = static_cast<gl::Context*>(share_context);
+    AttributeMap attributes(attrib_list);
 
-    EGLContext context = EGL_NO_CONTEXT;
-    Error error = display->createContext(configuration, share_context, egl::AttributeMap(attrib_list), &context);
+    Error error = ValidateCreateContext(display, configuration, sharedGLContext, attributes);
     if (error.isError())
     {
         SetGlobalError(error);
         return EGL_NO_CONTEXT;
     }
 
-    return context;
+    gl::Context *context = nullptr;
+    error = display->createContext(configuration, sharedGLContext, attributes, &context);
+    if (error.isError())
+    {
+        SetGlobalError(error);
+        return EGL_NO_CONTEXT;
+    }
+
+    SetGlobalError(Error(EGL_SUCCESS));
+    return static_cast<EGLContext>(context);
 }
 
 EGLBoolean EGLAPIENTRY DestroyContext(EGLDisplay dpy, EGLContext ctx)
@@ -641,8 +471,10 @@ EGLBoolean EGLAPIENTRY DestroyContext(EGLDisplay dpy, EGLContext ctx)
     Display *display = static_cast<Display*>(dpy);
     gl::Context *context = static_cast<gl::Context*>(ctx);
 
-    if (!ValidateContext(display, context))
+    Error error = ValidateContext(display, context);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -680,9 +512,14 @@ EGLBoolean EGLAPIENTRY MakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface r
         return EGL_FALSE;
     }
 
-    if (ctx != EGL_NO_CONTEXT && !ValidateContext(display, context))
+    if (ctx != EGL_NO_CONTEXT)
     {
-        return EGL_FALSE;
+        Error error = ValidateContext(display, context);
+        if (error.isError())
+        {
+            SetGlobalError(error);
+            return EGL_FALSE;
+        }
     }
 
     if (dpy != EGL_NO_DISPLAY && display->isInitialized())
@@ -701,12 +538,25 @@ EGLBoolean EGLAPIENTRY MakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface r
     }
 
     Surface *drawSurface = static_cast<Surface*>(draw);
-    Surface *readSurface = static_cast<Surface*>(read);
-
-    if ((draw != EGL_NO_SURFACE && !ValidateSurface(display, drawSurface)) ||
-        (read != EGL_NO_SURFACE && !ValidateSurface(display, readSurface)))
+    if (draw != EGL_NO_SURFACE)
     {
-        return EGL_FALSE;
+        Error error = ValidateSurface(display, drawSurface);
+        if (error.isError())
+        {
+            SetGlobalError(error);
+            return EGL_FALSE;
+        }
+    }
+
+    Surface *readSurface = static_cast<Surface*>(read);
+    if (read != EGL_NO_SURFACE)
+    {
+        Error error = ValidateSurface(display, readSurface);
+        if (error.isError())
+        {
+            SetGlobalError(error);
+            return EGL_FALSE;
+        }
     }
 
     if (draw != read)
@@ -721,7 +571,7 @@ EGLBoolean EGLAPIENTRY MakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface r
 
     if (context != nullptr && display != nullptr && drawSurface != nullptr)
     {
-        context->makeCurrent(drawSurface);
+        display->makeCurrent(drawSurface, readSurface, context);
     }
 
     SetGlobalError(Error(EGL_SUCCESS));
@@ -767,15 +617,34 @@ EGLBoolean EGLAPIENTRY QueryContext(EGLDisplay dpy, EGLContext ctx, EGLint attri
     Display *display = static_cast<Display*>(dpy);
     gl::Context *context = static_cast<gl::Context*>(ctx);
 
-    if (!ValidateContext(display, context))
+    Error error = ValidateContext(display, context);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
-    UNIMPLEMENTED();   // FIXME
+    switch (attribute)
+    {
+      case EGL_CONFIG_ID:
+        *value = context->getConfigID();
+        break;
+      case EGL_CONTEXT_CLIENT_TYPE:
+        *value = context->getClientType();
+        break;
+      case EGL_CONTEXT_CLIENT_VERSION:
+        *value = context->getClientVersion();
+        break;
+      case EGL_RENDER_BUFFER:
+        *value = context->getRenderBuffer();
+        break;
+      default:
+        SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
+        return EGL_FALSE;
+    }
 
     SetGlobalError(Error(EGL_SUCCESS));
-    return 0;
+    return EGL_TRUE;
 }
 
 EGLBoolean EGLAPIENTRY WaitGL(void)
@@ -805,8 +674,10 @@ EGLBoolean EGLAPIENTRY SwapBuffers(EGLDisplay dpy, EGLSurface surface)
     Display *display = static_cast<Display*>(dpy);
     Surface *eglSurface = (Surface*)surface;
 
-    if (!ValidateSurface(display, eglSurface))
+    Error error = ValidateSurface(display, eglSurface);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -822,7 +693,7 @@ EGLBoolean EGLAPIENTRY SwapBuffers(EGLDisplay dpy, EGLSurface surface)
         return EGL_FALSE;
     }
 
-    Error error = eglSurface->swap();
+    error = eglSurface->swap();
     if (error.isError())
     {
         SetGlobalError(error);
@@ -840,8 +711,10 @@ EGLBoolean EGLAPIENTRY CopyBuffers(EGLDisplay dpy, EGLSurface surface, EGLNative
     Display *display = static_cast<Display*>(dpy);
     Surface *eglSurface = static_cast<Surface*>(surface);
 
-    if (!ValidateSurface(display, eglSurface))
+    Error error = ValidateSurface(display, eglSurface);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -865,8 +738,10 @@ EGLBoolean EGLAPIENTRY BindTexImage(EGLDisplay dpy, EGLSurface surface, EGLint b
     Display *display = static_cast<Display*>(dpy);
     Surface *eglSurface = static_cast<Surface*>(surface);
 
-    if (!ValidateSurface(display, eglSurface))
+    Error error = ValidateSurface(display, eglSurface);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -921,8 +796,10 @@ EGLBoolean EGLAPIENTRY SurfaceAttrib(EGLDisplay dpy, EGLSurface surface, EGLint 
     Display *display = static_cast<Display*>(dpy);
     Surface *eglSurface = static_cast<Surface*>(surface);
 
-    if (!ValidateSurface(display, eglSurface))
+    Error error = ValidateSurface(display, eglSurface);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -939,8 +816,10 @@ EGLBoolean EGLAPIENTRY ReleaseTexImage(EGLDisplay dpy, EGLSurface surface, EGLin
     Display *display = static_cast<Display*>(dpy);
     Surface *eglSurface = static_cast<Surface*>(surface);
 
-    if (!ValidateSurface(display, eglSurface))
+    Error error = ValidateSurface(display, eglSurface);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -979,8 +858,10 @@ EGLBoolean EGLAPIENTRY SwapInterval(EGLDisplay dpy, EGLint interval)
 
     Display *display = static_cast<Display*>(dpy);
 
-    if (!ValidateDisplay(display))
+    Error error = ValidateDisplay(display);
+    if (error.isError())
     {
+        SetGlobalError(error);
         return EGL_FALSE;
     }
 
@@ -1040,28 +921,25 @@ EGLSurface EGLAPIENTRY CreatePbufferFromClientBuffer(EGLDisplay dpy, EGLenum buf
           dpy, buftype, buffer, config, attrib_list);
 
     Display *display = static_cast<Display*>(dpy);
-
     Config *configuration = static_cast<Config*>(config);
-    if (!ValidateConfig(display, configuration))
-    {
-        return EGL_NO_SURFACE;
-    }
+    AttributeMap attributes(attrib_list);
 
-    if (buftype != EGL_D3D_TEXTURE_2D_SHARE_HANDLE_ANGLE || !buffer)
-    {
-        SetGlobalError(Error(EGL_BAD_PARAMETER));
-        return EGL_NO_SURFACE;
-    }
-
-    EGLSurface surface = EGL_NO_SURFACE;
-    Error error = display->createOffscreenSurface(configuration, buffer, attrib_list, &surface);
+    Error error = ValidateCreatePbufferFromClientBuffer(display, buftype, buffer, configuration, attributes);
     if (error.isError())
     {
         SetGlobalError(error);
         return EGL_NO_SURFACE;
     }
 
-    return surface;
+    egl::Surface *surface = nullptr;
+    error = display->createOffscreenSurface(configuration, buffer, attributes, &surface);
+    if (error.isError())
+    {
+        SetGlobalError(error);
+        return EGL_NO_SURFACE;
+    }
+
+    return static_cast<EGLSurface>(surface);
 }
 
 EGLBoolean EGLAPIENTRY ReleaseThread(void)

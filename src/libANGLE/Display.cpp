@@ -139,7 +139,7 @@ Error Display::initialize()
         return Error(EGL_SUCCESS);
     }
 
-    Error error = mImplementation->initialize(this, mDisplayId, mAttributeMap);
+    Error error = mImplementation->initialize(this);
     if (error.isError())
     {
         return error;
@@ -163,6 +163,8 @@ Error Display::initialize()
 
 void Display::terminate()
 {
+    makeCurrent(nullptr, nullptr, nullptr);
+
     while (!mContextSet.empty())
     {
         destroyContext(*mContextSet.begin());
@@ -222,83 +224,23 @@ bool Display::getConfigAttrib(const Config *configuration, EGLint attribute, EGL
     return true;
 }
 
-Error Display::createWindowSurface(EGLNativeWindowType window, const Config *configuration, const EGLint *attribList, EGLSurface *outSurface)
+Error Display::createWindowSurface(const Config *configuration, EGLNativeWindowType window, const AttributeMap &attribs,
+                                   Surface **outSurface)
 {
-    EGLint postSubBufferSupported = EGL_FALSE;
+    EGLint postSubBufferSupported = attribs.get(EGL_POST_SUB_BUFFER_SUPPORTED_NV, EGL_FALSE);
+    EGLint width = attribs.get(EGL_WIDTH, 0);
+    EGLint height = attribs.get(EGL_HEIGHT, 0);
+    EGLint fixedSize = attribs.get(EGL_FIXED_SIZE_ANGLE, EGL_FALSE);
 
-    EGLint width = 0;
-    EGLint height = 0;
-    EGLint fixedSize = EGL_FALSE;
+    bool renderToBackBuffer = (attribs.get(EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER, EGL_FALSE) == EGL_TRUE);
+    bool allowRenderToBackBuffer = (mAttributeMap.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, EGL_FALSE) == EGL_TRUE);
 
-    bool renderToBackBuffer = false;
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
     renderToBackBuffer = true;
+    allowRenderToBackBuffer = true;
 #endif
 
-    if (attribList)
-    {
-        while (*attribList != EGL_NONE)
-        {
-            switch (attribList[0])
-            {
-              case EGL_RENDER_BUFFER:
-                switch (attribList[1])
-                {
-                  case EGL_BACK_BUFFER:
-                    break;
-                  case EGL_SINGLE_BUFFER:
-                    return Error(EGL_BAD_MATCH);   // Rendering directly to front buffer not supported
-                  default:
-                    return Error(EGL_BAD_ATTRIBUTE);
-                }
-                break;
-              case EGL_POST_SUB_BUFFER_SUPPORTED_NV:
-                postSubBufferSupported = attribList[1];
-                break;
-              case EGL_WIDTH:
-                width = attribList[1];
-                break;
-              case EGL_HEIGHT:
-                height = attribList[1];
-                break;
-              case EGL_FIXED_SIZE_ANGLE:
-                fixedSize = attribList[1];
-                break;
-              case EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER:
-                switch (attribList[1])
-                {
-                case EGL_FALSE:
-                case EGL_TRUE:
-                    break;
-
-                default:
-                    return Error(EGL_BAD_ATTRIBUTE);
-                }
-                renderToBackBuffer = (attribList[1] == EGL_TRUE);
-                break;
-              case EGL_VG_COLORSPACE:
-                return Error(EGL_BAD_MATCH);
-              case EGL_VG_ALPHA_FORMAT:
-                return Error(EGL_BAD_MATCH);
-              default:
-                return Error(EGL_BAD_ATTRIBUTE);
-            }
-
-            attribList += 2;
-        }
-    }
-
-    if (width < 0 || height < 0)
-    {
-        return Error(EGL_BAD_PARAMETER);
-    }
-
-    EGLBoolean defaultAllowRenderToBackBuffer = EGL_FALSE;
-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
-    defaultAllowRenderToBackBuffer = EGL_TRUE;
-#endif
-
-    if (renderToBackBuffer && (mAttributeMap.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, defaultAllowRenderToBackBuffer) != EGL_TRUE))
+    if (renderToBackBuffer && !allowRenderToBackBuffer)
     {
         return Error(EGL_BAD_ATTRIBUTE);
     }
@@ -307,11 +249,6 @@ Error Display::createWindowSurface(EGLNativeWindowType window, const Config *con
     {
         width = -1;
         height = -1;
-    }
-
-    if (hasExistingWindowSurface(window))
-    {
-        return Error(EGL_BAD_ALLOC);
     }
 
     if (mImplementation->testDeviceLost())
@@ -325,7 +262,8 @@ Error Display::createWindowSurface(EGLNativeWindowType window, const Config *con
 
     rx::SurfaceImpl *surfaceImpl = mImplementation->createWindowSurface(this, configuration, window,
                                                                         fixedSize, width, height,
-                                                                        postSubBufferSupported, renderToBackBuffer);
+                                                                        postSubBufferSupported,
+                                                                        renderToBackBuffer);
 
     Surface *surface = new Surface(surfaceImpl);
     Error error = surface->initialize();
@@ -341,99 +279,13 @@ Error Display::createWindowSurface(EGLNativeWindowType window, const Config *con
     return Error(EGL_SUCCESS);
 }
 
-Error Display::createOffscreenSurface(const Config *configuration, EGLClientBuffer shareHandle,
-                                      const EGLint *attribList, EGLSurface *outSurface)
+Error Display::createOffscreenSurface(const Config *configuration, EGLClientBuffer shareHandle, const AttributeMap &attribs,
+                                      Surface **outSurface)
 {
-    EGLint width = 0, height = 0;
-    EGLenum textureFormat = EGL_NO_TEXTURE;
-    EGLenum textureTarget = EGL_NO_TEXTURE;
-
-    if (attribList)
-    {
-        while (*attribList != EGL_NONE)
-        {
-            switch (attribList[0])
-            {
-              case EGL_WIDTH:
-                width = attribList[1];
-                break;
-              case EGL_HEIGHT:
-                height = attribList[1];
-                break;
-              case EGL_LARGEST_PBUFFER:
-                if (attribList[1] != EGL_FALSE)
-                  UNIMPLEMENTED(); // FIXME
-                break;
-              case EGL_TEXTURE_FORMAT:
-                switch (attribList[1])
-                {
-                  case EGL_NO_TEXTURE:
-                  case EGL_TEXTURE_RGB:
-                  case EGL_TEXTURE_RGBA:
-                    textureFormat = attribList[1];
-                    break;
-                  default:
-                    return Error(EGL_BAD_ATTRIBUTE);
-                }
-                break;
-              case EGL_TEXTURE_TARGET:
-                switch (attribList[1])
-                {
-                  case EGL_NO_TEXTURE:
-                  case EGL_TEXTURE_2D:
-                    textureTarget = attribList[1];
-                    break;
-                  default:
-                    return Error(EGL_BAD_ATTRIBUTE);
-                }
-                break;
-              case EGL_MIPMAP_TEXTURE:
-                if (attribList[1] != EGL_FALSE)
-                  return Error(EGL_BAD_ATTRIBUTE);
-                break;
-              case EGL_VG_COLORSPACE:
-                return Error(EGL_BAD_MATCH);
-              case EGL_VG_ALPHA_FORMAT:
-                return Error(EGL_BAD_MATCH);
-              default:
-                return Error(EGL_BAD_ATTRIBUTE);
-            }
-
-            attribList += 2;
-        }
-    }
-
-    if (width < 0 || height < 0)
-    {
-        return Error(EGL_BAD_PARAMETER);
-    }
-
-    if (width == 0 || height == 0)
-    {
-        return Error(EGL_BAD_ATTRIBUTE);
-    }
-
-    if (textureFormat != EGL_NO_TEXTURE && !mCaps.textureNPOT && (!gl::isPow2(width) || !gl::isPow2(height)))
-    {
-        return Error(EGL_BAD_MATCH);
-    }
-
-    if ((textureFormat != EGL_NO_TEXTURE && textureTarget == EGL_NO_TEXTURE) ||
-        (textureFormat == EGL_NO_TEXTURE && textureTarget != EGL_NO_TEXTURE))
-    {
-        return Error(EGL_BAD_MATCH);
-    }
-
-    if (!(configuration->surfaceType & EGL_PBUFFER_BIT))
-    {
-        return Error(EGL_BAD_MATCH);
-    }
-
-    if ((textureFormat == EGL_TEXTURE_RGB && configuration->bindToTextureRGB != EGL_TRUE) ||
-        (textureFormat == EGL_TEXTURE_RGBA && configuration->bindToTextureRGBA != EGL_TRUE))
-    {
-        return Error(EGL_BAD_ATTRIBUTE);
-    }
+    EGLint width = attribs.get(EGL_WIDTH, 0);
+    EGLint height = attribs.get(EGL_HEIGHT, 0);
+    EGLenum textureFormat = attribs.get(EGL_TEXTURE_FORMAT, EGL_NO_TEXTURE);
+    EGLenum textureTarget = attribs.get(EGL_TEXTURE_TARGET, EGL_NO_TEXTURE);
 
     if (mImplementation->testDeviceLost())
     {
@@ -461,8 +313,8 @@ Error Display::createOffscreenSurface(const Config *configuration, EGLClientBuff
     return Error(EGL_SUCCESS);
 }
 
-Error Display::createContext(const Config *configuration, EGLContext shareContext, const egl::AttributeMap &attribs,
-                             EGLContext *outContext)
+Error Display::createContext(const Config *configuration, gl::Context *shareContext, const AttributeMap &attribs,
+                             gl::Context **outContext)
 {
     ASSERT(isInitialized());
 
@@ -475,14 +327,8 @@ Error Display::createContext(const Config *configuration, EGLContext shareContex
         }
     }
 
-    if (attribs.get(EGL_CONTEXT_CLIENT_VERSION, 1) == 3 && !(configuration->conformant & EGL_OPENGL_ES3_BIT_KHR))
-    {
-        return Error(EGL_BAD_CONFIG);
-    }
-
     gl::Context *context = nullptr;
-    Error error = mImplementation->createContext(configuration, reinterpret_cast<gl::Context*>(shareContext),
-                                                 attribs, &context);
+    Error error = mImplementation->createContext(configuration, shareContext, attribs, &context);
     if (error.isError())
     {
         return error;
@@ -493,6 +339,22 @@ Error Display::createContext(const Config *configuration, EGLContext shareContex
 
     *outContext = context;
     return Error(EGL_SUCCESS);
+}
+
+Error Display::makeCurrent(egl::Surface *drawSurface, egl::Surface *readSurface, gl::Context *context)
+{
+    Error error = mImplementation->makeCurrent(drawSurface, readSurface, context);
+    if (error.isError())
+    {
+        return error;
+    }
+
+    if (context && drawSurface)
+    {
+        context->makeCurrent(drawSurface);
+    }
+
+    return egl::Error(EGL_SUCCESS);
 }
 
 Error Display::restoreLostDevice()

@@ -180,6 +180,9 @@ struct SamplerState
     GLenum swizzleAlpha;
 
     bool swizzleRequired() const;
+
+    bool operator==(const SamplerState &other) const;
+    bool operator!=(const SamplerState &other) const;
 };
 
 struct ClearParameters

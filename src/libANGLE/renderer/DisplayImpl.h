@@ -11,7 +11,9 @@
 
 #include "common/angleutils.h"
 #include "libANGLE/Caps.h"
+#include "libANGLE/Config.h"
 #include "libANGLE/Error.h"
+#include "libANGLE/renderer/Renderer.h"
 
 #include <set>
 #include <vector>
@@ -21,7 +23,6 @@ namespace egl
 class AttributeMap;
 class Display;
 struct Config;
-class ConfigSet;
 class Surface;
 }
 
@@ -41,7 +42,7 @@ class DisplayImpl
     DisplayImpl();
     virtual ~DisplayImpl();
 
-    virtual egl::Error initialize(egl::Display *display, EGLNativeDisplayType nativeDisplay, const egl::AttributeMap &attribMap) = 0;
+    virtual egl::Error initialize(egl::Display *display) = 0;
     virtual void terminate() = 0;
 
     virtual SurfaceImpl *createWindowSurface(egl::Display *display, const egl::Config *config,
@@ -53,6 +54,8 @@ class DisplayImpl
     virtual egl::Error createContext(const egl::Config *config, const gl::Context *shareContext, const egl::AttributeMap &attribs,
                                      gl::Context **outContext) = 0;
 
+    virtual egl::Error makeCurrent(egl::Surface *drawSurface, egl::Surface *readSurface, gl::Context *context) = 0;
+
     virtual egl::ConfigSet generateConfigs() const = 0;
 
     virtual bool isDeviceLost() const = 0;
@@ -61,9 +64,9 @@ class DisplayImpl
 
     virtual bool isValidNativeWindow(EGLNativeWindowType window) const = 0;
 
-    const egl::Caps &getCaps() const;
-
     virtual std::string getVendorString() const = 0;
+
+    const egl::Caps &getCaps() const;
 
     typedef std::set<egl::Surface*> SurfaceSet;
     const SurfaceSet &getSurfaceSet() const { return mSurfaceSet; }

@@ -31,8 +31,20 @@
     <Filter Include="common">
       <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
     </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="common\MemoryBuffer.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClInclude Include="common\MemoryBuffer.h">
+      <Filter>common</Filter>
+    </ClInclude>
     <ClCompile Include="common\angleutils.cpp">
       <Filter>common</Filter>
     </ClCompile>

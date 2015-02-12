@@ -5,6 +5,7 @@
 //
 
 #include <cassert>
+#include <vector>
 
 #include "EGLWindow.h"
 #include "OSWindow.h"
@@ -158,14 +159,19 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
     eglGetConfigAttrib(mDisplay, mConfig, EGL_DEPTH_SIZE, &mDepthBits);
     eglGetConfigAttrib(mDisplay, mConfig, EGL_STENCIL_SIZE, &mStencilBits);
 
-    const EGLint surfaceAttributes[] =
+    std::vector<EGLint> surfaceAttributes;
+    if (strstr(eglQueryString(mDisplay, EGL_EXTENSIONS), "EGL_NV_post_sub_buffer") != nullptr)
     {
-        EGL_POST_SUB_BUFFER_SUPPORTED_NV,        EGL_TRUE,
-        EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER, mPlatform.useRenderToBackBuffer,
-        EGL_NONE, EGL_NONE,
-    };
+        surfaceAttributes.push_back(EGL_POST_SUB_BUFFER_SUPPORTED_NV);
+        surfaceAttributes.push_back(EGL_TRUE);
+        surfaceAttributes.push_back(EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER);
+        surfaceAttributes.push_back(mPlatform.useRenderToBackBuffer);
+    }
 
-    mSurface = eglCreateWindowSurface(mDisplay, mConfig, osWindow->getNativeWindow(), surfaceAttributes);
+    surfaceAttributes.push_back(EGL_NONE);
+    surfaceAttributes.push_back(EGL_NONE);
+
+    mSurface = eglCreateWindowSurface(mDisplay, mConfig, osWindow->getNativeWindow(), &surfaceAttributes[0]);
     if (mSurface == EGL_NO_SURFACE)
     {
         eglGetError(); // Clear error and try again

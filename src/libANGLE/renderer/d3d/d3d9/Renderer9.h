@@ -39,12 +39,12 @@ class Blit9;
 class Renderer9 : public RendererD3D
 {
   public:
-    Renderer9(egl::Display *display, EGLNativeDisplayType hDc, const egl::AttributeMap &attributes);
+    explicit Renderer9(egl::Display *display);
     virtual ~Renderer9();
 
     static Renderer9 *makeRenderer9(Renderer *renderer);
 
-    virtual EGLint initialize();
+    egl::Error initialize() override;
     virtual bool resetDevice();
 
     egl::ConfigSet generateConfigs() const override;
@@ -90,9 +90,9 @@ class Renderer9 : public RendererD3D
     virtual gl::Error applyVertexBuffer(const gl::State &state, GLenum mode, GLint first, GLsizei count, GLsizei instances);
     virtual gl::Error applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo);
 
-    virtual void applyTransformFeedbackBuffers(const gl::State& state);
+    void applyTransformFeedbackBuffers(const gl::State &state) override;
 
-    virtual gl::Error drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive, bool usesPointSize);
+    gl::Error drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool usesPointSize) override;
     virtual gl::Error drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,
                                    gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei instances);
 
@@ -228,7 +228,6 @@ class Renderer9 : public RendererD3D
     D3DPOOL getBufferPool(DWORD usage) const;
 
     HMODULE mD3d9Module;
-    HDC mDc;
 
     void initializeDevice();
     D3DPRESENT_PARAMETERS getDefaultPresentParameters();
@@ -263,8 +262,8 @@ class Renderer9 : public RendererD3D
     bool mVertexTextureSupport;
 
     // current render target states
-    uintptr_t mAppliedRenderTarget;
-    uintptr_t mAppliedDepthStencil;
+    unsigned int mAppliedRenderTargetSerial;
+    unsigned int mAppliedDepthStencilSerial;
     bool mDepthStencilInitialized;
     bool mRenderTargetDescInitialized;
     unsigned int mCurStencilSize;

@@ -98,11 +98,21 @@ DynamicHLSL::DynamicHLSL(RendererD3D *const renderer)
 
 static bool packVarying(PackedVarying *varying, const int maxVaryingVectors, VaryingPacking packing)
 {
-    GLenum transposedType = TransposeMatrixType(varying->type);
+    // Make sure we use transposed matrix types to count registers correctly.
+    int registers = 0;
+    int elements = 0;
 
-    // matrices within varying structs are not transposed
-    int registers = (varying->isStruct() ? HLSLVariableRegisterCount(*varying) : VariableRowCount(transposedType)) * varying->elementCount();
-    int elements = (varying->isStruct() ? 4 : VariableColumnCount(transposedType));
+    if (varying->isStruct())
+    {
+        registers = HLSLVariableRegisterCount(*varying, true) * varying->elementCount();
+        elements = 4;
+    }
+    else
+    {
+        GLenum transposedType = TransposeMatrixType(varying->type);
+        registers = VariableRowCount(transposedType) * varying->elementCount();
+        elements = VariableColumnCount(transposedType);
+    }
 
     if (elements >= 2 && elements <= 4)
     {
@@ -340,15 +350,16 @@ std::string DynamicHLSL::generateVaryingHLSL(const ShaderD3D *shader) const
                       default:  UNREACHABLE();
                     }
 
-                    unsigned int semanticIndex = elementIndex * variableRows + varying.columnIndex * mRenderer->getRendererCaps().maxVaryingVectors + varying.registerIndex + row;
+                    unsigned int semanticIndex = elementIndex * variableRows +
+                                                 varying.columnIndex * mRenderer->getRendererCaps().maxVaryingVectors +
+                                                 varying.registerIndex + row;
                     std::string n = Str(semanticIndex);
 
                     std::string typeString;
 
                     if (varying.isStruct())
                     {
-                        // matrices within structs are not transposed, so
-                        // do not use the special struct prefix "rm"
+                        // TODO(jmadill): pass back translated name from the shader translator
                         typeString = decorateVariable(varying.structName);
                     }
                     else
@@ -392,11 +403,31 @@ std::string DynamicHLSL::generateVertexShaderForInputLayout(const std::string &s
             else
             {
                 GLenum componentType = mRenderer->getVertexComponentType(vertexFormat);
-                structHLSL += "    " + HLSLComponentTypeString(componentType, VariableComponentCount(shaderAttribute.type));
+
+                if (shaderAttribute.name == "gl_InstanceID")
+                {
+                    // The input type of the instance ID in HLSL (uint) differs from the one in ESSL (int).
+                    structHLSL += " uint";
+                }
+                else
+                {
+                    structHLSL += "    " + HLSLComponentTypeString(componentType, VariableComponentCount(shaderAttribute.type));
+                }
             }
 
-            structHLSL += " " + decorateVariable(shaderAttribute.name) + " : TEXCOORD" + Str(semanticIndex) + ";\n";
-            semanticIndex += VariableRegisterCount(shaderAttribute.type);
+            structHLSL += " " + decorateVariable(shaderAttribute.name) + " : ";
+
+            if (shaderAttribute.name == "gl_InstanceID")
+            {
+                structHLSL += "SV_InstanceID";
+            }
+            else
+            {
+                structHLSL += "TEXCOORD" + Str(semanticIndex);
+                semanticIndex += VariableRegisterCount(shaderAttribute.type);
+            }
+
+            structHLSL += ";\n";
 
             // HLSL code for initialization
             initHLSL += "    " + decorateVariable(shaderAttribute.name) + " = ";

@@ -49,12 +49,12 @@ enum
 class Renderer11 : public RendererD3D
 {
   public:
-    Renderer11(egl::Display *display, EGLNativeDisplayType hDc, const egl::AttributeMap &attributes);
+    explicit Renderer11(egl::Display *display);
     virtual ~Renderer11();
 
     static Renderer11 *makeRenderer11(Renderer *renderer);
 
-    virtual EGLint initialize();
+    egl::Error initialize() override;
     virtual bool resetDevice();
 
     egl::ConfigSet generateConfigs() const override;
@@ -88,9 +88,9 @@ class Renderer11 : public RendererD3D
     virtual gl::Error applyUniforms(const ProgramImpl &program, const std::vector<gl::LinkedUniform*> &uniformArray);
     virtual gl::Error applyVertexBuffer(const gl::State &state, GLenum mode, GLint first, GLsizei count, GLsizei instances);
     virtual gl::Error applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo);
-    virtual void applyTransformFeedbackBuffers(const gl::State &state);
+    void applyTransformFeedbackBuffers(const gl::State &state) override;
 
-    virtual gl::Error drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive, bool usesPointSize);
+    gl::Error drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool usesPointSize) override;
     virtual gl::Error drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,
                                    gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei instances);
 
@@ -226,15 +226,10 @@ class Renderer11 : public RendererD3D
 
     ID3D11Texture2D *resolveMultisampledTexture(ID3D11Texture2D *source, unsigned int subresource);
     void unsetConflictingSRVs(gl::SamplerType shaderType, uintptr_t resource, const gl::ImageIndex *index);
-
-    static void invalidateFBOAttachmentSwizzles(gl::FramebufferAttachment *attachment, int mipLevel);
-    static void invalidateFramebufferSwizzles(const gl::Framebuffer *framebuffer);
-
     void setRenderToBackBufferVariables(bool renderingToBackBuffer);
 
     HMODULE mD3d11Module;
     HMODULE mDxgiModule;
-    HDC mDc;
     std::vector<D3D_FEATURE_LEVEL> mAvailableFeatureLevels;
     D3D_DRIVER_TYPE mDriverType;
 
@@ -316,6 +311,7 @@ class Renderer11 : public RendererD3D
     unsigned int mAppliedIBOffset;
 
     // Currently applied transform feedback buffers
+    size_t mAppliedNumXFBBindings;
     ID3D11Buffer *mAppliedTFBuffers[gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS]; // Tracks the current D3D buffers
                                                                                         // in use for streamout
     GLintptr mAppliedTFOffsets[gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS]; // Tracks the current GL-specified

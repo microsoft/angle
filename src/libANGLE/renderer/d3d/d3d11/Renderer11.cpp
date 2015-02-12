@@ -164,9 +164,8 @@ ID3D11Resource *GetViewResource(ID3D11View *view)
 
 }
 
-Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, const egl::AttributeMap &attributes)
+Renderer11::Renderer11(egl::Display *display)
     : RendererD3D(display),
-      mDc(hDc),
       mStateCache(this)
 {
     mVertexDataManager = NULL;
@@ -199,6 +198,10 @@ Renderer11::Renderer11(egl::Display *display, EGLNativeDisplayType hDc, const eg
     mAppliedVertexShader = NULL;
     mAppliedGeometryShader = NULL;
     mAppliedPixelShader = NULL;
+
+    mAppliedNumXFBBindings = -1;
+
+    const auto &attributes = mDisplay->getAttributeMap();
 
     EGLint requestedMajorVersion = attributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, EGL_DONT_CARE);
     EGLint requestedMinorVersion = attributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE, EGL_DONT_CARE);
@@ -255,11 +258,11 @@ Renderer11 *Renderer11::makeRenderer11(Renderer *renderer)
 #define D3D11_MESSAGE_ID_DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET ((D3D11_MESSAGE_ID)3146081)
 #endif
 
-EGLint Renderer11::initialize()
+egl::Error Renderer11::initialize()
 {
     if (!mCompiler.initialize())
     {
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "Failed to initialize compiler.");
     }
 
 #if !defined(ANGLE_ENABLE_WINDOWS_STORE)
@@ -268,8 +271,7 @@ EGLint Renderer11::initialize()
 
     if (mD3d11Module == NULL || mDxgiModule == NULL)
     {
-        ERR("Could not load D3D11 or DXGI library - aborting!\n");
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "Could not load D3D11 or DXGI library.");
     }
 
     // create the D3D11 device
@@ -278,8 +280,7 @@ EGLint Renderer11::initialize()
 
     if (D3D11CreateDevice == NULL)
     {
-        ERR("Could not retrieve D3D11CreateDevice address - aborting!\n");
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "Could not retrieve D3D11CreateDevice address.");
     }
 #endif
 
@@ -317,8 +318,8 @@ EGLint Renderer11::initialize()
 
         if (!mDevice || FAILED(result))
         {
-            ERR("Could not create D3D11 device - aborting!\n");
-            return EGL_NOT_INITIALIZED;   // Cleanup done by destructor through glDestroyRenderer
+            // Cleanup done by destructor through glDestroyRenderer
+            return egl::Error(EGL_NOT_INITIALIZED, "Could not create D3D11 device.");
         }
     }
 
@@ -327,7 +328,7 @@ EGLint Renderer11::initialize()
     // In order to create a swap chain for an HWND owned by another process, DXGI 1.2 is required.
     // The easiest way to check is to query for a IDXGIDevice2.
     bool requireDXGI1_2 = false;
-    HWND hwnd = WindowFromDC(mDc);
+    HWND hwnd = WindowFromDC(mDisplay->getNativeDisplayId());
     if (hwnd)
     {
         DWORD currentProcessId = GetCurrentProcessId();
@@ -346,8 +347,7 @@ EGLint Renderer11::initialize()
         result = mDevice->QueryInterface(__uuidof(IDXGIDevice2), (void**)&dxgiDevice2);
         if (FAILED(result))
         {
-            ERR("DXGI 1.2 required to present to HWNDs owned by another process.\n");
-            return EGL_NOT_INITIALIZED;
+            return egl::Error(EGL_NOT_INITIALIZED, "DXGI 1.2 required to present to HWNDs owned by another process.");
         }
         SafeRelease(dxgiDevice2);
     }
@@ -364,16 +364,14 @@ EGLint Renderer11::initialize()
 
     if (FAILED(result))
     {
-        ERR("Could not query DXGI device - aborting!\n");
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "Could not query DXGI device.");
     }
 
     result = dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&mDxgiAdapter);
 
     if (FAILED(result))
     {
-        ERR("Could not retrieve DXGI adapter - aborting!\n");
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "Could not retrieve DXGI adapter");
     }
 
     SafeRelease(dxgiDevice);
@@ -412,8 +410,7 @@ EGLint Renderer11::initialize()
 
     if (!mDxgiFactory || FAILED(result))
     {
-        ERR("Could not create DXGI factory - aborting!\n");
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "Could not create DXGI factory.");
     }
 
     // Disable some spurious D3D11 debug warnings to prevent them from flooding the output log
@@ -439,7 +436,7 @@ EGLint Renderer11::initialize()
 
     initializeDevice();
 
-    return EGL_SUCCESS;
+    return egl::Error(EGL_SUCCESS);
 }
 
 // do any one-time device initialization
@@ -624,7 +621,13 @@ gl::Error Renderer11::generateSwizzle(gl::Texture *texture)
         TextureD3D *textureD3D = GetImplAs<TextureD3D>(texture);
         ASSERT(textureD3D);
 
-        TextureStorage *texStorage = textureD3D->getNativeTexture();
+        TextureStorage *texStorage = nullptr;
+        gl::Error error = textureD3D->getNativeTexture(&texStorage);
+        if (error.isError())
+        {
+            return error;
+        }
+
         if (texStorage)
         {
             TextureStorage11 *storage11 = TextureStorage11::makeTextureStorage11(texStorage);
@@ -647,7 +650,18 @@ gl::Error Renderer11::setSamplerState(gl::SamplerType type, int index, gl::Textu
     // Make sure to add the level offset for our tiny compressed texture workaround
     TextureD3D *textureD3D = GetImplAs<TextureD3D>(texture);
     gl::SamplerState samplerStateInternal = samplerStateParam;
-    samplerStateInternal.baseLevel += textureD3D->getNativeTexture()->getTopLevel();
+
+    TextureStorage *storage = nullptr;
+    gl::Error error = textureD3D->getNativeTexture(&storage);
+    if (error.isError())
+    {
+        return error;
+    }
+
+    // Storage should exist, texture should be complete
+    ASSERT(storage);
+
+    samplerStateInternal.baseLevel += storage->getTopLevel();
 
     if (type == gl::SAMPLER_PIXEL)
     {
@@ -703,8 +717,16 @@ gl::Error Renderer11::setTexture(gl::SamplerType type, int index, gl::Texture *t
     if (texture)
     {
         TextureD3D *textureImpl = GetImplAs<TextureD3D>(texture);
-        TextureStorage *texStorage = textureImpl->getNativeTexture();
-        ASSERT(texStorage != NULL);
+
+        TextureStorage *texStorage = nullptr;
+        gl::Error error = textureImpl->getNativeTexture(&texStorage);
+        if (error.isError())
+        {
+            return error;
+        }
+
+        // Texture should be complete and have a storage
+        ASSERT(texStorage);
 
         TextureStorage11 *storage11 = TextureStorage11::makeTextureStorage11(texStorage);
 
@@ -712,7 +734,7 @@ gl::Error Renderer11::setTexture(gl::SamplerType type, int index, gl::Texture *t
         gl::SamplerState samplerState = texture->getSamplerState();
         samplerState.baseLevel += storage11->getTopLevel();
 
-        gl::Error error = storage11->getSRV(samplerState, &textureSRV);
+        error = storage11->getSRV(samplerState, &textureSRV);
         if (error.isError())
         {
             return error;
@@ -1219,7 +1241,12 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
         mDepthStencilInitialized = true;
     }
 
-    invalidateFramebufferSwizzles(framebuffer);
+    const Framebuffer11 *framebuffer11 = GetImplAs<Framebuffer11>(framebuffer);
+    gl::Error error = framebuffer11->invalidateSwizzles();
+    if (error.isError())
+    {
+        return error;
+    }
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -1270,31 +1297,36 @@ gl::Error Renderer11::applyIndexBuffer(const GLvoid *indices, gl::Buffer *elemen
     return gl::Error(GL_NO_ERROR);
 }
 
-void Renderer11::applyTransformFeedbackBuffers(const gl::State& state)
+void Renderer11::applyTransformFeedbackBuffers(const gl::State &state)
 {
-    size_t numXFBBindings = state.getTransformFeedbackBufferIndexRange();
-    ASSERT(numXFBBindings <= gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS);
-
+    size_t numXFBBindings = 0;
     bool requiresUpdate = false;
-    for (size_t i = 0; i < numXFBBindings; i++)
-    {
-        gl::Buffer *curXFBBuffer = state.getIndexedTransformFeedbackBuffer(i);
-        GLintptr curXFBOffset = state.getIndexedTransformFeedbackBufferOffset(i);
-        ID3D11Buffer *d3dBuffer = NULL;
-        if (curXFBBuffer)
-        {
-            Buffer11 *storage = Buffer11::makeBuffer11(curXFBBuffer->getImplementation());
-            d3dBuffer = storage->getBuffer(BUFFER_USAGE_VERTEX_OR_TRANSFORM_FEEDBACK);
-        }
 
-        // TODO: mAppliedTFBuffers and friends should also be kept in a vector.
-        if (d3dBuffer != mAppliedTFBuffers[i] || curXFBOffset != mAppliedTFOffsets[i])
+    if (state.isTransformFeedbackActiveUnpaused())
+    {
+        numXFBBindings = state.getTransformFeedbackBufferIndexRange();
+        ASSERT(numXFBBindings <= gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS);
+
+        for (size_t i = 0; i < numXFBBindings; i++)
         {
-            requiresUpdate = true;
+            gl::Buffer *curXFBBuffer = state.getIndexedTransformFeedbackBuffer(i);
+            GLintptr curXFBOffset = state.getIndexedTransformFeedbackBufferOffset(i);
+            ID3D11Buffer *d3dBuffer = NULL;
+            if (curXFBBuffer)
+            {
+                Buffer11 *storage = Buffer11::makeBuffer11(curXFBBuffer->getImplementation());
+                d3dBuffer = storage->getBuffer(BUFFER_USAGE_VERTEX_OR_TRANSFORM_FEEDBACK);
+            }
+
+            // TODO: mAppliedTFBuffers and friends should also be kept in a vector.
+            if (d3dBuffer != mAppliedTFBuffers[i] || curXFBOffset != mAppliedTFOffsets[i])
+            {
+                requiresUpdate = true;
+            }
         }
     }
 
-    if (requiresUpdate)
+    if (requiresUpdate || numXFBBindings != mAppliedNumXFBBindings)
     {
         for (size_t i = 0; i < numXFBBindings; ++i)
         {
@@ -1318,14 +1350,16 @@ void Renderer11::applyTransformFeedbackBuffers(const gl::State& state)
             mAppliedTFOffsets[i] = curXFBOffset;
         }
 
+        mAppliedNumXFBBindings = numXFBBindings;
+
         mDeviceContext->SOSetTargets(numXFBBindings, mAppliedTFBuffers, mCurrentD3DOffsets);
     }
 }
 
-gl::Error Renderer11::drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive, bool usesPointSize)
+gl::Error Renderer11::drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool usesPointSize)
 {
     bool useInstancedPointSpriteEmulation = usesPointSize && getWorkarounds().useInstancedPointSpriteEmulation;
-    if (mode == GL_POINTS && transformFeedbackActive)
+    if (mode == GL_POINTS && data.state->isTransformFeedbackActiveUnpaused())
     {
         // Since point sprites are generated with a geometry shader, too many vertices will
         // be written if transform feedback is active.  To work around this, draw only the points
@@ -1353,7 +1387,7 @@ gl::Error Renderer11::drawArrays(const gl::Data &data, GLenum mode, GLsizei coun
         }
 
         // Skip this step if we're doing rasterizer discard.
-        if (pixelExe && !data.state->getRasterizerState().rasterizerDiscard)
+        if (pixelExe && !data.state->getRasterizerState().rasterizerDiscard && usesPointSize)
         {
             ID3D11PixelShader *pixelShader = ShaderExecutable11::makeShaderExecutable11(pixelExe)->getPixelShader();
             ASSERT(reinterpret_cast<uintptr_t>(pixelShader) == mAppliedPixelShader);
@@ -1944,6 +1978,8 @@ void Renderer11::markAllStateDirty()
     mAppliedGeometryShader = DirtyPointer;
     mAppliedPixelShader = DirtyPointer;
 
+    mAppliedNumXFBBindings = -1;
+
     for (size_t i = 0; i < gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS; i++)
     {
         mAppliedTFBuffers[i] = NULL;
@@ -2094,11 +2130,11 @@ bool Renderer11::resetDevice()
 {
     // recreate everything
     release();
-    EGLint result = initialize();
+    egl::Error result = initialize();
 
-    if (result != EGL_SUCCESS)
+    if (result.isError())
     {
-        ERR("Could not reinitialize D3D11 device: %08X", result);
+        ERR("Could not reinitialize D3D11 device: %08X", result.getCode());
         return false;
     }
 
@@ -3368,50 +3404,6 @@ ID3D11Texture2D *Renderer11::resolveMultisampledTexture(ID3D11Texture2D *source,
     {
         source->AddRef();
         return source;
-    }
-}
-
-void Renderer11::invalidateFBOAttachmentSwizzles(gl::FramebufferAttachment *attachment, int mipLevel)
-{
-    ASSERT(attachment->type() == GL_TEXTURE);
-    gl::Texture *texture = attachment->getTexture();
-
-    TextureD3D *textureD3D = GetImplAs<TextureD3D>(texture);
-    TextureStorage *texStorage = textureD3D->getNativeTexture();
-    if (texStorage)
-    {
-        TextureStorage11 *texStorage11 = TextureStorage11::makeTextureStorage11(texStorage);
-        if (!texStorage11)
-        {
-            ERR("texture storage pointer unexpectedly null.");
-            return;
-        }
-
-        texStorage11->invalidateSwizzleCacheLevel(mipLevel);
-    }
-}
-
-void Renderer11::invalidateFramebufferSwizzles(const gl::Framebuffer *framebuffer)
-{
-    for (unsigned int colorAttachment = 0; colorAttachment < gl::IMPLEMENTATION_MAX_DRAW_BUFFERS; colorAttachment++)
-    {
-        gl::FramebufferAttachment *attachment = framebuffer->getColorbuffer(colorAttachment);
-        if (attachment && attachment->type() == GL_TEXTURE)
-        {
-            invalidateFBOAttachmentSwizzles(attachment, attachment->mipLevel());
-        }
-    }
-
-    gl::FramebufferAttachment *depthAttachment = framebuffer->getDepthbuffer();
-    if (depthAttachment && depthAttachment->type() == GL_TEXTURE)
-    {
-        invalidateFBOAttachmentSwizzles(depthAttachment, depthAttachment->mipLevel());
-    }
-
-    gl::FramebufferAttachment *stencilAttachment = framebuffer->getStencilbuffer();
-    if (stencilAttachment && stencilAttachment->type() == GL_TEXTURE)
-    {
-        invalidateFBOAttachmentSwizzles(stencilAttachment, stencilAttachment->mipLevel());
     }
 }
 

@@ -77,9 +77,8 @@ enum
     MAX_TEXTURE_IMAGE_UNITS_VTF_SM3 = 4
 };
 
-Renderer9::Renderer9(egl::Display *display, EGLNativeDisplayType hDc, const egl::AttributeMap &attributes)
-    : RendererD3D(display),
-      mDc(hDc)
+Renderer9::Renderer9(egl::Display *display)
+    : RendererD3D(display)
 {
     mD3d9Module = NULL;
 
@@ -161,11 +160,11 @@ Renderer9 *Renderer9::makeRenderer9(Renderer *renderer)
     return static_cast<Renderer9*>(renderer);
 }
 
-EGLint Renderer9::initialize()
+egl::Error Renderer9::initialize()
 {
     if (!mCompiler.initialize())
     {
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "Compiler failed to initialize.");
     }
 
     TRACE_EVENT0("gpu", "GetModuleHandle_d3d9");
@@ -173,8 +172,7 @@ EGLint Renderer9::initialize()
 
     if (mD3d9Module == NULL)
     {
-        ERR("No D3D9 module found - aborting!\n");
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "No D3D9 module found.");
     }
 
     typedef HRESULT (WINAPI *Direct3DCreate9ExFunc)(UINT, IDirect3D9Ex**);
@@ -198,11 +196,10 @@ EGLint Renderer9::initialize()
 
     if (!mD3d9)
     {
-        ERR("Could not create D3D9 device - aborting!\n");
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "Could not create D3D9 device.");
     }
 
-    if (mDc != NULL)
+    if (mDisplay->getNativeDisplayId() != nullptr)
     {
     //  UNIMPLEMENTED();   // FIXME: Determine which adapter index the device context corresponds to
     }
@@ -225,8 +222,7 @@ EGLint Renderer9::initialize()
             }
             else if (FAILED(result))   // D3DERR_OUTOFVIDEOMEMORY, E_OUTOFMEMORY, D3DERR_INVALIDDEVICE, or another error we can't recover from
             {
-                ERR("failed to get device caps (0x%x)\n", result);
-                return EGL_NOT_INITIALIZED;
+                return egl::Error(EGL_NOT_INITIALIZED, "Failed to get device caps: Error code 0x%x\n", result);
             }
         }
     }
@@ -239,16 +235,14 @@ EGLint Renderer9::initialize()
 
     if (mDeviceCaps.PixelShaderVersion < D3DPS_VERSION(minShaderModel, 0))
     {
-        ERR("Renderer does not support PS %u.%u. aborting!\n", minShaderModel, 0);
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "Renderer does not support PS %u.%u.aborting!", minShaderModel, 0);
     }
 
     // When DirectX9 is running with an older DirectX8 driver, a StretchRect from a regular texture to a render target texture is not supported.
     // This is required by Texture2D::ensureRenderTarget.
     if ((mDeviceCaps.DevCaps2 & D3DDEVCAPS2_CAN_STRETCHRECT_FROM_TEXTURES) == 0)
     {
-        ERR("Renderer does not support stretctrect from textures!\n");
-        return EGL_NOT_INITIALIZED;
+        return egl::Error(EGL_NOT_INITIALIZED, "Renderer does not support StretctRect from textures.");
     }
 
     {
@@ -273,7 +267,7 @@ EGLint Renderer9::initialize()
     }
     if (result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY || result == D3DERR_DEVICELOST)
     {
-        return EGL_BAD_ALLOC;
+        return egl::Error(EGL_BAD_ALLOC, "CreateDevice failed: device lost of out of memory");
     }
 
     if (FAILED(result))
@@ -284,7 +278,7 @@ EGLint Renderer9::initialize()
         if (FAILED(result))
         {
             ASSERT(result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY || result == D3DERR_NOTAVAILABLE || result == D3DERR_DEVICELOST);
-            return EGL_BAD_ALLOC;
+            return egl::Error(EGL_BAD_ALLOC, "CreateDevice2 failed: device lost, not available, or of out of memory");
         }
     }
 
@@ -313,7 +307,7 @@ EGLint Renderer9::initialize()
 
     initializeDevice();
 
-    return EGL_SUCCESS;
+    return egl::Error(EGL_SUCCESS);
 }
 
 // do any one-time device initialization
@@ -753,7 +747,18 @@ gl::Error Renderer9::setSamplerState(gl::SamplerType type, int index, gl::Textur
 
         // Make sure to add the level offset for our tiny compressed texture workaround
         TextureD3D *textureD3D = GetImplAs<TextureD3D>(texture);
-        DWORD baseLevel = samplerState.baseLevel + textureD3D->getNativeTexture()->getTopLevel();
+
+        TextureStorage *storage = nullptr;
+        gl::Error error = textureD3D->getNativeTexture(&storage);
+        if (error.isError())
+        {
+            return error;
+        }
+
+        // Storage should exist, texture should be complete
+        ASSERT(storage);
+
+        DWORD baseLevel = samplerState.baseLevel + storage->getTopLevel();
 
         mDevice->SetSamplerState(d3dSampler, D3DSAMP_ADDRESSU, gl_d3d9::ConvertTextureWrap(samplerState.wrapS));
         mDevice->SetSamplerState(d3dSampler, D3DSAMP_ADDRESSV, gl_d3d9::ConvertTextureWrap(samplerState.wrapT));
@@ -790,17 +795,23 @@ gl::Error Renderer9::setTexture(gl::SamplerType type, int index, gl::Texture *te
     {
         TextureD3D *textureImpl = GetImplAs<TextureD3D>(texture);
 
-        TextureStorage *texStorage = textureImpl->getNativeTexture();
-        if (texStorage)
+        TextureStorage *texStorage = nullptr;
+        gl::Error error = textureImpl->getNativeTexture(&texStorage);
+        if (error.isError())
         {
-            TextureStorage9 *storage9 = TextureStorage9::makeTextureStorage9(texStorage);
-
-            gl::Error error = storage9->getBaseTexture(&d3dTexture);
-            if (error.isError())
-            {
-                return error;
-            }
+            return error;
         }
+
+        // Texture should be complete and have a storage
+        ASSERT(texStorage);
+
+        TextureStorage9 *storage9 = TextureStorage9::makeTextureStorage9(texStorage);
+        error = storage9->getBaseTexture(&d3dTexture);
+        if (error.isError())
+        {
+            return error;
+        }
+
         // If we get NULL back from getBaseTexture here, something went wrong
         // in the texture class and we're unexpectedly missing the d3d texture
         ASSERT(d3dTexture != NULL);
@@ -1281,22 +1292,21 @@ gl::Error Renderer9::applyRenderTarget(const gl::FramebufferAttachment *colorBuf
     D3DFORMAT renderTargetFormat = D3DFMT_UNKNOWN;
 
     bool renderTargetChanged = false;
-
-    // Apply the render target on the device
-    RenderTarget9 *renderTarget = NULL;
-    gl::Error error = d3d9::GetAttachmentRenderTarget(colorBuffer, &renderTarget);
-    if (error.isError())
+    unsigned int renderTargetSerial = GetAttachmentSerial(colorBuffer);
+    if (renderTargetSerial != mAppliedRenderTargetSerial)
     {
-        return error;
-    }
-    ASSERT(renderTarget);
+        // Apply the render target on the device
+        RenderTarget9 *renderTarget = NULL;
+        gl::Error error = d3d9::GetAttachmentRenderTarget(colorBuffer, &renderTarget);
+        if (error.isError())
+        {
+            return error;
+        }
+        ASSERT(renderTarget);
 
-    IDirect3DSurface9 *renderTargetSurface = renderTarget->getSurface();
-    uintptr_t renderTargetUintPtr = reinterpret_cast<uintptr_t>(renderTargetSurface);
-    ASSERT(renderTargetSurface);
+        IDirect3DSurface9 *renderTargetSurface = renderTarget->getSurface();
+        ASSERT(renderTargetSurface);
 
-    if (renderTargetUintPtr != mAppliedRenderTarget)
-    {
         mDevice->SetRenderTarget(0, renderTargetSurface);
         SafeRelease(renderTargetSurface);
 
@@ -1304,58 +1314,56 @@ gl::Error Renderer9::applyRenderTarget(const gl::FramebufferAttachment *colorBuf
         renderTargetHeight = renderTarget->getHeight();
         renderTargetFormat = renderTarget->getD3DFormat();
 
-        mAppliedRenderTarget = renderTargetUintPtr;
+        mAppliedRenderTargetSerial = renderTargetSerial;
         renderTargetChanged = true;
     }
 
-    unsigned int depthSize = 0;
-    unsigned int stencilSize = 0;
-
-    // Apply the depth stencil on the device
-    if (depthStencilBuffer)
+    unsigned int depthStencilSerial = (depthStencilBuffer != nullptr) ? GetAttachmentSerial(depthStencilBuffer) : 0;
+    if (depthStencilSerial != mAppliedDepthStencilSerial || !mDepthStencilInitialized)
     {
-        RenderTarget9 *depthStencilRenderTarget = NULL;
-        gl::Error error = d3d9::GetAttachmentRenderTarget(depthStencilBuffer, &depthStencilRenderTarget);
-        if (error.isError())
-        {
-            return error;
-        }
-        ASSERT(depthStencilRenderTarget);
+        unsigned int depthSize = 0;
+        unsigned int stencilSize = 0;
 
-        IDirect3DSurface9 *depthStencilSurface = depthStencilRenderTarget->getSurface();
-        uintptr_t depthStencilUintPtr = reinterpret_cast<uintptr_t>(depthStencilSurface);
-        ASSERT(depthStencilSurface);
-
-        if (depthStencilUintPtr != mAppliedDepthStencil || !mDepthStencilInitialized)
+        // Apply the depth stencil on the device
+        if (depthStencilBuffer)
         {
+            RenderTarget9 *depthStencilRenderTarget = NULL;
+            gl::Error error = d3d9::GetAttachmentRenderTarget(depthStencilBuffer, &depthStencilRenderTarget);
+            if (error.isError())
+            {
+                return error;
+            }
+            ASSERT(depthStencilRenderTarget);
+
+            IDirect3DSurface9 *depthStencilSurface = depthStencilRenderTarget->getSurface();
+            ASSERT(depthStencilSurface);
+
             mDevice->SetDepthStencilSurface(depthStencilSurface);
             SafeRelease(depthStencilSurface);
 
             depthSize = depthStencilBuffer->getDepthSize();
             stencilSize = depthStencilBuffer->getStencilSize();
-
-            mAppliedDepthStencil = depthStencilUintPtr;
         }
-    }
-    else if (mAppliedDepthStencil != 0)
-    {
-        mDevice->SetDepthStencilSurface(NULL);
-        mAppliedDepthStencil = 0;
-    }
+        else
+        {
+            mDevice->SetDepthStencilSurface(NULL);
+        }
 
-    if (!mDepthStencilInitialized || depthSize != mCurDepthSize)
-    {
-        mCurDepthSize = depthSize;
-        mForceSetRasterState = true;
-    }
+        if (!mDepthStencilInitialized || depthSize != mCurDepthSize)
+        {
+            mCurDepthSize = depthSize;
+            mForceSetRasterState = true;
+        }
 
-    if (!mDepthStencilInitialized || stencilSize != mCurStencilSize)
-    {
-        mCurStencilSize = stencilSize;
-        mForceSetDepthStencilState = true;
-    }
+        if (!mDepthStencilInitialized || stencilSize != mCurStencilSize)
+        {
+            mCurStencilSize = stencilSize;
+            mForceSetDepthStencilState = true;
+        }
 
-    mDepthStencilInitialized = true;
+        mAppliedDepthStencilSerial = depthStencilSerial;
+        mDepthStencilInitialized = true;
+    }
 
     if (renderTargetChanged || !mRenderTargetDescInitialized)
     {
@@ -1414,12 +1422,12 @@ gl::Error Renderer9::applyIndexBuffer(const GLvoid *indices, gl::Buffer *element
 
 void Renderer9::applyTransformFeedbackBuffers(const gl::State& state)
 {
-    UNREACHABLE();
+    ASSERT(!state.isTransformFeedbackActiveUnpaused());
 }
 
-gl::Error Renderer9::drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive, bool usesPointSize)
+gl::Error Renderer9::drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool usesPointSize)
 {
-    ASSERT(!transformFeedbackActive);
+    ASSERT(!data.state->isTransformFeedbackActiveUnpaused());
 
     startScene();
 
@@ -2176,11 +2184,8 @@ gl::Error Renderer9::clear(const gl::ClearParameters &clearParams, const gl::Fra
 
 void Renderer9::markAllStateDirty()
 {
-    // dirtyPointer is a special value that will make the comparison with any valid pointer fail and force the renderer to re-apply the state.
-    const uintptr_t dirtyPointer = -1;
-
-    mAppliedRenderTarget = dirtyPointer;
-    mAppliedDepthStencil = dirtyPointer;
+    mAppliedRenderTargetSerial = 0;
+    mAppliedDepthStencilSerial = 0;
     mDepthStencilInitialized = false;
     mRenderTargetDescInitialized = false;
 
@@ -2393,7 +2398,7 @@ bool Renderer9::resetRemovedDevice()
     // adapters and create another Direct3D device. If application continues rendering without
     // calling Reset, the rendering calls will succeed. Applies to Direct3D 9Ex only.
     release();
-    return (initialize() == EGL_SUCCESS);
+    return !initialize().isError();
 }
 
 VendorID Renderer9::getVendorId() const

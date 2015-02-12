@@ -49,9 +49,14 @@ class Display final
     std::vector<const Config*> getConfigs(const egl::AttributeMap &attribs) const;
     bool getConfigAttrib(const Config *configuration, EGLint attribute, EGLint *value);
 
-    Error createWindowSurface(EGLNativeWindowType window, const Config *configuration, const EGLint *attribList, EGLSurface *outSurface);
-    Error createOffscreenSurface(const Config *configuration, EGLClientBuffer shareHandle, const EGLint *attribList, EGLSurface *outSurface);
-    Error createContext(const Config *configuration, EGLContext shareContext, const egl::AttributeMap &attribs, EGLContext *outContext);
+    Error createWindowSurface(const Config *configuration, EGLNativeWindowType window, const AttributeMap &attribs,
+                              Surface **outSurface);
+    Error createOffscreenSurface(const Config *configuration, EGLClientBuffer shareHandle, const AttributeMap &attribs,
+                                 Surface **outSurface);
+    Error createContext(const Config *configuration, gl::Context *shareContext, const AttributeMap &attribs,
+                        gl::Context **outContext);
+
+    Error makeCurrent(egl::Surface *drawSurface, egl::Surface *readSurface, gl::Context *context);
 
     void destroySurface(egl::Surface *surface);
     void destroyContext(gl::Context *context);
@@ -73,6 +78,9 @@ class Display final
     const DisplayExtensions &getExtensions() const;
     const std::string &getExtensionString() const;
     const std::string &getVendorString() const;
+
+    const AttributeMap &getAttributeMap() const { return mAttributeMap; }
+    EGLNativeDisplayType getNativeDisplayId() const { return mDisplayId; }
 
   private:
     DISALLOW_COPY_AND_ASSIGN(Display);

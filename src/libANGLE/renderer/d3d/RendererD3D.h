@@ -9,10 +9,10 @@
 #ifndef LIBANGLE_RENDERER_D3D_RENDERERD3D_H_
 #define LIBANGLE_RENDERER_D3D_RENDERERD3D_H_
 
+#include "common/MemoryBuffer.h"
 #include "libANGLE/Data.h"
 #include "libANGLE/renderer/Renderer.h"
 #include "libANGLE/renderer/d3d/formatutilsD3D.h"
-#include "libANGLE/renderer/d3d/MemoryBuffer.h"
 #include "libANGLE/renderer/d3d/d3d11/NativeWindow.h"
 
 //FIXME(jmadill): std::array is currently prohibited by Chromium style guide
@@ -54,9 +54,9 @@ class RendererD3D : public Renderer
     explicit RendererD3D(egl::Display *display);
     virtual ~RendererD3D();
 
-    static RendererD3D *makeRendererD3D(Renderer *renderer);
+    virtual egl::Error initialize() = 0;
 
-    virtual EGLint initialize() = 0;
+    static RendererD3D *makeRendererD3D(Renderer *renderer);
 
     virtual egl::ConfigSet generateConfigs() const = 0;
 
@@ -168,7 +168,7 @@ class RendererD3D : public Renderer
     gl::Error getScratchMemoryBuffer(size_t requestedSize, MemoryBuffer **bufferOut);
 
   protected:
-    virtual gl::Error drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool transformFeedbackActive, bool usesPointSize) = 0;
+    virtual gl::Error drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool usesPointSize) = 0;
     virtual gl::Error drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,
                                    gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei instances) = 0;
 
@@ -190,8 +190,7 @@ class RendererD3D : public Renderer
 
     gl::Error applyRenderTarget(const gl::Data &data, GLenum drawMode, bool ignoreViewport);
     gl::Error applyState(const gl::Data &data, GLenum drawMode);
-    bool applyTransformFeedbackBuffers(const gl::Data &data);
-    gl::Error applyShaders(const gl::Data &data, bool transformFeedbackActive);
+    gl::Error applyShaders(const gl::Data &data);
     gl::Error applyTextures(const gl::Data &data, gl::SamplerType shaderType,
                             const FramebufferTextureSerialArray &framebufferSerials, size_t framebufferSerialCount);
     gl::Error applyTextures(const gl::Data &data);

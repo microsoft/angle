@@ -382,8 +382,10 @@
     <ClInclude Include="..\..\..\..\src\libANGLE\queryconversions.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\BufferImpl.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\CompilerImpl.h"/>
+    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\DefaultAttachmentImpl.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\DisplayImpl.h"/>
-    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\FenceImpl.h"/>
+    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\FenceNVImpl.h"/>
+    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\FenceSyncImpl.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\FramebufferImpl.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\IndexRangeCache.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\ProgramImpl.h"/>
@@ -396,6 +398,7 @@
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\TransformFeedbackImpl.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\VertexArrayImpl.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\Workarounds.h"/>
+    <ClInclude Include="..\..\..\..\src\libANGLE\validationEGL.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\validationES.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\validationES2.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\validationES3.h"/>
@@ -427,7 +430,6 @@
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\IndexBuffer.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\IndexDataManager.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\loadimage.h"/>
-    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\MemoryBuffer.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\ProgramD3D.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\RenderbufferD3D.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\RendererD3D.h"/>
@@ -561,6 +563,7 @@
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\RenderbufferImpl.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\Renderer.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\SurfaceImpl.cpp"/>
+    <ClCompile Include="..\..\..\..\src\libANGLE\validationEGL.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\validationES.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\validationES2.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\validationES3.cpp"/>
@@ -578,7 +581,6 @@
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\IndexDataManager.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\loadimage.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\loadimageSSE2.cpp"/>
-    <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\MemoryBuffer.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\ProgramD3D.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\RenderbufferD3D.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\RendererD3D.cpp"/>
