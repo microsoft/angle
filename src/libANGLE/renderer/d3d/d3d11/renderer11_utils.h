@@ -58,7 +58,7 @@ namespace d3d11
 {
 bool IsBackbuffer(ID3D11Resource* resource);
 
-void InvertYAxis(GLsizei renderTargetHeight, gl::Rectangle *outRect);
+int InvertYAxis(int renderTargetHeight, int rectTop, int rectHeight);
 
 void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsizei *requestHeight, int *levelOffset);
 

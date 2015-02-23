@@ -236,9 +236,20 @@ gl::Error Clear11::clearFramebuffer(const gl::ClearParameters &clearParams, cons
 
     gl::Rectangle actualScissor = clearParams.scissor;
 
-    if (mRenderer->isCurrentlyRenderingToBackBuffer())
+    if (colorAttachments.size() > 0)
     {
-        d3d11::InvertYAxis(framebufferSize.height, &actualScissor);
+        RenderTarget11 *renderTarget = NULL;
+        gl::Error error = d3d11::GetAttachmentRenderTarget(colorAttachments[0], &renderTarget);
+        if (error.isError())
+        {
+            return error;
+        }
+        ASSERT(renderTarget);
+
+        if (renderTarget->renderToBackBuffer())
+        {
+            actualScissor.y = d3d11::InvertYAxis(framebufferSize.height, actualScissor.y, actualScissor.height);
+        }
     }
 
     bool needScissoredClear = clearParams.scissorEnabled && (actualScissor.x > 0 || clearParams.scissor.y > 0 ||

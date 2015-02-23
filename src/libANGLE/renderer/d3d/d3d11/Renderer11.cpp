@@ -920,7 +920,7 @@ void Renderer11::setScissorRectangle(const gl::Rectangle &scissor, bool enabled)
 
             if (isCurrentlyRenderingToBackBuffer())
             {
-                d3d11::InvertYAxis(mRenderTargetDesc.height, &actualScissor);
+                actualScissor.y = d3d11::InvertYAxis(mRenderTargetDesc.height, actualScissor.y, actualScissor.height);
             }
 
             D3D11_RECT rect;
@@ -959,12 +959,6 @@ void Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
         actualZNear = 0.0f;
         actualZFar = 1.0f;
     }
-    else if (isCurrentlyRenderingToBackBuffer())
-    {
-        // When rendering directly to the swapchain backbuffer, we must invert the viewport in Y-axis.
-        // This is due to the differences between the D3D and GL window origins.
-        d3d11::InvertYAxis(mRenderTargetDesc.height, &actualViewport);
-    }
 
     bool viewportChanged = mForceSetViewport || memcmp(&actualViewport, &mCurViewport, sizeof(gl::Rectangle)) != 0 ||
                            actualZNear != mCurNear || actualZFar != mCurFar;
@@ -999,6 +993,15 @@ void Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
         dxViewport.Height =   static_cast<float>(dxViewportHeight);
         dxViewport.MinDepth = actualZNear;
         dxViewport.MaxDepth = actualZFar;
+
+        if (isCurrentlyRenderingToBackBuffer())
+        {
+            // When rendering directly to the swapchain backbuffer, we must invert the viewport in Y-axis.
+            // This is due to the differences between the D3D and GL window origins.
+            // NOTE: We delay the inversion until right before the call to RSSetViewports, and leave dxViewportTopLeftY unchanged.
+            // This allows us to calculate viewAdjust below (for Feature Level 9_3) using the unaltered dxViewportTopLeftY value.
+            dxViewport.TopLeftY = static_cast<float>(d3d11::InvertYAxis(mRenderTargetDesc.height, dxViewportTopLeftY, dxViewportHeight));
+        }
 
         mDeviceContext->RSSetViewports(1, &dxViewport);
 

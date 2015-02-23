@@ -195,11 +195,7 @@ TYPED_TEST(ViewportTest, FullWindowOffCenter)
 
     runNonScissoredTest();
 
-    swapBuffers();
-
     runScissoredTest();
-
-    swapBuffers();
 }
 
 TYPED_TEST(ViewportTest, DoubleWindow)

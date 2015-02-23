@@ -158,7 +158,7 @@ gl::Error Framebuffer11::readPixels(const gl::Rectangle &area, GLenum format, GL
 
     if (mRenderer->isCurrentlyRenderingToBackBuffer())
     {
-        d3d11::InvertYAxis(colorbuffer->getHeight(), &actualArea);
+        actualArea.y = d3d11::InvertYAxis(colorbuffer->getHeight(), actualArea.y, actualArea.height);
         actualPack.reverseRowOrder = !actualPack.reverseRowOrder;
     }
 

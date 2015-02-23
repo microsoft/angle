@@ -1089,9 +1089,9 @@ bool IsBackbuffer(ID3D11Resource *resource)
     return false;
 }
 
-void InvertYAxis(GLsizei renderTargetHeight, gl::Rectangle *outRect)
+int InvertYAxis(int renderTargetHeight, int rectTop, int rectHeight)
 {
-    outRect->y = renderTargetHeight - outRect->y - outRect->height;
+    return renderTargetHeight - rectTop - rectHeight;
 }
 
 void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsizei *requestHeight, int *levelOffset)
