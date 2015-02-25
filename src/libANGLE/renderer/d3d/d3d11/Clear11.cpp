@@ -236,7 +236,7 @@ gl::Error Clear11::clearFramebuffer(const gl::ClearParameters &clearParams, cons
 
     gl::Rectangle actualScissor = clearParams.scissor;
 
-    if (colorAttachments.size() > 0)
+    if (colorAttachments.size() > 0 && colorAttachments[0] != nullptr)
     {
         RenderTarget11 *renderTarget = NULL;
         gl::Error error = d3d11::GetAttachmentRenderTarget(colorAttachments[0], &renderTarget);
