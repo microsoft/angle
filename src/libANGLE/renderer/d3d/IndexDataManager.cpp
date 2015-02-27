@@ -108,7 +108,7 @@ gl::Error IndexDataManager::prepareIndexData(GLenum type, GLsizei count, gl::Buf
 
     StaticIndexBufferInterface *staticBuffer = storage ? storage->getStaticIndexBuffer() : NULL;
     IndexBufferInterface *indexBuffer = NULL;
-    bool directStorage = alignedOffset && storage && storage->supportsDirectBinding() &&
+    bool directStorage = alignedOffset && storage && storage->supportsDirectIndexBinding() &&
                          destinationIndexType == type;
     unsigned int streamOffset = 0;
 
@@ -162,7 +162,7 @@ gl::Error IndexDataManager::prepareIndexData(GLenum type, GLsizei count, gl::Buf
             }
             else
             {
-                storage->invalidateStaticData();
+                storage->invalidateStaticIndexData();
                 staticBuffer = NULL;
             }
         }
@@ -222,7 +222,7 @@ gl::Error IndexDataManager::prepareIndexData(GLenum type, GLsizei count, gl::Buf
 
     if (storage)
     {
-        storage->promoteStaticUsage(count * typeInfo.bytes);
+        storage->promoteStaticIndexUsage(count * typeInfo.bytes);
     }
 
     return gl::Error(GL_NO_ERROR);

@@ -59,7 +59,8 @@ class Buffer11 : public BufferD3D
 
     // BufferD3D implementation
     virtual size_t getSize() const { return mSize; }
-    virtual bool supportsDirectBinding() const;
+    virtual bool supportsDirectIndexBinding() const;
+    virtual bool supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &attrib);
     RendererD3D *getRenderer() override;
 
     // BufferImpl implementation

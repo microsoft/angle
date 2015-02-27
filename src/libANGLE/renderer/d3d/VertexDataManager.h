@@ -82,6 +82,9 @@ class VertexDataManager
 
     void hintUnmapAllResources(const gl::State &state);
 
+    void prepareStaticBufferForAttribute(const gl::VertexAttribute &attrib,
+                                         const gl::VertexAttribCurrentValueData &currentValue) const;
+
     RendererD3D *const mRenderer;
 
     StreamingVertexBufferInterface *mStreamingBuffer;

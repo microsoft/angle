@@ -188,7 +188,7 @@ gl::Error Buffer11::setData(const void *data, size_t size, GLenum usage)
 
     if (usage == GL_STATIC_DRAW)
     {
-        initializeStaticData();
+        enableStaticData();
     }
 
     return error;
@@ -282,7 +282,7 @@ gl::Error Buffer11::setSubData(const void *data, size_t size, size_t offset)
     }
 
     mSize = std::max(mSize, requiredSize);
-    invalidateStaticData();
+    invalidateStaticIndexData();
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -335,7 +335,7 @@ gl::Error Buffer11::copySubData(BufferImpl* source, GLintptr sourceOffset, GLint
     copyDest->setDataRevision(copyDest->getDataRevision() + 1);
 
     mSize = std::max<size_t>(mSize, destOffset + size);
-    invalidateStaticData();
+    invalidateStaticIndexData();
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -397,7 +397,7 @@ void Buffer11::markTransformFeedbackUsage()
         transformFeedbackStorage->setDataRevision(transformFeedbackStorage->getDataRevision() + 1);
     }
 
-    invalidateStaticData();
+    invalidateStaticIndexData();
 }
 
 void Buffer11::markBufferUsage()
@@ -620,12 +620,27 @@ Buffer11::PackStorage11 *Buffer11::getPackStorage()
     return static_cast<PackStorage11*>(packStorage);
 }
 
-bool Buffer11::supportsDirectBinding() const
+bool Buffer11::supportsDirectIndexBinding() const
 {
     // Do not support direct buffers for dynamic data. The streaming buffer
     // offers better performance for data which changes every frame.
     // Check for absence of static buffer interfaces to detect dynamic data.
-    return (mStaticVertexBuffer && mStaticIndexBuffer);
+    return (mStaticIndexBuffer != NULL);
+}
+
+bool Buffer11::supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &attrib)
+{
+    size_t attributeOffset = static_cast<size_t>(attrib.offset) % ComputeVertexAttributeStride(attrib);
+    AttribElement element = { attrib.type, attrib.size, ComputeVertexAttributeStride(attrib), attrib.normalized, attrib.pureInteger, attributeOffset };
+    StaticBufferIteratorType mapElement = mStaticVertexBufferForAttributeMap.find(element);
+
+    // If we've already created a StaticVertexBufferInterface for this attribute, then we return it
+    if (mapElement != mStaticVertexBufferForAttributeMap.end())
+    {
+        return true;
+    }
+
+    return false;
 }
 
 Buffer11::BufferStorage11::BufferStorage11(Renderer11 *renderer, BufferUsage usage)

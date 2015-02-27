@@ -91,22 +91,6 @@ void VertexDataManager::hintUnmapAllResources(const gl::State &state)
 
     for (int i = 0; i < gl::MAX_VERTEX_ATTRIBS; i++)
     {
-        const gl::VertexAttribute &attrib = state.getVertexAttribState(i);
-        if (attrib.enabled)
-        {
-            gl::Buffer *buffer = attrib.buffer.get();
-            BufferD3D *storage = buffer ? GetImplAs<BufferD3D>(buffer) : NULL;
-            StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBuffer() : NULL;
-
-            if (staticBuffer)
-            {
-                staticBuffer->getVertexBuffer()->hintUnmapResource();
-            }
-        }
-    }
-
-    for (int i = 0; i < gl::MAX_VERTEX_ATTRIBS; i++)
-    {
         if (mCurrentValueBuffer[i] != NULL)
         {
             mCurrentValueBuffer[i]->getVertexBuffer()->hintUnmapResource();
@@ -122,7 +106,6 @@ gl::Error VertexDataManager::prepareVertexData(const gl::State &state, GLint sta
         return gl::Error(GL_OUT_OF_MEMORY, "Internal streaming vertex buffer is unexpectedly NULL.");
     }
 
-    // Invalidate static buffers that don't contain matching attributes
     for (int attributeIndex = 0; attributeIndex < gl::MAX_VERTEX_ATTRIBS; attributeIndex++)
     {
         translated[attributeIndex].active = (state.getProgram()->getSemanticIndex(attributeIndex) != -1);
@@ -130,7 +113,7 @@ gl::Error VertexDataManager::prepareVertexData(const gl::State &state, GLint sta
 
         if (translated[attributeIndex].active && curAttrib.enabled)
         {
-            invalidateMatchingStaticData(curAttrib, state.getVertexAttribCurrentValue(attributeIndex));
+            prepareStaticBufferForAttribute(curAttrib, state.getVertexAttribCurrentValue(attributeIndex));
         }
     }
 
@@ -197,7 +180,7 @@ gl::Error VertexDataManager::prepareVertexData(const gl::State &state, GLint sta
             if (buffer)
             {
                 BufferD3D *bufferImpl = GetImplAs<BufferD3D>(buffer);
-                bufferImpl->promoteStaticUsage(count * ComputeVertexAttributeTypeSize(curAttrib));
+                bufferImpl->promoteStaticVertexUsageForAttrib(curAttrib, count * ComputeVertexAttributeTypeSize(curAttrib));
             }
         }
     }
@@ -205,23 +188,24 @@ gl::Error VertexDataManager::prepareVertexData(const gl::State &state, GLint sta
     return gl::Error(GL_NO_ERROR);
 }
 
-void VertexDataManager::invalidateMatchingStaticData(const gl::VertexAttribute &attrib,
-                                                     const gl::VertexAttribCurrentValueData &currentValue) const
+void VertexDataManager::prepareStaticBufferForAttribute(const gl::VertexAttribute &attrib,
+                                                        const gl::VertexAttribCurrentValueData &currentValue) const
 {
     gl::Buffer *buffer = attrib.buffer.get();
 
     if (buffer)
     {
         BufferD3D *bufferImpl = GetImplAs<BufferD3D>(buffer);
-        StaticVertexBufferInterface *staticBuffer = bufferImpl->getStaticVertexBuffer();
 
-        if (staticBuffer &&
-            staticBuffer->getBufferSize() > 0 &&
-            !staticBuffer->lookupAttribute(attrib, NULL) &&
-            !staticBuffer->directStoragePossible(attrib, currentValue))
-        {
-            bufferImpl->invalidateStaticData();
-        }
+        // This will create the static buffer in the right circumstances
+        StaticVertexBufferInterface *staticBuffer = bufferImpl->getStaticVertexBufferForAttribute(attrib);
+        UNUSED_ASSERTION_VARIABLE(staticBuffer);
+
+        // This check validates that a valid static vertex buffer was returned above
+        ASSERT(!(staticBuffer &&
+                 staticBuffer->getBufferSize() > 0 &&
+                 !staticBuffer->lookupAttribute(attrib, NULL) &&
+                 !staticBuffer->directStoragePossible(attrib, currentValue)));
     }
 }
 
@@ -232,7 +216,7 @@ gl::Error VertexDataManager::reserveSpaceForAttrib(const gl::VertexAttribute &at
 {
     gl::Buffer *buffer = attrib.buffer.get();
     BufferD3D *bufferImpl = buffer ? GetImplAs<BufferD3D>(buffer) : NULL;
-    StaticVertexBufferInterface *staticBuffer = bufferImpl ? bufferImpl->getStaticVertexBuffer() : NULL;
+    StaticVertexBufferInterface *staticBuffer = bufferImpl ? bufferImpl->getStaticVertexBufferForAttribute(attrib) : NULL;
     VertexBufferInterface *vertexBuffer = staticBuffer ? staticBuffer : static_cast<VertexBufferInterface*>(mStreamingBuffer);
 
     if (!vertexBuffer->directStoragePossible(attrib, currentValue))
@@ -276,7 +260,7 @@ gl::Error VertexDataManager::storeAttribute(const gl::VertexAttribute &attrib,
     ASSERT(buffer || attrib.pointer);
 
     BufferD3D *storage = buffer ? GetImplAs<BufferD3D>(buffer) : NULL;
-    StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBuffer() : NULL;
+    StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBufferForAttribute(attrib) : NULL;
     VertexBufferInterface *vertexBuffer = staticBuffer ? staticBuffer : static_cast<VertexBufferInterface*>(mStreamingBuffer);
     bool directStorage = vertexBuffer->directStoragePossible(attrib, currentValue);
 
@@ -307,6 +291,11 @@ gl::Error VertexDataManager::storeAttribute(const gl::VertexAttribute &attrib,
 
             error = staticBuffer->storeVertexAttributes(attrib, currentValue, -startIndex, totalCount,
                                                         0, &streamOffset);
+
+            // Each staticBuffer only contains the data for one attribute, so we know that it won't be modified again.
+            // We can therefore safely unmap it here without hurting perf.
+            staticBuffer->getVertexBuffer()->hintUnmapResource();
+
             if (error.isError())
             {
                 return error;

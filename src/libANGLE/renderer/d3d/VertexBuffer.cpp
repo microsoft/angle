@@ -169,7 +169,7 @@ bool VertexBufferInterface::directStoragePossible(const gl::VertexAttribute &att
     gl::Buffer *buffer = attrib.buffer.get();
     BufferD3D *storage = buffer ? GetImplAs<BufferD3D>(buffer) : NULL;
 
-    if (!storage || !storage->supportsDirectBinding())
+    if (!storage || !storage->supportsDirectVertexBindingForAttrib(attrib))
     {
         return false;
     }
