@@ -19,7 +19,6 @@ https://code.google.com/p/angleproject/
 Requirements
 =====
 * Visual Studio Community 2013 (Update 4), or higher/later.
-* Python 2.7 installed and added to the system PATH
 * Windows 8.1 for local Windows development.
 
 Getting Started

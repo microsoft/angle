@@ -225,9 +225,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="$(OutDir)obj\global_intermediate\angle\commit_id.py">
+    <CustomBuild Include="$(OutDir)obj\global_intermediate\angle\commit_id.bat">
       <FileType>Document</FileType>
-      <Command>call call python &quot;$(OutDir)obj\global_intermediate\angle\commit_id.py&quot; &quot;gen&quot; &quot;..&quot; &quot;$(OutDir)obj\global_intermediate\angle\id\commit.h&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Command>call call &quot;$(OutDir)obj\global_intermediate\angle\commit_id.bat&quot; &quot;gen&quot; &quot;..&quot; &quot;$(OutDir)obj\global_intermediate\angle\id\commit.h&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
       <Message>Generating ANGLE Commit ID</Message>
       <Outputs>$(OutDir)obj\global_intermediate\angle\id\commit.h</Outputs>
       <AdditionalInputs>..\.git\index</AdditionalInputs>
