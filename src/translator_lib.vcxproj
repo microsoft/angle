@@ -57,13 +57,13 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4075;4100;4127;4239;4244;4245;4251;4264;4267;4447;4512;4530;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -91,7 +91,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -102,13 +102,13 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4075;4100;4127;4239;4244;4245;4251;4264;4267;4447;4512;4530;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -136,7 +136,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,13 +146,13 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4075;4100;4127;4239;4244;4245;4251;4264;4267;4447;4512;4530;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -180,7 +180,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -190,13 +190,13 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4075;4100;4127;4239;4244;4245;4251;4264;4267;4447;4512;4530;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -224,7 +224,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -249,12 +249,10 @@
     <ClInclude Include="compiler\translator\BaseTypes.h"/>
     <ClInclude Include="compiler\translator\BuiltInFunctionEmulator.h"/>
     <ClInclude Include="compiler\translator\BuiltInFunctionEmulatorGLSL.h"/>
-    <ClInclude Include="compiler\translator\BuiltInFunctionEmulatorHLSL.h"/>
     <ClInclude Include="compiler\translator\Common.h"/>
     <ClInclude Include="compiler\translator\Compiler.h"/>
     <ClInclude Include="compiler\translator\ConstantUnion.h"/>
     <ClInclude Include="compiler\translator\DetectCallDepth.h"/>
-    <ClInclude Include="compiler\translator\DetectDiscontinuity.h"/>
     <ClInclude Include="compiler\translator\Diagnostics.h"/>
     <ClInclude Include="compiler\translator\DirectiveHandler.h"/>
     <ClInclude Include="compiler\translator\EmulatePrecision.h"/>
@@ -268,36 +266,31 @@
     <ClInclude Include="compiler\translator\InitializeGlobals.h"/>
     <ClInclude Include="compiler\translator\InitializeParseContext.h"/>
     <ClInclude Include="compiler\translator\InitializeVariables.h"/>
-    <ClInclude Include="compiler\translator\Intermediate.h"/>
     <ClInclude Include="compiler\translator\IntermNode.h"/>
+    <ClInclude Include="compiler\translator\Intermediate.h"/>
     <ClInclude Include="compiler\translator\LoopInfo.h"/>
     <ClInclude Include="compiler\translator\MMap.h"/>
     <ClInclude Include="compiler\translator\NodeSearch.h"/>
+    <ClInclude Include="compiler\translator\Operator.h"/>
     <ClInclude Include="compiler\translator\OutputESSL.h"/>
     <ClInclude Include="compiler\translator\OutputGLSL.h"/>
     <ClInclude Include="compiler\translator\OutputGLSLBase.h"/>
-    <ClInclude Include="compiler\translator\OutputHLSL.h"/>
     <ClInclude Include="compiler\translator\ParseContext.h"/>
     <ClInclude Include="compiler\translator\PoolAlloc.h"/>
     <ClInclude Include="compiler\translator\Pragma.h"/>
     <ClInclude Include="compiler\translator\QualifierAlive.h"/>
     <ClInclude Include="compiler\translator\RegenerateStructNames.h"/>
     <ClInclude Include="compiler\translator\RenameFunction.h"/>
-    <ClInclude Include="compiler\translator\RewriteElseBlocks.h"/>
     <ClInclude Include="compiler\translator\ScalarizeVecAndMatConstructorArgs.h"/>
     <ClInclude Include="compiler\translator\SearchSymbol.h"/>
-    <ClInclude Include="compiler\translator\StructureHLSL.h"/>
     <ClInclude Include="compiler\translator\SymbolTable.h"/>
     <ClInclude Include="compiler\translator\TranslatorESSL.h"/>
     <ClInclude Include="compiler\translator\TranslatorGLSL.h"/>
-    <ClInclude Include="compiler\translator\TranslatorHLSL.h"/>
     <ClInclude Include="compiler\translator\Types.h"/>
-    <ClInclude Include="compiler\translator\UnfoldShortCircuit.h"/>
     <ClInclude Include="compiler\translator\UnfoldShortCircuitAST.h"/>
-    <ClInclude Include="compiler\translator\UniformHLSL.h"/>
-    <ClInclude Include="compiler\translator\UtilsHLSL.h"/>
     <ClInclude Include="compiler\translator\ValidateLimitations.h"/>
     <ClInclude Include="compiler\translator\ValidateOutputs.h"/>
+    <ClInclude Include="compiler\translator\ValidateSwitch.h"/>
     <ClInclude Include="compiler\translator\VariableInfo.h"/>
     <ClInclude Include="compiler\translator\VariablePacker.h"/>
     <ClInclude Include="compiler\translator\VersionGLSL.h"/>
@@ -314,15 +307,24 @@
     <ClInclude Include="compiler\translator\timing\RestrictVertexShaderTiming.h"/>
     <ClInclude Include="compiler\translator\util.h"/>
     <ClInclude Include="third_party\compiler\ArrayBoundsClamper.h"/>
+    <ClInclude Include="compiler\translator\blocklayoutHLSL.h"/>
+    <ClInclude Include="compiler\translator\BuiltInFunctionEmulatorHLSL.h"/>
+    <ClInclude Include="compiler\translator\DetectDiscontinuity.h"/>
+    <ClInclude Include="compiler\translator\OutputHLSL.h"/>
+    <ClInclude Include="compiler\translator\RemoveSwitchFallThrough.h"/>
+    <ClInclude Include="compiler\translator\RewriteElseBlocks.h"/>
+    <ClInclude Include="compiler\translator\StructureHLSL.h"/>
+    <ClInclude Include="compiler\translator\TranslatorHLSL.h"/>
+    <ClInclude Include="compiler\translator\UnfoldShortCircuit.h"/>
+    <ClInclude Include="compiler\translator\UniformHLSL.h"/>
+    <ClInclude Include="compiler\translator\UtilsHLSL.h"/>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compiler\translator\BuiltInFunctionEmulator.cpp"/>
     <ClCompile Include="compiler\translator\BuiltInFunctionEmulatorGLSL.cpp"/>
-    <ClCompile Include="compiler\translator\BuiltInFunctionEmulatorHLSL.cpp"/>
     <ClCompile Include="compiler\translator\CodeGen.cpp"/>
     <ClCompile Include="compiler\translator\Compiler.cpp"/>
     <ClCompile Include="compiler\translator\DetectCallDepth.cpp"/>
-    <ClCompile Include="compiler\translator\DetectDiscontinuity.cpp"/>
     <ClCompile Include="compiler\translator\Diagnostics.cpp"/>
     <ClCompile Include="compiler\translator\DirectiveHandler.cpp"/>
     <ClCompile Include="compiler\translator\EmulatePrecision.cpp"/>
@@ -333,33 +335,28 @@
     <ClCompile Include="compiler\translator\InitializeDll.cpp"/>
     <ClCompile Include="compiler\translator\InitializeParseContext.cpp"/>
     <ClCompile Include="compiler\translator\InitializeVariables.cpp"/>
+    <ClCompile Include="compiler\translator\IntermNode.cpp"/>
     <ClCompile Include="compiler\translator\IntermTraverse.cpp"/>
     <ClCompile Include="compiler\translator\Intermediate.cpp"/>
-    <ClCompile Include="compiler\translator\IntermNode.cpp"/>
     <ClCompile Include="compiler\translator\LoopInfo.cpp"/>
+    <ClCompile Include="compiler\translator\Operator.cpp"/>
     <ClCompile Include="compiler\translator\OutputESSL.cpp"/>
     <ClCompile Include="compiler\translator\OutputGLSL.cpp"/>
     <ClCompile Include="compiler\translator\OutputGLSLBase.cpp"/>
-    <ClCompile Include="compiler\translator\OutputHLSL.cpp"/>
     <ClCompile Include="compiler\translator\ParseContext.cpp"/>
     <ClCompile Include="compiler\translator\PoolAlloc.cpp"/>
     <ClCompile Include="compiler\translator\QualifierAlive.cpp"/>
     <ClCompile Include="compiler\translator\RegenerateStructNames.cpp"/>
-    <ClCompile Include="compiler\translator\RewriteElseBlocks.cpp"/>
     <ClCompile Include="compiler\translator\ScalarizeVecAndMatConstructorArgs.cpp"/>
     <ClCompile Include="compiler\translator\SearchSymbol.cpp"/>
-    <ClCompile Include="compiler\translator\StructureHLSL.cpp"/>
     <ClCompile Include="compiler\translator\SymbolTable.cpp"/>
     <ClCompile Include="compiler\translator\TranslatorESSL.cpp"/>
     <ClCompile Include="compiler\translator\TranslatorGLSL.cpp"/>
-    <ClCompile Include="compiler\translator\TranslatorHLSL.cpp"/>
     <ClCompile Include="compiler\translator\Types.cpp"/>
-    <ClCompile Include="compiler\translator\UnfoldShortCircuit.cpp"/>
     <ClCompile Include="compiler\translator\UnfoldShortCircuitAST.cpp"/>
-    <ClCompile Include="compiler\translator\UniformHLSL.cpp"/>
-    <ClCompile Include="compiler\translator\UtilsHLSL.cpp"/>
     <ClCompile Include="compiler\translator\ValidateLimitations.cpp"/>
     <ClCompile Include="compiler\translator\ValidateOutputs.cpp"/>
+    <ClCompile Include="compiler\translator\ValidateSwitch.cpp"/>
     <ClCompile Include="compiler\translator\VariableInfo.cpp"/>
     <ClCompile Include="compiler\translator\VariablePacker.cpp"/>
     <ClCompile Include="compiler\translator\VersionGLSL.cpp"/>
@@ -377,6 +374,17 @@
     <ClCompile Include="compiler\translator\timing\RestrictVertexShaderTiming.cpp"/>
     <ClCompile Include="compiler\translator\util.cpp"/>
     <ClCompile Include="third_party\compiler\ArrayBoundsClamper.cpp"/>
+    <ClCompile Include="compiler\translator\blocklayoutHLSL.cpp"/>
+    <ClCompile Include="compiler\translator\BuiltInFunctionEmulatorHLSL.cpp"/>
+    <ClCompile Include="compiler\translator\DetectDiscontinuity.cpp"/>
+    <ClCompile Include="compiler\translator\OutputHLSL.cpp"/>
+    <ClCompile Include="compiler\translator\RemoveSwitchFallThrough.cpp"/>
+    <ClCompile Include="compiler\translator\RewriteElseBlocks.cpp"/>
+    <ClCompile Include="compiler\translator\StructureHLSL.cpp"/>
+    <ClCompile Include="compiler\translator\TranslatorHLSL.cpp"/>
+    <ClCompile Include="compiler\translator\UnfoldShortCircuit.cpp"/>
+    <ClCompile Include="compiler\translator\UniformHLSL.cpp"/>
+    <ClCompile Include="compiler\translator\UtilsHLSL.cpp"/>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
   <ImportGroup Label="ExtensionTargets"/>

@@ -427,6 +427,12 @@
     <Filter Include="src\libANGLE">
       <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\libANGLE\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
@@ -702,6 +708,12 @@
     </Filter>
     <Filter Include="src\third_party\murmurhash">
       <UniqueIdentifier>{FBF5769C-D63C-9100-0719-0B97CE76B013}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{57CA55B8-BCC5-4000-CE3A-58972F82E9CB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{57CA55B8-BCC5-4000-CE3A-58972F82E9CB}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{57CA55B8-BCC5-4000-CE3A-58972F82E9CB}</UniqueIdentifier>
@@ -777,6 +789,9 @@
     </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{57CA55B8-BCC5-4000-CE3A-58972F82E9CB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\platform">
+      <UniqueIdentifier>{F040E8BA-F77A-8B19-E764-5FC5D53C4EF0}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -3408,6 +3423,9 @@
     <ClCompile Include="..\..\..\..\src\libANGLE\ImageIndex.cpp">
       <Filter>src\libANGLE</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\libANGLE\Platform.cpp">
+      <Filter>src\libANGLE</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\libANGLE\Program.cpp">
       <Filter>src\libANGLE</Filter>
     </ClCompile>
@@ -3615,6 +3633,12 @@
     <ClInclude Include="..\..\..\..\src\third_party\murmurhash\MurmurHash3.h">
       <Filter>src\third_party\murmurhash</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\angle_gl.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\export.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\include\EGL\egl.h">
       <Filter>include\EGL</Filter>
     </ClInclude>
@@ -3651,8 +3675,8 @@
     <ClInclude Include="..\..\..\..\include\KHR\khrplatform.h">
       <Filter>include\KHR</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\angle_gl.h">
-      <Filter>include</Filter>
+    <ClInclude Include="..\..\..\..\include\platform\Platform.h">
+      <Filter>include\platform</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\BufferD3D.cpp">
       <Filter>src\libANGLE\renderer\d3d</Filter>
