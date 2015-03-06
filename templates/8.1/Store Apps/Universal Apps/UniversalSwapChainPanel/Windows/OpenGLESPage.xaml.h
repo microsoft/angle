@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "OpenGLES.h"
 #include "OpenGLESPage.g.h"
 
 namespace $ext_safeprojectname$

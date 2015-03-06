@@ -2,12 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)pch.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)HelloTriangleRenderer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)SimpleRenderer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MathHelper.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)OpenGLES.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)pch.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)HelloTriangleRenderer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)SimpleRenderer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)OpenGLES.cpp" />
   </ItemGroup>
   <ItemGroup>

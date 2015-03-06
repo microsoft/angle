@@ -20,8 +20,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClInclude Include="$(MSBuildThisFileDirectory)HelloTriangleRenderer.h" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)HelloTriangleRenderer.cpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)SimpleRenderer.h" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)SimpleRenderer.cpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MathHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectCapability Include="SourceItemsFromImports" />

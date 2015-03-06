@@ -3,7 +3,7 @@
 #include <string>
 
 #include "pch.h"
-#include "HelloTriangleRenderer.h"
+#include "SimpleRenderer.h"
 
 namespace $ext_safeprojectname$
 {
@@ -43,7 +43,7 @@ namespace $ext_safeprojectname$
         EGLContext mEglContext;
         EGLSurface mEglSurface;
 
-        std::unique_ptr<HelloTriangleRenderer> mTriangleRenderer;
+        std::unique_ptr<SimpleRenderer> mCubeRenderer;
         Windows::Foundation::Size mCustomRenderSurfaceSize;
         bool mUseCustomRenderSurfaceSize;
     };

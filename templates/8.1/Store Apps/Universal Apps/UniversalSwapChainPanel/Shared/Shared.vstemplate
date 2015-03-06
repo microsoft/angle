@@ -16,8 +16,9 @@
         <ProjectItem ReplaceParameters="true" TargetFileName="$ext_projectname$.Shared.vcxitems.filters">Shared.Application.Shared.vcxitems.filters</ProjectItem>
         <ProjectItem ReplaceParameters="false" TargetFileName="pch.cpp">pch.cpp</ProjectItem>
         <ProjectItem ReplaceParameters="false" TargetFileName="pch.h">pch.h</ProjectItem>
-        <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="HelloTriangleRenderer.cpp">HelloTriangleRenderer.cpp</ProjectItem>
-        <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="HelloTriangleRenderer.h">HelloTriangleRenderer.h</ProjectItem>
+        <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="SimpleRenderer.cpp">SimpleRenderer.cpp</ProjectItem>
+        <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="SimpleRenderer.h">SimpleRenderer.h</ProjectItem>
+        <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="MathHelper.h">MathHelper.h</ProjectItem>
         <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="App.xaml">App.xaml</ProjectItem>
         <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="App.xaml.cpp">App.xaml.cpp</ProjectItem>
         <ProjectItem OpenInEditor="false" ReplaceParameters="true" TargetFileName="App.xaml.h">App.xaml.h</ProjectItem>

@@ -4,20 +4,20 @@
     <Description>A project for a universal app for Windows and Windows Phone, that uses the Windows Runtime and is written for OpenGL ES.</Description>
     <Icon>__TemplateIcon.ico</Icon>
     <ProjectType>VC</ProjectType>
-	<PreviewImage>preview.png</PreviewImage>
-	<DefaultName>AppForOpenGLES</DefaultName>
+    <PreviewImage>preview.png</PreviewImage>
+    <DefaultName>AppForOpenGLES</DefaultName>
   </TemplateData>
   <TemplateContent>
         <ProjectCollection>
-			<ProjectTemplateLink ProjectName="$projectname$.Shared" CopyParameters="true">
-			  Shared\Shared.vstemplate
-			</ProjectTemplateLink>
-			<ProjectTemplateLink ProjectName="$projectname$.Windows" CopyParameters="true">
-			  Windows\Windows.vstemplate
-			</ProjectTemplateLink>
-			<ProjectTemplateLink ProjectName="$projectname$.WindowsPhone" CopyParameters="true">
-			  WindowsPhone\WindowsPhone.vstemplate
-			</ProjectTemplateLink>
+            <ProjectTemplateLink ProjectName="$projectname$.Shared" CopyParameters="true">
+              Shared\Shared.vstemplate
+            </ProjectTemplateLink>
+            <ProjectTemplateLink ProjectName="$projectname$.Windows" CopyParameters="true">
+              Windows\Windows.vstemplate
+            </ProjectTemplateLink>
+            <ProjectTemplateLink ProjectName="$projectname$.WindowsPhone" CopyParameters="true">
+              WindowsPhone\WindowsPhone.vstemplate
+            </ProjectTemplateLink>
         </ProjectCollection>
   </TemplateContent>
 </VSTemplate>

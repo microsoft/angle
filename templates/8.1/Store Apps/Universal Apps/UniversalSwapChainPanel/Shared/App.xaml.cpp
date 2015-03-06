@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "OpenGLESPage.xaml.h"
+#include "App.xaml.h"
 
 using namespace $ext_safeprojectname$;
 

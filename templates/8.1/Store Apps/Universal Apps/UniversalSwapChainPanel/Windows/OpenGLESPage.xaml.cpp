@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "OpenGLESPage.xaml.h"
+#include "SimpleRenderer.h"
 
 using namespace $ext_safeprojectname$;
 using namespace Platform;
@@ -94,7 +95,7 @@ void OpenGLESPage::GetSwapChainPanelSize(GLsizei* width, GLsizei* height)
 
 void OpenGLESPage::CreateRenderSurface()
 {
-    if (mOpenGLES)
+    if (mOpenGLES && mRenderSurface == EGL_NO_SURFACE)
     {
         //
         // A Custom render surface size can be specified by uncommenting the following lines.
@@ -149,7 +150,7 @@ void OpenGLESPage::StartRenderLoop()
         critical_section::scoped_lock lock(mRenderSurfaceCriticalSection);
 
         mOpenGLES->MakeCurrent(mRenderSurface);
-        HelloTriangleRenderer renderer;
+        SimpleRenderer renderer;
 
         while (action->Status == Windows::Foundation::AsyncStatus::Started)
         {
@@ -157,7 +158,8 @@ void OpenGLESPage::StartRenderLoop()
             GLsizei panelHeight = 0;
 
             GetSwapChainPanelSize(&panelWidth, &panelHeight);
-            renderer.Draw(panelWidth, panelHeight);
+            renderer.UpdateWindowSize(panelWidth, panelHeight);
+            renderer.Draw();
 
             // The call to eglSwapBuffers might not be successful (i.e. due to Device Lost)
             // If the call fails, then we must reinitialize EGL and the GL resources.

@@ -4,7 +4,7 @@
 
 #include "pch.h"
 #include "app.h"
-#include "HelloTriangleRenderer.h"
+#include "SimpleRenderer.h"
 
 using namespace Windows::ApplicationModel::Core;
 using namespace Windows::ApplicationModel::Activation;
@@ -26,7 +26,7 @@ inline float ConvertDipsToPixels(float dips, float dpi)
 }
 
 // Implementation of the IFrameworkViewSource interface, necessary to run our app.
-ref class HelloTriangleApplicationSource sealed : Windows::ApplicationModel::Core::IFrameworkViewSource
+ref class SimpleApplicationSource sealed : Windows::ApplicationModel::Core::IFrameworkViewSource
 {
 public:
     virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView()
@@ -39,8 +39,8 @@ public:
 [Platform::MTAThread]
 int main(Platform::Array<Platform::String^>^)
 {
-    auto helloTriangleApplicationSource = ref new HelloTriangleApplicationSource();
-    CoreApplication::Run(helloTriangleApplicationSource);
+    auto simpleApplicationSource = ref new SimpleApplicationSource();
+    CoreApplication::Run(simpleApplicationSource);
     return 0;
 }
 
@@ -103,10 +103,10 @@ void App::Load(Platform::String^ entryPoint)
 
 void App::RecreateRenderer()
 {
-    if (!mTriangleRenderer)
+    if (!mCubeRenderer)
     {
-        mTriangleRenderer.reset(new HelloTriangleRenderer());
-        mTriangleRenderer->UpdateWindowSize(mWindowWidth, mWindowHeight);
+        mCubeRenderer.reset(new SimpleRenderer());
+        mCubeRenderer->UpdateWindowSize(mWindowWidth, mWindowHeight);
     }
 }
 
@@ -120,13 +120,13 @@ void App::Run()
             CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
             // Logic to update the scene could go here
-            mTriangleRenderer->Draw();
+            mCubeRenderer->Draw();
 
             // The call to eglSwapBuffers might not be successful (e.g. due to Device Lost)
             // If the call fails, then we must reinitialize EGL and the GL resources.
             if (eglSwapBuffers(mEglDisplay, mEglSurface) != GL_TRUE)
             {
-                mTriangleRenderer.reset(nullptr);
+                mCubeRenderer.reset(nullptr);
                 CleanupEGL();
 
                 InitializeEGL(CoreWindow::GetForCurrentThread());
@@ -377,9 +377,9 @@ void App::UpdateWindowSize(Size size)
     mWindowWidth = static_cast<GLsizei>(pixelSize.Width);
     mWindowHeight = static_cast<GLsizei>(pixelSize.Height);
 
-    // mTriangleRenderer might not have been initialized yet.
-    if (mTriangleRenderer)
+    // mCubeRenderer might not have been initialized yet.
+    if (mCubeRenderer)
     {
-        mTriangleRenderer->UpdateWindowSize(mWindowWidth, mWindowHeight);
+        mCubeRenderer->UpdateWindowSize(mWindowWidth, mWindowHeight);
     }
 }
