@@ -9,7 +9,6 @@
 #ifndef LIBANGLE_RENDERER_D3D_D3D11_BUFFER11_H_
 #define LIBANGLE_RENDERER_D3D_D3D11_BUFFER11_H_
 
-#include "common/MemoryBuffer.h"
 #include "libANGLE/angletypes.h"
 #include "libANGLE/renderer/d3d/BufferD3D.h"
 
@@ -25,6 +24,7 @@ enum BufferUsage
     BUFFER_USAGE_PIXEL_UNPACK,
     BUFFER_USAGE_PIXEL_PACK,
     BUFFER_USAGE_UNIFORM,
+    BUFFER_USAGE_SYSTEM_MEMORY,
 };
 
 struct PackPixelsParams
@@ -75,30 +75,31 @@ class Buffer11 : public BufferD3D
   private:
     DISALLOW_COPY_AND_ASSIGN(Buffer11);
 
-    class BufferStorage11;
-    class NativeBuffer11;
-    class PackStorage11;
+    class BufferStorage;
+    class NativeStorage;
+    class PackStorage;
+    class SystemMemoryStorage;
 
     Renderer11 *mRenderer;
     size_t mSize;
 
-    BufferStorage11 *mMappedStorage;
+    BufferStorage *mMappedStorage;
 
-    std::map<BufferUsage, BufferStorage11*> mBufferStorages;
+    std::map<BufferUsage, BufferStorage*> mBufferStorages;
 
     typedef std::pair<ID3D11Buffer *, ID3D11ShaderResourceView *> BufferSRVPair;
     std::map<DXGI_FORMAT, BufferSRVPair> mBufferResourceViews;
 
-    MemoryBuffer mResolvedData;
-    DataRevision mResolvedDataRevision;
     unsigned int mReadUsageCount;
+    bool mHasSystemMemoryStorage;
 
     void markBufferUsage();
-    NativeBuffer11 *getStagingBuffer();
-    PackStorage11 *getPackStorage();
+    NativeStorage *getStagingStorage();
+    PackStorage *getPackStorage();
+    gl::Error getSystemMemoryStorage(SystemMemoryStorage **storageOut);
 
-    BufferStorage11 *getBufferStorage(BufferUsage usage);
-    BufferStorage11 *getLatestBufferStorage() const;
+    BufferStorage *getBufferStorage(BufferUsage usage);
+    BufferStorage *getLatestBufferStorage() const;
 };
 
 }

@@ -23,6 +23,8 @@
         ],
         'libangle_includes':
         [
+            '../include/angle_gl.h',
+            '../include/export.h',
             '../include/EGL/egl.h',
             '../include/EGL/eglext.h',
             '../include/EGL/eglplatform.h',
@@ -35,7 +37,7 @@
             '../include/GLSLANG/ShaderLang.h',
             '../include/GLSLANG/ShaderVars.h',
             '../include/KHR/khrplatform.h',
-            '../include/angle_gl.h',
+            '../include/platform/Platform.h',
         ],
         'libangle_sources':
         [
@@ -74,6 +76,7 @@
             'libANGLE/HandleAllocator.h',
             'libANGLE/ImageIndex.h',
             'libANGLE/ImageIndex.cpp',
+            'libANGLE/Platform.cpp',
             'libANGLE/Program.cpp',
             'libANGLE/Program.h',
             'libANGLE/Query.cpp',
@@ -359,6 +362,62 @@
             'libANGLE/renderer/d3d/d3d11/winrt/InspectableNativeWindow.cpp',
             'libANGLE/renderer/d3d/d3d11/winrt/InspectableNativeWindow.h',
         ],
+        'libangle_gl_sources':
+        [
+            'libANGLE/renderer/gl/BufferGL.cpp',
+            'libANGLE/renderer/gl/BufferGL.h',
+            'libANGLE/renderer/gl/CompilerGL.cpp',
+            'libANGLE/renderer/gl/CompilerGL.h',
+            'libANGLE/renderer/gl/DefaultAttachmentGL.cpp',
+            'libANGLE/renderer/gl/DefaultAttachmentGL.h',
+            'libANGLE/renderer/gl/DisplayGL.cpp',
+            'libANGLE/renderer/gl/DisplayGL.h',
+            'libANGLE/renderer/gl/FenceNVGL.cpp',
+            'libANGLE/renderer/gl/FenceNVGL.h',
+            'libANGLE/renderer/gl/FenceSyncGL.cpp',
+            'libANGLE/renderer/gl/FenceSyncGL.h',
+            'libANGLE/renderer/gl/FramebufferGL.cpp',
+            'libANGLE/renderer/gl/FramebufferGL.h',
+            'libANGLE/renderer/gl/FunctionsGL.cpp',
+            'libANGLE/renderer/gl/FunctionsGL.h',
+            'libANGLE/renderer/gl/ProgramGL.cpp',
+            'libANGLE/renderer/gl/ProgramGL.h',
+            'libANGLE/renderer/gl/QueryGL.cpp',
+            'libANGLE/renderer/gl/QueryGL.h',
+            'libANGLE/renderer/gl/RenderbufferGL.cpp',
+            'libANGLE/renderer/gl/RenderbufferGL.h',
+            'libANGLE/renderer/gl/RendererGL.cpp',
+            'libANGLE/renderer/gl/RendererGL.h',
+            'libANGLE/renderer/gl/ShaderGL.cpp',
+            'libANGLE/renderer/gl/ShaderGL.h',
+            'libANGLE/renderer/gl/StateManagerGL.cpp',
+            'libANGLE/renderer/gl/StateManagerGL.h',
+            'libANGLE/renderer/gl/SurfaceGL.cpp',
+            'libANGLE/renderer/gl/SurfaceGL.h',
+            'libANGLE/renderer/gl/TextureGL.cpp',
+            'libANGLE/renderer/gl/TextureGL.h',
+            'libANGLE/renderer/gl/TransformFeedbackGL.cpp',
+            'libANGLE/renderer/gl/TransformFeedbackGL.h',
+            'libANGLE/renderer/gl/VertexArrayGL.cpp',
+            'libANGLE/renderer/gl/VertexArrayGL.h',
+            'libANGLE/renderer/gl/functionsgl_enums.h',
+            'libANGLE/renderer/gl/functionsgl_typedefs.h',
+            'libANGLE/renderer/gl/renderergl_utils.cpp',
+            'libANGLE/renderer/gl/renderergl_utils.h',
+        ],
+        'libangle_gl_wgl_sources':
+        [
+            'libANGLE/renderer/gl/wgl/DisplayWGL.cpp',
+            'libANGLE/renderer/gl/wgl/DisplayWGL.h',
+            'libANGLE/renderer/gl/wgl/FunctionsWGL.cpp',
+            'libANGLE/renderer/gl/wgl/FunctionsWGL.h',
+            'libANGLE/renderer/gl/wgl/SurfaceWGL.cpp',
+            'libANGLE/renderer/gl/wgl/SurfaceWGL.h',
+            'libANGLE/renderer/gl/wgl/functionswgl_typedefs.h',
+            'libANGLE/renderer/gl/wgl/wgl_utils.cpp',
+            'libANGLE/renderer/gl/wgl/wgl_utils.h',
+            'third_party/khronos/GL/wglext.h',
+        ],
         'libglesv2_sources':
         [
             'common/angleutils.h',
@@ -375,7 +434,6 @@
             'libGLESv2/entry_points_gles_3_0.h',
             'libGLESv2/entry_points_gles_3_0_ext.cpp',
             'libGLESv2/entry_points_gles_3_0_ext.h',
-            'libGLESv2/export.h',
             'libGLESv2/global_state.cpp',
             'libGLESv2/global_state.h',
             'libGLESv2/libGLESv2.cpp',
@@ -409,6 +467,7 @@
             [
                 '.',
                 '../include',
+                'third_party/khronos',
             ],
             'sources':
             [
@@ -451,6 +510,13 @@
                         'defines':
                         [
                             'ANGLE_ENABLE_D3D11',
+                        ],
+                    }],
+                    ['angle_enable_gl==1',
+                    {
+                        'defines':
+                        [
+                            'ANGLE_ENABLE_OPENGL',
                         ],
                     }],
                 ],
@@ -539,6 +605,27 @@
                             'sources':
                             [
                                 '<@(libangle_d3d11_win32_sources)',
+                            ],
+                        }],
+                    ],
+                }],
+                ['angle_enable_gl==1',
+                {
+                    'sources':
+                    [
+                        '<@(libangle_gl_sources)',
+                    ],
+                    'defines':
+                    [
+                        'ANGLE_ENABLE_OPENGL',
+                    ],
+                    'conditions':
+                    [
+                        ['OS=="win"',
+                        {
+                            'sources':
+                            [
+                                '<@(libangle_gl_wgl_sources)',
                             ],
                         }],
                     ],

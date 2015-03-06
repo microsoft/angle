@@ -12,11 +12,13 @@
 
 #include "common/angleutils.h"
 #include "common/utilities.h"
+#include "compiler/translator/BuiltInFunctionEmulator.h"
 #include "compiler/translator/BuiltInFunctionEmulatorHLSL.h"
 #include "compiler/translator/DetectDiscontinuity.h"
 #include "compiler/translator/FlagStd140Structs.h"
 #include "compiler/translator/InfoSink.h"
 #include "compiler/translator/NodeSearch.h"
+#include "compiler/translator/RemoveSwitchFallThrough.h"
 #include "compiler/translator/RewriteElseBlocks.h"
 #include "compiler/translator/SearchSymbol.h"
 #include "compiler/translator/StructureHLSL.h"
@@ -95,12 +97,21 @@ bool OutputHLSL::TextureFunction::operator<(const TextureFunction &rhs) const
     return false;
 }
 
-OutputHLSL::OutputHLSL(TParseContext &context, TranslatorHLSL *parentTranslator)
+OutputHLSL::OutputHLSL(sh::GLenum shaderType, int shaderVersion,
+    const TExtensionBehavior &extensionBehavior,
+    const char *sourcePath, ShShaderOutput outputType,
+    int numRenderTargets, const std::vector<Uniform> &uniforms,
+    int compileOptions)
     : TIntermTraverser(true, true, true),
-      mContext(context),
-      mOutputType(parentTranslator->getOutputType())
+      mShaderType(shaderType),
+      mShaderVersion(shaderVersion),
+      mExtensionBehavior(extensionBehavior),
+      mSourcePath(sourcePath),
+      mOutputType(outputType),
+      mNumRenderTargets(numRenderTargets),
+      mCompileOptions(compileOptions)
 {
-    mUnfoldShortCircuit = new UnfoldShortCircuit(context, this);
+    mUnfoldShortCircuit = new UnfoldShortCircuit(this);
     mInsideFunction = false;
 
     mUsesFragColor = false;
@@ -116,9 +127,6 @@ OutputHLSL::OutputHLSL(TParseContext &context, TranslatorHLSL *parentTranslator)
     mUsesDiscardRewriting = false;
     mUsesNestedBreak = false;
 
-    const ShBuiltInResources &resources = parentTranslator->getResources();
-    mNumRenderTargets = resources.EXT_draw_buffers ? resources.MaxDrawBuffers : 1;
-
     mUniqueIndex = 0;
 
     mContainsLoopDiscontinuity = false;
@@ -130,11 +138,11 @@ OutputHLSL::OutputHLSL(TParseContext &context, TranslatorHLSL *parentTranslator)
     mExcessiveLoopIndex = NULL;
 
     mStructureHLSL = new StructureHLSL;
-    mUniformHLSL = new UniformHLSL(mStructureHLSL, parentTranslator);
+    mUniformHLSL = new UniformHLSL(mStructureHLSL, outputType, uniforms);
 
     if (mOutputType == SH_HLSL9_OUTPUT)
     {
-        if (mContext.shaderType == GL_FRAGMENT_SHADER)
+        if (mShaderType == GL_FRAGMENT_SHADER)
         {
             // Reserve registers for dx_DepthRange, dx_ViewCoords and dx_DepthFront
             mUniformHLSL->reserveUniformRegisters(3);
@@ -157,26 +165,27 @@ OutputHLSL::~OutputHLSL()
     SafeDelete(mUniformHLSL);
 }
 
-void OutputHLSL::output()
+void OutputHLSL::output(TIntermNode *treeRoot, TInfoSinkBase &objSink)
 {
-    mContainsLoopDiscontinuity = mContext.shaderType == GL_FRAGMENT_SHADER && containsLoopDiscontinuity(mContext.treeRoot);
-    mContainsAnyLoop = containsAnyLoop(mContext.treeRoot);
-    const std::vector<TIntermTyped*> &flaggedStructs = FlagStd140ValueStructs(mContext.treeRoot);
+    mContainsLoopDiscontinuity = mShaderType == GL_FRAGMENT_SHADER && containsLoopDiscontinuity(treeRoot);
+    mContainsAnyLoop = containsAnyLoop(treeRoot);
+    const std::vector<TIntermTyped*> &flaggedStructs = FlagStd140ValueStructs(treeRoot);
     makeFlaggedStructMaps(flaggedStructs);
 
     // Work around D3D9 bug that would manifest in vertex shaders with selection blocks which
     // use a vertex attribute as a condition, and some related computation in the else block.
-    if (mOutputType == SH_HLSL9_OUTPUT && mContext.shaderType == GL_VERTEX_SHADER)
+    if (mOutputType == SH_HLSL9_OUTPUT && mShaderType == GL_VERTEX_SHADER)
     {
-        RewriteElseBlocks(mContext.treeRoot);
+        RewriteElseBlocks(treeRoot);
     }
 
-    BuiltInFunctionEmulatorHLSL builtInFunctionEmulator;
-    builtInFunctionEmulator.MarkBuiltInFunctionsForEmulation(mContext.treeRoot);
+    BuiltInFunctionEmulator builtInFunctionEmulator;
+    InitBuiltInFunctionEmulatorForHLSL(&builtInFunctionEmulator);
+    builtInFunctionEmulator.MarkBuiltInFunctionsForEmulation(treeRoot);
 
     // Output the body and footer first to determine what has to go in the header
     mInfoSinkStack.push(&mBody);
-    mContext.treeRoot->traverse(this);
+    treeRoot->traverse(this);
     mInfoSinkStack.pop();
 
     mInfoSinkStack.push(&mFooter);
@@ -190,10 +199,9 @@ void OutputHLSL::output()
     header(&builtInFunctionEmulator);
     mInfoSinkStack.pop();
 
-    TInfoSinkBase& sink = mContext.infoSink().obj;
-    sink << mHeader.c_str();
-    sink << mBody.c_str();
-    sink << mFooter.c_str();
+    objSink << mHeader.c_str();
+    objSink << mBody.c_str();
+    objSink << mFooter.c_str();
 
     builtInFunctionEmulator.Cleanup();
 }
@@ -283,7 +291,7 @@ TString OutputHLSL::structInitializerString(int indent, const TStructure &struct
     return init;
 }
 
-void OutputHLSL::header(const BuiltInFunctionEmulatorHLSL *builtInFunctionEmulator)
+void OutputHLSL::header(const BuiltInFunctionEmulator *builtInFunctionEmulator)
 {
     TInfoSinkBase &out = getInfoSink();
 
@@ -353,16 +361,16 @@ void OutputHLSL::header(const BuiltInFunctionEmulatorHLSL *builtInFunctionEmulat
            "#define FLATTEN\n"
            "#endif\n";
 
-    if (mContext.shaderType == GL_FRAGMENT_SHADER)
+    if (mShaderType == GL_FRAGMENT_SHADER)
     {
-        TExtensionBehavior::const_iterator iter = mContext.extensionBehavior().find("GL_EXT_draw_buffers");
-        const bool usingMRTExtension = (iter != mContext.extensionBehavior().end() && (iter->second == EBhEnable || iter->second == EBhRequire));
+        TExtensionBehavior::const_iterator iter = mExtensionBehavior.find("GL_EXT_draw_buffers");
+        const bool usingMRTExtension = (iter != mExtensionBehavior.end() && (iter->second == EBhEnable || iter->second == EBhRequire));
 
         out << "// Varyings\n";
         out <<  varyings;
         out << "\n";
 
-        if (mContext.getShaderVersion() >= 300)
+        if (mShaderVersion >= 300)
         {
             for (ReferencedSymbols::const_iterator outputVariableIt = mReferencedOutputVariables.begin(); outputVariableIt != mReferencedOutputVariables.end(); outputVariableIt++)
             {
@@ -1015,7 +1023,15 @@ void OutputHLSL::header(const BuiltInFunctionEmulatorHLSL *builtInFunctionEmulat
                 }
                 else if (IsShadowSampler(textureFunction->sampler))
                 {
-                    out << "x.SampleCmp(s, ";
+                    switch(textureFunction->method)
+                    {
+                      case TextureFunction::IMPLICIT: out << "x.SampleCmp(s, ";          break;
+                      case TextureFunction::BIAS:     out << "x.SampleCmp(s, ";          break;
+                      case TextureFunction::LOD:      out << "x.SampleCmp(s, ";          break;
+                      case TextureFunction::LOD0:     out << "x.SampleCmpLevelZero(s, "; break;
+                      case TextureFunction::LOD0BIAS: out << "x.SampleCmpLevelZero(s, "; break;
+                      default: UNREACHABLE();
+                    }
                 }
                 else
                 {
@@ -1146,11 +1162,20 @@ void OutputHLSL::header(const BuiltInFunctionEmulatorHLSL *builtInFunctionEmulat
                     else if (IsShadowSampler(textureFunction->sampler))
                     {
                         // Compare value
-                        switch(textureFunction->coords)
+                        if (textureFunction->proj)
                         {
-                          case 3: out << "), t.z"; break;
-                          case 4: out << "), t.w"; break;
-                          default: UNREACHABLE();
+                            // According to ESSL 3.00.4 sec 8.8 p95 on textureProj:
+                            // The resulting third component of P' in the shadow forms is used as Dref
+                            out << "), t.z" << proj;
+                        }
+                        else
+                        {
+                            switch(textureFunction->coords)
+                            {
+                              case 3: out << "), t.z"; break;
+                              case 4: out << "), t.w"; break;
+                              default: UNREACHABLE();
+                            }
                         }
                     }
                     else
@@ -1166,11 +1191,20 @@ void OutputHLSL::header(const BuiltInFunctionEmulatorHLSL *builtInFunctionEmulat
                 else if (IsShadowSampler(textureFunction->sampler))
                 {
                     // Compare value
-                    switch(textureFunction->coords)
+                    if (textureFunction->proj)
                     {
-                      case 3: out << "), t.z"; break;
-                      case 4: out << "), t.w"; break;
-                      default: UNREACHABLE();
+                        // According to ESSL 3.00.4 sec 8.8 p95 on textureProj:
+                        // The resulting third component of P' in the shadow forms is used as Dref
+                        out << "), t.z" << proj;
+                    }
+                    else
+                    {
+                        switch(textureFunction->coords)
+                        {
+                          case 3: out << "), t.z"; break;
+                          case 4: out << "), t.w"; break;
+                          default: UNREACHABLE();
+                        }
                     }
                 }
                 else
@@ -1240,7 +1274,7 @@ void OutputHLSL::header(const BuiltInFunctionEmulatorHLSL *builtInFunctionEmulat
                "\n";
     }
 
-    builtInFunctionEmulator->OutputEmulatedFunctionDefinition(out);
+    builtInFunctionEmulator->OutputEmulatedFunctions(out);
 }
 
 void OutputHLSL::visitSymbol(TIntermSymbol *node)
@@ -1436,7 +1470,7 @@ bool OutputHLSL::visitBinary(Visit visit, TIntermBinary *node)
         }
         break;
       case EOpDivAssign:               outputTriplet(visit, "(", " /= ", ")");          break;
-      case EOpModAssign:               outputTriplet(visit, "(", " %= ", ")");          break;
+      case EOpIModAssign:              outputTriplet(visit, "(", " %= ", ")");          break;
       case EOpBitShiftLeftAssign:      outputTriplet(visit, "(", " <<= ", ")");         break;
       case EOpBitShiftRightAssign:     outputTriplet(visit, "(", " >>= ", ")");         break;
       case EOpBitwiseAndAssign:        outputTriplet(visit, "(", " &= ", ")");          break;
@@ -1529,7 +1563,7 @@ bool OutputHLSL::visitBinary(Visit visit, TIntermBinary *node)
       case EOpSub:               outputTriplet(visit, "(", " - ", ")"); break;
       case EOpMul:               outputTriplet(visit, "(", " * ", ")"); break;
       case EOpDiv:               outputTriplet(visit, "(", " / ", ")"); break;
-      case EOpMod:               outputTriplet(visit, "(", " % ", ")"); break;
+      case EOpIMod:              outputTriplet(visit, "(", " % ", ")"); break;
       case EOpBitShiftLeft:      outputTriplet(visit, "(", " << ", ")"); break;
       case EOpBitShiftRight:     outputTriplet(visit, "(", " >> ", ")"); break;
       case EOpBitwiseAnd:        outputTriplet(visit, "(", " & ", ")"); break;
@@ -1559,7 +1593,7 @@ bool OutputHLSL::visitBinary(Visit visit, TIntermBinary *node)
             {
                 const TStructure &structure = *node->getLeft()->getType().getStruct();
                 const TString &functionName = addStructEqualityFunction(structure);
-                outputTriplet(visit, functionName + "(", ", ", ")");
+                outputTriplet(visit, (functionName + "(").c_str(), ", ", ")");
             }
             else
             {
@@ -1654,8 +1688,16 @@ bool OutputHLSL::visitUnary(Visit visit, TIntermUnary *node)
       case EOpAbs:              outputTriplet(visit, "abs(", "", ")");       break;
       case EOpSign:             outputTriplet(visit, "sign(", "", ")");      break;
       case EOpFloor:            outputTriplet(visit, "floor(", "", ")");     break;
+      case EOpTrunc:            outputTriplet(visit, "trunc(", "", ")");     break;
+      case EOpRound:            outputTriplet(visit, "round(", "", ")");     break;
+      case EOpRoundEven:
+        ASSERT(node->getUseEmulatedFunction());
+        writeEmulatedFunctionTriplet(visit, "roundEven(");
+        break;
       case EOpCeil:             outputTriplet(visit, "ceil(", "", ")");      break;
       case EOpFract:            outputTriplet(visit, "frac(", "", ")");      break;
+      case EOpIsNan:            outputTriplet(visit, "isnan(", "", ")");     break;
+      case EOpIsInf:            outputTriplet(visit, "isinf(", "", ")");     break;
       case EOpFloatBitsToInt:   outputTriplet(visit, "asint(", "", ")");     break;
       case EOpFloatBitsToUint:  outputTriplet(visit, "asuint(", "", ")");    break;
       case EOpIntBitsToFloat:   outputTriplet(visit, "asfloat(", "", ")");   break;
@@ -1751,7 +1793,11 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
 
                 traverseStatements(*sit);
 
-                out << ";\n";
+                // Don't output ; after case labels, they're terminated by :
+                // This is needed especially since outputting a ; after a case statement would turn empty
+                // case statements into non-empty case statements, disallowing fall-through from them.
+                if ((*sit)->getAsCaseNode() == nullptr)
+                    out << ";\n";
             }
 
             if (mInsideFunction)
@@ -2057,7 +2103,7 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
 
                     bool bias = (arguments->size() > mandatoryArgumentCount);   // Bias argument is optional
 
-                    if (lod0 || mContext.shaderType == GL_VERTEX_SHADER)
+                    if (lod0 || mShaderType == GL_VERTEX_SHADER)
                     {
                         if (bias)
                         {
@@ -2125,7 +2171,7 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
         {
             const TString &structName = StructNameString(*node->getType().getStruct());
             mStructureHLSL->addConstructor(node->getType(), structName, node->getSequence());
-            outputTriplet(visit, structName + "_ctor(", ", ", ")");
+            outputTriplet(visit, (structName + "_ctor(").c_str(), ", ", ")");
         }
         break;
       case EOpLessThan:         outputTriplet(visit, "(", " < ", ")");                 break;
@@ -2138,6 +2184,7 @@ bool OutputHLSL::visitAggregate(Visit visit, TIntermAggregate *node)
         ASSERT(node->getUseEmulatedFunction());
         writeEmulatedFunctionTriplet(visit, "mod(");
         break;
+      case EOpModf:             outputTriplet(visit, "modf(", ", ", ")");              break;
       case EOpPow:              outputTriplet(visit, "pow(", ", ", ")");               break;
       case EOpAtan:
         ASSERT(node->getSequence()->size() == 2);   // atan(x) is a unary operator
@@ -2186,7 +2233,7 @@ bool OutputHLSL::visitSelection(Visit visit, TIntermSelection *node)
         // however flattening all the ifs in branch heavy shaders made D3D error too.
         // As a temporary workaround we flatten the ifs only if there is at least a loop
         // present somewhere in the shader.
-        if (mContext.shaderType == GL_FRAGMENT_SHADER && mContainsAnyLoop)
+        if (mShaderType == GL_FRAGMENT_SHADER && mContainsAnyLoop)
         {
             out << "FLATTEN ";
         }
@@ -2238,6 +2285,37 @@ bool OutputHLSL::visitSelection(Visit visit, TIntermSelection *node)
     }
 
     return false;
+}
+
+bool OutputHLSL::visitSwitch(Visit visit, TIntermSwitch *node)
+{
+    if (node->getStatementList())
+    {
+        node->setStatementList(RemoveSwitchFallThrough::removeFallThrough(node->getStatementList()));
+        outputTriplet(visit, "switch (", ") ", "");
+        // The curly braces get written when visiting the statementList aggregate
+    }
+    else
+    {
+        // No statementList, so it won't output curly braces
+        outputTriplet(visit, "switch (", ") {", "}\n");
+    }
+    return true;
+}
+
+bool OutputHLSL::visitCase(Visit visit, TIntermCase *node)
+{
+    if (node->hasCondition())
+    {
+        outputTriplet(visit, "case (", "", "):\n");
+        return true;
+    }
+    else
+    {
+        TInfoSinkBase &out = getInfoSink();
+        out << "default:\n";
+        return false;
+    }
 }
 
 void OutputHLSL::visitConstantUnion(TIntermConstantUnion *node)
@@ -2635,7 +2713,7 @@ bool OutputHLSL::handleExcessiveLoop(TIntermLoop *node)
     return false;   // Not handled as an excessive loop
 }
 
-void OutputHLSL::outputTriplet(Visit visit, const TString &preString, const TString &inString, const TString &postString)
+void OutputHLSL::outputTriplet(Visit visit, const char *preString, const char *inString, const char *postString)
 {
     TInfoSinkBase &out = getInfoSink();
 
@@ -2655,16 +2733,16 @@ void OutputHLSL::outputTriplet(Visit visit, const TString &preString, const TStr
 
 void OutputHLSL::outputLineDirective(int line)
 {
-    if ((mContext.compileOptions & SH_LINE_DIRECTIVES) && (line > 0))
+    if ((mCompileOptions & SH_LINE_DIRECTIVES) && (line > 0))
     {
         TInfoSinkBase &out = getInfoSink();
 
         out << "\n";
         out << "#line " << line;
 
-        if (mContext.sourcePath)
+        if (mSourcePath)
         {
-            out << " \"" << mContext.sourcePath << "\"";
+            out << " \"" << mSourcePath << "\"";
         }
 
         out << "\n";
@@ -2713,7 +2791,7 @@ TString OutputHLSL::initializer(const TType &type)
     return "{" + string + "}";
 }
 
-void OutputHLSL::outputConstructor(Visit visit, const TType &type, const TString &name, const TIntermSequence *parameters)
+void OutputHLSL::outputConstructor(Visit visit, const TType &type, const char *name, const TIntermSequence *parameters)
 {
     TInfoSinkBase &out = getInfoSink();
 
@@ -2721,7 +2799,7 @@ void OutputHLSL::outputConstructor(Visit visit, const TType &type, const TString
     {
         mStructureHLSL->addConstructor(type, name, parameters);
 
-        out << name + "(";
+        out << name << "(";
     }
     else if (visit == InVisit)
     {

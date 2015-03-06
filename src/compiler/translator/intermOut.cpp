@@ -131,7 +131,7 @@ bool TOutputTraverser::visitBinary(Visit visit, TIntermBinary *node)
       case EOpDivAssign:
         out << "divide second child into first child";
         break;
-      case EOpModAssign:
+      case EOpIModAssign:
         out << "modulo second child into first child";
         break;
       case EOpBitShiftLeftAssign:
@@ -178,7 +178,7 @@ bool TOutputTraverser::visitBinary(Visit visit, TIntermBinary *node)
       case EOpDiv:
         out << "divide";
         break;
-      case EOpMod:
+      case EOpIMod:
         out << "modulo";
         break;
       case EOpBitShiftLeft:
@@ -327,8 +327,13 @@ bool TOutputTraverser::visitUnary(Visit visit, TIntermUnary *node)
       case EOpAbs:            out << "Absolute value";       break;
       case EOpSign:           out << "Sign";                 break;
       case EOpFloor:          out << "Floor";                break;
+      case EOpTrunc:          out << "Truncate";             break;
+      case EOpRound:          out << "Round";                break;
+      case EOpRoundEven:      out << "Round half even";      break;
       case EOpCeil:           out << "Ceiling";              break;
       case EOpFract:          out << "Fraction";             break;
+      case EOpIsNan:          out << "Is not a number";      break;
+      case EOpIsInf:          out << "Is infinity";          break;
 
       case EOpFloatBitsToInt: out << "float bits to int";    break;
       case EOpFloatBitsToUint: out << "float bits to uint";  break;
@@ -419,6 +424,7 @@ bool TOutputTraverser::visitAggregate(Visit visit, TIntermAggregate *node)
       case EOpVectorNotEqual:   out << "NotEqual";                      break;
 
       case EOpMod:           out << "mod";         break;
+      case EOpModf:          out << "modf";        break;
       case EOpPow:           out << "pow";         break;
 
       case EOpAtan:          out << "arc tangent"; break;
@@ -613,14 +619,13 @@ bool TOutputTraverser::visitBranch(Visit visit, TIntermBranch *node)
 //
 // This function is the one to call externally to start the traversal.
 // Individual functions can be initialized to 0 to skip processing of that
-// type of node.  It's children will still be processed.
+// type of node. Its children will still be processed.
 //
-void TIntermediate::outputTree(TIntermNode *root)
+void TIntermediate::outputTree(TIntermNode *root, TInfoSinkBase &infoSink)
 {
-    if (root == NULL)
-        return;
+    TOutputTraverser it(infoSink);
 
-    TOutputTraverser it(mInfoSink.info);
+    ASSERT(root);
 
     root->traverse(&it);
 }

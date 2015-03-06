@@ -119,6 +119,9 @@ void BufferD3D::invalidateStaticIndexData()
     if (mStaticIndexBuffer && mStaticIndexBuffer->getBufferSize() != 0)
     {
         SafeDelete(mStaticIndexBuffer);
+
+        // Re-init static data to track that we're in a static buffer
+        enableStaticData();
     }
 
     mUnmodifiedIndexDataUse = 0;

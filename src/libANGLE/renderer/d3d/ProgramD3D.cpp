@@ -6,13 +6,6 @@
 
 // ProgramD3D.cpp: Defines the rx::ProgramD3D class which implements rx::ProgramImpl.
 
-// <future> requires _HAS_EXCEPTIONS to be defined
-#ifdef _HAS_EXCEPTIONS
-#undef _HAS_EXCEPTIONS
-#endif // _HAS_EXCEPTIONS
-#define _HAS_EXCEPTIONS 1
-#include <future> // For std::async
-
 #include "libANGLE/renderer/d3d/ProgramD3D.h"
 
 #include "common/utilities.h"
@@ -25,6 +18,14 @@
 #include "libANGLE/renderer/d3d/ShaderD3D.h"
 #include "libANGLE/renderer/d3d/ShaderExecutableD3D.h"
 #include "libANGLE/renderer/d3d/VertexDataManager.h"
+
+#if ANGLE_MULTITHREADED_D3D_SHADER_COMPILE == ANGLE_ENABLED
+// We do not want to set _HAS_EXCEPTIONS=1 for Clang builds, nor turn on exception handlers.
+// We therefore must disable C4530 to allow <future> to compile.
+#pragma warning(disable: 4530) // C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
+#include <eh.h> // To allow <future> to compile when _HAS_EXCEPTIONS=0.
+#include <future> // For std::async
+#endif // ANGLE_MULTITHREADED_D3D_SHADER_COMPILE == ANGLE_ENABLED
 
 namespace rx
 {
@@ -113,18 +114,21 @@ bool IsRowMajorLayout(const sh::ShaderVariable &var)
 struct AttributeSorter
 {
     AttributeSorter(const ProgramImpl::SemanticIndexArray &semanticIndices)
-        : originalIndices(semanticIndices)
+        : originalIndices(&semanticIndices)
     {
     }
 
     bool operator()(int a, int b)
     {
-        if (originalIndices[a] == -1) return false;
-        if (originalIndices[b] == -1) return true;
-        return (originalIndices[a] < originalIndices[b]);
+        int indexA = (*originalIndices)[a];
+        int indexB = (*originalIndices)[b];
+
+        if (indexA == -1) return false;
+        if (indexB == -1) return true;
+        return (indexA < indexB);
     }
 
-    const ProgramImpl::SemanticIndexArray &originalIndices;
+    const ProgramImpl::SemanticIndexArray *originalIndices;
 };
 
 }
@@ -966,26 +970,34 @@ LinkResult ProgramD3D::compileProgramExecutables(gl::InfoLog &infoLog, gl::Shade
     ShaderD3D *vertexShaderD3D = ShaderD3D::makeShaderD3D(vertexShader->getImplementation());
     ShaderD3D *fragmentShaderD3D = ShaderD3D::makeShaderD3D(fragmentShader->getImplementation());
 
-    gl::Error vertexShaderTaskResult(GL_NO_ERROR);
+    gl::Error vertexShaderResult(GL_NO_ERROR);
     gl::InfoLog tempVertexShaderInfoLog;
 
+#if ANGLE_MULTITHREADED_D3D_SHADER_COMPILE == ANGLE_ENABLED
     // Use an async task to begin compiling the vertex shader asynchronously on its own task.
-    std::future<ShaderExecutableD3D*> vertexShaderTask = std::async([this, vertexShader, &tempVertexShaderInfoLog, &vertexShaderTaskResult]()
+    std::future<ShaderExecutableD3D*> vertexShaderTask = std::async([this, vertexShader, &tempVertexShaderInfoLog, &vertexShaderResult]()
     {
+#endif // ANGLE_MULTITHREADED_D3D_SHADER_COMPILE
+
         gl::VertexFormat defaultInputLayout[gl::MAX_VERTEX_ATTRIBS];
         GetDefaultInputLayoutFromShader(vertexShader->getActiveAttributes(), defaultInputLayout);
         ShaderExecutableD3D *defaultVertexExecutable = NULL;
-        vertexShaderTaskResult = getVertexExecutableForInputLayout(defaultInputLayout, &defaultVertexExecutable, &tempVertexShaderInfoLog);
+        vertexShaderResult = getVertexExecutableForInputLayout(defaultInputLayout, &defaultVertexExecutable, &tempVertexShaderInfoLog);
+
+#if ANGLE_MULTITHREADED_D3D_SHADER_COMPILE == ANGLE_ENABLED
         return defaultVertexExecutable;
     });
+#endif // ANGLE_MULTITHREADED_D3D_SHADER_COMPILE
 
     // Continue to compile the pixel shader on the main thread
     std::vector<GLenum> defaultPixelOutput = GetDefaultOutputLayoutFromShader(getPixelShaderKey());
     ShaderExecutableD3D *defaultPixelExecutable = NULL;
     gl::Error error = getPixelExecutableForOutputLayout(defaultPixelOutput, &defaultPixelExecutable, &infoLog);
 
+#if ANGLE_MULTITHREADED_D3D_SHADER_COMPILE == ANGLE_ENABLED
     // Call .get() on the vertex shader compilation. This waits until the task is complete before returning
     ShaderExecutableD3D *defaultVertexExecutable = vertexShaderTask.get();
+#endif // ANGLE_MULTITHREADED_D3D_SHADER_COMPILE
 
     // Combine the temporary infoLog with the real one
     if (tempVertexShaderInfoLog.getLength() > 0)
@@ -995,9 +1007,9 @@ LinkResult ProgramD3D::compileProgramExecutables(gl::InfoLog &infoLog, gl::Shade
         infoLog.append(&tempCharBuffer[0]);
     }
 
-    if (vertexShaderTaskResult.isError())
+    if (vertexShaderResult.isError())
     {
-        return LinkResult(false, vertexShaderTaskResult);
+        return LinkResult(false, vertexShaderResult);
     }
 
     // If the pixel shader compilation failed, then return error

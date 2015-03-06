@@ -19,15 +19,14 @@
 class BuiltInFunctionEmulator
 {
   public:
+    BuiltInFunctionEmulator();
+
     void MarkBuiltInFunctionsForEmulation(TIntermNode* root);
 
     void Cleanup();
 
     // "name(" becomes "webgl_name_emu(".
     static TString GetEmulatedFunctionName(const TString& name);
-
-  protected:
-    BuiltInFunctionEmulator();
 
     bool IsOutputEmpty() const;
 
@@ -36,9 +35,9 @@ class BuiltInFunctionEmulator
     void OutputEmulatedFunctions(TInfoSinkBase& out) const;
 
     // Add functions that need to be emulated.
-    void AddEmulatedFunction(TOperator op, const TType& param, const char* emulatedFunctionDefinition);
-    void AddEmulatedFunction(TOperator op, const TType& param1, const TType& param2, const char* emulatedFunctionDefinition);
-    void AddEmulatedFunction(TOperator op, const TType& param1, const TType& param2, const TType& param3, const char* emulatedFunctionDefinition);
+    void addEmulatedFunction(TOperator op, const TType& param, const char* emulatedFunctionDefinition);
+    void addEmulatedFunction(TOperator op, const TType& param1, const TType& param2, const char* emulatedFunctionDefinition);
+    void addEmulatedFunction(TOperator op, const TType& param1, const TType& param2, const TType& param3, const char* emulatedFunctionDefinition);
 
   private:
     class BuiltInFunctionEmulationMarker;

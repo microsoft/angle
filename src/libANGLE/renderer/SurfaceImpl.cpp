@@ -13,19 +13,15 @@
 namespace rx
 {
 
-SurfaceImpl::SurfaceImpl(egl::Display *display, const egl::Config *config, EGLint width, EGLint height,
+SurfaceImpl::SurfaceImpl(egl::Display *display, const egl::Config *config,
                          EGLint fixedSize, EGLint postSubBufferSupported, EGLenum textureFormat,
-                         EGLenum textureType, EGLClientBuffer shareHandle)
+                         EGLenum textureType)
     : mDisplay(display),
       mConfig(config),
-      mWidth(width),
-      mHeight(height),
       mFixedSize(fixedSize),
-      mSwapInterval(-1),
       mPostSubBufferSupported(postSubBufferSupported),
       mTextureFormat(textureFormat),
-      mTextureTarget(textureType),
-      mShareHandle(shareHandle)
+      mTextureTarget(textureType)
 {
 }
 

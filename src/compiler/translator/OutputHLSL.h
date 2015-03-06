@@ -16,7 +16,7 @@
 #include "compiler/translator/IntermNode.h"
 #include "compiler/translator/ParseContext.h"
 
-class BuiltInFunctionEmulatorHLSL;
+class BuiltInFunctionEmulator;
 
 namespace sh
 {
@@ -29,10 +29,15 @@ typedef std::map<TString, TIntermSymbol*> ReferencedSymbols;
 class OutputHLSL : public TIntermTraverser
 {
   public:
-    OutputHLSL(TParseContext &context, TranslatorHLSL *parentTranslator);
+    OutputHLSL(sh::GLenum shaderType, int shaderVersion,
+        const TExtensionBehavior &extensionBehavior,
+        const char *sourcePath, ShShaderOutput outputType,
+        int numRenderTargets, const std::vector<Uniform> &uniforms,
+        int compileOptions);
+
     ~OutputHLSL();
 
-    void output();
+    void output(TIntermNode *treeRoot, TInfoSinkBase &objSink);
 
     const std::map<std::string, unsigned int> &getInterfaceBlockRegisterMap() const;
     const std::map<std::string, unsigned int> &getUniformRegisterMap() const;
@@ -42,7 +47,7 @@ class OutputHLSL : public TIntermTraverser
     TInfoSinkBase &getInfoSink() { ASSERT(!mInfoSinkStack.empty()); return *mInfoSinkStack.top(); }
 
   protected:
-    void header(const BuiltInFunctionEmulatorHLSL *builtInFunctionEmulator);
+    void header(const BuiltInFunctionEmulator *builtInFunctionEmulator);
 
     // Visit AST nodes and output their code to the body stream
     void visitSymbol(TIntermSymbol*);
@@ -51,6 +56,8 @@ class OutputHLSL : public TIntermTraverser
     bool visitBinary(Visit visit, TIntermBinary*);
     bool visitUnary(Visit visit, TIntermUnary*);
     bool visitSelection(Visit visit, TIntermSelection*);
+    bool visitSwitch(Visit visit, TIntermSwitch *);
+    bool visitCase(Visit visit, TIntermCase *);
     bool visitAggregate(Visit visit, TIntermAggregate*);
     bool visitLoop(Visit visit, TIntermLoop*);
     bool visitBranch(Visit visit, TIntermBranch*);
@@ -58,12 +65,15 @@ class OutputHLSL : public TIntermTraverser
     void traverseStatements(TIntermNode *node);
     bool isSingleStatement(TIntermNode *node);
     bool handleExcessiveLoop(TIntermLoop *node);
-    void outputTriplet(Visit visit, const TString &preString, const TString &inString, const TString &postString);
+
+    // Emit one of three strings depending on traverse phase. Called with literal strings so using const char* instead of TString.
+    void outputTriplet(Visit visit, const char *preString, const char *inString, const char *postString);
     void outputLineDirective(int line);
     TString argumentString(const TIntermSymbol *symbol);
     int vectorSize(const TType &type) const;
 
-    void outputConstructor(Visit visit, const TType &type, const TString &name, const TIntermSequence *parameters);
+    // Emit constructor. Called with literal names so using const char* instead of TString.
+    void outputConstructor(Visit visit, const TType &type, const char *name, const TIntermSequence *parameters);
     const ConstantUnion *writeConstantUnion(const TType &type, const ConstantUnion *constUnion);
 
     void writeEmulatedFunctionTriplet(Visit visit, const char *preStr);
@@ -76,8 +86,13 @@ class OutputHLSL : public TIntermTraverser
     // Returns the function name
     TString addStructEqualityFunction(const TStructure &structure);
 
-    TParseContext &mContext;
+    sh::GLenum mShaderType;
+    int mShaderVersion;
+    const TExtensionBehavior &mExtensionBehavior;
+    const char *mSourcePath;
     const ShShaderOutput mOutputType;
+    int mCompileOptions;
+
     UnfoldShortCircuit *mUnfoldShortCircuit;
     bool mInsideFunction;
 

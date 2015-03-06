@@ -21,7 +21,13 @@ class TOutputGLSLBase : public TIntermTraverser
                     ShHashFunction64 hashFunction,
                     NameMap &nameMap,
                     TSymbolTable& symbolTable,
-                    int shaderVersion);
+                    int shaderVersion,
+                    ShShaderOutput output);
+
+    ShShaderOutput getShaderOutput() const
+    {
+        return mOutput;
+    }
 
   protected:
     TInfoSinkBase &objSink() { return mObjSink; }
@@ -37,6 +43,8 @@ class TOutputGLSLBase : public TIntermTraverser
     virtual bool visitBinary(Visit visit, TIntermBinary *node);
     virtual bool visitUnary(Visit visit, TIntermUnary *node);
     virtual bool visitSelection(Visit visit, TIntermSelection *node);
+    virtual bool visitSwitch(Visit visit, TIntermSwitch *node);
+    virtual bool visitCase(Visit visit, TIntermCase *node);
     virtual bool visitAggregate(Visit visit, TIntermAggregate *node);
     virtual bool visitLoop(Visit visit, TIntermLoop *node);
     virtual bool visitBranch(Visit visit, TIntermBranch *node);
@@ -78,6 +86,8 @@ class TOutputGLSLBase : public TIntermTraverser
     TSymbolTable &mSymbolTable;
 
     const int mShaderVersion;
+
+    ShShaderOutput mOutput;
 };
 
 #endif  // COMPILER_TRANSLATOR_OUTPUTGLSLBASE_H_

@@ -231,8 +231,29 @@ Renderer11::Renderer11(egl::Display *display)
         mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_9_3);
     }
 
-    mDriverType = (attributes.get(EGL_PLATFORM_ANGLE_USE_WARP_ANGLE, EGL_FALSE) == EGL_TRUE) ? D3D_DRIVER_TYPE_WARP
-                                                                                             : D3D_DRIVER_TYPE_HARDWARE;
+    EGLint requestedDeviceType = attributes.get(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE,
+                                                EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
+    switch (requestedDeviceType)
+    {
+      case EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE:
+        mDriverType = D3D_DRIVER_TYPE_HARDWARE;
+        break;
+
+      case EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE:
+        mDriverType = D3D_DRIVER_TYPE_WARP;
+        break;
+
+      case EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE:
+        mDriverType = D3D_DRIVER_TYPE_REFERENCE;
+        break;
+
+      case EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE:
+        mDriverType = D3D_DRIVER_TYPE_NULL;
+        break;
+
+      default:
+        UNREACHABLE();
+    }
 
     EGLBoolean defaultRenderToBackBuffer = EGL_FALSE;
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
@@ -262,7 +283,9 @@ egl::Error Renderer11::initialize()
 {
     if (!mCompiler.initialize())
     {
-        return egl::Error(EGL_NOT_INITIALIZED, "Failed to initialize compiler.");
+        return egl::Error(EGL_NOT_INITIALIZED,
+                          D3D11_INIT_COMPILER_ERROR,
+                          "Failed to initialize compiler.");
     }
 
 #if !defined(ANGLE_ENABLE_WINDOWS_STORE)
@@ -271,7 +294,9 @@ egl::Error Renderer11::initialize()
 
     if (mD3d11Module == NULL || mDxgiModule == NULL)
     {
-        return egl::Error(EGL_NOT_INITIALIZED, "Could not load D3D11 or DXGI library.");
+        return egl::Error(EGL_NOT_INITIALIZED,
+                          D3D11_INIT_MISSING_DEP,
+                          "Could not load D3D11 or DXGI library.");
     }
 
     // create the D3D11 device
@@ -280,7 +305,9 @@ egl::Error Renderer11::initialize()
 
     if (D3D11CreateDevice == NULL)
     {
-        return egl::Error(EGL_NOT_INITIALIZED, "Could not retrieve D3D11CreateDevice address.");
+        return egl::Error(EGL_NOT_INITIALIZED,
+                          D3D11_INIT_MISSING_DEP,
+                          "Could not retrieve D3D11CreateDevice address.");
     }
 #endif
 
@@ -316,10 +343,20 @@ egl::Error Renderer11::initialize()
                                    &mFeatureLevel,
                                    &mDeviceContext);
 
+        if (result == E_INVALIDARG)
+        {
+            // Cleanup done by destructor through glDestroyRenderer
+            return egl::Error(EGL_NOT_INITIALIZED,
+                              D3D11_INIT_CREATEDEVICE_INVALIDARG,
+                              "Could not create D3D11 device.");
+        }
+
         if (!mDevice || FAILED(result))
         {
             // Cleanup done by destructor through glDestroyRenderer
-            return egl::Error(EGL_NOT_INITIALIZED, "Could not create D3D11 device.");
+            return egl::Error(EGL_NOT_INITIALIZED,
+                              D3D11_INIT_CREATEDEVICE_ERROR,
+                              "Could not create D3D11 device.");
         }
     }
 
@@ -347,7 +384,9 @@ egl::Error Renderer11::initialize()
         result = mDevice->QueryInterface(__uuidof(IDXGIDevice2), (void**)&dxgiDevice2);
         if (FAILED(result))
         {
-            return egl::Error(EGL_NOT_INITIALIZED, "DXGI 1.2 required to present to HWNDs owned by another process.");
+            return egl::Error(EGL_NOT_INITIALIZED,
+                              D3D11_INIT_INCOMPATIBLE_DXGI,
+                              "DXGI 1.2 required to present to HWNDs owned by another process.");
         }
         SafeRelease(dxgiDevice2);
     }
@@ -364,14 +403,18 @@ egl::Error Renderer11::initialize()
 
     if (FAILED(result))
     {
-        return egl::Error(EGL_NOT_INITIALIZED, "Could not query DXGI device.");
+        return egl::Error(EGL_NOT_INITIALIZED,
+                          D3D11_INIT_OTHER_ERROR,
+                          "Could not query DXGI device.");
     }
 
     result = dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&mDxgiAdapter);
 
     if (FAILED(result))
     {
-        return egl::Error(EGL_NOT_INITIALIZED, "Could not retrieve DXGI adapter");
+        return egl::Error(EGL_NOT_INITIALIZED,
+                          D3D11_INIT_OTHER_ERROR,
+                          "Could not retrieve DXGI adapter");
     }
 
     SafeRelease(dxgiDevice);
@@ -410,7 +453,9 @@ egl::Error Renderer11::initialize()
 
     if (!mDxgiFactory || FAILED(result))
     {
-        return egl::Error(EGL_NOT_INITIALIZED, "Could not create DXGI factory.");
+        return egl::Error(EGL_NOT_INITIALIZED,
+                          D3D11_INIT_OTHER_ERROR,
+                          "Could not create DXGI factory.");
     }
 
     // Disable some spurious D3D11 debug warnings to prevent them from flooding the output log
@@ -631,10 +676,10 @@ gl::Error Renderer11::generateSwizzle(gl::Texture *texture)
         if (texStorage)
         {
             TextureStorage11 *storage11 = TextureStorage11::makeTextureStorage11(texStorage);
-            gl::Error error = storage11->generateSwizzles(texture->getSamplerState().swizzleRed,
-                                                          texture->getSamplerState().swizzleGreen,
-                                                          texture->getSamplerState().swizzleBlue,
-                                                          texture->getSamplerState().swizzleAlpha);
+            error = storage11->generateSwizzles(texture->getSamplerState().swizzleRed,
+                                                texture->getSamplerState().swizzleGreen,
+                                                texture->getSamplerState().swizzleBlue,
+                                                texture->getSamplerState().swizzleAlpha);
             if (error.isError())
             {
                 return error;
@@ -670,7 +715,7 @@ gl::Error Renderer11::setSamplerState(gl::SamplerType type, int index, gl::Textu
         if (mForceSetPixelSamplerStates[index] || memcmp(&samplerStateInternal, &mCurPixelSamplerStates[index], sizeof(gl::SamplerState)) != 0)
         {
             ID3D11SamplerState *dxSamplerState = NULL;
-            gl::Error error = mStateCache.getSamplerState(samplerStateInternal, &dxSamplerState);
+            error = mStateCache.getSamplerState(samplerStateInternal, &dxSamplerState);
             if (error.isError())
             {
                 return error;
@@ -691,7 +736,7 @@ gl::Error Renderer11::setSamplerState(gl::SamplerType type, int index, gl::Textu
         if (mForceSetVertexSamplerStates[index] || memcmp(&samplerStateInternal, &mCurVertexSamplerStates[index], sizeof(gl::SamplerState)) != 0)
         {
             ID3D11SamplerState *dxSamplerState = NULL;
-            gl::Error error = mStateCache.getSamplerState(samplerStateInternal, &dxSamplerState);
+            error = mStateCache.getSamplerState(samplerStateInternal, &dxSamplerState);
             if (error.isError())
             {
                 return error;
@@ -3371,6 +3416,11 @@ gl::Error Renderer11::blitRenderbufferRect(const gl::Rectangle &readRect, const 
 
     return result;
 }
+
+bool Renderer11::isES3Capable() const
+{
+    return (d3d11_gl::GetMaximumClientVersion(mFeatureLevel) > 2);
+};
 
 ID3D11Texture2D *Renderer11::resolveMultisampledTexture(ID3D11Texture2D *source, unsigned int subresource)
 {

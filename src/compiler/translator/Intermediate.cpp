@@ -80,7 +80,7 @@ TIntermTyped *TIntermediate::addBinaryMath(
             return NULL;
         }
         break;
-      case EOpMod:
+      case EOpIMod:
         // Note that this is only for the % operator, not for mod()
         if (left->getBasicType() == EbtStruct || left->getBasicType() == EbtBool || left->getBasicType() == EbtFloat)
         {
@@ -453,6 +453,24 @@ TIntermTyped *TIntermediate::addSelection(
     TIntermSelection *node = new TIntermSelection(
         cond, trueBlock, falseBlock, trueBlock->getType());
     node->getTypePointer()->setQualifier(EvqTemporary);
+    node->setLine(line);
+
+    return node;
+}
+
+TIntermSwitch *TIntermediate::addSwitch(
+    TIntermTyped *init, TIntermAggregate *statementList, const TSourceLoc &line)
+{
+    TIntermSwitch *node = new TIntermSwitch(init, statementList);
+    node->setLine(line);
+
+    return node;
+}
+
+TIntermCase *TIntermediate::addCase(
+    TIntermTyped *condition, const TSourceLoc &line)
+{
+    TIntermCase *node = new TIntermCase(condition);
     node->setLine(line);
 
     return node;

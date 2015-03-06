@@ -21,213 +21,11 @@
 #include <algorithm>
 #include <queue>
 
+#include "common/angleutils.h"
 #include "compiler/translator/Common.h"
 #include "compiler/translator/Types.h"
 #include "compiler/translator/ConstantUnion.h"
-
-//
-// Operators used by the high-level (parse tree) representation.
-//
-enum TOperator
-{
-    EOpNull,            // if in a node, should only mean a node is still being built
-    EOpSequence,        // denotes a list of statements, or parameters, etc.
-    EOpFunctionCall,
-    EOpInternalFunctionCall, // Call to an internal helper function
-    EOpFunction,        // For function definition
-    EOpParameters,      // an aggregate listing the parameters to a function
-
-    EOpDeclaration,
-    EOpInvariantDeclaration, // Specialized declarations for attributing invariance
-    EOpPrototype,
-
-    //
-    // Unary operators
-    //
-
-    EOpNegative,
-    EOpPositive,
-    EOpLogicalNot,
-    EOpVectorLogicalNot,
-    EOpBitwiseNot,
-
-    EOpPostIncrement,
-    EOpPostDecrement,
-    EOpPreIncrement,
-    EOpPreDecrement,
-
-    //
-    // binary operations
-    //
-
-    EOpAdd,
-    EOpSub,
-    EOpMul,
-    EOpDiv,
-    EOpEqual,
-    EOpNotEqual,
-    EOpVectorEqual,
-    EOpVectorNotEqual,
-    EOpLessThan,
-    EOpGreaterThan,
-    EOpLessThanEqual,
-    EOpGreaterThanEqual,
-    EOpComma,
-
-    EOpVectorTimesScalar,
-    EOpVectorTimesMatrix,
-    EOpMatrixTimesVector,
-    EOpMatrixTimesScalar,
-
-    EOpLogicalOr,
-    EOpLogicalXor,
-    EOpLogicalAnd,
-
-    EOpBitShiftLeft,
-    EOpBitShiftRight,
-
-    EOpBitwiseAnd,
-    EOpBitwiseXor,
-    EOpBitwiseOr,
-
-    EOpIndexDirect,
-    EOpIndexIndirect,
-    EOpIndexDirectStruct,
-    EOpIndexDirectInterfaceBlock,
-
-    EOpVectorSwizzle,
-
-    //
-    // Built-in functions potentially mapped to operators
-    //
-
-    EOpRadians,
-    EOpDegrees,
-    EOpSin,
-    EOpCos,
-    EOpTan,
-    EOpAsin,
-    EOpAcos,
-    EOpAtan,
-
-    EOpSinh,
-    EOpCosh,
-    EOpTanh,
-    EOpAsinh,
-    EOpAcosh,
-    EOpAtanh,
-
-    EOpPow,
-    EOpExp,
-    EOpLog,
-    EOpExp2,
-    EOpLog2,
-    EOpSqrt,
-    EOpInverseSqrt,
-
-    EOpAbs,
-    EOpSign,
-    EOpFloor,
-    EOpCeil,
-    EOpFract,
-    EOpMod,
-    EOpMin,
-    EOpMax,
-    EOpClamp,
-    EOpMix,
-    EOpStep,
-    EOpSmoothStep,
-
-    EOpFloatBitsToInt,
-    EOpFloatBitsToUint,
-    EOpIntBitsToFloat,
-    EOpUintBitsToFloat,
-
-    EOpPackSnorm2x16,
-    EOpPackUnorm2x16,
-    EOpPackHalf2x16,
-    EOpUnpackSnorm2x16,
-    EOpUnpackUnorm2x16,
-    EOpUnpackHalf2x16,
-
-    EOpLength,
-    EOpDistance,
-    EOpDot,
-    EOpCross,
-    EOpNormalize,
-    EOpFaceForward,
-    EOpReflect,
-    EOpRefract,
-
-    EOpDFdx,            // Fragment only, OES_standard_derivatives extension
-    EOpDFdy,            // Fragment only, OES_standard_derivatives extension
-    EOpFwidth,          // Fragment only, OES_standard_derivatives extension
-
-    EOpMatrixTimesMatrix,
-
-    EOpOuterProduct,
-    EOpTranspose,
-    EOpDeterminant,
-    EOpInverse,
-
-    EOpAny,
-    EOpAll,
-
-    //
-    // Branch
-    //
-
-    EOpKill,            // Fragment only
-    EOpReturn,
-    EOpBreak,
-    EOpContinue,
-
-    //
-    // Constructors
-    //
-
-    EOpConstructInt,
-    EOpConstructUInt,
-    EOpConstructBool,
-    EOpConstructFloat,
-    EOpConstructVec2,
-    EOpConstructVec3,
-    EOpConstructVec4,
-    EOpConstructBVec2,
-    EOpConstructBVec3,
-    EOpConstructBVec4,
-    EOpConstructIVec2,
-    EOpConstructIVec3,
-    EOpConstructIVec4,
-    EOpConstructUVec2,
-    EOpConstructUVec3,
-    EOpConstructUVec4,
-    EOpConstructMat2,
-    EOpConstructMat3,
-    EOpConstructMat4,
-    EOpConstructStruct,
-
-    //
-    // moves
-    //
-
-    EOpAssign,
-    EOpInitialize,
-    EOpAddAssign,
-    EOpSubAssign,
-    EOpMulAssign,
-    EOpVectorTimesMatrixAssign,
-    EOpVectorTimesScalarAssign,
-    EOpMatrixTimesScalarAssign,
-    EOpMatrixTimesMatrixAssign,
-    EOpDivAssign,
-    EOpModAssign,
-    EOpBitShiftLeftAssign,
-    EOpBitShiftRightAssign,
-    EOpBitwiseAndAssign,
-    EOpBitwiseXorAssign,
-    EOpBitwiseOrAssign
-};
+#include "compiler/translator/Operator.h"
 
 class TIntermTraverser;
 class TIntermAggregate;
@@ -235,10 +33,13 @@ class TIntermBinary;
 class TIntermUnary;
 class TIntermConstantUnion;
 class TIntermSelection;
+class TIntermSwitch;
+class TIntermCase;
 class TIntermTyped;
 class TIntermSymbol;
 class TIntermLoop;
 class TInfoSink;
+class TInfoSinkBase;
 class TIntermRaw;
 
 //
@@ -267,6 +68,8 @@ class TIntermNode
     virtual TIntermBinary *getAsBinaryNode() { return 0; }
     virtual TIntermUnary *getAsUnaryNode() { return 0; }
     virtual TIntermSelection *getAsSelectionNode() { return 0; }
+    virtual TIntermSwitch *getAsSwitchNode() { return 0; }
+    virtual TIntermCase *getAsCaseNode() { return 0; }
     virtual TIntermSymbol *getAsSymbolNode() { return 0; }
     virtual TIntermLoop *getAsLoopNode() { return 0; }
     virtual TIntermRaw *getAsRawNode() { return 0; }
@@ -654,7 +457,7 @@ class TIntermAggregate : public TIntermOperator
 };
 
 //
-// For if tests.  Simplified since there is no switch statement.
+// For if tests.
 //
 class TIntermSelection : public TIntermTyped
 {
@@ -688,6 +491,58 @@ protected:
     TIntermTyped *mCondition;
     TIntermNode *mTrueBlock;
     TIntermNode *mFalseBlock;
+};
+
+//
+// Switch statement.
+//
+class TIntermSwitch : public TIntermNode
+{
+  public:
+    TIntermSwitch(TIntermTyped *init, TIntermAggregate *statementList)
+        : TIntermNode(),
+          mInit(init),
+          mStatementList(statementList)
+    {
+    }
+
+    void traverse(TIntermTraverser *it) override;
+    bool replaceChildNode(
+        TIntermNode *original, TIntermNode *replacement) override;
+
+    TIntermSwitch *getAsSwitchNode() override { return this; }
+
+    TIntermAggregate *getStatementList() { return mStatementList; }
+    void setStatementList(TIntermAggregate *statementList) { mStatementList = statementList; }
+
+  protected:
+    TIntermTyped *mInit;
+    TIntermAggregate *mStatementList;
+};
+
+//
+// Case label.
+//
+class TIntermCase : public TIntermNode
+{
+  public:
+    TIntermCase(TIntermTyped *condition)
+        : TIntermNode(),
+          mCondition(condition)
+    {
+    }
+
+    void traverse(TIntermTraverser *it) override;
+    bool replaceChildNode(
+        TIntermNode *original, TIntermNode *replacement) override;
+
+    TIntermCase *getAsCaseNode() override { return this; }
+
+    bool hasCondition() const { return mCondition != nullptr; }
+    TIntermTyped *getCondition() const { return mCondition; }
+
+  protected:
+    TIntermTyped *mCondition;
 };
 
 enum Visit
@@ -726,6 +581,8 @@ class TIntermTraverser
     virtual bool visitBinary(Visit, TIntermBinary *) { return true; }
     virtual bool visitUnary(Visit, TIntermUnary *) { return true; }
     virtual bool visitSelection(Visit, TIntermSelection *) { return true; }
+    virtual bool visitSwitch(Visit, TIntermSwitch *) { return true; }
+    virtual bool visitCase(Visit, TIntermCase *) { return true; }
     virtual bool visitAggregate(Visit, TIntermAggregate *) { return true; }
     virtual bool visitLoop(Visit, TIntermLoop *) { return true; }
     virtual bool visitBranch(Visit, TIntermBranch *) { return true; }
@@ -791,6 +648,9 @@ class TIntermTraverser
     // During traversing, save all the changes that need to happen into
     // mReplacements, then do them by calling updateTree().
     std::vector<NodeUpdateEntry> mReplacements;
+
+  private:
+    DISALLOW_COPY_AND_ASSIGN(TIntermTraverser);
 };
 
 //
@@ -812,10 +672,13 @@ class TMaxDepthTraverser : public TIntermTraverser
     virtual bool visitLoop(Visit, TIntermLoop *) { return depthCheck(); }
     virtual bool visitBranch(Visit, TIntermBranch *) { return depthCheck(); }
 
-protected:
+  protected:
     bool depthCheck() const { return mMaxDepth < mDepthLimit; }
 
     int mDepthLimit;
+
+  private:
+    DISALLOW_COPY_AND_ASSIGN(TMaxDepthTraverser);
 };
 
 #endif  // COMPILER_TRANSLATOR_INTERMNODE_H_

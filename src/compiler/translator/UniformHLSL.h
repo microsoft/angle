@@ -19,7 +19,7 @@ class StructureHLSL;
 class UniformHLSL
 {
   public:
-    UniformHLSL(StructureHLSL *structureHLSL, TranslatorHLSL *translator);
+    UniformHLSL(StructureHLSL *structureHLSL, ShShaderOutput outputType, const std::vector<Uniform> &uniforms);
 
     void reserveUniformRegisters(unsigned int registerCount);
     void reserveInterfaceBlockRegisters(unsigned int registerCount);
@@ -39,6 +39,8 @@ class UniformHLSL
     }
 
   private:
+    DISALLOW_COPY_AND_ASSIGN(UniformHLSL);
+
     TString interfaceBlockString(const TInterfaceBlock &interfaceBlock, unsigned int registerIndex, unsigned int arrayIndex);
     TString interfaceBlockMembersString(const TInterfaceBlock &interfaceBlock, TLayoutBlockStorage blockStorage);
     TString interfaceBlockStructString(const TInterfaceBlock &interfaceBlock);

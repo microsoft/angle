@@ -71,6 +71,8 @@ WHICH GENERATES THE GLSL ES PARSER (glslang_tab.cpp AND glslang_tab.h).
             TIntermNodePair nodePair;
             TIntermTyped* intermTypedNode;
             TIntermAggregate* intermAggregate;
+            TIntermSwitch* intermSwitch;
+            TIntermCase* intermCase;
         };
         union {
             TPublicType type;
@@ -178,6 +180,8 @@ extern void yyerror(YYLTYPE* yylloc, TParseContext* context, void *scanner, cons
 %type <interm.intermNode> declaration external_declaration
 %type <interm.intermNode> for_init_statement compound_statement_no_new_scope
 %type <interm.nodePair> selection_rest_statement for_rest_statement
+%type <interm.intermSwitch> switch_statement
+%type <interm.intermCase> case_label
 %type <interm.intermNode> iteration_statement jump_statement statement_no_new_scope statement_with_scope
 %type <interm> single_declaration init_declarator_list
 
@@ -272,24 +276,10 @@ postfix_expression
         $$ = context->addFieldSelectionExpression($1, @2, *$3.string, @3);
     }
     | postfix_expression INC_OP {
-        if (context->lValueErrorCheck(@2, "++", $1))
-            context->recover();
-        $$ = context->intermediate.addUnaryMath(EOpPostIncrement, $1, @2);
-        if ($$ == 0) {
-            context->unaryOpError(@2, "++", $1->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addUnaryMathLValue(EOpPostIncrement, $1, @2);
     }
     | postfix_expression DEC_OP {
-        if (context->lValueErrorCheck(@2, "--", $1))
-            context->recover();
-        $$ = context->intermediate.addUnaryMath(EOpPostDecrement, $1, @2);
-        if ($$ == 0) {
-            context->unaryOpError(@2, "--", $1->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addUnaryMathLValue(EOpPostDecrement, $1, @2);
     }
     ;
 
@@ -303,118 +293,12 @@ integer_expression
 
 function_call
     : function_call_or_method {
-        TFunction* fnCall = $1.function;
-        TOperator op = fnCall->getBuiltInOp();
-
-        if (op != EOpNull)
+        bool fatalError = false;
+        $$ = context->addFunctionCallOrMethod($1.function, $1.intermNode, @1, &fatalError);
+        if (fatalError)
         {
-            //
-            // Then this should be a constructor.
-            // Don't go through the symbol table for constructors.
-            // Their parameters will be verified algorithmically.
-            //
-            TType type(EbtVoid, EbpUndefined);  // use this to get the type back
-            if (context->constructorErrorCheck(@1, $1.intermNode, *fnCall, op, &type)) {
-                $$ = 0;
-            } else {
-                //
-                // It's a constructor, of type 'type'.
-                //
-                $$ = context->addConstructor($1.intermNode, &type, op, fnCall, @1);
-            }
-
-            if ($$ == 0) {
-                context->recover();
-                $$ = context->intermediate.setAggregateOperator(0, op, @1);
-            }
-            $$->setType(type);
-        } else {
-            //
-            // Not a constructor.  Find it in the symbol table.
-            //
-            const TFunction* fnCandidate;
-            bool builtIn;
-            fnCandidate = context->findFunction(@1, fnCall, context->shaderVersion, &builtIn);
-            if (fnCandidate) {
-                //
-                // A declared function.
-                //
-                if (builtIn && !fnCandidate->getExtension().empty() &&
-                    context->extensionErrorCheck(@1, fnCandidate->getExtension())) {
-                    context->recover();
-                }
-                op = fnCandidate->getBuiltInOp();
-                if (builtIn && op != EOpNull) {
-                    //
-                    // A function call mapped to a built-in operation.
-                    //
-                    if (fnCandidate->getParamCount() == 1) {
-                        //
-                        // Treat it like a built-in unary operator.
-                        //
-                        $$ = context->intermediate.addUnaryMath(op, $1.intermNode, @1);
-                        if ($$ == 0)  {
-                            std::stringstream extraInfoStream;
-                            extraInfoStream << "built in unary operator function.  Type: " << static_cast<TIntermTyped*>($1.intermNode)->getCompleteString();
-                            std::string extraInfo = extraInfoStream.str();
-                            context->error($1.intermNode->getLine(), " wrong operand type", "Internal Error", extraInfo.c_str());
-                            YYERROR;
-                        }
-                        const TType& returnType = fnCandidate->getReturnType();
-                        if (returnType.getBasicType() == EbtBool) {
-                            // Bool types should not have precision, so we'll override any precision
-                            // that might have been set by addUnaryMath.
-                            $$->setType(returnType);
-                        } else {
-                            // addUnaryMath has set the precision of the node based on the operand.
-                            $$->setTypePreservePrecision(returnType);
-                        }
-                    } else {
-                        TIntermAggregate *aggregate = context->intermediate.setAggregateOperator($1.intermAggregate, op, @1);
-                        aggregate->setType(fnCandidate->getReturnType());
-                        aggregate->setPrecisionFromChildren();
-                        $$ = aggregate;
-                    }
-                } else {
-                    // This is a real function call
-
-                    TIntermAggregate *aggregate = context->intermediate.setAggregateOperator($1.intermAggregate, EOpFunctionCall, @1);
-                    aggregate->setType(fnCandidate->getReturnType());
-
-                    // this is how we know whether the given function is a builtIn function or a user defined function
-                    // if builtIn == false, it's a userDefined -> could be an overloaded builtIn function also
-                    // if builtIn == true, it's definitely a builtIn function with EOpNull
-                    if (!builtIn)
-                        aggregate->setUserDefined();
-                    aggregate->setName(fnCandidate->getMangledName());
-
-                    // This needs to happen after the name is set
-                    if (builtIn)
-                        aggregate->setBuiltInFunctionPrecision();
-
-                    $$ = aggregate;
-
-                    TQualifier qual;
-                    for (size_t i = 0; i < fnCandidate->getParamCount(); ++i) {
-                        qual = fnCandidate->getParam(i).type->getQualifier();
-                        if (qual == EvqOut || qual == EvqInOut) {
-                            if (context->lValueErrorCheck($$->getLine(), "assign", (*($$->getAsAggregate()->getSequence()))[i]->getAsTyped())) {
-                                context->error($1.intermNode->getLine(), "Constant value cannot be passed for 'out' or 'inout' parameters.", "Error");
-                                context->recover();
-                            }
-                        }
-                    }
-                }
-            } else {
-                // error message was put out by PaFindFunction()
-                // Put on a dummy node for error recovery
-                ConstantUnion *unionArray = new ConstantUnion[1];
-                unionArray->setFConst(0.0f);
-                $$ = context->intermediate.addConstantUnion(unionArray, TType(EbtFloat, EbpUndefined, EvqConst), @1);
-                context->recover();
-            }
+            YYERROR;
         }
-        delete fnCall;
     }
     ;
 
@@ -490,41 +374,14 @@ unary_expression
         $$ = $1;
     }
     | INC_OP unary_expression {
-        if (context->lValueErrorCheck(@1, "++", $2))
-            context->recover();
-        $$ = context->intermediate.addUnaryMath(EOpPreIncrement, $2, @1);
-        if ($$ == 0) {
-            context->unaryOpError(@1, "++", $2->getCompleteString());
-            context->recover();
-            $$ = $2;
-        }
+        $$ = context->addUnaryMathLValue(EOpPreIncrement, $2, @1);
     }
     | DEC_OP unary_expression {
-        if (context->lValueErrorCheck(@1, "--", $2))
-            context->recover();
-        $$ = context->intermediate.addUnaryMath(EOpPreDecrement, $2, @1);
-        if ($$ == 0) {
-            context->unaryOpError(@1, "--", $2->getCompleteString());
-            context->recover();
-            $$ = $2;
-        }
+        $$ = context->addUnaryMathLValue(EOpPreDecrement, $2, @1);
     }
     | unary_operator unary_expression {
         if ($1.op != EOpNull) {
-            $$ = context->intermediate.addUnaryMath($1.op, $2, @1);
-            if ($$ == 0) {
-                const char* errorOp = "";
-                switch($1.op) {
-                  case EOpNegative:   errorOp = "-"; break;
-                  case EOpPositive:   errorOp = "+"; break;
-                  case EOpLogicalNot: errorOp = "!"; break;
-                  case EOpBitwiseNot: errorOp = "~"; break;
-                  default: break;
-                }
-                context->unaryOpError(@1, errorOp, $2->getCompleteString());
-                context->recover();
-                $$ = $2;
-            }
+            $$ = context->addUnaryMath($1.op, $2, @1);
         } else
             $$ = $2;
     }
@@ -545,49 +402,24 @@ unary_operator
 multiplicative_expression
     : unary_expression { $$ = $1; }
     | multiplicative_expression STAR unary_expression {
-        $$ = context->intermediate.addBinaryMath(EOpMul, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "*", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addBinaryMath(EOpMul, $1, $3, @2);
     }
     | multiplicative_expression SLASH unary_expression {
-        $$ = context->intermediate.addBinaryMath(EOpDiv, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "/", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addBinaryMath(EOpDiv, $1, $3, @2);
     }
     | multiplicative_expression PERCENT unary_expression {
         ES3_ONLY("%", @2, "integer modulus operator");
-        $$ = context->intermediate.addBinaryMath(EOpMod, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "%", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addBinaryMath(EOpIMod, $1, $3, @2);
     }
     ;
 
 additive_expression
     : multiplicative_expression { $$ = $1; }
     | additive_expression PLUS multiplicative_expression {
-        $$ = context->intermediate.addBinaryMath(EOpAdd, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "+", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addBinaryMath(EOpAdd, $1, $3, @2);
     }
     | additive_expression DASH multiplicative_expression {
-        $$ = context->intermediate.addBinaryMath(EOpSub, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "-", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addBinaryMath(EOpSub, $1, $3, @2);
     }
     ;
 
@@ -595,89 +427,37 @@ shift_expression
     : additive_expression { $$ = $1; }
     | shift_expression LEFT_OP additive_expression {
         ES3_ONLY("<<", @2, "bit-wise operator");
-        $$ = context->intermediate.addBinaryMath(EOpBitShiftLeft, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "<<", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addBinaryMath(EOpBitShiftLeft, $1, $3, @2);
     }
     | shift_expression RIGHT_OP additive_expression {
         ES3_ONLY(">>", @2, "bit-wise operator");
-        $$ = context->intermediate.addBinaryMath(EOpBitShiftRight, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, ">>", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addBinaryMath(EOpBitShiftRight, $1, $3, @2);
     }
     ;
 
 relational_expression
     : shift_expression { $$ = $1; }
     | relational_expression LEFT_ANGLE shift_expression {
-        $$ = context->intermediate.addBinaryMath(EOpLessThan, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "<", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            ConstantUnion *unionArray = new ConstantUnion[1];
-            unionArray->setBConst(false);
-            $$ = context->intermediate.addConstantUnion(unionArray, TType(EbtBool, EbpUndefined, EvqConst), @2);
-        }
+        $$ = context->addBinaryMathBooleanResult(EOpLessThan, $1, $3, @2);
     }
     | relational_expression RIGHT_ANGLE shift_expression  {
-        $$ = context->intermediate.addBinaryMath(EOpGreaterThan, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, ">", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            ConstantUnion *unionArray = new ConstantUnion[1];
-            unionArray->setBConst(false);
-            $$ = context->intermediate.addConstantUnion(unionArray, TType(EbtBool, EbpUndefined, EvqConst), @2);
-        }
+        $$ = context->addBinaryMathBooleanResult(EOpGreaterThan, $1, $3, @2);
     }
     | relational_expression LE_OP shift_expression  {
-        $$ = context->intermediate.addBinaryMath(EOpLessThanEqual, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "<=", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            ConstantUnion *unionArray = new ConstantUnion[1];
-            unionArray->setBConst(false);
-            $$ = context->intermediate.addConstantUnion(unionArray, TType(EbtBool, EbpUndefined, EvqConst), @2);
-        }
+        $$ = context->addBinaryMathBooleanResult(EOpLessThanEqual, $1, $3, @2);
     }
     | relational_expression GE_OP shift_expression  {
-        $$ = context->intermediate.addBinaryMath(EOpGreaterThanEqual, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, ">=", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            ConstantUnion *unionArray = new ConstantUnion[1];
-            unionArray->setBConst(false);
-            $$ = context->intermediate.addConstantUnion(unionArray, TType(EbtBool, EbpUndefined, EvqConst), @2);
-        }
+        $$ = context->addBinaryMathBooleanResult(EOpGreaterThanEqual, $1, $3, @2);
     }
     ;
 
 equality_expression
     : relational_expression { $$ = $1; }
     | equality_expression EQ_OP relational_expression  {
-        $$ = context->intermediate.addBinaryMath(EOpEqual, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "==", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            ConstantUnion *unionArray = new ConstantUnion[1];
-            unionArray->setBConst(false);
-            $$ = context->intermediate.addConstantUnion(unionArray, TType(EbtBool, EbpUndefined, EvqConst), @2);
-        }
+        $$ = context->addBinaryMathBooleanResult(EOpEqual, $1, $3, @2);
     }
     | equality_expression NE_OP relational_expression {
-        $$ = context->intermediate.addBinaryMath(EOpNotEqual, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "!=", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            ConstantUnion *unionArray = new ConstantUnion[1];
-            unionArray->setBConst(false);
-            $$ = context->intermediate.addConstantUnion(unionArray, TType(EbtBool, EbpUndefined, EvqConst), @2);
-        }
+        $$ = context->addBinaryMathBooleanResult(EOpNotEqual, $1, $3, @2);
     }
     ;
 
@@ -685,12 +465,7 @@ and_expression
     : equality_expression { $$ = $1; }
     | and_expression AMPERSAND equality_expression {
         ES3_ONLY("&", @2, "bit-wise operator");
-        $$ = context->intermediate.addBinaryMath(EOpBitwiseAnd, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "&", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addBinaryMath(EOpBitwiseAnd, $1, $3, @2);
     }
     ;
 
@@ -698,12 +473,7 @@ exclusive_or_expression
     : and_expression { $$ = $1; }
     | exclusive_or_expression CARET and_expression {
         ES3_ONLY("^", @2, "bit-wise operator");
-        $$ = context->intermediate.addBinaryMath(EOpBitwiseXor, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "^", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addBinaryMath(EOpBitwiseXor, $1, $3, @2);
     }
     ;
 
@@ -711,54 +481,28 @@ inclusive_or_expression
     : exclusive_or_expression { $$ = $1; }
     | inclusive_or_expression VERTICAL_BAR exclusive_or_expression {
         ES3_ONLY("|", @2, "bit-wise operator");
-        $$ = context->intermediate.addBinaryMath(EOpBitwiseOr, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "|", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addBinaryMath(EOpBitwiseOr, $1, $3, @2);
     }
     ;
 
 logical_and_expression
     : inclusive_or_expression { $$ = $1; }
     | logical_and_expression AND_OP inclusive_or_expression {
-        $$ = context->intermediate.addBinaryMath(EOpLogicalAnd, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "&&", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            ConstantUnion *unionArray = new ConstantUnion[1];
-            unionArray->setBConst(false);
-            $$ = context->intermediate.addConstantUnion(unionArray, TType(EbtBool, EbpUndefined, EvqConst), @2);
-        }
+        $$ = context->addBinaryMathBooleanResult(EOpLogicalAnd, $1, $3, @2);
     }
     ;
 
 logical_xor_expression
     : logical_and_expression { $$ = $1; }
     | logical_xor_expression XOR_OP logical_and_expression  {
-        $$ = context->intermediate.addBinaryMath(EOpLogicalXor, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "^^", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            ConstantUnion *unionArray = new ConstantUnion[1];
-            unionArray->setBConst(false);
-            $$ = context->intermediate.addConstantUnion(unionArray, TType(EbtBool, EbpUndefined, EvqConst), @2);
-        }
+        $$ = context->addBinaryMathBooleanResult(EOpLogicalXor, $1, $3, @2);
     }
     ;
 
 logical_or_expression
     : logical_xor_expression { $$ = $1; }
     | logical_or_expression OR_OP logical_xor_expression  {
-        $$ = context->intermediate.addBinaryMath(EOpLogicalOr, $1, $3, @2);
-        if ($$ == 0) {
-            context->binaryOpError(@2, "||", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            ConstantUnion *unionArray = new ConstantUnion[1];
-            unionArray->setBConst(false);
-            $$ = context->intermediate.addConstantUnion(unionArray, TType(EbtBool, EbpUndefined, EvqConst), @2);
-        }
+        $$ = context->addBinaryMathBooleanResult(EOpLogicalOr, $1, $3, @2);
     }
     ;
 
@@ -800,7 +544,7 @@ assignment_operator
     | DIV_ASSIGN   { $$.op = EOpDivAssign; }
     | MOD_ASSIGN   {
         ES3_ONLY("%=", @$, "integer modulus operator");
-        $$.op = EOpModAssign;
+        $$.op = EOpIModAssign;
     }
     | ADD_ASSIGN   { $$.op = EOpAddAssign; }
     | SUB_ASSIGN   { $$.op = EOpSubAssign; }
@@ -1681,12 +1425,14 @@ statement
     | simple_statement    { $$ = $1; }
     ;
 
-// Grammar Note:  No labeled statements; 'goto' is not supported.
+// Grammar Note:  Labeled statements for SWITCH only; 'goto' is not supported.
 
 simple_statement
     : declaration_statement { $$ = $1; }
     | expression_statement  { $$ = $1; }
     | selection_statement   { $$ = $1; }
+    | switch_statement      { $$ = $1; }
+    | case_label            { $$ = $1; }
     | iteration_statement   { $$ = $1; }
     | jump_statement        { $$ = $1; }
     ;
@@ -1759,7 +1505,21 @@ selection_rest_statement
     }
     ;
 
-// Grammar Note:  No 'switch'.  Switch statements not supported.
+switch_statement
+    : SWITCH LEFT_PAREN expression RIGHT_PAREN { ++context->mSwitchNestingLevel; } compound_statement {
+        $$ = context->addSwitch($3, $6, @1);
+        --context->mSwitchNestingLevel;
+    }
+    ;
+
+case_label
+    : CASE constant_expression COLON {
+        $$ = context->addCase($2, @1);
+    }
+    | DEFAULT COLON {
+        $$ = context->addDefault(@1);
+    }
+    ;
 
 condition
     // In 1996 c++ draft, conditions can include single declarations
@@ -1785,22 +1545,22 @@ condition
     ;
 
 iteration_statement
-    : WHILE LEFT_PAREN { context->symbolTable.push(); ++context->loopNestingLevel; } condition RIGHT_PAREN statement_no_new_scope {
+    : WHILE LEFT_PAREN { context->symbolTable.push(); ++context->mLoopNestingLevel; } condition RIGHT_PAREN statement_no_new_scope {
         context->symbolTable.pop();
         $$ = context->intermediate.addLoop(ELoopWhile, 0, $4, 0, $6, @1);
-        --context->loopNestingLevel;
+        --context->mLoopNestingLevel;
     }
-    | DO { ++context->loopNestingLevel; } statement_with_scope WHILE LEFT_PAREN expression RIGHT_PAREN SEMICOLON {
+    | DO { ++context->mLoopNestingLevel; } statement_with_scope WHILE LEFT_PAREN expression RIGHT_PAREN SEMICOLON {
         if (context->boolErrorCheck(@8, $6))
             context->recover();
 
         $$ = context->intermediate.addLoop(ELoopDoWhile, 0, $6, 0, $3, @4);
-        --context->loopNestingLevel;
+        --context->mLoopNestingLevel;
     }
-    | FOR LEFT_PAREN { context->symbolTable.push(); ++context->loopNestingLevel; } for_init_statement for_rest_statement RIGHT_PAREN statement_no_new_scope {
+    | FOR LEFT_PAREN { context->symbolTable.push(); ++context->mLoopNestingLevel; } for_init_statement for_rest_statement RIGHT_PAREN statement_no_new_scope {
         context->symbolTable.pop();
         $$ = context->intermediate.addLoop(ELoopFor, $4, reinterpret_cast<TIntermTyped*>($5.node1), reinterpret_cast<TIntermTyped*>($5.node2), $7, @1);
-        --context->loopNestingLevel;
+        --context->mLoopNestingLevel;
     }
     ;
 
@@ -1835,40 +1595,20 @@ for_rest_statement
 
 jump_statement
     : CONTINUE SEMICOLON {
-        if (context->loopNestingLevel <= 0) {
-            context->error(@1, "continue statement only allowed in loops", "");
-            context->recover();
-        }
-        $$ = context->intermediate.addBranch(EOpContinue, @1);
+        $$ = context->addBranch(EOpContinue, @1);
     }
     | BREAK SEMICOLON {
-        if (context->loopNestingLevel <= 0) {
-            context->error(@1, "break statement only allowed in loops", "");
-            context->recover();
-        }
-        $$ = context->intermediate.addBranch(EOpBreak, @1);
+        $$ = context->addBranch(EOpBreak, @1);
     }
     | RETURN SEMICOLON {
-        $$ = context->intermediate.addBranch(EOpReturn, @1);
-        if (context->currentFunctionType->getBasicType() != EbtVoid) {
-            context->error(@1, "non-void function must return a value", "return");
-            context->recover();
-        }
+        $$ = context->addBranch(EOpReturn, @1);
     }
     | RETURN expression SEMICOLON {
-        $$ = context->intermediate.addBranch(EOpReturn, $2, @1);
-        context->functionReturnsValue = true;
-        if (context->currentFunctionType->getBasicType() == EbtVoid) {
-            context->error(@1, "void function cannot return a value", "return");
-            context->recover();
-        } else if (*(context->currentFunctionType) != $2->getType()) {
-            context->error(@1, "function return is not matching type:", "return");
-            context->recover();
-        }
+        $$ = context->addBranch(EOpReturn, $2, @1);
     }
     | DISCARD SEMICOLON {
         FRAG_ONLY("discard", @1);
-        $$ = context->intermediate.addBranch(EOpKill, @1);
+        $$ = context->addBranch(EOpKill, @1);
     }
     ;
 
@@ -1939,7 +1679,7 @@ function_definition
         // Remember the return type for later checking for RETURN statements.
         //
         context->currentFunctionType = &(prevDec->getReturnType());
-        context->functionReturnsValue = false;
+        context->mFunctionReturnsValue = false;
 
         //
         // Insert parameters into the symbol table.
@@ -1978,12 +1718,12 @@ function_definition
         }
         context->intermediate.setAggregateOperator(paramNodes, EOpParameters, @1);
         $1.intermAggregate = paramNodes;
-        context->loopNestingLevel = 0;
+        context->mLoopNestingLevel = 0;
     }
     compound_statement_no_new_scope {
         //?? Check that all paths return a value if return type != void ?
         //   May be best done as post process phase on intermediate code
-        if (context->currentFunctionType->getBasicType() != EbtVoid && ! context->functionReturnsValue) {
+        if (context->currentFunctionType->getBasicType() != EbtVoid && ! context->mFunctionReturnsValue) {
             context->error(@1, "function does not return a value:", "", $1.function->getName().c_str());
             context->recover();
         }

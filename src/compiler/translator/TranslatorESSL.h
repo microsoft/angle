@@ -9,14 +9,17 @@
 
 #include "compiler/translator/Compiler.h"
 
-class TranslatorESSL : public TCompiler {
-public:
+class TranslatorESSL : public TCompiler
+{
+  public:
     TranslatorESSL(sh::GLenum type, ShShaderSpec spec);
 
-protected:
-    virtual void translate(TIntermNode* root);
+  protected:
+    void initBuiltInFunctionEmulator(BuiltInFunctionEmulator *emu, int compileOptions) override;
 
-private:
+    virtual void translate(TIntermNode *root, int compileOptions);
+
+  private:
     void writeExtensionBehavior();
 };
 

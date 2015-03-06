@@ -36,12 +36,16 @@ class SurfaceD3D : public SurfaceImpl
     void releaseSwapChain();
 
     egl::Error initialize() override;
+
     egl::Error swap() override;
     egl::Error postSubBuffer(EGLint x, EGLint y, EGLint width, EGLint height) override;
     egl::Error querySurfacePointerANGLE(EGLint attribute, void **value) override;
     egl::Error bindTexImage(EGLint buffer) override;
     egl::Error releaseTexImage(EGLint buffer) override;
     void setSwapInterval(EGLint interval) override;
+
+    EGLint getWidth() const override;
+    EGLint getHeight() const override;
 
     // D3D implementations (some virtual to hack across DLL boundaries)
     virtual SwapChainD3D *getSwapChain() const;
@@ -75,6 +79,12 @@ class SurfaceD3D : public SurfaceImpl
     bool mRenderToBackBuffer;
 
     NativeWindow mNativeWindow;   // Handler for the Window that the surface is created for.
+    EGLint mWidth;
+    EGLint mHeight;
+
+    EGLint mSwapInterval;
+
+    HANDLE mShareHandle;
 };
 
 

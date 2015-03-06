@@ -228,22 +228,24 @@ D3D11_QUERY ConvertQueryType(GLenum queryType)
 namespace d3d11_gl
 {
 
-static bool IsCompressedTextureFormat(GLenum format)
+GLint GetMaximumClientVersion(D3D_FEATURE_LEVEL featureLevel)
 {
-    switch (format)
+    switch (featureLevel)
     {
-    case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
-    case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
-    case GL_COMPRESSED_RGBA_S3TC_DXT3_ANGLE:
-    case GL_COMPRESSED_RGBA_S3TC_DXT5_ANGLE:
-        return true;
-    default:
-        break;
+      case D3D_FEATURE_LEVEL_11_1:
+      case D3D_FEATURE_LEVEL_11_0:
+      case D3D_FEATURE_LEVEL_10_1:
+      case D3D_FEATURE_LEVEL_10_0: return 3;
+
+      case D3D_FEATURE_LEVEL_9_3:
+      case D3D_FEATURE_LEVEL_9_2:
+      case D3D_FEATURE_LEVEL_9_1:  return 2;
+
+      default: UNREACHABLE();      return 0;
     }
-    return false;
 }
 
-static gl::TextureCaps GenerateTextureFormatCaps(GLenum internalFormat, ID3D11Device *device)
+static gl::TextureCaps GenerateTextureFormatCaps(GLint maxClientVersion, GLenum internalFormat, ID3D11Device *device)
 {
     gl::TextureCaps textureCaps;
 
@@ -257,16 +259,14 @@ static gl::TextureCaps GenerateTextureFormatCaps(GLenum internalFormat, ID3D11De
         {
             textureCaps.texturable = ((formatSupport & D3D11_FORMAT_SUPPORT_TEXTURE2D) != 0);
         }
-        else if (IsCompressedTextureFormat(internalFormat))
-        {
-            textureCaps.texturable = ((formatSupport & D3D11_FORMAT_SUPPORT_TEXTURE2D) != 0) &&
-                                     ((formatSupport & D3D11_FORMAT_SUPPORT_TEXTURECUBE) != 0);
-        }
         else
         {
-            textureCaps.texturable = ((formatSupport & D3D11_FORMAT_SUPPORT_TEXTURE2D) != 0) &&
-                                     ((formatSupport & D3D11_FORMAT_SUPPORT_TEXTURECUBE) != 0) &&
-                                     ((formatSupport & D3D11_FORMAT_SUPPORT_TEXTURE3D) != 0);
+            UINT formatSupportMask = D3D11_FORMAT_SUPPORT_TEXTURE2D | D3D11_FORMAT_SUPPORT_TEXTURECUBE;
+            if (maxClientVersion > 2)
+            {
+                formatSupportMask |= D3D11_FORMAT_SUPPORT_TEXTURE3D;
+            }
+            textureCaps.texturable = ((formatSupport & formatSupportMask) == formatSupportMask);
         }
     }
 
@@ -936,11 +936,13 @@ static size_t GetMaximumStreamOutputSeparateComponents(D3D_FEATURE_LEVEL feature
 
 void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *textureCapsMap, gl::Extensions *extensions)
 {
+    D3D_FEATURE_LEVEL featureLevel = device->GetFeatureLevel();
+
     GLuint maxSamples = 0;
     const gl::FormatSet &allFormats = gl::GetAllSizedInternalFormats();
     for (gl::FormatSet::const_iterator internalFormat = allFormats.begin(); internalFormat != allFormats.end(); ++internalFormat)
     {
-        gl::TextureCaps textureCaps = GenerateTextureFormatCaps(*internalFormat, device);
+        gl::TextureCaps textureCaps = GenerateTextureFormatCaps(GetMaximumClientVersion(featureLevel), *internalFormat, device);
         textureCapsMap->insert(*internalFormat, textureCaps);
 
         maxSamples = std::max(maxSamples, textureCaps.getMaxSamples());
@@ -950,8 +952,6 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
             caps->compressedTextureFormats.push_back(*internalFormat);
         }
     }
-
-    D3D_FEATURE_LEVEL featureLevel = device->GetFeatureLevel();
 
     // GL core feature limits
     caps->maxElementIndex = static_cast<GLint64>(std::numeric_limits<unsigned int>::max());
@@ -989,6 +989,21 @@ void GenerateCaps(ID3D11Device *device, gl::Caps *caps, gl::TextureCapsMap *text
 
     // Program and shader binary formats (no supported shader binary formats)
     caps->programBinaryFormats.push_back(GL_PROGRAM_BINARY_ANGLE);
+
+    caps->vertexHighpFloat.setIEEEFloat();
+    caps->vertexMediumpFloat.setIEEEFloat();
+    caps->vertexLowpFloat.setIEEEFloat();
+    caps->fragmentHighpFloat.setIEEEFloat();
+    caps->fragmentMediumpFloat.setIEEEFloat();
+    caps->fragmentLowpFloat.setIEEEFloat();
+
+    // 32-bit integers are natively supported
+    caps->vertexHighpInt.setTwosComplementInt(32);
+    caps->vertexMediumpInt.setTwosComplementInt(32);
+    caps->vertexLowpInt.setTwosComplementInt(32);
+    caps->fragmentHighpInt.setTwosComplementInt(32);
+    caps->fragmentMediumpInt.setTwosComplementInt(32);
+    caps->fragmentLowpInt.setTwosComplementInt(32);
 
     // We do not wait for server fence objects internally, so report a max timeout of zero.
     caps->maxServerWaitTimeout = 0;

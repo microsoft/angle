@@ -244,6 +244,21 @@ bool TIntermSelection::replaceChildNode(
     return false;
 }
 
+bool TIntermSwitch::replaceChildNode(
+    TIntermNode *original, TIntermNode *replacement)
+{
+    REPLACE_IF_IS(mInit, TIntermTyped, original, replacement);
+    REPLACE_IF_IS(mStatementList, TIntermAggregate, original, replacement);
+    return false;
+}
+
+bool TIntermCase::replaceChildNode(
+    TIntermNode *original, TIntermNode *replacement)
+{
+    REPLACE_IF_IS(mCondition, TIntermTyped, original, replacement);
+    return false;
+}
+
 //
 // Say whether or not an operation node changes the value of a variable.
 //
@@ -264,7 +279,7 @@ bool TIntermOperator::isAssignment() const
       case EOpMatrixTimesScalarAssign:
       case EOpMatrixTimesMatrixAssign:
       case EOpDivAssign:
-      case EOpModAssign:
+      case EOpIModAssign:
       case EOpBitShiftLeftAssign:
       case EOpBitShiftRightAssign:
       case EOpBitwiseAndAssign:
@@ -337,7 +352,8 @@ bool TIntermUnary::promote(TInfoSink &)
             return false;
         break;
 
-      // operators for built-ins are already type checked against their prototype
+      // Operators for built-ins are already type checked against their prototype
+      // and some of them get the type of their return value assigned elsewhere.
       case EOpAny:
       case EOpAll:
       case EOpVectorLogicalNot:
@@ -347,6 +363,10 @@ bool TIntermUnary::promote(TInfoSink &)
       case EOpUnpackUnorm2x16:
       case EOpUnpackHalf2x16:
         return true;
+
+      case EOpAbs:
+      case EOpSign:
+        break;
 
       default:
         if (mOperand->getBasicType() != EbtFloat)
@@ -605,7 +625,7 @@ bool TIntermBinary::promote(TInfoSink &infoSink)
       case EOpAdd:
       case EOpSub:
       case EOpDiv:
-      case EOpMod:
+      case EOpIMod:
       case EOpBitShiftLeft:
       case EOpBitShiftRight:
       case EOpBitwiseAnd:
@@ -614,7 +634,7 @@ bool TIntermBinary::promote(TInfoSink &infoSink)
       case EOpAddAssign:
       case EOpSubAssign:
       case EOpDivAssign:
-      case EOpModAssign:
+      case EOpIModAssign:
       case EOpBitShiftLeftAssign:
       case EOpBitShiftRightAssign:
       case EOpBitwiseAndAssign:
@@ -792,7 +812,7 @@ TIntermTyped *TIntermConstantUnion::fold(
             break;
 
           case EOpDiv:
-          case EOpMod:
+          case EOpIMod:
             {
                 tempConstArray = new ConstantUnion[objectSize];
                 for (size_t i = 0; i < objectSize; i++)
@@ -810,6 +830,7 @@ TIntermTyped *TIntermConstantUnion::fold(
                         }
                         else
                         {
+                            ASSERT(op == EOpDiv);
                             tempConstArray[i].setFConst(
                                 unionArray[i].getFConst() /
                                 rightUnionArray[i].getFConst());
@@ -826,9 +847,19 @@ TIntermTyped *TIntermConstantUnion::fold(
                         }
                         else
                         {
-                            tempConstArray[i].setIConst(
-                                unionArray[i].getIConst() /
-                                rightUnionArray[i].getIConst());
+                            if (op == EOpDiv)
+                            {
+                                tempConstArray[i].setIConst(
+                                    unionArray[i].getIConst() /
+                                    rightUnionArray[i].getIConst());
+                            }
+                            else
+                            {
+                                ASSERT(op == EOpIMod);
+                                tempConstArray[i].setIConst(
+                                    unionArray[i].getIConst() %
+                                    rightUnionArray[i].getIConst());
+                            }
                         }
                         break;
 
@@ -842,9 +873,19 @@ TIntermTyped *TIntermConstantUnion::fold(
                         }
                         else
                         {
-                            tempConstArray[i].setUConst(
-                                unionArray[i].getUConst() /
-                                rightUnionArray[i].getUConst());
+                            if (op == EOpDiv)
+                            {
+                                tempConstArray[i].setUConst(
+                                    unionArray[i].getUConst() /
+                                    rightUnionArray[i].getUConst());
+                            }
+                            else
+                            {
+                                ASSERT(op == EOpIMod);
+                                tempConstArray[i].setUConst(
+                                    unionArray[i].getUConst() %
+                                    rightUnionArray[i].getUConst());
+                            }
                         }
                         break;
 

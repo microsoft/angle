@@ -15,12 +15,16 @@
         'angle_use_commit_id%': '<!(python <(angle_id_script_base) check ..)',
         'angle_enable_d3d9%': 0,
         'angle_enable_d3d11%': 0,
+        'angle_enable_gl%': 0,
+        'angle_enable_hlsl%': 0,
         'conditions':
         [
             ['OS=="win"',
             {
+                'angle_enable_gl%': 1,
                 'angle_enable_d3d9%': 1,
                 'angle_enable_d3d11%': 1,
+                'angle_enable_hlsl%': 1,
             }],
         ],
     },
