@@ -973,19 +973,35 @@ LinkResult ProgramD3D::compileProgramExecutables(gl::InfoLog &infoLog, gl::Shade
     gl::Error vertexShaderResult(GL_NO_ERROR);
     gl::InfoLog tempVertexShaderInfoLog;
 
+    ShaderExecutableD3D* defaultVertexExecutable = NULL;
+
 #if ANGLE_MULTITHREADED_D3D_SHADER_COMPILE == ANGLE_ENABLED
+    HANDLE vertexShaderTaskHandle = NULL;
+
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    // You are not allowed to call .wait() on async tasks from certain threads in Windows Store applications.
+    // We work around this by using event handles instead.
+    vertexShaderTaskHandle = CreateEventEx(NULL, NULL, 0, EVENT_ALL_ACCESS);
+    if (vertexShaderTaskHandle == NULL)
+    {
+        return LinkResult(false, gl::Error(GL_OUT_OF_MEMORY));
+    }
+#endif // ANGLE_ENABLE_WINDOWS_STORE
+
     // Use an async task to begin compiling the vertex shader asynchronously on its own task.
-    std::future<ShaderExecutableD3D*> vertexShaderTask = std::async([this, vertexShader, &tempVertexShaderInfoLog, &vertexShaderResult]()
+    std::future<void> vertexShaderTask = std::async([this, vertexShader, &tempVertexShaderInfoLog,
+                                                     &defaultVertexExecutable, &vertexShaderTaskHandle, &vertexShaderResult]()
     {
 #endif // ANGLE_MULTITHREADED_D3D_SHADER_COMPILE
 
         gl::VertexFormat defaultInputLayout[gl::MAX_VERTEX_ATTRIBS];
         GetDefaultInputLayoutFromShader(vertexShader->getActiveAttributes(), defaultInputLayout);
-        ShaderExecutableD3D *defaultVertexExecutable = NULL;
         vertexShaderResult = getVertexExecutableForInputLayout(defaultInputLayout, &defaultVertexExecutable, &tempVertexShaderInfoLog);
 
 #if ANGLE_MULTITHREADED_D3D_SHADER_COMPILE == ANGLE_ENABLED
-        return defaultVertexExecutable;
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+        SetEvent(vertexShaderTaskHandle);
+#endif // ANGLE_ENABLE_WINDOWS_STORE
     });
 #endif // ANGLE_MULTITHREADED_D3D_SHADER_COMPILE
 
@@ -995,8 +1011,13 @@ LinkResult ProgramD3D::compileProgramExecutables(gl::InfoLog &infoLog, gl::Shade
     gl::Error error = getPixelExecutableForOutputLayout(defaultPixelOutput, &defaultPixelExecutable, &infoLog);
 
 #if ANGLE_MULTITHREADED_D3D_SHADER_COMPILE == ANGLE_ENABLED
-    // Call .get() on the vertex shader compilation. This waits until the task is complete before returning
-    ShaderExecutableD3D *defaultVertexExecutable = vertexShaderTask.get();
+    // Wait on the vertex shader compilation.
+#if defined(ANGLE_ENABLE_WINDOWS_STORE)
+    WaitForSingleObjectEx(vertexShaderTaskHandle, INFINITE, false);
+    CloseHandle(vertexShaderTaskHandle);
+#else
+    vertexShaderTask.wait();
+#endif // ANGLE_ENABLE_WINDOWS_STORE
 #endif // ANGLE_MULTITHREADED_D3D_SHADER_COMPILE
 
     // Combine the temporary infoLog with the real one
