@@ -132,7 +132,7 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
       case EGL_PLATFORM_ANGLE_ANGLE:
         if (!clientExtensions.platformANGLE)
         {
-            SetGlobalError(Error(EGL_SUCCESS));
+            SetGlobalError(Error(EGL_BAD_PARAMETER));
             return EGL_NO_DISPLAY;
         }
         break;
@@ -146,6 +146,7 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
     EGLint deviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE;
     bool majorVersionSpecified = false;
     bool minorVersionSpecified = false;
+    bool enableAutoTrimSpecified = false;
 
     bool requestedAllowRenderToBackBuffer = false;
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
@@ -168,7 +169,7 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                   case EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE:
                     if (!clientExtensions.platformANGLED3D)
                     {
-                        SetGlobalError(Error(EGL_SUCCESS));
+                        SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
                         return EGL_NO_DISPLAY;
                     }
                     break;
@@ -177,13 +178,13 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                   case EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE:
                     if (!clientExtensions.platformANGLEOpenGL)
                     {
-                        SetGlobalError(Error(EGL_SUCCESS));
+                        SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
                         return EGL_NO_DISPLAY;
                     }
                     break;
 
                   default:
-                    SetGlobalError(Error(EGL_SUCCESS));
+                    SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
                     return EGL_NO_DISPLAY;
                 }
                 platformType = curAttrib[1];
@@ -203,10 +204,23 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                 }
                 break;
 
+              case EGL_PLATFORM_ANGLE_ENABLE_AUTOMATIC_TRIM_ANGLE:
+                switch (curAttrib[1])
+                {
+                  case EGL_TRUE:
+                  case EGL_FALSE:
+                    break;
+                  default:
+                    SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
+                    return EGL_NO_DISPLAY;
+                }
+                enableAutoTrimSpecified = true;
+                break;
+
               case EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE:
                 if (!clientExtensions.platformANGLED3D)
                 {
-                    SetGlobalError(Error(EGL_SUCCESS));
+                    SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
                     return EGL_NO_DISPLAY;
                 }
 
@@ -219,7 +233,7 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                     break;
 
                   default:
-                    SetGlobalError(Error(EGL_SUCCESS));
+                    SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
                     return EGL_NO_DISPLAY;
                 }
                 deviceType = curAttrib[1];
@@ -263,6 +277,14 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
     if (platformType != EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE && requestedAllowRenderToBackBuffer)
     {
         SetGlobalError(egl::Error(EGL_BAD_ATTRIBUTE));
+        return EGL_NO_DISPLAY;
+    }
+
+    if (enableAutoTrimSpecified &&
+        platformType != EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
+    {
+        SetGlobalError(Error(EGL_BAD_ATTRIBUTE, "EGL_PLATFORM_ANGLE_ENABLE_AUTOMATIC_TRIM_ANGLE requires a device type of "
+                                                "EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE."));
         return EGL_NO_DISPLAY;
     }
 
