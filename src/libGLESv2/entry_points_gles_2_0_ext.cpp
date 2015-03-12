@@ -682,6 +682,38 @@ void GL_APIENTRY BlitFramebufferANGLE(GLint srcX0, GLint srcY0, GLint srcX1, GLi
     }
 }
 
+void GL_APIENTRY DiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)
+{
+    EVENT("(GLenum target = 0x%X, GLsizei numAttachments = %d, attachments = 0x%0.8p)", target, numAttachments, attachments);
+
+    Context *context = GetValidGlobalContext();
+    if (context)
+    {
+        if (!ValidateDiscardFramebufferEXTParameters(context, target, numAttachments, attachments))
+        {
+            return;
+        }
+
+        Framebuffer *framebuffer = context->getState().getTargetFramebuffer(target);
+        ASSERT(framebuffer);
+
+        if (framebuffer->checkStatus(context->getData()) == GL_FRAMEBUFFER_COMPLETE)
+        {
+            Error error = framebuffer->invalidate(numAttachments, attachments);
+            if (error.isError())
+            {
+                context->recordError(error);
+                return;
+            }
+        }
+        else
+        {
+            // The specification isn't clear what should be done in this case.
+            // Since glDiscardFramebufferEXT is only a hint (and can therefore be ignored by GL), we can just no-op.
+        }
+    }
+}
+
 void GL_APIENTRY TexImage3DOES(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth,
                    GLint border, GLenum format, GLenum type, const GLvoid* pixels)
 {

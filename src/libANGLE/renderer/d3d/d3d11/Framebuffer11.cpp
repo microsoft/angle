@@ -133,6 +133,82 @@ static gl::Error getRenderTargetResource(const gl::FramebufferAttachment *colorb
     return gl::Error(GL_NO_ERROR);
 }
 
+gl::Error Framebuffer11::invalidate(GLsizei count, const GLenum *attachments)
+{
+    ID3D11DeviceContext1 *deviceContext1 = mRenderer->getDeviceContext1IfSupported();
+
+    if (deviceContext1)
+    {
+        for (int i = 0; i < count; ++i)
+        {
+            RenderTarget11 *renderTarget = NULL;
+            ID3D11View *view = NULL;
+            gl::Error error(GL_NO_ERROR);
+
+            switch (attachments[i])
+            {
+              case GL_COLOR_EXT:
+              case GL_COLOR_ATTACHMENT0:
+                  if (mColorBuffers[0])
+                  {
+                      error = d3d11::GetAttachmentRenderTarget(mColorBuffers[0], &renderTarget);
+                      if (error.isError())
+                      {
+                          return error;
+                      }
+
+                      view = renderTarget->getRenderTargetView();
+                  }
+                  break;
+
+              case GL_DEPTH_EXT:
+              case GL_DEPTH_ATTACHMENT:
+                  if (mDepthbuffer)
+                  {
+                      error = d3d11::GetAttachmentRenderTarget(mDepthbuffer, &renderTarget);
+                      if (error.isError())
+                      {
+                          return error;
+                      }
+
+                      view = renderTarget->getDepthStencilView();
+                  }
+                  break;
+
+              case GL_STENCIL_EXT:
+              case GL_STENCIL_ATTACHMENT:
+                  if (mStencilbuffer)
+                  {
+                      error = d3d11::GetAttachmentRenderTarget(mStencilbuffer, &renderTarget);
+                      if (error.isError())
+                      {
+                          return error;
+                      }
+
+                      view = renderTarget->getDepthStencilView();
+                  }
+                  break;
+
+              // glInvalidateFramebuffer can accept other attachments too, but it's legitimate to ignore them.
+              // This current implementation only handles the values accepted by glDiscardFramebufferEXT.
+              default:
+                  break;
+            }
+
+            if (view != NULL)
+            {
+                // Note: the depth and stencil view might be the same view, and DiscardView() will invalidate both of them.
+                // This will occur even if the caller only specified one of {STENCIL, DEPTH}.
+                // This is valid according to Issue 2 in the EXT_discard_framebuffer specification.
+                deviceContext1->DiscardView(view);
+            }
+        }
+
+    }
+
+    return gl::Error(GL_NO_ERROR);
+}
+
 gl::Error Framebuffer11::readPixels(const gl::Rectangle &area, GLenum format, GLenum type, size_t outputPitch, const gl::PixelPackState &pack, uint8_t *pixels) const
 {
     ID3D11Texture2D *colorBufferTexture = NULL;

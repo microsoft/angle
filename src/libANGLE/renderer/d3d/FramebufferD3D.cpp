@@ -115,12 +115,6 @@ void FramebufferD3D::setReadBuffer(GLenum buffer)
     mReadBuffer = buffer;
 }
 
-gl::Error FramebufferD3D::invalidate(size_t, const GLenum *)
-{
-    // No-op in D3D
-    return gl::Error(GL_NO_ERROR);
-}
-
 gl::Error FramebufferD3D::invalidateSub(size_t, const GLenum *, const gl::Rectangle &)
 {
     // No-op in D3D

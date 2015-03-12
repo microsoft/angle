@@ -21,6 +21,8 @@ class Framebuffer11 : public FramebufferD3D
     Framebuffer11(Renderer11 *renderer);
     virtual ~Framebuffer11();
 
+    gl::Error invalidate(GLsizei count, const GLenum *attachments) override;
+
     // Invalidate the cached swizzles of all bound texture attachments.
     gl::Error invalidateSwizzles() const;
 
