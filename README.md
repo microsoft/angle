@@ -53,6 +53,22 @@ Work-in-progress features
 + Compressed texture support.
 + Many other features.
 
+Known Issues
+=====
+The display attribute used to configure an EGLDisplay to use WARP has been changed.
+You might see the following compiler error:
+
+    "error C2065: 'EGL_PLATFORM_ANGLE_USE_WARP_ANGLE' : undeclared identifier" 
+    
+This can be fixed by replacing the display attribute:
+
+From:
+
+    EGL_PLATFORM_ANGLE_USE_WARP_ANGLE, EGL_TRUE
+To:
+
+    EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE
+
 Feedback
 =====
 If you have feedback about this branch then we would love to hear it. Please 
