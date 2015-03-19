@@ -713,6 +713,16 @@ D3D11LoadFunctionMap BuildD3D11LoadFunctionMap()
     return map;
 }
 
+D3D11LoadFunctionMap BuildD3D11_FL9_3LoadFunctionOverrideMap()
+{
+	D3D11LoadFunctionMap map;
+
+	//                     | Internal format      | Type                             | Load function                       |
+	InsertLoadFunction(&map, GL_ALPHA8_EXT,         GL_UNSIGNED_BYTE,                  LoadA8ToBGRA8);
+
+	return map;
+}
+
 // For sized GL internal formats, there is only one corresponding D3D11 format. This map type allows
 // querying for the DXGI texture formats to use for textures, SRVs, RTVs and DSVs given a GL internal
 // format.
@@ -818,8 +828,9 @@ static inline void InsertD3D11FormatInfo(D3D11ES3FormatMap *map, GLenum internal
     info.dataInitializerFunction = (initializerIter != initializerMap.end()) ? initializerIter->second : NULL;
 
     // Gather all the load functions for this internal format
-    static const D3D11LoadFunctionMap loadFunctions = BuildD3D11LoadFunctionMap();
+    static const D3D11LoadFunctionMap loadFunctions = BuildD3D11LoadFunctionMap();	
     D3D11LoadFunctionMap::const_iterator loadFunctionIter = loadFunctions.find(internalFormat);
+	
     if (loadFunctionIter != loadFunctions.end())
     {
         const std::vector<TypeLoadFunctionPair> &loadFunctionVector = loadFunctionIter->second;
@@ -830,6 +841,19 @@ static inline void InsertD3D11FormatInfo(D3D11ES3FormatMap *map, GLenum internal
             info.loadFunctions.insert(std::make_pair(type, function));
         }
     }
+
+	static const D3D11LoadFunctionMap loadFunctionsOverride = BuildD3D11_FL9_3LoadFunctionOverrideMap();
+	D3D11LoadFunctionMap::const_iterator loadFunctionOverrideIter = loadFunctionsOverride.find(internalFormat);
+	if (loadFunctionOverrideIter != loadFunctionsOverride.end())
+	{
+		const std::vector<TypeLoadFunctionPair> &loadFunctionOverrideVector = loadFunctionOverrideIter->second;
+		for (size_t i = 0; i < loadFunctionOverrideVector.size(); i++)
+		{
+			GLenum type = loadFunctionOverrideVector[i].first;
+			LoadImageFunction function = loadFunctionOverrideVector[i].second;
+			info.loadFunctions[type] = function;
+		}
+	}
 
     map->insert(std::make_pair(internalFormat, info));
 }
@@ -843,13 +867,15 @@ static D3D11ES3FormatMap BuildD3D11_FL9_3FormatOverrideMap()
 
     D3D11ES3FormatMap map;
 
-    //                         | GL internal format   | D3D11 texture format            | D3D11 SRV format     | D3D11 RTV format      | D3D11 DSV format
-    InsertD3D11FormatInfo(&map, GL_DEPTH_COMPONENT16,  DXGI_FORMAT_D16_UNORM,            DXGI_FORMAT_UNKNOWN,   DXGI_FORMAT_UNKNOWN,    DXGI_FORMAT_D16_UNORM);
-    InsertD3D11FormatInfo(&map, GL_DEPTH_COMPONENT24,  DXGI_FORMAT_D24_UNORM_S8_UINT,    DXGI_FORMAT_UNKNOWN,   DXGI_FORMAT_UNKNOWN,    DXGI_FORMAT_D24_UNORM_S8_UINT);
-    InsertD3D11FormatInfo(&map, GL_DEPTH_COMPONENT32F, DXGI_FORMAT_UNKNOWN,              DXGI_FORMAT_UNKNOWN,   DXGI_FORMAT_UNKNOWN,    DXGI_FORMAT_UNKNOWN);
-    InsertD3D11FormatInfo(&map, GL_DEPTH24_STENCIL8,   DXGI_FORMAT_D24_UNORM_S8_UINT,    DXGI_FORMAT_UNKNOWN,   DXGI_FORMAT_UNKNOWN,    DXGI_FORMAT_D24_UNORM_S8_UINT);
-    InsertD3D11FormatInfo(&map, GL_DEPTH32F_STENCIL8,  DXGI_FORMAT_UNKNOWN,              DXGI_FORMAT_UNKNOWN,   DXGI_FORMAT_UNKNOWN,    DXGI_FORMAT_UNKNOWN);
-    InsertD3D11FormatInfo(&map, GL_STENCIL_INDEX8,     DXGI_FORMAT_D24_UNORM_S8_UINT,    DXGI_FORMAT_UNKNOWN,   DXGI_FORMAT_UNKNOWN,    DXGI_FORMAT_D24_UNORM_S8_UINT);
+    //                         | GL internal format   | D3D11 texture format            | D3D11 SRV format             | D3D11 RTV format          | D3D11 DSV format
+    InsertD3D11FormatInfo(&map, GL_DEPTH_COMPONENT16,  DXGI_FORMAT_D16_UNORM,            DXGI_FORMAT_UNKNOWN,           DXGI_FORMAT_UNKNOWN,        DXGI_FORMAT_D16_UNORM);
+    InsertD3D11FormatInfo(&map, GL_DEPTH_COMPONENT24,  DXGI_FORMAT_D24_UNORM_S8_UINT,    DXGI_FORMAT_UNKNOWN,           DXGI_FORMAT_UNKNOWN,        DXGI_FORMAT_D24_UNORM_S8_UINT);
+    InsertD3D11FormatInfo(&map, GL_DEPTH_COMPONENT32F, DXGI_FORMAT_UNKNOWN,              DXGI_FORMAT_UNKNOWN,           DXGI_FORMAT_UNKNOWN,        DXGI_FORMAT_UNKNOWN);
+    InsertD3D11FormatInfo(&map, GL_DEPTH24_STENCIL8,   DXGI_FORMAT_D24_UNORM_S8_UINT,    DXGI_FORMAT_UNKNOWN,           DXGI_FORMAT_UNKNOWN,        DXGI_FORMAT_D24_UNORM_S8_UINT);
+    InsertD3D11FormatInfo(&map, GL_DEPTH32F_STENCIL8,  DXGI_FORMAT_UNKNOWN,              DXGI_FORMAT_UNKNOWN,           DXGI_FORMAT_UNKNOWN,        DXGI_FORMAT_UNKNOWN);
+    InsertD3D11FormatInfo(&map, GL_STENCIL_INDEX8,     DXGI_FORMAT_D24_UNORM_S8_UINT,    DXGI_FORMAT_UNKNOWN,           DXGI_FORMAT_UNKNOWN,        DXGI_FORMAT_D24_UNORM_S8_UINT);
+    InsertD3D11FormatInfo(&map, GL_ALPHA,              DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,    DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_UNKNOWN);
+    InsertD3D11FormatInfo(&map, GL_ALPHA8_EXT,         DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,    DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_UNKNOWN);
 
     return map;
 }
