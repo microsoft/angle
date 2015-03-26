@@ -314,6 +314,10 @@
       <Project>{8C560510-F9F5-10F8-5F9C-A15647F7D234}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\samples\texture_loading_wic.vcxproj">
+      <Project>{A0522E0F-6F6F-3A36-81B8-3DCC71DD73F5}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="..\samples\texture_wrap.vcxproj">
       <Project>{48E2D2FB-F38E-3449-60F2-D4A11B0EED4A}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

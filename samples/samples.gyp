@@ -211,6 +211,21 @@
                 },
 
                 {
+                    'target_name': 'texture_loading_wic',
+                    'type': 'executable',
+                    'dependencies': [ 'sample_util' ],
+                    'includes': [ '../build/common_defines.gypi', ],
+                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/texture_loading_wic -types *.cpp *.h)' ],
+                    'copies':
+                    [
+                        {
+                            'destination': '<(PRODUCT_DIR)',
+                            'files': [ '<!@(python <(angle_path)/enumerate_files.py angle/texture_loading_wic -types *.tiff)' ],
+                        }
+                    ]
+                },
+                
+                {
                     'target_name': 'texture_wrap',
                     'type': 'executable',
                     'dependencies': [ 'sample_util' ],

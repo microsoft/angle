@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="angle">
+      <UniqueIdentifier>{2039F76D-4C9A-B8A0-444A-4766C6F6104A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="angle\texture_loading_wic">
+      <UniqueIdentifier>{70F2ACCC-609F-64A2-E793-7E58CCFDDA72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="angle">
+      <UniqueIdentifier>{2039F76D-4C9A-B8A0-444A-4766C6F6104A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="angle\texture_loading_wic">
+      <UniqueIdentifier>{70F2ACCC-609F-64A2-E793-7E58CCFDDA72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="angle">
+      <UniqueIdentifier>{2039F76D-4C9A-B8A0-444A-4766C6F6104A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="angle\texture_loading_wic">
+      <UniqueIdentifier>{70F2ACCC-609F-64A2-E793-7E58CCFDDA72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="angle">
+      <UniqueIdentifier>{2039F76D-4C9A-B8A0-444A-4766C6F6104A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="angle\texture_loading_wic">
+      <UniqueIdentifier>{70F2ACCC-609F-64A2-E793-7E58CCFDDA72}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="angle\texture_loading_wic\TextureLoadingWICSample.cpp">
+      <Filter>angle\texture_loading_wic</Filter>
+    </ClCompile>
+    <ClCompile Include="angle\texture_loading_wic\WICTextureLoader.cpp">
+      <Filter>angle\texture_loading_wic</Filter>
+    </ClCompile>
+    <ClInclude Include="angle\texture_loading_wic\WICTextureLoader.h">
+      <Filter>angle\texture_loading_wic</Filter>
+    </ClInclude>
+    <None Include="samples.gyp"/>
+    <None Include="angle\texture_loading_wic\fractal.tiff">
+      <Filter>angle\texture_loading_wic</Filter>
+    </None>
+  </ItemGroup>
+</Project>
