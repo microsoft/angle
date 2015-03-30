@@ -944,6 +944,7 @@ static bool FlipCompressedData( _In_ DXGI_FORMAT format,
     uint8_t* topLine = data;
     uint8_t* bottomLine = (uint8_t*)(topLine + (height - 1) * rowBytes);
     size_t blockSize = rowBytes / blocksWide;
+    (void)blockSize; // unused variable in release builds
 
     switch (format)
     {
