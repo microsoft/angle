@@ -298,6 +298,10 @@
       <Project>{B78CD201-9348-EB6A-8D4D-0C327F80DA8B}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\samples\texture_loading_dds.vcxproj">
+      <Project>{D81D7D37-47C6-7F0F-EF2E-C1D1EFB076E6}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
     <ProjectReference Include="..\samples\simple_texture_cubemap.vcxproj">
       <Project>{C407D429-0F1C-BE5D-8F80-F08469D9DFC3}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
