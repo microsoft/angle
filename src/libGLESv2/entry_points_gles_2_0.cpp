@@ -645,7 +645,7 @@ void GL_APIENTRY ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclamp
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setClearColor(red, green, blue, alpha);
+        context->getState().setColorClearValue(red, green, blue, alpha);
     }
 }
 
@@ -656,7 +656,7 @@ void GL_APIENTRY ClearDepthf(GLclampf depth)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setClearDepth(depth);
+        context->getState().setDepthClearValue(depth);
     }
 }
 
@@ -667,7 +667,7 @@ void GL_APIENTRY ClearStencil(GLint s)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setClearStencil(s);
+        context->getState().setStencilClearValue(s);
     }
 }
 
@@ -2856,7 +2856,6 @@ void GL_APIENTRY GetVertexAttribfv(GLuint index, GLenum pname, GLfloat* params)
             return;
         }
 
-        const VertexAttribute &attribState = context->getState().getVertexAttribState(index);
         if (!ValidateGetVertexAttribParameters(context, pname))
         {
             return;
@@ -2872,6 +2871,7 @@ void GL_APIENTRY GetVertexAttribfv(GLuint index, GLenum pname, GLfloat* params)
         }
         else
         {
+            const VertexAttribute &attribState = context->getState().getVertexArray()->getVertexAttribute(index);
             *params = QuerySingleVertexAttributeParameter<GLfloat>(attribState, pname);
         }
     }
@@ -2890,8 +2890,6 @@ void GL_APIENTRY GetVertexAttribiv(GLuint index, GLenum pname, GLint* params)
             return;
         }
 
-        const VertexAttribute &attribState = context->getState().getVertexAttribState(index);
-
         if (!ValidateGetVertexAttribParameters(context, pname))
         {
             return;
@@ -2908,6 +2906,7 @@ void GL_APIENTRY GetVertexAttribiv(GLuint index, GLenum pname, GLint* params)
         }
         else
         {
+            const VertexAttribute &attribState = context->getState().getVertexArray()->getVertexAttribute(index);
             *params = QuerySingleVertexAttributeParameter<GLint>(attribState, pname);
         }
     }
@@ -3172,6 +3171,14 @@ void GL_APIENTRY PixelStorei(GLenum pname, GLint param)
             }
         }
 
+        if (param < 0)
+        {
+            context->recordError(Error(GL_INVALID_VALUE, "Cannot use negative values in PixelStorei"));
+            return;
+        }
+
+        State &state = context->getState();
+
         switch (pname)
         {
           case GL_UNPACK_ALIGNMENT:
@@ -3181,7 +3188,7 @@ void GL_APIENTRY PixelStorei(GLenum pname, GLint param)
                 return;
             }
 
-            context->getState().setUnpackAlignment(param);
+            state.setUnpackAlignment(param);
             break;
 
           case GL_PACK_ALIGNMENT:
@@ -3191,27 +3198,51 @@ void GL_APIENTRY PixelStorei(GLenum pname, GLint param)
                 return;
             }
 
-            context->getState().setPackAlignment(param);
+            state.setPackAlignment(param);
             break;
 
           case GL_PACK_REVERSE_ROW_ORDER_ANGLE:
-            context->getState().setPackReverseRowOrder(param != 0);
+            state.setPackReverseRowOrder(param != 0);
             break;
 
           case GL_UNPACK_ROW_LENGTH:
             ASSERT(context->getClientVersion() >= 3);
-            context->getState().setUnpackRowLength(param);
+            state.setUnpackRowLength(param);
             break;
 
           case GL_UNPACK_IMAGE_HEIGHT:
+            ASSERT(context->getClientVersion() >= 3);
+            state.getUnpackState().imageHeight = param;
+            break;
+
           case GL_UNPACK_SKIP_IMAGES:
+            ASSERT(context->getClientVersion() >= 3);
+            state.getUnpackState().skipImages = param;
+            break;
+
           case GL_UNPACK_SKIP_ROWS:
+            ASSERT(context->getClientVersion() >= 3);
+            state.getUnpackState().skipRows = param;
+            break;
+
           case GL_UNPACK_SKIP_PIXELS:
+            ASSERT(context->getClientVersion() >= 3);
+            state.getUnpackState().skipPixels = param;
+            break;
+
           case GL_PACK_ROW_LENGTH:
+            ASSERT(context->getClientVersion() >= 3);
+            state.getPackState().rowLength = param;
+            break;
+
           case GL_PACK_SKIP_ROWS:
+            ASSERT(context->getClientVersion() >= 3);
+            state.getPackState().skipRows = param;
+            break;
+
           case GL_PACK_SKIP_PIXELS:
             ASSERT(context->getClientVersion() >= 3);
-            UNIMPLEMENTED();
+            state.getPackState().skipPixels = param;
             break;
 
           default:
@@ -3300,7 +3331,7 @@ void GL_APIENTRY RenderbufferStorage(GLenum target, GLenum internalformat, GLsiz
         }
 
         Renderbuffer *renderbuffer = context->getState().getCurrentRenderbuffer();
-        Error error = renderbuffer->setStorage(width, height, internalformat, 0);
+        Error error = renderbuffer->setStorage(internalformat, width, height);
         if (error.isError())
         {
             context->recordError(error);

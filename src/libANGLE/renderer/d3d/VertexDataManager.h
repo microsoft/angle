@@ -80,7 +80,7 @@ class VertexDataManager
                                 size_t *cachedOffset,
                                 StreamingVertexBufferInterface *buffer);
 
-    void hintUnmapAllResources(const gl::State &state);
+    void hintUnmapAllResources(const std::vector<gl::VertexAttribute> &vertexAttributes);
 
     void prepareStaticBufferForAttribute(const gl::VertexAttribute &attrib,
                                          const gl::VertexAttribCurrentValueData &currentValue) const;

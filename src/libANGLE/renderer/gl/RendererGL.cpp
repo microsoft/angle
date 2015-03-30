@@ -10,6 +10,7 @@
 
 #include "common/debug.h"
 #include "libANGLE/Data.h"
+#include "libANGLE/Surface.h"
 #include "libANGLE/renderer/gl/BufferGL.h"
 #include "libANGLE/renderer/gl/CompilerGL.h"
 #include "libANGLE/renderer/gl/DefaultAttachmentGL.h"
@@ -22,6 +23,7 @@
 #include "libANGLE/renderer/gl/RenderbufferGL.h"
 #include "libANGLE/renderer/gl/ShaderGL.h"
 #include "libANGLE/renderer/gl/StateManagerGL.h"
+#include "libANGLE/renderer/gl/SurfaceGL.h"
 #include "libANGLE/renderer/gl/TextureGL.h"
 #include "libANGLE/renderer/gl/TransformFeedbackGL.h"
 #include "libANGLE/renderer/gl/VertexArrayGL.h"
@@ -36,7 +38,7 @@ RendererGL::RendererGL(const FunctionsGL *functions)
       mStateManager(nullptr)
 {
     ASSERT(mFunctions);
-    mStateManager = new StateManagerGL(mFunctions);
+    mStateManager = new StateManagerGL(mFunctions, getRendererCaps());
 }
 
 RendererGL::~RendererGL()
@@ -59,7 +61,12 @@ gl::Error RendererGL::finish()
 gl::Error RendererGL::drawArrays(const gl::Data &data, GLenum mode,
                                  GLint first, GLsizei count, GLsizei instances)
 {
-    mStateManager->setDrawState(*data.state);
+    gl::Error error = mStateManager->setDrawArraysState(data, first, count);
+    if (error.isError())
+    {
+        return error;
+    }
+
     mFunctions->drawArrays(mode, first, count);
 
     return gl::Error(GL_NO_ERROR);
@@ -74,8 +81,14 @@ gl::Error RendererGL::drawElements(const gl::Data &data, GLenum mode, GLsizei co
         UNIMPLEMENTED();
     }
 
-    mStateManager->setDrawState(*data.state);
-    mFunctions->drawElements(mode, count, type, indices);
+    const GLvoid *drawIndexPointer = nullptr;
+    gl::Error error = mStateManager->setDrawElementsState(data, count, type, indices, &drawIndexPointer);
+    if (error.isError())
+    {
+        return error;
+    }
+
+    mFunctions->drawElements(mode, count, type, drawIndexPointer);
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -97,22 +110,27 @@ ProgramImpl *RendererGL::createProgram()
 
 DefaultAttachmentImpl *RendererGL::createDefaultAttachment(GLenum type, egl::Surface *surface)
 {
-    return new DefaultAttachmentGL();
+    return new DefaultAttachmentGL(type, GetImplAs<SurfaceGL>(surface));
 }
 
-FramebufferImpl *RendererGL::createFramebuffer()
+FramebufferImpl *RendererGL::createDefaultFramebuffer(const gl::Framebuffer::Data &data)
 {
-    return new FramebufferGL();
+    return new FramebufferGL(data, mFunctions, mStateManager, true);
+}
+
+FramebufferImpl *RendererGL::createFramebuffer(const gl::Framebuffer::Data &data)
+{
+    return new FramebufferGL(data, mFunctions, mStateManager, false);
 }
 
 TextureImpl *RendererGL::createTexture(GLenum target)
 {
-    return new TextureGL();
+    return new TextureGL(target, mFunctions, mStateManager);
 }
 
 RenderbufferImpl *RendererGL::createRenderbuffer()
 {
-    return new RenderbufferGL();
+    return new RenderbufferGL(mFunctions, mStateManager);
 }
 
 BufferImpl *RendererGL::createBuffer()

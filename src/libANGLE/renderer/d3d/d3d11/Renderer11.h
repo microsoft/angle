@@ -10,16 +10,15 @@
 #define LIBANGLE_RENDERER_D3D_D3D11_RENDERER11_H_
 
 #include "common/angleutils.h"
-#include "libANGLE/angletypes.h"
 #include "common/mathutil.h"
-
-#include "libANGLE/renderer/d3d/d3d11/RenderStateCache.h"
-#include "libANGLE/renderer/d3d/d3d11/InputLayoutCache.h"
+#include "libANGLE/AttributeMap.h"
+#include "libANGLE/angletypes.h"
 #include "libANGLE/renderer/d3d/HLSLCompiler.h"
 #include "libANGLE/renderer/d3d/RendererD3D.h"
 #include "libANGLE/renderer/d3d/RenderTargetD3D.h"
-
-#include "libANGLE/AttributeMap.h"
+#include "libANGLE/renderer/d3d/d3d11/DebugAnnotator11.h"
+#include "libANGLE/renderer/d3d/d3d11/InputLayoutCache.h"
+#include "libANGLE/renderer/d3d/d3d11/RenderStateCache.h"
 
 namespace gl
 {
@@ -88,7 +87,9 @@ class Renderer11 : public RendererD3D
     virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler);
     virtual gl::Error setTexture(gl::SamplerType type, int index, gl::Texture *texture);
 
-    virtual gl::Error setUniformBuffers(const gl::Buffer *vertexUniformBuffers[], const gl::Buffer *fragmentUniformBuffers[]);
+    gl::Error setUniformBuffers(const gl::Data &data,
+                                const GLint vertexUniformBuffers[],
+                                const GLint fragmentUniformBuffers[]) override;
 
     virtual gl::Error setRasterizerState(const gl::RasterizerState &rasterState);
     gl::Error setBlendState(const gl::Framebuffer *framebuffer, const gl::BlendState &blendState, const gl::ColorF &blendColor,
@@ -152,8 +153,9 @@ class Renderer11 : public RendererD3D
     virtual gl::Error createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT);
 
     // Framebuffer creation
-    virtual DefaultAttachmentImpl *createDefaultAttachment(GLenum type, egl::Surface *surface) override;
-    virtual FramebufferImpl *createFramebuffer() override;
+    DefaultAttachmentImpl *createDefaultAttachment(GLenum type, egl::Surface *surface) override;
+    FramebufferImpl *createDefaultFramebuffer(const gl::Framebuffer::Data &data) override;
+    FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) override;
 
     // Shader creation
     virtual CompilerImpl *createCompiler(const gl::Data &data);
@@ -166,7 +168,7 @@ class Renderer11 : public RendererD3D
                                      bool separatedOutputBuffers, ShaderExecutableD3D **outExecutable);
     virtual gl::Error compileToExecutable(gl::InfoLog &infoLog, const std::string &shaderHLSL, ShaderType type,
                                           const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
-                                          bool separatedOutputBuffers, D3DWorkaroundType workaround,
+                                          bool separatedOutputBuffers, const D3DCompilerWorkarounds &workarounds,
                                           ShaderExecutableD3D **outExectuable);
     virtual UniformStorageD3D *createUniformStorage(size_t storageSize);
 
@@ -353,12 +355,16 @@ class Renderer11 : public RendererD3D
     ID3D11Buffer *mDriverConstantBufferVS;
     ID3D11Buffer *mCurrentVertexConstantBuffer;
     unsigned int mCurrentConstantBufferVS[gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS];
+    GLintptr mCurrentConstantBufferVSOffset[gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS];
+    GLsizeiptr mCurrentConstantBufferVSSize[gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS];
 
     dx_PixelConstants mPixelConstants;
     dx_PixelConstants mAppliedPixelConstants;
     ID3D11Buffer *mDriverConstantBufferPS;
     ID3D11Buffer *mCurrentPixelConstantBuffer;
-    unsigned int mCurrentConstantBufferPS[gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS];
+    unsigned int mCurrentConstantBufferPS[gl::IMPLEMENTATION_MAX_FRAGMENT_SHADER_UNIFORM_BUFFERS];
+    GLintptr mCurrentConstantBufferPSOffset[gl::IMPLEMENTATION_MAX_FRAGMENT_SHADER_UNIFORM_BUFFERS];
+    GLsizeiptr mCurrentConstantBufferPSSize[gl::IMPLEMENTATION_MAX_FRAGMENT_SHADER_UNIFORM_BUFFERS];
 
     ID3D11Buffer *mCurrentGeometryConstantBuffer;
 
@@ -383,6 +389,9 @@ class Renderer11 : public RendererD3D
     // Sync query
     ID3D11Query *mSyncQuery;
 
+    // Constant buffer offset support
+    bool mSupportsConstantBufferOffsets;
+
     ID3D11Device *mDevice;
     D3D_FEATURE_LEVEL mFeatureLevel;
     ID3D11DeviceContext *mDeviceContext;
@@ -391,6 +400,9 @@ class Renderer11 : public RendererD3D
     DXGI_ADAPTER_DESC mAdapterDescription;
     char mDescription[128];
     DXGIFactory *mDxgiFactory;
+    ID3D11Debug *mDebug;
+
+    DebugAnnotator11 mAnnotator;
 };
 
 }

@@ -14,16 +14,27 @@
 namespace rx
 {
 
+class FunctionsGL;
+class StateManagerGL;
+
 class RenderbufferGL : public RenderbufferImpl
 {
   public:
-    RenderbufferGL();
+    RenderbufferGL(const FunctionsGL *functions, StateManagerGL *stateManager);
     ~RenderbufferGL() override;
 
-    gl::Error setStorage(GLsizei width, GLsizei height, GLenum internalformat, GLsizei samples) override;
+    virtual gl::Error setStorage(GLenum internalformat, size_t width, size_t height) override;
+    virtual gl::Error setStorageMultisample(size_t samples, GLenum internalformat, size_t width, size_t height) override;
+
+    GLuint getRenderbufferID() const;
 
   private:
     DISALLOW_COPY_AND_ASSIGN(RenderbufferGL);
+
+    const FunctionsGL *mFunctions;
+    StateManagerGL *mStateManager;
+
+    GLuint mRenderbufferID;
 };
 
 }

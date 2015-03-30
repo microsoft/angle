@@ -35,7 +35,7 @@ void State::initialize(const Caps& caps, GLuint clientVersion)
     mMaxDrawBuffers = caps.maxDrawBuffers;
     mMaxCombinedTextureImageUnits = caps.maxCombinedTextureImageUnits;
 
-    setClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    setColorClearValue(0.0f, 0.0f, 0.0f, 0.0f);
 
     mDepthClearValue = 1.0f;
     mStencilClearValue = 0;
@@ -75,11 +75,11 @@ void State::initialize(const Caps& caps, GLuint clientVersion)
     mDepthStencil.depthMask = true;
     mDepthStencil.stencilTest = false;
     mDepthStencil.stencilFunc = GL_ALWAYS;
-    mDepthStencil.stencilMask = -1;
-    mDepthStencil.stencilWritemask = -1;
+    mDepthStencil.stencilMask = static_cast<GLuint>(-1);
+    mDepthStencil.stencilWritemask = static_cast<GLuint>(-1);
     mDepthStencil.stencilBackFunc = GL_ALWAYS;
-    mDepthStencil.stencilBackMask = -1;
-    mDepthStencil.stencilBackWritemask = -1;
+    mDepthStencil.stencilBackMask = static_cast<GLuint>(-1);
+    mDepthStencil.stencilBackWritemask = static_cast<GLuint>(-1);
     mDepthStencil.stencilFail = GL_KEEP;
     mDepthStencil.stencilPassDepthFail = GL_KEEP;
     mDepthStencil.stencilPassDepthPass = GL_KEEP;
@@ -212,7 +212,7 @@ const DepthStencilState &State::getDepthStencilState() const
     return mDepthStencil;
 }
 
-void State::setClearColor(float red, float green, float blue, float alpha)
+void State::setColorClearValue(float red, float green, float blue, float alpha)
 {
     mColorClearValue.red = red;
     mColorClearValue.green = green;
@@ -220,68 +220,14 @@ void State::setClearColor(float red, float green, float blue, float alpha)
     mColorClearValue.alpha = alpha;
 }
 
-void State::setClearDepth(float depth)
+void State::setDepthClearValue(float depth)
 {
     mDepthClearValue = depth;
 }
 
-void State::setClearStencil(int stencil)
+void State::setStencilClearValue(int stencil)
 {
     mStencilClearValue = stencil;
-}
-
-ClearParameters State::getClearParameters(GLbitfield mask) const
-{
-    ClearParameters clearParams;
-    memset(&clearParams, 0, sizeof(ClearParameters));
-    for (unsigned int i = 0; i < ArraySize(clearParams.clearColor); i++)
-    {
-        clearParams.clearColor[i] = false;
-    }
-    clearParams.colorFClearValue = mColorClearValue;
-    clearParams.colorClearType = GL_FLOAT;
-    clearParams.colorMaskRed = mBlend.colorMaskRed;
-    clearParams.colorMaskGreen = mBlend.colorMaskGreen;
-    clearParams.colorMaskBlue = mBlend.colorMaskBlue;
-    clearParams.colorMaskAlpha = mBlend.colorMaskAlpha;
-    clearParams.clearDepth = false;
-    clearParams.depthClearValue = mDepthClearValue;
-    clearParams.clearStencil = false;
-    clearParams.stencilClearValue = mStencilClearValue;
-    clearParams.stencilWriteMask = mDepthStencil.stencilWritemask;
-    clearParams.scissorEnabled = mScissorTest;
-    clearParams.scissor = mScissor;
-
-    const Framebuffer *framebufferObject = getDrawFramebuffer();
-    if (mask & GL_COLOR_BUFFER_BIT)
-    {
-        if (framebufferObject->hasEnabledColorAttachment())
-        {
-            for (unsigned int i = 0; i < ArraySize(clearParams.clearColor); i++)
-            {
-                clearParams.clearColor[i] = true;
-            }
-        }
-    }
-
-    if (mask & GL_DEPTH_BUFFER_BIT)
-    {
-        if (mDepthStencil.depthMask && framebufferObject->getDepthbuffer() != NULL)
-        {
-            clearParams.clearDepth = true;
-        }
-    }
-
-    if (mask & GL_STENCIL_BUFFER_BIT)
-    {
-        if (framebufferObject->getStencilbuffer() != NULL &&
-            framebufferObject->getStencilbuffer()->getStencilSize() > 0)
-        {
-            clearParams.clearStencil = true;
-        }
-    }
-
-    return clearParams;
 }
 
 void State::setColorMask(bool red, bool green, bool blue, bool alpha)
@@ -994,6 +940,20 @@ Buffer *State::getIndexedUniformBuffer(GLuint index) const
     return mUniformBuffers[index].get();
 }
 
+GLintptr State::getIndexedUniformBufferOffset(GLuint index) const
+{
+    ASSERT(static_cast<size_t>(index) < mUniformBuffers.size());
+
+    return mUniformBuffers[index].getOffset();
+}
+
+GLsizeiptr State::getIndexedUniformBufferSize(GLuint index) const
+{
+    ASSERT(static_cast<size_t>(index) < mUniformBuffers.size());
+
+    return mUniformBuffers[index].getSize();
+}
+
 void State::setGenericTransformFeedbackBufferBinding(Buffer *buffer)
 {
     mGenericTransformFeedbackBuffer.set(buffer);
@@ -1095,11 +1055,6 @@ void State::setVertexAttribState(unsigned int attribNum, Buffer *boundBuffer, GL
     getVertexArray()->setAttributeState(attribNum, boundBuffer, size, type, normalized, pureInteger, stride, pointer);
 }
 
-const VertexAttribute &State::getVertexAttribState(unsigned int attribNum) const
-{
-    return getVertexArray()->getVertexAttribute(attribNum);
-}
-
 const VertexAttribCurrentValueData &State::getVertexAttribCurrentValue(unsigned int attribNum) const
 {
     ASSERT(static_cast<size_t>(attribNum) < mVertexAttribCurrentValues.size());
@@ -1136,6 +1091,11 @@ const PixelPackState &State::getPackState() const
     return mPack;
 }
 
+PixelPackState &State::getPackState()
+{
+    return mPack;
+}
+
 void State::setUnpackAlignment(GLint alignment)
 {
     mUnpack.alignment = alignment;
@@ -1157,6 +1117,11 @@ GLint State::getUnpackRowLength() const
 }
 
 const PixelUnpackState &State::getUnpackState() const
+{
+    return mUnpack;
+}
+
+PixelUnpackState &State::getUnpackState()
 {
     return mUnpack;
 }
@@ -1481,9 +1446,10 @@ bool State::hasMappedBuffer(GLenum target) const
 {
     if (target == GL_ARRAY_BUFFER)
     {
+        const VertexArray *vao = getVertexArray();
         for (size_t attribIndex = 0; attribIndex < mVertexAttribCurrentValues.size(); attribIndex++)
         {
-            const gl::VertexAttribute &vertexAttrib = getVertexAttribState(static_cast<unsigned int>(attribIndex));
+            const gl::VertexAttribute &vertexAttrib = vao->getVertexAttribute(attribIndex);
             gl::Buffer *boundBuffer = vertexAttrib.buffer.get();
             if (vertexAttrib.enabled && boundBuffer && boundBuffer->isMapped())
             {

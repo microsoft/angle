@@ -55,13 +55,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -74,13 +74,11 @@
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib;d3d9.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib</AdditionalDependencies>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -94,20 +92,20 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D11;NTDDI_VERSION=NTDDI_WINBLUE;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;ANGLE_GENERATE_SHADER_DEBUG_INFO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -120,13 +118,11 @@
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/arm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineARM</TargetMachine>
     </Lib>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib;d3d9.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/arm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib</AdditionalDependencies>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -140,19 +136,19 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D11;NTDDI_VERSION=NTDDI_WINBLUE;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;ANGLE_GENERATE_SHADER_DEBUG_INFO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -165,13 +161,11 @@
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -185,19 +179,19 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D11;NTDDI_VERSION=NTDDI_WINBLUE;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -210,13 +204,11 @@
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/arm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineARM</TargetMachine>
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/arm;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -230,12 +222,13 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D11;NTDDI_VERSION=NTDDI_WINBLUE;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\src\libANGLE\Error.inl"/>
     <None Include="..\..\..\..\src\libANGLE\renderer\d3d\copyimage.inl"/>
     <None Include="..\..\..\..\src\libANGLE\renderer\d3d\generatemip.inl"/>
     <None Include="..\..\..\..\src\libANGLE\renderer\d3d\loadimage.inl"/>
@@ -286,6 +279,7 @@
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\FenceNVImpl.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\FenceSyncImpl.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\FramebufferImpl.h"/>
+    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\ImplFactory.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\IndexRangeCache.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\ProgramImpl.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\QueryImpl.h"/>
@@ -348,6 +342,7 @@
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\Buffer11.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\Clear11.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\copyvertex.h"/>
+    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\DebugAnnotator11.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\Fence11.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\formatutils11.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\Framebuffer11.h"/>
@@ -498,6 +493,7 @@
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\Blit11.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\Buffer11.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\Clear11.cpp"/>
+    <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\DebugAnnotator11.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\Fence11.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\formatutils11.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\d3d11\Framebuffer11.cpp"/>

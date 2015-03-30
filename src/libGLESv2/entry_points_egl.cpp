@@ -369,7 +369,7 @@ EGLBoolean EGLAPIENTRY QuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint a
         UNIMPLEMENTED();   // FIXME
         break;
       case EGL_CONFIG_ID:
-        *value = eglSurface->getConfigID();
+        *value = eglSurface->getConfig()->configID;
         break;
       case EGL_HEIGHT:
         *value = eglSurface->getHeight();
@@ -751,7 +751,7 @@ EGLBoolean EGLAPIENTRY BindTexImage(EGLDisplay dpy, EGLSurface surface, EGLint b
         return EGL_FALSE;
     }
 
-    if (surface == EGL_NO_SURFACE || eglSurface->getWindowHandle())
+    if (surface == EGL_NO_SURFACE || eglSurface->getType() == EGL_WINDOW_BIT)
     {
         SetGlobalError(Error(EGL_BAD_SURFACE));
         return EGL_FALSE;
@@ -829,7 +829,7 @@ EGLBoolean EGLAPIENTRY ReleaseTexImage(EGLDisplay dpy, EGLSurface surface, EGLin
         return EGL_FALSE;
     }
 
-    if (surface == EGL_NO_SURFACE || eglSurface->getWindowHandle())
+    if (surface == EGL_NO_SURFACE || eglSurface->getType() == EGL_WINDOW_BIT)
     {
         SetGlobalError(Error(EGL_BAD_SURFACE));
         return EGL_FALSE;
@@ -1107,6 +1107,7 @@ __eglMustCastToProperFunctionPointerType EGLAPIENTRY GetProcAddress(const char *
         { "glUnmapBufferOES", (__eglMustCastToProperFunctionPointerType)gl::UnmapBufferOES },
         { "glMapBufferRangeEXT", (__eglMustCastToProperFunctionPointerType)gl::MapBufferRangeEXT },
         { "glFlushMappedBufferRangeEXT", (__eglMustCastToProperFunctionPointerType)gl::FlushMappedBufferRangeEXT },
+        { "glDiscardFramebufferEXT", (__eglMustCastToProperFunctionPointerType)gl::DiscardFramebufferEXT },
         { "", NULL },
     };
 

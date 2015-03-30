@@ -16,7 +16,14 @@
 namespace rx
 {
 
-static const GLenum SourceBufferOperationTarget = GL_ELEMENT_ARRAY_BUFFER;
+// Use the GL_COPY_READ_BUFFER binding when two buffers need to be bound simultaneously.
+// GL_ELEMENT_ARRAY_BUFFER is supported on more versions but can modify the state of the currently
+// bound VAO.  Two simultaneous buffer bindings are only needed for glCopyBufferSubData which also
+// adds the GL_COPY_READ_BUFFER binding.
+static const GLenum SourceBufferOperationTarget = GL_COPY_READ_BUFFER;
+
+// Use the GL_ELEMENT_ARRAY_BUFFER binding for most operations since it's available on all
+// supported GL versions and doesn't affect any current state when it changes.
 static const GLenum DestBufferOperationTarget = GL_ARRAY_BUFFER;
 
 BufferGL::BufferGL(const FunctionsGL *functions, StateManagerGL *stateManager)
@@ -61,7 +68,7 @@ gl::Error BufferGL::copySubData(BufferImpl* source, GLintptr sourceOffset, GLint
     mStateManager->bindBuffer(DestBufferOperationTarget, mBufferID);
     mStateManager->bindBuffer(SourceBufferOperationTarget, sourceGL->getBufferID());
 
-    mFunctions->copyBufferSubData(SourceBufferOperationTarget, GL_ARRAY_BUFFER, sourceOffset, destOffset, size);
+    mFunctions->copyBufferSubData(SourceBufferOperationTarget, DestBufferOperationTarget, sourceOffset, destOffset, size);
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -81,11 +88,6 @@ gl::Error BufferGL::unmap()
     mStateManager->bindBuffer(DestBufferOperationTarget, mBufferID);
     mFunctions->unmapBuffer(DestBufferOperationTarget);
     return gl::Error(GL_NO_ERROR);
-}
-
-void BufferGL::markTransformFeedbackUsage()
-{
-    UNIMPLEMENTED();
 }
 
 gl::Error BufferGL::getData(const uint8_t **outData)

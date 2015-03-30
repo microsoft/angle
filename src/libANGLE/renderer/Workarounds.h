@@ -16,11 +16,28 @@
 namespace rx
 {
 
-enum D3DWorkaroundType
+struct D3DCompilerWorkarounds
 {
-    ANGLE_D3D_WORKAROUND_NONE,
-    ANGLE_D3D_WORKAROUND_SKIP_OPTIMIZATION,
-    ANGLE_D3D_WORKAROUND_MAX_OPTIMIZATION
+    D3DCompilerWorkarounds()
+        : skipOptimization(false),
+          useMaxOptimization(false),
+          enableIEEEStrictness(false)
+    {}
+
+    void reset()
+    {
+        skipOptimization = false;
+        useMaxOptimization = false;
+        enableIEEEStrictness = false;
+    }
+
+    bool skipOptimization;
+    bool useMaxOptimization;
+
+    // IEEE strictness needs to be enabled for NANs to work.
+    bool enableIEEEStrictness;
+
+    DISALLOW_COPY_AND_ASSIGN(D3DCompilerWorkarounds)
 };
 
 struct Workarounds
@@ -32,7 +49,12 @@ struct Workarounds
           useInstancedPointSpriteEmulation(false)
     {}
 
+    // On some systems, having extra rendertargets than necessary slows down the shader.
+    // We can fix this by optimizing those out of the shader. At the same time, we can
+    // work around a bug on some nVidia drivers that they ignore "null" render targets
+    // in D3D11, by compacting the active color attachments list to omit null entries.
     bool mrtPerfWorkaround;
+
     bool setDataFasterThanImageUpload;
 
     // Some renderers can't disable mipmaps on a mipmapped texture (i.e. solely sample from level zero, and ignore the other levels).

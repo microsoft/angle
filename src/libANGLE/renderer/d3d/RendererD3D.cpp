@@ -17,6 +17,7 @@
 #include "libANGLE/State.h"
 #include "libANGLE/VertexArray.h"
 #include "libANGLE/formatutils.h"
+#include "libANGLE/renderer/d3d/BufferD3D.h"
 #include "libANGLE/renderer/d3d/DisplayD3D.h"
 #include "libANGLE/renderer/d3d/IndexDataManager.h"
 
@@ -132,7 +133,7 @@ gl::Error RendererD3D::drawElements(const gl::Data &data,
         return error;
     }
 
-    error = applyUniformBuffers(data);
+    error = program->applyUniformBuffers(data);
     if (error.isError())
     {
         return error;
@@ -202,7 +203,7 @@ gl::Error RendererD3D::drawArrays(const gl::Data &data,
         return error;
     }
 
-    error = applyUniformBuffers(data);
+    error = program->applyUniformBuffers(data);
     if (error.isError())
     {
         return error;
@@ -474,32 +475,6 @@ gl::Error RendererD3D::applyTextures(const gl::Data &data)
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error RendererD3D::applyUniformBuffers(const gl::Data &data)
-{
-    gl::Program *program = data.state->getProgram();
-
-    std::vector<gl::Buffer*> boundBuffers;
-
-    for (unsigned int uniformBlockIndex = 0; uniformBlockIndex < program->getActiveUniformBlockCount(); uniformBlockIndex++)
-    {
-        GLuint blockBinding = program->getUniformBlockBinding(uniformBlockIndex);
-
-        if (data.state->getIndexedUniformBuffer(blockBinding)->id() == 0)
-        {
-            // undefined behaviour
-            return gl::Error(GL_INVALID_OPERATION, "It is undefined behaviour to have a used but unbound uniform buffer.");
-        }
-        else
-        {
-            gl::Buffer *uniformBuffer = data.state->getIndexedUniformBuffer(blockBinding);
-            ASSERT(uniformBuffer);
-            boundBuffers.push_back(uniformBuffer);
-        }
-    }
-
-    return program->applyUniformBuffers(boundBuffers, *data.caps);
-}
-
 bool RendererD3D::skipDraw(const gl::Data &data, GLenum drawMode)
 {
     if (drawMode == GL_POINTS)
@@ -534,7 +509,8 @@ void RendererD3D::markTransformFeedbackUsage(const gl::Data &data)
         gl::Buffer *buffer = data.state->getIndexedTransformFeedbackBuffer(i);
         if (buffer)
         {
-            buffer->markTransformFeedbackUsage();
+            BufferD3D *bufferD3D = GetImplAs<BufferD3D>(buffer);
+            bufferD3D->markTransformFeedbackUsage();
         }
     }
 }
@@ -545,7 +521,7 @@ size_t RendererD3D::getBoundFramebufferTextureSerials(const gl::Data &data,
     size_t serialCount = 0;
 
     const gl::Framebuffer *drawFramebuffer = data.state->getDrawFramebuffer();
-    for (unsigned int i = 0; i < gl::IMPLEMENTATION_MAX_DRAW_BUFFERS; i++)
+    for (unsigned int i = 0; i < data.caps->maxColorAttachments; i++)
     {
         gl::FramebufferAttachment *attachment = drawFramebuffer->getColorbuffer(i);
         if (attachment && attachment->type() == GL_TEXTURE)

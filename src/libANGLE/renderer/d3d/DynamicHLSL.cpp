@@ -17,7 +17,7 @@
 #include "libANGLE/formatutils.h"
 
 // For use with ArrayString, see angleutils.h
-META_ASSERT(GL_INVALID_INDEX == UINT_MAX);
+static_assert(GL_INVALID_INDEX == UINT_MAX, "GL_INVALID_INDEX must be equal to the max unsigned int.");
 
 using namespace gl;
 
@@ -598,8 +598,8 @@ struct DynamicHLSL::SemanticInfo
     BuiltinInfo glPointSize;
 };
 
-DynamicHLSL::SemanticInfo DynamicHLSL::getSemanticInfo(int startRegisters, bool fragCoord, bool pointCoord,
-                                                       bool pointSize, bool pixelShader) const
+DynamicHLSL::SemanticInfo DynamicHLSL::getSemanticInfo(int startRegisters, bool position, bool fragCoord,
+                                                       bool pointCoord, bool pointSize, bool pixelShader) const
 {
     SemanticInfo info;
     bool hlsl4 = (mRenderer->getMajorShaderModel() >= 4);
@@ -620,7 +620,10 @@ DynamicHLSL::SemanticInfo DynamicHLSL::getSemanticInfo(int startRegisters, bool 
         info.dxPosition.enableSystem("POSITION");
     }
 
-    info.glPosition.enable(varyingSemantic, reservedRegisterIndex++);
+    if (position)
+    {
+        info.glPosition.enable(varyingSemantic, reservedRegisterIndex++);
+    }
 
     if (fragCoord)
     {
@@ -654,10 +657,13 @@ std::string DynamicHLSL::generateVaryingLinkHLSL(const SemanticInfo &info, const
 {
     std::string linkHLSL = "{\n";
 
-    ASSERT(info.dxPosition.enabled && info.glPosition.enabled);
-
+    ASSERT(info.dxPosition.enabled);
     linkHLSL += "    float4 dx_Position : " + info.dxPosition.str() + ";\n";
-    linkHLSL += "    float4 gl_Position : " + info.glPosition.str() + ";\n";
+
+    if (info.glPosition.enabled)
+    {
+        linkHLSL += "    float4 gl_Position : " + info.glPosition.str() + ";\n";
+    }
 
     if (info.glFragCoord.enabled)
     {
@@ -669,12 +675,13 @@ std::string DynamicHLSL::generateVaryingLinkHLSL(const SemanticInfo &info, const
         linkHLSL += "    float2 gl_PointCoord : " + info.glPointCoord.str() + ";\n";
     }
 
-    linkHLSL += varyingHLSL;
-
     if (info.glPointSize.enabled)
     {
         linkHLSL += "    float gl_PointSize : " + info.glPointSize.str() + ";\n";
     }
+
+    // Do this after glPointSize, to potentially combine gl_PointCoord and gl_PointSize into the same register.
+    linkHLSL += varyingHLSL;
 
     linkHLSL += "};\n";
 
@@ -684,10 +691,11 @@ std::string DynamicHLSL::generateVaryingLinkHLSL(const SemanticInfo &info, const
 void DynamicHLSL::storeBuiltinLinkedVaryings(const SemanticInfo &info,
                                              std::vector<LinkedVarying> *linkedVaryings) const
 {
-    ASSERT(info.glPosition.enabled);
-
-    linkedVaryings->push_back(LinkedVarying("gl_Position", GL_FLOAT_VEC4, 1, info.glPosition.semantic,
-                                            info.glPosition.index, 1));
+    if (info.glPosition.enabled)
+    {
+        linkedVaryings->push_back(LinkedVarying("gl_Position", GL_FLOAT_VEC4, 1, info.glPosition.semantic,
+                                                info.glPosition.index, 1));
+    }
 
     if (info.glFragCoord.enabled)
     {
@@ -766,6 +774,11 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data, InfoLog &infoLog,
     const bool broadcast = (fragmentShader->mUsesFragColor && data.clientVersion < 3);
     const unsigned int numRenderTargets = (broadcast || usesMRT ? data.caps->maxDrawBuffers : 1);
 
+    // gl_Position only needs to be outputted from the vertex shader if transform feedback is active.
+    // This isn't supported on D3D11 Feature Level 9_3, so we don't output gl_Position from the vertex shader in this case.
+    // This saves us 1 output vector.
+    bool outputPositionFromVS = !(shaderModel >= 4 && mRenderer->getShaderModelSuffix() != "");
+
     int shaderVersion = vertexShader->getShaderVersion();
 
     if (static_cast<GLuint>(registersNeeded) > data.caps->maxVaryingVectors)
@@ -781,9 +794,11 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data, InfoLog &infoLog,
     // GeometryShader PointSprite emulation does not require this additional entry because the
     // GS_OUTPUT of the Geometry shader contains the pointCoord value and already matches the PS_INPUT of the
     // generated pixel shader.
-    const SemanticInfo &vertexSemantics = getSemanticInfo(registers, usesFragCoord,
-                                                          (useInstancedPointSpriteEmulation && usesPointCoord),
-                                                          usesPointSize, false);
+    // The Geometry Shader point sprite implementation needs gl_PointSize to be in VS_OUTPUT and GS_INPUT.
+    // Instanced point sprites doesn't need gl_PointSize in VS_OUTPUT.
+    const SemanticInfo &vertexSemantics = getSemanticInfo(registers, outputPositionFromVS,
+                                                          usesFragCoord, (useInstancedPointSpriteEmulation && usesPointCoord),
+                                                          (!useInstancedPointSpriteEmulation && usesPointSize), false);
 
     storeUserLinkedVaryings(vertexShader, linkedVaryings);
     storeBuiltinLinkedVaryings(vertexSemantics, linkedVaryings);
@@ -816,9 +831,13 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data, InfoLog &infoLog,
                       "    gl_main();\n"
                       "\n"
                       "    VS_OUTPUT output;\n"
-                      "    output.gl_Position = gl_Position;\n"
                       "    output.dx_Position.x = gl_Position.x;\n"
                       "    output.dx_Position.x = gl_Position.x;\n";
+
+        if (outputPositionFromVS)
+        {
+            vertexHLSL += "    output.gl_Position = gl_Position;\n";
+        }
 
         if (useViewScale)
         {
@@ -839,8 +858,12 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data, InfoLog &infoLog,
                       "    gl_main();\n"
                       "\n"
                       "    VS_OUTPUT output;\n"
-                      "    output.gl_Position = gl_Position;\n"
                       "    output.dx_Position.x = gl_Position.x * dx_ViewAdjust.z + dx_ViewAdjust.x * gl_Position.w;\n";
+
+        if (outputPositionFromVS)
+        {
+            vertexHLSL += "    output.gl_Position = gl_Position;\n";
+        }
 
         // If useViewScale is enabled and we're using the D3D11 renderer via Feature Level 9_*, then we need to multiply the gl_Position.y by the viewScale.
         // useViewScale isn't supported when using the D3D9 renderer.
@@ -857,7 +880,8 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data, InfoLog &infoLog,
                       "    output.dx_Position.w = gl_Position.w;\n";
     }
 
-    if (usesPointSize && shaderModel >= 3)
+    // We don't need to output gl_PointSize if we use are emulating point sprites via instancing.
+    if (usesPointSize && shaderModel >= 3 && !useInstancedPointSpriteEmulation)
     {
         vertexHLSL += "    output.gl_PointSize = gl_PointSize;\n";
     }
@@ -905,8 +929,7 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data, InfoLog &infoLog,
     if (useInstancedPointSpriteEmulation)
     {
         vertexHLSL += "\n"
-                      "    gl_PointSize = clamp(gl_PointSize, minPointSize, maxPointSize);\n"
-                      "    output.gl_PointSize = gl_PointSize;\n";
+                      "    gl_PointSize = clamp(gl_PointSize, minPointSize, maxPointSize);\n";
 
         vertexHLSL += "    output.dx_Position.x += (input.spriteVertexPos.x * gl_PointSize / (dx_ViewCoords.x*2)) * output.dx_Position.w;";
 
@@ -933,8 +956,8 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data, InfoLog &infoLog,
                   "    return output;\n"
                   "}\n";
 
-    const SemanticInfo &pixelSemantics = getSemanticInfo(registers, usesFragCoord, usesPointCoord,
-                                                         usesPointSize, true);
+    const SemanticInfo &pixelSemantics = getSemanticInfo(registers, outputPositionFromVS, usesFragCoord, usesPointCoord,
+                                                         (!useInstancedPointSpriteEmulation && usesPointSize), true);
 
     pixelHLSL += "struct PS_INPUT\n" + generateVaryingLinkHLSL(pixelSemantics, varyingHLSL) + "\n";
 
@@ -1171,9 +1194,9 @@ std::string DynamicHLSL::generatePointSpriteHLSL(int registers, ShaderD3D *fragm
 
     std::string geomHLSL;
 
-    const SemanticInfo &inSemantics = getSemanticInfo(registers, fragmentShader->mUsesFragCoord,
+    const SemanticInfo &inSemantics = getSemanticInfo(registers, true, fragmentShader->mUsesFragCoord,
                                                       false, true, false);
-    const SemanticInfo &outSemantics = getSemanticInfo(registers, fragmentShader->mUsesFragCoord,
+    const SemanticInfo &outSemantics = getSemanticInfo(registers, true, fragmentShader->mUsesFragCoord,
                                                        fragmentShader->mUsesPointCoord, true, false);
 
     std::string varyingHLSL = generateVaryingHLSL(vertexShader);

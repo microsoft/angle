@@ -92,7 +92,8 @@ bool ValidTexture2DDestinationTarget(const Context *context, GLenum target)
 
 bool ValidFramebufferTarget(GLenum target)
 {
-    META_ASSERT(GL_DRAW_FRAMEBUFFER_ANGLE == GL_DRAW_FRAMEBUFFER && GL_READ_FRAMEBUFFER_ANGLE == GL_READ_FRAMEBUFFER);
+    static_assert(GL_DRAW_FRAMEBUFFER_ANGLE == GL_DRAW_FRAMEBUFFER && GL_READ_FRAMEBUFFER_ANGLE == GL_READ_FRAMEBUFFER,
+                  "ANGLE framebuffer enums must equal the ES3 framebuffer enums.");
 
     switch (target)
     {
@@ -209,8 +210,8 @@ bool ValidCompressedImageSize(const Context *context, GLenum internalFormat, GLs
 
 bool ValidQueryType(const Context *context, GLenum queryType)
 {
-    META_ASSERT(GL_ANY_SAMPLES_PASSED == GL_ANY_SAMPLES_PASSED_EXT);
-    META_ASSERT(GL_ANY_SAMPLES_PASSED_CONSERVATIVE == GL_ANY_SAMPLES_PASSED_CONSERVATIVE_EXT);
+    static_assert(GL_ANY_SAMPLES_PASSED == GL_ANY_SAMPLES_PASSED_EXT, "GL extension enums not equal.");
+    static_assert(GL_ANY_SAMPLES_PASSED_CONSERVATIVE == GL_ANY_SAMPLES_PASSED_CONSERVATIVE_EXT, "GL extension enums not equal.");
 
     switch (queryType)
     {
@@ -524,7 +525,7 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
             GLenum readInternalFormat = readColorBuffer->getInternalFormat();
             const InternalFormat &readFormatInfo = GetInternalFormatInfo(readInternalFormat);
 
-            for (unsigned int i = 0; i < gl::IMPLEMENTATION_MAX_DRAW_BUFFERS; i++)
+            for (GLuint i = 0; i < context->getCaps().maxColorAttachments; i++)
             {
                 if (drawFramebuffer->isEnabledColorAttachment(i))
                 {
@@ -580,7 +581,7 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
                     return false;
                 }
 
-                for (unsigned int colorAttachment = 0; colorAttachment < gl::IMPLEMENTATION_MAX_DRAW_BUFFERS; colorAttachment++)
+                for (GLuint colorAttachment = 0; colorAttachment < context->getCaps().maxColorAttachments; ++colorAttachment)
                 {
                     if (drawFramebuffer->isEnabledColorAttachment(colorAttachment))
                     {
@@ -679,7 +680,8 @@ bool ValidateGetVertexAttribParameters(Context *context, GLenum pname)
       case GL_VERTEX_ATTRIB_ARRAY_DIVISOR:
         // Don't verify ES3 context because GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE uses
         // the same constant.
-        META_ASSERT(GL_VERTEX_ATTRIB_ARRAY_DIVISOR == GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE);
+        static_assert(GL_VERTEX_ATTRIB_ARRAY_DIVISOR == GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE,
+                      "ANGLE extension enums not equal to GL enums.");
         return true;
 
       case GL_VERTEX_ATTRIB_ARRAY_INTEGER:
@@ -1123,11 +1125,13 @@ bool ValidateStateQuery(gl::Context *context, GLenum pname, GLenum *nativeType, 
         return false;
     }
 
+    const Caps &caps = context->getCaps();
+
     if (pname >= GL_DRAW_BUFFER0 && pname <= GL_DRAW_BUFFER15)
     {
         unsigned int colorAttachment = (pname - GL_DRAW_BUFFER0);
 
-        if (colorAttachment >= context->getCaps().maxDrawBuffers)
+        if (colorAttachment >= caps.maxDrawBuffers)
         {
             context->recordError(Error(GL_INVALID_OPERATION));
             return false;
@@ -1140,7 +1144,7 @@ bool ValidateStateQuery(gl::Context *context, GLenum pname, GLenum *nativeType, 
       case GL_TEXTURE_BINDING_CUBE_MAP:
       case GL_TEXTURE_BINDING_3D:
       case GL_TEXTURE_BINDING_2D_ARRAY:
-        if (context->getState().getActiveSampler() >= context->getCaps().maxCombinedTextureImageUnits)
+        if (context->getState().getActiveSampler() >= caps.maxCombinedTextureImageUnits)
         {
             context->recordError(Error(GL_INVALID_OPERATION));
             return false;
@@ -1842,6 +1846,64 @@ bool ValidateGetnUniformfvEXT(Context *context, GLuint program, GLint location, 
 bool ValidateGetnUniformivEXT(Context *context, GLuint program, GLint location, GLsizei bufSize, GLint* params)
 {
     return ValidateSizedGetUniform(context, program, location, bufSize);
+}
+
+bool ValidateDiscardFramebufferBase(Context *context, GLenum target, GLsizei numAttachments,
+                                    const GLenum *attachments, bool defaultFramebuffer)
+{
+    if (numAttachments < 0)
+    {
+        context->recordError(Error(GL_INVALID_VALUE, "numAttachments must not be less than zero"));
+        return false;
+    }
+
+    for (GLsizei i = 0; i < numAttachments; ++i)
+    {
+        if (attachments[i] >= GL_COLOR_ATTACHMENT0 && attachments[i] <= GL_COLOR_ATTACHMENT15)
+        {
+            if (defaultFramebuffer)
+            {
+                context->recordError(Error(GL_INVALID_ENUM, "Invalid attachment when the default framebuffer is bound"));
+                return false;
+            }
+
+            if (attachments[i] >= GL_COLOR_ATTACHMENT0 + context->getCaps().maxColorAttachments)
+            {
+                context->recordError(Error(GL_INVALID_OPERATION,
+                                           "Requested color attachment is greater than the maximum supported color attachments"));
+                return false;
+            }
+        }
+        else
+        {
+            switch (attachments[i])
+            {
+              case GL_DEPTH_ATTACHMENT:
+              case GL_STENCIL_ATTACHMENT:
+              case GL_DEPTH_STENCIL_ATTACHMENT:
+                if (defaultFramebuffer)
+                {
+                    context->recordError(Error(GL_INVALID_ENUM, "Invalid attachment when the default framebuffer is bound"));
+                    return false;
+                }
+                break;
+              case GL_COLOR:
+              case GL_DEPTH:
+              case GL_STENCIL:
+                if (!defaultFramebuffer)
+                {
+                    context->recordError(Error(GL_INVALID_ENUM, "Invalid attachment when the default framebuffer is not bound"));
+                    return false;
+                }
+                break;
+              default:
+                context->recordError(Error(GL_INVALID_ENUM, "Invalid attachment"));
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 }

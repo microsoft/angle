@@ -262,7 +262,7 @@ void GL_APIENTRY GetFenceivNV(GLuint fence, GLenum pname, GLint *params)
 
           case GL_FENCE_CONDITION_NV:
             {
-                *params = fenceObject->getCondition();
+                *params = static_cast<GLint>(fenceObject->getCondition());
                 break;
             }
 
@@ -518,7 +518,7 @@ void GL_APIENTRY RenderbufferStorageMultisampleANGLE(GLenum target, GLsizei samp
         }
 
         Renderbuffer *renderbuffer = context->getState().getCurrentRenderbuffer();
-        Error error = renderbuffer->setStorage(width, height, internalformat, samples);
+        Error error = renderbuffer->setStorageMultisample(samples, internalformat, width, height);
         if (error.isError())
         {
             context->recordError(error);
@@ -674,6 +674,38 @@ void GL_APIENTRY BlitFramebufferANGLE(GLint srcX0, GLint srcY0, GLint srcX1, GLi
         Rectangle dstArea(dstX0, dstY0, dstX1 - dstX0, dstY1 - dstY0);
 
         Error error = drawFramebuffer->blit(context->getState(), srcArea, dstArea, mask, filter, readFramebuffer);
+        if (error.isError())
+        {
+            context->recordError(error);
+            return;
+        }
+    }
+}
+
+void GL_APIENTRY DiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)
+{
+    EVENT("(GLenum target = 0x%X, GLsizei numAttachments = %d, attachments = 0x%0.8p)", target, numAttachments, attachments);
+
+    Context *context = GetValidGlobalContext();
+    if (context)
+    {
+        if (!context->getExtensions().discardFramebuffer)
+        {
+            context->recordError(Error(GL_INVALID_OPERATION, "Extension not enabled"));
+            return;
+        }
+
+        if (!ValidateDiscardFramebufferEXT(context, target, numAttachments, attachments))
+        {
+            return;
+        }
+
+        Framebuffer *framebuffer = context->getState().getTargetFramebuffer(target);
+        ASSERT(framebuffer);
+
+        // The specification isn't clear what should be done when the framebuffer isn't complete.
+        // We leave it up to the framebuffer implementation to decide what to do.
+        Error error = framebuffer->discard(numAttachments, attachments);
         if (error.isError())
         {
             context->recordError(error);

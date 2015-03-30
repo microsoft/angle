@@ -79,6 +79,9 @@ enum
 Renderer9::Renderer9(egl::Display *display)
     : RendererD3D(display)
 {
+    // Initialize global annotator
+    gl::InitializeDebugAnnotations(&mAnnotator);
+
     mD3d9Module = NULL;
 
     mD3d9 = NULL;
@@ -144,6 +147,8 @@ Renderer9::~Renderer9()
     }
 
     release();
+
+    gl::UninitializeDebugAnnotations();
 }
 
 void Renderer9::release()
@@ -855,7 +860,9 @@ gl::Error Renderer9::setTexture(gl::SamplerType type, int index, gl::Texture *te
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Renderer9::setUniformBuffers(const gl::Buffer* /*vertexUniformBuffers*/[], const gl::Buffer* /*fragmentUniformBuffers*/[])
+gl::Error Renderer9::setUniformBuffers(const gl::Data &/*data*/,
+                                       const GLint /*vertexUniformBuffers*/[],
+                                       const GLint /*fragmentUniformBuffers*/[])
 {
     // No effect in ES2/D3D9
     return gl::Error(GL_NO_ERROR);
@@ -1268,7 +1275,7 @@ gl::Error Renderer9::getNullColorbuffer(const gl::FramebufferAttachment *depthbu
     }
 
     gl::Renderbuffer *nullRenderbuffer = new gl::Renderbuffer(createRenderbuffer(), 0);
-    gl::Error error = nullRenderbuffer->setStorage(width, height, GL_NONE, 0);
+    gl::Error error = nullRenderbuffer->setStorage(GL_NONE, width, height);
     if (error.isError())
     {
         SafeDelete(nullRenderbuffer);
@@ -1969,7 +1976,8 @@ void Renderer9::applyUniformnbv(gl::LinkedUniform *targetUniform, const GLint *v
     applyUniformnfv(targetUniform, (GLfloat*)vector);
 }
 
-gl::Error Renderer9::clear(const gl::ClearParameters &clearParams, const gl::FramebufferAttachment *colorBuffer,
+gl::Error Renderer9::clear(const ClearParameters &clearParams,
+                           const gl::FramebufferAttachment *colorBuffer,
                            const gl::FramebufferAttachment *depthStencilBuffer)
 {
     if (clearParams.colorClearType != GL_FLOAT)
@@ -2478,7 +2486,7 @@ unsigned int Renderer9::getReservedFragmentUniformBuffers() const
 bool Renderer9::getShareHandleSupport() const
 {
     // PIX doesn't seem to support using share handles, so disable them.
-    return (mD3d9Ex != NULL) && !gl::perfActive();
+    return (mD3d9Ex != NULL) && !gl::DebugAnnotationsActive();
 }
 
 bool Renderer9::getPostSubBufferSupport() const
@@ -2650,9 +2658,14 @@ DefaultAttachmentImpl *Renderer9::createDefaultAttachment(GLenum type, egl::Surf
     }
 }
 
-FramebufferImpl *Renderer9::createFramebuffer()
+FramebufferImpl *Renderer9::createDefaultFramebuffer(const gl::Framebuffer::Data &data)
 {
-    return new Framebuffer9(this);
+    return createFramebuffer(data);
+}
+
+FramebufferImpl *Renderer9::createFramebuffer(const gl::Framebuffer::Data &data)
+{
+    return new Framebuffer9(data, this);
 }
 
 CompilerImpl *Renderer9::createCompiler(const gl::Data &data)
@@ -2711,7 +2724,7 @@ gl::Error Renderer9::loadExecutable(const void *function, size_t length, ShaderT
 
 gl::Error Renderer9::compileToExecutable(gl::InfoLog &infoLog, const std::string &shaderHLSL, ShaderType type,
                                          const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
-                                         bool separatedOutputBuffers, D3DWorkaroundType workaround,
+                                         bool separatedOutputBuffers, const D3DCompilerWorkarounds &workarounds,
                                          ShaderExecutableD3D **outExectuable)
 {
     // Transform feedback is not supported in ES2 or D3D9
@@ -2736,17 +2749,16 @@ gl::Error Renderer9::compileToExecutable(gl::InfoLog &infoLog, const std::string
 
     UINT flags = ANGLE_COMPILE_OPTIMIZATION_LEVEL;
 
-    if (workaround == ANGLE_D3D_WORKAROUND_SKIP_OPTIMIZATION)
+    if (workarounds.skipOptimization)
     {
         flags = D3DCOMPILE_SKIP_OPTIMIZATION;
     }
-    else if (workaround == ANGLE_D3D_WORKAROUND_MAX_OPTIMIZATION)
+    else if (workarounds.useMaxOptimization)
     {
         flags = D3DCOMPILE_OPTIMIZATION_LEVEL3;
     }
-    else ASSERT(workaround == ANGLE_D3D_WORKAROUND_NONE);
 
-    if (gl::perfActive())
+    if (gl::DebugAnnotationsActive())
     {
 #ifndef NDEBUG
         flags = D3DCOMPILE_SKIP_OPTIMIZATION;

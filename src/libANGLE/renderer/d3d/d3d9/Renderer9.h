@@ -11,11 +11,12 @@
 
 #include "common/angleutils.h"
 #include "common/mathutil.h"
-#include "libANGLE/renderer/d3d/d3d9/ShaderCache.h"
-#include "libANGLE/renderer/d3d/d3d9/VertexDeclarationCache.h"
 #include "libANGLE/renderer/d3d/HLSLCompiler.h"
 #include "libANGLE/renderer/d3d/RendererD3D.h"
 #include "libANGLE/renderer/d3d/RenderTargetD3D.h"
+#include "libANGLE/renderer/d3d/d3d9/DebugAnnotator9.h"
+#include "libANGLE/renderer/d3d/d3d9/ShaderCache.h"
+#include "libANGLE/renderer/d3d/d3d9/VertexDeclarationCache.h"
 
 namespace gl
 {
@@ -29,12 +30,13 @@ class AttributeMap;
 
 namespace rx
 {
-class VertexDataManager;
+class Blit9;
 class IndexDataManager;
 class StreamingIndexBufferInterface;
 class StaticIndexBufferInterface;
+class VertexDataManager;
+struct ClearParameters;
 struct TranslatedAttribute;
-class Blit9;
 
 enum D3D9InitError
 {
@@ -89,7 +91,9 @@ class Renderer9 : public RendererD3D
     virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler);
     virtual gl::Error setTexture(gl::SamplerType type, int index, gl::Texture *texture);
 
-    virtual gl::Error setUniformBuffers(const gl::Buffer *vertexUniformBuffers[], const gl::Buffer *fragmentUniformBuffers[]);
+    gl::Error setUniformBuffers(const gl::Data &data,
+                                const GLint vertexUniformBuffers[],
+                                const GLint fragmentUniformBuffers[]) override;
 
     virtual gl::Error setRasterizerState(const gl::RasterizerState &rasterState);
     gl::Error setBlendState(const gl::Framebuffer *framebuffer, const gl::BlendState &blendState, const gl::ColorF &blendColor,
@@ -116,7 +120,8 @@ class Renderer9 : public RendererD3D
     virtual gl::Error drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,
                                    gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei instances);
 
-    gl::Error clear(const gl::ClearParameters &clearParams, const gl::FramebufferAttachment *colorBuffer,
+    gl::Error clear(const ClearParameters &clearParams,
+                    const gl::FramebufferAttachment *colorBuffer,
                     const gl::FramebufferAttachment *depthStencilBuffer);
 
     virtual void markAllStateDirty();
@@ -161,8 +166,9 @@ class Renderer9 : public RendererD3D
     virtual gl::Error createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT);
 
     // Framebuffer creation
-    virtual DefaultAttachmentImpl *createDefaultAttachment(GLenum type, egl::Surface *surface) override;
-    virtual FramebufferImpl *createFramebuffer() override;
+    DefaultAttachmentImpl *createDefaultAttachment(GLenum type, egl::Surface *surface) override;
+    FramebufferImpl *createDefaultFramebuffer(const gl::Framebuffer::Data &data) override;
+    FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) override;
 
     // Shader creation
     virtual CompilerImpl *createCompiler(const gl::Data &data);
@@ -175,7 +181,7 @@ class Renderer9 : public RendererD3D
                                      bool separatedOutputBuffers, ShaderExecutableD3D **outExecutable);
     virtual gl::Error compileToExecutable(gl::InfoLog &infoLog, const std::string &shaderHLSL, ShaderType type,
                                           const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
-                                          bool separatedOutputBuffers, D3DWorkaroundType workaround,
+                                          bool separatedOutputBuffers, const D3DCompilerWorkarounds &workarounds,
                                           ShaderExecutableD3D **outExectuable);
     virtual UniformStorageD3D *createUniformStorage(size_t storageSize);
 
@@ -227,6 +233,8 @@ class Renderer9 : public RendererD3D
     gl::Error copyToRenderTarget(IDirect3DSurface9 *dest, IDirect3DSurface9 *source, bool fromManaged);
 
     RendererClass getRendererClass() const override { return RENDERER_D3D9; }
+
+    D3DDEVTYPE getD3D9DeviceType() const { return mDeviceType; }
 
   private:
     DISALLOW_COPY_AND_ASSIGN(Renderer9);
@@ -368,6 +376,7 @@ class Renderer9 : public RendererD3D
     } mNullColorbufferCache[NUM_NULL_COLORBUFFER_CACHE_ENTRIES];
     UINT mMaxNullColorbufferLRU;
 
+    DebugAnnotator9 mAnnotator;
 };
 
 }

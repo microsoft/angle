@@ -81,7 +81,7 @@ class ProgramD3D : public ProgramImpl
 
     void initializeUniformStorage();
     gl::Error applyUniforms();
-    gl::Error applyUniformBuffers(const std::vector<gl::Buffer*> boundBuffers, const gl::Caps &caps);
+    gl::Error applyUniformBuffers(const gl::Data &data) override;
     bool assignUniformBlockRegister(gl::InfoLog &infoLog, gl::UniformBlock *uniformBlock, GLenum shader,
                                     unsigned int registerIndex, const gl::Caps &caps);
     void dirtyAllUniforms();
@@ -205,10 +205,10 @@ class ProgramD3D : public ProgramImpl
     ShaderExecutableD3D *mGeometryExecutable;
 
     std::string mVertexHLSL;
-    D3DWorkaroundType mVertexWorkarounds;
+    D3DCompilerWorkarounds mVertexWorkarounds;
 
     std::string mPixelHLSL;
-    D3DWorkaroundType mPixelWorkarounds;
+    D3DCompilerWorkarounds mPixelWorkarounds;
     bool mUsesFragDepth;
     std::vector<PixelShaderOutputVariable> mPixelShaderKey;
 
@@ -224,6 +224,12 @@ class ProgramD3D : public ProgramImpl
     GLuint mUsedVertexSamplerRange;
     GLuint mUsedPixelSamplerRange;
     bool mDirtySamplerMapping;
+
+    // Cache for validateSamplers
+    std::vector<GLenum> mTextureUnitTypesCache;
+
+    // Cache for getPixelExecutableForFramebuffer
+    std::vector<GLenum> mPixelShaderOutputFormatCache;
 
     int mShaderVersion;
 

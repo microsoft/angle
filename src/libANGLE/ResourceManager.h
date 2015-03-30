@@ -19,7 +19,7 @@
 
 namespace rx
 {
-class Renderer;
+class ImplFactory;
 }
 
 namespace gl
@@ -36,7 +36,7 @@ struct Data;
 class ResourceManager
 {
   public:
-    explicit ResourceManager(rx::Renderer *renderer);
+    explicit ResourceManager(rx::ImplFactory *factory);
     ~ResourceManager();
 
     void addRef();
@@ -68,9 +68,9 @@ class ResourceManager
 
     void setRenderbuffer(GLuint handle, Renderbuffer *renderbuffer);
 
-    void checkBufferAllocation(unsigned int buffer);
-    void checkTextureAllocation(GLuint texture, GLenum type);
-    void checkRenderbufferAllocation(GLuint renderbuffer);
+    void checkBufferAllocation(GLuint handle);
+    void checkTextureAllocation(GLuint handle, GLenum type);
+    void checkRenderbufferAllocation(GLuint handle);
     void checkSamplerAllocation(GLuint sampler);
 
     bool isSampler(GLuint sampler);
@@ -78,7 +78,9 @@ class ResourceManager
   private:
     DISALLOW_COPY_AND_ASSIGN(ResourceManager);
 
-    rx::Renderer *mRenderer;
+    void createTextureInternal(GLuint handle);
+
+    rx::ImplFactory *mFactory;
     std::size_t mRefCount;
 
     typedef std::map<GLuint, Buffer*> BufferMap;

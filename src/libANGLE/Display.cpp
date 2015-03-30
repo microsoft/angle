@@ -55,14 +55,14 @@ DefaultPlatform *defaultPlatform = nullptr;
 
 void InitDefaultPlatformImpl()
 {
-    if (angle::Platform::current() == nullptr)
+    if (ANGLEPlatformCurrent() == nullptr)
     {
         if (defaultPlatform == nullptr)
         {
             defaultPlatform = new DefaultPlatform();
         }
 
-        angle::Platform::initialize(defaultPlatform);
+        ANGLEPlatformInitialize(defaultPlatform);
     }
 }
 
@@ -70,13 +70,22 @@ void DeinitDefaultPlatformImpl()
 {
     if (defaultPlatform != nullptr)
     {
-        if (angle::Platform::current() == defaultPlatform)
+        if (ANGLEPlatformCurrent() == defaultPlatform)
         {
-            angle::Platform::shutdown();
+            ANGLEPlatformShutdown();
         }
 
         SafeDelete(defaultPlatform);
     }
+}
+
+typedef std::map<EGLNativeWindowType, Surface*> WindowSurfaceMap;
+// Get a map of all EGL window surfaces to validate that no window has more than one EGL surface
+// associated with it.
+static WindowSurfaceMap *GetWindowSurfaces()
+{
+    static WindowSurfaceMap windowSurfaces;
+    return &windowSurfaces;
 }
 
 typedef std::map<EGLNativeDisplayType, Display*> DisplayMap;
@@ -333,8 +342,12 @@ Error Display::createWindowSurface(const Config *configuration, EGLNativeWindowT
     }
 
     ASSERT(surfaceImpl != nullptr);
-    Surface *surface = new Surface(surfaceImpl);
+    Surface *surface = new Surface(surfaceImpl, EGL_WINDOW_BIT, configuration, attribs);
     mImplementation->getSurfaceSet().insert(surface);
+
+    WindowSurfaceMap *windowSurfaces = GetWindowSurfaces();
+    ASSERT(windowSurfaces && windowSurfaces->find(window) == windowSurfaces->end());
+    windowSurfaces->insert(std::make_pair(window, surface));
 
     ASSERT(outSurface != nullptr);
     *outSurface = surface;
@@ -362,7 +375,7 @@ Error Display::createPbufferSurface(const Config *configuration, const Attribute
     }
 
     ASSERT(surfaceImpl != nullptr);
-    Surface *surface = new Surface(surfaceImpl);
+    Surface *surface = new Surface(surfaceImpl, EGL_PBUFFER_BIT, configuration, attribs);
     mImplementation->getSurfaceSet().insert(surface);
 
     ASSERT(outSurface != nullptr);
@@ -392,7 +405,7 @@ Error Display::createPbufferFromClientBuffer(const Config *configuration, EGLCli
     }
 
     ASSERT(surfaceImpl != nullptr);
-    Surface *surface = new Surface(surfaceImpl);
+    Surface *surface = new Surface(surfaceImpl, EGL_PBUFFER_BIT, configuration, attribs);
     mImplementation->getSurfaceSet().insert(surface);
 
     ASSERT(outSurface != nullptr);
@@ -461,6 +474,25 @@ Error Display::restoreLostDevice()
 
 void Display::destroySurface(Surface *surface)
 {
+    if (surface->getType() == EGL_WINDOW_BIT)
+    {
+        WindowSurfaceMap *windowSurfaces = GetWindowSurfaces();
+        ASSERT(windowSurfaces);
+
+        bool surfaceRemoved = false;
+        for (WindowSurfaceMap::iterator iter = windowSurfaces->begin(); iter != windowSurfaces->end(); iter++)
+        {
+            if (iter->second == surface)
+            {
+                windowSurfaces->erase(iter);
+                surfaceRemoved = true;
+                break;
+            }
+        }
+
+        ASSERT(surfaceRemoved);
+    }
+
     mImplementation->destroySurface(surface);
 }
 
@@ -515,17 +547,12 @@ bool Display::isValidSurface(Surface *surface) const
     return mImplementation->getSurfaceSet().find(surface) != mImplementation->getSurfaceSet().end();
 }
 
-bool Display::hasExistingWindowSurface(EGLNativeWindowType window) const
+bool Display::hasExistingWindowSurface(EGLNativeWindowType window)
 {
-    for (const auto &surfaceIt : mImplementation->getSurfaceSet())
-    {
-        if (surfaceIt->getWindowHandle() == window)
-        {
-            return true;
-        }
-    }
+    WindowSurfaceMap *windowSurfaces = GetWindowSurfaces();
+    ASSERT(windowSurfaces);
 
-    return false;
+    return windowSurfaces->find(window) != windowSurfaces->end();
 }
 
 static ClientExtensions GenerateClientExtensions()

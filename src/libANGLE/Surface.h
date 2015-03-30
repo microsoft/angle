@@ -28,16 +28,20 @@ class SurfaceImpl;
 
 namespace egl
 {
+class AttributeMap;
 class Display;
 struct Config;
 
 class Surface final
 {
   public:
-    Surface(rx::SurfaceImpl *impl);
+    Surface(rx::SurfaceImpl *impl, EGLint surfaceType, const egl::Config *config, const AttributeMap &attributes);
     ~Surface();
 
-    rx::SurfaceImpl *getImplementation() const { return mImplementation; }
+    rx::SurfaceImpl *getImplementation() { return mImplementation; }
+    const rx::SurfaceImpl *getImplementation() const { return mImplementation; }
+
+    EGLint getType() const;
 
     Error swap();
     Error postSubBuffer(EGLint x, EGLint y, EGLint width, EGLint height);
@@ -45,13 +49,10 @@ class Surface final
     Error bindTexImage(gl::Texture *texture, EGLint buffer);
     Error releaseTexImage(EGLint buffer);
 
-    EGLNativeWindowType getWindowHandle() const;
-
     EGLint isPostSubBufferSupported() const;
 
     void setSwapInterval(EGLint interval);
 
-    EGLint getConfigID() const;
     const Config *getConfig() const;
 
     // width and height can change with client window resizing
@@ -72,6 +73,10 @@ class Surface final
     DISALLOW_COPY_AND_ASSIGN(Surface);
 
     rx::SurfaceImpl *mImplementation;
+
+    EGLint mType;
+
+    const egl::Config *mConfig;
 
     EGLint mPixelAspectRatio;      // Display aspect ratio
     EGLenum mRenderBuffer;         // Render buffer

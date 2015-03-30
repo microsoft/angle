@@ -38,6 +38,7 @@ struct TParseContext {
             currentFunctionType(NULL),
             mFunctionReturnsValue(false),
             checksPrecisionErrors(checksPrecErrors),
+            fragmentPrecisionHigh(false),
             defaultMatrixPacking(EmpColumnMajor),
             defaultBlockStorage(EbsShared),
             diagnostics(is),
@@ -176,12 +177,25 @@ struct TParseContext {
         const TSourceLoc &);
     TIntermTyped *addBinaryMathBooleanResult(TOperator op, TIntermTyped *left, TIntermTyped *right,
         const TSourceLoc &);
+    TIntermTyped *addAssign(TOperator op, TIntermTyped *left, TIntermTyped *right,
+        const TSourceLoc &loc);
 
     TIntermBranch *addBranch(TOperator op, const TSourceLoc &loc);
     TIntermBranch *addBranch(TOperator op, TIntermTyped *returnValue, const TSourceLoc &loc);
 
     TIntermTyped *addFunctionCallOrMethod(TFunction *fnCall, TIntermNode *node,
         const TSourceLoc &loc, bool *fatalError);
+
+  private:
+    TIntermTyped *addBinaryMathInternal(TOperator op, TIntermTyped *left, TIntermTyped *right,
+        const TSourceLoc &loc);
+    TIntermTyped *createAssign(TOperator op, TIntermTyped *left, TIntermTyped *right,
+        const TSourceLoc &loc);
+    TIntermTyped *createUnaryMath(TOperator op, TIntermTyped *child, const TSourceLoc &loc);
+
+    // Return true if the checks pass
+    bool binaryOpCommonCheck(TOperator op, TIntermTyped *left, TIntermTyped *right,
+        const TSourceLoc &loc);
 };
 
 int PaParseStrings(size_t count, const char* const string[], const int length[],

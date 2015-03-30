@@ -15,6 +15,19 @@
 namespace gl
 {
 
+bool operator==(const Rectangle &a, const Rectangle &b)
+{
+    return a.x == b.x &&
+           a.y == b.y &&
+           a.width == b.width &&
+           a.height == b.height;
+}
+
+bool operator!=(const Rectangle &a, const Rectangle &b)
+{
+    return !(a == b);
+}
+
 SamplerState::SamplerState()
     : minFilter(GL_NEAREST_MIPMAP_LINEAR),
       magFilter(GL_LINEAR),
@@ -177,8 +190,8 @@ void VertexFormat::GetInputLayout(VertexFormat *inputLayout,
                                   Program *program,
                                   const State &state)
 {
-    const VertexAttribute *vertexAttributes = state.getVertexArray()->getVertexAttributes();
-    for (unsigned int attributeIndex = 0; attributeIndex < MAX_VERTEX_ATTRIBS; attributeIndex++)
+    const std::vector<VertexAttribute> &vertexAttributes = state.getVertexArray()->getVertexAttributes();
+    for (unsigned int attributeIndex = 0; attributeIndex < vertexAttributes.size(); attributeIndex++)
     {
         int semanticIndex = program->getSemanticIndex(attributeIndex);
 

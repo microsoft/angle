@@ -27,9 +27,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B136224E-2A05-61B2-82D1-6A16C64E45A1}</ProjectGuid>
+    <ProjectGuid>{25E8FD6C-1F6A-A6BA-5ACE-53F7B97F1654}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>All</RootNamespace>
+    <RootNamespace>all</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
@@ -278,7 +278,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\build\all.gyp"/>
+    <None Include="..\..\..\..\build\angle.gyp"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\angle_common.vcxproj">

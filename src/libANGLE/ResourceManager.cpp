@@ -20,8 +20,8 @@
 
 namespace gl
 {
-ResourceManager::ResourceManager(rx::Renderer *renderer)
-    : mRenderer(renderer),
+ResourceManager::ResourceManager(rx::ImplFactory *factory)
+    : mFactory(factory),
       mRefCount(1)
 {
 }
@@ -94,7 +94,7 @@ GLuint ResourceManager::createShader(const gl::Data &data, GLenum type)
 
     if (type == GL_VERTEX_SHADER || type == GL_FRAGMENT_SHADER)
     {
-        mShaderMap[handle] = new Shader(this, mRenderer->createShader(type), type, handle);
+        mShaderMap[handle] = new Shader(this, mFactory->createShader(type), type, handle);
     }
     else UNREACHABLE();
 
@@ -106,7 +106,7 @@ GLuint ResourceManager::createProgram()
 {
     GLuint handle = mProgramShaderHandleAllocator.allocate();
 
-    mProgramMap[handle] = new Program(mRenderer->createProgram(), this, handle);
+    mProgramMap[handle] = new Program(mFactory->createProgram(), this, handle);
 
     return handle;
 }
@@ -146,7 +146,7 @@ GLuint ResourceManager::createFenceSync()
 {
     GLuint handle = mFenceSyncHandleAllocator.allocate();
 
-    FenceSync *fenceSync = new FenceSync(mRenderer->createFenceSync(), handle);
+    FenceSync *fenceSync = new FenceSync(mFactory->createFenceSync(), handle);
     fenceSync->addRef();
     mFenceSyncMap[handle] = fenceSync;
 
@@ -356,33 +356,84 @@ void ResourceManager::setRenderbuffer(GLuint handle, Renderbuffer *buffer)
     mRenderbufferMap[handle] = buffer;
 }
 
-void ResourceManager::checkBufferAllocation(unsigned int buffer)
+void ResourceManager::checkBufferAllocation(GLuint handle)
 {
-    if (buffer != 0 && !getBuffer(buffer))
+    if (handle != 0)
     {
-        Buffer *bufferObject = new Buffer(mRenderer->createBuffer(), buffer);
-        mBufferMap[buffer] = bufferObject;
-        bufferObject->addRef();
+        auto bufferMapIt = mBufferMap.find(handle);
+        bool handleAllocated = (bufferMapIt != mBufferMap.end());
+
+        if (handleAllocated && bufferMapIt->second != nullptr)
+        {
+            return;
+        }
+
+        Buffer *buffer = new Buffer(mFactory->createBuffer(), handle);
+        buffer->addRef();
+
+        if (handleAllocated)
+        {
+            bufferMapIt->second = buffer;
+        }
+        else
+        {
+            mBufferHandleAllocator.reserve(handle);
+            mBufferMap[handle] = buffer;
+        }
     }
 }
 
-void ResourceManager::checkTextureAllocation(GLuint texture, GLenum type)
+void ResourceManager::checkTextureAllocation(GLuint handle, GLenum type)
 {
-    if (!getTexture(texture) && texture != 0)
+    if (handle != 0)
     {
-        Texture *textureObject = new Texture(mRenderer->createTexture(type), texture, type);
-        mTextureMap[texture] = textureObject;
-        textureObject->addRef();
+        auto textureMapIt = mTextureMap.find(handle);
+        bool handleAllocated = (textureMapIt != mTextureMap.end());
+
+        if (handleAllocated && textureMapIt->second != nullptr)
+        {
+            return;
+        }
+
+        Texture *texture = new Texture(mFactory->createTexture(type), handle, type);
+        texture->addRef();
+
+        if (handleAllocated)
+        {
+            textureMapIt->second = texture;
+        }
+        else
+        {
+            mTextureHandleAllocator.reserve(handle);
+            mTextureMap[handle] = texture;
+        }
     }
 }
 
-void ResourceManager::checkRenderbufferAllocation(GLuint renderbuffer)
+void ResourceManager::checkRenderbufferAllocation(GLuint handle)
 {
-    if (renderbuffer != 0 && !getRenderbuffer(renderbuffer))
+    if (handle != 0)
     {
-        Renderbuffer *renderbufferObject = new Renderbuffer(mRenderer->createRenderbuffer(), renderbuffer);
-        mRenderbufferMap[renderbuffer] = renderbufferObject;
-        renderbufferObject->addRef();
+        auto renderbufferMapIt = mRenderbufferMap.find(handle);
+        bool handleAllocated = (renderbufferMapIt != mRenderbufferMap.end());
+
+        if (handleAllocated && renderbufferMapIt->second != nullptr)
+        {
+            return;
+        }
+
+        Renderbuffer *renderbuffer = new Renderbuffer(mFactory->createRenderbuffer(), handle);
+        renderbuffer->addRef();
+
+        if (handleAllocated)
+        {
+            renderbufferMapIt->second = renderbuffer;
+        }
+        else
+        {
+            mRenderbufferHandleAllocator.reserve(handle);
+            mRenderbufferMap[handle] = renderbuffer;
+        }
     }
 }
 
@@ -393,6 +444,7 @@ void ResourceManager::checkSamplerAllocation(GLuint sampler)
         Sampler *samplerObject = new Sampler(sampler);
         mSamplerMap[sampler] = samplerObject;
         samplerObject->addRef();
+        // Samplers cannot be created via Bind
     }
 }
 

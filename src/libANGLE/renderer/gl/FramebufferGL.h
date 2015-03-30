@@ -14,20 +14,24 @@
 namespace rx
 {
 
+class FunctionsGL;
+class StateManagerGL;
+
 class FramebufferGL : public FramebufferImpl
 {
   public:
-    FramebufferGL();
+    FramebufferGL(const gl::Framebuffer::Data &data, const FunctionsGL *functions, StateManagerGL *stateManager, bool isDefault);
     ~FramebufferGL() override;
 
     void setColorAttachment(size_t index, const gl::FramebufferAttachment *attachment) override;
-    void setDepthttachment(const gl::FramebufferAttachment *attachment) override;
+    void setDepthAttachment(const gl::FramebufferAttachment *attachment) override;
     void setStencilAttachment(const gl::FramebufferAttachment *attachment) override;
     void setDepthStencilAttachment(const gl::FramebufferAttachment *attachment) override;
 
     void setDrawBuffers(size_t count, const GLenum *buffers) override;
     void setReadBuffer(GLenum buffer) override;
 
+    gl::Error discard(size_t count, const GLenum *attachments) override;
     gl::Error invalidate(size_t count, const GLenum *attachments) override;
     gl::Error invalidateSub(size_t count, const GLenum *attachments, const gl::Rectangle &area) override;
 
@@ -46,8 +50,15 @@ class FramebufferGL : public FramebufferImpl
 
     GLenum checkStatus() const override;
 
+    GLuint getFramebufferID() const;
+
   private:
     DISALLOW_COPY_AND_ASSIGN(FramebufferGL);
+
+    const FunctionsGL *mFunctions;
+    StateManagerGL *mStateManager;
+
+    GLuint mFramebufferID;
 };
 
 }

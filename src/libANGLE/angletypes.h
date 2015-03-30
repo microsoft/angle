@@ -40,6 +40,21 @@ struct Color
     Color(T r, T g, T b, T a) : red(r), green(g), blue(b), alpha(a) { }
 };
 
+template <typename T>
+bool operator==(const Color<T> &a, const Color<T> &b)
+{
+    return a.red == b.red &&
+           a.green == b.green &&
+           a.blue == b.blue &&
+           a.alpha == b.alpha;
+}
+
+template <typename T>
+bool operator!=(const Color<T> &a, const Color<T> &b)
+{
+    return !(a == b);
+}
+
 typedef Color<float> ColorF;
 typedef Color<int> ColorI;
 typedef Color<unsigned int> ColorUI;
@@ -54,6 +69,9 @@ struct Rectangle
     Rectangle() : x(0), y(0), width(0), height(0) { }
     Rectangle(int x_in, int y_in, int width_in, int height_in) : x(x_in), y(y_in), width(width_in), height(height_in) { }
 };
+
+bool operator==(const Rectangle &a, const Rectangle &b);
+bool operator!=(const Rectangle &a, const Rectangle &b);
 
 bool ClipRectangle(const Rectangle &source, const Rectangle &clip, Rectangle *intersection);
 
@@ -185,43 +203,32 @@ struct SamplerState
     bool operator!=(const SamplerState &other) const;
 };
 
-struct ClearParameters
-{
-    bool clearColor[gl::IMPLEMENTATION_MAX_DRAW_BUFFERS];
-    ColorF colorFClearValue;
-    ColorI colorIClearValue;
-    ColorUI colorUIClearValue;
-    GLenum colorClearType;
-    bool colorMaskRed;
-    bool colorMaskGreen;
-    bool colorMaskBlue;
-    bool colorMaskAlpha;
-
-    bool clearDepth;
-    float depthClearValue;
-
-    bool clearStencil;
-    GLint stencilClearValue;
-    GLuint stencilWriteMask;
-
-    bool scissorEnabled;
-    Rectangle scissor;
-};
-
 struct PixelUnpackState
 {
     BindingPointer<Buffer> pixelBuffer;
     GLint alignment;
     GLint rowLength;
+    GLint skipRows;
+    GLint skipPixels;
+    GLint imageHeight;
+    GLint skipImages;
 
     PixelUnpackState()
         : alignment(4),
-          rowLength(0)
+          rowLength(0),
+          skipRows(0),
+          skipPixels(0),
+          imageHeight(0),
+          skipImages(0)
     {}
 
     PixelUnpackState(GLint alignmentIn, GLint rowLengthIn)
         : alignment(alignmentIn),
-          rowLength(rowLengthIn)
+          rowLength(rowLengthIn),
+          skipRows(0),
+          skipPixels(0),
+          imageHeight(0),
+          skipImages(0)
     {}
 };
 
@@ -230,15 +237,24 @@ struct PixelPackState
     BindingPointer<Buffer> pixelBuffer;
     GLint alignment;
     bool reverseRowOrder;
+    GLint rowLength;
+    GLint skipRows;
+    GLint skipPixels;
 
     PixelPackState()
         : alignment(4),
-          reverseRowOrder(false)
+          reverseRowOrder(false),
+          rowLength(0),
+          skipRows(0),
+          skipPixels(0)
     {}
 
     explicit PixelPackState(GLint alignmentIn, bool reverseRowOrderIn)
         : alignment(alignmentIn),
-          reverseRowOrder(reverseRowOrderIn)
+          reverseRowOrder(reverseRowOrderIn),
+          rowLength(0),
+          skipRows(0),
+          skipPixels(0)
     {}
 };
 

@@ -177,6 +177,7 @@ EXPORTS
     glGetBufferPointervOES          @287
     glMapBufferRangeEXT             @288
     glFlushMappedBufferRangeEXT     @289
+    glDiscardFramebufferEXT         @293
 
     ; GLES 3.0 Functions
     glReadBuffer                    @180
@@ -286,3 +287,8 @@ EXPORTS
 
     ; Setting up TRACE macro callbacks
     SetTraceFunctionPointers        @284
+
+    ; ANGLE Platform Implementation
+    ANGLEPlatformCurrent            @290
+    ANGLEPlatformInitialize         @291
+    ANGLEPlatformShutdown           @292

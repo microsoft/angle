@@ -51,13 +51,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -88,20 +88,20 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>ANGLE_TRANSLATOR_IMPLEMENTATION;ANGLE_ENABLE_HLSL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -132,19 +132,19 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>ANGLE_TRANSLATOR_IMPLEMENTATION;ANGLE_ENABLE_HLSL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -175,19 +175,19 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>ANGLE_TRANSLATOR_IMPLEMENTATION;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4245;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -218,7 +218,7 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>ANGLE_TRANSLATOR_IMPLEMENTATION;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>

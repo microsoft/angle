@@ -1198,7 +1198,7 @@ bool TParseContext::executeInitializer(const TSourceLoc& line, const TString& id
  
     if (qualifier != EvqConst) {
         TIntermSymbol* intermSymbol = intermediate.addSymbol(variable->getUniqueId(), variable->getName(), variable->getType(), line);
-        intermNode = intermediate.addAssign(EOpInitialize, intermSymbol, initializer, line);
+        intermNode = createAssign(EOpInitialize, intermSymbol, initializer, line);
         if (intermNode == 0) {
             assignError(line, "=", intermSymbol->getCompleteString(), initializer->getCompleteString());
             return true;
@@ -2697,10 +2697,54 @@ TIntermCase *TParseContext::addDefault(const TSourceLoc &loc)
     return node;
 }
 
+TIntermTyped *TParseContext::createUnaryMath(TOperator op, TIntermTyped *child, const TSourceLoc &loc)
+{
+    if (child == nullptr)
+    {
+        return nullptr;
+    }
+
+    switch (op)
+    {
+      case EOpLogicalNot:
+        if (child->getBasicType() != EbtBool ||
+            child->isMatrix() ||
+            child->isArray() ||
+            child->isVector())
+        {
+            return nullptr;
+        }
+        break;
+      case EOpBitwiseNot:
+        if ((child->getBasicType() != EbtInt && child->getBasicType() != EbtUInt) ||
+            child->isMatrix() ||
+            child->isArray())
+        {
+            return nullptr;
+        }
+        break;
+      case EOpPostIncrement:
+      case EOpPreIncrement:
+      case EOpPostDecrement:
+      case EOpPreDecrement:
+      case EOpNegative:
+      case EOpPositive:
+        if (child->getBasicType() == EbtStruct ||
+            child->isArray())
+        {
+            return nullptr;
+        }
+      default:
+        break;
+    }
+
+    return intermediate.addUnaryMath(op, child, loc);
+}
+
 TIntermTyped *TParseContext::addUnaryMath(TOperator op, TIntermTyped *child, const TSourceLoc &loc)
 {
-    TIntermTyped *node = intermediate.addUnaryMath(op, child, loc);
-    if (node == 0)
+    TIntermTyped *node = createUnaryMath(op, child, loc);
+    if (node == nullptr)
     {
         unaryOpError(loc, GetOperatorString(op), child->getCompleteString());
         recover();
@@ -2716,10 +2760,183 @@ TIntermTyped *TParseContext::addUnaryMathLValue(TOperator op, TIntermTyped *chil
     return addUnaryMath(op, child, loc);
 }
 
+bool TParseContext::binaryOpCommonCheck(TOperator op, TIntermTyped *left, TIntermTyped *right,
+    const TSourceLoc &loc)
+{
+    if (left->isArray() || right->isArray())
+    {
+        if (shaderVersion < 300)
+        {
+            error(loc, "Invalid operation for arrays", GetOperatorString(op));
+            return false;
+        }
+
+        if (left->isArray() != right->isArray())
+        {
+            error(loc, "array / non-array mismatch", GetOperatorString(op));
+            return false;
+        }
+
+        switch (op)
+        {
+          case EOpEqual:
+          case EOpNotEqual:
+          case EOpAssign:
+          case EOpInitialize:
+            break;
+          default:
+            error(loc, "Invalid operation for arrays", GetOperatorString(op));
+            return false;
+        }
+        if (left->getArraySize() != right->getArraySize())
+        {
+            error(loc, "array size mismatch", GetOperatorString(op));
+            return false;
+        }
+    }
+
+    // Check ops which require integer / ivec parameters
+    bool isBitShift = false;
+    switch (op)
+    {
+      case EOpBitShiftLeft:
+      case EOpBitShiftRight:
+      case EOpBitShiftLeftAssign:
+      case EOpBitShiftRightAssign:
+        // Unsigned can be bit-shifted by signed and vice versa, but we need to
+        // check that the basic type is an integer type.
+        isBitShift = true;
+        if (!IsInteger(left->getBasicType()) || !IsInteger(right->getBasicType()))
+        {
+            return false;
+        }
+        break;
+      case EOpBitwiseAnd:
+      case EOpBitwiseXor:
+      case EOpBitwiseOr:
+      case EOpBitwiseAndAssign:
+      case EOpBitwiseXorAssign:
+      case EOpBitwiseOrAssign:
+        // It is enough to check the type of only one operand, since later it
+        // is checked that the operand types match.
+        if (!IsInteger(left->getBasicType()))
+        {
+            return false;
+        }
+        break;
+      default:
+        break;
+    }
+
+    // GLSL ES 1.00 and 3.00 do not support implicit type casting.
+    // So the basic type should usually match.
+    if (!isBitShift && left->getBasicType() != right->getBasicType())
+    {
+        return false;
+    }
+
+    // Check that type sizes match exactly on ops that require that.
+    // Also check restrictions for structs that contain arrays or samplers.
+    switch(op)
+    {
+      case EOpAssign:
+      case EOpInitialize:
+      case EOpEqual:
+      case EOpNotEqual:
+        // ESSL 1.00 sections 5.7, 5.8, 5.9
+        if (shaderVersion < 300 && left->getType().isStructureContainingArrays())
+        {
+            error(loc, "undefined operation for structs containing arrays", GetOperatorString(op));
+            return false;
+        }
+        // Samplers as l-values are disallowed also in ESSL 3.00, see section 4.1.7,
+        // we interpret the spec so that this extends to structs containing samplers,
+        // similarly to ESSL 1.00 spec.
+        if ((shaderVersion < 300 || op == EOpAssign || op == EOpInitialize) &&
+            left->getType().isStructureContainingSamplers())
+        {
+            error(loc, "undefined operation for structs containing samplers", GetOperatorString(op));
+            return false;
+        }
+      case EOpLessThan:
+      case EOpGreaterThan:
+      case EOpLessThanEqual:
+      case EOpGreaterThanEqual:
+        if ((left->getNominalSize() != right->getNominalSize()) ||
+            (left->getSecondarySize() != right->getSecondarySize()))
+        {
+            return false;
+        }
+      default:
+        break;
+    }
+
+    return true;
+}
+
+TIntermTyped *TParseContext::addBinaryMathInternal(TOperator op, TIntermTyped *left, TIntermTyped *right,
+    const TSourceLoc &loc)
+{
+    if (!binaryOpCommonCheck(op, left, right, loc))
+        return nullptr;
+
+    switch (op)
+    {
+      case EOpEqual:
+      case EOpNotEqual:
+        break;
+      case EOpLessThan:
+      case EOpGreaterThan:
+      case EOpLessThanEqual:
+      case EOpGreaterThanEqual:
+        ASSERT(!left->isArray() && !right->isArray());
+        if (left->isMatrix() || left->isVector() ||
+            left->getBasicType() == EbtStruct)
+        {
+            return nullptr;
+        }
+        break;
+      case EOpLogicalOr:
+      case EOpLogicalXor:
+      case EOpLogicalAnd:
+        ASSERT(!left->isArray() && !right->isArray());
+        if (left->getBasicType() != EbtBool ||
+            left->isMatrix() || left->isVector())
+        {
+            return nullptr;
+        }
+        break;
+      case EOpAdd:
+      case EOpSub:
+      case EOpDiv:
+      case EOpMul:
+        ASSERT(!left->isArray() && !right->isArray());
+        if (left->getBasicType() == EbtStruct || left->getBasicType() == EbtBool)
+        {
+            return nullptr;
+        }
+        break;
+      case EOpIMod:
+        ASSERT(!left->isArray() && !right->isArray());
+        // Note that this is only for the % operator, not for mod()
+        if (left->getBasicType() == EbtStruct || left->getBasicType() == EbtBool || left->getBasicType() == EbtFloat)
+        {
+            return nullptr;
+        }
+        break;
+      // Note that for bitwise ops, type checking is done in promote() to
+      // share code between ops and compound assignment
+      default:
+        break;
+    }
+
+    return intermediate.addBinaryMath(op, left, right, loc);
+}
+
 TIntermTyped *TParseContext::addBinaryMath(TOperator op, TIntermTyped *left, TIntermTyped *right,
     const TSourceLoc &loc)
 {
-    TIntermTyped *node = intermediate.addBinaryMath(op, left, right, loc);
+    TIntermTyped *node = addBinaryMathInternal(op, left, right, loc);
     if (node == 0)
     {
         binaryOpError(loc, GetOperatorString(op), left->getCompleteString(), right->getCompleteString());
@@ -2732,7 +2949,7 @@ TIntermTyped *TParseContext::addBinaryMath(TOperator op, TIntermTyped *left, TIn
 TIntermTyped *TParseContext::addBinaryMathBooleanResult(TOperator op, TIntermTyped *left, TIntermTyped *right,
     const TSourceLoc &loc)
 {
-    TIntermTyped *node = intermediate.addBinaryMath(op, left, right, loc);
+    TIntermTyped *node = addBinaryMathInternal(op, left, right, loc);
     if (node == 0)
     {
         binaryOpError(loc, GetOperatorString(op), left->getCompleteString(), right->getCompleteString());
@@ -2740,6 +2957,29 @@ TIntermTyped *TParseContext::addBinaryMathBooleanResult(TOperator op, TIntermTyp
         ConstantUnion *unionArray = new ConstantUnion[1];
         unionArray->setBConst(false);
         return intermediate.addConstantUnion(unionArray, TType(EbtBool, EbpUndefined, EvqConst), loc);
+    }
+    return node;
+}
+
+TIntermTyped *TParseContext::createAssign(TOperator op, TIntermTyped *left, TIntermTyped *right,
+    const TSourceLoc &loc)
+{
+    if (binaryOpCommonCheck(op, left, right, loc))
+    {
+        return intermediate.addAssign(op, left, right, loc);
+    }
+    return nullptr;
+}
+
+TIntermTyped *TParseContext::addAssign(TOperator op, TIntermTyped *left, TIntermTyped *right,
+    const TSourceLoc &loc)
+{
+    TIntermTyped *node = createAssign(op, left, right, loc);
+    if (node == nullptr)
+    {
+        assignError(loc, "assign", left->getCompleteString(), right->getCompleteString());
+        recover();
+        return left;
     }
     return node;
 }
@@ -2852,7 +3092,7 @@ TIntermTyped *TParseContext::addFunctionCallOrMethod(TFunction *fnCall, TIntermN
                     //
                     // Treat it like a built-in unary operator.
                     //
-                    callNode = intermediate.addUnaryMath(op, node, loc);
+                    callNode = createUnaryMath(op, node->getAsTyped(), loc);
                     if (callNode == nullptr)
                     {
                         std::stringstream extraInfoStream;
@@ -2867,12 +3107,12 @@ TIntermTyped *TParseContext::addFunctionCallOrMethod(TFunction *fnCall, TIntermN
                     if (returnType.getBasicType() == EbtBool)
                     {
                         // Bool types should not have precision, so we'll override any precision
-                        // that might have been set by addUnaryMath.
+                        // that might have been set by createUnaryMath.
                         callNode->setType(returnType);
                     }
                     else
                     {
-                        // addUnaryMath has set the precision of the node based on the operand.
+                        // createUnaryMath has set the precision of the node based on the operand.
                         callNode->setTypePreservePrecision(returnType);
                     }
                 }

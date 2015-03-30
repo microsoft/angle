@@ -10,41 +10,68 @@
 #ifndef LIBANGLE_FRAMEBUFFER_H_
 #define LIBANGLE_FRAMEBUFFER_H_
 
-#include "libANGLE/Error.h"
-#include "libANGLE/RefCountObject.h"
-#include "libANGLE/Constants.h"
+#include <vector>
 
 #include "common/angleutils.h"
-
-#include <vector>
+#include "libANGLE/Constants.h"
+#include "libANGLE/Error.h"
+#include "libANGLE/RefCountObject.h"
 
 namespace rx
 {
+class DefaultAttachmentImpl;
+class ImplFactory;
+class FramebufferImpl;
 class RenderbufferImpl;
 struct Workarounds;
-class DefaultAttachmentImpl;
-class FramebufferImpl;
+}
+
+namespace egl
+{
+class Surface;
 }
 
 namespace gl
 {
 class FramebufferAttachment;
-class Texture;
 class Renderbuffer;
-struct ImageIndex;
-struct Caps;
-struct Extensions;
-class TextureCapsMap;
-struct Data;
 class State;
+class Texture;
+class TextureCapsMap;
+struct Caps;
+struct Data;
+struct Extensions;
+struct ImageIndex;
 struct Rectangle;
 
-typedef std::vector<FramebufferAttachment *> ColorbufferInfo;
+typedef std::vector<FramebufferAttachment *> AttachmentList;
 
 class Framebuffer
 {
   public:
-    Framebuffer(rx::FramebufferImpl *impl, GLuint id);
+
+    class Data final
+    {
+      public:
+        explicit Data(const Caps &caps);
+        ~Data();
+
+        FramebufferAttachment *getReadAttachment() const;
+        FramebufferAttachment *getFirstColorAttachment() const;
+        FramebufferAttachment *getDepthOrStencilAttachment() const;
+
+        AttachmentList mColorAttachments;
+        FramebufferAttachment *mDepthAttachment;
+        FramebufferAttachment *mStencilAttachment;
+
+        std::vector<GLenum> mDrawBufferStates;
+        GLenum mReadBufferState;
+
+      private:
+        DISALLOW_COPY_AND_ASSIGN(Data);
+    };
+
+    Framebuffer(const Caps &caps, rx::ImplFactory *factory, GLuint id);
     virtual ~Framebuffer();
 
     const rx::FramebufferImpl *getImplementation() const { return mImpl; }
@@ -85,6 +112,7 @@ class Framebuffer
     GLenum checkStatus(const gl::Data &data) const;
     bool hasValidDepthStencil() const;
 
+    Error discard(size_t count, const GLenum *attachments);
     Error invalidate(size_t count, const GLenum *attachments);
     Error invalidateSub(size_t count, const GLenum *attachments, const gl::Rectangle &area);
 
@@ -101,23 +129,13 @@ class Framebuffer
     Error blit(const gl::State &state, const gl::Rectangle &sourceArea, const gl::Rectangle &destArea,
                GLbitfield mask, GLenum filter, const gl::Framebuffer *sourceFramebuffer);
 
-    // Use this method to retrieve the color buffer map when doing rendering.
-    // It will apply a workaround for poor shader performance on some systems
-    // by compacting the list to skip NULL values.
-    ColorbufferInfo getColorbuffersForRender(const rx::Workarounds &workarounds) const;
-
   protected:
     void setAttachment(GLenum attachment, FramebufferAttachment *attachmentObj);
+    void detachResourceById(GLenum resourceType, GLuint resourceId);
 
+    Data mData;
     rx::FramebufferImpl *mImpl;
     GLuint mId;
-
-    FramebufferAttachment *mColorbuffers[IMPLEMENTATION_MAX_DRAW_BUFFERS];
-    GLenum mDrawBufferStates[IMPLEMENTATION_MAX_DRAW_BUFFERS];
-    GLenum mReadBufferState;
-
-    FramebufferAttachment *mDepthbuffer;
-    FramebufferAttachment *mStencilbuffer;
 
   private:
     DISALLOW_COPY_AND_ASSIGN(Framebuffer);
@@ -126,8 +144,7 @@ class Framebuffer
 class DefaultFramebuffer : public Framebuffer
 {
   public:
-    DefaultFramebuffer(rx::FramebufferImpl *impl, rx::DefaultAttachmentImpl *colorAttachment,
-                       rx::DefaultAttachmentImpl *depthAttachment, rx::DefaultAttachmentImpl *stencilAttachment);
+    DefaultFramebuffer(const gl::Caps &caps, rx::ImplFactory *factory, egl::Surface *surface);
 
   private:
     DISALLOW_COPY_AND_ASSIGN(DefaultFramebuffer);

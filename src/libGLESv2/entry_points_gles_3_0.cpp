@@ -706,7 +706,7 @@ void GL_APIENTRY RenderbufferStorageMultisample(GLenum target, GLsizei samples, 
         }
 
         Renderbuffer *renderbuffer = context->getState().getCurrentRenderbuffer();
-        renderbuffer->setStorage(width, height, internalformat, samples);
+        renderbuffer->setStorageMultisample(samples, internalformat, width, height);
     }
 }
 
@@ -1379,8 +1379,6 @@ void GL_APIENTRY GetVertexAttribIiv(GLuint index, GLenum pname, GLint* params)
             return;
         }
 
-        const VertexAttribute &attribState = context->getState().getVertexAttribState(index);
-
         if (!ValidateGetVertexAttribParameters(context, pname))
         {
             return;
@@ -1396,6 +1394,7 @@ void GL_APIENTRY GetVertexAttribIiv(GLuint index, GLenum pname, GLint* params)
         }
         else
         {
+            const VertexAttribute &attribState = context->getState().getVertexArray()->getVertexAttribute(index);
             *params = QuerySingleVertexAttributeParameter<GLint>(attribState, pname);
         }
     }
@@ -1421,8 +1420,6 @@ void GL_APIENTRY GetVertexAttribIuiv(GLuint index, GLenum pname, GLuint* params)
             return;
         }
 
-        const VertexAttribute &attribState = context->getState().getVertexAttribState(index);
-
         if (!ValidateGetVertexAttribParameters(context, pname))
         {
             return;
@@ -1438,6 +1435,7 @@ void GL_APIENTRY GetVertexAttribIuiv(GLuint index, GLenum pname, GLuint* params)
         }
         else
         {
+            const VertexAttribute &attribState = context->getState().getVertexArray()->getVertexAttribute(index);
             *params = QuerySingleVertexAttributeParameter<GLuint>(attribState, pname);
         }
     }
@@ -2064,7 +2062,7 @@ void GL_APIENTRY GetActiveUniformsiv(GLuint program, GLsizei uniformCount, const
             return;
         }
 
-        if (uniformCount > 0)
+        if (uniformCount > programObject->getActiveUniformCount())
         {
             context->recordError(Error(GL_INVALID_VALUE));
             return;
@@ -3189,13 +3187,7 @@ void GL_APIENTRY InvalidateFramebuffer(GLenum target, GLsizei numAttachments, co
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        if (context->getClientVersion() < 3)
-        {
-            context->recordError(Error(GL_INVALID_OPERATION));
-            return;
-        }
-
-        if (!ValidateInvalidateFramebufferParameters(context, target, numAttachments, attachments))
+        if (!ValidateInvalidateFramebuffer(context, target, numAttachments, attachments))
         {
             return;
         }
@@ -3224,13 +3216,7 @@ void GL_APIENTRY InvalidateSubFramebuffer(GLenum target, GLsizei numAttachments,
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        if (context->getClientVersion() < 3)
-        {
-            context->recordError(Error(GL_INVALID_OPERATION));
-            return;
-        }
-
-        if (!ValidateInvalidateFramebufferParameters(context, target, numAttachments, attachments))
+        if (!ValidateInvalidateFramebuffer(context, target, numAttachments, attachments))
         {
             return;
         }

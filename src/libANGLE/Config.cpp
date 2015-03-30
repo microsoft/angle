@@ -108,6 +108,11 @@ class ConfigSorter
 {
   public:
     explicit ConfigSorter(const AttributeMap &attributeMap)
+        : mWantRed(false),
+          mWantGreen(false),
+          mWantBlue(false),
+          mWantAlpha(false),
+          mWantLuminance(false)
     {
         scanForWantedComponents(attributeMap);
     }
@@ -125,10 +130,10 @@ class ConfigSorter
                 return x.attribute < y.attribute;      \
             }
 
-        META_ASSERT(EGL_NONE < EGL_SLOW_CONFIG && EGL_SLOW_CONFIG < EGL_NON_CONFORMANT_CONFIG);
+        static_assert(EGL_NONE < EGL_SLOW_CONFIG && EGL_SLOW_CONFIG < EGL_NON_CONFORMANT_CONFIG, "Unexpected EGL enum value.");
         SORT(configCaveat);
 
-        META_ASSERT(EGL_RGB_BUFFER < EGL_LUMINANCE_BUFFER);
+        static_assert(EGL_RGB_BUFFER < EGL_LUMINANCE_BUFFER, "Unexpected EGL enum value.");
         SORT(colorBufferType);
 
         // By larger total number of color bits, only considering those that are requested to be > 0.

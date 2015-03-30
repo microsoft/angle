@@ -133,7 +133,8 @@ Context::~Context()
 
     while (!mFramebufferMap.empty())
     {
-        deleteFramebuffer(mFramebufferMap.begin()->first);
+        // Delete the framebuffer in reverse order to destroy the framebuffer zero last.
+        deleteFramebuffer(mFramebufferMap.rbegin()->first);
     }
 
     while (!mFenceNVMap.empty())
@@ -184,10 +185,8 @@ void Context::makeCurrent(egl::Surface *surface)
         mHasBeenCurrent = true;
     }
 
-    Framebuffer *framebufferZero = new DefaultFramebuffer(mRenderer->createFramebuffer(),
-                                                          mRenderer->createDefaultAttachment(GL_BACK, surface),
-                                                          mRenderer->createDefaultAttachment(GL_DEPTH, surface),
-                                                          mRenderer->createDefaultAttachment(GL_STENCIL, surface));
+    // TODO(jmadill): do not allocate new pointers here
+    Framebuffer *framebufferZero = new DefaultFramebuffer(mCaps, mRenderer, surface);
 
     setFramebufferZero(framebufferZero);
 
@@ -523,7 +522,7 @@ void Context::bindReadFramebuffer(GLuint framebuffer)
 {
     if (!getFramebuffer(framebuffer))
     {
-        mFramebufferMap[framebuffer] = new Framebuffer(mRenderer->createFramebuffer(), framebuffer);
+        mFramebufferMap[framebuffer] = new Framebuffer(mCaps, mRenderer, framebuffer);
     }
 
     mState.setReadFramebufferBinding(getFramebuffer(framebuffer));
@@ -533,7 +532,7 @@ void Context::bindDrawFramebuffer(GLuint framebuffer)
 {
     if (!getFramebuffer(framebuffer))
     {
-        mFramebufferMap[framebuffer] = new Framebuffer(mRenderer->createFramebuffer(), framebuffer);
+        mFramebufferMap[framebuffer] = new Framebuffer(mCaps, mRenderer, framebuffer);
     }
 
     mState.setDrawFramebufferBinding(getFramebuffer(framebuffer));
@@ -1348,12 +1347,12 @@ void Context::detachFramebuffer(GLuint framebuffer)
     // If a framebuffer that is currently bound to the target FRAMEBUFFER is deleted, it is as though
     // BindFramebuffer had been executed with the target of FRAMEBUFFER and framebuffer of zero.
 
-    if (mState.removeReadFramebufferBinding(framebuffer))
+    if (mState.removeReadFramebufferBinding(framebuffer) && framebuffer != 0)
     {
         bindReadFramebuffer(0);
     }
 
-    if (mState.removeDrawFramebufferBinding(framebuffer))
+    if (mState.removeDrawFramebufferBinding(framebuffer) && framebuffer != 0)
     {
         bindDrawFramebuffer(0);
     }

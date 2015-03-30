@@ -611,7 +611,7 @@ GLuint Program::getAttributeLocation(const std::string &name)
         }
     }
 
-    return -1;
+    return static_cast<GLuint>(-1);
 }
 
 int Program::getSemanticIndex(int attributeIndex)
@@ -1001,9 +1001,9 @@ Error Program::applyUniforms()
     return mProgram->applyUniforms();
 }
 
-Error Program::applyUniformBuffers(const std::vector<gl::Buffer*> boundBuffers, const Caps &caps)
+Error Program::applyUniformBuffers(const gl::Data &data)
 {
-    return mProgram->applyUniformBuffers(boundBuffers, caps);
+    return mProgram->applyUniformBuffers(data);
 }
 
 void Program::flagForDeletion()

@@ -44,10 +44,13 @@ class State
     const DepthStencilState &getDepthStencilState() const;
 
     // Clear behavior setters & state parameter block generation function
-    void setClearColor(float red, float green, float blue, float alpha);
-    void setClearDepth(float depth);
-    void setClearStencil(int stencil);
-    ClearParameters getClearParameters(GLbitfield mask) const;
+    void setColorClearValue(float red, float green, float blue, float alpha);
+    void setDepthClearValue(float depth);
+    void setStencilClearValue(int stencil);
+
+    const ColorF &getColorClearValue() const { return mColorClearValue; }
+    float getDepthClearValue() const { return mDepthClearValue; }
+    int getStencilClearValue() const { return mStencilClearValue; }
 
     // Write mask manipulation
     void setColorMask(bool red, bool green, bool blue, bool alpha);
@@ -197,6 +200,8 @@ class State
     void setIndexedUniformBufferBinding(GLuint index, Buffer *buffer, GLintptr offset, GLsizeiptr size);
     GLuint getIndexedUniformBufferId(GLuint index) const;
     Buffer *getIndexedUniformBuffer(GLuint index) const;
+    GLintptr getIndexedUniformBufferOffset(GLuint index) const;
+    GLsizeiptr getIndexedUniformBufferSize(GLuint index) const;
 
     // GL_TRANSFORM_FEEDBACK_BUFFER - Both indexed and generic targets
     void setGenericTransformFeedbackBufferBinding(Buffer *buffer);
@@ -224,7 +229,6 @@ class State
     void setVertexAttribi(GLuint index, const GLint values[4]);
     void setVertexAttribState(unsigned int attribNum, Buffer *boundBuffer, GLint size, GLenum type,
                               bool normalized, bool pureInteger, GLsizei stride, const void *pointer);
-    const VertexAttribute &getVertexAttribState(unsigned int attribNum) const;
     const VertexAttribCurrentValueData &getVertexAttribCurrentValue(unsigned int attribNum) const;
     const void *getVertexAttribPointer(unsigned int attribNum) const;
 
@@ -234,6 +238,7 @@ class State
     void setPackReverseRowOrder(bool reverseRowOrder);
     bool getPackReverseRowOrder() const;
     const PixelPackState &getPackState() const;
+    PixelPackState &getPackState();
 
     // Pixel unpack state manipulation
     void setUnpackAlignment(GLint alignment);
@@ -241,6 +246,7 @@ class State
     void setUnpackRowLength(GLint rowLength);
     GLint getUnpackRowLength() const;
     const PixelUnpackState &getUnpackState() const;
+    PixelUnpackState &getUnpackState();
 
     // State query functions
     void getBooleanv(GLenum pname, GLboolean *params);

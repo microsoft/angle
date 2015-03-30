@@ -45,60 +45,6 @@ TIntermSymbol *TIntermediate::addSymbol(
 TIntermTyped *TIntermediate::addBinaryMath(
     TOperator op, TIntermTyped *left, TIntermTyped *right, const TSourceLoc &line)
 {
-    switch (op)
-    {
-      case EOpEqual:
-      case EOpNotEqual:
-        if (left->isArray())
-            return NULL;
-        break;
-      case EOpLessThan:
-      case EOpGreaterThan:
-      case EOpLessThanEqual:
-      case EOpGreaterThanEqual:
-        if (left->isMatrix() || left->isArray() || left->isVector() ||
-            left->getBasicType() == EbtStruct)
-        {
-            return NULL;
-        }
-        break;
-      case EOpLogicalOr:
-      case EOpLogicalXor:
-      case EOpLogicalAnd:
-        if (left->getBasicType() != EbtBool ||
-            left->isMatrix() || left->isArray() || left->isVector())
-        {
-            return NULL;
-        }
-        break;
-      case EOpAdd:
-      case EOpSub:
-      case EOpDiv:
-      case EOpMul:
-        if (left->getBasicType() == EbtStruct || left->getBasicType() == EbtBool)
-        {
-            return NULL;
-        }
-        break;
-      case EOpIMod:
-        // Note that this is only for the % operator, not for mod()
-        if (left->getBasicType() == EbtStruct || left->getBasicType() == EbtBool || left->getBasicType() == EbtFloat)
-        {
-            return NULL;
-        }
-        break;
-      // Note that for bitwise ops, type checking is done in promote() to
-      // share code between ops and compound assignment
-      default:
-        break;
-    }
-
-    // This check is duplicated between here and node->promote() as an optimization.
-    if (left->getBasicType() != right->getBasicType() && op != EOpBitShiftLeft && op != EOpBitShiftRight)
-    {
-        return NULL;
-    }
-
     //
     // Need a new node holding things together then.  Make
     // one and promote it to the right type.
@@ -181,52 +127,8 @@ TIntermTyped *TIntermediate::addIndex(
 // Returns the added node.
 //
 TIntermTyped *TIntermediate::addUnaryMath(
-    TOperator op, TIntermNode *childNode, const TSourceLoc &line)
+    TOperator op, TIntermTyped *child, const TSourceLoc &line)
 {
-    TIntermUnary *node;
-    TIntermTyped *child = childNode->getAsTyped();
-
-    if (child == NULL)
-    {
-        mInfoSink.info.message(EPrefixInternalError, line,
-                               "Bad type in AddUnaryMath");
-        return NULL;
-    }
-
-    switch (op)
-    {
-      case EOpLogicalNot:
-        if (child->getBasicType() != EbtBool ||
-            child->isMatrix() ||
-            child->isArray() ||
-            child->isVector())
-        {
-            return NULL;
-        }
-        break;
-      case EOpBitwiseNot:
-        if ((child->getBasicType() != EbtInt && child->getBasicType() != EbtUInt) ||
-            child->isMatrix() ||
-            child->isArray())
-        {
-            return NULL;
-        }
-        break;
-      case EOpPostIncrement:
-      case EOpPreIncrement:
-      case EOpPostDecrement:
-      case EOpPreDecrement:
-      case EOpNegative:
-      case EOpPositive:
-        if (child->getBasicType() == EbtStruct ||
-            child->isArray())
-        {
-            return NULL;
-        }
-      default:
-        break;
-    }
-
     TIntermConstantUnion *childTempConstant = 0;
     if (child->getAsConstantUnion())
         childTempConstant = child->getAsConstantUnion();
@@ -234,7 +136,7 @@ TIntermTyped *TIntermediate::addUnaryMath(
     //
     // Make a new node for the operator.
     //
-    node = new TIntermUnary(op);
+    TIntermUnary *node = new TIntermUnary(op);
     node->setLine(line);
     node->setOperand(child);
 
@@ -243,6 +145,10 @@ TIntermTyped *TIntermediate::addUnaryMath(
 
     switch (op)
     {
+      case EOpFloatBitsToInt:
+      case EOpFloatBitsToUint:
+      case EOpIntBitsToFloat:
+      case EOpUintBitsToFloat:
       case EOpPackSnorm2x16:
       case EOpPackUnorm2x16:
       case EOpPackHalf2x16:

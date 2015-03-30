@@ -32,6 +32,7 @@ WHICH GENERATES THE GLSL ES PARSER (glslang_tab.cpp AND glslang_tab.h).
 #pragma warning(disable: 4189)
 #pragma warning(disable: 4505)
 #pragma warning(disable: 4701)
+#pragma warning(disable: 4702)
 #endif
 
 #include "angle_gl.h"
@@ -272,7 +273,7 @@ postfix_expression
     | function_call {
         $$ = $1;
     }
-    | postfix_expression DOT identifier {
+    | postfix_expression DOT FIELD_SELECTION {
         $$ = context->addFieldSelectionExpression($1, @2, *$3.string, @3);
     }
     | postfix_expression INC_OP {
@@ -361,6 +362,13 @@ function_identifier
         $$ = context->addConstructorFunc($1);
     }
     | IDENTIFIER {
+        if (context->reservedErrorCheck(@1, *$1.string))
+            context->recover();
+        TType type(EbtVoid, EbpUndefined);
+        TFunction *function = new TFunction($1.string, type);
+        $$ = function;
+    }
+    | FIELD_SELECTION {
         if (context->reservedErrorCheck(@1, *$1.string))
             context->recover();
         TType type(EbtVoid, EbpUndefined);
@@ -529,12 +537,7 @@ assignment_expression
     | unary_expression assignment_operator assignment_expression {
         if (context->lValueErrorCheck(@2, "assign", $1))
             context->recover();
-        $$ = context->intermediate.addAssign($2.op, $1, $3, @2);
-        if ($$ == 0) {
-            context->assignError(@2, "assign", $1->getCompleteString(), $3->getCompleteString());
-            context->recover();
-            $$ = $1;
-        }
+        $$ = context->addAssign($2.op, $1, $3, @2);
     }
     ;
 
@@ -703,7 +706,7 @@ function_prototype
         {
             // Insert the unmangled name to detect potential future redefinition as a variable.
             TFunction *function = new TFunction(NewPoolTString($1->getName().c_str()), $1->getReturnType());
-            context->symbolTable.getOuterLevel()->insert(function);
+            context->symbolTable.getOuterLevel()->insertUnmangled(function);
         }
 
         //

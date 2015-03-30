@@ -32,6 +32,7 @@ class BufferD3D : public BufferImpl
     virtual bool supportsDirectIndexBinding() const = 0;
     virtual bool supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &attrib) = 0;
     virtual RendererD3D *getRenderer() = 0;
+    virtual void markTransformFeedbackUsage() = 0;
 
     StaticVertexBufferInterface *getStaticVertexBufferForAttribute(const gl::VertexAttribute &attrib);
     StaticIndexBufferInterface *getStaticIndexBuffer() { return mStaticIndexBuffer; }

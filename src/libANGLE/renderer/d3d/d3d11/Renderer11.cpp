@@ -93,7 +93,7 @@ enum
 };
 
 // dirtyPointer is a special value that will make the comparison with any valid pointer fail and force the renderer to re-apply the state.
-static const uintptr_t DirtyPointer = -1;
+static const uintptr_t DirtyPointer = static_cast<uintptr_t>(-1);
 
 static bool ImageIndexConflictsWithSRV(const gl::ImageIndex *index, D3D11_SHADER_RESOURCE_VIEW_DESC desc)
 {
@@ -162,12 +162,33 @@ ID3D11Resource *GetViewResource(ID3D11View *view)
     return resource;
 }
 
+void CalculateConstantBufferParams(GLintptr offset, GLsizeiptr size, UINT *outFirstConstant, UINT *outNumConstants)
+{
+    // The offset must be aligned to 256 bytes (should have been enforced by glBindBufferRange).
+    ASSERT(offset % 256 == 0);
+
+    // firstConstant and numConstants are expressed in constants of 16-bytes. Furthermore they must be a multiple of 16 constants.
+    *outFirstConstant = offset / 16;
+
+    // The GL size is not required to be aligned to a 256 bytes boundary.
+    // Round the size up to a 256 bytes boundary then express the results in constants of 16-bytes.
+    *outNumConstants = rx::roundUp(size, static_cast<GLsizeiptr>(256)) / 16;
+
+    // Since the size is rounded up, firstConstant + numConstants may be bigger than the actual size of the buffer.
+    // This behaviour is explictly allowed according to the documentation on ID3D11DeviceContext1::PSSetConstantBuffers1
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/hh404649%28v=vs.85%29.aspx
+}
+
 }
 
 Renderer11::Renderer11(egl::Display *display)
     : RendererD3D(display),
-      mStateCache(this)
+      mStateCache(this),
+      mDebug(nullptr)
 {
+    // Initialize global annotator
+    gl::InitializeDebugAnnotations(&mAnnotator);
+
     mVertexDataManager = NULL;
     mIndexDataManager = NULL;
 
@@ -182,6 +203,8 @@ Renderer11::Renderer11(egl::Display *display)
     mTrim = NULL;
 
     mSyncQuery = NULL;
+
+    mSupportsConstantBufferOffsets = false;
 
     mD3d11Module = NULL;
     mDxgiModule = NULL;
@@ -199,7 +222,7 @@ Renderer11::Renderer11(egl::Display *display)
     mAppliedGeometryShader = NULL;
     mAppliedPixelShader = NULL;
 
-    mAppliedNumXFBBindings = -1;
+    mAppliedNumXFBBindings = static_cast<size_t>(-1);
 
     const auto &attributes = mDisplay->getAttributeMap();
 
@@ -267,6 +290,8 @@ Renderer11::Renderer11(egl::Display *display)
 Renderer11::~Renderer11()
 {
     release();
+
+    gl::UninitializeDebugAnnotations();
 }
 
 Renderer11 *Renderer11::makeRenderer11(Renderer *renderer)
@@ -479,6 +504,10 @@ egl::Error Renderer11::initialize()
     }
 #endif
 
+#if !defined(NDEBUG)
+    mDebug = d3d11::DynamicCastComObject<ID3D11Debug>(mDevice);
+#endif
+
     initializeDevice();
 
     return egl::Error(EGL_SUCCESS);
@@ -518,6 +547,13 @@ void Renderer11::initializeDevice()
     mPixelTransfer = new PixelTransfer11(this);
 
     const gl::Caps &rendererCaps = getRendererCaps();
+
+    if (getDeviceContext1IfSupported())
+    {
+        D3D11_FEATURE_DATA_D3D11_OPTIONS d3d11Options;
+        mDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS, &d3d11Options, sizeof(D3D11_FEATURE_DATA_D3D11_OPTIONS));
+        mSupportsConstantBufferOffsets = (d3d11Options.ConstantBufferOffsetting != FALSE);
+    }
 
     mForceSetVertexSamplerStates.resize(rendererCaps.maxVertexTextureImageUnits);
     mCurVertexSamplerStates.resize(rendererCaps.maxVertexTextureImageUnits);
@@ -809,11 +845,23 @@ gl::Error Renderer11::setTexture(gl::SamplerType type, int index, gl::Texture *t
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Renderer11::setUniformBuffers(const gl::Buffer *vertexUniformBuffers[], const gl::Buffer *fragmentUniformBuffers[])
+gl::Error Renderer11::setUniformBuffers(const gl::Data &data,
+                                        const GLint vertexUniformBuffers[],
+                                        const GLint fragmentUniformBuffers[])
 {
-    for (unsigned int uniformBufferIndex = 0; uniformBufferIndex < gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS; uniformBufferIndex++)
+    for (unsigned int uniformBufferIndex = 0; uniformBufferIndex < data.caps->maxVertexUniformBlocks; uniformBufferIndex++)
     {
-        const gl::Buffer *uniformBuffer = vertexUniformBuffers[uniformBufferIndex];
+        GLint binding = vertexUniformBuffers[uniformBufferIndex];
+
+        if (binding == -1)
+        {
+            continue;
+        }
+
+        gl::Buffer *uniformBuffer = data.state->getIndexedUniformBuffer(binding);
+        GLintptr uniformBufferOffset = data.state->getIndexedUniformBufferOffset(binding);
+        GLsizeiptr uniformBufferSize = data.state->getIndexedUniformBufferSize(binding);
+
         if (uniformBuffer)
         {
             Buffer11 *bufferStorage = Buffer11::makeBuffer11(uniformBuffer->getImplementation());
@@ -824,18 +872,44 @@ gl::Error Renderer11::setUniformBuffers(const gl::Buffer *vertexUniformBuffers[]
                 return gl::Error(GL_OUT_OF_MEMORY);
             }
 
-            if (mCurrentConstantBufferVS[uniformBufferIndex] != bufferStorage->getSerial())
+            if (mCurrentConstantBufferVS[uniformBufferIndex] != bufferStorage->getSerial() ||
+                mCurrentConstantBufferVSOffset[uniformBufferIndex] != uniformBufferOffset ||
+                mCurrentConstantBufferVSSize[uniformBufferIndex] != uniformBufferSize)
             {
-                mDeviceContext->VSSetConstantBuffers(getReservedVertexUniformBuffers() + uniformBufferIndex,
-                                                     1, &constantBuffer);
+                if (mSupportsConstantBufferOffsets && uniformBufferSize != 0)
+                {
+                    UINT firstConstant = 0, numConstants = 0;
+                    CalculateConstantBufferParams(uniformBufferOffset, uniformBufferSize, &firstConstant, &numConstants);
+                    mDeviceContext1->VSSetConstantBuffers1(getReservedVertexUniformBuffers() + uniformBufferIndex,
+                                                           1, &constantBuffer, &firstConstant, &numConstants);
+                }
+                else
+                {
+                    ASSERT(uniformBufferOffset == 0);
+                    mDeviceContext->VSSetConstantBuffers(getReservedVertexUniformBuffers() + uniformBufferIndex,
+                                                         1, &constantBuffer);
+                }
+
                 mCurrentConstantBufferVS[uniformBufferIndex] = bufferStorage->getSerial();
+                mCurrentConstantBufferVSOffset[uniformBufferIndex] = uniformBufferOffset;
+                mCurrentConstantBufferVSSize[uniformBufferIndex] = uniformBufferSize;
             }
         }
     }
 
-    for (unsigned int uniformBufferIndex = 0; uniformBufferIndex < gl::IMPLEMENTATION_MAX_FRAGMENT_SHADER_UNIFORM_BUFFERS; uniformBufferIndex++)
+    for (unsigned int uniformBufferIndex = 0; uniformBufferIndex < data.caps->maxFragmentUniformBlocks; uniformBufferIndex++)
     {
-        const gl::Buffer *uniformBuffer = fragmentUniformBuffers[uniformBufferIndex];
+        GLint binding = fragmentUniformBuffers[uniformBufferIndex];
+
+        if (binding == -1)
+        {
+            continue;
+        }
+
+        gl::Buffer *uniformBuffer = data.state->getIndexedUniformBuffer(binding);
+        GLintptr uniformBufferOffset = data.state->getIndexedUniformBufferOffset(binding);
+        GLsizeiptr uniformBufferSize = data.state->getIndexedUniformBufferSize(binding);
+
         if (uniformBuffer)
         {
             Buffer11 *bufferStorage = Buffer11::makeBuffer11(uniformBuffer->getImplementation());
@@ -846,11 +920,27 @@ gl::Error Renderer11::setUniformBuffers(const gl::Buffer *vertexUniformBuffers[]
                 return gl::Error(GL_OUT_OF_MEMORY);
             }
 
-            if (mCurrentConstantBufferPS[uniformBufferIndex] != bufferStorage->getSerial())
+            if (mCurrentConstantBufferPS[uniformBufferIndex] != bufferStorage->getSerial() ||
+                mCurrentConstantBufferPSOffset[uniformBufferIndex] != uniformBufferOffset ||
+                mCurrentConstantBufferPSSize[uniformBufferIndex] != uniformBufferSize)
             {
-                mDeviceContext->PSSetConstantBuffers(getReservedFragmentUniformBuffers() + uniformBufferIndex,
-                                                     1, &constantBuffer);
+                if (mSupportsConstantBufferOffsets && uniformBufferSize != 0)
+                {
+                    UINT firstConstant = 0, numConstants = 0;
+                    CalculateConstantBufferParams(uniformBufferOffset, uniformBufferSize, &firstConstant, &numConstants);
+                    mDeviceContext1->PSSetConstantBuffers1(getReservedFragmentUniformBuffers() + uniformBufferIndex,
+                                                           1, &constantBuffer, &firstConstant, &numConstants);
+                }
+                else
+                {
+                    ASSERT(uniformBufferOffset == 0);
+                    mDeviceContext->PSSetConstantBuffers(getReservedFragmentUniformBuffers() + uniformBufferIndex,
+                                                         1, &constantBuffer);
+                }
+
                 mCurrentConstantBufferPS[uniformBufferIndex] = bufferStorage->getSerial();
+                mCurrentConstantBufferPSOffset[uniformBufferIndex] = uniformBufferOffset;
+                mCurrentConstantBufferPSSize[uniformBufferIndex] = uniformBufferSize;
             }
         }
     }
@@ -947,8 +1037,8 @@ gl::Error Renderer11::setDepthStencilState(const gl::DepthStencilState &depthSte
 
         // Max D3D11 stencil reference value is 0xFF, corresponding to the max 8 bits in a stencil buffer
         // GL specifies we should clamp the ref value to the nearest bit depth when doing stencil ops
-        META_ASSERT(D3D11_DEFAULT_STENCIL_READ_MASK == 0xFF);
-        META_ASSERT(D3D11_DEFAULT_STENCIL_WRITE_MASK == 0xFF);
+        static_assert(D3D11_DEFAULT_STENCIL_READ_MASK == 0xFF, "Unexpected value of D3D11_DEFAULT_STENCIL_READ_MASK");
+        static_assert(D3D11_DEFAULT_STENCIL_WRITE_MASK == 0xFF, "Unexpected value of D3D11_DEFAULT_STENCIL_WRITE_MASK");
         UINT dxStencilRef = std::min<UINT>(stencilRef, 0xFFu);
 
         mDeviceContext->OMSetDepthStencilState(dxDepthStencilState, dxStencilRef);
@@ -1162,7 +1252,8 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
     ID3D11RenderTargetView* framebufferRTVs[gl::IMPLEMENTATION_MAX_DRAW_BUFFERS] = {NULL};
     bool missingColorRenderTarget = true;
 
-    const gl::ColorbufferInfo &colorbuffers = framebuffer->getColorbuffersForRender(getWorkarounds());
+    const FramebufferD3D *framebufferD3D = GetImplAs<FramebufferD3D>(framebuffer);
+    const gl::AttachmentList &colorbuffers = framebufferD3D->getColorAttachmentsForRender(getWorkarounds());
 
     for (size_t colorAttachment = 0; colorAttachment < colorbuffers.size(); ++colorAttachment)
     {
@@ -1289,7 +1380,7 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
             mForceSetRasterState = true;
         }
 
-        for (unsigned int rtIndex = 0; rtIndex < gl::IMPLEMENTATION_MAX_DRAW_BUFFERS; rtIndex++)
+        for (size_t rtIndex = 0; rtIndex < ArraySize(framebufferRTVs); rtIndex++)
         {
             mAppliedRTVs[rtIndex] = reinterpret_cast<uintptr_t>(framebufferRTVs[rtIndex]);
         }
@@ -1993,7 +2084,7 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
 
 void Renderer11::markAllStateDirty()
 {
-    for (unsigned int rtIndex = 0; rtIndex < gl::IMPLEMENTATION_MAX_DRAW_BUFFERS; rtIndex++)
+    for (size_t rtIndex = 0; rtIndex < ArraySize(mAppliedRTVs); rtIndex++)
     {
         mAppliedRTVs[rtIndex] = DirtyPointer;
     }
@@ -2035,7 +2126,7 @@ void Renderer11::markAllStateDirty()
     mAppliedGeometryShader = DirtyPointer;
     mAppliedPixelShader = DirtyPointer;
 
-    mAppliedNumXFBBindings = -1;
+    mAppliedNumXFBBindings = static_cast<size_t>(-1);
 
     for (size_t i = 0; i < gl::IMPLEMENTATION_MAX_TRANSFORM_FEEDBACK_BUFFERS; i++)
     {
@@ -2050,8 +2141,12 @@ void Renderer11::markAllStateDirty()
 
     for (unsigned int i = 0; i < gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS; i++)
     {
-        mCurrentConstantBufferVS[i] = -1;
-        mCurrentConstantBufferPS[i] = -1;
+        mCurrentConstantBufferVS[i] = static_cast<unsigned int>(-1);
+        mCurrentConstantBufferVSOffset[i] = 0;
+        mCurrentConstantBufferVSSize[i] = 0;
+        mCurrentConstantBufferPS[i] = static_cast<unsigned int>(-1);
+        mCurrentConstantBufferPSOffset[i] = 0;
+        mCurrentConstantBufferPSSize[i] = 0;
     }
 
     mCurrentVertexConstantBuffer = NULL;
@@ -2167,6 +2262,7 @@ void Renderer11::release()
     }
 
     SafeRelease(mDevice);
+    SafeRelease(mDebug);
 
     if (mD3d11Module)
     {
@@ -2222,7 +2318,7 @@ GUID Renderer11::getAdapterIdentifier() const
 {
     // Use the adapter LUID as our adapter ID
     // This number is local to a machine is only guaranteed to be unique between restarts
-    META_ASSERT(sizeof(LUID) <= sizeof(GUID));
+    static_assert(sizeof(LUID) <= sizeof(GUID), "Size of GUID must be at least as large as LUID.");
     GUID adapterId = {0};
     memcpy(&adapterId, &mAdapterDescription.AdapterLuid, sizeof(LUID));
     return adapterId;
@@ -2256,7 +2352,7 @@ bool Renderer11::getShareHandleSupport() const
     // chrome needs BGRA. Once chrome fixes this, we should always support them.
     // PIX doesn't seem to support using share handles, so disable them.
     // Also disable share handles on Feature Level 9_3, since it doesn't support share handles on RGBA8 textures/swapchains.
-    return getRendererExtensions().textureFormatBGRA8888 && !gl::perfActive() && !(mFeatureLevel <= D3D_FEATURE_LEVEL_9_3);
+    return getRendererExtensions().textureFormatBGRA8888 && !gl::DebugAnnotationsActive() && !(mFeatureLevel <= D3D_FEATURE_LEVEL_9_3);
 }
 
 bool Renderer11::getPostSubBufferSupport() const
@@ -2555,7 +2651,7 @@ void Renderer11::setOneTimeRenderTarget(ID3D11RenderTargetView *renderTargetView
     mDeviceContext->OMSetRenderTargets(getRendererCaps().maxDrawBuffers, rtvArray, NULL);
 
     // Do not preserve the serial for this one-time-use render target
-    for (unsigned int rtIndex = 0; rtIndex < gl::IMPLEMENTATION_MAX_DRAW_BUFFERS; rtIndex++)
+    for (size_t rtIndex = 0; rtIndex < ArraySize(mAppliedRTVs); rtIndex++)
     {
         mAppliedRTVs[rtIndex] = DirtyPointer;
     }
@@ -2732,9 +2828,14 @@ DefaultAttachmentImpl *Renderer11::createDefaultAttachment(GLenum type, egl::Sur
     }
 }
 
-FramebufferImpl *Renderer11::createFramebuffer()
+FramebufferImpl *Renderer11::createDefaultFramebuffer(const gl::Framebuffer::Data &data)
 {
-    return new Framebuffer11(this);
+    return createFramebuffer(data);
+}
+
+FramebufferImpl *Renderer11::createFramebuffer(const gl::Framebuffer::Data &data)
+{
+    return new Framebuffer11(data, this);
 }
 
 CompilerImpl *Renderer11::createCompiler(const gl::Data &data)
@@ -2841,7 +2942,7 @@ gl::Error Renderer11::loadExecutable(const void *function, size_t length, Shader
 
 gl::Error Renderer11::compileToExecutable(gl::InfoLog &infoLog, const std::string &shaderHLSL, ShaderType type,
                                           const std::vector<gl::LinkedVarying> &transformFeedbackVaryings,
-                                          bool separatedOutputBuffers, D3DWorkaroundType workaround,
+                                          bool separatedOutputBuffers, const D3DCompilerWorkarounds &workarounds,
                                           ShaderExecutableD3D **outExectuable)
 {
     const char *profileType = NULL;
@@ -2865,7 +2966,7 @@ gl::Error Renderer11::compileToExecutable(gl::InfoLog &infoLog, const std::strin
 
     UINT flags = D3DCOMPILE_OPTIMIZATION_LEVEL2;
 
-    if (gl::perfActive())
+    if (gl::DebugAnnotationsActive())
     {
 #ifndef NDEBUG
         flags = D3DCOMPILE_SKIP_OPTIMIZATION;
@@ -2873,6 +2974,9 @@ gl::Error Renderer11::compileToExecutable(gl::InfoLog &infoLog, const std::strin
 
         flags |= D3DCOMPILE_DEBUG;
     }
+
+    if (workarounds.enableIEEEStrictness)
+        flags |= D3DCOMPILE_IEEE_STRICTNESS;
 
     // Sometimes D3DCompile will fail with the default compilation flags for complicated shaders when it would otherwise pass with alternative options.
     // Try the default flags first and if compilation fails, try some alternatives.
@@ -3227,9 +3331,10 @@ gl::Error Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsP
             ColorWriteFunction colorWriteFunction = GetColorWriteFunction(params.format, params.type);
 
             uint8_t temp[16]; // Maximum size of any Color<T> type used.
-            META_ASSERT(sizeof(temp) >= sizeof(gl::ColorF)  &&
-                        sizeof(temp) >= sizeof(gl::ColorUI) &&
-                        sizeof(temp) >= sizeof(gl::ColorI));
+            static_assert(sizeof(temp) >= sizeof(gl::ColorF)  &&
+                          sizeof(temp) >= sizeof(gl::ColorUI) &&
+                          sizeof(temp) >= sizeof(gl::ColorI),
+                          "Unexpected size of gl::Color struct.");
 
             for (int y = 0; y < params.area.height; y++)
             {
@@ -3501,7 +3606,7 @@ GLenum Renderer11::getVertexComponentType(const gl::VertexFormat &vertexFormat) 
 
 void Renderer11::generateCaps(gl::Caps *outCaps, gl::TextureCapsMap *outTextureCaps, gl::Extensions *outExtensions) const
 {
-    d3d11_gl::GenerateCaps(mDevice, outCaps, outTextureCaps, outExtensions);
+    d3d11_gl::GenerateCaps(mDevice, mDeviceContext, outCaps, outTextureCaps, outExtensions);
 }
 
 Workarounds Renderer11::generateWorkarounds() const
