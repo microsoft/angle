@@ -21,8 +21,6 @@ class Framebuffer9 : public FramebufferD3D
     Framebuffer9(Renderer9 *renderer);
     virtual ~Framebuffer9();
 
-    gl::Error invalidate(GLsizei count, const GLenum *attachments) override;
-
   private:
     gl::Error clear(const gl::State &state, const gl::ClearParameters &clearParams) override;
 
