@@ -124,7 +124,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
         if (mAppCreatedShareHandle)
         {
             ID3D11Resource *tempResource11;
-            HRESULT result = device->OpenSharedResource(mShareHandle, __uuidof(ID3D11Resource), (void**)&tempResource11);
+            result = device->OpenSharedResource(mShareHandle, __uuidof(ID3D11Resource), (void**)&tempResource11);
 
             if (FAILED(result))
             {
@@ -175,7 +175,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
             offscreenTextureDesc.CPUAccessFlags = 0;
             offscreenTextureDesc.MiscFlags = useSharedResource ? D3D11_RESOURCE_MISC_SHARED : 0;
 
-            HRESULT result = device->CreateTexture2D(&offscreenTextureDesc, NULL, &mOffscreenTexture);
+            result = device->CreateTexture2D(&offscreenTextureDesc, NULL, &mOffscreenTexture);
 
             if (FAILED(result))
             {

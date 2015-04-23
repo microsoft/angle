@@ -673,7 +673,7 @@ bool Buffer11::supportsDirectIndexBinding() const
 bool Buffer11::supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &attrib)
 {
     size_t attributeOffset = static_cast<size_t>(attrib.offset) % ComputeVertexAttributeStride(attrib);
-    AttribElement element = { attrib.type, attrib.size, ComputeVertexAttributeStride(attrib), attrib.normalized, attrib.pureInteger, attributeOffset };
+    AttribElement element = { attrib.type, attrib.size, static_cast<GLuint>(ComputeVertexAttributeStride(attrib)), attrib.normalized, attrib.pureInteger, attributeOffset };
     StaticBufferIteratorType mapElement = mStaticVertexBufferForAttributeMap.find(element);
 
     // If we've already created a StaticVertexBufferInterface for this attribute, then we return it

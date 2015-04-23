@@ -38,7 +38,7 @@ BufferD3D::~BufferD3D()
 BufferD3D::AttribElement BufferD3D::CreateAttribElementFromAttrib(const gl::VertexAttribute &attrib)
 {
     size_t attributeOffset = static_cast<size_t>(attrib.offset) % ComputeVertexAttributeStride(attrib);
-    return { attrib.type, attrib.size, ComputeVertexAttributeStride(attrib), attrib.normalized, attrib.pureInteger, attributeOffset };
+    return { attrib.type, attrib.size, static_cast<GLuint>(ComputeVertexAttributeStride(attrib)), attrib.normalized, attrib.pureInteger, attributeOffset };
 }
 
 void BufferD3D::updateSerial()

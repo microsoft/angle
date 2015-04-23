@@ -67,31 +67,31 @@ typedef unsigned int flex_uint32_t;
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
-#define INT8_MIN               (-128)
+#define INT8_MIN               (-127i8 - 1)
 #endif
 #ifndef INT16_MIN
-#define INT16_MIN              (-32767-1)
+#define INT16_MIN              (-32767i16 - 1)
 #endif
 #ifndef INT32_MIN
-#define INT32_MIN              (-2147483647-1)
+#define INT32_MIN              (-2147483647i32 - 1)
 #endif
 #ifndef INT8_MAX
-#define INT8_MAX               (127)
+#define INT8_MAX               127i8
 #endif
 #ifndef INT16_MAX
-#define INT16_MAX              (32767)
+#define INT16_MAX              32767i16
 #endif
 #ifndef INT32_MAX
-#define INT32_MAX              (2147483647)
+#define INT32_MAX              2147483647i32
 #endif
 #ifndef UINT8_MAX
-#define UINT8_MAX              (255U)
+#define UINT8_MAX              0xffui8
 #endif
 #ifndef UINT16_MAX
-#define UINT16_MAX             (65535U)
+#define UINT16_MAX             0xffffui16
 #endif
 #ifndef UINT32_MAX
-#define UINT32_MAX             (4294967295U)
+#define UINT32_MAX             0xffffffffui32
 #endif
 
 #endif /* ! C99 */
