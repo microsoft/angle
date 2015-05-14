@@ -23,6 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>commit_id</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
     <DefaultLanguage>en-US</DefaultLanguage>
     <AppContainerApplication>true</AppContainerApplication>
     <ApplicationTypeRevision>8.1</ApplicationTypeRevision>
@@ -36,6 +37,7 @@
     <PlatformToolset>v120_wp81</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
   <ImportGroup Label="ExtensionSettings"/>
   <ImportGroup Label="PropertySheets">
     <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
@@ -220,15 +222,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\..\..\..\src\angle.gyp"/>
+    <None Include="..\..\..\..\.git\index">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\..\..\src\commit.h">
+    <CustomBuild Include="$(OutDir)obj\global_intermediate\angle\commit_id.bat">
       <FileType>Document</FileType>
-      <Command>call mkdir &quot;$(OutDir)obj\global_intermediate\angle\id&quot; 2&gt;nul &amp; set ERRORLEVEL=0 &amp; copy /Y &quot;..\..\..\..\src\commit.h&quot; &quot;$(OutDir)obj\global_intermediate\angle\id\commit.h&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
-      <Message>Copying commit.h to $(OutDir)obj/global_intermediate/angle/id\commit.h</Message>
+      <Command>call call &quot;$(OutDir)obj\global_intermediate\angle\commit_id.bat&quot; &quot;..\..\..\..\src\gen&quot; &quot;..\..\..\..&quot; &quot;$(OutDir)obj\global_intermediate\angle\id\commit.h&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Message>Generating ANGLE Commit ID</Message>
       <Outputs>$(OutDir)obj\global_intermediate\angle\id\commit.h</Outputs>
+      <AdditionalInputs>..\..\..\..\.git\index</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="copy_scripts.vcxproj">
+      <Project>{ED0A7434-1C73-0666-988E-E71578528EDB}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
   <ImportGroup Label="ExtensionTargets"/>
 </Project>

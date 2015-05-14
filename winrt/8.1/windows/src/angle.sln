@@ -3,6 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 13.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle_common", "angle_common.vcxproj", "{6488E130-B390-F16E-0308-729AD4F5A3C3}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "commit_id", "commit_id.vcxproj", "{832D370A-6CE6-7FFA-1490-FC836B36526A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6D45DD92-21C5-3F0D-5631-C5E60EC483B2} = {6D45DD92-21C5-3F0D-5631-C5E60EC483B2}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "copy_compiler_dll", "copy_compiler_dll.vcxproj", "{746F3786-7BE5-297C-2550-7F1936439620}"
 	ProjectSection(ProjectDependencies) = postProject

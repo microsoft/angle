@@ -22,7 +22,7 @@ def generateProjects(generation_dir, build_winphone):
     gyp_cmd += ' --generator-output=' + generation_dir
     gyp_cmd += ' --format=' + gyp_generators
     gyp_cmd += ' -G msvs_version=' + msvs_version
-    gyp_cmd += ' -D angle_use_commit_id=0'
+    gyp_cmd += ' -D angle_use_commit_id=1'
     gyp_cmd += ' -D angle_build_winrt=1'
     gyp_cmd += ' -D angle_build_winphone=' + ('1' if build_winphone else '0')
     gyp_cmd += ' -D angle_enable_d3d9=0'

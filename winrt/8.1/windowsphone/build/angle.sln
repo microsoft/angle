@@ -18,6 +18,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle_common", "..\src\angle_common.vcxproj", "{5442C93D-0283-2C1B-09AE-11AC691C0A3C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "commit_id", "..\src\commit_id.vcxproj", "{71EF2F6B-6367-30FF-A8B3-392EBEDA26A2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{ED0A7434-1C73-0666-988E-E71578528EDB} = {ED0A7434-1C73-0666-988E-E71578528EDB}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "copy_compiler_dll", "..\src\copy_compiler_dll.vcxproj", "{8A5F7A4E-DC09-8114-DC8B-4F2A78275956}"
 	ProjectSection(ProjectDependencies) = postProject

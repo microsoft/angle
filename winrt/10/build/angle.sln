@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 13.00
-# Visual Studio 2014
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(build)", "..\..\..\build", "{BC1FC5DA-9C54-7D77-0BFF-DEDDFD7A8F6C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(src)", "..\..\..\src", "{607B4E81-FB72-43DF-177C-C1403E500480}"
@@ -22,6 +22,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle_common", "..\src\angle_common.vcxproj", "{7E3E300C-E43E-45E3-7AFE-6C728B705A32}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "commit_id", "..\src\commit_id.vcxproj", "{CC680B1E-4E12-511E-0BB1-98AC96D57E45}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC6C63FF-C15C-68A1-5864-FB597D75B2B3} = {DC6C63FF-C15C-68A1-5864-FB597D75B2B3}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "copy_compiler_dll", "..\src\copy_compiler_dll.vcxproj", "{827D9088-EBF8-F3E0-55C8-7221677654F2}"
 	ProjectSection(ProjectDependencies) = postProject
