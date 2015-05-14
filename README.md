@@ -16,7 +16,7 @@ the hardware supports:
 
 <table>
 <tr>
-<th>Feature Levels</th>
+<th>Hardware<br>Feature Levels</th>
 <th>Example devices</th>
 <th>What does ANGLE support?</th>
 </tr>
@@ -37,11 +37,19 @@ the hardware supports:
 <td>Windows Phones</td>
 <td>OpenGL ES 2.0 (except <a href=https://github.com/MSOpenTech/angle/wiki/Known-Issues>minor corner cases</a>)</td>
 </tr>
+<tr>
 <td>
 9_2<br>
 9_1
 </td>
 <td>Surface RT</td>
+<td>OpenGL ES 2.0 (via software emulation)</td>
+</tr>
+<tr>
+<td>
+None
+</td>
+<td>Raspberry Pi 2</td>
 <td>OpenGL ES 2.0 (via software emulation)</td>
 </tr>
 </table>
