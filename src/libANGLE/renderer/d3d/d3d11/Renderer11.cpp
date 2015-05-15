@@ -253,6 +253,8 @@ Renderer11::Renderer11(egl::Display *display)
 
     mAppliedNumXFBBindings = static_cast<size_t>(-1);
 
+    ZeroMemory(&mAdapterDescription, sizeof(mAdapterDescription));
+
     const auto &attributes = mDisplay->getAttributeMap();
 
     EGLint requestedMajorVersion = attributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, EGL_DONT_CARE);
@@ -486,25 +488,34 @@ egl::Error Renderer11::initialize()
         if (mRenderer11DeviceCaps.featureLevel <= D3D_FEATURE_LEVEL_9_3 && dxgiAdapter2 != NULL)
         {
             DXGI_ADAPTER_DESC2 adapterDesc2 = { 0 };
-            dxgiAdapter2->GetDesc2(&adapterDesc2);
-
-            // Copy the contents of the DXGI_ADAPTER_DESC2 into mAdapterDescription (a DXGI_ADAPTER_DESC).
-            memcpy(mAdapterDescription.Description, adapterDesc2.Description, sizeof(mAdapterDescription.Description));
-            mAdapterDescription.VendorId = adapterDesc2.VendorId;
-            mAdapterDescription.DeviceId = adapterDesc2.DeviceId;
-            mAdapterDescription.SubSysId = adapterDesc2.SubSysId;
-            mAdapterDescription.Revision = adapterDesc2.Revision;
-            mAdapterDescription.DedicatedVideoMemory = adapterDesc2.DedicatedVideoMemory;
-            mAdapterDescription.DedicatedSystemMemory = adapterDesc2.DedicatedSystemMemory;
-            mAdapterDescription.SharedSystemMemory = adapterDesc2.SharedSystemMemory;
-            mAdapterDescription.AdapterLuid = adapterDesc2.AdapterLuid;
+            result = dxgiAdapter2->GetDesc2(&adapterDesc2);
+            if (SUCCEEDED(result))
+            {
+                // Copy the contents of the DXGI_ADAPTER_DESC2 into mAdapterDescription (a DXGI_ADAPTER_DESC).
+                memcpy(mAdapterDescription.Description, adapterDesc2.Description, sizeof(mAdapterDescription.Description));
+                mAdapterDescription.VendorId = adapterDesc2.VendorId;
+                mAdapterDescription.DeviceId = adapterDesc2.DeviceId;
+                mAdapterDescription.SubSysId = adapterDesc2.SubSysId;
+                mAdapterDescription.Revision = adapterDesc2.Revision;
+                mAdapterDescription.DedicatedVideoMemory = adapterDesc2.DedicatedVideoMemory;
+                mAdapterDescription.DedicatedSystemMemory = adapterDesc2.DedicatedSystemMemory;
+                mAdapterDescription.SharedSystemMemory = adapterDesc2.SharedSystemMemory;
+                mAdapterDescription.AdapterLuid = adapterDesc2.AdapterLuid;
+            }
         }
         else
         {
-            mDxgiAdapter->GetDesc(&mAdapterDescription);
+            result = mDxgiAdapter->GetDesc(&mAdapterDescription);
         }
 
         SafeRelease(dxgiAdapter2);
+
+        if (FAILED(result))
+        {
+            return egl::Error(EGL_NOT_INITIALIZED,
+                              D3D11_INIT_OTHER_ERROR,
+                              "Could read DXGI adaptor description.");
+        }
 
         memset(mDescription, 0, sizeof(mDescription));
         wcstombs(mDescription, mAdapterDescription.Description, sizeof(mDescription) - 1);
@@ -2146,9 +2157,11 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
         constantBufferDescription.StructureByteStride = 0;
 
         HRESULT result = mDevice->CreateBuffer(&constantBufferDescription, NULL, &mDriverConstantBufferVS);
-        UNUSED_ASSERTION_VARIABLE(result);
         ASSERT(SUCCEEDED(result));
-
+        if (FAILED(result))
+        {
+            return gl::Error(GL_OUT_OF_MEMORY);
+        }
         mDeviceContext->VSSetConstantBuffers(1, 1, &mDriverConstantBufferVS);
     }
 
@@ -2163,22 +2176,32 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
         constantBufferDescription.StructureByteStride = 0;
 
         HRESULT result = mDevice->CreateBuffer(&constantBufferDescription, NULL, &mDriverConstantBufferPS);
-        UNUSED_ASSERTION_VARIABLE(result);
         ASSERT(SUCCEEDED(result));
-
+        if (FAILED(result))
+        {
+            return gl::Error(GL_OUT_OF_MEMORY);
+        }
         mDeviceContext->PSSetConstantBuffers(1, 1, &mDriverConstantBufferPS);
     }
 
     if (memcmp(&mVertexConstants, &mAppliedVertexConstants, sizeof(dx_VertexConstants)) != 0)
     {
-        mDeviceContext->UpdateSubresource(mDriverConstantBufferVS, 0, NULL, &mVertexConstants, 16, 0);
-        memcpy(&mAppliedVertexConstants, &mVertexConstants, sizeof(dx_VertexConstants));
+        ASSERT(mDriverConstantBufferVS != nullptr);
+        if (mDriverConstantBufferVS)
+        {
+            mDeviceContext->UpdateSubresource(mDriverConstantBufferVS, 0, NULL, &mVertexConstants, 16, 0);
+            memcpy(&mAppliedVertexConstants, &mVertexConstants, sizeof(dx_VertexConstants));
+        }
     }
 
     if (memcmp(&mPixelConstants, &mAppliedPixelConstants, sizeof(dx_PixelConstants)) != 0)
     {
-        mDeviceContext->UpdateSubresource(mDriverConstantBufferPS, 0, NULL, &mPixelConstants, 16, 0);
-        memcpy(&mAppliedPixelConstants, &mPixelConstants, sizeof(dx_PixelConstants));
+        ASSERT(mDriverConstantBufferPS != nullptr);
+        if (mDriverConstantBufferPS)
+        {
+            mDeviceContext->UpdateSubresource(mDriverConstantBufferPS, 0, NULL, &mPixelConstants, 16, 0);
+            memcpy(&mAppliedPixelConstants, &mPixelConstants, sizeof(dx_PixelConstants));
+        }
     }
 
     // GSSetConstantBuffers triggers device removal on 9_3, so we should only call it if necessary
@@ -2187,8 +2210,12 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
         // needed for the point sprite geometry shader
         if (mCurrentGeometryConstantBuffer != mDriverConstantBufferPS)
         {
-            mDeviceContext->GSSetConstantBuffers(0, 1, &mDriverConstantBufferPS);
-            mCurrentGeometryConstantBuffer = mDriverConstantBufferPS;
+            ASSERT(mDriverConstantBufferPS != nullptr);
+            if (mDriverConstantBufferPS)
+            {
+                mDeviceContext->GSSetConstantBuffers(0, 1, &mDriverConstantBufferPS);
+                mCurrentGeometryConstantBuffer = mDriverConstantBufferPS;
+            }
         }
     }
 

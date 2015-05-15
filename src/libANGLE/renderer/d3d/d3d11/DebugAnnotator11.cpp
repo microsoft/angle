@@ -95,9 +95,11 @@ void DebugAnnotator11::initializeDevice()
         // Create a D3D_DRIVER_TYPE_NULL device, which is much cheaper than other types of device.
         hr = D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_NULL, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &device, nullptr, &context);
         ASSERT(SUCCEEDED(hr));
-
-        mUserDefinedAnnotation = d3d11::DynamicCastComObject<ID3DUserDefinedAnnotation>(context);
-        ASSERT(mUserDefinedAnnotation != nullptr);
+        if (SUCCEEDED(hr))
+        {
+            mUserDefinedAnnotation = d3d11::DynamicCastComObject<ID3DUserDefinedAnnotation>(context);
+            ASSERT(mUserDefinedAnnotation != nullptr);
+        }
 
         SafeRelease(device);
         SafeRelease(context);

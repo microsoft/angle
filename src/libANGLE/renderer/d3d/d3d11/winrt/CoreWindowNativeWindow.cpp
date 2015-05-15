@@ -178,7 +178,7 @@ static float GetLogicalDpi()
             return dpi;
         }
     }
-    return dpi;
+    return 96.0f;
 }
 
 long ConvertDipsToPixels(float dips)
