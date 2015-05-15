@@ -12,7 +12,7 @@
 
 class TInfoSink;
 
-class TDiagnostics : public pp::Diagnostics
+class TDiagnostics : public pp::Diagnostics, angle::NonCopyable
 {
   public:
     TDiagnostics(TInfoSink& infoSink);
@@ -29,16 +29,12 @@ class TDiagnostics : public pp::Diagnostics
                    const std::string& token,
                    const std::string& extra);
 
-    void writeDebug(const std::string& str);
-
   protected:
     virtual void print(ID id,
                        const pp::SourceLocation& loc,
                        const std::string& text);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TDiagnostics);
-
     TInfoSink& mInfoSink;
     int mNumErrors;
     int mNumWarnings;

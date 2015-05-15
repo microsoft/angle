@@ -4,15 +4,16 @@
 // found in the LICENSE file.
 //
 
+#include <string.h>
 #include <cassert>
 #include <vector>
 
 #include "EGLWindow.h"
 #include "OSWindow.h"
+#include "common/debug.h"
 
 #ifdef _WIN32
-#include "win32/Win32Timer.h"
-#include "win32/Win32Window.h"
+#elif __linux__
 #else
 #error unsupported OS.
 #endif
@@ -102,8 +103,17 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
         return false;
     }
 
-    const EGLint displayAttributes[] =
+    std::vector<EGLint> displayAttributes;
+    displayAttributes.push_back(EGL_PLATFORM_ANGLE_TYPE_ANGLE);
+    displayAttributes.push_back(mPlatform.renderer);
+    displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE);
+    displayAttributes.push_back(mPlatform.majorVersion);
+    displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE);
+    displayAttributes.push_back(mPlatform.minorVersion);
+
+    if (mPlatform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE || mPlatform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
     {
+<<<<<<< HEAD
         EGL_PLATFORM_ANGLE_TYPE_ANGLE,              mPlatform.renderer,
         EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, mPlatform.majorVersion,
         EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE, mPlatform.minorVersion,
@@ -111,8 +121,14 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
         EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, mPlatform.useRenderToBackBuffer,
         EGL_NONE,
     };
+=======
+        displayAttributes.push_back(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE);
+        displayAttributes.push_back(mPlatform.deviceType);
+    }
+    displayAttributes.push_back(EGL_NONE);
+>>>>>>> google/master
 
-    mDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, osWindow->getNativeDisplay(), displayAttributes);
+    mDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, osWindow->getNativeDisplay(), displayAttributes.data());
     if (mDisplay == EGL_NO_DISPLAY)
     {
         destroyGL();
@@ -170,20 +186,14 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
     surfaceAttributes.push_back(mPlatform.useRenderToBackBuffer);
 
     surfaceAttributes.push_back(EGL_NONE);
-    surfaceAttributes.push_back(EGL_NONE);
 
     mSurface = eglCreateWindowSurface(mDisplay, mConfig, osWindow->getNativeWindow(), &surfaceAttributes[0]);
-    if (mSurface == EGL_NO_SURFACE)
-    {
-        eglGetError(); // Clear error and try again
-        mSurface = eglCreateWindowSurface(mDisplay, mConfig, NULL, NULL);
-    }
-
     if (eglGetError() != EGL_SUCCESS)
     {
         destroyGL();
         return false;
     }
+    ASSERT(mSurface != EGL_NO_SURFACE);
 
     EGLint contextAttibutes[] =
     {
@@ -235,4 +245,11 @@ void EGLWindow::destroyGL()
         eglTerminate(mDisplay);
         mDisplay = EGL_NO_DISPLAY;
     }
+}
+
+bool EGLWindow::isGLInitialized() const
+{
+    return mSurface != EGL_NO_SURFACE &&
+           mContext != EGL_NO_CONTEXT &&
+           mDisplay != EGL_NO_DISPLAY;
 }

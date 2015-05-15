@@ -19,11 +19,13 @@
 
 namespace rx
 {
+struct Renderer11DeviceCaps;
 
 namespace d3d11
 {
 
 typedef std::map<std::pair<GLenum, GLenum>, ColorCopyFunction> FastCopyFunctionMap;
+typedef bool (*NativeMipmapGenerationSupportFunction)(D3D_FEATURE_LEVEL);
 
 struct DXGIFormat
 {
@@ -51,6 +53,9 @@ struct DXGIFormat
     ColorReadFunction colorReadFunction;
 
     FastCopyFunctionMap fastCopyFunctions;
+
+    NativeMipmapGenerationSupportFunction nativeMipmapSupport;
+
     ColorCopyFunction getFastCopyFunction(GLenum format, GLenum type) const;
 };
 const DXGIFormat &GetDXGIFormatInfo(DXGI_FORMAT format);
@@ -74,7 +79,7 @@ struct TextureFormat
     typedef std::map<GLenum, LoadImageFunction> LoadFunctionMap;
     LoadFunctionMap loadFunctions;
 };
-const TextureFormat &GetTextureFormatInfo(GLenum internalFormat, D3D_FEATURE_LEVEL featureLevel);
+const TextureFormat &GetTextureFormatInfo(GLenum internalFormat, const Renderer11DeviceCaps &renderer11DeviceCaps);
 
 struct VertexFormat
 {

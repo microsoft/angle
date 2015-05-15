@@ -8,7 +8,6 @@
 //
 
 #include <sstream>
-#include <cassert>
 
 #include "ANGLEPerfTest.h"
 #include "shader_utils.h"
@@ -16,7 +15,7 @@
 namespace
 {
 
-struct TexSubImageParams final : public PerfTestParams
+struct TexSubImageParams final : public RenderTestParams
 {
     std::string suffix() const override;
 
@@ -28,19 +27,18 @@ struct TexSubImageParams final : public PerfTestParams
     unsigned int iterations;
 };
 
-class TexSubImageBenchmark : public ANGLEPerfTest,
+class TexSubImageBenchmark : public ANGLERenderTest,
                              public ::testing::WithParamInterface<TexSubImageParams>
 {
   public:
     TexSubImageBenchmark();
 
-    bool initializeBenchmark() override;
+    void initializeBenchmark() override;
     void destroyBenchmark() override;
     void beginDrawBenchmark() override;
     void drawBenchmark() override;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TexSubImageBenchmark);
     GLuint createTexture();
 
     // Handle to a program object
@@ -66,11 +64,11 @@ class TexSubImageBenchmark : public ANGLEPerfTest,
 std::string TexSubImageParams::suffix() const
 {
     // TODO(jmadill)
-    return PerfTestParams::suffix();
+    return RenderTestParams::suffix();
 }
 
 TexSubImageBenchmark::TexSubImageBenchmark()
-    : ANGLEPerfTest("TexSubImage", GetParam()),
+    : ANGLERenderTest("TexSubImage", GetParam()),
       mProgram(0),
       mPositionLoc(-1),
       mTexCoordLoc(-1),
@@ -108,7 +106,7 @@ GLuint TexSubImageBenchmark::createTexture()
     return texture;
 }
 
-bool TexSubImageBenchmark::initializeBenchmark()
+void TexSubImageBenchmark::initializeBenchmark()
 {
     const auto &params = GetParam();
 
@@ -136,10 +134,7 @@ bool TexSubImageBenchmark::initializeBenchmark()
     );
 
     mProgram = CompileProgram(vs, fs);
-    if (!mProgram)
-    {
-        return false;
-    }
+    ASSERT_TRUE(mProgram != 0);
 
     // Get the attribute locations
     mPositionLoc = glGetAttribLocation(mProgram, "a_position");
@@ -190,20 +185,11 @@ bool TexSubImageBenchmark::initializeBenchmark()
         }
     }
 
-    return true;
+    ASSERT_GL_NO_ERROR();
 }
 
 void TexSubImageBenchmark::destroyBenchmark()
 {
-    const auto &params = GetParam();
-
-    // print static parameters
-    printResult("image_width", static_cast<size_t>(params.imageWidth), "pix", false);
-    printResult("image_height", static_cast<size_t>(params.imageHeight), "pix", false);
-    printResult("subimage_width", static_cast<size_t>(params.subImageWidth), "pix", false);
-    printResult("subimage_height", static_cast<size_t>(params.subImageHeight), "pix", false);
-    printResult("iterations", static_cast<size_t>(params.iterations), "updates", false);
-
     glDeleteProgram(mProgram);
     glDeleteBuffers(1, &mVertexBuffer);
     glDeleteBuffers(1, &mIndexBuffer);
@@ -240,19 +226,26 @@ void TexSubImageBenchmark::beginDrawBenchmark()
 
     // Set the texture sampler to texture unit to 0
     glUniform1i(mSamplerLoc, 0);
+
+    ASSERT_GL_NO_ERROR();
 }
 
 void TexSubImageBenchmark::drawBenchmark()
 {
     const auto &params = GetParam();
 
-    glTexSubImage2D(GL_TEXTURE_2D, 0,
-                    rand() % (params.imageWidth - params.subImageWidth),
-                    rand() % (params.imageHeight - params.subImageHeight),
-                    params.subImageWidth, params.subImageHeight,
-                    GL_RGBA, GL_UNSIGNED_BYTE, mPixels);
+    for (unsigned int iteration = 0; iteration < params.iterations; ++iteration)
+    {
+        glTexSubImage2D(GL_TEXTURE_2D, 0,
+                        rand() % (params.imageWidth - params.subImageWidth),
+                        rand() % (params.imageHeight - params.subImageHeight),
+                        params.subImageWidth, params.subImageHeight,
+                        GL_RGBA, GL_UNSIGNED_BYTE, mPixels);
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    }
+
+    ASSERT_GL_NO_ERROR();
 }
 
 TexSubImageParams D3D11Params()
@@ -269,7 +262,7 @@ TexSubImageParams D3D11Params()
     params.imageHeight = 1024;
     params.subImageWidth = 64;
     params.subImageHeight = 64;
-    params.iterations = 10;
+    params.iterations = 3;
 
     return params;
 }
@@ -288,7 +281,7 @@ TexSubImageParams D3D9Params()
     params.imageHeight = 1024;
     params.subImageWidth = 64;
     params.subImageHeight = 64;
-    params.iterations = 10;
+    params.iterations = 3;
 
     return params;
 }

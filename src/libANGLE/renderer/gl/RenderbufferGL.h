@@ -11,6 +11,11 @@
 
 #include "libANGLE/renderer/RenderbufferImpl.h"
 
+namespace gl
+{
+class TextureCapsMap;
+}
+
 namespace rx
 {
 
@@ -20,7 +25,7 @@ class StateManagerGL;
 class RenderbufferGL : public RenderbufferImpl
 {
   public:
-    RenderbufferGL(const FunctionsGL *functions, StateManagerGL *stateManager);
+    RenderbufferGL(const FunctionsGL *functions, StateManagerGL *stateManager, const gl::TextureCapsMap &textureCaps);
     ~RenderbufferGL() override;
 
     virtual gl::Error setStorage(GLenum internalformat, size_t width, size_t height) override;
@@ -28,11 +33,16 @@ class RenderbufferGL : public RenderbufferImpl
 
     GLuint getRenderbufferID() const;
 
-  private:
-    DISALLOW_COPY_AND_ASSIGN(RenderbufferGL);
+    gl::Error getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,
+                                        FramebufferAttachmentRenderTarget **rtOut) override
+    {
+        return gl::Error(GL_OUT_OF_MEMORY, "Not supported on OpenGL");
+    }
 
+  private:
     const FunctionsGL *mFunctions;
     StateManagerGL *mStateManager;
+    const gl::TextureCapsMap &mTextureCaps;
 
     GLuint mRenderbufferID;
 };

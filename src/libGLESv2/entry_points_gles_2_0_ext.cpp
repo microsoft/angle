@@ -117,7 +117,7 @@ void GL_APIENTRY DrawElementsInstancedANGLE(GLenum mode, GLsizei count, GLenum t
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        rx::RangeUI indexRange;
+        RangeUI indexRange;
         if (!ValidateDrawElementsInstancedANGLE(context, mode, count, type, indices, primcount, &indexRange))
         {
             return;
@@ -168,13 +168,13 @@ void GL_APIENTRY FinishFenceNV(GLuint fence)
             return;
         }
 
-        if (fenceObject->isFence() != GL_TRUE)
+        if (fenceObject->isSet() != GL_TRUE)
         {
             context->recordError(Error(GL_INVALID_OPERATION));
             return;
         }
 
-        fenceObject->finishFence();
+        fenceObject->finish();
     }
 }
 
@@ -233,7 +233,7 @@ void GL_APIENTRY GetFenceivNV(GLuint fence, GLenum pname, GLint *params)
             return;
         }
 
-        if (fenceObject->isFence() != GL_TRUE)
+        if (fenceObject->isSet() != GL_TRUE)
         {
             context->recordError(Error(GL_INVALID_OPERATION));
             return;
@@ -249,7 +249,7 @@ void GL_APIENTRY GetFenceivNV(GLuint fence, GLenum pname, GLint *params)
                 GLboolean status = GL_TRUE;
                 if (fenceObject->getStatus() != GL_TRUE)
                 {
-                    Error error = fenceObject->testFence(&status);
+                    Error error = fenceObject->test(&status);
                     if (error.isError())
                     {
                         context->recordError(error);
@@ -448,7 +448,9 @@ GLboolean GL_APIENTRY IsFenceNV(GLuint fence)
             return GL_FALSE;
         }
 
-        return fenceObject->isFence();
+        // GL_NV_fence spec:
+        // A name returned by GenFencesNV, but not yet set via SetFenceNV, is not the name of an existing fence.
+        return fenceObject->isSet();
     }
 
     return GL_FALSE;
@@ -548,7 +550,7 @@ void GL_APIENTRY SetFenceNV(GLuint fence, GLenum condition)
             return;
         }
 
-        Error error = fenceObject->setFence(condition);
+        Error error = fenceObject->set(condition);
         if (error.isError())
         {
             context->recordError(error);
@@ -572,14 +574,14 @@ GLboolean GL_APIENTRY TestFenceNV(GLuint fence)
             return GL_TRUE;
         }
 
-        if (fenceObject->isFence() != GL_TRUE)
+        if (fenceObject->isSet() != GL_TRUE)
         {
             context->recordError(Error(GL_INVALID_OPERATION));
             return GL_TRUE;
         }
 
         GLboolean result;
-        Error error = fenceObject->testFence(&result);
+        Error error = fenceObject->test(&result);
         if (error.isError())
         {
             context->recordError(error);
@@ -863,7 +865,7 @@ void *GL_APIENTRY MapBufferOES(GLenum target, GLenum access)
             return NULL;
         }
 
-        Error error = buffer->mapRange(0, buffer->getSize(), GL_MAP_WRITE_BIT);
+        Error error = buffer->map(access);
         if (error.isError())
         {
             context->recordError(error);
@@ -897,16 +899,15 @@ GLboolean GL_APIENTRY UnmapBufferOES(GLenum target)
             return GL_FALSE;
         }
 
-        // TODO: detect if we had corruption. if so, throw an error and return false.
-
-        Error error = buffer->unmap();
+        GLboolean result;
+        Error error = buffer->unmap(&result);
         if (error.isError())
         {
             context->recordError(error);
             return GL_FALSE;
         }
 
-        return GL_TRUE;
+        return result;
     }
 
     return GL_FALSE;

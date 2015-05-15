@@ -7,19 +7,31 @@
 // BufferD3D.cpp Defines common functionality between the Buffer9 and Buffer11 classes.
 
 #include "libANGLE/renderer/d3d/BufferD3D.h"
-#include "libANGLE/renderer/d3d/VertexBuffer.h"
+
+#include "common/utilities.h"
 #include "libANGLE/renderer/d3d/IndexBuffer.h"
+<<<<<<< HEAD
 #include "libANGLE/vertexattribute.h"
+=======
+#include "libANGLE/renderer/d3d/VertexBuffer.h"
+>>>>>>> google/master
 
 namespace rx
 {
 
 unsigned int BufferD3D::mNextSerial = 1;
 
-BufferD3D::BufferD3D()
+BufferD3D::BufferD3D(BufferFactoryD3D *factory)
     : BufferImpl(),
+<<<<<<< HEAD
       mStaticIndexBuffer(NULL),
       mUseStaticBuffers(false)
+=======
+      mFactory(factory),
+      mStaticVertexBuffer(nullptr),
+      mStaticIndexBuffer(nullptr),
+      mUnmodifiedDataUse(0)
+>>>>>>> google/master
 {
     updateSerial();
 }
@@ -72,7 +84,11 @@ StaticVertexBufferInterface *BufferD3D::getStaticVertexBufferForAttribute(const 
     StaticVertexBufferInterface *bufferForAttribute = findStaticVertexBufferForAttribute(attrib);
     if (bufferForAttribute != NULL)
     {
+<<<<<<< HEAD
         return bufferForAttribute;
+=======
+        mStaticVertexBuffer = new StaticVertexBufferInterface(mFactory);
+>>>>>>> google/master
     }
 
     // If we have too many static buffers (using up a lot of memory) then we should revert to streaming buffers.
@@ -110,7 +126,7 @@ void BufferD3D::enableStaticData()
 
     if (!mStaticIndexBuffer)
     {
-        mStaticIndexBuffer = new StaticIndexBufferInterface(getRenderer());
+        mStaticIndexBuffer = new StaticIndexBufferInterface(mFactory);
     }
 }
 
@@ -161,6 +177,19 @@ void BufferD3D::promoteStaticVertexUsageForAttrib(const gl::VertexAttribute &att
             getStaticVertexBufferForAttribute(attrib);
         }
     }
+}
+
+gl::Error BufferD3D::getIndexRange(GLenum type, size_t offset, size_t count, gl::RangeUI *outRange)
+{
+    const uint8_t *data = nullptr;
+    gl::Error error = getData(&data);
+    if (error.isError())
+    {
+        return error;
+    }
+
+    *outRange = gl::ComputeIndexRange(type, data + offset, count);
+    return gl::Error(GL_NO_ERROR);
 }
 
 }

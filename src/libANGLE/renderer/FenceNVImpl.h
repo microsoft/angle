@@ -18,18 +18,15 @@
 namespace rx
 {
 
-class FenceNVImpl
+class FenceNVImpl : angle::NonCopyable
 {
   public:
     FenceNVImpl() { };
     virtual ~FenceNVImpl() { };
 
-    virtual gl::Error set() = 0;
-    virtual gl::Error test(bool flushCommandBuffer, GLboolean *outFinished) = 0;
-    virtual gl::Error finishFence(GLboolean *outFinished) = 0;
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN(FenceNVImpl);
+    virtual gl::Error set(GLenum condition) = 0;
+    virtual gl::Error test(GLboolean *outFinished) = 0;
+    virtual gl::Error finish() = 0;
 };
 
 }

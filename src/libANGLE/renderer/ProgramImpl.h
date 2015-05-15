@@ -28,7 +28,7 @@ struct LinkResult
     LinkResult(bool linkSuccess, const gl::Error &error);
 };
 
-class ProgramImpl
+class ProgramImpl : angle::NonCopyable
 {
   public:
     typedef int SemanticIndexArray[gl::MAX_VERTEX_ATTRIBS];
@@ -50,6 +50,8 @@ class ProgramImpl
                             GLenum transformFeedbackBufferMode,
                             int *registers, std::vector<gl::LinkedVarying> *linkedVaryings,
                             std::map<int, gl::VariableLocation> *outputVariables) = 0;
+
+    virtual void bindAttributeLocation(GLuint index, const std::string &name) = 0;
 
     virtual void setUniform1fv(GLint location, GLsizei count, const GLfloat *v) = 0;
     virtual void setUniform2fv(GLint location, GLsizei count, const GLfloat *v) = 0;
@@ -94,7 +96,7 @@ class ProgramImpl
                                     const gl::Caps &caps) = 0;
 
     virtual gl::Error applyUniforms() = 0;
-    virtual gl::Error applyUniformBuffers(const gl::Data &data) = 0;
+    virtual gl::Error applyUniformBuffers(const gl::Data &data, GLuint uniformBlockBindings[]) = 0;
     virtual bool assignUniformBlockRegister(gl::InfoLog &infoLog, gl::UniformBlock *uniformBlock, GLenum shader,
                                             unsigned int registerIndex, const gl::Caps &caps) = 0;
 
@@ -102,36 +104,38 @@ class ProgramImpl
     const std::vector<gl::VariableLocation> &getUniformIndices() const { return mUniformIndex; }
     const std::vector<gl::UniformBlock*> &getUniformBlocks() const { return mUniformBlocks; }
     const std::vector<gl::LinkedVarying> &getTransformFeedbackLinkedVaryings() const { return mTransformFeedbackLinkedVaryings; }
-    const sh::Attribute *getShaderAttributes() const { return mShaderAttributes; }
+    const std::vector<sh::Attribute> getShaderAttributes() { return mShaderAttributes; }
     const SemanticIndexArray &getSemanticIndexes() const { return mSemanticIndex; }
 
     std::vector<gl::LinkedUniform*> &getUniforms() { return mUniforms; }
     std::vector<gl::VariableLocation> &getUniformIndices() { return mUniformIndex; }
     std::vector<gl::UniformBlock*> &getUniformBlocks() { return mUniformBlocks; }
     std::vector<gl::LinkedVarying> &getTransformFeedbackLinkedVaryings() { return mTransformFeedbackLinkedVaryings; }
-    sh::Attribute *getShaderAttributes() { return mShaderAttributes; }
     SemanticIndexArray &getSemanticIndexes() { return mSemanticIndex; }
 
     gl::LinkedUniform *getUniformByLocation(GLint location) const;
     gl::LinkedUniform *getUniformByName(const std::string &name) const;
     gl::UniformBlock *getUniformBlockByIndex(GLuint blockIndex) const;
 
-    GLint getUniformLocation(std::string name);
-    GLuint getUniformIndex(std::string name);
-    GLuint getUniformBlockIndex(std::string name) const;
+    GLint getUniformLocation(const std::string &name) const;
+    GLuint getUniformIndex(const std::string &name) const;
+    GLuint getUniformBlockIndex(const std::string &name) const;
+
+    void setShaderAttribute(size_t index, const sh::Attribute &attrib);
+    void setShaderAttribute(size_t index, GLenum type, GLenum precision, const std::string &name, GLint size, int location);
 
     virtual void reset();
 
   protected:
-    DISALLOW_COPY_AND_ASSIGN(ProgramImpl);
-
     std::vector<gl::LinkedUniform*> mUniforms;
     std::vector<gl::VariableLocation> mUniformIndex;
     std::vector<gl::UniformBlock*> mUniformBlocks;
     std::vector<gl::LinkedVarying> mTransformFeedbackLinkedVaryings;
 
     SemanticIndexArray mSemanticIndex;
-    sh::Attribute mShaderAttributes[gl::MAX_VERTEX_ATTRIBS];
+
+  private:
+    std::vector<sh::Attribute> mShaderAttributes;
 };
 
 }

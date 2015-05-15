@@ -29,7 +29,7 @@ struct Data;
 
 typedef std::map< GLenum, BindingPointer<Texture> > TextureMap;
 
-class State
+class State : angle::NonCopyable
 {
   public:
     State();
@@ -75,7 +75,8 @@ class State
     void setDepthTest(bool enabled);
     void setDepthFunc(GLenum depthFunc);
     void setDepthRange(float zNear, float zFar);
-    void getDepthRange(float *zNear, float *zFar) const;
+    float getNearPlane() const;
+    float getFarPlane() const;
 
     // Blend state manipulation
     bool isBlendEnabled() const;
@@ -108,7 +109,8 @@ class State
     bool isSampleCoverageEnabled() const;
     void setSampleCoverage(bool enabled);
     void setSampleCoverageParams(GLclampf value, bool invert);
-    void getSampleCoverageParams(GLclampf *value, bool *invert) const;
+    GLclampf getSampleCoverageValue() const;
+    bool getSampleCoverageInvert() const;
 
     // Scissor test state toggle & query
     bool isScissorTestEnabled() const;
@@ -126,6 +128,7 @@ class State
 
     // Line width state setter
     void setLineWidth(GLfloat width);
+    float getLineWidth() const;
 
     // Hint setters
     void setGenerateMipmapHint(GLenum hint);
@@ -203,14 +206,6 @@ class State
     GLintptr getIndexedUniformBufferOffset(GLuint index) const;
     GLsizeiptr getIndexedUniformBufferSize(GLuint index) const;
 
-    // GL_TRANSFORM_FEEDBACK_BUFFER - Both indexed and generic targets
-    void setGenericTransformFeedbackBufferBinding(Buffer *buffer);
-    void setIndexedTransformFeedbackBufferBinding(GLuint index, Buffer *buffer, GLintptr offset, GLsizeiptr size);
-    GLuint getIndexedTransformFeedbackBufferId(GLuint index) const;
-    Buffer *getIndexedTransformFeedbackBuffer(GLuint index) const;
-    GLuint getIndexedTransformFeedbackBufferOffset(GLuint index) const;
-    size_t getTransformFeedbackBufferIndexRange() const;
-
     // GL_COPY_[READ/WRITE]_BUFFER
     void setCopyReadBufferBinding(Buffer *buffer);
     void setCopyWriteBufferBinding(Buffer *buffer);
@@ -258,8 +253,6 @@ class State
     bool hasMappedBuffer(GLenum target) const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(State);
-
     // Cached values from Context's caps
     GLuint mMaxDrawBuffers;
     GLuint mMaxCombinedTextureImageUnits;
@@ -319,8 +312,6 @@ class State
     BufferVector mUniformBuffers;
 
     BindingPointer<TransformFeedback> mTransformFeedback;
-    BindingPointer<Buffer> mGenericTransformFeedbackBuffer;
-    BufferVector mTransformFeedbackBuffers;
 
     BindingPointer<Buffer> mCopyReadBuffer;
     BindingPointer<Buffer> mCopyWriteBuffer;

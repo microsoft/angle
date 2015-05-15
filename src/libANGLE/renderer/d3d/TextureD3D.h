@@ -60,9 +60,12 @@ class TextureD3D : public TextureImpl
     virtual gl::ImageIndex getImageIndex(GLint mip, GLint layer) const = 0;
     virtual bool isValidIndex(const gl::ImageIndex &index) const = 0;
 
-    virtual gl::Error generateMipmaps();
+    virtual gl::Error generateMipmaps(const gl::SamplerState &samplerState);
     TextureStorage *getStorage();
     ImageD3D *getBaseLevelImage() const;
+
+    gl::Error getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,
+                                        FramebufferAttachmentRenderTarget **rtOut) override;
 
   protected:
     gl::Error setImage(const gl::ImageIndex &index, GLenum type,
@@ -100,14 +103,18 @@ class TextureD3D : public TextureImpl
     bool mImmutable;
     TextureStorage *mTexStorage;
 
-  private:
-    DISALLOW_COPY_AND_ASSIGN(TextureD3D);
+    // TODO(jmadill): remove this debugging code after we fix the bug
+    friend class Renderer11;
+    bool mTriedToInitIncompleteStorage;
 
+  private:
     virtual gl::Error initializeStorage(bool renderTarget) = 0;
 
     virtual gl::Error updateStorage() = 0;
 
     bool shouldUseSetData(const ImageD3D *image) const;
+
+    gl::Error generateMipmapsUsingImages();
 };
 
 class TextureD3D_2D : public TextureD3D
@@ -153,8 +160,6 @@ class TextureD3D_2D : public TextureD3D
     virtual bool isValidIndex(const gl::ImageIndex &index) const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TextureD3D_2D);
-
     virtual gl::Error initializeStorage(bool renderTarget);
     virtual gl::Error createCompleteStorage(bool renderTarget, TextureStorage **outTexStorage) const;
     virtual gl::Error setCompleteTexStorage(TextureStorage *newCompleteTexStorage);
@@ -218,8 +223,6 @@ class TextureD3D_Cube : public TextureD3D
     virtual bool isValidIndex(const gl::ImageIndex &index) const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TextureD3D_Cube);
-
     virtual gl::Error initializeStorage(bool renderTarget);
     virtual gl::Error createCompleteStorage(bool renderTarget, TextureStorage **outTexStorage) const;
     virtual gl::Error setCompleteTexStorage(TextureStorage *newCompleteTexStorage);
@@ -282,8 +285,6 @@ class TextureD3D_3D : public TextureD3D
     virtual bool isValidIndex(const gl::ImageIndex &index) const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TextureD3D_3D);
-
     virtual gl::Error initializeStorage(bool renderTarget);
     virtual gl::Error createCompleteStorage(bool renderTarget, TextureStorage **outStorage) const;
     virtual gl::Error setCompleteTexStorage(TextureStorage *newCompleteTexStorage);
@@ -344,8 +345,6 @@ class TextureD3D_2DArray : public TextureD3D
     virtual bool isValidIndex(const gl::ImageIndex &index) const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TextureD3D_2DArray);
-
     virtual gl::Error initializeStorage(bool renderTarget);
     virtual gl::Error createCompleteStorage(bool renderTarget, TextureStorage **outStorage) const;
     virtual gl::Error setCompleteTexStorage(TextureStorage *newCompleteTexStorage);

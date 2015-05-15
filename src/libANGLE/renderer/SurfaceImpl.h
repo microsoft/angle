@@ -11,6 +11,7 @@
 
 #include "common/angleutils.h"
 #include "libANGLE/Error.h"
+#include "libANGLE/FramebufferAttachment.h"
 
 namespace egl
 {
@@ -21,12 +22,10 @@ struct Config;
 namespace rx
 {
 
-class SurfaceImpl
+class SurfaceImpl : public FramebufferAttachmentObjectImpl
 {
   public:
-    SurfaceImpl(egl::Display *display, const egl::Config *config,
-                EGLint fixedSize, EGLint postSubBufferSupported, EGLenum textureFormat,
-                EGLenum textureType);
+    SurfaceImpl();
     virtual ~SurfaceImpl();
 
     virtual egl::Error initialize() = 0;
@@ -41,42 +40,7 @@ class SurfaceImpl
     virtual EGLint getWidth() const = 0;
     virtual EGLint getHeight() const = 0;
 
-    const egl::Config *getConfig() const { return mConfig; }
-    EGLint isFixedSize() const { return mFixedSize; }
-    EGLenum getFormat() const;
-    EGLint isPostSubBufferSupported() const { return mPostSubBufferSupported; }
-    EGLenum getTextureFormat() const { return mTextureFormat; }
-    EGLenum getTextureTarget() const { return mTextureTarget; }
-
-  protected:
-   // Useful for mocking
-    SurfaceImpl()
-        : mDisplay(nullptr),
-          mConfig(nullptr),
-          mFixedSize(0),
-          mPostSubBufferSupported(0),
-          mTextureFormat(EGL_NONE),
-          mTextureTarget(EGL_NONE)
-    {}
-
-    egl::Display *const mDisplay;
-    const egl::Config *mConfig;    // EGL config surface was created with
-
-    EGLint mFixedSize;
-    EGLint mPostSubBufferSupported;
-//  EGLint horizontalResolution;   // Horizontal dot pitch
-//  EGLint verticalResolution;     // Vertical dot pitch
-//  EGLBoolean largestPBuffer;     // If true, create largest pbuffer possible
-//  EGLBoolean mipmapTexture;      // True if texture has mipmaps
-//  EGLint mipmapLevel;            // Mipmap level to render to
-//  EGLenum multisampleResolve;    // Multisample resolve behavior
-    EGLenum mTextureFormat;        // Format of texture: RGB, RGBA, or no texture
-    EGLenum mTextureTarget;        // Type of texture: 2D or no texture
-//  EGLenum vgAlphaFormat;         // Alpha format for OpenVG
-//  EGLenum vgColorSpace;          // Color space for OpenVG
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN(SurfaceImpl);
+    virtual EGLint isPostSubBufferSupported() const = 0;
 };
 
 }

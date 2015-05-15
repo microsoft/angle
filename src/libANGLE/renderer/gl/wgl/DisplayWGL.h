@@ -27,6 +27,7 @@ class DisplayWGL : public DisplayGL
     egl::Error initialize(egl::Display *display) override;
     void terminate() override;
 
+<<<<<<< HEAD
     egl::Error createWindowSurface(const egl::Config *configuration, EGLNativeWindowType window, const egl::AttributeMap &attribs, bool allowRenderToBackBuffer,
                                    SurfaceImpl **outSurface) override;
     egl::Error createPbufferSurface(const egl::Config *configuration, const egl::AttributeMap &attribs,
@@ -35,6 +36,20 @@ class DisplayWGL : public DisplayGL
                                              const egl::AttributeMap &attribs, SurfaceImpl **outSurface) override;
 
     egl::Error makeCurrent(egl::Surface *drawSurface, egl::Surface *readSurface, gl::Context *context) override;
+=======
+    // Surface creation
+    SurfaceImpl *createWindowSurface(const egl::Config *configuration,
+                                     EGLNativeWindowType window,
+                                     const egl::AttributeMap &attribs) override;
+    SurfaceImpl *createPbufferSurface(const egl::Config *configuration,
+                                      const egl::AttributeMap &attribs) override;
+    SurfaceImpl *createPbufferFromClientBuffer(const egl::Config *configuration,
+                                               EGLClientBuffer shareHandle,
+                                               const egl::AttributeMap &attribs) override;
+    SurfaceImpl *createPixmapSurface(const egl::Config *configuration,
+                                     NativePixmapType nativePixmap,
+                                     const egl::AttributeMap &attribs) override;
+>>>>>>> google/master
 
     egl::ConfigSet generateConfigs() const override;
 
@@ -44,19 +59,17 @@ class DisplayWGL : public DisplayGL
 
     bool isValidNativeWindow(EGLNativeWindowType window) const override;
 
+    egl::Error getDevice(DeviceImpl **device) override;
+
     std::string getVendorString() const override;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(DisplayWGL);
-
     const FunctionsGL *getFunctionsGL() const override;
 
     void generateExtensions(egl::DisplayExtensions *outExtensions) const override;
     void generateCaps(egl::Caps *outCaps) const override;
 
     HMODULE mOpenGLModule;
-    GLuint mGLVersionMajor;
-    GLuint mGLVersionMinor;
 
     FunctionsWGL *mFunctionsWGL;
     FunctionsGL *mFunctionsGL;

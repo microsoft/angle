@@ -21,7 +21,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "shared_utils.h"
+#include "common/angleutils.h"
 
 class OSWindow;
 
@@ -44,7 +44,7 @@ struct EGLPlatformParameters
     EGLPlatformParameters(EGLint renderer, EGLint majorVersion, EGLint minorVersion, EGLint deviceType, EGLBoolean useRenderToBackBuffer);
 };
 
-class EGLWindow
+class EGLWindow : angle::NonCopyable
 {
   public:
     EGLWindow(size_t width, size_t height, EGLint glesMajorVersion, const EGLPlatformParameters &platform);
@@ -65,7 +65,7 @@ class EGLWindow
 
     void swap();
 
-    GLuint getClientVersion() const { return mClientVersion; }
+    EGLint getClientVersion() const { return mClientVersion; }
     const EGLPlatformParameters &getPlatform() const { return mPlatform; }
     EGLConfig getConfig() const;
     EGLDisplay getDisplay() const;
@@ -84,16 +84,15 @@ class EGLWindow
 
     bool initializeGL(OSWindow *osWindow);
     void destroyGL();
+    bool isGLInitialized() const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(EGLWindow);
-
     EGLConfig mConfig;
     EGLDisplay mDisplay;
     EGLSurface mSurface;
     EGLContext mContext;
 
-    GLuint mClientVersion;
+    EGLint mClientVersion;
     EGLPlatformParameters mPlatform;
     size_t mWidth;
     size_t mHeight;

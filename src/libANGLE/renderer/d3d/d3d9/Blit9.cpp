@@ -236,11 +236,11 @@ gl::Error Blit9::copy2D(const gl::Framebuffer *framebuffer, const RECT &sourceRe
         return error;
     }
 
-    gl::FramebufferAttachment *colorbuffer = framebuffer->getColorbuffer(0);
+    const gl::FramebufferAttachment *colorbuffer = framebuffer->getColorbuffer(0);
     ASSERT(colorbuffer);
 
-    RenderTarget9 *renderTarget9 = NULL;
-    error = d3d9::GetAttachmentRenderTarget(colorbuffer, &renderTarget9);
+    RenderTarget9 *renderTarget9 = nullptr;
+    error = colorbuffer->getRenderTarget(&renderTarget9);
     if (error.isError())
     {
         return error;
@@ -251,7 +251,7 @@ gl::Error Blit9::copy2D(const gl::Framebuffer *framebuffer, const RECT &sourceRe
     ASSERT(source);
 
     IDirect3DSurface9 *destSurface = NULL;
-    TextureStorage9_2D *storage9 = TextureStorage9_2D::makeTextureStorage9_2D(storage);
+    TextureStorage9_2D *storage9 = GetAs<TextureStorage9_2D>(storage);
     error = storage9->getSurfaceLevel(level, true, &destSurface);
     if (error.isError())
     {
@@ -275,11 +275,11 @@ gl::Error Blit9::copyCube(const gl::Framebuffer *framebuffer, const RECT &source
         return error;
     }
 
-    gl::FramebufferAttachment *colorbuffer = framebuffer->getColorbuffer(0);
+    const gl::FramebufferAttachment *colorbuffer = framebuffer->getColorbuffer(0);
     ASSERT(colorbuffer);
 
-    RenderTarget9 *renderTarget9 = NULL;
-    error = d3d9::GetAttachmentRenderTarget(colorbuffer, &renderTarget9);
+    RenderTarget9 *renderTarget9 = nullptr;
+    error = colorbuffer->getRenderTarget(&renderTarget9);
     if (error.isError())
     {
         return error;
@@ -290,7 +290,7 @@ gl::Error Blit9::copyCube(const gl::Framebuffer *framebuffer, const RECT &source
     ASSERT(source);
 
     IDirect3DSurface9 *destSurface = NULL;
-    TextureStorage9_Cube *storage9 = TextureStorage9_Cube::makeTextureStorage9_Cube(storage);
+    TextureStorage9_Cube *storage9 = GetAs<TextureStorage9_Cube>(storage);
     error = storage9->getCubeMapSurface(target, level, true, &destSurface);
     if (error.isError())
     {

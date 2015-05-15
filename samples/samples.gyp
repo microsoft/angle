@@ -6,171 +6,170 @@
     'targets':
     [
         {
-            'target_name': 'essl_to_glsl',
+            'target_name': 'shader_translator',
             'type': 'executable',
             'includes': [ '../build/common_defines.gypi', ],
             'dependencies': [ '../src/angle.gyp:translator_static', ],
             'include_dirs': [ '../include', ],
-            'sources': [ '<!@(python <(angle_path)/enumerate_files.py translator -types *.cpp *.h)' ],
+            'sources': [ 'shader_translator/shader_translator.cpp' ],
         },
-    ],
-    'conditions':
-    [
-        ['OS=="win"',
         {
-            'targets':
+            'target_name': 'sample_util',
+            'type': 'static_library',
+            'includes': [ '../build/common_defines.gypi', ],
+            'dependencies':
+            [
+                '<(angle_path)/src/angle.gyp:libEGL',
+                '<(angle_path)/src/angle.gyp:libGLESv2',
+                '<(angle_path)/util/util.gyp:angle_util',
+            ],
+            'export_dependent_settings':
+            [
+                '<(angle_path)/util/util.gyp:angle_util',
+            ],
+            'include_dirs':
+            [
+                '<(angle_path)/include',
+                'sample_util',
+            ],
+            'sources':
+            [
+                'sample_util/Matrix.cpp',
+                'sample_util/Matrix.h',
+                'sample_util/SampleApplication.cpp',
+                'sample_util/SampleApplication.h',
+                'sample_util/Vector.cpp',
+                'sample_util/Vector.h',
+                'sample_util/geometry_utils.cpp',
+                'sample_util/geometry_utils.h',
+                'sample_util/texture_utils.cpp',
+                'sample_util/texture_utils.h',
+                'sample_util/tga_utils.cpp',
+                'sample_util/tga_utils.h',
+            ],
+            'conditions':
+            [
+                ['OS=="linux"',
+                {
+                    'ldflags':
+                    [
+                        '-lX11'
+                    ],
+                }],
+            ],
+            'msvs_disabled_warnings': [ 4201 ],
+            'direct_dependent_settings':
+            {
+                'msvs_disabled_warnings': [ 4201 ],
+                'include_dirs':
+                [
+                    'sample_util',
+                ],
+            },
+        },
+        {
+            'target_name': 'hello_triangle',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'hello_triangle/HelloTriangle.cpp', ],
+        },
+        {
+            'target_name': 'mip_map_2d',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'mip_map_2d/MipMap2D.cpp', ],
+        },
+        {
+            'target_name': 'multi_texture',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'multi_texture/MultiTexture.cpp', ],
+            'copies':
             [
                 {
-                    'target_name': 'essl_to_hlsl',
-                    'type': 'executable',
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'dependencies': [ '../src/angle.gyp:translator_static', ],
-                    'include_dirs':
+                    'destination': '<(PRODUCT_DIR)',
+                    'files':
                     [
-                        '../include',
-                        '../src',
-                    ],
-                    'sources':
-                    [
-                        '<!@(python <(angle_path)/enumerate_files.py translator -types *.cpp *.h)',
+                        'multi_texture/basemap.tga',
+                        'multi_texture/lightmap.tga',
                     ],
                 },
+            ]
+        },
 
+        {
+            'target_name': 'multi_window',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'multi_window/MultiWindow.cpp', ],
+        },
+
+        {
+            'target_name': 'multiple_draw_buffers',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'multiple_draw_buffers/MultipleDrawBuffers.cpp', ],
+            'copies':
+            [
                 {
-                    'target_name': 'dds_to_header',
-                    'type': 'executable',
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources':
+                    'destination': '<(PRODUCT_DIR)',
+                    'files':
                     [
-                        '<!@(python <(angle_path)/enumerate_files.py dds_to_header -types *.cpp)',
+                        'multiple_draw_buffers/multiple_draw_buffers_copy_fs.glsl',
+                        'multiple_draw_buffers/multiple_draw_buffers_fs.glsl',
+                        'multiple_draw_buffers/multiple_draw_buffers_vs.glsl',
                     ],
-                },
+                }
+            ]
+        },
 
+        {
+            'target_name': 'particle_system',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'particle_system/ParticleSystem.cpp', ],
+            'copies':
+            [
                 {
-                    'target_name': 'sample_util',
-                    'type': 'static_library',
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'dependencies':
+                    'destination': '<(PRODUCT_DIR)',
+                    'files':
                     [
-                        '../src/angle.gyp:libEGL',
-                        '../src/angle.gyp:libGLESv2',
-                        '../util/util.gyp:angle_util',
+                        'particle_system/smoke.tga',
                     ],
-                    'include_dirs':
-                    [
-                        '../include',
-                        'angle/sample_util',
-                    ],
-                    'sources':
-                    [
-                        '<!@(python <(angle_path)/enumerate_files.py angle/sample_util -types *.cpp *.h)'
-                    ],
-                    'msvs_disabled_warnings': [ 4201 ],
-                    'direct_dependent_settings':
-                    {
-                        'msvs_disabled_warnings': [ 4201 ],
-                        'include_dirs':
-                        [
-                            '../include',
-                            'angle/sample_util',
-                            '../util',
-                        ],
-                    },
-                },
+                }
+            ]
+        },
+        {
+            'target_name': 'post_sub_buffer',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'post_sub_buffer/PostSubBuffer.cpp', ],
+        },
 
-                {
-                    'target_name': 'hello_triangle',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/hello_triangle -types *.cpp *.h)' ],
-                },
+        {
+            'target_name': 'simple_instancing',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'simple_instancing/SimpleInstancing.cpp', ],
+        },
 
-                {
-                    'target_name': 'mip_map_2d',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/mip_map_2d -types *.cpp *.h)' ],
-                },
+        {
+            'target_name': 'simple_texture_2d',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'simple_texture_2d/SimpleTexture2D.cpp', ],
+        },
 
-                {
-                    'target_name': 'multi_texture',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/multi_texture -types *.cpp *.h)' ],
-                    'copies':
-                    [
-                        {
-                            'destination': '<(PRODUCT_DIR)',
-                            'files': [ '<!@(python <(angle_path)/enumerate_files.py angle/multi_texture -types *.tga)' ],
-                        },
-                    ]
-                },
-
-                {
-                    'target_name': 'particle_system',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/particle_system -types *.cpp *.h)' ],
-                    'copies':
-                    [
-                        {
-                            'destination': '<(PRODUCT_DIR)',
-                            'files': [ '<!@(python <(angle_path)/enumerate_files.py angle/particle_system -types *.tga)' ],
-                        }
-                    ]
-                },
-
-                {
-                    'target_name': 'simple_instancing',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/simple_instancing -types *.cpp *.h)' ],
-                },
-
-                {
-                    'target_name': 'tri_fan_microbench',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/tri_fan_microbench -types *.cpp *.h *.glsl)' ],
-                },
-
-                {
-                    'target_name': 'tex_redef_microbench',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/tex_redef_microbench -types *.cpp *.h *.glsl)' ],
-                },
-
-                {
-                    'target_name': 'multiple_draw_buffers',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/multiple_draw_buffers -types *.cpp *.h *.glsl)' ],
-                    'copies':
-                    [
-                        {
-                            'destination': '<(PRODUCT_DIR)',
-                            'files': [ '<!@(python <(angle_path)/enumerate_files.py angle/multiple_draw_buffers -types *.glsl)' ],
-                        }
-                    ]
-                },
-
-                {
-                    'target_name': 'simple_texture_2d',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/simple_texture_2d -types *.cpp *.h)' ],
-                },
-
+<<<<<<< HEAD
                 {
                     'target_name': 'texture_loading_dds',
                     'type': 'executable',
@@ -193,23 +192,33 @@
                     'includes': [ '../build/common_defines.gypi', ],
                     'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/simple_texture_cubemap -types *.cpp *.h)' ],
                 },
+=======
+        {
+            'target_name': 'simple_texture_cubemap',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'simple_texture_cubemap/SimpleTextureCubemap.cpp', ],
+        },
+>>>>>>> google/master
 
-                {
-                    'target_name': 'simple_vertex_shader',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/simple_vertex_shader -types *.cpp *.h)' ],
-                },
+        {
+            'target_name': 'stencil_operations',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'stencil_operations/StencilOperations.cpp', ],
+        },
 
-                {
-                    'target_name': 'stencil_operations',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/stencil_operations -types *.cpp *.h)' ],
-                },
+        {
+            'target_name': 'tex_redef_microbench',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'tex_redef_microbench/TexRedefMicroBench.cpp', ],
+        },
 
+<<<<<<< HEAD
                 {
                     'target_name': 'texture_loading_wic',
                     'type': 'executable',
@@ -232,16 +241,22 @@
                     'includes': [ '../build/common_defines.gypi', ],
                     'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/texture_wrap -types *.cpp *.h)' ],
                 },
+=======
+        {
+            'target_name': 'texture_wrap',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'texture_wrap/TextureWrap.cpp', ],
+        },
+>>>>>>> google/master
 
-                {
-                    'target_name': 'post_sub_buffer',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/post_sub_buffer -types *.cpp *.h)' ],
-                },
-            ],
-        }
-        ],
+        {
+            'target_name': 'tri_fan_microbench',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'tri_fan_microbench/TriFanMicroBench.cpp', ],
+        },
     ],
 }

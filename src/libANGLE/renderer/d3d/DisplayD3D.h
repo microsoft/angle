@@ -10,6 +10,7 @@
 #define LIBANGLE_RENDERER_D3D_DISPLAYD3D_H_
 
 #include "libANGLE/renderer/DisplayImpl.h"
+#include "libANGLE/Device.h"
 
 namespace rx
 {
@@ -23,12 +24,27 @@ class DisplayD3D : public DisplayImpl
     egl::Error initialize(egl::Display *display) override;
     virtual void terminate() override;
 
+<<<<<<< HEAD
     egl::Error createWindowSurface(const egl::Config *configuration, EGLNativeWindowType window, const egl::AttributeMap &attribs, bool allowRenderToBackBuffer,
                                    SurfaceImpl **outSurface) override;
     egl::Error createPbufferSurface(const egl::Config *configuration, const egl::AttributeMap &attribs,
                                     SurfaceImpl **outSurface) override;
     egl::Error createPbufferFromClientBuffer(const egl::Config *configuration, EGLClientBuffer shareHandle,
                                              const egl::AttributeMap &attribs, SurfaceImpl **outSurface) override;
+=======
+    // Surface creation
+    SurfaceImpl *createWindowSurface(const egl::Config *configuration,
+                                     EGLNativeWindowType window,
+                                     const egl::AttributeMap &attribs) override;
+    SurfaceImpl *createPbufferSurface(const egl::Config *configuration,
+                                      const egl::AttributeMap &attribs) override;
+    SurfaceImpl *createPbufferFromClientBuffer(const egl::Config *configuration,
+                                               EGLClientBuffer shareHandle,
+                                               const egl::AttributeMap &attribs) override;
+    SurfaceImpl *createPixmapSurface(const egl::Config *configuration,
+                                     NativePixmapType nativePixmap,
+                                     const egl::AttributeMap &attribs) override;
+>>>>>>> google/master
 
     egl::Error createContext(const egl::Config *config, const gl::Context *shareContext, const egl::AttributeMap &attribs,
                              gl::Context **outContext) override;
@@ -43,17 +59,19 @@ class DisplayD3D : public DisplayImpl
 
     bool isValidNativeWindow(EGLNativeWindowType window) const override;
 
+    egl::Error getDevice(DeviceImpl **device) override;
+
     std::string getVendorString() const override;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(DisplayD3D);
-
     void generateExtensions(egl::DisplayExtensions *outExtensions) const override;
     void generateCaps(egl::Caps *outCaps) const override;
 
     egl::Display *mDisplay;
 
     rx::RendererD3D *mRenderer;
+
+    DeviceImpl *mDevice;
 };
 
 }

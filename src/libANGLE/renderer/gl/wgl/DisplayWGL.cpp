@@ -12,8 +12,10 @@
 #include "libANGLE/Config.h"
 #include "libANGLE/Display.h"
 #include "libANGLE/Surface.h"
+#include "libANGLE/renderer/gl/renderergl_utils.h"
 #include "libANGLE/renderer/gl/wgl/FunctionsWGL.h"
-#include "libANGLE/renderer/gl/wgl/SurfaceWGL.h"
+#include "libANGLE/renderer/gl/wgl/PbufferSurfaceWGL.h"
+#include "libANGLE/renderer/gl/wgl/WindowSurfaceWGL.h"
 #include "libANGLE/renderer/gl/wgl/wgl_utils.h"
 
 #include <EGL/eglext.h>
@@ -56,8 +58,6 @@ class FunctionsGLWindows : public FunctionsGL
 DisplayWGL::DisplayWGL()
     : DisplayGL(),
       mOpenGLModule(nullptr),
-      mGLVersionMajor(0),
-      mGLVersionMinor(0),
       mFunctionsWGL(nullptr),
       mFunctionsGL(nullptr),
       mWindowClass(0),
@@ -104,7 +104,7 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
     }
 
     mFunctionsWGL = new FunctionsWGL();
-    mFunctionsWGL->intialize(mOpenGLModule, nullptr);
+    mFunctionsWGL->initialize(mOpenGLModule, nullptr);
 
     // WGL can't grab extensions until it creates a context because it needs to load the driver's DLLs first.
     // Create a dummy context to load the driver and determine which GL versions are available.
@@ -131,7 +131,7 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
 
     HWND dummyWindow = CreateWindowExA(WS_EX_NOPARENTNOTIFY,
                                        reinterpret_cast<const char *>(mWindowClass),
-                                       "",
+                                       "ANGLE Dummy Window",
                                        WS_OVERLAPPEDWINDOW,
                                        CW_USEDEFAULT,
                                        CW_USEDEFAULT,
@@ -184,17 +184,8 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
         return egl::Error(EGL_NOT_INITIALIZED, "Failed to get glGetString pointer.");
     }
 
-    const char *dummyGLVersionString = reinterpret_cast<const char*>(getString(GL_VERSION));
-    if (!dummyGLVersionString)
-    {
-        return egl::Error(EGL_NOT_INITIALIZED, "Failed to get OpenGL version string.");
-    }
-
-    GLuint maxGLVersionMajor = dummyGLVersionString[0] - '0';
-    GLuint maxGLVersionMinor = dummyGLVersionString[2] - '0';
-
     // Reinitialize the wgl functions to grab the extensions
-    mFunctionsWGL->intialize(mOpenGLModule, dummyDeviceContext);
+    mFunctionsWGL->initialize(mOpenGLModule, dummyDeviceContext);
 
     // Destroy the dummy window and context
     mFunctionsWGL->makeCurrent(dummyDeviceContext, NULL);
@@ -208,7 +199,7 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
 
     mWindow = CreateWindowExA(WS_EX_NOPARENTNOTIFY,
                               reinterpret_cast<const char *>(mWindowClass),
-                              "",
+                              "ANGLE Intermediate Window",
                               WS_OVERLAPPEDWINDOW,
                               CW_USEDEFAULT,
                               CW_USEDEFAULT,
@@ -284,9 +275,6 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
     if (!mWGLContext)
     {
         // Don't have control over GL versions
-        mGLVersionMajor = maxGLVersionMajor;
-        mGLVersionMinor = maxGLVersionMinor;
-
         mWGLContext = mFunctionsWGL->createContext(mDeviceContext);
     }
 
@@ -300,12 +288,8 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
         return egl::Error(EGL_NOT_INITIALIZED, "Failed to make the intermediate WGL context current.");
     }
 
-    const char *versionString = reinterpret_cast<const char*>(getString(GL_VERSION));
-    mGLVersionMajor = versionString[0] - '0';
-    mGLVersionMinor = versionString[2] - '0';
-
     mFunctionsGL = new FunctionsGLWindows(mOpenGLModule, mFunctionsWGL->getProcAddress);
-    mFunctionsGL->initialize(mGLVersionMajor, mGLVersionMinor);
+    mFunctionsGL->initialize();
 
     return DisplayGL::initialize(display);
 }
@@ -334,45 +318,62 @@ void DisplayWGL::terminate()
     mOpenGLModule = nullptr;
 }
 
+<<<<<<< HEAD
 egl::Error DisplayWGL::createWindowSurface(const egl::Config *configuration, EGLNativeWindowType window,
                                            const egl::AttributeMap &attribs, bool allowRenderToBackBuffer, SurfaceImpl **outSurface)
+=======
+SurfaceImpl *DisplayWGL::createWindowSurface(const egl::Config *configuration,
+                                             EGLNativeWindowType window,
+                                             const egl::AttributeMap &attribs)
+>>>>>>> google/master
 {
-    SurfaceWGL *surface = new SurfaceWGL(mDisplay, configuration, EGL_FALSE, EGL_FALSE, EGL_NO_TEXTURE, EGL_NO_TEXTURE,
-                                         window, mWindowClass, mPixelFormat, mWGLContext, mFunctionsWGL);
-    egl::Error error = surface->initialize();
-    if (error.isError())
-    {
-        SafeDelete(surface);
-        return error;
-    }
-
-    *outSurface = surface;
-    return egl::Error(EGL_SUCCESS);
+    return new WindowSurfaceWGL(window, mWindowClass, mPixelFormat, mWGLContext, mFunctionsWGL);
 }
 
-egl::Error DisplayWGL::createPbufferSurface(const egl::Config *configuration, const egl::AttributeMap &attribs,
-                                            SurfaceImpl **outSurface)
+SurfaceImpl *DisplayWGL::createPbufferSurface(const egl::Config *configuration,
+                                              const egl::AttributeMap &attribs)
+{
+    EGLint width = attribs.get(EGL_WIDTH, 0);
+    EGLint height = attribs.get(EGL_HEIGHT, 0);
+    bool largest = (attribs.get(EGL_LARGEST_PBUFFER, EGL_FALSE) == EGL_TRUE);
+    EGLenum textureFormat = attribs.get(EGL_TEXTURE_FORMAT, EGL_NO_TEXTURE);
+    EGLenum textureTarget = attribs.get(EGL_TEXTURE_TARGET, EGL_NO_TEXTURE);
+
+    return new PbufferSurfaceWGL(width, height, textureFormat, textureTarget, largest,
+                                 mPixelFormat, mDeviceContext, mWGLContext, mFunctionsWGL);
+}
+
+SurfaceImpl *DisplayWGL::createPbufferFromClientBuffer(const egl::Config *configuration,
+                                                       EGLClientBuffer shareHandle,
+                                                       const egl::AttributeMap &attribs)
+{
+    UNIMPLEMENTED();
+    return nullptr;
+}
+
+SurfaceImpl *DisplayWGL::createPixmapSurface(const egl::Config *configuration,
+                                             NativePixmapType nativePixmap,
+                                             const egl::AttributeMap &attribs)
+{
+    UNIMPLEMENTED();
+    return nullptr;
+}
+
+static int QueryWGLFormatAttrib(HDC dc, int format, int attribName, const FunctionsWGL *functions)
+{
+    int result = 0;
+    if (functions->getPixelFormatAttribivARB == nullptr ||
+        !functions->getPixelFormatAttribivARB(dc, format, 0, 1, &attribName, &result))
+    {
+        return 0;
+    }
+    return result;
+}
+
+egl::Error DisplayWGL::getDevice(DeviceImpl **device)
 {
     UNIMPLEMENTED();
     return egl::Error(EGL_BAD_DISPLAY);
-}
-
-egl::Error DisplayWGL::createPbufferFromClientBuffer(const egl::Config *configuration, EGLClientBuffer shareHandle,
-                                                     const egl::AttributeMap &attribs, SurfaceImpl **outSurface)
-{
-    UNIMPLEMENTED();
-    return egl::Error(EGL_BAD_DISPLAY);
-}
-
-egl::Error DisplayWGL::makeCurrent(egl::Surface *drawSurface, egl::Surface *readSurface, gl::Context *context)
-{
-    if (!drawSurface)
-    {
-        return egl::Error(EGL_SUCCESS);
-    }
-
-    SurfaceWGL *wglDrawSurface = SurfaceWGL::makeSurfaceWGL(drawSurface->getImplementation());
-    return wglDrawSurface->makeCurrent();
 }
 
 egl::ConfigSet DisplayWGL::generateConfigs() const
@@ -401,18 +402,17 @@ egl::ConfigSet DisplayWGL::generateConfigs() const
     config.luminanceSize = 0;
     config.alphaSize = pixelFormatDescriptor.cAlphaBits;
     config.alphaMaskSize = 0;
-    config.bindToTextureRGB = EGL_FALSE;
-    config.bindToTextureRGBA = EGL_FALSE;
+    config.bindToTextureRGB = (QueryWGLFormatAttrib(mDeviceContext, mPixelFormat, WGL_BIND_TO_TEXTURE_RGB_ARB, mFunctionsWGL) == TRUE);
+    config.bindToTextureRGBA = (QueryWGLFormatAttrib(mDeviceContext, mPixelFormat, WGL_BIND_TO_TEXTURE_RGBA_ARB, mFunctionsWGL) == TRUE);
     config.colorBufferType = EGL_RGB_BUFFER;
     config.configCaveat = EGL_NONE;
-    config.configID = mPixelFormat;
     config.conformant = EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES3_BIT_KHR; // TODO: determine the GL version and what ES versions it supports
     config.depthSize = pixelFormatDescriptor.cDepthBits;
     config.level = 0;
     config.matchNativePixmap = EGL_NONE;
-    config.maxPBufferWidth = 0; // TODO
-    config.maxPBufferHeight = 0; // TODO
-    config.maxPBufferPixels = 0; // TODO
+    config.maxPBufferWidth = QueryWGLFormatAttrib(mDeviceContext, mPixelFormat, WGL_MAX_PBUFFER_WIDTH_ARB, mFunctionsWGL);
+    config.maxPBufferHeight = QueryWGLFormatAttrib(mDeviceContext, mPixelFormat, WGL_MAX_PBUFFER_HEIGHT_ARB, mFunctionsWGL);
+    config.maxPBufferPixels = QueryWGLFormatAttrib(mDeviceContext, mPixelFormat, WGL_MAX_PBUFFER_PIXELS_ARB, mFunctionsWGL);
     config.maxSwapInterval = maxSwapInterval;
     config.minSwapInterval = minSwapInterval;
     config.nativeRenderable = EGL_TRUE; // Direct rendering
@@ -422,8 +422,8 @@ egl::ConfigSet DisplayWGL::generateConfigs() const
     config.sampleBuffers = 0; // FIXME: enumerate multi-sampling
     config.samples = 0;
     config.stencilSize = pixelFormatDescriptor.cStencilBits;
-    config.surfaceType = ((pixelFormatDescriptor.dwFlags & PFD_DRAW_TO_WINDOW) ? EGL_WINDOW_BIT  : 0) |
-                         ((pixelFormatDescriptor.dwFlags & PFD_DRAW_TO_BITMAP) ? EGL_PBUFFER_BIT : 0) |
+    config.surfaceType = ((pixelFormatDescriptor.dwFlags & PFD_DRAW_TO_WINDOW) ? EGL_WINDOW_BIT : 0) |
+                         ((QueryWGLFormatAttrib(mDeviceContext, mPixelFormat, WGL_DRAW_TO_PBUFFER_ARB, mFunctionsWGL) == TRUE) ? EGL_PBUFFER_BIT : 0) |
                          EGL_SWAP_BEHAVIOR_PRESERVED_BIT;
     config.transparentType = EGL_NONE;
     config.transparentRedValue = 0;

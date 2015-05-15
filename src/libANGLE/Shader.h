@@ -45,7 +45,6 @@ struct PackedVarying : public sh::Varying
     {}
 
     bool registerAssigned() const { return registerIndex != GL_INVALID_INDEX; }
-    bool isBuiltIn() const { return name.compare(0, 3, "gl_") == 0; }
 
     void resetRegisterAssignment()
     {
@@ -53,7 +52,7 @@ struct PackedVarying : public sh::Varying
     }
 };
 
-class Shader
+class Shader : angle::NonCopyable
 {
   public:
     Shader(ResourceManager *manager, rx::ShaderImpl *impl, GLenum type, GLuint handle);
@@ -100,8 +99,6 @@ class Shader
     int getSemanticIndex(const std::string &attributeName) const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(Shader);
-
     static void getSourceImpl(const std::string &source, GLsizei bufSize, GLsizei *length, char *buffer);
 
     rx::ShaderImpl *mShader;

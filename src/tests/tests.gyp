@@ -178,6 +178,23 @@
                             ],
                         },
                     },
+                    'msvs_disabled_warnings':
+                    [
+                        4244, # Conversion from 'type1' to 'type2', possible loss of data
+                    ],
+                },
+                {
+                    'target_name': 'angle_end2end_tests',
+                    'type': 'executable',
+                    'includes':
+                    [
+                        '../../build/common_defines.gypi',
+                        'angle_end2end_tests.gypi',
+                    ],
+                    'sources':
+                    [
+                        'angle_end2end_tests_main.cpp',
+                    ],
                 },
             ],
             'conditions':
@@ -186,19 +203,6 @@
                 {
                     'targets':
                     [
-                        {
-                            'target_name': 'angle_end2end_tests',
-                            'type': 'executable',
-                            'includes':
-                            [
-                                '../../build/common_defines.gypi',
-                                'angle_end2end_tests.gypi',
-                            ],
-                            'sources':
-                            [
-                                'angle_end2end_tests_main.cpp',
-                            ],
-                        },
 
                         {
                             'target_name': 'angle_perftests',
@@ -250,7 +254,9 @@
                             },
                             'sources':
                             [
-                                '<!@(python <(angle_path)/enumerate_files.py gles_conformance_tests -types *.cpp *.h *.inl)',
+                                'gles_conformance_tests/gles_conformance_tests.cpp',
+                                'gles_conformance_tests/gles_conformance_tests.h',
+                                'gles_conformance_tests/gles_conformance_tests_main.cpp',
                                 '<(gles2_conformance_tests_generated_file)',
                             ],
                             'include_dirs':
@@ -315,7 +321,9 @@
                             },
                             'sources':
                             [
-                                '<!@(python <(angle_path)/enumerate_files.py gles_conformance_tests -types *.cpp *.h *.inl)',
+                                'gles_conformance_tests/gles_conformance_tests.cpp',
+                                'gles_conformance_tests/gles_conformance_tests.h',
+                                'gles_conformance_tests/gles_conformance_tests_main.cpp',
                                 '<(gles3_conformance_tests_generated_file)',
                             ],
                             'include_dirs':
@@ -392,7 +400,9 @@
                             },
                             'sources':
                             [
-                                '<!@(python <(angle_path)/enumerate_files.py deqp_tests -types *.cpp *.h *.inl)',
+                                'deqp_tests/deqp_test_main.cpp',
+                                'deqp_tests/deqp_tests.cpp',
+                                'deqp_tests/deqp_tests.h',
                                 '<(deqp_tests_generated_file)',
                             ],
                             'actions':

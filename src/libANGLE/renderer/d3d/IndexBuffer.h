@@ -12,13 +12,12 @@
 
 #include "common/angleutils.h"
 #include "libANGLE/Error.h"
-#include "libANGLE/renderer/IndexRangeCache.h"
 
 namespace rx
 {
-class RendererD3D;
+class BufferFactoryD3D;
 
-class IndexBuffer
+class IndexBuffer : angle::NonCopyable
 {
   public:
     IndexBuffer();
@@ -41,16 +40,14 @@ class IndexBuffer
     void updateSerial();
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(IndexBuffer);
-
     unsigned int mSerial;
     static unsigned int mNextSerial;
 };
 
-class IndexBufferInterface
+class IndexBufferInterface : angle::NonCopyable
 {
   public:
-    IndexBufferInterface(RendererD3D *renderer, bool dynamic);
+    IndexBufferInterface(BufferFactoryD3D *factory, bool dynamic);
     virtual ~IndexBufferInterface();
 
     virtual gl::Error reserveBufferSpace(unsigned int size, GLenum indexType) = 0;
@@ -74,11 +71,7 @@ class IndexBufferInterface
     gl::Error setBufferSize(unsigned int bufferSize, GLenum indexType);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(IndexBufferInterface);
-
-    RendererD3D *const mRenderer;
-
-    IndexBuffer* mIndexBuffer;
+    IndexBuffer *mIndexBuffer;
 
     unsigned int mWritePosition;
     bool mDynamic;
@@ -87,24 +80,19 @@ class IndexBufferInterface
 class StreamingIndexBufferInterface : public IndexBufferInterface
 {
   public:
-    StreamingIndexBufferInterface(RendererD3D *renderer);
+    explicit StreamingIndexBufferInterface(BufferFactoryD3D *factory);
     ~StreamingIndexBufferInterface();
 
-    virtual gl::Error reserveBufferSpace(unsigned int size, GLenum indexType);
+    gl::Error reserveBufferSpace(unsigned int size, GLenum indexType) override;
 };
 
 class StaticIndexBufferInterface : public IndexBufferInterface
 {
   public:
-    explicit StaticIndexBufferInterface(RendererD3D *renderer);
+    explicit StaticIndexBufferInterface(BufferFactoryD3D *factory);
     ~StaticIndexBufferInterface();
 
-    virtual gl::Error reserveBufferSpace(unsigned int size, GLenum indexType);
-
-    IndexRangeCache *getIndexRangeCache();
-
-  private:
-    IndexRangeCache mIndexRangeCache;
+    gl::Error reserveBufferSpace(unsigned int size, GLenum indexType) override;
 };
 
 }

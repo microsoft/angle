@@ -34,18 +34,15 @@ enum MessageType
 void trace(bool traceInDebugOnly, MessageType messageType, const char *format, ...);
 
 // Pairs a D3D begin event with an end event.
-class ScopedPerfEventHelper
+class ScopedPerfEventHelper : angle::NonCopyable
 {
   public:
     ScopedPerfEventHelper(const char* format, ...);
     ~ScopedPerfEventHelper();
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN(ScopedPerfEventHelper);
 };
 
 // Wraps the D3D9/D3D11 debug annotation functions.
-class DebugAnnotator
+class DebugAnnotator : angle::NonCopyable
 {
   public:
     DebugAnnotator() { };
@@ -54,9 +51,6 @@ class DebugAnnotator
     virtual void endEvent() = 0;
     virtual void setMarker(const std::wstring &markerName) = 0;
     virtual bool getStatus() = 0;
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN(DebugAnnotator);
 };
 
 void InitializeDebugAnnotations(DebugAnnotator *debugAnnotator);
@@ -153,13 +147,6 @@ bool DebugAnnotationsActive();
     } while(0)
 #else
     #define UNREACHABLE() ERR("\t! Unreachable reached: %s(%d)\n", __FUNCTION__, __LINE__)
-#endif
-
-// A macro that determines whether an object has a given runtime type.
-#if !defined(NDEBUG) && (!defined(_MSC_VER) || defined(_CPPRTTI)) && (!defined(__GNUC__) || __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 3) || defined(__GXX_RTTI))
-#define HAS_DYNAMIC_TYPE(type, obj) (dynamic_cast<type >(obj) != NULL)
-#else
-#define HAS_DYNAMIC_TYPE(type, obj) true
 #endif
 
 #endif   // COMMON_DEBUG_H_

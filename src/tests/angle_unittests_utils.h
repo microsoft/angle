@@ -26,7 +26,6 @@ class NullFactory : public ImplFactory
     ProgramImpl *createProgram() override { return nullptr; }
 
     // Framebuffer creation
-    DefaultAttachmentImpl *createDefaultAttachment(GLenum type, egl::Surface *surface) override { return nullptr; }
     FramebufferImpl *createDefaultFramebuffer(const gl::Framebuffer::Data &data) override { return nullptr; }
     FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) override { return nullptr; }
 
@@ -49,8 +48,6 @@ class NullFactory : public ImplFactory
 
     // Transform Feedback creation
     TransformFeedbackImpl *createTransformFeedback() override { return nullptr; }
-
-    DISALLOW_COPY_AND_ASSIGN(NullFactory);
 };
 
 }

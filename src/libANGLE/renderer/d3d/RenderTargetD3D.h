@@ -12,10 +12,12 @@
 
 #include "common/angleutils.h"
 #include "libANGLE/angletypes.h"
+#include "libANGLE/FramebufferAttachment.h"
 
 namespace rx
 {
-class RenderTargetD3D
+
+class RenderTargetD3D : public FramebufferAttachmentRenderTarget
 {
   public:
     RenderTargetD3D();
@@ -32,8 +34,6 @@ class RenderTargetD3D
     static unsigned int issueSerials(unsigned int count);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(RenderTargetD3D);
-
     const unsigned int mSerial;
     static unsigned int mCurrentSerial;
 };

@@ -7,7 +7,6 @@
 //   Performance test for ANGLE buffer updates.
 //
 
-#include <cassert>
 #include <sstream>
 
 #include "ANGLEPerfTest.h"
@@ -16,7 +15,7 @@
 namespace
 {
 
-struct BufferSubDataParams final : public PerfTestParams
+struct BufferSubDataParams final : public RenderTestParams
 {
     std::string suffix() const override;
 
@@ -31,20 +30,18 @@ struct BufferSubDataParams final : public PerfTestParams
     unsigned int iterations;
 };
 
-class BufferSubDataBenchmark : public ANGLEPerfTest,
+class BufferSubDataBenchmark : public ANGLERenderTest,
                                public ::testing::WithParamInterface<BufferSubDataParams>
 {
   public:
     BufferSubDataBenchmark();
 
-    bool initializeBenchmark() override;
+    void initializeBenchmark() override;
     void destroyBenchmark() override;
     void beginDrawBenchmark() override;
     void drawBenchmark() override;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(BufferSubDataBenchmark);
-
     GLuint mProgram;
     GLuint mBuffer;
     uint8_t *mUpdateData;
@@ -165,7 +162,7 @@ std::string BufferSubDataParams::suffix() const
 {
     std::stringstream strstr;
 
-    strstr << PerfTestParams::suffix();
+    strstr << RenderTestParams::suffix();
 
     if (vertexNormalized)
     {
@@ -191,7 +188,7 @@ std::string BufferSubDataParams::suffix() const
 }
 
 BufferSubDataBenchmark::BufferSubDataBenchmark()
-    : ANGLEPerfTest("BufferSubData", GetParam()),
+    : ANGLERenderTest("BufferSubData", GetParam()),
       mProgram(0),
       mBuffer(0),
       mUpdateData(NULL),
@@ -199,12 +196,12 @@ BufferSubDataBenchmark::BufferSubDataBenchmark()
 {
 }
 
-bool BufferSubDataBenchmark::initializeBenchmark()
+void BufferSubDataBenchmark::initializeBenchmark()
 {
     const auto &params = GetParam();
 
-    assert(params.vertexComponentCount > 1);
-    assert(params.iterations > 0);
+    ASSERT_TRUE(params.vertexComponentCount > 1);
+    ASSERT_TRUE(params.iterations > 0);
     mDrawIterations = params.iterations;
 
     const std::string vs = SHADER_SOURCE
@@ -228,10 +225,7 @@ bool BufferSubDataBenchmark::initializeBenchmark()
     );
 
     mProgram = CompileProgram(vs, fs);
-    if (!mProgram)
-    {
-        return false;
-    }
+    ASSERT_TRUE(mProgram != 0);
 
     // Use the program object
     glUseProgram(mProgram);
@@ -256,11 +250,11 @@ bool BufferSubDataBenchmark::initializeBenchmark()
     }
 
     std::vector<uint8_t> data;
-    GLsizei triDataSize = GetVertexData(params.vertexType,
-                                        params.vertexComponentCount,
-                                        params.vertexNormalized, &data);
+    GLsizei triDataSize = static_cast<GLsizei>(GetVertexData(params.vertexType,
+                                                             params.vertexComponentCount,
+                                                             params.vertexNormalized, &data));
 
-    mNumTris = params.updateSize / triDataSize;
+    mNumTris = static_cast<int>(params.updateSize / triDataSize);
     for (int i = 0, offset = 0; i < mNumTris; ++i)
     {
         memcpy(mUpdateData + offset, &data[0], triDataSize);
@@ -288,27 +282,14 @@ bool BufferSubDataBenchmark::initializeBenchmark()
     glUniform1f(glGetUniformLocation(mProgram, "uScale"), scale);
     glUniform1f(glGetUniformLocation(mProgram, "uOffset"), offset);
 
-    GLenum glErr = glGetError();
-    if (glErr != GL_NO_ERROR)
-    {
-        return false;
-    }
-
-    return true;
+    ASSERT_GL_NO_ERROR();
 }
 
 void BufferSubDataBenchmark::destroyBenchmark()
 {
-    const auto &params = GetParam();
-
-    // print static parameters
-    printResult("update_size", static_cast<size_t>(params.updateSize), "b", false);
-    printResult("buffer_size", static_cast<size_t>(params.bufferSize), "b", false);
-    printResult("iterations", static_cast<size_t>(params.iterations), "updates", false);
-
     glDeleteProgram(mProgram);
     glDeleteBuffers(1, &mBuffer);
-    delete[] mUpdateData;
+    SafeDeleteArray(mUpdateData);
 }
 
 void BufferSubDataBenchmark::beginDrawBenchmark()
@@ -330,22 +311,24 @@ void BufferSubDataBenchmark::drawBenchmark()
 
         glDrawArrays(GL_TRIANGLES, 0, 3 * mNumTris);
     }
+
+    ASSERT_GL_NO_ERROR();
 }
 
 BufferSubDataParams BufferUpdateD3D11Params()
 {
     BufferSubDataParams params;
     params.glesMajorVersion = 2;
-    params.widowWidth = 1280;
-    params.windowHeight = 720;
+    params.widowWidth = 512;
+    params.windowHeight = 512;
     params.requestedRenderer = EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE;
     params.deviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE;
     params.vertexType = GL_FLOAT;
     params.vertexComponentCount = 4;
     params.vertexNormalized = GL_FALSE;
     params.updateSize = 3000;
-    params.bufferSize = 67000000;
-    params.iterations = 10;
+    params.bufferSize = 40000000;
+    params.iterations = 2;
     params.updateRate = 1;
     return params;
 }
@@ -354,57 +337,19 @@ BufferSubDataParams BufferUpdateD3D9Params()
 {
     BufferSubDataParams params;
     params.glesMajorVersion = 2;
-    params.widowWidth = 1280;
-    params.windowHeight = 720;
+    params.widowWidth = 512;
+    params.windowHeight = 512;
     params.requestedRenderer = EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE;
     params.deviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE;
     params.vertexType = GL_FLOAT;
     params.vertexComponentCount = 4;
     params.vertexNormalized = GL_FALSE;
     params.updateSize = 3000;
-    params.bufferSize = 67000000;
-    params.iterations = 10;
+    params.bufferSize = 40000000;
+    params.iterations = 2;
     params.updateRate = 1;
     return params;
 }
-
-BufferSubDataParams DrawCallD3D11Params()
-{
-    BufferSubDataParams params;
-    params.glesMajorVersion = 2;
-    params.widowWidth = 1280;
-    params.windowHeight = 720;
-    params.requestedRenderer = EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE;
-    params.deviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE;
-    params.vertexType = GL_FLOAT;
-    params.vertexComponentCount = 4;
-    params.vertexNormalized = GL_FALSE;
-    params.updateSize = 0;
-    params.bufferSize = 100000;
-    params.iterations = 50;
-    params.updateRate = 1;
-    return params;
-}
-
-BufferSubDataParams DrawCallD3D9Params()
-{
-    BufferSubDataParams params;
-    params.glesMajorVersion = 2;
-    params.widowWidth = 1280;
-    params.windowHeight = 720;
-    params.requestedRenderer = EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE;
-    params.deviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE;
-    params.vertexType = GL_FLOAT;
-    params.vertexComponentCount = 4;
-    params.vertexNormalized = GL_FALSE;
-    params.updateSize = 0;
-    params.bufferSize = 100000;
-    params.iterations = 50;
-    params.updateRate = 1;
-    return params;
-}
-
-} // namespace
 
 TEST_P(BufferSubDataBenchmark, Run)
 {
@@ -415,6 +360,4 @@ INSTANTIATE_TEST_CASE_P(BufferUpdates,
                         BufferSubDataBenchmark,
                         ::testing::Values(BufferUpdateD3D11Params(), BufferUpdateD3D9Params()));
 
-INSTANTIATE_TEST_CASE_P(DrawCallPerf,
-                        BufferSubDataBenchmark,
-                        ::testing::Values(DrawCallD3D11Params(), DrawCallD3D9Params()));
+} // namespace

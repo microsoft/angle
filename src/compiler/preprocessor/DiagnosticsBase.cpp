@@ -78,6 +78,8 @@ std::string Diagnostics::message(ID id)
         return "Not enough arguments for macro";
       case PP_MACRO_TOO_MANY_ARGS:
         return "Too many arguments for macro";
+      case PP_MACRO_DUPLICATE_PARAMETER_NAMES:
+        return "duplicate macro parameter name";
       case PP_CONDITIONAL_ENDIF_WITHOUT_IF:
         return "unexpected #endif found without a matching #if";
       case PP_CONDITIONAL_ELSE_WITHOUT_IF:
@@ -109,6 +111,10 @@ std::string Diagnostics::message(ID id)
         return "invalid file number";
       case PP_INVALID_LINE_DIRECTIVE:
         return "invalid line directive";
+      case PP_INVALID_PRAGMA:
+        return "invalid pragma";
+      case PP_INVALID_PRAGMA_VALUE:
+        return "invalid pragma value, must be 'on' or 'off'";
       // Errors end.
       // Warnings begin.
       case PP_EOF_IN_DIRECTIVE:
@@ -117,6 +123,8 @@ std::string Diagnostics::message(ID id)
         return "unexpected token after conditional expression";
       case PP_UNRECOGNIZED_PRAGMA:
         return "unrecognized pragma";
+      case PP_NON_PP_TOKEN_BEFORE_EXTENSION:
+        return "extension directive must occur before any non-preprocessor tokens";
       // Warnings end.
       default:
         assert(false);

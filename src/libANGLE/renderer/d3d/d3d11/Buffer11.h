@@ -9,6 +9,8 @@
 #ifndef LIBANGLE_RENDERER_D3D_D3D11_BUFFER11_H_
 #define LIBANGLE_RENDERER_D3D_D3D11_BUFFER11_H_
 
+#include <map>
+
 #include "libANGLE/angletypes.h"
 #include "libANGLE/renderer/d3d/BufferD3D.h"
 
@@ -50,31 +52,33 @@ class Buffer11 : public BufferD3D
     Buffer11(Renderer11 *renderer);
     virtual ~Buffer11();
 
-    static Buffer11 *makeBuffer11(BufferImpl *buffer);
-
     ID3D11Buffer *getBuffer(BufferUsage usage);
+    ID3D11Buffer *getConstantBufferRange(GLintptr offset, GLsizeiptr size);
     ID3D11ShaderResourceView *getSRV(DXGI_FORMAT srvFormat);
     bool isMapped() const { return mMappedStorage != NULL; }
     gl::Error packPixels(ID3D11Texture2D *srcTexure, UINT srcSubresource, const PackPixelsParams &params);
 
     // BufferD3D implementation
     virtual size_t getSize() const { return mSize; }
+<<<<<<< HEAD
     virtual bool supportsDirectIndexBinding() const;
     virtual bool supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &attrib);
     RendererD3D *getRenderer() override;
+=======
+    virtual bool supportsDirectBinding() const;
+    gl::Error getData(const uint8_t **outData) override;
+>>>>>>> google/master
 
     // BufferImpl implementation
     virtual gl::Error setData(const void* data, size_t size, GLenum usage);
-    gl::Error getData(const uint8_t **outData) override;
     virtual gl::Error setSubData(const void* data, size_t size, size_t offset);
     virtual gl::Error copySubData(BufferImpl* source, GLintptr sourceOffset, GLintptr destOffset, GLsizeiptr size);
-    virtual gl::Error map(size_t offset, size_t length, GLbitfield access, GLvoid **mapPtr);
-    virtual gl::Error unmap();
+    virtual gl::Error map(GLenum access, GLvoid **mapPtr);
+    virtual gl::Error mapRange(size_t offset, size_t length, GLbitfield access, GLvoid **mapPtr);
+    virtual gl::Error unmap(GLboolean *result);
     virtual void markTransformFeedbackUsage();
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(Buffer11);
-
     class BufferStorage;
     class NativeStorage;
     class PackStorage;
@@ -87,6 +91,22 @@ class Buffer11 : public BufferD3D
 
     std::map<BufferUsage, BufferStorage*> mBufferStorages;
 
+    struct ConstantBufferCacheEntry
+    {
+        ConstantBufferCacheEntry() : storage(nullptr), lruCount(0) { }
+
+        BufferStorage *storage;
+        unsigned int lruCount;
+    };
+
+    // Cache of D3D11 constant buffer for specific ranges of buffer data.
+    // This is used to emulate UBO ranges on 11.0 devices.
+    // Constant buffers are indexed by there start offset.
+    typedef std::map<GLintptr /*offset*/, ConstantBufferCacheEntry> ConstantBufferCache;
+    ConstantBufferCache mConstantBufferRangeStoragesCache;
+    size_t mConstantBufferStorageAdditionalSize;
+    unsigned int mMaxConstantBufferLruCount;
+
     typedef std::pair<ID3D11Buffer *, ID3D11ShaderResourceView *> BufferSRVPair;
     std::map<DXGI_FORMAT, BufferSRVPair> mBufferResourceViews;
 
@@ -98,8 +118,11 @@ class Buffer11 : public BufferD3D
     PackStorage *getPackStorage();
     gl::Error getSystemMemoryStorage(SystemMemoryStorage **storageOut);
 
+    void updateBufferStorage(BufferStorage *storage, size_t sourceOffset, size_t storageSize);
     BufferStorage *getBufferStorage(BufferUsage usage);
     BufferStorage *getLatestBufferStorage() const;
+
+    BufferStorage *getContantBufferRangeStorage(GLintptr offset, GLsizeiptr size);
 };
 
 }

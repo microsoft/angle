@@ -70,6 +70,8 @@ struct COMPILER_EXPORT ShaderVariable
                               const ShaderVariable **leafVar,
                               std::string* originalFullName) const;
 
+    bool isBuiltIn() const { return name.compare(0, 3, "gl_") == 0; }
+
     GLenum type;
     GLenum precision;
     std::string name;
@@ -159,7 +161,12 @@ struct COMPILER_EXPORT Varying : public ShaderVariable
 
     // Decide whether two varyings are the same at shader link time,
     // assuming one from vertex shader and the other from fragment shader.
-    // See GLSL ES Spec 3.00.3, sec 4.3.9.
+    // Invariance needs to match only in ESSL1. Relevant spec sections:
+    // GLSL ES 3.00.4, sections 4.6.1 and 4.3.9.
+    // GLSL ES 1.00.17, section 4.6.4.
+    bool isSameVaryingAtLinkTime(const Varying &other, int shaderVersion) const;
+
+    // Deprecated version of isSameVaryingAtLinkTime, which assumes ESSL1.
     bool isSameVaryingAtLinkTime(const Varying &other) const;
 
     InterpolationType interpolation;

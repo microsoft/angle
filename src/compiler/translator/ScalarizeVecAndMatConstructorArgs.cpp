@@ -4,8 +4,8 @@
 // found in the LICENSE file.
 //
 
+#include "common/debug.h"
 #include "compiler/translator/ScalarizeVecAndMatConstructorArgs.h"
-#include "compiler/translator/compilerdebug.h"
 
 #include <algorithm>
 
@@ -39,7 +39,7 @@ bool ContainsVectorNode(const TIntermSequence &sequence)
 
 TIntermConstantUnion *ConstructIndexNode(int index)
 {
-    ConstantUnion *u = new ConstantUnion[1];
+    TConstantUnion *u = new TConstantUnion[1];
     u[0].setIConst(index);
 
     TType type(EbtInt, EbpUndefined, EvqConst, 1);

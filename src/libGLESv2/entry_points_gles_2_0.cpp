@@ -537,11 +537,6 @@ void GL_APIENTRY BufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, 
             return;
         }
 
-        if (data == NULL)
-        {
-            return;
-        }
-
         if (!ValidBufferTarget(context, target))
         {
             context->recordError(Error(GL_INVALID_ENUM));
@@ -572,6 +567,11 @@ void GL_APIENTRY BufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, 
         if (size + offset > buffer->getSize())
         {
             context->recordError(Error(GL_INVALID_VALUE));
+            return;
+        }
+
+        if (data == NULL)
+        {
             return;
         }
 
@@ -628,7 +628,7 @@ void GL_APIENTRY Clear(GLbitfield mask)
             return;
         }
 
-        Error error = framebufferObject->clear(context->getState(), mask);
+        Error error = framebufferObject->clear(context->getData(), mask);
         if (error.isError())
         {
             context->recordError(error);
@@ -1236,7 +1236,7 @@ void GL_APIENTRY DrawElements(GLenum mode, GLsizei count, GLenum type, const GLv
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        rx::RangeUI indexRange;
+        RangeUI indexRange;
         if (!ValidateDrawElements(context, mode, count, type, indices, 0, &indexRange))
         {
             return;
@@ -1342,11 +1342,11 @@ void GL_APIENTRY FramebufferRenderbuffer(GLenum target, GLenum attachment, GLenu
         if (renderbuffer != 0)
         {
             Renderbuffer *renderbufferObject = context->getRenderbuffer(renderbuffer);
-            framebuffer->setRenderbufferAttachment(attachment, renderbufferObject);
+            framebuffer->setAttachment(GL_RENDERBUFFER, attachment, gl::ImageIndex::MakeInvalid(), renderbufferObject);
         }
         else
         {
-            framebuffer->setNULLAttachment(attachment);
+            framebuffer->resetAttachment(attachment);
         }
     }
 }
@@ -1383,11 +1383,11 @@ void GL_APIENTRY FramebufferTexture2D(GLenum target, GLenum attachment, GLenum t
                 index = ImageIndex::MakeCube(textarget, level);
             }
 
-            framebuffer->setTextureAttachment(attachment, textureObj, index);
+            framebuffer->setAttachment(GL_TEXTURE, attachment, index, textureObj);
         }
         else
         {
-            framebuffer->setNULLAttachment(attachment);
+            framebuffer->resetAttachment(attachment);
         }
     }
 }
@@ -1784,7 +1784,11 @@ void GL_APIENTRY GetBufferParameteriv(GLenum target, GLenum pname, GLint* params
           case GL_BUFFER_ACCESS_FLAGS:
             *params = buffer->getAccessFlags();
             break;
+          case GL_BUFFER_ACCESS_OES:
+            *params = buffer->getAccess();
+            break;
           case GL_BUFFER_MAPPED:
+            static_assert(GL_BUFFER_MAPPED == GL_BUFFER_MAPPED_OES, "GL enums should be equal.");
             *params = static_cast<GLint>(buffer->isMapped());
             break;
           case GL_BUFFER_MAP_OFFSET:
@@ -1918,7 +1922,7 @@ void GL_APIENTRY GetFramebufferAttachmentParameteriv(GLenum target, GLenum attac
             break;
         }
 
-        Framebuffer *framebuffer = context->getState().getTargetFramebuffer(target);
+        const Framebuffer *framebuffer = context->getState().getTargetFramebuffer(target);
         ASSERT(framebuffer);
 
         if (framebuffer->id() == 0)
@@ -2508,6 +2512,12 @@ void GL_APIENTRY GetTexParameterfv(GLenum target, GLenum pname, GLfloat* params)
     Context *context = GetValidGlobalContext();
     if (context)
     {
+        if (!ValidTextureTarget(context, target))
+        {
+            context->recordError(Error(GL_INVALID_ENUM, "Invalid texture target"));
+            return;
+        }
+
         Texture *texture = context->getTargetTexture(target);
 
         if (!texture)
@@ -2640,6 +2650,12 @@ void GL_APIENTRY GetTexParameteriv(GLenum target, GLenum pname, GLint* params)
     Context *context = GetValidGlobalContext();
     if (context)
     {
+        if (!ValidTextureTarget(context, target))
+        {
+            context->recordError(Error(GL_INVALID_ENUM, "Invalid texture target"));
+            return;
+        }
+
         Texture *texture = context->getTargetTexture(target);
 
         if (!texture)
@@ -3644,6 +3660,12 @@ void GL_APIENTRY TexParameterf(GLenum target, GLenum pname, GLfloat param)
     Context *context = GetValidGlobalContext();
     if (context)
     {
+        if (!ValidTextureTarget(context, target))
+        {
+            context->recordError(Error(GL_INVALID_ENUM, "Invalid texture target"));
+            return;
+        }
+
         if (!ValidateTexParamParameters(context, pname, static_cast<GLint>(param)))
         {
             return;
@@ -3693,6 +3715,12 @@ void GL_APIENTRY TexParameteri(GLenum target, GLenum pname, GLint param)
     Context *context = GetValidGlobalContext();
     if (context)
     {
+        if (!ValidTextureTarget(context, target))
+        {
+            context->recordError(Error(GL_INVALID_ENUM, "Invalid Texture target"));
+            return;
+        }
+
         if (!ValidateTexParamParameters(context, pname, param))
         {
             return;

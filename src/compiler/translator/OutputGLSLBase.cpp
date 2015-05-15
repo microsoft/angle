@@ -5,7 +5,8 @@
 //
 
 #include "compiler/translator/OutputGLSLBase.h"
-#include "compiler/translator/compilerdebug.h"
+
+#include "common/debug.h"
 
 #include <cfloat>
 
@@ -91,27 +92,25 @@ void TOutputGLSLBase::writeBuiltInFunctionTriplet(
 void TOutputGLSLBase::writeVariableType(const TType &type)
 {
     TInfoSinkBase &out = objSink();
+    if (type.isInvariant())
+    {
+        out << "invariant ";
+    }
     TQualifier qualifier = type.getQualifier();
     if (qualifier != EvqTemporary && qualifier != EvqGlobal)
     {
-        if (mOutput == SH_GLSL_CORE_OUTPUT)
+        if (IsGLSL130OrNewer(mOutput))
         {
             switch (qualifier)
             {
               case EvqAttribute:
-                out << "in" << " ";
+                out << "in ";
                 break;
               case EvqVaryingIn:
-                out << "in" << " ";
+                out << "in ";
                 break;
               case EvqVaryingOut:
-                out << "out" << " ";
-                break;
-              case EvqInvariantVaryingIn:
-                out << "invariant in" << " ";
-                break;
-              case EvqInvariantVaryingOut:
-                out << "invariant out" << " ";
+                out << "out ";
                 break;
               default:
                 out << type.getQualifierString() << " ";
@@ -167,8 +166,8 @@ void TOutputGLSLBase::writeFunctionParameters(const TIntermSequence &args)
     }
 }
 
-const ConstantUnion *TOutputGLSLBase::writeConstantUnion(
-    const TType &type, const ConstantUnion *pConstUnion)
+const TConstantUnion *TOutputGLSLBase::writeConstantUnion(
+    const TType &type, const TConstantUnion *pConstUnion)
 {
     TInfoSinkBase &out = objSink();
 
@@ -204,6 +203,9 @@ const ConstantUnion *TOutputGLSLBase::writeConstantUnion(
               case EbtInt:
                 out << pConstUnion->getIConst();
                 break;
+              case EbtUInt:
+                out << pConstUnion->getUConst() << "u";
+                break;
               case EbtBool:
                 out << pConstUnion->getBConst();
                 break;
@@ -216,6 +218,28 @@ const ConstantUnion *TOutputGLSLBase::writeConstantUnion(
             out << ")";
     }
     return pConstUnion;
+}
+
+void TOutputGLSLBase::writeConstructorTriplet(Visit visit, const TType &type, const char *constructorBaseType)
+{
+    TInfoSinkBase &out = objSink();
+    if (visit == PreVisit)
+    {
+        if (type.isArray())
+        {
+            out << constructorBaseType;
+            out << arrayBrackets(type);
+            out << "(";
+        }
+        else
+        {
+            out << constructorBaseType << "(";
+        }
+    }
+    else
+    {
+        writeTriplet(visit, nullptr, ", ", ")");
+    }
 }
 
 void TOutputGLSLBase::visitSymbol(TIntermSymbol *node)
@@ -360,7 +384,7 @@ bool TOutputGLSLBase::visitBinary(Visit visit, TIntermBinary *node)
                 TIntermConstantUnion *element = (*sit)->getAsConstantUnion();
                 ASSERT(element->getBasicType() == EbtInt);
                 ASSERT(element->getNominalSize() == 1);
-                const ConstantUnion& data = element->getUnionArrayPointer()[0];
+                const TConstantUnion& data = element->getUnionArrayPointer()[0];
                 ASSERT(data.getType() == EbtInt);
                 switch (data.getIConst())
                 {
@@ -719,7 +743,6 @@ bool TOutputGLSLBase::visitAggregate(Visit visit, TIntermAggregate *node)
 {
     bool visitChildren = true;
     TInfoSinkBase &out = objSink();
-    TString preString;
     bool useEmulatedFunction = (visit == PreVisit && node->getUseEmulatedFunction());
     switch (node->getOp())
     {
@@ -753,7 +776,13 @@ bool TOutputGLSLBase::visitAggregate(Visit visit, TIntermAggregate *node)
       case EOpPrototype:
         // Function declaration.
         ASSERT(visit == PreVisit);
-        writeVariableType(node->getType());
+        {
+            const TType &type = node->getType();
+            writeVariableType(type);
+            if (type.isArray())
+                out << arrayBrackets(type);
+        }
+
         out << " " << hashFunctionName(node->getName());
 
         out << "(";
@@ -765,7 +794,13 @@ bool TOutputGLSLBase::visitAggregate(Visit visit, TIntermAggregate *node)
       case EOpFunction: {
         // Function definition.
         ASSERT(visit == PreVisit);
-        writeVariableType(node->getType());
+        {
+            const TType &type = node->getType();
+            writeVariableType(type);
+            if (type.isArray())
+                out << arrayBrackets(type);
+        }
+
         out << " " << hashFunctionName(node->getName());
 
         incrementDepth(node);
@@ -851,66 +886,58 @@ bool TOutputGLSLBase::visitAggregate(Visit visit, TIntermAggregate *node)
         visitChildren = false;
         break;
       case EOpConstructFloat:
-        writeTriplet(visit, "float(", NULL, ")");
+        writeConstructorTriplet(visit, node->getType(), "float");
         break;
       case EOpConstructVec2:
-        writeBuiltInFunctionTriplet(visit, "vec2(", false);
+        writeConstructorTriplet(visit, node->getType(), "vec2");
         break;
       case EOpConstructVec3:
-        writeBuiltInFunctionTriplet(visit, "vec3(", false);
+        writeConstructorTriplet(visit, node->getType(), "vec3");
         break;
       case EOpConstructVec4:
-        writeBuiltInFunctionTriplet(visit, "vec4(", false);
+        writeConstructorTriplet(visit, node->getType(), "vec4");
         break;
       case EOpConstructBool:
-        writeTriplet(visit, "bool(", NULL, ")");
+        writeConstructorTriplet(visit, node->getType(), "bool");
         break;
       case EOpConstructBVec2:
-        writeBuiltInFunctionTriplet(visit, "bvec2(", false);
+        writeConstructorTriplet(visit, node->getType(), "bvec2");
         break;
       case EOpConstructBVec3:
-        writeBuiltInFunctionTriplet(visit, "bvec3(", false);
+        writeConstructorTriplet(visit, node->getType(), "bvec3");
         break;
       case EOpConstructBVec4:
-        writeBuiltInFunctionTriplet(visit, "bvec4(", false);
+        writeConstructorTriplet(visit, node->getType(), "bvec4");
         break;
       case EOpConstructInt:
-        writeTriplet(visit, "int(", NULL, ")");
+        writeConstructorTriplet(visit, node->getType(), "int");
         break;
       case EOpConstructIVec2:
-        writeBuiltInFunctionTriplet(visit, "ivec2(", false);
+        writeConstructorTriplet(visit, node->getType(), "ivec2");
         break;
       case EOpConstructIVec3:
-        writeBuiltInFunctionTriplet(visit, "ivec3(", false);
+        writeConstructorTriplet(visit, node->getType(), "ivec3");
         break;
       case EOpConstructIVec4:
-        writeBuiltInFunctionTriplet(visit, "ivec4(", false);
+        writeConstructorTriplet(visit, node->getType(), "ivec4");
         break;
       case EOpConstructMat2:
-        writeBuiltInFunctionTriplet(visit, "mat2(", false);
+        writeConstructorTriplet(visit, node->getType(), "mat2");
         break;
       case EOpConstructMat3:
-        writeBuiltInFunctionTriplet(visit, "mat3(", false);
+        writeConstructorTriplet(visit, node->getType(), "mat3");
         break;
       case EOpConstructMat4:
-        writeBuiltInFunctionTriplet(visit, "mat4(", false);
+        writeConstructorTriplet(visit, node->getType(), "mat4");
         break;
       case EOpConstructStruct:
-        if (visit == PreVisit)
         {
             const TType &type = node->getType();
             ASSERT(type.getBasicType() == EbtStruct);
-            out << hashName(type.getStruct()->name()) << "(";
+            TString constructorName = hashName(type.getStruct()->name());
+            writeConstructorTriplet(visit, node->getType(), constructorName.c_str());
+            break;
         }
-        else if (visit == InVisit)
-        {
-            out << ", ";
-        }
-        else
-        {
-            out << ")";
-        }
-        break;
 
       case EOpOuterProduct:
         writeBuiltInFunctionTriplet(visit, "outerProduct(", useEmulatedFunction);

@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-#include "compiler/translator/compilerdebug.h"
+#include "common/debug.h"
 #include "compiler/translator/Diagnostics.h"
 
 static TBehavior getBehavior(const std::string& str)
@@ -98,9 +98,8 @@ void TDirectiveHandler::handlePragma(const pp::SourceLocation& loc,
 
         if (invalidValue)
         {
-            mDiagnostics.writeInfo(pp::Diagnostics::PP_ERROR, loc,
-                                   "invalid pragma value", value,
-                                   "'on' or 'off' expected");
+            mDiagnostics.report(pp::Diagnostics::PP_INVALID_PRAGMA_VALUE, loc, value);
+            return;
         }
     }
 }

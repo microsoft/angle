@@ -11,60 +11,41 @@
 #include <iostream>
 #include <cassert>
 
-std::string PerfTestParams::suffix() const
-{
-    switch (requestedRenderer)
-    {
-        case EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE: return "_d3d11";
-        case EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE: return "_d3d9";
-        default: assert(0); return "_unk";
-    }
-}
-
-ANGLEPerfTest::ANGLEPerfTest(const std::string &name, const PerfTestParams &testParams)
-    : mTestParams(testParams),
-      mNumFrames(0),
-      mName(name),
+ANGLEPerfTest::ANGLEPerfTest(const std::string &name, const std::string &suffix)
+    : mName(name),
+      mSuffix(suffix),
       mRunning(false),
-      mSuffix(testParams.suffix()),
-      mDrawIterations(10),
-      mRunTimeSeconds(5.0)
+      mTimer(nullptr),
+      mNumFrames(0)
 {
+    mTimer = CreateTimer();
 }
 
-void ANGLEPerfTest::SetUp()
+ANGLEPerfTest::~ANGLEPerfTest()
 {
-    EGLPlatformParameters platformParams(mTestParams.requestedRenderer,
-                                         EGL_DONT_CARE,
-                                         EGL_DONT_CARE,
-                                         mTestParams.deviceType, false);
+    SafeDelete(mTimer);
+}
 
-    mOSWindow.reset(CreateOSWindow());
-    mEGLWindow.reset(new EGLWindow(mTestParams.widowWidth,
-                                   mTestParams.windowHeight,
-                                   mTestParams.glesMajorVersion,
-                                   platformParams));
-    mTimer.reset(CreateTimer());
+void ANGLEPerfTest::run()
+{
+    mTimer->start();
+    double prevTime = 0.0;
 
-    if (!mOSWindow->initialize(mName, mEGLWindow->getWidth(), mEGLWindow->getHeight()))
+    while (mRunning)
     {
-        FAIL() << "Failed initializing OSWindow";
-        return;
-    }
+        double elapsedTime = mTimer->getElapsedTime();
+        double deltaTime = elapsedTime - prevTime;
 
-    if (!mEGLWindow->initializeGL(mOSWindow.get()))
-    {
-        FAIL() << "Failed initializing EGLWindow";
-        return;
-    }
+        ++mNumFrames;
+        step(static_cast<float>(deltaTime), elapsedTime);
 
-    if (!initializeBenchmark())
-    {
-        FAIL() << "Failed initializing base perf test";
-        return;
-    }
+        if (!mRunning)
+        {
+            break;
+        }
 
-    mRunning = true;
+        prevTime = elapsedTime;
+    }
 }
 
 void ANGLEPerfTest::printResult(const std::string &trace, double value, const std::string &units, bool important) const
@@ -77,14 +58,76 @@ void ANGLEPerfTest::printResult(const std::string &trace, size_t value, const st
     perf_test::PrintResult(mName, mSuffix, trace, value, units, important);
 }
 
+void ANGLEPerfTest::SetUp()
+{
+    mRunning = true;
+}
+
 void ANGLEPerfTest::TearDown()
 {
-    double totalTime = mTimer->getElapsedTime();
-    double averageTime = 1000.0 * totalTime / static_cast<double>(mNumFrames);
+    printResult("score", static_cast<size_t>(mNumFrames), "score", true);
+}
 
-    printResult("total_time", totalTime, "s", true);
-    printResult("frames", static_cast<size_t>(mNumFrames), "frames", true);
-    printResult("average_time", averageTime, "ms", true);
+std::string RenderTestParams::suffix() const
+{
+    switch (requestedRenderer)
+    {
+        case EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE: return "_d3d11";
+        case EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE: return "_d3d9";
+        default: assert(0); return "_unk";
+    }
+}
+
+ANGLERenderTest::ANGLERenderTest(const std::string &name, const RenderTestParams &testParams)
+    : ANGLEPerfTest(name, testParams.suffix()),
+      mTestParams(testParams),
+      mDrawIterations(10),
+      mRunTimeSeconds(5.0),
+      mEGLWindow(nullptr),
+      mOSWindow(nullptr)
+{
+}
+
+ANGLERenderTest::~ANGLERenderTest()
+{
+    SafeDelete(mOSWindow);
+    SafeDelete(mEGLWindow);
+}
+
+void ANGLERenderTest::SetUp()
+{
+    EGLPlatformParameters platformParams(mTestParams.requestedRenderer,
+                                         EGL_DONT_CARE,
+                                         EGL_DONT_CARE,
+                                         mTestParams.deviceType, false);
+
+    mOSWindow = CreateOSWindow();
+    mEGLWindow = new EGLWindow(mTestParams.widowWidth,
+                               mTestParams.windowHeight,
+                               mTestParams.glesMajorVersion,
+                               platformParams);
+    mEGLWindow->setSwapInterval(0);
+
+    if (!mOSWindow->initialize(mName, mEGLWindow->getWidth(), mEGLWindow->getHeight()))
+    {
+        FAIL() << "Failed initializing OSWindow";
+        return;
+    }
+
+    if (!mEGLWindow->initializeGL(mOSWindow))
+    {
+        FAIL() << "Failed initializing EGLWindow";
+        return;
+    }
+
+    initializeBenchmark();
+
+    ANGLEPerfTest::SetUp();
+}
+
+void ANGLERenderTest::TearDown()
+{
+    ANGLEPerfTest::TearDown();
 
     destroyBenchmark();
 
@@ -92,14 +135,33 @@ void ANGLEPerfTest::TearDown()
     mOSWindow->destroy();
 }
 
-void ANGLEPerfTest::step(float dt, double totalTime)
+void ANGLERenderTest::step(float dt, double totalTime)
 {
     stepBenchmark(dt, totalTime);
+
+    // Clear events that the application did not process from this frame
+    Event event;
+    while (popEvent(&event))
+    {
+        // If the application did not catch a close event, close now
+        if (event.Type == Event::EVENT_CLOSED)
+        {
+            mRunning = false;
+        }
+    }
+
+    if (mRunning)
+    {
+        draw();
+        mEGLWindow->swap();
+        mOSWindow->messageLoop();
+    }
 }
 
-void ANGLEPerfTest::draw()
+void ANGLERenderTest::draw()
 {
-    if (mTimer->getElapsedTime() > mRunTimeSeconds) {
+    if (mTimer->getElapsedTime() > mRunTimeSeconds)
+    {
         mRunning = false;
         return;
     }
@@ -116,49 +178,12 @@ void ANGLEPerfTest::draw()
     endDrawBenchmark();
 }
 
-void ANGLEPerfTest::run()
-{
-    mTimer->start();
-    double prevTime = 0.0;
-
-    while (mRunning)
-    {
-        double elapsedTime = mTimer->getElapsedTime();
-        double deltaTime = elapsedTime - prevTime;
-
-        step(static_cast<float>(deltaTime), elapsedTime);
-
-        // Clear events that the application did not process from this frame
-        Event event;
-        while (popEvent(&event))
-        {
-            // If the application did not catch a close event, close now
-            if (event.Type == Event::EVENT_CLOSED)
-            {
-                mRunning = false;
-            }
-        }
-
-        if (!mRunning)
-        {
-            break;
-        }
-
-        draw();
-        mEGLWindow->swap();
-
-        mOSWindow->messageLoop();
-
-        prevTime = elapsedTime;
-    }
-}
-
-bool ANGLEPerfTest::popEvent(Event *event)
+bool ANGLERenderTest::popEvent(Event *event)
 {
     return mOSWindow->popEvent(event);
 }
 
-OSWindow *ANGLEPerfTest::getWindow()
+OSWindow *ANGLERenderTest::getWindow()
 {
-    return mOSWindow.get();
+    return mOSWindow;
 }

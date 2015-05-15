@@ -13,6 +13,8 @@
 #include <string>
 #include <math.h>
 
+#include "common/mathutil.h"
+
 namespace gl
 {
 
@@ -25,6 +27,7 @@ GLenum VariableBoolVectorType(GLenum type);
 int VariableRowCount(GLenum type);
 int VariableColumnCount(GLenum type);
 bool IsSamplerType(GLenum type);
+GLenum SamplerTypeToTextureType(GLenum samplerType);
 bool IsMatrixType(GLenum type);
 GLenum TransposeMatrixType(GLenum type);
 int VariableRegisterCount(GLenum type);
@@ -39,6 +42,12 @@ static const GLenum LastCubeMapTextureTarget = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
 bool IsCubeMapTextureTarget(GLenum target);
 size_t CubeMapTextureTargetToLayerIndex(GLenum target);
 GLenum LayerIndexToCubeMapTextureTarget(size_t index);
+
+// Parse the base uniform name and array index.  Returns the base name of the uniform. outSubscript is
+// set to GL_INVALID_INDEX if the provided name is not an array or the array index is invalid.
+std::string ParseUniformName(const std::string &name, size_t *outSubscript);
+
+RangeUI ComputeIndexRange(GLenum indexType, const GLvoid *indices, GLsizei count);
 
 bool IsTriangleMode(GLenum drawMode);
 

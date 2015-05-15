@@ -32,6 +32,8 @@ namespace
 const int ScratchMemoryBufferLifetime = 1000;
 }
 
+const uintptr_t RendererD3D::DirtyPointer = std::numeric_limits<uintptr_t>::max();
+
 RendererD3D::RendererD3D(egl::Display *display)
     : mDisplay(display),
       mDeviceLost(false),
@@ -54,17 +56,10 @@ void RendererD3D::cleanup()
     mIncompleteTextures.clear();
 }
 
-// static
-RendererD3D *RendererD3D::makeRendererD3D(Renderer *renderer)
-{
-    ASSERT(HAS_DYNAMIC_TYPE(RendererD3D*, renderer));
-    return static_cast<RendererD3D*>(renderer);
-}
-
 gl::Error RendererD3D::drawElements(const gl::Data &data,
                                     GLenum mode, GLsizei count, GLenum type,
                                     const GLvoid *indices, GLsizei instances,
-                                    const RangeUI &indexRange)
+                                    const gl::RangeUI &indexRange)
 {
     if (data.state->isPrimitiveRestartEnabled())
     {
@@ -284,8 +279,8 @@ gl::Error RendererD3D::applyRenderTarget(const gl::Data &data, GLenum drawMode, 
         return error;
     }
 
-    float nearZ, farZ;
-    data.state->getDepthRange(&nearZ, &farZ);
+    float nearZ = data.state->getNearPlane();
+    float farZ = data.state->getFarPlane();
     setViewport(data.state->getViewport(), nearZ, farZ, drawMode,
                 data.state->getRasterizerState().frontFace, ignoreViewport);
 
@@ -314,9 +309,7 @@ gl::Error RendererD3D::applyState(const gl::Data &data, GLenum drawMode)
     unsigned int mask = 0;
     if (data.state->isSampleCoverageEnabled())
     {
-        GLclampf coverageValue;
-        bool coverageInvert = false;
-        data.state->getSampleCoverageParams(&coverageValue, &coverageInvert);
+        GLclampf coverageValue = data.state->getSampleCoverageValue();
         if (coverageValue != 0)
         {
             float threshold = 0.5f;
@@ -333,6 +326,7 @@ gl::Error RendererD3D::applyState(const gl::Data &data, GLenum drawMode)
             }
         }
 
+        bool coverageInvert = data.state->getSampleCoverageInvert();
         if (coverageInvert)
         {
             mask = ~mask;
@@ -381,7 +375,7 @@ gl::Error RendererD3D::applyShaders(const gl::Data &data)
 // looks up the corresponding OpenGL texture image unit and texture type,
 // and sets the texture and its addressing/filtering state (or NULL when inactive).
 gl::Error RendererD3D::applyTextures(const gl::Data &data, gl::SamplerType shaderType,
-                                     const FramebufferTextureSerialArray &framebufferSerials, size_t framebufferSerialCount)
+                                     const FramebufferTextureArray &framebufferTextures, size_t framebufferTextureCount)
 {
     gl::Program *program = data.state->getProgram();
 
@@ -404,7 +398,7 @@ gl::Error RendererD3D::applyTextures(const gl::Data &data, gl::SamplerType shade
 
             // TODO: std::binary_search may become unavailable using older versions of GCC
             if (texture->isSamplerComplete(sampler, data) &&
-                !std::binary_search(framebufferSerials.begin(), framebufferSerials.begin() + framebufferSerialCount, texture->getTextureSerial()))
+                !std::binary_search(framebufferTextures.begin(), framebufferTextures.begin() + framebufferTextureCount, texture))
             {
                 gl::Error error = setSamplerState(shaderType, samplerIndex, texture, sampler);
                 if (error.isError())
@@ -457,16 +451,16 @@ gl::Error RendererD3D::applyTextures(const gl::Data &data, gl::SamplerType shade
 
 gl::Error RendererD3D::applyTextures(const gl::Data &data)
 {
-    FramebufferTextureSerialArray framebufferSerials;
-    size_t framebufferSerialCount = getBoundFramebufferTextureSerials(data, &framebufferSerials);
+    FramebufferTextureArray framebufferTextures;
+    size_t framebufferSerialCount = getBoundFramebufferTextures(data, &framebufferTextures);
 
-    gl::Error error = applyTextures(data, gl::SAMPLER_VERTEX, framebufferSerials, framebufferSerialCount);
+    gl::Error error = applyTextures(data, gl::SAMPLER_VERTEX, framebufferTextures, framebufferSerialCount);
     if (error.isError())
     {
         return error;
     }
 
-    error = applyTextures(data, gl::SAMPLER_PIXEL, framebufferSerials, framebufferSerialCount);
+    error = applyTextures(data, gl::SAMPLER_PIXEL, framebufferTextures, framebufferSerialCount);
     if (error.isError())
     {
         return error;
@@ -504,43 +498,41 @@ bool RendererD3D::skipDraw(const gl::Data &data, GLenum drawMode)
 
 void RendererD3D::markTransformFeedbackUsage(const gl::Data &data)
 {
-    for (size_t i = 0; i < data.caps->maxTransformFeedbackSeparateAttributes; i++)
+    const gl::TransformFeedback *transformFeedback = data.state->getCurrentTransformFeedback();
+    for (size_t i = 0; i < transformFeedback->getIndexedBufferCount(); i++)
     {
-        gl::Buffer *buffer = data.state->getIndexedTransformFeedbackBuffer(i);
-        if (buffer)
+        const OffsetBindingPointer<gl::Buffer> &binding = transformFeedback->getIndexedBuffer(i);
+        if (binding.get() != nullptr)
         {
-            BufferD3D *bufferD3D = GetImplAs<BufferD3D>(buffer);
+            BufferD3D *bufferD3D = GetImplAs<BufferD3D>(binding.get());
             bufferD3D->markTransformFeedbackUsage();
         }
     }
 }
 
-size_t RendererD3D::getBoundFramebufferTextureSerials(const gl::Data &data,
-                                                      FramebufferTextureSerialArray *outSerialArray)
+size_t RendererD3D::getBoundFramebufferTextures(const gl::Data &data, FramebufferTextureArray *outTextureArray)
 {
-    size_t serialCount = 0;
+    size_t textureCount = 0;
 
     const gl::Framebuffer *drawFramebuffer = data.state->getDrawFramebuffer();
     for (unsigned int i = 0; i < data.caps->maxColorAttachments; i++)
     {
-        gl::FramebufferAttachment *attachment = drawFramebuffer->getColorbuffer(i);
+        const gl::FramebufferAttachment *attachment = drawFramebuffer->getColorbuffer(i);
         if (attachment && attachment->type() == GL_TEXTURE)
         {
-            gl::Texture *texture = attachment->getTexture();
-            (*outSerialArray)[serialCount++] = texture->getTextureSerial();
+            (*outTextureArray)[textureCount++] = attachment->getTexture();
         }
     }
 
-    gl::FramebufferAttachment *depthStencilAttachment = drawFramebuffer->getDepthOrStencilbuffer();
+    const gl::FramebufferAttachment *depthStencilAttachment = drawFramebuffer->getDepthOrStencilbuffer();
     if (depthStencilAttachment && depthStencilAttachment->type() == GL_TEXTURE)
     {
-        gl::Texture *depthStencilTexture = depthStencilAttachment->getTexture();
-        (*outSerialArray)[serialCount++] = depthStencilTexture->getTextureSerial();
+        (*outTextureArray)[textureCount++] = depthStencilAttachment->getTexture();
     }
 
-    std::sort(outSerialArray->begin(), outSerialArray->begin() + serialCount);
+    std::sort(outTextureArray->begin(), outTextureArray->begin() + textureCount);
 
-    return serialCount;
+    return textureCount;
 }
 
 gl::Texture *RendererD3D::getIncompleteTexture(GLenum type)
@@ -551,7 +543,7 @@ gl::Texture *RendererD3D::getIncompleteTexture(GLenum type)
         const gl::Extents colorSize(1, 1, 1);
         const gl::PixelUnpackState incompleteUnpackState(1, 0);
 
-        gl::Texture* t = new gl::Texture(createTexture(type), gl::Texture::INCOMPLETE_TEXTURE_ID, type);
+        gl::Texture* t = new gl::Texture(createTexture(type), std::numeric_limits<GLuint>::max(), type);
 
         if (type == GL_TEXTURE_CUBE_MAP)
         {

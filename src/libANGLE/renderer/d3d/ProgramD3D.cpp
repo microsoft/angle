@@ -344,6 +344,13 @@ void ProgramD3D::updateSamplerMapping()
 
 bool ProgramD3D::validateSamplers(gl::InfoLog *infoLog, const gl::Caps &caps)
 {
+    // Skip cache if we're using an infolog, so we get the full error.
+    // Also skip the cache if the sample mapping has changed, or if we haven't ever validated.
+    if (!mDirtySamplerMapping && infoLog == nullptr && mCachedValidateSamplersResult.valid())
+    {
+        return mCachedValidateSamplersResult.value();
+    }
+
     // if any two active samplers in a program are of different types, but refer to the same
     // texture image unit, and this is the current program, then ValidateProgram will fail, and
     // DrawArrays and DrawElements will issue the INVALID_OPERATION error.
@@ -361,9 +368,12 @@ bool ProgramD3D::validateSamplers(gl::InfoLog *infoLog, const gl::Caps &caps)
             {
                 if (infoLog)
                 {
-                    infoLog->append("Sampler uniform (%d) exceeds GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS (%d)", unit, caps.maxCombinedTextureImageUnits);
+                    (*infoLog) << "Sampler uniform (" << unit
+                               << ") exceeds GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS ("
+                               << caps.maxCombinedTextureImageUnits << ")";
                 }
 
+                mCachedValidateSamplersResult = false;
                 return false;
             }
 
@@ -373,9 +383,11 @@ bool ProgramD3D::validateSamplers(gl::InfoLog *infoLog, const gl::Caps &caps)
                 {
                     if (infoLog)
                     {
-                        infoLog->append("Samplers of conflicting types refer to the same texture image unit (%d).", unit);
+                        (*infoLog) << "Samplers of conflicting types refer to the same texture image unit ("
+                                   << unit << ").";
                     }
 
+                    mCachedValidateSamplersResult = false;
                     return false;
                 }
             }
@@ -396,9 +408,12 @@ bool ProgramD3D::validateSamplers(gl::InfoLog *infoLog, const gl::Caps &caps)
             {
                 if (infoLog)
                 {
-                    infoLog->append("Sampler uniform (%d) exceeds GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS (%d)", unit, caps.maxCombinedTextureImageUnits);
+                    (*infoLog) << "Sampler uniform (" << unit
+                               << ") exceeds GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS ("
+                               << caps.maxCombinedTextureImageUnits << ")";
                 }
 
+                mCachedValidateSamplersResult = false;
                 return false;
             }
 
@@ -408,9 +423,11 @@ bool ProgramD3D::validateSamplers(gl::InfoLog *infoLog, const gl::Caps &caps)
                 {
                     if (infoLog)
                     {
-                        infoLog->append("Samplers of conflicting types refer to the same texture image unit (%d).", unit);
+                        (*infoLog) << "Samplers of conflicting types refer to the same texture image unit ("
+                                   << unit << ").";
                     }
 
+                    mCachedValidateSamplersResult = false;
                     return false;
                 }
             }
@@ -421,6 +438,7 @@ bool ProgramD3D::validateSamplers(gl::InfoLog *infoLog, const gl::Caps &caps)
         }
     }
 
+    mCachedValidateSamplersResult = true;
     return true;
 }
 
@@ -429,7 +447,7 @@ LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
     int compileFlags = stream->readInt<int>();
     if (compileFlags != ANGLE_COMPILE_OPTIMIZATION_LEVEL)
     {
-        infoLog.append("Mismatched compilation flags.");
+        infoLog << "Mismatched compilation flags.";
         return LinkResult(false, gl::Error(GL_NO_ERROR));
     }
 
@@ -460,7 +478,7 @@ LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
     const unsigned int uniformCount = stream->readInt<unsigned int>();
     if (stream->error())
     {
-        infoLog.append("Invalid program binary.");
+        infoLog << "Invalid program binary.";
         return LinkResult(false, gl::Error(GL_NO_ERROR));
     }
 
@@ -493,7 +511,7 @@ LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
     const unsigned int uniformIndexCount = stream->readInt<unsigned int>();
     if (stream->error())
     {
-        infoLog.append("Invalid program binary.");
+        infoLog << "Invalid program binary.";
         return LinkResult(false, gl::Error(GL_NO_ERROR));
     }
 
@@ -508,7 +526,7 @@ LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
     unsigned int uniformBlockCount = stream->readInt<unsigned int>();
     if (stream->error())
     {
-        infoLog.append("Invalid program binary.");
+        infoLog << "Invalid program binary.";
         return LinkResult(false, gl::Error(GL_NO_ERROR));
     }
 
@@ -598,7 +616,7 @@ LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
 
         if (!shaderExecutable)
         {
-            infoLog.append("Could not create vertex shader.");
+            infoLog << "Could not create vertex shader.";
             return LinkResult(false, gl::Error(GL_NO_ERROR));
         }
 
@@ -636,7 +654,7 @@ LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
 
         if (!shaderExecutable)
         {
-            infoLog.append("Could not create pixel shader.");
+            infoLog << "Could not create pixel shader.";
             return LinkResult(false, gl::Error(GL_NO_ERROR));
         }
 
@@ -662,7 +680,7 @@ LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
 
         if (!mGeometryExecutable)
         {
-            infoLog.append("Could not create geometry shader.");
+            infoLog << "Could not create geometry shader.";
             return LinkResult(false, gl::Error(GL_NO_ERROR));
         }
         stream->skip(geometryShaderSize);
@@ -674,7 +692,7 @@ LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
     GUID identifier = mRenderer->getAdapterIdentifier();
     if (memcmp(&identifier, &binaryIdentifier, sizeof(GUID)) != 0)
     {
-        infoLog.append("Invalid program binary.");
+        infoLog << "Invalid program binary.";
         return LinkResult(false, gl::Error(GL_NO_ERROR));
     }
 
@@ -932,7 +950,7 @@ gl::Error ProgramD3D::getVertexExecutableForInputLayout(const gl::VertexFormat i
     }
 
     // Generate new dynamic layout with attribute conversions
-    std::string finalVertexHLSL = mDynamicHLSL->generateVertexShaderForInputLayout(mVertexHLSL, inputLayout, mShaderAttributes);
+    std::string finalVertexHLSL = mDynamicHLSL->generateVertexShaderForInputLayout(mVertexHLSL, inputLayout, getShaderAttributes());
 
     // Generate new vertex executable
     ShaderExecutableD3D *vertexExecutable = NULL;
@@ -968,8 +986,8 @@ gl::Error ProgramD3D::getVertexExecutableForInputLayout(const gl::VertexFormat i
 LinkResult ProgramD3D::compileProgramExecutables(gl::InfoLog &infoLog, gl::Shader *fragmentShader, gl::Shader *vertexShader,
                                                  int registers)
 {
-    ShaderD3D *vertexShaderD3D = ShaderD3D::makeShaderD3D(vertexShader->getImplementation());
-    ShaderD3D *fragmentShaderD3D = ShaderD3D::makeShaderD3D(fragmentShader->getImplementation());
+    ShaderD3D *vertexShaderD3D = GetImplAs<ShaderD3D>(vertexShader);
+    ShaderD3D *fragmentShaderD3D = GetImplAs<ShaderD3D>(fragmentShader);
 
     gl::Error vertexShaderResult(GL_NO_ERROR);
     gl::InfoLog tempVertexShaderInfoLog;
@@ -1086,8 +1104,8 @@ LinkResult ProgramD3D::link(const gl::Data &data, gl::InfoLog &infoLog,
                             int *registers, std::vector<gl::LinkedVarying> *linkedVaryings,
                             std::map<int, gl::VariableLocation> *outputVariables)
 {
-    ShaderD3D *vertexShaderD3D = ShaderD3D::makeShaderD3D(vertexShader->getImplementation());
-    ShaderD3D *fragmentShaderD3D = ShaderD3D::makeShaderD3D(fragmentShader->getImplementation());
+    ShaderD3D *vertexShaderD3D = GetImplAs<ShaderD3D>(vertexShader);
+    ShaderD3D *fragmentShaderD3D = GetImplAs<ShaderD3D>(fragmentShader);
 
     mSamplersPS.resize(data.caps->maxTextureImageUnits);
     mSamplersVS.resize(data.caps->maxVertexTextureImageUnits);
@@ -1129,6 +1147,10 @@ LinkResult ProgramD3D::link(const gl::Data &data, gl::InfoLog &infoLog,
     initAttributesByLayout();
 
     return LinkResult(true, gl::Error(GL_NO_ERROR));
+}
+
+void ProgramD3D::bindAttributeLocation(GLuint index, const std::string &name)
+{
 }
 
 void ProgramD3D::getInputLayoutSignature(const gl::VertexFormat inputLayout[], GLenum signature[]) const
@@ -1180,7 +1202,7 @@ gl::Error ProgramD3D::applyUniforms()
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error ProgramD3D::applyUniformBuffers(const gl::Data &data)
+gl::Error ProgramD3D::applyUniformBuffers(const gl::Data &data, GLuint uniformBlockBindings[])
 {
     GLint vertexUniformBuffers[gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS];
     GLint fragmentUniformBuffers[gl::IMPLEMENTATION_MAX_FRAGMENT_SHADER_UNIFORM_BUFFERS];
@@ -1201,21 +1223,9 @@ gl::Error ProgramD3D::applyUniformBuffers(const gl::Data &data)
     for (unsigned int uniformBlockIndex = 0; uniformBlockIndex < mUniformBlocks.size(); uniformBlockIndex++)
     {
         gl::UniformBlock *uniformBlock = mUniformBlocks[uniformBlockIndex];
-        gl::Buffer *uniformBuffer = data.state->getIndexedUniformBuffer(uniformBlockIndex);
+        GLuint blockBinding = uniformBlockBindings[uniformBlockIndex];
 
-        ASSERT(uniformBlock && uniformBuffer);
-
-        if (uniformBuffer->id() == 0)
-        {
-            // undefined behaviour
-            return gl::Error(GL_INVALID_OPERATION, "It is undefined behaviour to have a used but unbound uniform buffer.");
-        }
-
-        if (uniformBuffer->getSize() < uniformBlock->dataSize)
-        {
-            // undefined behaviour
-            return gl::Error(GL_INVALID_OPERATION, "It is undefined behaviour to use a uniform buffer that is too small.");
-        }
+        ASSERT(uniformBlock);
 
         // Unnecessary to apply an unreferenced standard or shared UBO
         if (!uniformBlock->isReferencedByVertexShader() && !uniformBlock->isReferencedByFragmentShader())
@@ -1228,7 +1238,7 @@ gl::Error ProgramD3D::applyUniformBuffers(const gl::Data &data)
             unsigned int registerIndex = uniformBlock->vsRegisterIndex - reservedBuffersInVS;
             ASSERT(vertexUniformBuffers[registerIndex] == -1);
             ASSERT(registerIndex < data.caps->maxVertexUniformBlocks);
-            vertexUniformBuffers[registerIndex] = uniformBlockIndex;
+            vertexUniformBuffers[registerIndex] = blockBinding;
         }
 
         if (uniformBlock->isReferencedByFragmentShader())
@@ -1236,7 +1246,7 @@ gl::Error ProgramD3D::applyUniformBuffers(const gl::Data &data)
             unsigned int registerIndex = uniformBlock->psRegisterIndex - reservedBuffersInFS;
             ASSERT(fragmentUniformBuffers[registerIndex] == -1);
             ASSERT(registerIndex < data.caps->maxFragmentUniformBlocks);
-            fragmentUniformBuffers[registerIndex] = uniformBlockIndex;
+            fragmentUniformBuffers[registerIndex] = blockBinding;
         }
     }
 
@@ -1251,7 +1261,7 @@ bool ProgramD3D::assignUniformBlockRegister(gl::InfoLog &infoLog, gl::UniformBlo
         uniformBlock->vsRegisterIndex = registerIndex;
         if (registerIndex - mRenderer->getReservedVertexUniformBuffers() >= caps.maxVertexUniformBlocks)
         {
-            infoLog.append("Vertex shader uniform block count exceed GL_MAX_VERTEX_UNIFORM_BLOCKS (%u)", caps.maxVertexUniformBlocks);
+            infoLog << "Vertex shader uniform block count exceed GL_MAX_VERTEX_UNIFORM_BLOCKS (" << caps.maxVertexUniformBlocks << ")";
             return false;
         }
     }
@@ -1260,7 +1270,7 @@ bool ProgramD3D::assignUniformBlockRegister(gl::InfoLog &infoLog, gl::UniformBlo
         uniformBlock->psRegisterIndex = registerIndex;
         if (registerIndex - mRenderer->getReservedFragmentUniformBuffers() >= caps.maxFragmentUniformBlocks)
         {
-            infoLog.append("Fragment shader uniform block count exceed GL_MAX_FRAGMENT_UNIFORM_BLOCKS (%u)", caps.maxFragmentUniformBlocks);
+            infoLog << "Fragment shader uniform block count exceed GL_MAX_FRAGMENT_UNIFORM_BLOCKS (" << caps.maxFragmentUniformBlocks << ")";
             return false;
         }
     }
@@ -1401,8 +1411,8 @@ void ProgramD3D::getUniformuiv(GLint location, GLuint *params)
 bool ProgramD3D::linkUniforms(gl::InfoLog &infoLog, const gl::Shader &vertexShader, const gl::Shader &fragmentShader,
                               const gl::Caps &caps)
 {
-    const ShaderD3D *vertexShaderD3D = ShaderD3D::makeShaderD3D(vertexShader.getImplementation());
-    const ShaderD3D *fragmentShaderD3D = ShaderD3D::makeShaderD3D(fragmentShader.getImplementation());
+    const ShaderD3D *vertexShaderD3D = GetImplAs<ShaderD3D>(&vertexShader);
+    const ShaderD3D *fragmentShaderD3D = GetImplAs<ShaderD3D>(&fragmentShader);
 
     const std::vector<sh::Uniform> &vertexUniforms = vertexShader.getUniforms();
     const std::vector<sh::Uniform> &fragmentUniforms = fragmentShader.getUniforms();
@@ -1438,7 +1448,9 @@ bool ProgramD3D::linkUniforms(gl::InfoLog &infoLog, const gl::Shader &vertexShad
 
         if (uniform.staticUse)
         {
-            defineUniformBase(vertexShaderD3D, uniform, vertexShaderD3D->getUniformRegister(uniform.name));
+            unsigned int registerBase = uniform.isBuiltIn() ? GL_INVALID_INDEX :
+                vertexShaderD3D->getUniformRegister(uniform.name);
+            defineUniformBase(vertexShaderD3D, uniform, registerBase);
         }
     }
 
@@ -1448,7 +1460,9 @@ bool ProgramD3D::linkUniforms(gl::InfoLog &infoLog, const gl::Shader &vertexShad
 
         if (uniform.staticUse)
         {
-            defineUniformBase(fragmentShaderD3D, uniform, fragmentShaderD3D->getUniformRegister(uniform.name));
+            unsigned int registerBase = uniform.isBuiltIn() ? GL_INVALID_INDEX :
+                fragmentShaderD3D->getUniformRegister(uniform.name);
+            defineUniformBase(fragmentShaderD3D, uniform, registerBase);
         }
     }
 
@@ -1459,21 +1473,17 @@ bool ProgramD3D::linkUniforms(gl::InfoLog &infoLog, const gl::Shader &vertexShad
 
     initializeUniformStorage();
 
-    // special case for gl_DepthRange, the only built-in uniform (also a struct)
-    if (vertexShaderD3D->usesDepthRange() || fragmentShaderD3D->usesDepthRange())
-    {
-        const sh::BlockMemberInfo &defaultInfo = sh::BlockMemberInfo::getDefaultBlockInfo();
-
-        mUniforms.push_back(new gl::LinkedUniform(GL_FLOAT, GL_HIGH_FLOAT, "gl_DepthRange.near", 0, -1, defaultInfo));
-        mUniforms.push_back(new gl::LinkedUniform(GL_FLOAT, GL_HIGH_FLOAT, "gl_DepthRange.far", 0, -1, defaultInfo));
-        mUniforms.push_back(new gl::LinkedUniform(GL_FLOAT, GL_HIGH_FLOAT, "gl_DepthRange.diff", 0, -1, defaultInfo));
-    }
-
     return true;
 }
 
 void ProgramD3D::defineUniformBase(const ShaderD3D *shader, const sh::Uniform &uniform, unsigned int uniformRegister)
 {
+    if (uniformRegister == GL_INVALID_INDEX)
+    {
+        defineUniform(shader, uniform, uniform.name, nullptr);
+        return;
+    }
+
     ShShaderOutput outputType = shader->getCompilerOutputType();
     sh::HLSLBlockEncoder encoder(sh::HLSLBlockEncoder::GetStrategyFor(outputType));
     encoder.skipRegisters(uniformRegister);
@@ -1490,7 +1500,8 @@ void ProgramD3D::defineUniform(const ShaderD3D *shader, const sh::ShaderVariable
         {
             const std::string &elementString = (uniform.isArray() ? ArrayString(elementIndex) : "");
 
-            encoder->enterAggregateType();
+            if (encoder)
+                encoder->enterAggregateType();
 
             for (size_t fieldIndex = 0; fieldIndex < uniform.fields.size(); fieldIndex++)
             {
@@ -1500,13 +1511,14 @@ void ProgramD3D::defineUniform(const ShaderD3D *shader, const sh::ShaderVariable
                 defineUniform(shader, field, fieldFullName, encoder);
             }
 
-            encoder->exitAggregateType();
+            if (encoder)
+                encoder->exitAggregateType();
         }
     }
     else // Not a struct
     {
         // Arrays are treated as aggregate types
-        if (uniform.isArray())
+        if (uniform.isArray() && encoder)
         {
             encoder->enterAggregateType();
         }
@@ -1514,29 +1526,36 @@ void ProgramD3D::defineUniform(const ShaderD3D *shader, const sh::ShaderVariable
         gl::LinkedUniform *linkedUniform = getUniformByName(fullName);
 
         // Advance the uniform offset, to track registers allocation for structs
-        sh::BlockMemberInfo blockInfo = encoder->encodeType(uniform.type, uniform.arraySize, false);
+        sh::BlockMemberInfo blockInfo = encoder ?
+            encoder->encodeType(uniform.type, uniform.arraySize, false) :
+            sh::BlockMemberInfo::getDefaultBlockInfo();
 
         if (!linkedUniform)
         {
             linkedUniform = new gl::LinkedUniform(uniform.type, uniform.precision, fullName, uniform.arraySize,
                                                   -1, sh::BlockMemberInfo::getDefaultBlockInfo());
             ASSERT(linkedUniform);
-            linkedUniform->registerElement = sh::HLSLBlockEncoder::getBlockRegisterElement(blockInfo);
+
+            if (encoder)
+                linkedUniform->registerElement = sh::HLSLBlockEncoder::getBlockRegisterElement(blockInfo);
             mUniforms.push_back(linkedUniform);
         }
 
-        if (shader->getShaderType() == GL_FRAGMENT_SHADER)
+        if (encoder)
         {
-            linkedUniform->psRegisterIndex = sh::HLSLBlockEncoder::getBlockRegister(blockInfo);
+            if (shader->getShaderType() == GL_FRAGMENT_SHADER)
+            {
+                linkedUniform->psRegisterIndex = sh::HLSLBlockEncoder::getBlockRegister(blockInfo);
+            }
+            else if (shader->getShaderType() == GL_VERTEX_SHADER)
+            {
+                linkedUniform->vsRegisterIndex = sh::HLSLBlockEncoder::getBlockRegister(blockInfo);
+            }
+            else UNREACHABLE();
         }
-        else if (shader->getShaderType() == GL_VERTEX_SHADER)
-        {
-            linkedUniform->vsRegisterIndex = sh::HLSLBlockEncoder::getBlockRegister(blockInfo);
-        }
-        else UNREACHABLE();
 
         // Arrays are treated as aggregate types
-        if (uniform.isArray())
+        if (uniform.isArray() && encoder)
         {
             encoder->exitAggregateType();
         }
@@ -1839,7 +1858,7 @@ void ProgramD3D::defineUniformBlockMembers(const std::vector<VarT> &fields, cons
 bool ProgramD3D::defineUniformBlock(gl::InfoLog &infoLog, const gl::Shader &shader, const sh::InterfaceBlock &interfaceBlock,
                                     const gl::Caps &caps)
 {
-    const ShaderD3D* shaderD3D = ShaderD3D::makeShaderD3D(shader.getImplementation());
+    const ShaderD3D* shaderD3D = GetImplAs<ShaderD3D>(&shader);
 
     // create uniform block entries if they do not exist
     if (getUniformBlockIndex(interfaceBlock.name) == GL_INVALID_INDEX)
@@ -1947,16 +1966,16 @@ bool ProgramD3D::indexSamplerUniform(const gl::LinkedUniform &uniform, gl::InfoL
         if (!assignSamplers(uniform.vsRegisterIndex, uniform.type, uniform.arraySize, mSamplersVS,
                             &mUsedVertexSamplerRange))
         {
-            infoLog.append("Vertex shader sampler count exceeds the maximum vertex texture units (%d).",
-                           mSamplersVS.size());
+            infoLog << "Vertex shader sampler count exceeds the maximum vertex texture units ("
+                    << mSamplersVS.size() << ").";
             return false;
         }
 
         unsigned int maxVertexVectors = mRenderer->getReservedVertexUniformVectors() + caps.maxVertexUniformVectors;
         if (uniform.vsRegisterIndex + uniform.registerCount > maxVertexVectors)
         {
-            infoLog.append("Vertex shader active uniforms exceed GL_MAX_VERTEX_UNIFORM_VECTORS (%u)",
-                           caps.maxVertexUniformVectors);
+            infoLog << "Vertex shader active uniforms exceed GL_MAX_VERTEX_UNIFORM_VECTORS ("
+                    << caps.maxVertexUniformVectors << ").";
             return false;
         }
     }
@@ -1966,16 +1985,16 @@ bool ProgramD3D::indexSamplerUniform(const gl::LinkedUniform &uniform, gl::InfoL
         if (!assignSamplers(uniform.psRegisterIndex, uniform.type, uniform.arraySize, mSamplersPS,
                             &mUsedPixelSamplerRange))
         {
-            infoLog.append("Pixel shader sampler count exceeds MAX_TEXTURE_IMAGE_UNITS (%d).",
-                           mSamplersPS.size());
+            infoLog << "Pixel shader sampler count exceeds MAX_TEXTURE_IMAGE_UNITS ("
+                    << mSamplersPS.size() << ").";
             return false;
         }
 
         unsigned int maxFragmentVectors = mRenderer->getReservedFragmentUniformVectors() + caps.maxFragmentUniformVectors;
         if (uniform.psRegisterIndex + uniform.registerCount > maxFragmentVectors)
         {
-            infoLog.append("Fragment shader active uniforms exceed GL_MAX_FRAGMENT_UNIFORM_VECTORS (%u)",
-                           caps.maxFragmentUniformVectors);
+            infoLog << "Fragment shader active uniforms exceed GL_MAX_FRAGMENT_UNIFORM_VECTORS ("
+                    << caps.maxFragmentUniformVectors << ").";
             return false;
         }
     }
@@ -1997,9 +2016,12 @@ bool ProgramD3D::indexUniforms(gl::InfoLog &infoLog, const gl::Caps &caps)
             }
         }
 
-        for (unsigned int arrayElementIndex = 0; arrayElementIndex < uniform.elementCount(); arrayElementIndex++)
+        for (unsigned int arrayIndex = 0; arrayIndex < uniform.elementCount(); arrayIndex++)
         {
-            mUniformIndex.push_back(gl::VariableLocation(uniform.name, arrayElementIndex, uniformIndex));
+            if (!uniform.isBuiltIn())
+            {
+                mUniformIndex.push_back(gl::VariableLocation(uniform.name, arrayIndex, uniformIndex));
+            }
         }
     }
 

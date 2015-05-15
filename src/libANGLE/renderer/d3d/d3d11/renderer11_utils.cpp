@@ -8,6 +8,7 @@
 // specific to the D3D11 renderer.
 
 #include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
+#include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
 #include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
 #include "libANGLE/renderer/d3d/d3d11/RenderTarget11.h"
 #include "libANGLE/renderer/d3d/FramebufferD3D.h"
@@ -245,11 +246,11 @@ GLint GetMaximumClientVersion(D3D_FEATURE_LEVEL featureLevel)
     }
 }
 
-static gl::TextureCaps GenerateTextureFormatCaps(GLint maxClientVersion, GLenum internalFormat, ID3D11Device *device)
+static gl::TextureCaps GenerateTextureFormatCaps(GLint maxClientVersion, GLenum internalFormat, ID3D11Device *device, const Renderer11DeviceCaps &renderer11DeviceCaps)
 {
     gl::TextureCaps textureCaps;
 
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalFormat, device->GetFeatureLevel());
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(internalFormat, renderer11DeviceCaps);
 
     UINT formatSupport;
     if (SUCCEEDED(device->CheckFormatSupport(formatInfo.texFormat, &formatSupport)))
@@ -957,15 +958,14 @@ static size_t GetMaximumStreamOutputSeparateComponents(D3D_FEATURE_LEVEL feature
     }
 }
 
-void GenerateCaps(ID3D11Device *device, ID3D11DeviceContext *deviceContext, gl::Caps *caps, gl::TextureCapsMap *textureCapsMap, gl::Extensions *extensions)
+void GenerateCaps(ID3D11Device *device, ID3D11DeviceContext *deviceContext, const Renderer11DeviceCaps &renderer11DeviceCaps, gl::Caps *caps, gl::TextureCapsMap *textureCapsMap, gl::Extensions *extensions)
 {
-    D3D_FEATURE_LEVEL featureLevel = device->GetFeatureLevel();
-
     GLuint maxSamples = 0;
+    D3D_FEATURE_LEVEL featureLevel = renderer11DeviceCaps.featureLevel;
     const gl::FormatSet &allFormats = gl::GetAllSizedInternalFormats();
     for (gl::FormatSet::const_iterator internalFormat = allFormats.begin(); internalFormat != allFormats.end(); ++internalFormat)
     {
-        gl::TextureCaps textureCaps = GenerateTextureFormatCaps(GetMaximumClientVersion(featureLevel), *internalFormat, device);
+        gl::TextureCaps textureCaps = GenerateTextureFormatCaps(GetMaximumClientVersion(featureLevel), *internalFormat, device, renderer11DeviceCaps);
         textureCapsMap->insert(*internalFormat, textureCaps);
 
         maxSamples = std::max(maxSamples, textureCaps.getMaxSamples());
@@ -1052,24 +1052,11 @@ void GenerateCaps(ID3D11Device *device, ID3D11DeviceContext *deviceContext, gl::
     caps->maxUniformBufferBindings = caps->maxVertexUniformBlocks + caps->maxFragmentUniformBlocks;
     caps->maxUniformBlockSize = GetMaximumConstantBufferSize(featureLevel);
 
-    // Setting a large alignment forces uniform buffers to bind with zero offset
-    caps->uniformBufferOffsetAlignment = static_cast<GLuint>(std::numeric_limits<GLint>::max());
-    ID3D11DeviceContext1 *deviceContext1 = d3d11::DynamicCastComObject<ID3D11DeviceContext1>(deviceContext);
-
-    if (deviceContext1)
-    {
-        D3D11_FEATURE_DATA_D3D11_OPTIONS d3d11Options;
-        device->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS, &d3d11Options, sizeof(D3D11_FEATURE_DATA_D3D11_OPTIONS));
-
-        if (d3d11Options.ConstantBufferOffsetting)
-        {
-            // With DirectX 11.1, constant buffer offset and size must be a multiple of 16 constants of 16 bytes each.
-            // https://msdn.microsoft.com/en-us/library/windows/desktop/hh404649%28v=vs.85%29.aspx
-            caps->uniformBufferOffsetAlignment = 256;
-        }
-
-        SafeRelease(deviceContext1);
-    }
+    // With DirectX 11.1, constant buffer offset and size must be a multiple of 16 constants of 16 bytes each.
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/hh404649%28v=vs.85%29.aspx
+    // With DirectX 11.0, we emulate UBO offsets using copies of ranges of the UBO however
+    // we still keep the same alignment as 11.1 for consistency.
+    caps->uniformBufferOffsetAlignment = 256;
 
     caps->maxCombinedUniformBlocks = caps->maxVertexUniformBlocks + caps->maxFragmentUniformBlocks;
     caps->maxCombinedVertexUniformComponents = (static_cast<GLint64>(caps->maxVertexUniformBlocks) * static_cast<GLint64>(caps->maxUniformBlockSize / 4)) +
@@ -1084,6 +1071,9 @@ void GenerateCaps(ID3D11Device *device, ID3D11DeviceContext *deviceContext, gl::
     caps->maxTransformFeedbackInterleavedComponents = GetMaximumStreamOutputInterleavedComponents(featureLevel);
     caps->maxTransformFeedbackSeparateAttributes = GetMaximumStreamOutputBuffers(featureLevel);
     caps->maxTransformFeedbackSeparateComponents = GetMaximumStreamOutputSeparateComponents(featureLevel);
+
+    // Multisample limits
+    caps->maxSamples = maxSamples;
 
     // GL extension support
     extensions->setTextureExtensionSupport(*textureCapsMap);
@@ -1107,7 +1097,6 @@ void GenerateCaps(ID3D11Device *device, ID3D11DeviceContext *deviceContext, gl::
     extensions->blendMinMax = true;
     extensions->framebufferBlit = GetFramebufferBlitSupport(featureLevel);
     extensions->framebufferMultisample = GetFramebufferMultisampleSupport(featureLevel);
-    extensions->maxSamples = maxSamples;
     extensions->instancedArrays = GetInstancingSupport(featureLevel);
     extensions->packReverseRowOrder = true;
     extensions->standardDerivatives = GetDerivativeInstructionSupport(featureLevel);
@@ -1115,6 +1104,7 @@ void GenerateCaps(ID3D11Device *device, ID3D11DeviceContext *deviceContext, gl::
     extensions->fragDepth = true;
     extensions->textureUsage = true; // This could be false since it has no effect in D3D11
     extensions->translatedShaderSource = true;
+    extensions->fboRenderMipmap = false;
 }
 
 }
@@ -1167,11 +1157,11 @@ void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsi
     *levelOffset = upsampleCount;
 }
 
-void GenerateInitialTextureData(GLint internalFormat, D3D_FEATURE_LEVEL featureLevel, GLuint width, GLuint height, GLuint depth,
+void GenerateInitialTextureData(GLint internalFormat, const Renderer11DeviceCaps &renderer11DeviceCaps, GLuint width, GLuint height, GLuint depth,
                                 GLuint mipLevels, std::vector<D3D11_SUBRESOURCE_DATA> *outSubresourceData,
                                 std::vector< std::vector<BYTE> > *outData)
 {
-    const d3d11::TextureFormat &d3dFormatInfo = d3d11::GetTextureFormatInfo(internalFormat, featureLevel);
+    const d3d11::TextureFormat &d3dFormatInfo = d3d11::GetTextureFormatInfo(internalFormat, renderer11DeviceCaps);
     ASSERT(d3dFormatInfo.dataInitializerFunction != NULL);
 
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(d3dFormatInfo.texFormat);
@@ -1223,18 +1213,6 @@ HRESULT SetDebugName(ID3D11DeviceChild *resource, const char *name)
 #else
     return S_OK;
 #endif
-}
-
-gl::Error GetAttachmentRenderTarget(const gl::FramebufferAttachment *attachment, RenderTarget11 **outRT)
-{
-    RenderTargetD3D *renderTarget = NULL;
-    gl::Error error = rx::GetAttachmentRenderTarget(attachment, &renderTarget);
-    if (error.isError())
-    {
-        return error;
-    }
-    *outRT = RenderTarget11::makeRenderTarget11(renderTarget);
-    return gl::Error(GL_NO_ERROR);
 }
 
 Workarounds GenerateWorkarounds(D3D_FEATURE_LEVEL featureLevel)

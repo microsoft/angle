@@ -13,7 +13,6 @@
 #include "libANGLE/Surface.h"
 #include "libANGLE/renderer/gl/BufferGL.h"
 #include "libANGLE/renderer/gl/CompilerGL.h"
-#include "libANGLE/renderer/gl/DefaultAttachmentGL.h"
 #include "libANGLE/renderer/gl/FenceNVGL.h"
 #include "libANGLE/renderer/gl/FenceSyncGL.h"
 #include "libANGLE/renderer/gl/FramebufferGL.h"
@@ -29,6 +28,50 @@
 #include "libANGLE/renderer/gl/VertexArrayGL.h"
 #include "libANGLE/renderer/gl/renderergl_utils.h"
 
+#ifndef NDEBUG
+static void INTERNAL_GL_APIENTRY LogGLDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                                                   const GLchar *message, const void *userParam)
+{
+    std::string sourceText;
+    switch (source)
+    {
+      case GL_DEBUG_SOURCE_API:             sourceText = "OpenGL";          break;
+      case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   sourceText = "Windows";         break;
+      case GL_DEBUG_SOURCE_SHADER_COMPILER: sourceText = "Shader Compiler"; break;
+      case GL_DEBUG_SOURCE_THIRD_PARTY:     sourceText = "Third Party";     break;
+      case GL_DEBUG_SOURCE_APPLICATION:     sourceText = "Application";     break;
+      case GL_DEBUG_SOURCE_OTHER:           sourceText = "Other";           break;
+      default:                              sourceText = "UNKNOWN";         break;
+    }
+
+    std::string typeText;
+    switch (type)
+    {
+      case GL_DEBUG_TYPE_ERROR:               typeText = "Error";               break;
+      case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: typeText = "Deprecated behavior"; break;
+      case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  typeText = "Undefined behavior";  break;
+      case GL_DEBUG_TYPE_PORTABILITY:         typeText = "Portability";         break;
+      case GL_DEBUG_TYPE_PERFORMANCE:         typeText = "Performance";         break;
+      case GL_DEBUG_TYPE_OTHER:               typeText = "Other";               break;
+      case GL_DEBUG_TYPE_MARKER:              typeText = "Marker";              break;
+      default:                                typeText = "UNKNOWN";             break;
+    }
+
+    std::string severityText;
+    switch (severity)
+    {
+      case GL_DEBUG_SEVERITY_HIGH:         severityText = "High";         break;
+      case GL_DEBUG_SEVERITY_MEDIUM:       severityText = "Medium";       break;
+      case GL_DEBUG_SEVERITY_LOW:          severityText = "Low";          break;
+      case GL_DEBUG_SEVERITY_NOTIFICATION: severityText = "Notification"; break;
+      default:                             severityText = "UNKNOWN";      break;
+    }
+
+    ERR("\n\tSource: %s\n\tType: %s\n\tID: %d\n\tSeverity: %s\n\tMessage: %s", sourceText.c_str(), typeText.c_str(), id,
+        severityText.c_str(), message);
+}
+#endif
+
 namespace rx
 {
 
@@ -39,6 +82,18 @@ RendererGL::RendererGL(const FunctionsGL *functions)
 {
     ASSERT(mFunctions);
     mStateManager = new StateManagerGL(mFunctions, getRendererCaps());
+
+#ifndef NDEBUG
+    if (mFunctions->debugMessageControl && mFunctions->debugMessageCallback)
+    {
+        mFunctions->enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        mFunctions->debugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
+        mFunctions->debugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE);
+        mFunctions->debugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, nullptr, GL_FALSE);
+        mFunctions->debugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+        mFunctions->debugMessageCallback(&LogGLDebugMessage, nullptr);
+    }
+#endif
 }
 
 RendererGL::~RendererGL()
@@ -48,14 +103,14 @@ RendererGL::~RendererGL()
 
 gl::Error RendererGL::flush()
 {
-    UNIMPLEMENTED();
-    return gl::Error(GL_INVALID_OPERATION);
+    mFunctions->flush();
+    return gl::Error(GL_NO_ERROR);
 }
 
 gl::Error RendererGL::finish()
 {
-    UNIMPLEMENTED();
-    return gl::Error(GL_INVALID_OPERATION);
+    mFunctions->finish();
+    return gl::Error(GL_NO_ERROR);
 }
 
 gl::Error RendererGL::drawArrays(const gl::Data &data, GLenum mode,
@@ -74,7 +129,7 @@ gl::Error RendererGL::drawArrays(const gl::Data &data, GLenum mode,
 
 gl::Error RendererGL::drawElements(const gl::Data &data, GLenum mode, GLsizei count, GLenum type,
                                    const GLvoid *indices, GLsizei instances,
-                                   const RangeUI &indexRange)
+                                   const gl::RangeUI &indexRange)
 {
     if (instances > 0)
     {
@@ -108,11 +163,6 @@ ProgramImpl *RendererGL::createProgram()
     return new ProgramGL(mFunctions, mStateManager);
 }
 
-DefaultAttachmentImpl *RendererGL::createDefaultAttachment(GLenum type, egl::Surface *surface)
-{
-    return new DefaultAttachmentGL(type, GetImplAs<SurfaceGL>(surface));
-}
-
 FramebufferImpl *RendererGL::createDefaultFramebuffer(const gl::Framebuffer::Data &data)
 {
     return new FramebufferGL(data, mFunctions, mStateManager, true);
@@ -130,7 +180,7 @@ TextureImpl *RendererGL::createTexture(GLenum target)
 
 RenderbufferImpl *RendererGL::createRenderbuffer()
 {
-    return new RenderbufferGL(mFunctions, mStateManager);
+    return new RenderbufferGL(mFunctions, mStateManager, getRendererTextureCaps());
 }
 
 BufferImpl *RendererGL::createBuffer()
@@ -150,12 +200,12 @@ QueryImpl *RendererGL::createQuery(GLenum type)
 
 FenceNVImpl *RendererGL::createFenceNV()
 {
-    return new FenceNVGL();
+    return new FenceNVGL(mFunctions);
 }
 
 FenceSyncImpl *RendererGL::createFenceSync()
 {
-    return new FenceSyncGL();
+    return new FenceSyncGL(mFunctions);
 }
 
 TransformFeedbackImpl *RendererGL::createTransformFeedback()
@@ -194,14 +244,23 @@ VendorID RendererGL::getVendorId() const
 
 std::string RendererGL::getVendorString() const
 {
-    UNIMPLEMENTED();
-    return std::string();
+    return std::string(reinterpret_cast<const char*>(mFunctions->getString(GL_VENDOR)));
 }
 
 std::string RendererGL::getRendererDescription() const
 {
-    //UNIMPLEMENTED();
-    return std::string();
+    std::string nativeVendorString(reinterpret_cast<const char*>(mFunctions->getString(GL_VENDOR)));
+    std::string nativeRendererString(reinterpret_cast<const char*>(mFunctions->getString(GL_RENDERER)));
+
+    std::ostringstream rendererString;
+    rendererString << nativeVendorString << " " << nativeRendererString << " OpenGL";
+    if (mFunctions->openGLES)
+    {
+        rendererString << " ES";
+    }
+    rendererString << " " << mFunctions->majorVersion << "." << mFunctions->minorVersion;
+
+    return rendererString.str();
 }
 
 void RendererGL::generateCaps(gl::Caps *outCaps, gl::TextureCapsMap* outTextureCaps, gl::Extensions *outExtensions) const

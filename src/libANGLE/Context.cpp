@@ -37,7 +37,8 @@ namespace gl
 {
 
 Context::Context(const egl::Config *config, int clientVersion, const Context *shareContext, rx::Renderer *renderer, bool notifyResets, bool robustAccess)
-    : mRenderer(renderer)
+    : mRenderer(renderer),
+      mData(clientVersion, mState, mCaps, mTextureCaps, mExtensions, nullptr)
 {
     ASSERT(robustAccess == false);   // Unimplemented
 
@@ -48,7 +49,6 @@ Context::Context(const egl::Config *config, int clientVersion, const Context *sh
 
     mConfigID = config->configID;
     mClientType = EGL_OPENGL_ES_API;
-    mRenderBuffer = EGL_NONE;
 
     mFenceNVHandleAllocator.setBaseHandle(0);
 
@@ -61,6 +61,8 @@ Context::Context(const egl::Config *config, int clientVersion, const Context *sh
     {
         mResourceManager = new ResourceManager(mRenderer);
     }
+
+    mData.resourceManager = mResourceManager;
 
     // [OpenGL ES 2.0.24] section 3.7 page 83:
     // In the initial state, TEXTURE_2D and TEXTURE_CUBE_MAP have twodimensional
@@ -86,6 +88,9 @@ Context::Context(const egl::Config *config, int clientVersion, const Context *sh
 
     mState.initializeZeroTextures(mZeroTextures);
 
+    // Allocate default FBO
+    mFramebufferMap[0] = new Framebuffer(mCaps, mRenderer, 0);
+
     bindVertexArray(0);
     bindArrayBuffer(0);
     bindElementArrayBuffer(0);
@@ -100,12 +105,6 @@ Context::Context(const egl::Config *config, int clientVersion, const Context *sh
         bindIndexedUniformBuffer(0, i, 0, -1);
     }
 
-    bindGenericTransformFeedbackBuffer(0);
-    for (unsigned int i = 0; i < mCaps.maxTransformFeedbackSeparateAttributes; i++)
-    {
-        bindIndexedTransformFeedbackBuffer(0, i, 0, -1);
-    }
-
     bindCopyReadBuffer(0);
     bindCopyWriteBuffer(0);
     bindPixelPackBuffer(0);
@@ -115,7 +114,7 @@ Context::Context(const egl::Config *config, int clientVersion, const Context *sh
     // In the initial state, a default transform feedback object is bound and treated as
     // a transform feedback object with a name of zero. That object is bound any time
     // BindTransformFeedback is called with id of zero
-    mTransformFeedbackZero.set(new TransformFeedback(mRenderer->createTransformFeedback(), 0));
+    mTransformFeedbackZero.set(new TransformFeedback(mRenderer->createTransformFeedback(), 0, mCaps));
     bindTransformFeedback(0);
 
     mHasBeenCurrent = false;
@@ -174,6 +173,8 @@ Context::~Context()
 
 void Context::makeCurrent(egl::Surface *surface)
 {
+    ASSERT(surface != nullptr);
+
     if (!mHasBeenCurrent)
     {
         initRendererString();
@@ -185,12 +186,50 @@ void Context::makeCurrent(egl::Surface *surface)
         mHasBeenCurrent = true;
     }
 
-    // TODO(jmadill): do not allocate new pointers here
-    Framebuffer *framebufferZero = new DefaultFramebuffer(mCaps, mRenderer, surface);
+    // Update default framebuffer
+    Framebuffer *defaultFBO = mFramebufferMap[0];
 
-    setFramebufferZero(framebufferZero);
+    GLenum drawBufferState = GL_BACK;
+    defaultFBO->setDrawBuffers(1, &drawBufferState);
+    defaultFBO->setReadBuffer(GL_BACK);
 
-    mRenderBuffer = surface->getRenderBuffer();
+    const FramebufferAttachment *backAttachment = defaultFBO->getAttachment(GL_BACK);
+
+    if (backAttachment && backAttachment->getSurface() == surface)
+    {
+        // FBO already initialized to the surface.
+        return;
+    }
+
+    const egl::Config *config = surface->getConfig();
+
+    defaultFBO->setAttachment(GL_FRAMEBUFFER_DEFAULT, GL_BACK, ImageIndex::MakeInvalid(), surface);
+
+    if (config->depthSize > 0)
+    {
+        defaultFBO->setAttachment(GL_FRAMEBUFFER_DEFAULT, GL_DEPTH, ImageIndex::MakeInvalid(), surface);
+    }
+    else
+    {
+        defaultFBO->resetAttachment(GL_DEPTH);
+    }
+
+    if (config->stencilSize > 0)
+    {
+        defaultFBO->setAttachment(GL_FRAMEBUFFER_DEFAULT, GL_STENCIL, ImageIndex::MakeInvalid(), surface);
+    }
+    else
+    {
+        defaultFBO->resetAttachment(GL_STENCIL);
+    }
+}
+
+void Context::releaseSurface()
+{
+    Framebuffer *defaultFBO = mFramebufferMap[0];
+    defaultFBO->resetAttachment(GL_BACK);
+    defaultFBO->resetAttachment(GL_DEPTH);
+    defaultFBO->resetAttachment(GL_STENCIL);
 }
 
 // NOTE: this function should not assume that this context is current!
@@ -258,7 +297,7 @@ GLuint Context::createSampler()
 GLuint Context::createTransformFeedback()
 {
     GLuint handle = mTransformFeedbackAllocator.allocate();
-    TransformFeedback *transformFeedback = new TransformFeedback(mRenderer->createTransformFeedback(), handle);
+    TransformFeedback *transformFeedback = new TransformFeedback(mRenderer->createTransformFeedback(), handle, mCaps);
     transformFeedback->addRef();
     mTransformFeedbackMap[handle] = transformFeedback;
     return handle;
@@ -339,7 +378,7 @@ void Context::deleteFenceSync(GLsync fenceSync)
     // wait commands finish. However, since the name becomes invalid, we cannot query the fence,
     // and since our API is currently designed for being called from a single thread, we can delete
     // the fence immediately.
-    mResourceManager->deleteFenceSync(reinterpret_cast<uintptr_t>(fenceSync));
+    mResourceManager->deleteFenceSync(static_cast<GLuint>(reinterpret_cast<uintptr_t>(fenceSync)));
 }
 
 void Context::deleteVertexArray(GLuint vertexArray)
@@ -445,7 +484,7 @@ Renderbuffer *Context::getRenderbuffer(GLuint handle)
 
 FenceSync *Context::getFenceSync(GLsync handle) const
 {
-    return mResourceManager->getFenceSync(reinterpret_cast<uintptr_t>(handle));
+    return mResourceManager->getFenceSync(static_cast<GLuint>(reinterpret_cast<uintptr_t>(handle)));
 }
 
 VertexArray *Context::getVertexArray(GLuint handle) const
@@ -582,14 +621,14 @@ void Context::bindGenericTransformFeedbackBuffer(GLuint buffer)
 {
     mResourceManager->checkBufferAllocation(buffer);
 
-    mState.setGenericTransformFeedbackBufferBinding(getBuffer(buffer));
+    mState.getCurrentTransformFeedback()->bindGenericBuffer(getBuffer(buffer));
 }
 
 void Context::bindIndexedTransformFeedbackBuffer(GLuint buffer, GLuint index, GLintptr offset, GLsizeiptr size)
 {
     mResourceManager->checkBufferAllocation(buffer);
 
-    mState.setIndexedTransformFeedbackBufferBinding(index, getBuffer(buffer), offset, size);
+    mState.getCurrentTransformFeedback()->bindIndexedBuffer(index, getBuffer(buffer), offset, size);
 }
 
 void Context::bindCopyReadBuffer(GLuint buffer)
@@ -661,6 +700,7 @@ Error Context::endQuery(GLenum target)
     return error;
 }
 
+<<<<<<< HEAD
 void Context::setFramebufferZero(Framebuffer *buffer)
 {
     // First, check to see if the old default framebuffer
@@ -680,6 +720,8 @@ void Context::setFramebufferZero(Framebuffer *buffer)
     mFramebufferMap[0] = buffer;
 }
 
+=======
+>>>>>>> google/master
 Framebuffer *Context::getFramebuffer(unsigned int handle) const
 {
     FramebufferMap::const_iterator framebuffer = mFramebufferMap.find(handle);
@@ -819,7 +861,7 @@ void Context::getIntegerv(GLenum pname, GLint *params)
       case GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS:       *params = mCaps.maxTransformFeedbackSeparateAttributes;    break;
       case GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS:    *params = mCaps.maxTransformFeedbackSeparateComponents;    break;
       case GL_NUM_COMPRESSED_TEXTURE_FORMATS:           *params = mCaps.compressedTextureFormats.size();                break;
-      case GL_MAX_SAMPLES_ANGLE:                        *params = mExtensions.maxSamples;                               break;
+      case GL_MAX_SAMPLES_ANGLE:                        *params = mCaps.maxSamples;                                     break;
       case GL_MAX_VIEWPORT_DIMS:
         {
             params[0] = mCaps.maxViewportWidth;
@@ -884,7 +926,7 @@ bool Context::getIndexedIntegerv(GLenum target, GLuint index, GLint *data)
 {
     // Queries about context capabilities and maximums are answered by Context.
     // Queries about current GL state values are answered by State.
-    // Indexed integer queries all refer to current state, so this function is a 
+    // Indexed integer queries all refer to current state, so this function is a
     // mere passthrough.
     return mState.getIndexedIntegerv(target, index, data);
 }
@@ -893,7 +935,7 @@ bool Context::getIndexedInteger64v(GLenum target, GLuint index, GLint64 *data)
 {
     // Queries about context capabilities and maximums are answered by Context.
     // Queries about current GL state values are answered by State.
-    // Indexed integer queries all refer to current state, so this function is a 
+    // Indexed integer queries all refer to current state, so this function is a
     // mere passthrough.
     return mState.getIndexedInteger64v(target, index, data);
 }
@@ -1117,6 +1159,7 @@ bool Context::getQueryParameterInfo(GLenum pname, GLenum *type, unsigned int *nu
       case GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT:
       case GL_UNIFORM_BUFFER_BINDING:
       case GL_TRANSFORM_FEEDBACK_BINDING:
+      case GL_TRANSFORM_FEEDBACK_BUFFER_BINDING:
       case GL_COPY_READ_BUFFER_BINDING:
       case GL_COPY_WRITE_BUFFER_BINDING:
       case GL_TEXTURE_BINDING_3D:
@@ -1198,12 +1241,31 @@ bool Context::getIndexedQueryParameterInfo(GLenum target, GLenum *type, unsigned
 
 Error Context::drawArrays(GLenum mode, GLint first, GLsizei count, GLsizei instances)
 {
-    return mRenderer->drawArrays(getData(), mode, first, count, instances);
+    Error error = mRenderer->drawArrays(getData(), mode, first, count, instances);
+    if (error.isError())
+    {
+        return error;
+    }
+
+    TransformFeedback *transformFeedback = mState.getCurrentTransformFeedback();
+    if (transformFeedback->isActive() && !transformFeedback->isPaused())
+    {
+        for (size_t tfBufferIndex = 0; tfBufferIndex < transformFeedback->getIndexedBufferCount(); tfBufferIndex++)
+        {
+            const OffsetBindingPointer<Buffer> &buffer = transformFeedback->getIndexedBuffer(tfBufferIndex);
+            if (buffer.get() != nullptr)
+            {
+                buffer->onTransformFeedback();
+            }
+        }
+    }
+
+    return Error(GL_NO_ERROR);
 }
 
 Error Context::drawElements(GLenum mode, GLsizei count, GLenum type,
                             const GLvoid *indices, GLsizei instances,
-                            const rx::RangeUI &indexRange)
+                            const RangeUI &indexRange)
 {
     return mRenderer->drawElements(getData(), mode, count, type, indices, instances, indexRange);
 }
@@ -1292,7 +1354,10 @@ EGLenum Context::getClientType() const
 
 EGLenum Context::getRenderBuffer() const
 {
-    return mRenderBuffer;
+    ASSERT(mFramebufferMap.count(0) > 0);
+    const Framebuffer *framebuffer = mFramebufferMap.find(0)->second;
+    const FramebufferAttachment *backAttachment = framebuffer->getAttachment(GL_BACK);
+    return backAttachment ? backAttachment->getSurface()->getRenderBuffer() : EGL_NONE;
 }
 
 const Caps &Context::getCaps() const
@@ -1321,7 +1386,7 @@ void Context::detachTexture(GLuint texture)
 
 void Context::detachBuffer(GLuint buffer)
 {
-    // Buffer detachment is handled by Context, because the buffer must also be 
+    // Buffer detachment is handled by Context, because the buffer must also be
     // attached from any VAOs in existence, and Context holds the VAO map.
 
     // [OpenGL ES 2.0.24] section 2.9 page 22:
@@ -1365,8 +1430,8 @@ void Context::detachRenderbuffer(GLuint renderbuffer)
 
 void Context::detachVertexArray(GLuint vertexArray)
 {
-    // Vertex array detachment is handled by Context, because 0 is a valid 
-    // VAO, and a pointer to it must be passed from Context to State at 
+    // Vertex array detachment is handled by Context, because 0 is a valid
+    // VAO, and a pointer to it must be passed from Context to State at
     // binding time.
 
     // [OpenGL ES 3.0.2] section 2.10 page 43:
@@ -1545,7 +1610,6 @@ void Context::initCaps(GLuint clientVersion)
 
     mCaps.maxFragmentInputComponents = std::min<GLuint>(mCaps.maxFragmentInputComponents, IMPLEMENTATION_MAX_VARYING_VECTORS * 4);
 
-    GLuint maxSamples = 0;
     mCaps.compressedTextureFormats.clear();
 
     const TextureCapsMap &rendererFormats = mRenderer->getRendererTextureCaps();
@@ -1566,7 +1630,6 @@ void Context::initCaps(GLuint clientVersion)
         {
             formatCaps.sampleCounts.clear();
         }
-        maxSamples = std::max(maxSamples, formatCaps.getMaxSamples());
 
         if (formatCaps.texturable && formatInfo.compressed)
         {
@@ -1575,13 +1638,6 @@ void Context::initCaps(GLuint clientVersion)
 
         mTextureCaps.insert(format, formatCaps);
     }
-
-    mExtensions.maxSamples = maxSamples;
-}
-
-Data Context::getData() const
-{
-    return Data(mClientVersion, mState, mCaps, mTextureCaps, mExtensions, mResourceManager);
 }
 
 }

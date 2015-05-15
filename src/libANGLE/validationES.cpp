@@ -19,7 +19,6 @@
 #include "libANGLE/Uniform.h"
 #include "libANGLE/TransformFeedback.h"
 #include "libANGLE/VertexArray.h"
-#include "libANGLE/renderer/BufferImpl.h"
 
 #include "common/mathutil.h"
 #include "common/utilities.h"
@@ -129,19 +128,27 @@ bool ValidBufferTarget(const Context *context, GLenum target)
 
 bool ValidBufferParameter(const Context *context, GLenum pname)
 {
+    const Extensions &extensions = context->getExtensions();
+
     switch (pname)
     {
       case GL_BUFFER_USAGE:
       case GL_BUFFER_SIZE:
         return true;
 
+      case GL_BUFFER_ACCESS_OES:
+        return extensions.mapBuffer;
+
+      case GL_BUFFER_MAPPED:
+        static_assert(GL_BUFFER_MAPPED == GL_BUFFER_MAPPED_OES, "GL enums should be equal.");
+        return (context->getClientVersion() >= 3) || extensions.mapBuffer || extensions.mapBufferRange;
+
       // GL_BUFFER_MAP_POINTER is a special case, and may only be
       // queried with GetBufferPointerv
       case GL_BUFFER_ACCESS_FLAGS:
-      case GL_BUFFER_MAPPED:
       case GL_BUFFER_MAP_OFFSET:
       case GL_BUFFER_MAP_LENGTH:
-        return (context->getClientVersion() >= 3);
+        return (context->getClientVersion() >= 3) || extensions.mapBufferRange;
 
       default:
         return false;
@@ -343,9 +350,9 @@ bool ValidateRenderbufferStorageParametersANGLE(gl::Context *context, GLenum tar
     ASSERT(samples == 0 || context->getExtensions().framebufferMultisample);
 
     // ANGLE_framebuffer_multisample states that the value of samples must be less than or equal
-    // to MAX_SAMPLES_ANGLE (Context::getExtensions().maxSamples) otherwise GL_INVALID_VALUE is
+    // to MAX_SAMPLES_ANGLE (Context::getCaps().maxSamples) otherwise GL_INVALID_VALUE is
     // generated.
-    if (static_cast<GLuint>(samples) > context->getExtensions().maxSamples)
+    if (static_cast<GLuint>(samples) > context->getCaps().maxSamples)
     {
         context->recordError(Error(GL_INVALID_VALUE));
         return false;
@@ -354,11 +361,15 @@ bool ValidateRenderbufferStorageParametersANGLE(gl::Context *context, GLenum tar
     // ANGLE_framebuffer_multisample states GL_OUT_OF_MEMORY is generated on a failure to create
     // the specified storage. This is different than ES 3.0 in which a sample number higher
     // than the maximum sample number supported  by this format generates a GL_INVALID_VALUE.
-    const TextureCaps &formatCaps = context->getTextureCaps().get(internalformat);
-    if (static_cast<GLuint>(samples) > formatCaps.getMaxSamples())
+    // The TextureCaps::getMaxSamples method is only guarenteed to be valid when the context is ES3.
+    if (context->getClientVersion() >= 3)
     {
-        context->recordError(Error(GL_OUT_OF_MEMORY));
-        return false;
+        const TextureCaps &formatCaps = context->getTextureCaps().get(internalformat);
+        if (static_cast<GLuint>(samples) > formatCaps.getMaxSamples())
+        {
+            context->recordError(Error(GL_OUT_OF_MEMORY));
+            return false;
+        }
     }
 
     return ValidateRenderbufferStorageParametersBase(context, target, samples, internalformat, width, height);
@@ -374,11 +385,11 @@ bool ValidateFramebufferRenderbufferParameters(gl::Context *context, GLenum targ
     }
 
     gl::Framebuffer *framebuffer = context->getState().getTargetFramebuffer(target);
-    GLuint framebufferHandle = context->getState().getTargetFramebuffer(target)->id();
 
-    if (!framebuffer || (framebufferHandle == 0 && renderbuffer != 0))
+    ASSERT(framebuffer);
+    if (framebuffer->id() == 0)
     {
-        context->recordError(Error(GL_INVALID_OPERATION));
+        context->recordError(Error(GL_INVALID_OPERATION, "Cannot change default FBO's attachments"));
         return false;
     }
 
@@ -403,7 +414,7 @@ bool ValidateFramebufferRenderbufferParameters(gl::Context *context, GLenum targ
     return true;
 }
 
-static bool IsPartialBlit(gl::Context *context, gl::FramebufferAttachment *readBuffer, gl::FramebufferAttachment *writeBuffer,
+static bool IsPartialBlit(gl::Context *context, const gl::FramebufferAttachment *readBuffer, const gl::FramebufferAttachment *writeBuffer,
                           GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
                           GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1)
 {
@@ -486,8 +497,8 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
         return false;
     }
 
-    gl::Framebuffer *readFramebuffer = context->getState().getReadFramebuffer();
-    gl::Framebuffer *drawFramebuffer = context->getState().getDrawFramebuffer();
+    const gl::Framebuffer *readFramebuffer = context->getState().getReadFramebuffer();
+    const gl::Framebuffer *drawFramebuffer = context->getState().getDrawFramebuffer();
 
     if (!readFramebuffer || !drawFramebuffer)
     {
@@ -517,8 +528,8 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
 
     if (mask & GL_COLOR_BUFFER_BIT)
     {
-        gl::FramebufferAttachment *readColorBuffer = readFramebuffer->getReadColorbuffer();
-        gl::FramebufferAttachment *drawColorBuffer = drawFramebuffer->getFirstColorbuffer();
+        const gl::FramebufferAttachment *readColorBuffer = readFramebuffer->getReadColorbuffer();
+        const gl::FramebufferAttachment *drawColorBuffer = drawFramebuffer->getFirstColorbuffer();
 
         if (readColorBuffer && drawColorBuffer)
         {
@@ -571,9 +582,9 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
 
             if (fromAngleExtension)
             {
-                FramebufferAttachment *readColorAttachment = readFramebuffer->getReadColorbuffer();
+                const FramebufferAttachment *readColorAttachment = readFramebuffer->getReadColorbuffer();
                 if (!readColorAttachment ||
-                    (!(readColorAttachment->type() == GL_TEXTURE && readColorAttachment->getTextureImageIndex()->type == GL_TEXTURE_2D) &&
+                    (!(readColorAttachment->type() == GL_TEXTURE && readColorAttachment->getTextureImageIndex().type == GL_TEXTURE_2D) &&
                     readColorAttachment->type() != GL_RENDERBUFFER &&
                     readColorAttachment->type() != GL_FRAMEBUFFER_DEFAULT))
                 {
@@ -585,10 +596,10 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
                 {
                     if (drawFramebuffer->isEnabledColorAttachment(colorAttachment))
                     {
-                        FramebufferAttachment *attachment = drawFramebuffer->getColorbuffer(colorAttachment);
+                        const FramebufferAttachment *attachment = drawFramebuffer->getColorbuffer(colorAttachment);
                         ASSERT(attachment);
 
-                        if (!(attachment->type() == GL_TEXTURE && attachment->getTextureImageIndex()->type == GL_TEXTURE_2D) &&
+                        if (!(attachment->type() == GL_TEXTURE && attachment->getTextureImageIndex().type == GL_TEXTURE_2D) &&
                             attachment->type() != GL_RENDERBUFFER &&
                             attachment->type() != GL_FRAMEBUFFER_DEFAULT)
                         {
@@ -624,8 +635,8 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
     {
         if (mask & masks[i])
         {
-            gl::FramebufferAttachment *readBuffer = readFramebuffer->getAttachment(attachments[i]);
-            gl::FramebufferAttachment *drawBuffer = drawFramebuffer->getAttachment(attachments[i]);
+            const gl::FramebufferAttachment *readBuffer = readFramebuffer->getAttachment(attachments[i]);
+            const gl::FramebufferAttachment *drawBuffer = drawFramebuffer->getAttachment(attachments[i]);
 
             if (readBuffer && drawBuffer)
             {
@@ -1162,7 +1173,7 @@ bool ValidateStateQuery(gl::Context *context, GLenum pname, GLenum *nativeType, 
                 return false;
             }
 
-            FramebufferAttachment *attachment = framebuffer->getReadColorbuffer();
+            const FramebufferAttachment *attachment = framebuffer->getReadColorbuffer();
             if (!attachment)
             {
                 context->recordError(Error(GL_INVALID_OPERATION));
@@ -1184,7 +1195,7 @@ bool ValidateStateQuery(gl::Context *context, GLenum pname, GLenum *nativeType, 
     return true;
 }
 
-bool ValidateCopyTexImageParametersBase(gl::Context* context, GLenum target, GLint level, GLenum internalformat, bool isSubImage,
+bool ValidateCopyTexImageParametersBase(gl::Context *context, GLenum target, GLint level, GLenum internalformat, bool isSubImage,
                                         GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height,
                                         GLint border, GLenum *textureFormatOut)
 {
@@ -1393,10 +1404,13 @@ static bool ValidateDrawBase(Context *context, GLenum mode, GLsizei count, GLsiz
 
     // Buffer validations
     const VertexArray *vao = state.getVertexArray();
-    for (int attributeIndex = 0; attributeIndex < MAX_VERTEX_ATTRIBS; attributeIndex++)
+    const auto &vertexAttribs = vao->getVertexAttributes();
+    const int *semanticIndexes = program->getSemanticIndexes();
+    unsigned int maxEnabledAttrib = vao->getMaxEnabledAttribute();
+    for (size_t attributeIndex = 0; attributeIndex < maxEnabledAttrib; ++attributeIndex)
     {
-        const VertexAttribute &attrib = vao->getVertexAttribute(attributeIndex);
-        bool attribActive = (program->getSemanticIndex(attributeIndex) != -1);
+        const VertexAttribute &attrib = vertexAttribs[attributeIndex];
+        bool attribActive = (semanticIndexes[attributeIndex] != -1);
         if (attribActive && attrib.enabled)
         {
             gl::Buffer *buffer = attrib.buffer.get();
@@ -1436,6 +1450,36 @@ static bool ValidateDrawBase(Context *context, GLenum mode, GLsizei count, GLsiz
         }
     }
 
+    // Uniform buffer validation
+    for (unsigned int uniformBlockIndex = 0; uniformBlockIndex < program->getActiveUniformBlockCount(); uniformBlockIndex++)
+    {
+        const gl::UniformBlock *uniformBlock = program->getUniformBlockByIndex(uniformBlockIndex);
+        GLuint blockBinding = program->getUniformBlockBinding(uniformBlockIndex);
+        const gl::Buffer *uniformBuffer = state.getIndexedUniformBuffer(blockBinding);
+
+        if (!uniformBuffer)
+        {
+            // undefined behaviour
+            context->recordError(Error(GL_INVALID_OPERATION, "It is undefined behaviour to have a used but unbound uniform buffer."));
+            return false;
+        }
+
+        size_t uniformBufferSize = state.getIndexedUniformBufferSize(blockBinding);
+
+        if (uniformBufferSize == 0)
+        {
+            // Bind the whole buffer.
+            uniformBufferSize = static_cast<size_t>(uniformBuffer->getSize());
+        }
+
+        if (uniformBufferSize < uniformBlock->dataSize)
+        {
+            // undefined behaviour
+            context->recordError(Error(GL_INVALID_OPERATION, "It is undefined behaviour to use a uniform buffer that is too small."));
+            return false;
+        }
+    }
+
     // No-op if zero count
     return (count > 0);
 }
@@ -1450,8 +1494,8 @@ bool ValidateDrawArrays(Context *context, GLenum mode, GLint first, GLsizei coun
 
     const State &state = context->getState();
     gl::TransformFeedback *curTransformFeedback = state.getCurrentTransformFeedback();
-    if (curTransformFeedback && curTransformFeedback->isStarted() && !curTransformFeedback->isPaused() &&
-        curTransformFeedback->getDrawMode() != mode)
+    if (curTransformFeedback && curTransformFeedback->isActive() && !curTransformFeedback->isPaused() &&
+        curTransformFeedback->getPrimitiveMode() != mode)
     {
         // It is an invalid operation to call DrawArrays or DrawArraysInstanced with a draw mode
         // that does not match the current transform feedback object's draw mode (if transform feedback
@@ -1519,7 +1563,7 @@ bool ValidateDrawArraysInstancedANGLE(Context *context, GLenum mode, GLint first
 }
 
 bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum type,
-                          const GLvoid* indices, GLsizei primcount, rx::RangeUI *indexRangeOut)
+                          const GLvoid *indices, GLsizei primcount, RangeUI *indexRangeOut)
 {
     switch (type)
     {
@@ -1541,7 +1585,7 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
     const State &state = context->getState();
 
     gl::TransformFeedback *curTransformFeedback = state.getCurrentTransformFeedback();
-    if (curTransformFeedback && curTransformFeedback->isStarted() && !curTransformFeedback->isPaused())
+    if (curTransformFeedback && curTransformFeedback->isActive() && !curTransformFeedback->isPaused())
     {
         // It is an invalid operation to call DrawElements, DrawRangeElements or DrawElementsInstanced
         // while transform feedback is active, (3.0.2, section 2.14, pg 86)
@@ -1557,7 +1601,7 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
     }
 
     const gl::VertexArray *vao = state.getVertexArray();
-    const gl::Buffer *elementArrayBuffer = vao->getElementArrayBuffer();
+    gl::Buffer *elementArrayBuffer = vao->getElementArrayBuffer();
     if (!indices && !elementArrayBuffer)
     {
         context->recordError(Error(GL_INVALID_OPERATION));
@@ -1599,24 +1643,16 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
     if (elementArrayBuffer)
     {
         uintptr_t offset = reinterpret_cast<uintptr_t>(indices);
-        if (!elementArrayBuffer->getIndexRangeCache()->findRange(type, offset, count, indexRangeOut, NULL))
+        Error error = elementArrayBuffer->getIndexRange(type, static_cast<size_t>(offset), count, indexRangeOut);
+        if (error.isError())
         {
-            rx::BufferImpl *bufferImpl = elementArrayBuffer->getImplementation();
-            const uint8_t *dataPointer = NULL;
-            Error error = bufferImpl->getData(&dataPointer);
-            if (error.isError())
-            {
-                context->recordError(error);
-                return false;
-            }
-
-            const uint8_t *offsetPointer = dataPointer + offset;
-            *indexRangeOut = rx::IndexRangeCache::ComputeRange(type, offsetPointer, count);
+            context->recordError(error);
+            return false;
         }
     }
     else
     {
-        *indexRangeOut = rx::IndexRangeCache::ComputeRange(type, indices, count);
+        *indexRangeOut = ComputeIndexRange(type, indices, count);
     }
 
     if (!ValidateDrawBase(context, mode, count, static_cast<GLsizei>(indexRangeOut->end), primcount))
@@ -1630,7 +1666,7 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
 bool ValidateDrawElementsInstanced(Context *context,
                                    GLenum mode, GLsizei count, GLenum type,
                                    const GLvoid *indices, GLsizei primcount,
-                                   rx::RangeUI *indexRangeOut)
+                                   RangeUI *indexRangeOut)
 {
     if (primcount < 0)
     {
@@ -1648,7 +1684,7 @@ bool ValidateDrawElementsInstanced(Context *context,
 }
 
 bool ValidateDrawElementsInstancedANGLE(Context *context, GLenum mode, GLsizei count, GLenum type,
-                                        const GLvoid *indices, GLsizei primcount, rx::RangeUI *indexRangeOut)
+                                        const GLvoid *indices, GLsizei primcount, RangeUI *indexRangeOut)
 {
     if (!ValidateDrawInstancedANGLE(context))
     {
@@ -1690,11 +1726,11 @@ bool ValidateFramebufferTextureBase(Context *context, GLenum target, GLenum atta
     }
 
     const gl::Framebuffer *framebuffer = context->getState().getTargetFramebuffer(target);
-    GLuint framebufferHandle = context->getState().getTargetFramebuffer(target)->id();
+    ASSERT(framebuffer);
 
-    if (framebufferHandle == 0 || !framebuffer)
+    if (framebuffer->id() == 0)
     {
-        context->recordError(Error(GL_INVALID_OPERATION));
+        context->recordError(Error(GL_INVALID_OPERATION, "Cannot change default FBO's attachments"));
         return false;
     }
 
@@ -1704,8 +1740,8 @@ bool ValidateFramebufferTextureBase(Context *context, GLenum target, GLenum atta
 bool ValidateFramebufferTexture2D(Context *context, GLenum target, GLenum attachment,
                                   GLenum textarget, GLuint texture, GLint level)
 {
-    // Attachments are required to be bound to level 0 in ES2
-    if (context->getClientVersion() < 3 && level != 0)
+    // Attachments are required to be bound to level 0 without ES3 or the GL_OES_fbo_render_mipmap extension
+    if (context->getClientVersion() < 3 && !context->getExtensions().fboRenderMipmap && level != 0)
     {
         context->recordError(Error(GL_INVALID_VALUE));
         return false;

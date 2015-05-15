@@ -28,10 +28,17 @@ namespace rx
 
 class FunctionsGL;
 
-class StateManagerGL
+class StateManagerGL : angle::NonCopyable
 {
   public:
     StateManagerGL(const FunctionsGL *functions, const gl::Caps &rendererCaps);
+
+    void deleteProgram(GLuint program);
+    void deleteVertexArray(GLuint vao);
+    void deleteTexture(GLuint texture);
+    void deleteBuffer(GLuint buffer);
+    void deleteFramebuffer(GLuint fbo);
+    void deleteRenderbuffer(GLuint rbo);
 
     void useProgram(GLuint program);
     void bindVertexArray(GLuint vao);
@@ -49,23 +56,58 @@ class StateManagerGL
                                    const GLvoid **outIndices);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(StateManagerGL);
-
     gl::Error setGenericDrawState(const gl::Data &data);
 
+    void setAttributeCurrentData(size_t index, const gl::VertexAttribCurrentValueData &data);
+
+    void setScissorTestEnabled(bool enabled);
     void setScissor(const gl::Rectangle &scissor);
+
     void setViewport(const gl::Rectangle &viewport);
-    void setClearColor(const gl::ColorF &clearColor);
+    void setDepthRange(float near, float far);
+
+    void setBlendEnabled(bool enabled);
+    void setBlendColor(const gl::ColorF &blendColor);
+    void setBlendFuncs(GLenum sourceBlendRGB, GLenum destBlendRGB, GLenum sourceBlendAlpha, GLenum destBlendAlpha);
+    void setBlendEquations(GLenum blendEquationRGB, GLenum blendEquationAlpha);
     void setColorMask(bool red, bool green, bool blue, bool alpha);
-    void setClearDepth(float clearDepth);
+    void setSampleAlphaToCoverageEnabled(bool enabled);
+    void setSampleCoverageEnabled(bool enabled);
+    void setSampleCoverage(float value, bool invert);
+
+    void setDepthTestEnabled(bool enabled);
+    void setDepthFunc(GLenum depthFunc);
     void setDepthMask(bool mask);
+    void setStencilTestEnabled(bool enabled);
+    void setStencilFrontWritemask(GLuint mask);
+    void setStencilBackWritemask(GLuint mask);
+    void setStencilFrontFuncs(GLenum func, GLint ref, GLuint mask);
+    void setStencilBackFuncs(GLenum func, GLint ref, GLuint mask);
+    void setStencilFrontOps(GLenum sfail, GLenum dpfail, GLenum dppass);
+    void setStencilBackOps(GLenum sfail, GLenum dpfail, GLenum dppass);
+
+    void setCullFaceEnabled(bool enabled);
+    void setCullFace(GLenum cullFace);
+    void setFrontFace(GLenum frontFace);
+    void setPolygonOffsetFillEnabled(bool enabled);
+    void setPolygonOffset(float factor, float units);
+    void setMultisampleEnabled(bool enabled);
+    void setRasterizerDiscardEnabled(bool enabled);
+    void setLineWidth(float width);
+
+    void setPrimitiveRestartEnabled(bool enabled);
+
+    void setClearColor(const gl::ColorF &clearColor);
+    void setClearDepth(float clearDepth);
     void setClearStencil(GLint clearStencil);
-    void setStencilMask(GLuint mask);
 
     const FunctionsGL *mFunctions;
 
     GLuint mProgram;
+
     GLuint mVAO;
+    std::vector<gl::VertexAttribCurrentValueData> mVertexAttribCurrentValues;
+
     std::map<GLenum, GLuint> mBuffers;
 
     size_t mTextureUnitIndex;
@@ -77,20 +119,64 @@ class StateManagerGL
     std::map<GLenum, GLuint> mFramebuffers;
     GLuint mRenderbuffer;
 
+    bool mScissorTestEnabled;
     gl::Rectangle mScissor;
-    gl::Rectangle mViewport;
 
-    gl::ColorF mClearColor;
+    gl::Rectangle mViewport;
+    float mNear;
+    float mFar;
+
+    bool mBlendEnabled;
+    gl::ColorF mBlendColor;
+    GLenum mSourceBlendRGB;
+    GLenum mDestBlendRGB;
+    GLenum mSourceBlendAlpha;
+    GLenum mDestBlendAlpha;
+    GLenum mBlendEquationRGB;
+    GLenum mBlendEquationAlpha;
     bool mColorMaskRed;
     bool mColorMaskGreen;
     bool mColorMaskBlue;
     bool mColorMaskAlpha;
+    bool mSampleAlphaToCoverageEnabled;
+    bool mSampleCoverageEnabled;
+    float mSampleCoverageValue;
+    bool mSampleCoverageInvert;
 
-    float mClearDepth;
+    bool mDepthTestEnabled;
+    GLenum mDepthFunc;
     bool mDepthMask;
+    bool mStencilTestEnabled;
+    GLenum mStencilFrontFunc;
+    GLint mStencilFrontRef;
+    GLuint mStencilFrontValueMask;
+    GLenum mStencilFrontStencilFailOp;
+    GLenum mStencilFrontStencilPassDepthFailOp;
+    GLenum mStencilFrontStencilPassDepthPassOp;
+    GLuint mStencilFrontWritemask;
+    GLenum mStencilBackFunc;
+    GLint mStencilBackRef;
+    GLuint mStencilBackValueMask;
+    GLenum mStencilBackStencilFailOp;
+    GLenum mStencilBackStencilPassDepthFailOp;
+    GLenum mStencilBackStencilPassDepthPassOp;
+    GLuint mStencilBackWritemask;
 
+    bool mCullFaceEnabled;
+    GLenum mCullFace;
+    GLenum mFrontFace;
+    bool mPolygonOffsetFillEnabled;
+    GLfloat mPolygonOffsetFactor;
+    GLfloat mPolygonOffsetUnits;
+    bool mMultisampleEnabled;
+    bool mRasterizerDiscardEnabled;
+    float mLineWidth;
+
+    bool mPrimitiveRestartEnabled;
+
+    gl::ColorF mClearColor;
+    float mClearDepth;
     GLint mClearStencil;
-    GLuint mStencilMask;
 };
 
 }

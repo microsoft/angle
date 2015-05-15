@@ -10,15 +10,14 @@
 #define LIBANGLE_RENDERER_RENDERBUFFERIMPL_H_
 
 #include "angle_gl.h"
-
-#include "libANGLE/Error.h"
-
 #include "common/angleutils.h"
+#include "libANGLE/Error.h"
+#include "libANGLE/FramebufferAttachment.h"
 
 namespace rx
 {
 
-class RenderbufferImpl
+class RenderbufferImpl : public FramebufferAttachmentObjectImpl
 {
   public:
     RenderbufferImpl();
@@ -26,9 +25,6 @@ class RenderbufferImpl
 
     virtual gl::Error setStorage(GLenum internalformat, size_t width, size_t height) = 0;
     virtual gl::Error setStorageMultisample(size_t samples, GLenum internalformat, size_t width, size_t height) = 0;
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN(RenderbufferImpl);
 };
 
 }

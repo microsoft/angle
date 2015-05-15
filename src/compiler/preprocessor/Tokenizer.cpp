@@ -540,6 +540,10 @@ http://msdn.microsoft.com/en-us/library/2scxys89.aspx
 IF YOU MODIFY THIS FILE YOU ALSO NEED TO RUN generate_parser.sh.
 */
 
+#if defined(_MSC_VER)
+#pragma warning(disable: 4005)
+#endif
+
 #include "Tokenizer.h"
 
 #include "DiagnosticsBase.h"
@@ -548,6 +552,15 @@ IF YOU MODIFY THIS FILE YOU ALSO NEED TO RUN generate_parser.sh.
 #if defined(__GNUC__)
 // Triggered by the auto-generated yy_fatal_error function.
 #pragma GCC diagnostic ignored "-Wmissing-noreturn"
+#elif defined(_MSC_VER)
+#pragma warning(disable: 4244)
+#endif
+
+// Workaround for flex using the register keyword, deprecated in C++11.
+#ifdef __cplusplus
+#if __cplusplus > 199711L
+#define register
+#endif
 #endif
 
 typedef std::string YYSTYPE;
@@ -906,7 +919,7 @@ YY_RULE_SETUP
 	YY_BREAK
 /* Block comment */
 /* Line breaks are just counted - not returned. */
-/* The comment is replaced by a single space. */ 
+/* The comment is replaced by a single space. */
 case 2:
 YY_RULE_SETUP
 { BEGIN(COMMENT); }

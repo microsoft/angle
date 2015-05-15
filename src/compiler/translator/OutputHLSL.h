@@ -13,6 +13,7 @@
 #include <stack>
 
 #include "angle_gl.h"
+#include "compiler/translator/ASTMetadataHLSL.h"
 #include "compiler/translator/IntermNode.h"
 #include "compiler/translator/ParseContext.h"
 
@@ -62,7 +63,6 @@ class OutputHLSL : public TIntermTraverser
     bool visitLoop(Visit visit, TIntermLoop*);
     bool visitBranch(Visit visit, TIntermBranch*);
 
-    void traverseStatements(TIntermNode *node);
     bool isSingleStatement(TIntermNode *node);
     bool handleExcessiveLoop(TIntermLoop *node);
 
@@ -75,7 +75,7 @@ class OutputHLSL : public TIntermTraverser
 
     // Emit constructor. Called with literal names so using const char* instead of TString.
     void outputConstructor(Visit visit, const TType &type, const char *name, const TIntermSequence *parameters);
-    const ConstantUnion *writeConstantUnion(const TType &type, const ConstantUnion *constUnion);
+    const TConstantUnion *writeConstantUnion(const TType &type, const TConstantUnion *constUnion);
 
     void outputEqual(Visit visit, const TType &type, TOperator op, TInfoSinkBase &out);
 
@@ -85,10 +85,16 @@ class OutputHLSL : public TIntermTraverser
     // Returns true if it found a 'same symbol' initializer (initializer that references the variable it's initting)
     bool writeSameSymbolInitializer(TInfoSinkBase &out, TIntermSymbol *symbolNode, TIntermTyped *expression);
     void writeDeferredGlobalInitializers(TInfoSinkBase &out);
+    void writeSelection(TIntermSelection *node);
 
     // Returns the function name
     TString addStructEqualityFunction(const TStructure &structure);
     TString addArrayEqualityFunction(const TType &type);
+    TString addArrayAssignmentFunction(const TType &type);
+    TString addArrayConstructIntoFunction(const TType &type);
+
+    // Ensures if the type is a struct, the struct is defined
+    void ensureStructDefined(const TType &type);
 
     sh::GLenum mShaderType;
     int mShaderVersion;
@@ -97,7 +103,6 @@ class OutputHLSL : public TIntermTraverser
     const ShShaderOutput mOutputType;
     int mCompileOptions;
 
-    UnfoldShortCircuit *mUnfoldShortCircuit;
     bool mInsideFunction;
 
     // Output streams
@@ -167,8 +172,9 @@ class OutputHLSL : public TIntermTraverser
 
     int mUniqueIndex;   // For creating unique names
 
-    bool mContainsLoopDiscontinuity;
-    bool mContainsAnyLoop;
+    CallDAG mCallDag;
+    MetadataList mASTMetadataList;
+    ASTMetadataHLSL *mCurrentFunctionMetadata;
     bool mOutputLod0Function;
     bool mInsideDiscontinuousLoop;
     int mNestedLoopDepth;
@@ -180,37 +186,43 @@ class OutputHLSL : public TIntermTraverser
     std::map<TIntermTyped*, TString> mFlaggedStructMappedNames;
     std::map<TIntermTyped*, TString> mFlaggedStructOriginalNames;
 
-    // Some initializers use varyings, uniforms or attributes, thus we can't evaluate some variables
-    // at global static scope in HLSL. These variables depend on values which we retrieve from the
-    // shader input structure, which we set in the D3D main function. Instead, we can initialize
-    // these static globals after we initialize our other globals.
-    std::vector<std::pair<TIntermSymbol*, TIntermTyped*>> mDeferredGlobalInitializers;
+    // Some initializers may have been unfolded into if statements, thus we can't evaluate all initializers
+    // at global static scope in HLSL. Instead, we can initialize these static globals inside a helper function.
+    // This also enables initialization of globals with uniforms.
+    TIntermSequence mDeferredGlobalInitializers;
 
-    struct EqualityFunction
+    struct HelperFunction
     {
         TString functionName;
         TString functionDefinition;
 
-        virtual ~EqualityFunction() {}
+        virtual ~HelperFunction() {}
     };
 
     // A list of all equality comparison functions. It's important to preserve the order at
     // which we add the functions, since nested structures call each other recursively, and
     // structure equality functions may need to call array equality functions and vice versa.
     // The ownership of the pointers is maintained by the type-specific arrays.
-    std::vector<EqualityFunction*> mEqualityFunctions;
+    std::vector<HelperFunction*> mEqualityFunctions;
 
-    struct StructEqualityFunction : public EqualityFunction
+    struct StructEqualityFunction : public HelperFunction
     {
         const TStructure *structure;
     };
     std::vector<StructEqualityFunction*> mStructEqualityFunctions;
 
-    struct ArrayEqualityFunction : public EqualityFunction
+    struct ArrayHelperFunction : public HelperFunction
     {
         TType type;
     };
-    std::vector<ArrayEqualityFunction*> mArrayEqualityFunctions;
+    std::vector<ArrayHelperFunction*> mArrayEqualityFunctions;
+
+    std::vector<ArrayHelperFunction> mArrayAssignmentFunctions;
+
+    // The construct-into functions are functions that fill an N-element array passed as an out parameter
+    // with the other N parameters of the function. This is used to work around that arrays can't be
+    // return values in HLSL.
+    std::vector<ArrayHelperFunction> mArrayConstructIntoFunctions;
 };
 
 }

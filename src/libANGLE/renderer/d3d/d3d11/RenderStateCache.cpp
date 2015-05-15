@@ -418,7 +418,7 @@ gl::Error RenderStateCache::getSamplerState(const gl::SamplerState &samplerState
         samplerDesc.AddressV = gl_d3d11::ConvertTextureWrap(samplerState.wrapT);
         samplerDesc.AddressW = gl_d3d11::ConvertTextureWrap(samplerState.wrapR);
         samplerDesc.MipLODBias = 0;
-        samplerDesc.MaxAnisotropy = samplerState.maxAnisotropy;
+        samplerDesc.MaxAnisotropy = static_cast<UINT>(samplerState.maxAnisotropy);
         samplerDesc.ComparisonFunc = gl_d3d11::ConvertComparison(samplerState.compareFunc);
         samplerDesc.BorderColor[0] = 0.0f;
         samplerDesc.BorderColor[1] = 0.0f;
@@ -427,7 +427,7 @@ gl::Error RenderStateCache::getSamplerState(const gl::SamplerState &samplerState
         samplerDesc.MinLOD = samplerState.minLod;
         samplerDesc.MaxLOD = samplerState.maxLod;
 
-        if (mRenderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
+        if (mRenderer->getRenderer11DeviceCaps().featureLevel <= D3D_FEATURE_LEVEL_9_3)
         {
             // Check that maxLOD is nearly FLT_MAX (1000.0f is the default), since 9_3 doesn't support anything other than FLT_MAX.
             // Note that Feature Level 9_* only supports GL ES 2.0, so the consumer of ANGLE can't modify the Max LOD themselves.

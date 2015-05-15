@@ -7,11 +7,13 @@
 // VertexBuffer11.cpp: Defines the D3D11 VertexBuffer implementation.
 
 #include "libANGLE/renderer/d3d/d3d11/VertexBuffer11.h"
-#include "libANGLE/renderer/d3d/d3d11/Buffer11.h"
-#include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
-#include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
+
 #include "libANGLE/Buffer.h"
 #include "libANGLE/VertexAttribute.h"
+#include "libANGLE/renderer/d3d/d3d11/Buffer11.h"
+#include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
+#include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
+#include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
 
 namespace rx
 {
@@ -53,18 +55,21 @@ gl::Error VertexBuffer11::initialize(unsigned int size, bool dynamicUsage)
         {
             return gl::Error(GL_OUT_OF_MEMORY, "Failed to allocate internal vertex buffer of size, %lu.", size);
         }
+
+        if (dynamicUsage)
+        {
+            d3d11::SetDebugName(mBuffer, "VertexBuffer11 (dynamic)");
+        }
+        else
+        {
+            d3d11::SetDebugName(mBuffer, "VertexBuffer11 (static)");
+        }
     }
 
     mBufferSize = size;
     mDynamicUsage = dynamicUsage;
 
     return gl::Error(GL_NO_ERROR);
-}
-
-VertexBuffer11 *VertexBuffer11::makeVertexBuffer11(VertexBuffer *vetexBuffer)
-{
-    ASSERT(HAS_DYNAMIC_TYPE(VertexBuffer11*, vetexBuffer));
-    return static_cast<VertexBuffer11*>(vetexBuffer);
 }
 
 gl::Error VertexBuffer11::mapResource()
@@ -147,7 +152,8 @@ gl::Error VertexBuffer11::storeVertexAttributes(const gl::VertexAttribute &attri
     }
 
     gl::VertexFormat vertexFormat(attrib, currentValue.Type);
-    const d3d11::VertexFormat &vertexFormatInfo = d3d11::GetVertexFormatInfo(vertexFormat, mRenderer->getFeatureLevel());
+    const D3D_FEATURE_LEVEL featureLevel = mRenderer->getRenderer11DeviceCaps().featureLevel;
+    const d3d11::VertexFormat &vertexFormatInfo = d3d11::GetVertexFormatInfo(vertexFormat, featureLevel);
     ASSERT(vertexFormatInfo.copyFunction != NULL);
     vertexFormatInfo.copyFunction(input, inputStride, count, output);
 
@@ -171,7 +177,8 @@ gl::Error VertexBuffer11::getSpaceRequired(const gl::VertexAttribute &attrib, GL
         }
 
         gl::VertexFormat vertexFormat(attrib);
-        const d3d11::VertexFormat &vertexFormatInfo = d3d11::GetVertexFormatInfo(vertexFormat, mRenderer->getFeatureLevel());
+        const D3D_FEATURE_LEVEL featureLevel = mRenderer->getRenderer11DeviceCaps().featureLevel;
+        const d3d11::VertexFormat &vertexFormatInfo = d3d11::GetVertexFormatInfo(vertexFormat, featureLevel);
         const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(vertexFormatInfo.nativeFormat);
         unsigned int elementSize = dxgiFormatInfo.pixelBytes;
         if (elementSize <= std::numeric_limits<unsigned int>::max() / elementCount)

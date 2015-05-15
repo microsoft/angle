@@ -55,7 +55,7 @@ class Renderer : public ImplFactory
                                  GLint first, GLsizei count, GLsizei instances) = 0;
     virtual gl::Error drawElements(const gl::Data &data, GLenum mode, GLsizei count, GLenum type,
                                    const GLvoid *indices, GLsizei instances,
-                                   const RangeUI &indexRange) = 0;
+                                   const gl::RangeUI &indexRange) = 0;
 
     // lost device
     //TODO(jmadill): investigate if this stuff is necessary in GL
@@ -75,8 +75,6 @@ class Renderer : public ImplFactory
     const Workarounds &getWorkarounds() const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(Renderer);
-
     virtual void generateCaps(gl::Caps *outCaps, gl::TextureCapsMap* outTextureCaps, gl::Extensions *outExtensions) const = 0;
     virtual Workarounds generateWorkarounds() const = 0;
 

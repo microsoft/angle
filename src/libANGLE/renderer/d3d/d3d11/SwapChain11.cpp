@@ -7,16 +7,17 @@
 // SwapChain11.cpp: Implements a back-end specific class for the D3D11 swap chain.
 
 #include "libANGLE/renderer/d3d/d3d11/SwapChain11.h"
-#include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
-#include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
-#include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
-#include "libANGLE/renderer/d3d/d3d11/NativeWindow.h"
+
 #include "libANGLE/features.h"
+#include "libANGLE/renderer/d3d/d3d11/NativeWindow.h"
+#include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
+#include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
+#include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
+#include "third_party/trace_event/trace_event.h"
 
 // Precompiled shaders
 #include "libANGLE/renderer/d3d/d3d11/shaders/compiled/passthrough2d11vs.h"
 #include "libANGLE/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2d11ps.h"
-
 
 namespace rx
 {
@@ -24,9 +25,12 @@ namespace rx
 SwapChain11::SwapChain11(Renderer11 *renderer, NativeWindow nativeWindow, HANDLE shareHandle,
                          GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer)
     : mRenderer(renderer),
-      SwapChainD3D(nativeWindow, shareHandle, backBufferFormat, depthBufferFormat)
+      SwapChainD3D(nativeWindow, shareHandle, backBufferFormat, depthBufferFormat),
+      mColorRenderTarget(this, renderer, false),
+      mDepthStencilRenderTarget(this, renderer, true)
 {
     mSwapChain = NULL;
+    mSwapChain1 = nullptr;
     mBackBufferTexture = NULL;
     mBackBufferRTView = NULL;
     mOffscreenTexture = NULL;
@@ -55,6 +59,7 @@ SwapChain11::~SwapChain11()
 
 void SwapChain11::release()
 {
+    SafeRelease(mSwapChain1);
     SafeRelease(mSwapChain);
     SafeRelease(mBackBufferTexture);
     SafeRelease(mBackBufferRTView);
@@ -93,6 +98,7 @@ void SwapChain11::releaseOffscreenTexture()
 
 EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHeight)
 {
+    TRACE_EVENT0("gpu.angle", "SwapChain11::resetOffscreenTexture");
     ID3D11Device *device = mRenderer->getDevice();
 
     ASSERT(device != NULL);
@@ -112,7 +118,11 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
 
     releaseOffscreenTexture();
 
+<<<<<<< HEAD
     HRESULT result;
+=======
+    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getRenderer11DeviceCaps());
+>>>>>>> google/master
 
     if (!mRenderToBackBuffer)
     {
@@ -239,7 +249,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
         d3d11::SetDebugName(mOffscreenSRView, "Offscreen back buffer shader resource");
     }
 
-    const d3d11::TextureFormat &depthBufferFormatInfo = d3d11::GetTextureFormatInfo(mDepthBufferFormat, mRenderer->getFeatureLevel());
+    const d3d11::TextureFormat &depthBufferFormatInfo = d3d11::GetTextureFormatInfo(mDepthBufferFormat, mRenderer->getRenderer11DeviceCaps());
 
     if (mDepthBufferFormat != GL_NONE)
     {
@@ -336,6 +346,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
 
 EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
 {
+    TRACE_EVENT0("gpu.angle", "SwapChain11::resize");
     ID3D11Device *device = mRenderer->getDevice();
 
     if (device == NULL)
@@ -358,7 +369,7 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
     // Resize swap chain
     DXGI_SWAP_CHAIN_DESC desc;
     mSwapChain->GetDesc(&desc);
-    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getFeatureLevel());
+    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getRenderer11DeviceCaps());
     HRESULT result = mSwapChain->ResizeBuffers(desc.BufferCount, backbufferWidth, backbufferHeight, backbufferFormatInfo.texFormat, 0);
 
     if (FAILED(result))
@@ -395,6 +406,7 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
 
 EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swapInterval)
 {
+    TRACE_EVENT0("gpu.angle", "SwapChain11::reset");
     ID3D11Device *device = mRenderer->getDevice();
 
     if (device == NULL)
@@ -404,6 +416,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
     // Release specific resources to free up memory for the new render target, while the
     // old render target still exists for the purpose of preserving its contents.
+    SafeRelease(mSwapChain1);
     SafeRelease(mSwapChain);
     SafeRelease(mBackBufferTexture);
     SafeRelease(mBackBufferRTView);
@@ -424,7 +437,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
     if (mNativeWindow.getNativeWindow())
     {
-        const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getFeatureLevel());
+        const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getRenderer11DeviceCaps());
 
         HRESULT result = mNativeWindow.createSwapChain(device, mRenderer->getDxgiFactory(),
                                                backbufferFormatInfo.texFormat,
@@ -443,6 +456,11 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
             {
                 return EGL_BAD_ALLOC;
             }
+        }
+
+        if (mRenderer->getRenderer11DeviceCaps().supportsDXGI1_2)
+        {
+            mSwapChain1 = d3d11::DynamicCastComObject<IDXGISwapChain1>(mSwapChain);
         }
 
         result = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&mBackBufferTexture);
@@ -466,12 +484,16 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
 void SwapChain11::initPassThroughResources()
 {
+<<<<<<< HEAD
     if (mRenderToBackBuffer)
     {
         // The passthrough resources aren't needed if we're rendering directly to the back buffer.
         return;
     }
 
+=======
+    TRACE_EVENT0("gpu.angle", "SwapChain11::initPassThroughResources");
+>>>>>>> google/master
     ID3D11Device *device = mRenderer->getDevice();
 
     ASSERT(device != NULL);
@@ -604,8 +626,20 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
         deviceContext->PSSetShader(mPassThroughPS, NULL, 0);
         deviceContext->GSSetShader(NULL, NULL, 0);
 
+<<<<<<< HEAD
         // Apply render targets
         mRenderer->setOneTimeRenderTarget(mBackBufferRTView);
+=======
+    // Set the viewport
+    D3D11_VIEWPORT viewport;
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    viewport.Width = static_cast<FLOAT>(mWidth);
+    viewport.Height = static_cast<FLOAT>(mHeight);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    deviceContext->RSSetViewports(1, &viewport);
+>>>>>>> google/master
 
         // Set the viewport
         D3D11_VIEWPORT viewport;
@@ -628,7 +662,21 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 #if ANGLE_VSYNC == ANGLE_DISABLED
     result = mSwapChain->Present(0, 0);
 #else
-    result = mSwapChain->Present(mSwapInterval, 0);
+    // Use IDXGISwapChain1::Present1 with a dirty rect if DXGI 1.2 is available.
+    if (mSwapChain1 != nullptr)
+    {
+        RECT rect =
+        {
+            static_cast<LONG>(x), static_cast<LONG>(mHeight - y - height),
+            static_cast<LONG>(x + width), static_cast<LONG>(mHeight - y)
+        };
+        DXGI_PRESENT_PARAMETERS params = { 1, &rect, nullptr, nullptr };
+        result = mSwapChain1->Present1(mSwapInterval, 0, &params);
+    }
+    else
+    {
+        result = mSwapChain->Present(mSwapInterval, 0);
+    }
 #endif
 
     if (result == DXGI_ERROR_DEVICE_REMOVED)
@@ -707,12 +755,6 @@ ID3D11ShaderResourceView * SwapChain11::getDepthStencilShaderResource()
 ID3D11Texture2D *SwapChain11::getDepthStencilTexture()
 {
     return mDepthStencilTexture;
-}
-
-SwapChain11 *SwapChain11::makeSwapChain11(SwapChainD3D *swapChain)
-{
-    ASSERT(HAS_DYNAMIC_TYPE(SwapChain11*, swapChain));
-    return static_cast<SwapChain11*>(swapChain);
 }
 
 void SwapChain11::recreate()

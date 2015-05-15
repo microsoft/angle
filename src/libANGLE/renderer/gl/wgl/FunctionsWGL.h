@@ -12,13 +12,13 @@
 namespace rx
 {
 
-class FunctionsWGL
+class FunctionsWGL : angle::NonCopyable
 {
   public:
     FunctionsWGL();
 
     // Loads all available wgl functions, may be called multiple times
-    void intialize(HMODULE glModule, HDC context);
+    void initialize(HMODULE glModule, HDC context);
 
     // Base WGL functions
     PFNWGLCOPYCONTEXTPROC copyContext;
@@ -49,8 +49,17 @@ class FunctionsWGL
     PFNWGLGETEXTENSIONSSTRINGARBPROC getExtensionStringARB;
     PFNWGLSWAPINTERVALEXTPROC swapIntervalEXT;
 
-  private:
-    DISALLOW_COPY_AND_ASSIGN(FunctionsWGL);
+    // WGL_ARB_pbuffer
+    PFNWGLCREATEPBUFFERARBPROC createPbufferARB;
+    PFNWGLGETPBUFFERDCARBPROC getPbufferDCARB;
+    PFNWGLRELEASEPBUFFERDCARBPROC releasePbufferDCARB;
+    PFNWGLDESTROYPBUFFERARBPROC destroyPbufferARB;
+    PFNWGLQUERYPBUFFERARBPROC queryPbufferARB;
+
+    // WGL_ARB_render_texture
+    PFNWGLBINDTEXIMAGEARBPROC bindTexImageARB;
+    PFNWGLRELEASETEXIMAGEARBPROC releaseTexImageARB;
+    PFNWGLSETPBUFFERATTRIBARBPROC setPbufferAttribARB;
 };
 
 }

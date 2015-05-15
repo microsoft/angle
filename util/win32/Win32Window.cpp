@@ -4,6 +4,8 @@
 // found in the LICENSE file.
 //
 
+// Win32Window.cpp: Implementation of OSWindow for Windows
+
 #include "win32/Win32Window.h"
 
 #include <sstream>
@@ -133,13 +135,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
       case WM_NCCREATE:
         {
-            LPCREATESTRUCT pCreateStruct = (LPCREATESTRUCT)lParam;
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pCreateStruct->lpCreateParams);
+            LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
             return DefWindowProcA(hWnd, message, wParam, lParam);
         }
     }
 
-    OSWindow *window = (OSWindow*)(LONG_PTR)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+    Win32Window *window = reinterpret_cast<Win32Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
     if (window)
     {
         switch (message)
@@ -357,6 +359,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 window->pushEvent(event);
                 break;
             }
+
+          case WM_USER:
+            {
+                Event testEvent;
+                testEvent.Type = Event::EVENT_TEST;
+                window->pushEvent(testEvent);
+                break;
+            }
         }
 
     }
@@ -510,6 +520,27 @@ OSWindow *CreateOSWindow()
     return new Win32Window();
 }
 
+bool Win32Window::setPosition(int x, int y)
+{
+    if (mX == x && mY == mY)
+    {
+        return true;
+    }
+
+    RECT windowRect;
+    if (!GetWindowRect(mParentWindow, &windowRect))
+    {
+        return false;
+    }
+
+    if (!MoveWindow(mParentWindow, x, y, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, TRUE))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 bool Win32Window::resize(int width, int height)
 {
     if (width == mWidth && height == mHeight)
@@ -531,7 +562,7 @@ bool Win32Window::resize(int width, int height)
 
     LONG diffX = (windowRect.right - windowRect.left) - clientRect.right;
     LONG diffY = (windowRect.bottom - windowRect.top) - clientRect.bottom;
-    if (!MoveWindow(mParentWindow, windowRect.left, windowRect.top, width + diffX, height + diffY, FALSE))
+    if (!MoveWindow(mParentWindow, windowRect.left, windowRect.top, width + diffX, height + diffY, TRUE))
     {
         return false;
     }
@@ -562,4 +593,9 @@ void Win32Window::pushEvent(Event event)
         MoveWindow(mNativeWindow, 0, 0, mWidth, mHeight, FALSE);
         break;
     }
+}
+
+void Win32Window::signalTestEvent()
+{
+    PostMessage(mNativeWindow, WM_USER, 0, 0);
 }

@@ -24,12 +24,6 @@ RenderbufferD3D::~RenderbufferD3D()
     SafeDelete(mRenderTarget);
 }
 
-RenderbufferD3D *RenderbufferD3D::makeRenderbufferD3D(RenderbufferImpl *renderbuffer)
-{
-    ASSERT(HAS_DYNAMIC_TYPE(RenderbufferD3D*, renderbuffer));
-    return static_cast<RenderbufferD3D*>(renderbuffer);
-}
-
 gl::Error RenderbufferD3D::setStorage(GLenum internalformat, size_t width, size_t height)
 {
     return setStorageMultisample(0, internalformat, width, height);
@@ -45,6 +39,17 @@ gl::Error RenderbufferD3D::setStorageMultisample(size_t samples, GLenum internal
     if (internalformat == GL_DEPTH_COMPONENT16 || internalformat == GL_STENCIL_INDEX8)
     {
         creationFormat = GL_DEPTH24_STENCIL8_OES;
+    }
+
+    // ANGLE_framebuffer_multisample states GL_OUT_OF_MEMORY is generated on a failure to create
+    // the specified storage.
+    // Because ES 3.0 already knows the exact number of supported samples, it would already have been
+    // validated and generated GL_INVALID_VALUE.
+    const gl::TextureCaps &formatCaps = mRenderer->getRendererTextureCaps().get(creationFormat);
+    if (samples > formatCaps.getMaxSamples())
+    {
+        return gl::Error(GL_OUT_OF_MEMORY, "Renderbuffer format does not support %u samples, %u is the maximum.",
+                         samples, formatCaps.getMaxSamples());
     }
 
     RenderTargetD3D *newRT = NULL;
@@ -68,6 +73,13 @@ RenderTargetD3D *RenderbufferD3D::getRenderTarget()
 unsigned int RenderbufferD3D::getRenderTargetSerial() const
 {
     return (mRenderTarget ? mRenderTarget->getSerial() : 0);
+}
+
+gl::Error RenderbufferD3D::getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,
+                                                     FramebufferAttachmentRenderTarget **rtOut)
+{
+    *rtOut = mRenderTarget;
+    return gl::Error(GL_NO_ERROR);
 }
 
 }

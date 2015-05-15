@@ -135,7 +135,7 @@ gl::Error VertexDeclarationCache::applyDeclaration(IDirect3DDevice9 *device, Tra
                 }
             }
 
-            VertexBuffer9 *vertexBuffer = VertexBuffer9::makeVertexBuffer9(attributes[i].vertexBuffer);
+            VertexBuffer9 *vertexBuffer = GetAs<VertexBuffer9>(attributes[i].vertexBuffer);
 
             if (mAppliedVBs[stream].serial != attributes[i].serial ||
                 mAppliedVBs[stream].stride != attributes[i].stride ||
@@ -150,12 +150,12 @@ gl::Error VertexDeclarationCache::applyDeclaration(IDirect3DDevice9 *device, Tra
             gl::VertexFormat vertexFormat(*attributes[i].attribute, GL_FLOAT);
             const d3d9::VertexFormat &d3d9VertexInfo = d3d9::GetVertexFormatInfo(caps.DeclTypes, vertexFormat);
 
-            element->Stream = stream;
+            element->Stream = static_cast<WORD>(stream);
             element->Offset = 0;
-            element->Type = d3d9VertexInfo.nativeFormat;
+            element->Type = static_cast<BYTE>(d3d9VertexInfo.nativeFormat);
             element->Method = D3DDECLMETHOD_DEFAULT;
             element->Usage = D3DDECLUSAGE_TEXCOORD;
-            element->UsageIndex = program->getSemanticIndex(i);
+            element->UsageIndex = static_cast<BYTE>(program->getSemanticIndex(i));
             element++;
         }
     }

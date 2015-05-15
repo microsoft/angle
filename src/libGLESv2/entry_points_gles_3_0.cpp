@@ -59,8 +59,28 @@ void GL_APIENTRY DrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsize
             return;
         }
 
-        // glDrawRangeElements
-        UNIMPLEMENTED();
+        RangeUI indexRange;
+        if (!ValidateDrawElements(context, mode, count, type, indices, 0, &indexRange))
+        {
+            return;
+        }
+        if (indexRange.end > end || indexRange.start < start)
+        {
+            // GL spec says that behavior in this case is undefined - generating an error is fine.
+            context->recordError(Error(GL_INVALID_OPERATION));
+            return;
+        }
+
+        // As long as index validation is done, it doesn't matter whether the context receives a drawElements or
+        // a drawRangeElements call - the GL back-end is free to choose to call drawRangeElements based on the
+        // validated index range. If index validation is removed, adding drawRangeElements to the context interface
+        // should be reconsidered.
+        Error error = context->drawElements(mode, count, type, indices, 0, indexRange);
+        if (error.isError())
+        {
+            context->recordError(error);
+            return;
+        }
     }
 }
 
@@ -743,11 +763,11 @@ void GL_APIENTRY FramebufferTextureLayer(GLenum target, GLenum attachment, GLuin
                 index = ImageIndex::Make2DArray(level, layer);
             }
 
-            framebuffer->setTextureAttachment(attachment, textureObject, index);
+            framebuffer->setAttachment(GL_TEXTURE, attachment, index, textureObject);
         }
         else
         {
-            framebuffer->setNULLAttachment(attachment);
+            framebuffer->resetAttachment(attachment);
         }
     }
 }
@@ -1006,7 +1026,7 @@ void GL_APIENTRY BeginTransformFeedback(GLenum primitiveMode)
         TransformFeedback *transformFeedback = context->getState().getCurrentTransformFeedback();
         ASSERT(transformFeedback != NULL);
 
-        if (transformFeedback->isStarted())
+        if (transformFeedback->isActive())
         {
             context->recordError(Error(GL_INVALID_OPERATION));
             return;
@@ -1018,7 +1038,7 @@ void GL_APIENTRY BeginTransformFeedback(GLenum primitiveMode)
         }
         else
         {
-            transformFeedback->start(primitiveMode);
+            transformFeedback->begin(primitiveMode);
         }
     }
 }
@@ -1039,13 +1059,13 @@ void GL_APIENTRY EndTransformFeedback(void)
         TransformFeedback *transformFeedback = context->getState().getCurrentTransformFeedback();
         ASSERT(transformFeedback != NULL);
 
-        if (!transformFeedback->isStarted())
+        if (!transformFeedback->isActive())
         {
             context->recordError(Error(GL_INVALID_OPERATION));
             return;
         }
 
-        transformFeedback->stop();
+        transformFeedback->end();
     }
 }
 
@@ -1106,7 +1126,7 @@ void GL_APIENTRY BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLi
 
                 // Cannot bind a transform feedback buffer if the current transform feedback is active (3.0.4 pg 91 section 2.15.2)
                 TransformFeedback *curTransformFeedback = context->getState().getCurrentTransformFeedback();
-                if (curTransformFeedback && curTransformFeedback->isStarted())
+                if (curTransformFeedback && curTransformFeedback->isActive())
                 {
                     context->recordError(Error(GL_INVALID_OPERATION));
                     return;
@@ -1180,7 +1200,7 @@ void GL_APIENTRY BindBufferBase(GLenum target, GLuint index, GLuint buffer)
             {
                 // Cannot bind a transform feedback buffer if the current transform feedback is active (3.0.4 pg 91 section 2.15.2)
                 TransformFeedback *curTransformFeedback = context->getState().getCurrentTransformFeedback();
-                if (curTransformFeedback && curTransformFeedback->isStarted())
+                if (curTransformFeedback && curTransformFeedback->isActive())
                 {
                     context->recordError(Error(GL_INVALID_OPERATION));
                     return;
@@ -2308,7 +2328,7 @@ void GL_APIENTRY DrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, 
             return;
         }
 
-        rx::RangeUI indexRange;
+        RangeUI indexRange;
         if (!ValidateDrawElementsInstanced(context, mode, count, type, indices, instanceCount, &indexRange))
         {
             return;
@@ -2351,7 +2371,7 @@ GLsync GL_APIENTRY FenceSync_(GLenum condition, GLbitfield flags)
         GLsync fenceSync = context->createFenceSync();
 
         FenceSync *fenceSyncObject = context->getFenceSync(fenceSync);
-        Error error = fenceSyncObject->set(condition);
+        Error error = fenceSyncObject->set(condition, flags);
         if (error.isError())
         {
             context->deleteFenceSync(fenceSync);
@@ -2555,7 +2575,7 @@ void GL_APIENTRY GetSynciv(GLsync sync, GLenum pname, GLsizei bufSize, GLsizei* 
         {
           case GL_OBJECT_TYPE:     values[0] = static_cast<GLint>(GL_SYNC_FENCE);              break;
           case GL_SYNC_CONDITION:  values[0] = static_cast<GLint>(fenceSync->getCondition());  break;
-          case GL_SYNC_FLAGS:      values[0] = 0;                                              break;
+          case GL_SYNC_FLAGS:      values[0] = static_cast<GLint>(fenceSync->getFlags());      break;
 
           case GL_SYNC_STATUS:
             {
@@ -2985,7 +3005,7 @@ void GL_APIENTRY BindTransformFeedback(GLenum target, GLuint id)
             {
                 // Cannot bind a transform feedback object if the current one is started and not paused (3.0.2 pg 85 section 2.14.1)
                 TransformFeedback *curTransformFeedback = context->getState().getCurrentTransformFeedback();
-                if (curTransformFeedback && curTransformFeedback->isStarted() && !curTransformFeedback->isPaused())
+                if (curTransformFeedback && curTransformFeedback->isActive() && !curTransformFeedback->isPaused())
                 {
                     context->recordError(Error(GL_INVALID_OPERATION));
                     return;
@@ -3084,8 +3104,8 @@ void GL_APIENTRY PauseTransformFeedback(void)
         TransformFeedback *transformFeedback = context->getState().getCurrentTransformFeedback();
         ASSERT(transformFeedback != NULL);
 
-        // Current transform feedback must be started and not paused in order to pause (3.0.2 pg 86)
-        if (!transformFeedback->isStarted() || transformFeedback->isPaused())
+        // Current transform feedback must be active and not paused in order to pause (3.0.2 pg 86)
+        if (!transformFeedback->isActive() || transformFeedback->isPaused())
         {
             context->recordError(Error(GL_INVALID_OPERATION));
             return;
@@ -3111,8 +3131,8 @@ void GL_APIENTRY ResumeTransformFeedback(void)
         TransformFeedback *transformFeedback = context->getState().getCurrentTransformFeedback();
         ASSERT(transformFeedback != NULL);
 
-        // Current transform feedback must be started and paused in order to resume (3.0.2 pg 86)
-        if (!transformFeedback->isStarted() || !transformFeedback->isPaused())
+        // Current transform feedback must be active and paused in order to resume (3.0.2 pg 86)
+        if (!transformFeedback->isActive() || !transformFeedback->isPaused())
         {
             context->recordError(Error(GL_INVALID_OPERATION));
             return;

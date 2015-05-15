@@ -12,6 +12,7 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <list>
+#include <string>
 
 class OSWindow
 {
@@ -22,6 +23,8 @@ class OSWindow
     virtual bool initialize(const std::string &name, size_t width, size_t height) = 0;
     virtual void destroy() = 0;
 
+    int getX() const;
+    int getY() const;
     int getWidth() const;
     int getHeight() const;
 
@@ -34,10 +37,18 @@ class OSWindow
     virtual void pushEvent(Event event);
 
     virtual void setMousePosition(int x, int y) = 0;
+    virtual bool setPosition(int x, int y) = 0;
     virtual bool resize(int width, int height) = 0;
     virtual void setVisible(bool isVisible) = 0;
 
+    virtual void signalTestEvent() = 0;
+
+    // Pops events look for the test event
+    bool didTestEventFire();
+
   protected:
+    int mX;
+    int mY;
     int mWidth;
     int mHeight;
 

@@ -10,14 +10,14 @@
 #ifndef LIBANGLE_RENDERER_D3D_SWAPCHAIND3D_H_
 #define LIBANGLE_RENDERER_D3D_SWAPCHAIND3D_H_
 
-// TODO: move SwapChain to be d3d only
-#include "libANGLE/renderer/d3d/d3d11/NativeWindow.h"
+#include <GLES2/gl2.h>
+#include <EGL/egl.h>
 
 #include "common/angleutils.h"
 #include "common/platform.h"
 
-#include <GLES2/gl2.h>
-#include <EGL/egl.h>
+// TODO: move out of D3D11
+#include "libANGLE/renderer/d3d/d3d11/NativeWindow.h"
 
 #if !defined(ANGLE_FORCE_VSYNC_OFF)
 #define ANGLE_FORCE_VSYNC_OFF 0
@@ -25,8 +25,9 @@
 
 namespace rx
 {
+class RenderTargetD3D;
 
-class SwapChainD3D
+class SwapChainD3D : angle::NonCopyable
 {
   public:
     SwapChainD3D(rx::NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
@@ -41,10 +42,13 @@ class SwapChainD3D
     virtual EGLint swapRect(EGLint x, EGLint y, EGLint width, EGLint height) = 0;
     virtual void recreate() = 0;
 
+    virtual RenderTargetD3D *getColorRenderTarget() = 0;
+    virtual RenderTargetD3D *getDepthStencilRenderTarget() = 0;
+
     GLenum GetBackBufferInternalFormat() const { return mBackBufferFormat; }
     GLenum GetDepthBufferInternalFormat() const { return mDepthBufferFormat; }
 
-    virtual HANDLE getShareHandle() {return mShareHandle;};
+    HANDLE getShareHandle() { return mShareHandle; }
 
   protected:
     rx::NativeWindow mNativeWindow;  // Handler for the Window that the surface is created for.
@@ -52,9 +56,6 @@ class SwapChainD3D
     const GLenum mDepthBufferFormat;
 
     HANDLE mShareHandle;
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN(SwapChainD3D);
 };
 
 }

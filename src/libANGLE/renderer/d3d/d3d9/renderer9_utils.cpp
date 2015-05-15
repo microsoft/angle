@@ -472,6 +472,9 @@ void GenerateCaps(IDirect3D9 *d3d9, IDirect3DDevice9 *device, D3DDEVTYPE deviceT
     caps->maxTransformFeedbackSeparateAttributes = 0;
     caps->maxTransformFeedbackSeparateComponents = 0;
 
+    // Multisample limits
+    caps->maxSamples = maxSamples;
+
     // GL extension support
     extensions->setTextureExtensionSupport(*textureCapsMap);
     extensions->elementIndexUint = deviceCaps.MaxVertexIndex >= (1 << 16);
@@ -528,7 +531,6 @@ void GenerateCaps(IDirect3D9 *d3d9, IDirect3DDevice9 *device, D3DDEVTYPE deviceT
     extensions->blendMinMax = true;
     extensions->framebufferBlit = true;
     extensions->framebufferMultisample = true;
-    extensions->maxSamples = maxSamples;
     extensions->instancedArrays = deviceCaps.PixelShaderVersion >= D3DPS_VERSION(3, 0);
     extensions->packReverseRowOrder = true;
     extensions->standardDerivatives = (deviceCaps.PS20Caps.Caps & D3DPS20CAPS_GRADIENTINSTRUCTIONS) != 0;
@@ -536,6 +538,7 @@ void GenerateCaps(IDirect3D9 *d3d9, IDirect3DDevice9 *device, D3DDEVTYPE deviceT
     extensions->fragDepth = true;
     extensions->textureUsage = true;
     extensions->translatedShaderSource = true;
+    extensions->fboRenderMipmap = false;
     extensions->colorBufferFloat = false;
 }
 
@@ -569,18 +572,6 @@ void MakeValidSize(bool isImage, D3DFORMAT format, GLsizei *requestWidth, GLsize
         }
     }
     *levelOffset = upsampleCount;
-}
-
-gl::Error GetAttachmentRenderTarget(const gl::FramebufferAttachment *attachment, RenderTarget9 **outRT)
-{
-    RenderTargetD3D *renderTarget = NULL;
-    gl::Error error = rx::GetAttachmentRenderTarget(attachment, &renderTarget);
-    if (error.isError())
-    {
-        return error;
-    }
-    *outRT = RenderTarget9::makeRenderTarget9(renderTarget);
-    return gl::Error(GL_NO_ERROR);
 }
 
 Workarounds GenerateWorkarounds()

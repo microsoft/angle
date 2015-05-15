@@ -12,13 +12,48 @@
 #include <limits>
 
 #include "libANGLE/Caps.h"
+#include "libANGLE/formatutils.h"
 #include "libANGLE/renderer/gl/FunctionsGL.h"
+#include "libANGLE/renderer/gl/formatutilsgl.h"
+
+#include <algorithm>
+#include <sstream>
 
 namespace rx
 {
 
 namespace nativegl_gl
 {
+
+static gl::TextureCaps GenerateTextureFormatCaps(const FunctionsGL *functions, GLenum internalFormat)
+{
+    gl::TextureCaps textureCaps;
+
+    const nativegl::InternalFormat &formatInfo = nativegl::GetInternalFormatInfo(internalFormat);
+    textureCaps.texturable = formatInfo.textureSupport(functions->majorVersion, functions->minorVersion, functions->extensions);
+    textureCaps.renderable = formatInfo.renderSupport(functions->majorVersion, functions->minorVersion, functions->extensions);
+    textureCaps.filterable = formatInfo.filterSupport(functions->majorVersion, functions->minorVersion, functions->extensions);
+
+    // glGetInternalformativ is not available until version 4.2 but may be available through the 3.0
+    // extension GL_ARB_internalformat_query
+    if (textureCaps.renderable && functions->getInternalformativ)
+    {
+        GLint numSamples = 0;
+        functions->getInternalformativ(GL_RENDERBUFFER, internalFormat, GL_NUM_SAMPLE_COUNTS, 1, &numSamples);
+
+        if (numSamples > 0)
+        {
+            std::vector<GLint> samples(numSamples);
+            functions->getInternalformativ(GL_RENDERBUFFER, internalFormat, GL_SAMPLES, samples.size(), &samples[0]);
+            for (size_t sampleIndex = 0; sampleIndex < samples.size(); sampleIndex++)
+            {
+                textureCaps.sampleCounts.insert(samples[sampleIndex]);
+            }
+        }
+    }
+
+    return textureCaps;
+}
 
 static GLint QuerySingleGLInt(const FunctionsGL *functions, GLenum name)
 {
@@ -30,6 +65,19 @@ static GLint QuerySingleGLInt(const FunctionsGL *functions, GLenum name)
 void GenerateCaps(const FunctionsGL *functions, gl::Caps *caps, gl::TextureCapsMap *textureCapsMap,
                   gl::Extensions *extensions)
 {
+    // Texture format support checks
+    const gl::FormatSet &allFormats = gl::GetAllSizedInternalFormats();
+    for (GLenum internalFormat : allFormats)
+    {
+        gl::TextureCaps textureCaps = GenerateTextureFormatCaps(functions, internalFormat);
+        textureCapsMap->insert(internalFormat, textureCaps);
+
+        if (gl::GetInternalFormatInfo(internalFormat).compressed)
+        {
+            caps->compressedTextureFormats.push_back(internalFormat);
+        }
+    }
+
     // Set some minimum GLES2 caps, TODO: query for real GL caps
 
     // Table 6.28, implementation dependent values
@@ -68,7 +116,7 @@ void GenerateCaps(const FunctionsGL *functions, gl::Caps *caps, gl::TextureCapsM
 
     // Table 6.31, implementation dependent vertex shader limits
     caps->maxVertexAttributes = 16;
-    caps->maxVertexUniformVectors = 1024;
+    caps->maxVertexUniformComponents = 1024;
     caps->maxVertexUniformVectors = 256;
     caps->maxVertexUniformBlocks = 12;
     caps->maxVertexOutputComponents = 64;
@@ -99,27 +147,33 @@ void GenerateCaps(const FunctionsGL *functions, gl::Caps *caps, gl::TextureCapsM
     caps->maxTransformFeedbackSeparateAttributes = 4;
     caps->maxTransformFeedbackSeparateComponents = 4;
 
-    // Texture Caps
-    gl::TextureCaps supportedTextureFormat;
-    supportedTextureFormat.texturable = true;
-    supportedTextureFormat.filterable = true;
-    supportedTextureFormat.renderable = true;
-
-    textureCapsMap->insert(GL_RGB565, supportedTextureFormat);
-    textureCapsMap->insert(GL_RGBA4, supportedTextureFormat);
-    textureCapsMap->insert(GL_RGB5_A1, supportedTextureFormat);
-    textureCapsMap->insert(GL_RGB8_OES, supportedTextureFormat);
-    textureCapsMap->insert(GL_RGBA8_OES, supportedTextureFormat);
-
-    textureCapsMap->insert(GL_DEPTH_COMPONENT16, supportedTextureFormat);
-    textureCapsMap->insert(GL_STENCIL_INDEX8, supportedTextureFormat);
+    // Table 6.35, Framebuffer Dependent Values
+    caps->maxSamples = QuerySingleGLInt(functions, GL_MAX_SAMPLES);
 
     // Extension support
     extensions->setTextureExtensionSupport(*textureCapsMap);
     extensions->textureNPOT = true;
     extensions->textureStorage = true;
+    extensions->fboRenderMipmap = true;
+    extensions->framebufferBlit = (functions->blitFramebuffer != nullptr);
+    extensions->framebufferMultisample = caps->maxSamples > 0;
+    extensions->fence = std::find(functions->extensions.begin(), functions->extensions.end(), "GL_NV_fence") != functions->extensions.end();
 }
 
+}
+
+std::vector<std::string> TokenizeExtensionsString(const char *extensions)
+{
+    std::vector<std::string> result;
+
+    std::istringstream stream(extensions);
+    std::string extension;
+    while (std::getline(stream, extension, ' '))
+    {
+        result.push_back(extension);
+    }
+
+    return result;
 }
 
 }

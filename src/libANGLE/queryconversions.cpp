@@ -25,6 +25,19 @@ template <> GLenum CastStateValueEnum<GLboolean>::mEnumForType  = GL_BOOL;
 template <> GLenum CastStateValueEnum<GLint64>::mEnumForType    = GL_INT_64_ANGLEX;
 template <> GLenum CastStateValueEnum<GLfloat>::mEnumForType    = GL_FLOAT;
 
+static GLint64 ExpandFloatToInteger(GLfloat value)
+{
+    return static_cast<GLint64>((static_cast<double>(0xFFFFFFFFULL) * value - 1.0) / 2.0);
+}
+
+template <typename QueryT>
+static QueryT ClampToQueryRange(GLint64 value)
+{
+    const GLint64 min = static_cast<GLint64>(std::numeric_limits<QueryT>::min());
+    const GLint64 max = static_cast<GLint64>(std::numeric_limits<QueryT>::max());
+    return static_cast<QueryT>(clamp(value, min, max));
+}
+
 template <typename QueryT, typename NativeT>
 QueryT CastStateValueToInt(GLenum pname, NativeT value)
 {
@@ -36,11 +49,11 @@ QueryT CastStateValueToInt(GLenum pname, NativeT value)
         // RGBA color values and DepthRangeF values are converted to integer using Equation 2.4 from Table 4.5
         if (pname == GL_DEPTH_RANGE || pname == GL_COLOR_CLEAR_VALUE || pname == GL_DEPTH_CLEAR_VALUE || pname == GL_BLEND_COLOR)
         {
-            return static_cast<QueryT>((static_cast<GLfloat>(0xFFFFFFFF) * value - 1.0f) / 2.0f);
+            return ClampToQueryRange<QueryT>(ExpandFloatToInteger(static_cast<GLfloat>(value)));
         }
         else
         {
-            return gl::iround<QueryT>(value);
+            return gl::iround<QueryT>(static_cast<GLfloat>(value));
         }
     }
 
@@ -66,7 +79,7 @@ QueryT CastStateValue(GLenum pname, NativeT value)
       case GL_INT:              return CastStateValueToInt<QueryT, NativeT>(pname, value);
       case GL_INT_64_ANGLEX:    return CastStateValueToInt<QueryT, NativeT>(pname, value);
       case GL_FLOAT:            return static_cast<QueryT>(value);
-      case GL_BOOL:             return (value == static_cast<NativeT>(0) ? GL_FALSE : GL_TRUE);
+      case GL_BOOL:             return static_cast<QueryT>(value == static_cast<NativeT>(0) ? GL_FALSE : GL_TRUE);
       default: UNREACHABLE();   return 0;
     }
 }

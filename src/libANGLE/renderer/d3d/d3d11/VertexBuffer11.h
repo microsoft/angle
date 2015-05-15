@@ -25,8 +25,6 @@ class VertexBuffer11 : public VertexBuffer
 
     virtual gl::Error initialize(unsigned int size, bool dynamicUsage);
 
-    static VertexBuffer11 *makeVertexBuffer11(VertexBuffer *vetexBuffer);
-
     virtual gl::Error storeVertexAttributes(const gl::VertexAttribute &attrib, const gl::VertexAttribCurrentValueData &currentValue,
                                             GLint start, GLsizei count, GLsizei instances, unsigned int offset);
 
@@ -42,8 +40,6 @@ class VertexBuffer11 : public VertexBuffer
     ID3D11Buffer *getBuffer() const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(VertexBuffer11);
-
     gl::Error mapResource();
 
     Renderer11 *const mRenderer;

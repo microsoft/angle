@@ -24,9 +24,9 @@ struct VertexAttribCurrentValueData;
 namespace rx
 {
 class BufferD3D;
+class BufferFactoryD3D;
 class StreamingVertexBufferInterface;
 class VertexBuffer;
-class RendererD3D;
 
 struct TranslatedAttribute
 {
@@ -46,18 +46,16 @@ struct TranslatedAttribute
     unsigned int divisor;
 };
 
-class VertexDataManager
+class VertexDataManager : angle::NonCopyable
 {
   public:
-    VertexDataManager(RendererD3D *renderer);
+    VertexDataManager(BufferFactoryD3D *factory);
     virtual ~VertexDataManager();
 
     gl::Error prepareVertexData(const gl::State &state, GLint start, GLsizei count,
                                 TranslatedAttribute *outAttribs, GLsizei instances);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(VertexDataManager);
-
     gl::Error reserveSpaceForAttrib(const gl::VertexAttribute &attrib,
                                     const gl::VertexAttribCurrentValueData &currentValue,
                                     GLsizei count,
@@ -82,10 +80,14 @@ class VertexDataManager
 
     void hintUnmapAllResources(const std::vector<gl::VertexAttribute> &vertexAttributes);
 
+<<<<<<< HEAD
     void prepareStaticBufferForAttribute(const gl::VertexAttribute &attrib,
                                          const gl::VertexAttribCurrentValueData &currentValue) const;
 
     RendererD3D *const mRenderer;
+=======
+    BufferFactoryD3D *const mFactory;
+>>>>>>> google/master
 
     StreamingVertexBufferInterface *mStreamingBuffer;
 

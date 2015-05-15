@@ -10,7 +10,6 @@
 #include "libANGLE/renderer/d3d/IndexDataManager.h"
 #include "libANGLE/renderer/d3d/BufferD3D.h"
 #include "libANGLE/renderer/d3d/IndexBuffer.h"
-#include "libANGLE/renderer/d3d/RendererD3D.h"
 #include "libANGLE/Buffer.h"
 #include "libANGLE/formatutils.h"
 
@@ -56,10 +55,11 @@ static void ConvertIndices(GLenum sourceType, GLenum destinationType, const void
     else UNREACHABLE();
 }
 
-IndexDataManager::IndexDataManager(RendererD3D *renderer)
-    : mRenderer(renderer),
-      mStreamingBufferShort(NULL),
-      mStreamingBufferInt(NULL)
+IndexDataManager::IndexDataManager(BufferFactoryD3D *factory, RendererClass rendererClass)
+    : mFactory(factory),
+      mRendererClass(rendererClass),
+      mStreamingBufferShort(nullptr),
+      mStreamingBufferInt(nullptr)
 {
 }
 
@@ -114,41 +114,34 @@ gl::Error IndexDataManager::prepareIndexData(GLenum type, GLsizei count, gl::Buf
                          destinationIndexType == type;
     unsigned int streamOffset = 0;
 
-    if (directStorage)
-    {
-        streamOffset = offset;
-
-        if (!buffer->getIndexRangeCache()->findRange(type, offset, count, NULL, NULL))
-        {
-            buffer->getIndexRangeCache()->addRange(type, offset, count, translated->indexRange, offset);
-        }
-    }
-    else if (staticBuffer && staticBuffer->getBufferSize() != 0 && staticBuffer->getIndexType() == type && alignedOffset)
-    {
-        indexBuffer = staticBuffer;
-
-        if (!staticBuffer->getIndexRangeCache()->findRange(type, offset, count, NULL, &streamOffset))
-        {
-            // Using bit-shift here is faster than using division.
-            streamOffset = (offset >> typeInfo.bytesShift) << gl::GetTypeInfo(destinationIndexType).bytesShift;
-            staticBuffer->getIndexRangeCache()->addRange(type, offset, count, translated->indexRange, streamOffset);
-        }
-        if (!buffer->getIndexRangeCache()->findRange(type, offset, count, nullptr, nullptr))
-        {
-            buffer->getIndexRangeCache()->addRange(type, offset, count, translated->indexRange, offset);
-        }
-    }
-
     // Avoid D3D11's primitive restart index value
     // see http://msdn.microsoft.com/en-us/library/windows/desktop/bb205124(v=vs.85).aspx
-    if (translated->indexRange.end == 0xFFFF && type == GL_UNSIGNED_SHORT && mRenderer->getMajorShaderModel() > 3)
+    bool primitiveRestartWorkaround = mRendererClass == RENDERER_D3D11 &&
+                                      translated->indexRange.end == 0xFFFF &&
+                                      type == GL_UNSIGNED_SHORT;
+
+    if (primitiveRestartWorkaround)
     {
         destinationIndexType = GL_UNSIGNED_INT;
         directStorage = false;
-        indexBuffer = NULL;
     }
 
     const gl::Type &destTypeInfo = gl::GetTypeInfo(destinationIndexType);
+
+    if (directStorage)
+    {
+        streamOffset = offset;
+    }
+    else if (staticBuffer &&
+             staticBuffer->getBufferSize() != 0 &&
+             alignedOffset &&
+             staticBuffer->getIndexType() == destinationIndexType)
+    {
+        indexBuffer = staticBuffer;
+
+        // Using bit-shift here is faster than using division.
+        streamOffset = (offset >> typeInfo.bytesShift) << destTypeInfo.bytesShift;
+    }
 
     if (!directStorage && !indexBuffer)
     {
@@ -185,7 +178,7 @@ gl::Error IndexDataManager::prepareIndexData(GLenum type, GLsizei count, gl::Buf
         }
 
         unsigned int bufferSizeRequired = convertCount << destTypeInfo.bytesShift;
-        error = indexBuffer->reserveBufferSpace(bufferSizeRequired, type);
+        error = indexBuffer->reserveBufferSpace(bufferSizeRequired, destinationIndexType);
         if (error.isError())
         {
             return error;
@@ -219,7 +212,6 @@ gl::Error IndexDataManager::prepareIndexData(GLenum type, GLsizei count, gl::Buf
         {
             // Using bit-shift here is faster than using division.
             streamOffset = (offset >> typeInfo.bytesShift) << destTypeInfo.bytesShift;
-            staticBuffer->getIndexRangeCache()->addRange(type, offset, count, translated->indexRange, streamOffset);
         }
     }
 
@@ -246,7 +238,7 @@ gl::Error IndexDataManager::getStreamingIndexBuffer(GLenum destinationIndexType,
     {
         if (!mStreamingBufferInt)
         {
-            mStreamingBufferInt = new StreamingIndexBufferInterface(mRenderer);
+            mStreamingBufferInt = new StreamingIndexBufferInterface(mFactory);
             gl::Error error = mStreamingBufferInt->reserveBufferSpace(INITIAL_INDEX_BUFFER_SIZE, GL_UNSIGNED_INT);
             if (error.isError())
             {
@@ -264,7 +256,7 @@ gl::Error IndexDataManager::getStreamingIndexBuffer(GLenum destinationIndexType,
 
         if (!mStreamingBufferShort)
         {
-            mStreamingBufferShort = new StreamingIndexBufferInterface(mRenderer);
+            mStreamingBufferShort = new StreamingIndexBufferInterface(mFactory);
             gl::Error error = mStreamingBufferShort->reserveBufferSpace(INITIAL_INDEX_BUFFER_SIZE, GL_UNSIGNED_SHORT);
             if (error.isError())
             {

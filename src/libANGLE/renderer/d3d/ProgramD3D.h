@@ -9,6 +9,7 @@
 #ifndef LIBANGLE_RENDERER_D3D_PROGRAMD3D_H_
 #define LIBANGLE_RENDERER_D3D_PROGRAMD3D_H_
 
+#include "common/Optional.h"
 #include "compiler/translator/blocklayoutHLSL.h"
 #include "libANGLE/Constants.h"
 #include "libANGLE/renderer/ProgramImpl.h"
@@ -77,11 +78,13 @@ class ProgramD3D : public ProgramImpl
                     int *registers, std::vector<gl::LinkedVarying> *linkedVaryings,
                     std::map<int, gl::VariableLocation> *outputVariables);
 
+    void bindAttributeLocation(GLuint index, const std::string &name) override;
+
     void getInputLayoutSignature(const gl::VertexFormat inputLayout[], GLenum signature[]) const;
 
     void initializeUniformStorage();
     gl::Error applyUniforms();
-    gl::Error applyUniformBuffers(const gl::Data &data) override;
+    gl::Error applyUniformBuffers(const gl::Data &data, GLuint uniformBlockBindings[]) override;
     bool assignUniformBlockRegister(gl::InfoLog &infoLog, gl::UniformBlock *uniformBlock, GLenum shader,
                                     unsigned int registerIndex, const gl::Caps &caps);
     void dirtyAllUniforms();
@@ -128,8 +131,6 @@ class ProgramD3D : public ProgramImpl
                                 int sortedSemanticIndices[gl::MAX_VERTEX_ATTRIBS]) const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(ProgramD3D);
-
     class VertexExecutable
     {
       public:
@@ -236,6 +237,8 @@ class ProgramD3D : public ProgramImpl
     int mAttributesByLayout[gl::MAX_VERTEX_ATTRIBS];
 
     unsigned int mSerial;
+
+    Optional<bool> mCachedValidateSamplersResult;
 
     static unsigned int issueSerial();
     static unsigned int mCurrentSerial;

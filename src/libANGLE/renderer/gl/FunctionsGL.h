@@ -22,8 +22,17 @@ class FunctionsGL
     FunctionsGL();
     virtual ~FunctionsGL();
 
-    void initialize(GLuint majorVersion, GLuint minorVersion);
+    void initialize();
 
+    // Version information
+    GLuint majorVersion;
+    GLuint minorVersion;
+    bool openGLES;
+
+    // Extensions
+    std::vector<std::string> extensions;
+
+    // Entry Points
     // 1.0
     PFNGLBLENDFUNCPROC blendFunc;
     PFNGLCLEARPROC clear;
@@ -96,6 +105,15 @@ class FunctionsGL
     PFNGLDRAWRANGEELEMENTSPROC drawRangeElements;
     PFNGLTEXIMAGE3DPROC texImage3D;
     PFNGLTEXSUBIMAGE3DPROC texSubImage3D;
+
+    // 1.2 Extensions
+    PFNGLDELETEFENCESNVPROC deleteFencesNV;
+    PFNGLGENFENCESNVPROC genFencesNV;
+    PFNGLISFENCENVPROC isFenceNV;
+    PFNGLTESTFENCENVPROC testFenceNV;
+    PFNGLGETFENCEIVNVPROC getFenceivNV;
+    PFNGLFINISHFENCENVPROC finishFenceNV;
+    PFNGLSETFENCENVPROC setFenceNV;
 
     // 1.3
     PFNGLACTIVETEXTUREPROC activeTexture;
@@ -558,6 +576,7 @@ class FunctionsGL
     PFNGLGETDEBUGMESSAGELOGPROC getDebugMessageLog;
     PFNGLGETFRAMEBUFFERPARAMETERIVPROC getFramebufferParameteriv;
     PFNGLGETINTERNALFORMATI64VPROC getInternalformati64v;
+    PFNGLGETPOINTERVPROC getPointerv;
     PFNGLGETOBJECTLABELPROC getObjectLabel;
     PFNGLGETOBJECTPTRLABELPROC getObjectPtrLabel;
     PFNGLGETPROGRAMINTERFACEIVPROC getProgramInterfaceiv;
@@ -714,8 +733,6 @@ class FunctionsGL
 
   private:
     virtual void *loadProcAddress(const std::string &function) = 0;
-
-    DISALLOW_COPY_AND_ASSIGN(FunctionsGL);
 };
 
 }

@@ -26,8 +26,6 @@ class TextureStorage9 : public TextureStorage
   public:
     virtual ~TextureStorage9();
 
-    static TextureStorage9 *makeTextureStorage9(TextureStorage *storage);
-
     static DWORD GetTextureUsage(GLenum internalformat, bool renderTarget);
 
     D3DPOOL getPool() const;
@@ -39,6 +37,7 @@ class TextureStorage9 : public TextureStorage
     virtual int getTopLevel() const;
     virtual bool isRenderTarget() const;
     virtual bool isManaged() const;
+    bool supportsNativeMipmapFunction() const override;
     virtual int getLevelCount() const;
 
     virtual gl::Error setData(const gl::ImageIndex &index, ImageD3D *image, const gl::Box *destBox, GLenum type,
@@ -57,8 +56,6 @@ class TextureStorage9 : public TextureStorage
     TextureStorage9(Renderer9 *renderer, DWORD usage);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TextureStorage9);
-
     const DWORD mD3DUsage;
     const D3DPOOL mD3DPool;
 };
@@ -70,8 +67,6 @@ class TextureStorage9_2D : public TextureStorage9
     TextureStorage9_2D(Renderer9 *renderer, GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels);
     virtual ~TextureStorage9_2D();
 
-    static TextureStorage9_2D *makeTextureStorage9_2D(TextureStorage *storage);
-
     gl::Error getSurfaceLevel(int level, bool dirty, IDirect3DSurface9 **outSurface);
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTargetD3D **outRT);
     virtual gl::Error getBaseTexture(IDirect3DBaseTexture9 **outTexture);
@@ -79,8 +74,6 @@ class TextureStorage9_2D : public TextureStorage9
     virtual gl::Error copyToStorage(TextureStorage *destStorage);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TextureStorage9_2D);
-
     IDirect3DTexture9 *mTexture;
     RenderTarget9 *mRenderTarget;
 };
@@ -91,8 +84,6 @@ class TextureStorage9_Cube : public TextureStorage9
     TextureStorage9_Cube(Renderer9 *renderer, GLenum internalformat, bool renderTarget, int size, int levels, bool hintLevelZeroOnly);
     virtual ~TextureStorage9_Cube();
 
-    static TextureStorage9_Cube *makeTextureStorage9_Cube(TextureStorage *storage);
-
     gl::Error getCubeMapSurface(GLenum faceTarget, int level, bool dirty, IDirect3DSurface9 **outSurface);
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTargetD3D **outRT);
     virtual gl::Error getBaseTexture(IDirect3DBaseTexture9 **outTexture);
@@ -100,8 +91,6 @@ class TextureStorage9_Cube : public TextureStorage9
     virtual gl::Error copyToStorage(TextureStorage *destStorage);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TextureStorage9_Cube);
-
     static const size_t CUBE_FACE_COUNT = 6;
 
     IDirect3DCubeTexture9 *mTexture;

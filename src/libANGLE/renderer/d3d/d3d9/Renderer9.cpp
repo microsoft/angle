@@ -49,6 +49,7 @@
 #include "third_party/trace_event/trace_event.h"
 
 #include <sstream>
+#include <EGL/eglext.h>
 
 #include <EGL/eglext.h>
 
@@ -173,12 +174,6 @@ void Renderer9::release()
     mD3d9Module = NULL;
 }
 
-Renderer9 *Renderer9::makeRenderer9(Renderer *renderer)
-{
-    ASSERT(HAS_DYNAMIC_TYPE(Renderer9*, renderer));
-    return static_cast<Renderer9*>(renderer);
-}
-
 egl::Error Renderer9::initialize()
 {
     if (!mCompiler.initialize())
@@ -188,7 +183,7 @@ egl::Error Renderer9::initialize()
                           "Compiler failed to initialize.");
     }
 
-    TRACE_EVENT0("gpu", "GetModuleHandle_d3d9");
+    TRACE_EVENT0("gpu.angle", "GetModuleHandle_d3d9");
     mD3d9Module = GetModuleHandle(TEXT("d3d9.dll"));
 
     if (mD3d9Module == NULL)
@@ -204,14 +199,14 @@ egl::Error Renderer9::initialize()
     // desktop. Direct3D9Ex is available in Windows Vista and later if suitable drivers are available.
     if (ANGLE_D3D9EX == ANGLE_ENABLED && Direct3DCreate9ExPtr && SUCCEEDED(Direct3DCreate9ExPtr(D3D_SDK_VERSION, &mD3d9Ex)))
     {
-        TRACE_EVENT0("gpu", "D3d9Ex_QueryInterface");
+        TRACE_EVENT0("gpu.angle", "D3d9Ex_QueryInterface");
         ASSERT(mD3d9Ex);
         mD3d9Ex->QueryInterface(__uuidof(IDirect3D9), reinterpret_cast<void**>(&mD3d9));
         ASSERT(mD3d9);
     }
     else
     {
-        TRACE_EVENT0("gpu", "Direct3DCreate9");
+        TRACE_EVENT0("gpu.angle", "Direct3DCreate9");
         mD3d9 = Direct3DCreate9(D3D_SDK_VERSION);
     }
 
@@ -229,7 +224,7 @@ egl::Error Renderer9::initialize()
 
     // Give up on getting device caps after about one second.
     {
-        TRACE_EVENT0("gpu", "GetDeviceCaps");
+        TRACE_EVENT0("gpu.angle", "GetDeviceCaps");
         for (int i = 0; i < 10; ++i)
         {
             result = mD3d9->GetDeviceCaps(mAdapter, mDeviceType, &mDeviceCaps);
@@ -273,7 +268,7 @@ egl::Error Renderer9::initialize()
     }
 
     {
-        TRACE_EVENT0("gpu", "GetAdapterIdentifier");
+        TRACE_EVENT0("gpu.angle", "GetAdapterIdentifier");
         mD3d9->GetAdapterIdentifier(mAdapter, 0, &mAdapterIdentifier);
     }
 
@@ -281,7 +276,7 @@ egl::Error Renderer9::initialize()
     static const TCHAR className[] = TEXT("STATIC");
 
     {
-        TRACE_EVENT0("gpu", "CreateWindowEx");
+        TRACE_EVENT0("gpu.angle", "CreateWindowEx");
         mDeviceWindow = CreateWindowEx(WS_EX_NOACTIVATE, className, windowName, WS_DISABLED | WS_POPUP, 0, 0, 1, 1, HWND_MESSAGE, NULL, GetModuleHandle(NULL), NULL);
     }
 
@@ -289,7 +284,7 @@ egl::Error Renderer9::initialize()
     DWORD behaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_NOWINDOWCHANGES | D3DCREATE_MULTITHREADED;
 
     {
-        TRACE_EVENT0("gpu", "D3d9_CreateDevice");
+        TRACE_EVENT0("gpu.angle", "D3d9_CreateDevice");
         result = mD3d9->CreateDevice(mAdapter, mDeviceType, mDeviceWindow, behaviorFlags | D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_PUREDEVICE, &presentParameters, &mDevice);
     }
     if (result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY || result == D3DERR_DEVICELOST)
@@ -300,7 +295,7 @@ egl::Error Renderer9::initialize()
 
     if (FAILED(result))
     {
-        TRACE_EVENT0("gpu", "D3d9_CreateDevice2");
+        TRACE_EVENT0("gpu.angle", "D3d9_CreateDevice2");
         result = mD3d9->CreateDevice(mAdapter, mDeviceType, mDeviceWindow, behaviorFlags | D3DCREATE_SOFTWARE_VERTEXPROCESSING, &presentParameters, &mDevice);
 
         if (FAILED(result))
@@ -313,13 +308,13 @@ egl::Error Renderer9::initialize()
 
     if (mD3d9Ex)
     {
-        TRACE_EVENT0("gpu", "mDevice_QueryInterface");
+        TRACE_EVENT0("gpu.angle", "mDevice_QueryInterface");
         result = mDevice->QueryInterface(__uuidof(IDirect3DDevice9Ex), (void**)&mDeviceEx);
         ASSERT(SUCCEEDED(result));
     }
 
     {
-        TRACE_EVENT0("gpu", "ShaderCache initialize");
+        TRACE_EVENT0("gpu.angle", "ShaderCache initialize");
         mVertexShaderCache.initialize(mDevice);
         mPixelShaderCache.initialize(mDevice);
     }
@@ -365,8 +360,8 @@ void Renderer9::initializeDevice()
     mForceSetPixelSamplerStates.resize(rendererCaps.maxTextureImageUnits);
     mCurPixelSamplerStates.resize(rendererCaps.maxTextureImageUnits);
 
-    mCurVertexTextureSerials.resize(rendererCaps.maxVertexTextureImageUnits);
-    mCurPixelTextureSerials.resize(rendererCaps.maxTextureImageUnits);
+    mCurVertexTextures.resize(rendererCaps.maxVertexTextureImageUnits);
+    mCurPixelTextures.resize(rendererCaps.maxTextureImageUnits);
 
     markAllStateDirty();
 
@@ -378,7 +373,7 @@ void Renderer9::initializeDevice()
 
     ASSERT(!mVertexDataManager && !mIndexDataManager);
     mVertexDataManager = new VertexDataManager(this);
-    mIndexDataManager = new IndexDataManager(this);
+    mIndexDataManager = new IndexDataManager(this, getRendererClass());
 }
 
 D3DPRESENT_PARAMETERS Renderer9::getDefaultPresentParameters()
@@ -647,6 +642,11 @@ SwapChainD3D *Renderer9::createSwapChain(NativeWindow nativeWindow, HANDLE share
     return new SwapChain9(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat);
 }
 
+void *Renderer9::getD3DDevice()
+{
+    return reinterpret_cast<void*>(mDevice);
+}
+
 gl::Error Renderer9::allocateEventQuery(IDirect3DQuery9 **outQuery)
 {
     if (mEventQueryPool.empty())
@@ -815,10 +815,9 @@ gl::Error Renderer9::setTexture(gl::SamplerType type, int index, gl::Texture *te
     int d3dSamplerOffset = (type == gl::SAMPLER_PIXEL) ? 0 : D3DVERTEXTEXTURESAMPLER0;
     int d3dSampler = index + d3dSamplerOffset;
     IDirect3DBaseTexture9 *d3dTexture = NULL;
-    unsigned int serial = 0;
     bool forceSetTexture = false;
 
-    std::vector<unsigned int> &appliedSerials = (type == gl::SAMPLER_PIXEL) ? mCurPixelTextureSerials : mCurVertexTextureSerials;
+    std::vector<uintptr_t> &appliedTextures = (type == gl::SAMPLER_PIXEL) ? mCurPixelTextures : mCurVertexTextures;
 
     if (texture)
     {
@@ -834,7 +833,7 @@ gl::Error Renderer9::setTexture(gl::SamplerType type, int index, gl::Texture *te
         // Texture should be complete and have a storage
         ASSERT(texStorage);
 
-        TextureStorage9 *storage9 = TextureStorage9::makeTextureStorage9(texStorage);
+        TextureStorage9 *storage9 = GetAs<TextureStorage9>(texStorage);
         error = storage9->getBaseTexture(&d3dTexture);
         if (error.isError())
         {
@@ -845,17 +844,16 @@ gl::Error Renderer9::setTexture(gl::SamplerType type, int index, gl::Texture *te
         // in the texture class and we're unexpectedly missing the d3d texture
         ASSERT(d3dTexture != NULL);
 
-        serial = texture->getTextureSerial();
         forceSetTexture = textureImpl->hasDirtyImages();
         textureImpl->resetDirty();
     }
 
-    if (forceSetTexture || appliedSerials[index] != serial)
+    if (forceSetTexture || appliedTextures[index] != reinterpret_cast<uintptr_t>(d3dTexture))
     {
         mDevice->SetTexture(d3dSampler, d3dTexture);
     }
 
-    appliedSerials[index] = serial;
+    appliedTextures[index] = reinterpret_cast<uintptr_t>(d3dTexture);
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -963,7 +961,7 @@ gl::Error Renderer9::setBlendState(const gl::Framebuffer *framebuffer, const gl:
             FIXME("Sample alpha to coverage is unimplemented.");
         }
 
-        gl::FramebufferAttachment *attachment = framebuffer->getFirstColorbuffer();
+        const gl::FramebufferAttachment *attachment = framebuffer->getFirstColorbuffer();
         GLenum internalFormat = attachment ? attachment->getInternalFormat() : GL_NONE;
 
         // Set the color mask
@@ -1282,7 +1280,7 @@ gl::Error Renderer9::getNullColorbuffer(const gl::FramebufferAttachment *depthbu
         return error;
     }
 
-    gl::RenderbufferAttachment *nullbuffer = new gl::RenderbufferAttachment(GL_NONE, nullRenderbuffer);
+    gl::FramebufferAttachment *nullbuffer = new gl::FramebufferAttachment(GL_RENDERBUFFER, GL_NONE, gl::ImageIndex::MakeInvalid(), nullRenderbuffer);
 
     // add nullbuffer to the cache
     NullColorbufferCacheEntry *oldest = &mNullColorbufferCache[0];
@@ -1304,31 +1302,34 @@ gl::Error Renderer9::getNullColorbuffer(const gl::FramebufferAttachment *depthbu
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Renderer9::applyRenderTarget(const gl::FramebufferAttachment *colorBuffer, const gl::FramebufferAttachment *depthStencilBuffer)
+gl::Error Renderer9::applyRenderTarget(const gl::FramebufferAttachment *colorAttachment,
+                                       const gl::FramebufferAttachment *depthStencilAttachment)
 {
+    const gl::FramebufferAttachment *renderAttachment = colorAttachment;
+
     // if there is no color attachment we must synthesize a NULL colorattachment
     // to keep the D3D runtime happy.  This should only be possible if depth texturing.
-    if (!colorBuffer)
+    if (renderAttachment == nullptr)
     {
-        gl::Error error = getNullColorbuffer(depthStencilBuffer, &colorBuffer);
+        gl::Error error = getNullColorbuffer(depthStencilAttachment, &renderAttachment);
         if (error.isError())
         {
             return error;
         }
     }
-    ASSERT(colorBuffer);
+    ASSERT(renderAttachment != nullptr);
 
     size_t renderTargetWidth = 0;
     size_t renderTargetHeight = 0;
     D3DFORMAT renderTargetFormat = D3DFMT_UNKNOWN;
 
     bool renderTargetChanged = false;
-    unsigned int renderTargetSerial = GetAttachmentSerial(colorBuffer);
+    unsigned int renderTargetSerial = GetAttachmentSerial(renderAttachment);
     if (renderTargetSerial != mAppliedRenderTargetSerial)
     {
         // Apply the render target on the device
-        RenderTarget9 *renderTarget = NULL;
-        gl::Error error = d3d9::GetAttachmentRenderTarget(colorBuffer, &renderTarget);
+        RenderTarget9 *renderTarget = nullptr;
+        gl::Error error = renderAttachment->getRenderTarget(&renderTarget);
         if (error.isError())
         {
             return error;
@@ -1349,17 +1350,18 @@ gl::Error Renderer9::applyRenderTarget(const gl::FramebufferAttachment *colorBuf
         renderTargetChanged = true;
     }
 
-    unsigned int depthStencilSerial = (depthStencilBuffer != nullptr) ? GetAttachmentSerial(depthStencilBuffer) : 0;
+    unsigned int depthStencilSerial = (depthStencilAttachment != nullptr) ?
+                                       GetAttachmentSerial(depthStencilAttachment) : 0;
     if (depthStencilSerial != mAppliedDepthStencilSerial || !mDepthStencilInitialized)
     {
         unsigned int depthSize = 0;
         unsigned int stencilSize = 0;
 
         // Apply the depth stencil on the device
-        if (depthStencilBuffer)
+        if (depthStencilAttachment)
         {
-            RenderTarget9 *depthStencilRenderTarget = NULL;
-            gl::Error error = d3d9::GetAttachmentRenderTarget(depthStencilBuffer, &depthStencilRenderTarget);
+            RenderTarget9 *depthStencilRenderTarget = nullptr;
+            gl::Error error = depthStencilAttachment->getRenderTarget(&depthStencilRenderTarget);
             if (error.isError())
             {
                 return error;
@@ -1372,8 +1374,8 @@ gl::Error Renderer9::applyRenderTarget(const gl::FramebufferAttachment *colorBuf
             mDevice->SetDepthStencilSurface(depthStencilSurface);
             SafeRelease(depthStencilSurface);
 
-            depthSize = depthStencilBuffer->getDepthSize();
-            stencilSize = depthStencilBuffer->getStencilSize();
+            depthSize = depthStencilAttachment->getDepthSize();
+            stencilSize = depthStencilAttachment->getStencilSize();
         }
         else
         {
@@ -1442,7 +1444,7 @@ gl::Error Renderer9::applyIndexBuffer(const GLvoid *indices, gl::Buffer *element
 
     if (indexInfo->serial != mAppliedIBSerial)
     {
-        IndexBuffer9* indexBuffer = IndexBuffer9::makeIndexBuffer9(indexInfo->indexBuffer);
+        IndexBuffer9* indexBuffer = GetAs<IndexBuffer9>(indexInfo->indexBuffer);
 
         mDevice->SetIndices(indexBuffer->getBuffer());
         mAppliedIBSerial = indexInfo->serial;
@@ -1477,7 +1479,7 @@ gl::Error Renderer9::drawArrays(const gl::Data &data, GLenum mode, GLsizei count
 
         if (mAppliedIBSerial != countingIB->getSerial())
         {
-            IndexBuffer9 *indexBuffer = IndexBuffer9::makeIndexBuffer9(countingIB->getIndexBuffer());
+            IndexBuffer9 *indexBuffer = GetAs<IndexBuffer9>(countingIB->getIndexBuffer());
 
             mDevice->SetIndices(indexBuffer->getBuffer());
             mAppliedIBSerial = countingIB->getSerial();
@@ -1663,7 +1665,7 @@ gl::Error Renderer9::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indi
           case GL_NONE:   // Non-indexed draw
             for (int i = 0; i < count; i++)
             {
-                data[i] = i;
+                data[i] = static_cast<unsigned short>(i);
             }
             data[count] = 0;
             break;
@@ -1684,9 +1686,9 @@ gl::Error Renderer9::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indi
           case GL_UNSIGNED_INT:
             for (int i = 0; i < count; i++)
             {
-                data[i] = static_cast<const GLuint*>(indices)[i];
+                data[i] = static_cast<unsigned short>(static_cast<const GLuint*>(indices)[i]);
             }
-            data[count] = static_cast<const GLuint*>(indices)[0];
+            data[count] = static_cast<unsigned short>(static_cast<const GLuint*>(indices)[0]);
             break;
           default: UNREACHABLE();
         }
@@ -1700,7 +1702,7 @@ gl::Error Renderer9::drawLineLoop(GLsizei count, GLenum type, const GLvoid *indi
 
     if (mAppliedIBSerial != mLineLoopIB->getSerial())
     {
-        IndexBuffer9 *indexBuffer = IndexBuffer9::makeIndexBuffer9(mLineLoopIB->getIndexBuffer());
+        IndexBuffer9 *indexBuffer = GetAs<IndexBuffer9>(mLineLoopIB->getIndexBuffer());
 
         mDevice->SetIndices(indexBuffer->getBuffer());
         mAppliedIBSerial = mLineLoopIB->getSerial();
@@ -1775,7 +1777,7 @@ gl::Error Renderer9::getCountingIB(size_t count, StaticIndexBufferInterface **ou
             unsigned short *data = reinterpret_cast<unsigned short*>(mappedMemory);
             for (size_t i = 0; i < count; i++)
             {
-                data[i] = i;
+                data[i] = static_cast<unsigned short>(i);
             }
 
             error = mCountingIB->unmapBuffer();
@@ -1846,8 +1848,8 @@ gl::Error Renderer9::applyShaders(gl::Program *program, const gl::VertexFormat i
         return error;
     }
 
-    IDirect3DVertexShader9 *vertexShader = (vertexExe ? ShaderExecutable9::makeShaderExecutable9(vertexExe)->getVertexShader() : NULL);
-    IDirect3DPixelShader9 *pixelShader = (pixelExe ? ShaderExecutable9::makeShaderExecutable9(pixelExe)->getPixelShader() : NULL);
+    IDirect3DVertexShader9 *vertexShader = (vertexExe ? GetAs<ShaderExecutable9>(vertexExe)->getVertexShader() : nullptr);
+    IDirect3DPixelShader9 *pixelShader = (pixelExe ? GetAs<ShaderExecutable9>(pixelExe)->getPixelShader() : nullptr);
 
     if (vertexShader != mAppliedVertexShader)
     {
@@ -2004,14 +2006,16 @@ gl::Error Renderer9::clear(const ClearParameters &clearParams,
     unsigned int stencilUnmasked = 0x0;
     if (clearParams.clearStencil && depthStencilBuffer->getStencilSize() > 0)
     {
-        RenderTargetD3D *stencilRenderTarget = NULL;
-        gl::Error error = GetAttachmentRenderTarget(depthStencilBuffer, &stencilRenderTarget);
+        ASSERT(depthStencilBuffer != nullptr);
+
+        RenderTargetD3D *stencilRenderTarget = nullptr;
+        gl::Error error = depthStencilBuffer->getRenderTarget(&stencilRenderTarget);
         if (error.isError())
         {
             return error;
         }
 
-        RenderTarget9 *stencilRenderTarget9 = RenderTarget9::makeRenderTarget9(stencilRenderTarget);
+        RenderTarget9 *stencilRenderTarget9 = GetAs<RenderTarget9>(stencilRenderTarget);
         ASSERT(stencilRenderTarget9);
 
         const d3d9::D3DFormat &d3dFormatInfo = d3d9::GetD3DFormatInfo(stencilRenderTarget9->getD3DFormat());
@@ -2025,14 +2029,16 @@ gl::Error Renderer9::clear(const ClearParameters &clearParams,
     D3DCOLOR color = D3DCOLOR_ARGB(255, 0, 0, 0);
     if (clearColor)
     {
+        ASSERT(colorBuffer != nullptr);
+
         RenderTargetD3D *colorRenderTarget = NULL;
-        gl::Error error = GetAttachmentRenderTarget(colorBuffer, &colorRenderTarget);
+        gl::Error error = colorBuffer->getRenderTarget(&colorRenderTarget);
         if (error.isError())
         {
             return error;
         }
 
-        RenderTarget9 *colorRenderTarget9 = RenderTarget9::makeRenderTarget9(colorRenderTarget);
+        RenderTarget9 *colorRenderTarget9 = GetAs<RenderTarget9>(colorRenderTarget);
         ASSERT(colorRenderTarget9);
 
         const gl::InternalFormat &formatInfo = gl::GetInternalFormatInfo(colorBuffer->getInternalFormat());
@@ -2227,18 +2233,18 @@ void Renderer9::markAllStateDirty()
     mForceSetViewport = true;
     mForceSetBlendState = true;
 
-    ASSERT(mForceSetVertexSamplerStates.size() == mCurVertexTextureSerials.size());
+    ASSERT(mForceSetVertexSamplerStates.size() == mCurVertexTextures.size());
     for (unsigned int i = 0; i < mForceSetVertexSamplerStates.size(); i++)
     {
         mForceSetVertexSamplerStates[i] = true;
-        mCurVertexTextureSerials[i] = 0;
+        mCurVertexTextures[i] = DirtyPointer;
     }
 
-    ASSERT(mForceSetPixelSamplerStates.size() == mCurPixelTextureSerials.size());
+    ASSERT(mForceSetPixelSamplerStates.size() == mCurPixelTextures.size());
     for (unsigned int i = 0; i < mForceSetPixelSamplerStates.size(); i++)
     {
         mForceSetPixelSamplerStates[i] = true;
-        mCurPixelTextureSerials[i] = 0;
+        mCurPixelTextures[i] = DirtyPointer;
     }
 
     mAppliedIBSerial = 0;
@@ -2622,42 +2628,6 @@ gl::Error Renderer9::createRenderTarget(int width, int height, GLenum format, GL
     return gl::Error(GL_NO_ERROR);
 }
 
-DefaultAttachmentImpl *Renderer9::createDefaultAttachment(GLenum type, egl::Surface *surface)
-{
-    SurfaceD3D *surfaceD3D = GetImplAs<SurfaceD3D>(surface);
-    SwapChain9 *swapChain = SwapChain9::makeSwapChain9(surfaceD3D->getSwapChain());
-
-    switch (type)
-    {
-      case GL_BACK:
-        return new DefaultAttachmentD3D(new SurfaceRenderTarget9(swapChain, false));
-
-      case GL_DEPTH:
-        if (gl::GetInternalFormatInfo(swapChain->GetDepthBufferInternalFormat()).depthBits > 0)
-        {
-            return new DefaultAttachmentD3D(new SurfaceRenderTarget9(swapChain, true));
-        }
-        else
-        {
-            return NULL;
-        }
-
-      case GL_STENCIL:
-        if (gl::GetInternalFormatInfo(swapChain->GetDepthBufferInternalFormat()).stencilBits > 0)
-        {
-            return new DefaultAttachmentD3D(new SurfaceRenderTarget9(swapChain, true));
-        }
-        else
-        {
-            return NULL;
-        }
-
-      default:
-        UNREACHABLE();
-        return NULL;
-    }
-}
-
 FramebufferImpl *Renderer9::createDefaultFramebuffer(const gl::Framebuffer::Data &data)
 {
     return createFramebuffer(data);
@@ -2877,14 +2847,20 @@ ImageD3D *Renderer9::createImage()
 
 gl::Error Renderer9::generateMipmap(ImageD3D *dest, ImageD3D *src)
 {
-    Image9 *src9 = Image9::makeImage9(src);
-    Image9 *dst9 = Image9::makeImage9(dest);
+    Image9 *src9 = GetAs<Image9>(src);
+    Image9 *dst9 = GetAs<Image9>(dest);
     return Image9::generateMipmap(dst9, src9);
+}
+
+gl::Error Renderer9::generateMipmapsUsingD3D(TextureStorage *storage, const gl::SamplerState &samplerState)
+{
+    UNREACHABLE();
+    return gl::Error(GL_NO_ERROR);
 }
 
 TextureStorage *Renderer9::createTextureStorage2D(SwapChainD3D *swapChain)
 {
-    SwapChain9 *swapChain9 = SwapChain9::makeSwapChain9(swapChain);
+    SwapChain9 *swapChain9 = GetAs<SwapChain9>(swapChain);
     return new TextureStorage9_2D(this, swapChain9);
 }
 

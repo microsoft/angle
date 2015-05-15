@@ -18,6 +18,7 @@
 #include "libANGLE/Caps.h"
 #include "libANGLE/Config.h"
 #include "libANGLE/AttributeMap.h"
+#include "libANGLE/renderer/Renderer.h"
 
 namespace gl
 {
@@ -32,8 +33,9 @@ class DisplayImpl;
 namespace egl
 {
 class Surface;
+class Device;
 
-class Display final
+class Display final : angle::NonCopyable
 {
   public:
     ~Display();
@@ -54,6 +56,8 @@ class Display final
     Error createPbufferSurface(const Config *configuration, const AttributeMap &attribs, Surface **outSurface);
     Error createPbufferFromClientBuffer(const Config *configuration, EGLClientBuffer shareHandle, const AttributeMap &attribs,
                                         Surface **outSurface);
+    Error createPixmapSurface(const Config *configuration, NativePixmapType nativePixmap, const AttributeMap &attribs,
+                              Surface **outSurface);
 
     Error createContext(const Config *configuration, gl::Context *shareContext, const AttributeMap &attribs,
                         gl::Context **outContext);
@@ -86,10 +90,9 @@ class Display final
     EGLNativeDisplayType getNativeDisplayId() const { return mDisplayId; }
 
     rx::DisplayImpl *getImplementation() { return mImplementation; }
+    Device *getDevice() const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(Display);
-
     Display(EGLNativeDisplayType displayId);
 
     void setAttributes(rx::DisplayImpl *impl, const AttributeMap &attribMap);
@@ -117,6 +120,8 @@ class Display final
     std::string mDisplayExtensionString;
 
     std::string mVendorString;
+
+    Device *mDevice;
 };
 
 }

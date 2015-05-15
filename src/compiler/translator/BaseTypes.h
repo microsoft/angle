@@ -7,7 +7,7 @@
 #ifndef COMPILER_TRANSLATOR_BASETYPES_H_
 #define COMPILER_TRANSLATOR_BASETYPES_H_
 
-#include "compiler/translator/compilerdebug.h"
+#include "common/debug.h"
 
 //
 // Precision qualifiers
@@ -286,13 +286,10 @@ enum TQualifier
 {
     EvqTemporary,     // For temporaries (within a function), read/write
     EvqGlobal,        // For globals read/write
-    EvqInternal,      // For internal use, not visible to the user
     EvqConst,         // User defined constants and non-output parameters in functions
     EvqAttribute,     // Readonly
     EvqVaryingIn,     // readonly, fragment shaders only
     EvqVaryingOut,    // vertex shaders only  read/write
-    EvqInvariantVaryingIn,     // readonly, fragment shaders only
-    EvqInvariantVaryingOut,    // vertex shaders only  read/write
     EvqUniform,       // Readonly, vertex and fragment
 
     EvqVertexIn,      // Vertex shader input
@@ -389,12 +386,9 @@ inline const char* getQualifierString(TQualifier q)
     case EvqTemporary:      return "Temporary";      break;
     case EvqGlobal:         return "Global";         break;
     case EvqConst:          return "const";          break;
-    case EvqConstReadOnly:  return "const";          break;
     case EvqAttribute:      return "attribute";      break;
     case EvqVaryingIn:      return "varying";        break;
     case EvqVaryingOut:     return "varying";        break;
-    case EvqInvariantVaryingIn: return "invariant varying";	break;
-    case EvqInvariantVaryingOut:return "invariant varying";	break;
     case EvqUniform:        return "uniform";        break;
     case EvqVertexIn:       return "in";             break;
     case EvqFragmentOut:    return "out";            break;
@@ -403,22 +397,24 @@ inline const char* getQualifierString(TQualifier q)
     case EvqIn:             return "in";             break;
     case EvqOut:            return "out";            break;
     case EvqInOut:          return "inout";          break;
+    case EvqConstReadOnly:  return "const";          break;
     case EvqInstanceID:     return "InstanceID";     break;
     case EvqPosition:       return "Position";       break;
     case EvqPointSize:      return "PointSize";      break;
     case EvqFragCoord:      return "FragCoord";      break;
     case EvqFrontFacing:    return "FrontFacing";    break;
+    case EvqPointCoord:     return "PointCoord";     break;
     case EvqFragColor:      return "FragColor";      break;
     case EvqFragData:       return "FragData";       break;
     case EvqFragDepth:      return "FragDepth";      break;
+    case EvqLastFragColor:  return "LastFragColor";  break;
+    case EvqLastFragData:   return "LastFragData";   break;
     case EvqSmoothOut:      return "smooth out";     break;
     case EvqCentroidOut:    return "centroid out";   break;
     case EvqFlatOut:        return "flat out";       break;
     case EvqSmoothIn:       return "smooth in";      break;
-    case EvqCentroidIn:     return "centroid in";    break;
     case EvqFlatIn:         return "flat in";        break;
-    case EvqLastFragColor:  return "LastFragColor";  break;
-    case EvqLastFragData:   return "LastFragData";   break;
+    case EvqCentroidIn:     return "centroid in";    break;
     default: UNREACHABLE(); return "unknown qualifier";
     }
 }

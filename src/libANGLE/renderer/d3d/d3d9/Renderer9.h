@@ -64,8 +64,6 @@ class Renderer9 : public RendererD3D
     explicit Renderer9(egl::Display *display);
     virtual ~Renderer9();
 
-    static Renderer9 *makeRenderer9(Renderer *renderer);
-
     egl::Error initialize() override;
     virtual bool resetDevice();
 
@@ -106,7 +104,8 @@ class Renderer9 : public RendererD3D
                              bool ignoreViewport);
 
     gl::Error applyRenderTarget(const gl::Framebuffer *frameBuffer) override;
-    gl::Error applyRenderTarget(const gl::FramebufferAttachment *colorBuffer, const gl::FramebufferAttachment *depthStencilBuffer);
+    gl::Error applyRenderTarget(const gl::FramebufferAttachment *colorAttachment,
+                                const gl::FramebufferAttachment *depthStencilAttachment);
     virtual gl::Error applyShaders(gl::Program *program, const gl::VertexFormat inputLayout[], const gl::Framebuffer *framebuffer,
                                    bool rasterizerDiscard, bool transformFeedbackActive);
     virtual gl::Error applyUniforms(const ProgramImpl &program, const std::vector<gl::LinkedUniform*> &uniformArray);
@@ -135,6 +134,7 @@ class Renderer9 : public RendererD3D
     GUID getAdapterIdentifier() const override;
 
     IDirect3DDevice9 *getDevice() { return mDevice; }
+    void *getD3DDevice() override;
 
     virtual unsigned int getReservedVertexUniformVectors() const;
     virtual unsigned int getReservedFragmentUniformVectors() const;
@@ -166,7 +166,6 @@ class Renderer9 : public RendererD3D
     virtual gl::Error createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT);
 
     // Framebuffer creation
-    DefaultAttachmentImpl *createDefaultAttachment(GLenum type, egl::Surface *surface) override;
     FramebufferImpl *createDefaultFramebuffer(const gl::Framebuffer::Data &data) override;
     FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) override;
 
@@ -188,6 +187,7 @@ class Renderer9 : public RendererD3D
     // Image operations
     virtual ImageD3D *createImage();
     gl::Error generateMipmap(ImageD3D *dest, ImageD3D *source) override;
+    gl::Error generateMipmapsUsingD3D(TextureStorage *storage, const gl::SamplerState &samplerState) override;
     virtual TextureStorage *createTextureStorage2D(SwapChainD3D *swapChain);
     virtual TextureStorage *createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly);
     virtual TextureStorage *createTextureStorageCube(GLenum internalformat, bool renderTarget, int size, int levels, bool hintLevelZeroOnly);
@@ -237,8 +237,6 @@ class Renderer9 : public RendererD3D
     D3DDEVTYPE getD3D9DeviceType() const { return mDeviceType; }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(Renderer9);
-
     void generateCaps(gl::Caps *outCaps, gl::TextureCapsMap *outTextureCaps, gl::Extensions *outExtensions) const override;
     Workarounds generateWorkarounds() const override;
 
@@ -342,8 +340,8 @@ class Renderer9 : public RendererD3D
     std::vector<gl::SamplerState> mCurPixelSamplerStates;
 
     // Currently applied textures
-    std::vector<unsigned int> mCurVertexTextureSerials;
-    std::vector<unsigned int> mCurPixelTextureSerials;
+    std::vector<uintptr_t> mCurVertexTextures;
+    std::vector<uintptr_t> mCurPixelTextures;
 
     unsigned int mAppliedIBSerial;
     IDirect3DVertexShader9 *mAppliedVertexShader;

@@ -10,6 +10,7 @@
 
 #include "common/MemoryBuffer.h"
 #include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
+#include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
 #include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
 
 namespace rx
@@ -73,7 +74,7 @@ D3D11_MAP GetD3DMapTypeFromBits(GLbitfield access)
 // - index buffers
 // - pixel unpack buffers
 // - uniform buffers
-class Buffer11::BufferStorage
+class Buffer11::BufferStorage : angle::NonCopyable
 {
   public:
     virtual ~BufferStorage() {}
@@ -95,8 +96,6 @@ class Buffer11::BufferStorage
     gl::Error setData(const uint8_t *data, size_t offset, size_t size);
 
   protected:
-    DISALLOW_COPY_AND_ASSIGN(BufferStorage);
-
     BufferStorage(Renderer11 *renderer, BufferUsage usage);
 
     Renderer11 *mRenderer;
@@ -125,8 +124,6 @@ class Buffer11::NativeStorage : public Buffer11::BufferStorage
     void unmap() override;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(NativeStorage);
-
     static void fillBufferDesc(D3D11_BUFFER_DESC* bufferDesc, Renderer11 *renderer, BufferUsage usage, unsigned int bufferSize);
 
     ID3D11Buffer *mNativeStorage;
@@ -152,8 +149,6 @@ class Buffer11::PackStorage : public Buffer11::BufferStorage
     gl::Error packPixels(ID3D11Texture2D *srcTexure, UINT srcSubresource, const PackPixelsParams &params);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(PackStorage);
-
     gl::Error flushQueuedPackCommand();
 
     ID3D11Texture2D *mStagingTexture;
@@ -186,32 +181,31 @@ class Buffer11::SystemMemoryStorage : public Buffer11::BufferStorage
     MemoryBuffer *getSystemCopy() { return &mSystemCopy; }
 
   protected:
-    DISALLOW_COPY_AND_ASSIGN(SystemMemoryStorage);
-
     MemoryBuffer mSystemCopy;
 };
 
 Buffer11::Buffer11(Renderer11 *renderer)
-    : BufferD3D(),
+    : BufferD3D(renderer),
       mRenderer(renderer),
       mSize(0),
       mMappedStorage(NULL),
+      mConstantBufferStorageAdditionalSize(0),
+      mMaxConstantBufferLruCount(0),
       mReadUsageCount(0),
       mHasSystemMemoryStorage(false)
 {}
 
 Buffer11::~Buffer11()
 {
-    for (auto it = mBufferStorages.begin(); it != mBufferStorages.end(); it++)
+    for (auto &p : mBufferStorages)
     {
-        SafeDelete(it->second);
+        SafeDelete(p.second);
     }
-}
 
-Buffer11 *Buffer11::makeBuffer11(BufferImpl *buffer)
-{
-    ASSERT(HAS_DYNAMIC_TYPE(Buffer11*, buffer));
-    return static_cast<Buffer11*>(buffer);
+    for (auto &p : mConstantBufferRangeStoragesCache)
+    {
+        SafeDelete(p.second.storage);
+    }
 }
 
 gl::Error Buffer11::setData(const void *data, size_t size, GLenum usage)
@@ -319,7 +313,7 @@ gl::Error Buffer11::setSubData(const void *data, size_t size, size_t offset)
 
 gl::Error Buffer11::copySubData(BufferImpl* source, GLintptr sourceOffset, GLintptr destOffset, GLsizeiptr size)
 {
-    Buffer11 *sourceBuffer = makeBuffer11(source);
+    Buffer11 *sourceBuffer = GetAs<Buffer11>(source);
     ASSERT(sourceBuffer != NULL);
 
     BufferStorage *copyDest = getLatestBufferStorage();
@@ -370,7 +364,15 @@ gl::Error Buffer11::copySubData(BufferImpl* source, GLintptr sourceOffset, GLint
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Buffer11::map(size_t offset, size_t length, GLbitfield access, GLvoid **mapPtr)
+gl::Error Buffer11::map(GLenum access, GLvoid **mapPtr)
+{
+    // GL_OES_mapbuffer uses an enum instead of a bitfield for it's access, convert to a bitfield
+    // and call mapRange.
+    ASSERT(access == GL_WRITE_ONLY_OES);
+    return mapRange(0, mSize, GL_MAP_WRITE_BIT, mapPtr);
+}
+
+gl::Error Buffer11::mapRange(size_t offset, size_t length, GLbitfield access, GLvoid **mapPtr)
 {
     ASSERT(!mMappedStorage);
 
@@ -410,11 +412,15 @@ gl::Error Buffer11::map(size_t offset, size_t length, GLbitfield access, GLvoid 
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Buffer11::unmap()
+gl::Error Buffer11::unmap(GLboolean *result)
 {
     ASSERT(mMappedStorage);
     mMappedStorage->unmap();
     mMappedStorage = NULL;
+
+    // TODO: detect if we had corruption. if so, return false.
+    *result = GL_TRUE;
+
     return gl::Error(GL_NO_ERROR);
 }
 
@@ -442,15 +448,13 @@ void Buffer11::markBufferUsage()
         auto systemMemoryStorageIt = mBufferStorages.find(BUFFER_USAGE_SYSTEM_MEMORY);
         ASSERT(systemMemoryStorageIt != mBufferStorages.end());
 
-        SafeDelete(systemMemoryStorageIt->second);
-        mBufferStorages.erase(systemMemoryStorageIt);
-        mHasSystemMemoryStorage = false;
+        if (getLatestBufferStorage() != systemMemoryStorageIt->second)
+        {
+            SafeDelete(systemMemoryStorageIt->second);
+            mBufferStorages.erase(systemMemoryStorageIt);
+            mHasSystemMemoryStorage = false;
+        }
     }
-}
-
-RendererD3D* Buffer11::getRenderer()
-{
-    return mRenderer;
 }
 
 ID3D11Buffer *Buffer11::getBuffer(BufferUsage usage)
@@ -465,9 +469,31 @@ ID3D11Buffer *Buffer11::getBuffer(BufferUsage usage)
         return NULL;
     }
 
-    ASSERT(HAS_DYNAMIC_TYPE(NativeStorage*, bufferStorage));
+    return GetAs<NativeStorage>(bufferStorage)->getNativeStorage();
+}
 
-    return static_cast<NativeStorage*>(bufferStorage)->getNativeStorage();
+ID3D11Buffer *Buffer11::getConstantBufferRange(GLintptr offset, GLsizeiptr size)
+{
+    markBufferUsage();
+
+    BufferStorage *bufferStorage;
+
+    if (offset == 0)
+    {
+        bufferStorage = getBufferStorage(BUFFER_USAGE_UNIFORM);
+    }
+    else
+    {
+        bufferStorage = getContantBufferRangeStorage(offset, size);
+    }
+
+    if (!bufferStorage)
+    {
+        // Storage out-of-memory
+        return NULL;
+    }
+
+    return GetAs<NativeStorage>(bufferStorage)->getNativeStorage();
 }
 
 ID3D11ShaderResourceView *Buffer11::getSRV(DXGI_FORMAT srvFormat)
@@ -480,8 +506,7 @@ ID3D11ShaderResourceView *Buffer11::getSRV(DXGI_FORMAT srvFormat)
         return NULL;
     }
 
-    ASSERT(HAS_DYNAMIC_TYPE(NativeStorage*, storage));
-    ID3D11Buffer *buffer = static_cast<NativeStorage*>(storage)->getNativeStorage();
+    ID3D11Buffer *buffer = GetAs<NativeStorage>(storage)->getNativeStorage();
 
     auto bufferSRVIt = mBufferResourceViews.find(srvFormat);
 
@@ -575,15 +600,80 @@ Buffer11::BufferStorage *Buffer11::getBufferStorage(BufferUsage usage)
         }
     }
 
+    updateBufferStorage(newStorage, 0, mSize);
+
+    return newStorage;
+}
+
+Buffer11::BufferStorage *Buffer11::getContantBufferRangeStorage(GLintptr offset, GLsizeiptr size)
+{
+    BufferStorage *newStorage;
+
+    {
+        // Keep the cacheEntry in a limited scope because it may be invalidated later in the code if we need to reclaim some space.
+        ConstantBufferCacheEntry *cacheEntry = &mConstantBufferRangeStoragesCache[offset];
+
+        if (!cacheEntry->storage)
+        {
+            cacheEntry->storage = new NativeStorage(mRenderer, BUFFER_USAGE_UNIFORM);
+            cacheEntry->lruCount = ++mMaxConstantBufferLruCount;
+        }
+
+        cacheEntry->lruCount = ++mMaxConstantBufferLruCount;
+        newStorage = cacheEntry->storage;
+    }
+
+    if (newStorage->getSize() < static_cast<size_t>(size))
+    {
+        size_t maximumAllowedAdditionalSize = 2 * getSize();
+
+        size_t sizeDelta = size - newStorage->getSize();
+
+        while (mConstantBufferStorageAdditionalSize + sizeDelta > maximumAllowedAdditionalSize)
+        {
+            auto iter = std::min_element(std::begin(mConstantBufferRangeStoragesCache), std::end(mConstantBufferRangeStoragesCache),
+                [](const ConstantBufferCache::value_type &a, const ConstantBufferCache::value_type &b)
+                {
+                    return a.second.lruCount < b.second.lruCount;
+                });
+
+            ASSERT(iter->second.storage != newStorage);
+            ASSERT(mConstantBufferStorageAdditionalSize >= iter->second.storage->getSize());
+
+            mConstantBufferStorageAdditionalSize -= iter->second.storage->getSize();
+            SafeDelete(iter->second.storage);
+            mConstantBufferRangeStoragesCache.erase(iter);
+        }
+
+        if (newStorage->resize(size, false).isError())
+        {
+            // Out of memory error
+            return nullptr;
+        }
+
+        mConstantBufferStorageAdditionalSize += sizeDelta;
+
+        // We don't copy the old data when resizing the constant buffer because the data may be out-of-date
+        // therefore we reset the data revision and let updateBufferStorage() handle the copy.
+        newStorage->setDataRevision(0);
+    }
+
+    updateBufferStorage(newStorage, offset, size);
+
+    return newStorage;
+}
+
+void Buffer11::updateBufferStorage(BufferStorage *storage, size_t sourceOffset, size_t storageSize)
+{
     BufferStorage *latestBuffer = getLatestBufferStorage();
-    if (latestBuffer && latestBuffer->getDataRevision() > newStorage->getDataRevision())
+    if (latestBuffer && latestBuffer->getDataRevision() > storage->getDataRevision())
     {
         // Copy through a staging buffer if we're copying from or to a non-staging, mappable
         // buffer storage. This is because we can't map a GPU buffer, and copy CPU
         // data directly. If we're already using a staging buffer we're fine.
         if (latestBuffer->getUsage() != BUFFER_USAGE_STAGING &&
-            newStorage->getUsage() != BUFFER_USAGE_STAGING &&
-            (!latestBuffer->isMappable() || !newStorage->isMappable()))
+            storage->getUsage() != BUFFER_USAGE_STAGING &&
+            (!latestBuffer->isMappable() || !storage->isMappable()))
         {
             NativeStorage *stagingBuffer = getStagingStorage();
 
@@ -595,14 +685,12 @@ Buffer11::BufferStorage *Buffer11::getBufferStorage(BufferUsage usage)
 
         // if copyFromStorage returns true, the D3D buffer has been recreated
         // and we should update our serial
-        if (newStorage->copyFromStorage(latestBuffer, 0, latestBuffer->getSize(), 0))
+        if (storage->copyFromStorage(latestBuffer, sourceOffset, storageSize, 0))
         {
             updateSerial();
         }
-        newStorage->setDataRevision(latestBuffer->getDataRevision());
+        storage->setDataRevision(latestBuffer->getDataRevision());
     }
-
-    return newStorage;
 }
 
 Buffer11::BufferStorage *Buffer11::getLatestBufferStorage() const
@@ -644,8 +732,7 @@ Buffer11::NativeStorage *Buffer11::getStagingStorage()
         return NULL;
     }
 
-    ASSERT(HAS_DYNAMIC_TYPE(NativeStorage*, stagingStorage));
-    return static_cast<NativeStorage*>(stagingStorage);
+    return GetAs<NativeStorage>(stagingStorage);
 }
 
 Buffer11::PackStorage *Buffer11::getPackStorage()
@@ -658,8 +745,7 @@ Buffer11::PackStorage *Buffer11::getPackStorage()
         return NULL;
     }
 
-    ASSERT(HAS_DYNAMIC_TYPE(PackStorage*, packStorage));
-    return static_cast<PackStorage*>(packStorage);
+    return GetAs<PackStorage>(packStorage);
 }
 
 bool Buffer11::supportsDirectIndexBinding() const
@@ -727,14 +813,14 @@ bool Buffer11::NativeStorage::copyFromStorage(BufferStorage *source, size_t sour
 {
     ID3D11DeviceContext *context = mRenderer->getDeviceContext();
 
-    size_t requiredSize = sourceOffset + size;
+    size_t requiredSize = destOffset + size;
     bool createBuffer = !mNativeStorage || mBufferSize < requiredSize;
 
     // (Re)initialize D3D buffer if needed
     if (createBuffer)
     {
         bool preserveData = (destOffset > 0);
-        resize(source->getSize(), preserveData);
+        resize(requiredSize, preserveData);
     }
 
     if (source->getUsage() == BUFFER_USAGE_PIXEL_PACK ||
@@ -760,8 +846,6 @@ bool Buffer11::NativeStorage::copyFromStorage(BufferStorage *source, size_t sour
     }
     else
     {
-        ASSERT(HAS_DYNAMIC_TYPE(NativeStorage*, source));
-
         D3D11_BOX srcBox;
         srcBox.left = sourceOffset;
         srcBox.right = sourceOffset + size;
@@ -770,8 +854,7 @@ bool Buffer11::NativeStorage::copyFromStorage(BufferStorage *source, size_t sour
         srcBox.front = 0;
         srcBox.back = 1;
 
-        ASSERT(HAS_DYNAMIC_TYPE(NativeStorage*, source));
-        ID3D11Buffer *sourceBuffer = static_cast<NativeStorage*>(source)->getNativeStorage();
+        ID3D11Buffer *sourceBuffer = GetAs<NativeStorage>(source)->getNativeStorage();
 
         context->CopySubresourceRegion(mNativeStorage, 0, destOffset, 0, 0, sourceBuffer, 0, &srcBox);
     }
@@ -794,6 +877,8 @@ gl::Error Buffer11::NativeStorage::resize(size_t size, bool preserveData)
     {
         return gl::Error(GL_OUT_OF_MEMORY, "Failed to create internal buffer, result: 0x%X.", result);
     }
+
+    d3d11::SetDebugName(newBuffer, "Buffer11::NativeStorage");
 
     if (mNativeStorage && preserveData)
     {
@@ -867,7 +952,7 @@ void Buffer11::NativeStorage::fillBufferDesc(D3D11_BUFFER_DESC* bufferDesc, Rend
         // Constant buffers must be of a limited size, and aligned to 16 byte boundaries
         // For our purposes we ignore any buffer data past the maximum constant buffer size
         bufferDesc->ByteWidth = roundUp(bufferDesc->ByteWidth, 16u);
-        bufferDesc->ByteWidth = std::min<UINT>(bufferDesc->ByteWidth, renderer->getRendererCaps().maxUniformBlockSize);
+        bufferDesc->ByteWidth = std::min<UINT>(bufferDesc->ByteWidth, static_cast<UINT>(renderer->getRendererCaps().maxUniformBlockSize));
         break;
 
       default:

@@ -20,31 +20,43 @@ class TransformFeedbackImpl;
 
 namespace gl
 {
+class Buffer;
+struct Caps;
 
 class TransformFeedback : public RefCountObject
 {
   public:
-    TransformFeedback(rx::TransformFeedbackImpl* impl, GLuint id);
+    TransformFeedback(rx::TransformFeedbackImpl* impl, GLuint id, const Caps &caps);
     virtual ~TransformFeedback();
 
-    void start(GLenum primitiveMode);
-    void stop();
-    GLboolean isStarted() const;
-
-    GLenum getDrawMode() const;
-
+    void begin(GLenum primitiveMode);
+    void end();
     void pause();
     void resume();
-    GLboolean isPaused() const;
+
+    bool isActive() const;
+    bool isPaused() const;
+    GLenum getPrimitiveMode() const;
+
+    void bindGenericBuffer(Buffer *buffer);
+    const BindingPointer<Buffer> &getGenericBuffer() const;
+
+    void bindIndexedBuffer(size_t index, Buffer *buffer, size_t offset, size_t size);
+    const OffsetBindingPointer<Buffer> &getIndexedBuffer(size_t index) const;
+    size_t getIndexedBufferCount() const;
+
+    rx::TransformFeedbackImpl *getImplementation();
+    const rx::TransformFeedbackImpl *getImplementation() const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TransformFeedback);
+    rx::TransformFeedbackImpl* mImplementation;
 
-    rx::TransformFeedbackImpl* mTransformFeedback;
-
-    GLboolean mStarted;
+    bool mActive;
     GLenum mPrimitiveMode;
-    GLboolean mPaused;
+    bool mPaused;
+
+    BindingPointer<Buffer> mGenericBuffer;
+    std::vector<OffsetBindingPointer<Buffer>> mIndexedBuffers;
 };
 
 }

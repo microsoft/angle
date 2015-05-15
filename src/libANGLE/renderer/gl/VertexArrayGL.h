@@ -34,8 +34,6 @@ class VertexArrayGL : public VertexArrayImpl
     GLuint getVertexArrayID() const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(VertexArrayGL);
-
     gl::Error syncDrawState(GLint first, GLsizei count, GLenum type, const GLvoid *indices, const GLvoid **outIndices) const;
 
     // Check if any vertex attributes need to be streamed
@@ -43,15 +41,15 @@ class VertexArrayGL : public VertexArrayImpl
 
     // Apply attribute state, returns the amount of space needed to stream all attributes that need streaming
     // and the data size of the largest attribute
-    gl::Error syncAttributeState(bool attributesNeedStreaming, const RangeUI &indexRange, size_t *outStreamingDataSize,
+    gl::Error syncAttributeState(bool attributesNeedStreaming, const gl::RangeUI &indexRange, size_t *outStreamingDataSize,
                                  size_t *outMaxAttributeDataSize) const;
 
     // Apply index data, only sets outIndexRange if attributesNeedStreaming is true
     gl::Error syncIndexData(GLsizei count, GLenum type, const GLvoid *indices, bool attributesNeedStreaming,
-                            RangeUI *outIndexRange, const GLvoid **outIndices) const;
+                            gl::RangeUI *outIndexRange, const GLvoid **outIndices) const;
 
     // Stream attributes that have client data
-    gl::Error streamAttributes(size_t streamingDataSize, size_t maxAttributeDataSize, const RangeUI &indexRange) const;
+    gl::Error streamAttributes(size_t streamingDataSize, size_t maxAttributeDataSize, const gl::RangeUI &indexRange) const;
 
     const FunctionsGL *mFunctions;
     StateManagerGL *mStateManager;

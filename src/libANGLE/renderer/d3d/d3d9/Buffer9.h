@@ -23,26 +23,27 @@ class Buffer9 : public BufferD3D
     Buffer9(Renderer9 *renderer);
     virtual ~Buffer9();
 
-    static Buffer9 *makeBuffer9(BufferImpl *buffer);
-
     // BufferD3D implementation
     virtual size_t getSize() const { return mSize; }
+<<<<<<< HEAD
     virtual bool supportsDirectIndexBinding() const { return false; }
     virtual bool supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &attrib) { return false; }
     RendererD3D *getRenderer() override;
+=======
+    virtual bool supportsDirectBinding() const { return false; }
+    gl::Error getData(const uint8_t **outData) override;
+>>>>>>> google/master
 
     // BufferImpl implementation
     virtual gl::Error setData(const void* data, size_t size, GLenum usage);
-    gl::Error getData(const uint8_t **outData) override;
     virtual gl::Error setSubData(const void* data, size_t size, size_t offset);
     virtual gl::Error copySubData(BufferImpl* source, GLintptr sourceOffset, GLintptr destOffset, GLsizeiptr size);
-    virtual gl::Error map(size_t offset, size_t length, GLbitfield access, GLvoid **mapPtr);
-    virtual gl::Error unmap();
+    virtual gl::Error map(GLenum access, GLvoid **mapPtr);
+    virtual gl::Error mapRange(size_t offset, size_t length, GLbitfield access, GLvoid **mapPtr);
+    virtual gl::Error unmap(GLboolean *result);
     virtual void markTransformFeedbackUsage();
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(Buffer9);
-
     Renderer9 *mRenderer;
     MemoryBuffer mMemory;
     size_t mSize;

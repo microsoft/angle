@@ -23,8 +23,6 @@ class IndexBuffer9 : public IndexBuffer
 
     virtual gl::Error initialize(unsigned int bufferSize, GLenum indexType, bool dynamic);
 
-    static IndexBuffer9 *makeIndexBuffer9(IndexBuffer *indexBuffer);
-
     virtual gl::Error mapBuffer(unsigned int offset, unsigned int size, void** outMappedMemory);
     virtual gl::Error unmapBuffer();
 
@@ -38,8 +36,6 @@ class IndexBuffer9 : public IndexBuffer
     IDirect3DIndexBuffer9 *getBuffer() const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(IndexBuffer9);
-
     Renderer9 *const mRenderer;
 
     IDirect3DIndexBuffer9 *mIndexBuffer;

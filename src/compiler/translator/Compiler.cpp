@@ -5,12 +5,13 @@
 //
 
 #include "compiler/translator/Compiler.h"
-#include "compiler/translator/DetectCallDepth.h"
+#include "compiler/translator/CallDAG.h"
 #include "compiler/translator/ForLoopUnroll.h"
 #include "compiler/translator/Initialize.h"
 #include "compiler/translator/InitializeParseContext.h"
 #include "compiler/translator/InitializeVariables.h"
 #include "compiler/translator/ParseContext.h"
+#include "compiler/translator/PruneEmptyDeclarations.h"
 #include "compiler/translator/RegenerateStructNames.h"
 #include "compiler/translator/RenameFunction.h"
 #include "compiler/translator/ScalarizeVecAndMatConstructorArgs.h"
@@ -31,6 +32,13 @@ bool IsWebGLBasedSpec(ShShaderSpec spec)
     return (spec == SH_WEBGL_SPEC ||
             spec == SH_CSS_SHADERS_SPEC ||
             spec == SH_WEBGL2_SPEC);
+}
+
+bool IsGLSL130OrNewer(ShShaderOutput output)
+{
+    return (output == SH_GLSL_130_OUTPUT ||
+            output == SH_GLSL_410_CORE_OUTPUT ||
+            output == SH_GLSL_420_CORE_OUTPUT);
 }
 
 size_t GetGlobalMaxTokenSize(ShShaderSpec spec)
@@ -194,7 +202,7 @@ TIntermNode *TCompiler::compileTreeImpl(const char* const shaderStrings[],
                                shaderType, shaderSpec, compileOptions, true,
                                infoSink, debugShaderPrecision);
 
-    parseContext.fragmentPrecisionHigh = fragmentPrecisionHigh;
+    parseContext.setFragmentPrecisionHigh(fragmentPrecisionHigh);
     SetGlobalParseContext(&parseContext);
 
     // We preserve symbols at the built-in level from compile-to-compile.
@@ -203,8 +211,8 @@ TIntermNode *TCompiler::compileTreeImpl(const char* const shaderStrings[],
 
     // Parse shader.
     bool success =
-        (PaParseStrings(numStrings - firstSource, &shaderStrings[firstSource], NULL, &parseContext) == 0) &&
-        (parseContext.treeRoot != NULL);
+        (PaParseStrings(numStrings - firstSource, &shaderStrings[firstSource], nullptr, &parseContext) == 0) &&
+        (parseContext.getTreeRoot() != nullptr);
 
     shaderVersion = parseContext.getShaderVersion();
     if (success && MapSpecToShaderVersion(shaderSpec) < shaderVersion)
@@ -214,7 +222,7 @@ TIntermNode *TCompiler::compileTreeImpl(const char* const shaderStrings[],
         success = false;
     }
 
-    TIntermNode *root = NULL;
+    TIntermNode *root = nullptr;
 
     if (success)
     {
@@ -224,15 +232,34 @@ TIntermNode *TCompiler::compileTreeImpl(const char* const shaderStrings[],
             symbolTable.setGlobalInvariant();
         }
 
-        root = parseContext.treeRoot;
+        root = parseContext.getTreeRoot();
         success = intermediate.postProcess(root);
 
         // Disallow expressions deemed too complex.
         if (success && (compileOptions & SH_LIMIT_EXPRESSION_COMPLEXITY))
             success = limitExpressionComplexity(root);
 
+        // Create the function DAG and check there is no recursion
         if (success)
-            success = detectCallDepth(root, infoSink, (compileOptions & SH_LIMIT_CALL_STACK_DEPTH) != 0);
+            success = initCallDag(root);
+
+        if (success && (compileOptions & SH_LIMIT_CALL_STACK_DEPTH))
+            success = checkCallDepth();
+
+        // Checks which functions are used and if "main" exists
+        if (success)
+        {
+            functionMetadata.clear();
+            functionMetadata.resize(mCallDag.size());
+            success = tagUsedFunctions();
+        }
+
+        if (success && !(compileOptions & SH_DONT_PRUNE_UNUSED_FUNCTIONS))
+            success = pruneUnusedFunctions(root);
+
+        // Prune empty declarations to work around driver bugs and to keep declaration output simple.
+        if (success)
+            PruneEmptyDeclarations(root);
 
         if (success && shaderVersion == 300 && shaderType == GL_FRAGMENT_SHADER)
             success = validateOutputs(root);
@@ -456,30 +483,161 @@ void TCompiler::clearResults()
     mSourcePath = NULL;
 }
 
-bool TCompiler::detectCallDepth(TIntermNode* inputRoot, TInfoSink& inputInfoSink, bool limitCallStackDepth)
+bool TCompiler::initCallDag(TIntermNode *root)
 {
-    DetectCallDepth detect(inputInfoSink, limitCallStackDepth, maxCallStackDepth);
-    inputRoot->traverse(&detect);
-    switch (detect.detectCallDepth())
+    mCallDag.clear();
+
+    switch (mCallDag.init(root, &infoSink.info))
     {
-      case DetectCallDepth::kErrorNone:
+      case CallDAG::INITDAG_SUCCESS:
         return true;
-      case DetectCallDepth::kErrorMissingMain:
-        inputInfoSink.info.prefix(EPrefixError);
-        inputInfoSink.info << "Missing main()";
+      case CallDAG::INITDAG_RECURSION:
+        infoSink.info.prefix(EPrefixError);
+        infoSink.info << "Function recursion detected";
         return false;
-      case DetectCallDepth::kErrorRecursion:
-        inputInfoSink.info.prefix(EPrefixError);
-        inputInfoSink.info << "Function recursion detected";
-        return false;
-      case DetectCallDepth::kErrorMaxDepthExceeded:
-        inputInfoSink.info.prefix(EPrefixError);
-        inputInfoSink.info << "Function call stack too deep";
-        return false;
-      default:
-        UNREACHABLE();
+      case CallDAG::INITDAG_UNDEFINED:
+        infoSink.info.prefix(EPrefixError);
+        infoSink.info << "Unimplemented function detected";
         return false;
     }
+
+    UNREACHABLE();
+    return true;
+}
+
+bool TCompiler::checkCallDepth()
+{
+    std::vector<int> depths(mCallDag.size());
+
+    for (size_t i = 0; i < mCallDag.size(); i++)
+    {
+        int depth = 0;
+        auto &record = mCallDag.getRecordFromIndex(i);
+
+        for (auto &calleeIndex : record.callees)
+        {
+            depth = std::max(depth, depths[calleeIndex] + 1);
+        }
+
+        depths[i] = depth;
+
+        if (depth >= maxCallStackDepth)
+        {
+            // Trace back the function chain to have a meaningful info log.
+            infoSink.info.prefix(EPrefixError);
+            infoSink.info << "Call stack too deep (larger than " << maxCallStackDepth
+                          << ") with the following call chain: " << record.name;
+
+            int currentFunction = i;
+            int currentDepth = depth;
+
+            while (currentFunction != -1)
+            {
+                infoSink.info << " -> " << mCallDag.getRecordFromIndex(currentFunction).name;
+
+                int nextFunction = -1;
+                for (auto& calleeIndex : mCallDag.getRecordFromIndex(currentFunction).callees)
+                {
+                    if (depths[calleeIndex] == currentDepth - 1)
+                    {
+                        currentDepth--;
+                        nextFunction = calleeIndex;
+                    }
+                }
+
+                currentFunction = nextFunction;
+            }
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool TCompiler::tagUsedFunctions()
+{
+    // Search from main, starting from the end of the DAG as it usually is the root.
+    for (int i = mCallDag.size(); i-- > 0;)
+    {
+        if (mCallDag.getRecordFromIndex(i).name == "main(")
+        {
+            internalTagUsedFunction(i);
+            return true;
+        }
+    }
+
+    infoSink.info.prefix(EPrefixError);
+    infoSink.info << "Missing main()";
+    return false;
+}
+
+void TCompiler::internalTagUsedFunction(size_t index)
+{
+    if (functionMetadata[index].used)
+    {
+        return;
+    }
+
+    functionMetadata[index].used = true;
+
+    for (int calleeIndex : mCallDag.getRecordFromIndex(index).callees)
+    {
+        internalTagUsedFunction(calleeIndex);
+    }
+}
+
+// A predicate for the stl that returns if a top-level node is unused
+class TCompiler::UnusedPredicate
+{
+  public:
+    UnusedPredicate(const CallDAG *callDag, const std::vector<FunctionMetadata> *metadatas)
+        : mCallDag(callDag),
+          mMetadatas(metadatas)
+    {
+    }
+
+    bool operator ()(TIntermNode *node)
+    {
+        const TIntermAggregate *asAggregate = node->getAsAggregate();
+
+        if (asAggregate == nullptr)
+        {
+            return false;
+        }
+
+        if (!(asAggregate->getOp() == EOpFunction || asAggregate->getOp() == EOpPrototype))
+        {
+            return false;
+        }
+
+        size_t callDagIndex = mCallDag->findIndex(asAggregate);
+        if (callDagIndex == CallDAG::InvalidIndex)
+        {
+            // This happens only for unimplemented prototypes which are thus unused
+            ASSERT(asAggregate->getOp() == EOpPrototype);
+            return true;
+        }
+
+        ASSERT(callDagIndex < mMetadatas->size());
+        return !(*mMetadatas)[callDagIndex].used;
+    }
+
+  private:
+    const CallDAG *mCallDag;
+    const std::vector<FunctionMetadata> *mMetadatas;
+};
+
+bool TCompiler::pruneUnusedFunctions(TIntermNode *root)
+{
+    TIntermAggregate *rootNode = root->getAsAggregate();
+    ASSERT(rootNode != nullptr);
+
+    UnusedPredicate isUnused(&mCallDag, &functionMetadata);
+    TIntermSequence *sequence = rootNode->getSequence();
+    sequence->erase(std::remove_if(sequence->begin(), sequence->end(), isUnused), sequence->end());
+
+    return true;
 }
 
 bool TCompiler::validateOutputs(TIntermNode* root)

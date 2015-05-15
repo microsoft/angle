@@ -15,6 +15,7 @@
 //
 
 #include "compiler/translator/BuiltInFunctionEmulator.h"
+#include "compiler/translator/CallDAG.h"
 #include "compiler/translator/ExtensionBehavior.h"
 #include "compiler/translator/HashNames.h"
 #include "compiler/translator/InfoSink.h"
@@ -34,6 +35,11 @@ class TranslatorHLSL;
 // like the CSS Shaders spec.
 //
 bool IsWebGLBasedSpec(ShShaderSpec spec);
+
+//
+// Helper function to check if the shader type is GLSL.
+//
+bool IsGLSL130OrNewer(ShShaderOutput output);
 
 //
 // The base class used to back handles returned to the driver.
@@ -103,8 +109,8 @@ class TCompiler : public TShHandleBase
     void setResourceString();
     // Clears the results from the previous compilation.
     void clearResults();
-    // Return true if function recursion is detected or call depth exceeded.
-    bool detectCallDepth(TIntermNode* root, TInfoSink& infoSink, bool limitCallStackDepth);
+    // Return false if the call depth is exceeded.
+    bool checkCallDepth();
     // Returns true if a program has no conflicting or missing fragment outputs
     bool validateOutputs(TIntermNode* root);
     // Rewrites a shader's intermediate tree according to the CSS Shaders spec.
@@ -158,12 +164,34 @@ class TCompiler : public TShHandleBase
     std::vector<sh::InterfaceBlock> interfaceBlocks;
 
   private:
+    // Creates the function call DAG for further analysis, returning false if there is a recursion
+    bool initCallDag(TIntermNode *root);
+    // Return false if "main" doesn't exist
+    bool tagUsedFunctions();
+    void internalTagUsedFunction(size_t index);
+
+    // Removes unused function declarations and prototypes from the AST
+    class UnusedPredicate;
+    bool pruneUnusedFunctions(TIntermNode *root);
+
     TIntermNode *compileTreeImpl(const char* const shaderStrings[],
         size_t numStrings, int compileOptions);
 
     sh::GLenum shaderType;
     ShShaderSpec shaderSpec;
     ShShaderOutput outputType;
+
+    struct FunctionMetadata
+    {
+        FunctionMetadata()
+            : used(false)
+        {
+        }
+        bool used;
+    };
+
+    CallDAG mCallDag;
+    std::vector<FunctionMetadata> functionMetadata;
 
     int maxUniformVectors;
     int maxExpressionComplexity;

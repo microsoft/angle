@@ -9,30 +9,35 @@
 #ifndef LIBANGLE_RENDERER_D3D_BUFFERD3D_H_
 #define LIBANGLE_RENDERER_D3D_BUFFERD3D_H_
 
-#include "libANGLE/renderer/BufferImpl.h"
 #include "libANGLE/angletypes.h"
+#include "libANGLE/renderer/BufferImpl.h"
 
 #include <stdint.h>
 
 namespace rx
 {
-class RendererD3D;
+class BufferFactoryD3D;
 class StaticIndexBufferInterface;
 class StaticVertexBufferInterface;
 
 class BufferD3D : public BufferImpl
 {
   public:
-    BufferD3D();
+    BufferD3D(BufferFactoryD3D *factory);
     virtual ~BufferD3D();
 
     unsigned int getSerial() const { return mSerial; }
 
     virtual size_t getSize() const = 0;
+<<<<<<< HEAD
     virtual bool supportsDirectIndexBinding() const = 0;
     virtual bool supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &attrib) = 0;
     virtual RendererD3D *getRenderer() = 0;
+=======
+    virtual bool supportsDirectBinding() const = 0;
+>>>>>>> google/master
     virtual void markTransformFeedbackUsage() = 0;
+    virtual gl::Error getData(const uint8_t **outData) = 0;
 
     StaticVertexBufferInterface *getStaticVertexBufferForAttribute(const gl::VertexAttribute &attrib);
     StaticIndexBufferInterface *getStaticIndexBuffer() { return mStaticIndexBuffer; }
@@ -42,10 +47,16 @@ class BufferD3D : public BufferImpl
     void promoteStaticIndexUsage(int dataSize);
     void promoteStaticVertexUsageForAttrib(const gl::VertexAttribute &attrib, int dataSize);
 
+    gl::Error getIndexRange(GLenum type, size_t offset, size_t count, gl::RangeUI *outRange) override;
+
   protected:
+    void updateSerial();
+
+    BufferFactoryD3D *mFactory;
     unsigned int mSerial;
     static unsigned int mNextSerial;
 
+<<<<<<< HEAD
     void updateSerial();
 
     StaticVertexBufferInterface *findStaticVertexBufferForAttribute(const gl::VertexAttribute &attrib);
@@ -76,6 +87,9 @@ class BufferD3D : public BufferImpl
     std::map<AttribElement, StaticVertexBufferInterface*> mStaticVertexBufferForAttributeMap;
     std::map<AttribElement, unsigned int> mUnmodifiedVertexDataUseMap;
 
+=======
+    StaticVertexBufferInterface *mStaticVertexBuffer;
+>>>>>>> google/master
     StaticIndexBufferInterface *mStaticIndexBuffer;
     unsigned int mUnmodifiedIndexDataUse;
 

@@ -30,7 +30,7 @@ class SwapChainD3D;
 class RenderTargetD3D;
 class ImageD3D;
 
-class TextureStorage
+class TextureStorage : angle::NonCopyable
 {
   public:
     TextureStorage();
@@ -39,6 +39,7 @@ class TextureStorage
     virtual int getTopLevel() const = 0;
     virtual bool isRenderTarget() const = 0;
     virtual bool isManaged() const = 0;
+    virtual bool supportsNativeMipmapFunction() const = 0;
     virtual int getLevelCount() const = 0;
 
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTargetD3D **outRT) = 0;
@@ -58,8 +59,6 @@ class TextureStorage
     void initializeSerials(unsigned int rtSerialsToReserve, unsigned int rtSerialsLayerStride);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(TextureStorage);
-
     unsigned int mFirstRenderTargetSerial;
     unsigned int mRenderTargetSerialsLayerStride;
 };

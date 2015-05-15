@@ -25,16 +25,16 @@ struct Rectangle;
 namespace rx
 {
 
-class FramebufferImpl
+class FramebufferImpl : angle::NonCopyable
 {
   public:
     explicit FramebufferImpl(const gl::Framebuffer::Data &data) : mData(data) { }
     virtual ~FramebufferImpl() { }
 
-    virtual void setColorAttachment(size_t index, const gl::FramebufferAttachment *attachment) = 0;
-    virtual void setDepthAttachment(const gl::FramebufferAttachment *attachment) = 0;
-    virtual void setStencilAttachment(const gl::FramebufferAttachment *attachment) = 0;
-    virtual void setDepthStencilAttachment(const gl::FramebufferAttachment *attachment) = 0;
+    virtual void onUpdateColorAttachment(size_t index) = 0;
+    virtual void onUpdateDepthAttachment() = 0;
+    virtual void onUpdateStencilAttachment() = 0;
+    virtual void onUpdateDepthStencilAttachment() = 0;
 
     virtual void setDrawBuffers(size_t count, const GLenum *buffers) = 0;
     virtual void setReadBuffer(GLenum buffer) = 0;
@@ -42,7 +42,7 @@ class FramebufferImpl
     virtual gl::Error invalidate(size_t count, const GLenum *attachments) = 0;
     virtual gl::Error invalidateSub(size_t count, const GLenum *attachments, const gl::Rectangle &area) = 0;
 
-    virtual gl::Error clear(const gl::State &state, GLbitfield mask) = 0;
+    virtual gl::Error clear(const gl::Data &data, GLbitfield mask) = 0;
     virtual gl::Error clearBufferfv(const gl::State &state, GLenum buffer, GLint drawbuffer, const GLfloat *values) = 0;
     virtual gl::Error clearBufferuiv(const gl::State &state, GLenum buffer, GLint drawbuffer, const GLuint *values) = 0;
     virtual gl::Error clearBufferiv(const gl::State &state, GLenum buffer, GLint drawbuffer, const GLint *values) = 0;
@@ -61,9 +61,6 @@ class FramebufferImpl
 
   protected:
     const gl::Framebuffer::Data &mData;
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN(FramebufferImpl);
 };
 
 }

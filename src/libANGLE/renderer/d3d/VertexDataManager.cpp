@@ -8,14 +8,14 @@
 // runs the Buffer translation process.
 
 #include "libANGLE/renderer/d3d/VertexDataManager.h"
-#include "libANGLE/renderer/d3d/BufferD3D.h"
-#include "libANGLE/renderer/d3d/VertexBuffer.h"
-#include "libANGLE/renderer/Renderer.h"
+
 #include "libANGLE/Buffer.h"
 #include "libANGLE/Program.h"
+#include "libANGLE/State.h"
 #include "libANGLE/VertexAttribute.h"
 #include "libANGLE/VertexArray.h"
-#include "libANGLE/State.h"
+#include "libANGLE/renderer/d3d/BufferD3D.h"
+#include "libANGLE/renderer/d3d/VertexBuffer.h"
 
 namespace
 {
@@ -55,7 +55,8 @@ static int StreamingBufferElementCount(const gl::VertexAttribute &attrib, int ve
     return vertexDrawCount;
 }
 
-VertexDataManager::VertexDataManager(RendererD3D *renderer) : mRenderer(renderer)
+VertexDataManager::VertexDataManager(BufferFactoryD3D *factory)
+    : mFactory(factory)
 {
     for (int i = 0; i < gl::MAX_VERTEX_ATTRIBS; i++)
     {
@@ -68,7 +69,7 @@ VertexDataManager::VertexDataManager(RendererD3D *renderer) : mRenderer(renderer
         mCurrentValueOffsets[i] = 0;
     }
 
-    mStreamingBuffer = new StreamingVertexBufferInterface(renderer, INITIAL_STREAM_BUFFER_SIZE);
+    mStreamingBuffer = new StreamingVertexBufferInterface(factory, INITIAL_STREAM_BUFFER_SIZE);
 
     if (!mStreamingBuffer)
     {
@@ -91,6 +92,25 @@ void VertexDataManager::hintUnmapAllResources(const std::vector<gl::VertexAttrib
     mStreamingBuffer->getVertexBuffer()->hintUnmapResource();
 
     for (size_t i = 0; i < vertexAttributes.size(); i++)
+<<<<<<< HEAD
+=======
+    {
+        const gl::VertexAttribute &attrib = vertexAttributes[i];
+        if (attrib.enabled)
+        {
+            gl::Buffer *buffer = attrib.buffer.get();
+            BufferD3D *storage = buffer ? GetImplAs<BufferD3D>(buffer) : NULL;
+            StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBuffer() : NULL;
+
+            if (staticBuffer)
+            {
+                staticBuffer->getVertexBuffer()->hintUnmapResource();
+            }
+        }
+    }
+
+    for (int i = 0; i < gl::MAX_VERTEX_ATTRIBS; i++)
+>>>>>>> google/master
     {
         if (mCurrentValueBuffer[i] != NULL)
         {
@@ -154,7 +174,7 @@ gl::Error VertexDataManager::prepareVertexData(const gl::State &state, GLint sta
             {
                 if (!mCurrentValueBuffer[i])
                 {
-                    mCurrentValueBuffer[i] = new StreamingVertexBufferInterface(mRenderer, CONSTANT_VERTEX_BUFFER_SIZE);
+                    mCurrentValueBuffer[i] = new StreamingVertexBufferInterface(mFactory, CONSTANT_VERTEX_BUFFER_SIZE);
                 }
 
                 gl::Error error = storeCurrentValue(curAttrib, state.getVertexAttribCurrentValue(i), &translated[i],
@@ -275,7 +295,7 @@ gl::Error VertexDataManager::storeAttribute(const gl::VertexAttribute &attrib,
     if (directStorage)
     {
         outputElementSize = ComputeVertexAttributeStride(attrib);
-        streamOffset = attrib.offset + outputElementSize * firstVertexIndex;
+        streamOffset = static_cast<unsigned int>(attrib.offset + outputElementSize * firstVertexIndex);
     }
     else if (staticBuffer)
     {

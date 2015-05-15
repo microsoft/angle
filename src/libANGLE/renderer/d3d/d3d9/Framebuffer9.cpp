@@ -34,7 +34,7 @@ Framebuffer9::~Framebuffer9()
 
 gl::Error Framebuffer9::clear(const gl::State &state, const ClearParameters &clearParams)
 {
-    const gl::FramebufferAttachment *colorAttachment = mData.mColorAttachments[0];
+    const gl::FramebufferAttachment *colorAttachment = mData.getColorAttachment(0);
     const gl::FramebufferAttachment *depthStencilAttachment = mData.getDepthOrStencilAttachment();
 
     gl::Error error = mRenderer->applyRenderTarget(colorAttachment, depthStencilAttachment);
@@ -43,8 +43,8 @@ gl::Error Framebuffer9::clear(const gl::State &state, const ClearParameters &cle
         return error;
     }
 
-    float nearZ, farZ;
-    state.getDepthRange(&nearZ, &farZ);
+    float nearZ = state.getNearPlane();
+    float farZ = state.getFarPlane();
     mRenderer->setViewport(state.getViewport(), nearZ, farZ, GL_TRIANGLES, state.getRasterizerState().frontFace, true);
 
     mRenderer->setScissorRectangle(state.getScissor(), state.isScissorTestEnabled());
@@ -54,13 +54,13 @@ gl::Error Framebuffer9::clear(const gl::State &state, const ClearParameters &cle
 
 gl::Error Framebuffer9::readPixels(const gl::Rectangle &area, GLenum format, GLenum type, size_t outputPitch, const gl::PixelPackState &pack, uint8_t *pixels) const
 {
-    ASSERT(pack.pixelBuffer.get() == NULL);
+    ASSERT(pack.pixelBuffer.get() == nullptr);
 
-    const gl::FramebufferAttachment *colorbuffer = mData.mColorAttachments[0];
+    const gl::FramebufferAttachment *colorbuffer = mData.getColorAttachment(0);
     ASSERT(colorbuffer);
 
-    RenderTarget9 *renderTarget = NULL;
-    gl::Error error = d3d9::GetAttachmentRenderTarget(colorbuffer, &renderTarget);
+    RenderTarget9 *renderTarget = nullptr;
+    gl::Error error = colorbuffer->getRenderTarget(&renderTarget);
     if (error.isError())
     {
         return error;
@@ -84,7 +84,7 @@ gl::Error Framebuffer9::readPixels(const gl::Rectangle &area, GLenum format, GLe
     ASSERT(device);
 
     HRESULT result;
-    IDirect3DSurface9 *systemSurface = NULL;
+    IDirect3DSurface9 *systemSurface = nullptr;
     bool directToPixels = !pack.reverseRowOrder && pack.alignment <= 4 && mRenderer->getShareHandleSupport() &&
                           area.x == 0 && area.y == 0 &&
                           static_cast<UINT>(area.width) == desc.Width && static_cast<UINT>(area.height) == desc.Height &&
@@ -104,7 +104,7 @@ gl::Error Framebuffer9::readPixels(const gl::Rectangle &area, GLenum format, GLe
     if (!directToPixels)
     {
         result = device->CreateOffscreenPlainSurface(desc.Width, desc.Height, desc.Format,
-                                                     D3DPOOL_SYSTEMMEM, &systemSurface, NULL);
+                                                     D3DPOOL_SYSTEMMEM, &systemSurface, nullptr);
         if (FAILED(result))
         {
             ASSERT(result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY);
@@ -246,19 +246,19 @@ gl::Error Framebuffer9::blit(const gl::Rectangle &sourceArea, const gl::Rectangl
         const gl::FramebufferAttachment *readBuffer = sourceFramebuffer->getColorbuffer(0);
         ASSERT(readBuffer);
 
-        RenderTarget9 *readRenderTarget = NULL;
-        gl::Error error = d3d9::GetAttachmentRenderTarget(readBuffer, &readRenderTarget);
+        RenderTarget9 *readRenderTarget = nullptr;
+        gl::Error error = readBuffer->getRenderTarget(&readRenderTarget);
         if (error.isError())
         {
             return error;
         }
         ASSERT(readRenderTarget);
 
-        const gl::FramebufferAttachment *drawBuffer = mData.mColorAttachments[0];
+        const gl::FramebufferAttachment *drawBuffer = mData.getColorAttachment(0);
         ASSERT(drawBuffer);
 
-        RenderTarget9 *drawRenderTarget = NULL;
-        error = d3d9::GetAttachmentRenderTarget(drawBuffer, &drawRenderTarget);
+        RenderTarget9 *drawRenderTarget = nullptr;
+        error = drawBuffer->getRenderTarget(&drawRenderTarget);
         if (error.isError())
         {
             return error;
@@ -372,8 +372,8 @@ gl::Error Framebuffer9::blit(const gl::Rectangle &sourceArea, const gl::Rectangl
         const gl::FramebufferAttachment *readBuffer = sourceFramebuffer->getDepthOrStencilbuffer();
         ASSERT(readBuffer);
 
-        RenderTarget9 *readDepthStencil = NULL;
-        gl::Error error = d3d9::GetAttachmentRenderTarget(readBuffer, &readDepthStencil);
+        RenderTarget9 *readDepthStencil = nullptr;
+        gl::Error error = readBuffer->getRenderTarget(&readDepthStencil);
         if (error.isError())
         {
             return error;
@@ -383,8 +383,8 @@ gl::Error Framebuffer9::blit(const gl::Rectangle &sourceArea, const gl::Rectangl
         const gl::FramebufferAttachment *drawBuffer = mData.getDepthOrStencilAttachment();
         ASSERT(drawBuffer);
 
-        RenderTarget9 *drawDepthStencil = NULL;
-        error = d3d9::GetAttachmentRenderTarget(drawBuffer, &drawDepthStencil);
+        RenderTarget9 *drawDepthStencil = nullptr;
+        error = drawBuffer->getRenderTarget(&drawDepthStencil);
         if (error.isError())
         {
             return error;
@@ -398,7 +398,7 @@ gl::Error Framebuffer9::blit(const gl::Rectangle &sourceArea, const gl::Rectangl
         IDirect3DSurface9* drawSurface = drawDepthStencil->getSurface();
         ASSERT(drawDepthStencil);
 
-        HRESULT result = device->StretchRect(readSurface, NULL, drawSurface, NULL, D3DTEXF_NONE);
+        HRESULT result = device->StretchRect(readSurface, nullptr, drawSurface, nullptr, D3DTEXF_NONE);
 
         SafeRelease(readSurface);
         SafeRelease(drawSurface);
@@ -414,7 +414,7 @@ gl::Error Framebuffer9::blit(const gl::Rectangle &sourceArea, const gl::Rectangl
 
 GLenum Framebuffer9::getRenderTargetImplementationFormat(RenderTargetD3D *renderTarget) const
 {
-    RenderTarget9 *renderTarget9 = RenderTarget9::makeRenderTarget9(renderTarget);
+    RenderTarget9 *renderTarget9 = GetAs<RenderTarget9>(renderTarget);
     const d3d9::D3DFormat &d3dFormatInfo = d3d9::GetD3DFormatInfo(renderTarget9->getD3DFormat());
     return d3dFormatInfo.internalFormat;
 }

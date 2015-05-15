@@ -14,6 +14,7 @@
 #include "libANGLE/angletypes.h"
 #include "libANGLE/formatutils.h"
 #include "libANGLE/renderer/gl/BufferGL.h"
+#include "libANGLE/renderer/gl/FramebufferGL.h"
 #include "libANGLE/renderer/gl/FunctionsGL.h"
 #include "libANGLE/renderer/gl/StateManagerGL.h"
 
@@ -72,11 +73,8 @@ TextureGL::TextureGL(GLenum type, const FunctionsGL *functions, StateManagerGL *
 
 TextureGL::~TextureGL()
 {
-    if (mTextureID)
-    {
-        mFunctions->deleteTextures(1, &mTextureID);
-        mTextureID = 0;
-    }
+    mStateManager->deleteTexture(mTextureID);
+    mTextureID = 0;
 }
 
 void TextureGL::setUsage(GLenum usage)
@@ -203,15 +201,49 @@ gl::Error TextureGL::setCompressedSubImage(GLenum target, size_t level, const gl
 gl::Error TextureGL::copyImage(GLenum target, size_t level, const gl::Rectangle &sourceArea, GLenum internalFormat,
                                const gl::Framebuffer *source)
 {
-    UNIMPLEMENTED();
-    return gl::Error(GL_INVALID_OPERATION);
+    const FramebufferGL *sourceFramebufferGL = GetImplAs<FramebufferGL>(source);
+
+    mStateManager->bindTexture(mTextureType, mTextureID);
+    mStateManager->bindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferGL->getFramebufferID());
+
+    if (UseTexImage2D(mTextureType))
+    {
+        mFunctions->copyTexImage2D(target, level, internalFormat, sourceArea.x, sourceArea.y,
+                                   sourceArea.width, sourceArea.height, 0);
+    }
+    else
+    {
+        UNREACHABLE();
+    }
+
+    return gl::Error(GL_NO_ERROR);
 }
 
 gl::Error TextureGL::copySubImage(GLenum target, size_t level, const gl::Offset &destOffset, const gl::Rectangle &sourceArea,
                                   const gl::Framebuffer *source)
 {
-    UNIMPLEMENTED();
-    return gl::Error(GL_INVALID_OPERATION);
+    const FramebufferGL *sourceFramebufferGL = GetImplAs<FramebufferGL>(source);
+
+    mStateManager->bindTexture(mTextureType, mTextureID);
+    mStateManager->bindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferGL->getFramebufferID());
+
+    if (UseTexImage2D(mTextureType))
+    {
+        ASSERT(destOffset.z == 0);
+        mFunctions->copyTexSubImage2D(target, level, destOffset.x, destOffset.y,
+                                      sourceArea.x, sourceArea.y, sourceArea.width, sourceArea.height);
+    }
+    else if (UseTexImage3D(mTextureType))
+    {
+        mFunctions->copyTexSubImage3D(target, level, destOffset.x, destOffset.y, destOffset.z,
+                                      sourceArea.x, sourceArea.y, sourceArea.width, sourceArea.height);
+    }
+    else
+    {
+        UNREACHABLE();
+    }
+
+    return gl::Error(GL_NO_ERROR);
 }
 
 gl::Error TextureGL::setStorage(GLenum target, size_t levels, GLenum internalFormat, const gl::Extents &size)
@@ -298,7 +330,7 @@ gl::Error TextureGL::setStorage(GLenum target, size_t levels, GLenum internalFor
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error TextureGL::generateMipmaps()
+gl::Error TextureGL::generateMipmaps(const gl::SamplerState &samplerState)
 {
     mStateManager->bindTexture(mTextureType, mTextureID);
     mFunctions->generateMipmap(mTextureType);
@@ -307,12 +339,26 @@ gl::Error TextureGL::generateMipmaps()
 
 void TextureGL::bindTexImage(egl::Surface *surface)
 {
-    UNIMPLEMENTED();
+    ASSERT(mTextureType == GL_TEXTURE_2D);
+
+    // Make sure this texture is bound
+    mStateManager->bindTexture(mTextureType, mTextureID);
 }
 
 void TextureGL::releaseTexImage()
 {
-    UNIMPLEMENTED();
+    // Not all Surface implementations reset the size of mip 0 when releasing, do it manually
+    ASSERT(mTextureType == GL_TEXTURE_2D);
+
+    mStateManager->bindTexture(mTextureType, mTextureID);
+    if (UseTexImage2D(mTextureType))
+    {
+        mFunctions->texImage2D(mTextureType, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    }
+    else
+    {
+        UNREACHABLE();
+    }
 }
 
 template <typename T>
@@ -323,7 +369,7 @@ static inline void SyncSamplerStateMember(const FunctionsGL *functions, const gl
     if (curState.*samplerMember != newState.*samplerMember)
     {
         curState.*samplerMember = newState.*samplerMember;
-        functions->texParameterf(textureType, name, curState.*samplerMember);
+        functions->texParameterf(textureType, name, static_cast<GLfloat>(curState.*samplerMember));
     }
 }
 

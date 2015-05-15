@@ -15,12 +15,12 @@
 #include "libANGLE/Texture.h"
 #include "libANGLE/formatutils.h"
 #include "libANGLE/renderer/d3d/RenderTargetD3D.h"
-#include "libANGLE/renderer/RenderbufferImpl.h"
 
 namespace gl
 {
+
 Renderbuffer::Renderbuffer(rx::RenderbufferImpl *impl, GLuint id)
-  : RefCountObject(id),
+  : FramebufferAttachmentObject(id),
     mRenderbuffer(impl),
     mWidth(0),
     mHeight(0),

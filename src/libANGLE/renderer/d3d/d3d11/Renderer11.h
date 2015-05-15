@@ -39,6 +39,14 @@ class RenderTarget11;
 class Trim11;
 struct PackPixelsParams;
 
+struct Renderer11DeviceCaps
+{
+    D3D_FEATURE_LEVEL featureLevel;
+    bool supportsDXGI1_2;               // Support for DXGI 1.2
+    bool supportsClearView;             // Support for ID3D11DeviceContext1::ClearView
+    bool supportsConstantBufferOffsets; // Support for Constant buffer offset
+};
+
 enum
 {
     MAX_VERTEX_UNIFORM_VECTORS_D3D11 = 1024,
@@ -62,6 +70,24 @@ enum D3D11InitError
     D3D11_INIT_INCOMPATIBLE_DXGI,
     // Other initialization error
     D3D11_INIT_OTHER_ERROR,
+    // CreateDevice returned E_FAIL
+    D3D11_INIT_CREATEDEVICE_FAIL,
+    // CreateDevice returned E_NOTIMPL
+    D3D11_INIT_CREATEDEVICE_NOTIMPL,
+    // CreateDevice returned E_OUTOFMEMORY
+    D3D11_INIT_CREATEDEVICE_OUTOFMEMORY,
+    // CreateDevice returned DXGI_ERROR_INVALID_CALL
+    D3D11_INIT_CREATEDEVICE_INVALIDCALL,
+    // CreateDevice returned DXGI_ERROR_SDK_COMPONENT_MISSING
+    D3D11_INIT_CREATEDEVICE_COMPONENTMISSING,
+    // CreateDevice returned DXGI_ERROR_WAS_STILL_DRAWING
+    D3D11_INIT_CREATEDEVICE_WASSTILLDRAWING,
+    // CreateDevice returned DXGI_ERROR_NOT_CURRENTLY_AVAILABLE
+    D3D11_INIT_CREATEDEVICE_NOTAVAILABLE,
+    // CreateDevice returned DXGI_ERROR_DEVICE_HUNG
+    D3D11_INIT_CREATEDEVICE_DEVICEHUNG,
+    // CreateDevice returned NULL
+    D3D11_INIT_CREATEDEVICE_NULL,
     NUM_D3D11_INIT_ERRORS
 };
 
@@ -70,8 +96,6 @@ class Renderer11 : public RendererD3D
   public:
     explicit Renderer11(egl::Display *display);
     virtual ~Renderer11();
-
-    static Renderer11 *makeRenderer11(Renderer *renderer);
 
     egl::Error initialize() override;
     virtual bool resetDevice();
@@ -153,7 +177,6 @@ class Renderer11 : public RendererD3D
     virtual gl::Error createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT);
 
     // Framebuffer creation
-    DefaultAttachmentImpl *createDefaultAttachment(GLenum type, egl::Surface *surface) override;
     FramebufferImpl *createDefaultFramebuffer(const gl::Framebuffer::Data &data) override;
     FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) override;
 
@@ -175,6 +198,7 @@ class Renderer11 : public RendererD3D
     // Image operations
     virtual ImageD3D *createImage();
     gl::Error generateMipmap(ImageD3D *dest, ImageD3D *source) override;
+    gl::Error generateMipmapsUsingD3D(TextureStorage *storage, const gl::SamplerState &samplerState) override;
     virtual TextureStorage *createTextureStorage2D(SwapChainD3D *swapChain);
     virtual TextureStorage *createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly);
     virtual TextureStorage *createTextureStorageCube(GLenum internalformat, bool renderTarget, int size, int levels, bool hintLevelZeroOnly);
@@ -205,6 +229,7 @@ class Renderer11 : public RendererD3D
 
     // D3D11-renderer specific methods
     ID3D11Device *getDevice() { return mDevice; }
+    void *getD3DDevice() override;
     ID3D11DeviceContext *getDeviceContext() { return mDeviceContext; };
     ID3D11DeviceContext1 *getDeviceContext1IfSupported() { return mDeviceContext1; };
     DXGIFactory *getDxgiFactory() { return mDxgiFactory; };
@@ -235,13 +260,11 @@ class Renderer11 : public RendererD3D
                                    bool colorBlit, bool depthBlit, bool stencilBlit);
 
     bool isES3Capable() const;
-    D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; };
+    const Renderer11DeviceCaps &getRenderer11DeviceCaps() { return mRenderer11DeviceCaps; };
 
     RendererClass getRendererClass() const override { return RENDERER_D3D11; }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(Renderer11);
-
     void generateCaps(gl::Caps *outCaps, gl::TextureCapsMap *outTextureCaps, gl::Extensions *outExtensions) const override;
     Workarounds generateWorkarounds() const override;
 
@@ -249,8 +272,12 @@ class Renderer11 : public RendererD3D
     gl::Error drawTriangleFan(GLsizei count, GLenum type, const GLvoid *indices, int minIndex, gl::Buffer *elementArrayBuffer, int instances);
 
     ID3D11Texture2D *resolveMultisampledTexture(ID3D11Texture2D *source, unsigned int subresource);
+<<<<<<< HEAD
     void unsetConflictingSRVs(gl::SamplerType shaderType, uintptr_t resource, const gl::ImageIndex *index);
     void setRenderToBackBufferVariables(bool renderingToBackBuffer);
+=======
+    void unsetConflictingSRVs(gl::SamplerType shaderType, uintptr_t resource, const gl::ImageIndex &index);
+>>>>>>> google/master
 
     HMODULE mD3d11Module;
     HMODULE mDxgiModule;
@@ -389,11 +416,8 @@ class Renderer11 : public RendererD3D
     // Sync query
     ID3D11Query *mSyncQuery;
 
-    // Constant buffer offset support
-    bool mSupportsConstantBufferOffsets;
-
     ID3D11Device *mDevice;
-    D3D_FEATURE_LEVEL mFeatureLevel;
+    Renderer11DeviceCaps mRenderer11DeviceCaps;
     ID3D11DeviceContext *mDeviceContext;
     ID3D11DeviceContext1 *mDeviceContext1;
     IDXGIAdapter *mDxgiAdapter;

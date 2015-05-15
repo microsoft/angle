@@ -17,6 +17,7 @@
 #include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
 #include "libANGLE/renderer/d3d/d3d11/RenderTarget11.h"
 #include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
+#include "third_party/trace_event/trace_event.h"
 
 // Precompiled shaders
 #include "libANGLE/renderer/d3d/d3d11/shaders/compiled/clearfloat11vs.h"
@@ -85,8 +86,10 @@ Clear11::ClearShader Clear11::CreateClearShader(ID3D11Device *device, DXGI_FORMA
 
 Clear11::Clear11(Renderer11 *renderer)
     : mRenderer(renderer), mClearBlendStates(StructLessThan<ClearBlendInfo>), mClearDepthStencilStates(StructLessThan<ClearDepthStencilInfo>),
-      mVertexBuffer(NULL), mRasterizerState(NULL), mSupportsClearView(false)
+      mVertexBuffer(NULL), mRasterizerState(NULL)
 {
+    TRACE_EVENT0("gpu.angle", "Clear11::Clear11");
+
     HRESULT result;
     ID3D11Device *device = renderer->getDevice();
 
@@ -118,7 +121,7 @@ Clear11::Clear11(Renderer11 *renderer)
     ASSERT(SUCCEEDED(result));
     d3d11::SetDebugName(mRasterizerState, "Clear11 masked clear rasterizer state");
 
-    if (renderer->getFeatureLevel() <= D3D_FEATURE_LEVEL_9_3)
+    if (mRenderer->getRenderer11DeviceCaps().featureLevel <= D3D_FEATURE_LEVEL_9_3)
     {
         mFloatClearShader = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_FLOAT, g_VS_ClearFloat, g_PS_ClearFloat_FL9);
     }
@@ -131,13 +134,6 @@ Clear11::Clear11(Renderer11 *renderer)
     {
         mUintClearShader  = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_UINT,  g_VS_ClearUint,  g_PS_ClearUint );
         mIntClearShader   = CreateClearShader(device, DXGI_FORMAT_R32G32B32A32_SINT,  g_VS_ClearSint,  g_PS_ClearSint );
-    }
-
-    if (renderer->getDeviceContext1IfSupported())
-    {
-        D3D11_FEATURE_DATA_D3D11_OPTIONS d3d11Options;
-        device->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS, &d3d11Options, sizeof(D3D11_FEATURE_DATA_D3D11_OPTIONS));
-        mSupportsClearView = (d3d11Options.ClearView != FALSE);
     }
 }
 
@@ -176,10 +172,10 @@ Clear11::~Clear11()
 
 gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl::Framebuffer::Data &fboData)
 {
-    const auto &colorAttachments = fboData.mColorAttachments;
-    const auto &drawBufferStates = fboData.mDrawBufferStates;
-    const auto *depthAttachment = fboData.mDepthAttachment;
-    const auto *stencilAttachment = fboData.mStencilAttachment;
+    const auto &colorAttachments = fboData.getColorAttachments();
+    const auto &drawBufferStates = fboData.getDrawBufferStates();
+    const auto *depthAttachment = fboData.getDepthAttachment();
+    const auto *stencilAttachment = fboData.getStencilAttachment();
 
     ASSERT(colorAttachments.size() == drawBufferStates.size());
 
@@ -204,11 +200,11 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
 
     gl::Extents framebufferSize;
 
-    auto iter = std::find_if(colorAttachments.begin(), colorAttachments.end(), [](const gl::FramebufferAttachment *attachment) { return attachment != nullptr; });
-    if (iter != colorAttachments.end())
+    const gl::FramebufferAttachment *colorAttachment = fboData.getFirstColorAttachment();
+    if (colorAttachment != nullptr)
     {
-        framebufferSize.width = (*iter)->getWidth();
-        framebufferSize.height = (*iter)->getHeight();
+        framebufferSize.width = colorAttachment->getWidth();
+        framebufferSize.height = colorAttachment->getHeight();
         framebufferSize.depth = 1;
     }
     else if (depthAttachment != nullptr)
@@ -268,27 +264,27 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
 
     for (size_t colorAttachment = 0; colorAttachment < colorAttachments.size(); colorAttachment++)
     {
+        const gl::FramebufferAttachment &attachment = colorAttachments[colorAttachment];
+
         if (clearParams.clearColor[colorAttachment] &&
-            colorAttachments[colorAttachment] != nullptr &&
+            attachment.isAttached() &&
             drawBufferStates[colorAttachment] != GL_NONE)
         {
-            const gl::FramebufferAttachment *attachment = colorAttachments[colorAttachment];
-
             RenderTarget11 *renderTarget = NULL;
-            gl::Error error = d3d11::GetAttachmentRenderTarget(attachment, &renderTarget);
+            gl::Error error = attachment.getRenderTarget(&renderTarget);
             if (error.isError())
             {
                 return error;
             }
 
-            const gl::InternalFormat &formatInfo = gl::GetInternalFormatInfo(attachment->getInternalFormat());
+            const gl::InternalFormat &formatInfo = gl::GetInternalFormatInfo(attachment.getInternalFormat());
 
             if (clearParams.colorClearType == GL_FLOAT &&
                 !(formatInfo.componentType == GL_FLOAT || formatInfo.componentType == GL_UNSIGNED_NORMALIZED || formatInfo.componentType == GL_SIGNED_NORMALIZED))
             {
                 ERR("It is undefined behaviour to clear a render buffer which is not normalized fixed point or floating-"
                     "point to floating point values (color attachment %u has internal format 0x%X).", colorAttachment,
-                    attachment->getInternalFormat());
+                    attachment.getInternalFormat());
             }
 
             if ((formatInfo.redBits == 0 || !clearParams.colorMaskRed) &&
@@ -299,7 +295,7 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
                 // Every channel either does not exist in the render target or is masked out
                 continue;
             }
-            else if ((!mSupportsClearView && needScissoredClear) || clearParams.colorClearType != GL_FLOAT ||
+            else if ((!(mRenderer->getRenderer11DeviceCaps().supportsClearView) && needScissoredClear) || clearParams.colorClearType != GL_FLOAT ||
                      (formatInfo.redBits   > 0 && !clearParams.colorMaskRed)   ||
                      (formatInfo.greenBits > 0 && !clearParams.colorMaskGreen) ||
                      (formatInfo.blueBits  > 0 && !clearParams.colorMaskBlue) ||
@@ -364,7 +360,7 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
         ASSERT(attachment != nullptr);
 
         RenderTarget11 *renderTarget = NULL;
-        gl::Error error = d3d11::GetAttachmentRenderTarget(attachment, &renderTarget);
+        gl::Error error = attachment->getRenderTarget(&renderTarget);
         if (error.isError())
         {
             return error;
@@ -487,8 +483,8 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
         D3D11_VIEWPORT viewport;
         viewport.TopLeftX = 0;
         viewport.TopLeftY = 0;
-        viewport.Width = framebufferSize.width;
-        viewport.Height = framebufferSize.height;
+        viewport.Width = static_cast<FLOAT>(framebufferSize.width);
+        viewport.Height = static_cast<FLOAT>(framebufferSize.height);
         viewport.MinDepth = 0;
         viewport.MaxDepth = 1;
         deviceContext->RSSetViewports(1, &viewport);

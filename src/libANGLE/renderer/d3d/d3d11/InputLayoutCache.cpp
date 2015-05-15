@@ -226,7 +226,7 @@ gl::Error InputLayoutCache::applyVertexBuffers(TranslatedAttribute attributes[gl
             return error;
         }
 
-        ShaderExecutableD3D *shader11 = ShaderExecutable11::makeShaderExecutable11(shader);
+        ShaderExecutableD3D *shader11 = GetAs<ShaderExecutable11>(shader);
 
         D3D11_INPUT_ELEMENT_DESC descs[gl::MAX_VERTEX_ATTRIBS];
         for (unsigned int j = 0; j < ilKey.elementCount; ++j)
@@ -281,8 +281,8 @@ gl::Error InputLayoutCache::applyVertexBuffers(TranslatedAttribute attributes[gl
 
         if (attributes[i].active)
         {
-            VertexBuffer11 *vertexBuffer = VertexBuffer11::makeVertexBuffer11(attributes[i].vertexBuffer);
-            Buffer11 *bufferStorage = attributes[i].storage ? Buffer11::makeBuffer11(attributes[i].storage) : NULL;
+            VertexBuffer11 *vertexBuffer = GetAs<VertexBuffer11>(attributes[i].vertexBuffer);
+            Buffer11 *bufferStorage = attributes[i].storage ? GetAs<Buffer11>(attributes[i].storage) : NULL;
 
             buffer = bufferStorage ? bufferStorage->getBuffer(BUFFER_USAGE_VERTEX_OR_TRANSFORM_FEEDBACK)
                                    : vertexBuffer->getBuffer();
@@ -413,7 +413,7 @@ std::size_t InputLayoutCache::hashInputLayout(const InputLayoutKey &inputLayout)
     static const unsigned int seed = 0xDEADBEEF;
 
     std::size_t hash = 0;
-    MurmurHash3_x86_32(inputLayout.begin(), inputLayout.end() - inputLayout.begin(), seed, &hash);
+    MurmurHash3_x86_32(inputLayout.begin(), static_cast<int>(inputLayout.end() - inputLayout.begin()), seed, &hash);
     return hash;
 }
 

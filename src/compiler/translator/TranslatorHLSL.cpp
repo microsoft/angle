@@ -6,7 +6,12 @@
 
 #include "compiler/translator/TranslatorHLSL.h"
 
+#include "compiler/translator/ArrayReturnValueToOutParameter.h"
 #include "compiler/translator/OutputHLSL.h"
+#include "compiler/translator/SeparateArrayInitialization.h"
+#include "compiler/translator/SeparateDeclarations.h"
+#include "compiler/translator/SimplifyArrayAssignment.h"
+#include "compiler/translator/UnfoldShortCircuitToIf.h"
 
 TranslatorHLSL::TranslatorHLSL(sh::GLenum type, ShShaderSpec spec, ShShaderOutput output)
     : TCompiler(type, spec, output)
@@ -17,6 +22,21 @@ void TranslatorHLSL::translate(TIntermNode *root, int compileOptions)
 {
     const ShBuiltInResources &resources = getResources();
     int numRenderTargets = resources.EXT_draw_buffers ? resources.MaxDrawBuffers : 1;
+
+    SeparateDeclarations(root);
+
+    // Note that SeparateDeclarations needs to be run before UnfoldShortCircuitToIf.
+    UnfoldShortCircuitToIf(root);
+
+    // Note that SeparateDeclarations needs to be run before SeparateArrayInitialization.
+    SeparateArrayInitialization(root);
+
+    SimplifyArrayAssignment simplify;
+    root->traverse(&simplify);
+
+    // HLSL doesn't support arrays as return values, we'll need to make functions that have an array
+    // as a return value to use an out parameter to transfer the array data instead.
+    ArrayReturnValueToOutParameter(root);
 
     sh::OutputHLSL outputHLSL(getShaderType(), getShaderVersion(), getExtensionBehavior(),
         getSourcePath(), getOutputType(), numRenderTargets, getUniforms(), compileOptions);

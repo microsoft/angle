@@ -29,7 +29,7 @@ class RendererGL : public Renderer
                          GLint first, GLsizei count, GLsizei instances) override;
     gl::Error drawElements(const gl::Data &data, GLenum mode, GLsizei count, GLenum type,
                            const GLvoid *indices, GLsizei instances,
-                           const RangeUI &indexRange) override;
+                           const gl::RangeUI &indexRange) override;
 
     // Shader creation
     CompilerImpl *createCompiler(const gl::Data &data) override;
@@ -37,7 +37,6 @@ class RendererGL : public Renderer
     ProgramImpl *createProgram() override;
 
     // Framebuffer creation
-    DefaultAttachmentImpl *createDefaultAttachment(GLenum type, egl::Surface *surface) override;
     FramebufferImpl *createDefaultFramebuffer(const gl::Framebuffer::Data &data) override;
     FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) override;
 
@@ -72,8 +71,6 @@ class RendererGL : public Renderer
     std::string getRendererDescription() const override;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(RendererGL);
-
     void generateCaps(gl::Caps *outCaps, gl::TextureCapsMap* outTextureCaps, gl::Extensions *outExtensions) const override;
     Workarounds generateWorkarounds() const override;
 

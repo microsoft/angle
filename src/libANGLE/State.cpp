@@ -30,7 +30,7 @@ State::~State()
     reset();
 }
 
-void State::initialize(const Caps& caps, GLuint clientVersion)
+void State::initialize(const Caps &caps, GLuint clientVersion)
 {
     mMaxDrawBuffers = caps.maxDrawBuffers;
     mMaxCombinedTextureImageUnits = caps.maxCombinedTextureImageUnits;
@@ -112,15 +112,9 @@ void State::initialize(const Caps& caps, GLuint clientVersion)
 
     mActiveSampler = 0;
 
-    const GLfloat defaultFloatValues[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     mVertexAttribCurrentValues.resize(caps.maxVertexAttributes);
-    for (size_t attribIndex = 0; attribIndex < mVertexAttribCurrentValues.size(); ++attribIndex)
-    {
-        mVertexAttribCurrentValues[attribIndex].setFloatValues(defaultFloatValues);
-    }
 
     mUniformBuffers.resize(caps.maxCombinedUniformBlocks);
-    mTransformFeedbackBuffers.resize(caps.maxTransformFeedbackSeparateAttributes);
 
     mSamplerTextures[GL_TEXTURE_2D].resize(caps.maxCombinedTextureImageUnits);
     mSamplerTextures[GL_TEXTURE_CUBE_MAP].resize(caps.maxCombinedTextureImageUnits);
@@ -177,13 +171,7 @@ void State::reset()
     }
 
     mGenericUniformBuffer.set(NULL);
-    mGenericTransformFeedbackBuffer.set(NULL);
     for (BufferVector::iterator bufItr = mUniformBuffers.begin(); bufItr != mUniformBuffers.end(); ++bufItr)
-    {
-        bufItr->set(NULL);
-    }
-
-    for (BufferVector::iterator bufItr = mTransformFeedbackBuffers.begin(); bufItr != mTransformFeedbackBuffers.end(); ++bufItr)
     {
         bufItr->set(NULL);
     }
@@ -294,10 +282,14 @@ void State::setDepthRange(float zNear, float zFar)
     mFarZ = zFar;
 }
 
-void State::getDepthRange(float *zNear, float *zFar) const
+float State::getNearPlane() const
 {
-    *zNear = mNearZ;
-    *zFar = mFarZ;
+    return mNearZ;
+}
+
+float State::getFarPlane() const
+{
+    return mFarZ;
 }
 
 bool State::isBlendEnabled() const
@@ -438,12 +430,14 @@ void State::setSampleCoverageParams(GLclampf value, bool invert)
     mSampleCoverageInvert = invert;
 }
 
-void State::getSampleCoverageParams(GLclampf *value, bool *invert) const
+GLclampf State::getSampleCoverageValue() const
 {
-    ASSERT(value != NULL && invert != NULL);
+    return mSampleCoverageValue;
+}
 
-    *value = mSampleCoverageValue;
-    *invert = mSampleCoverageInvert;
+bool State::getSampleCoverageInvert() const
+{
+    return mSampleCoverageInvert;
 }
 
 bool State::isScissorTestEnabled() const
@@ -530,6 +524,11 @@ bool State::getEnableFeature(GLenum feature)
 void State::setLineWidth(GLfloat width)
 {
     mLineWidth = width;
+}
+
+float State::getLineWidth() const
+{
+    return mLineWidth;
 }
 
 void State::setGenerateMipmapHint(GLenum hint)
@@ -765,7 +764,8 @@ const Framebuffer *State::getDrawFramebuffer() const
 
 bool State::removeReadFramebufferBinding(GLuint framebuffer)
 {
-    if (mReadFramebuffer->id() == framebuffer)
+    if (mReadFramebuffer != nullptr &&
+        mReadFramebuffer->id() == framebuffer)
     {
         mReadFramebuffer = NULL;
         return true;
@@ -776,7 +776,8 @@ bool State::removeReadFramebufferBinding(GLuint framebuffer)
 
 bool State::removeDrawFramebufferBinding(GLuint framebuffer)
 {
-    if (mDrawFramebuffer->id() == framebuffer)
+    if (mReadFramebuffer != nullptr &&
+        mDrawFramebuffer->id() == framebuffer)
     {
         mDrawFramebuffer = NULL;
         return true;
@@ -849,7 +850,7 @@ TransformFeedback *State::getCurrentTransformFeedback() const
 bool State::isTransformFeedbackActiveUnpaused() const
 {
     gl::TransformFeedback *curTransformFeedback = getCurrentTransformFeedback();
-    return curTransformFeedback && curTransformFeedback->isStarted() && !curTransformFeedback->isPaused();
+    return curTransformFeedback && curTransformFeedback->isActive() && !curTransformFeedback->isPaused();
 }
 
 void State::detachTransformFeedback(GLuint transformFeedback)
@@ -954,42 +955,6 @@ GLsizeiptr State::getIndexedUniformBufferSize(GLuint index) const
     return mUniformBuffers[index].getSize();
 }
 
-void State::setGenericTransformFeedbackBufferBinding(Buffer *buffer)
-{
-    mGenericTransformFeedbackBuffer.set(buffer);
-}
-
-void State::setIndexedTransformFeedbackBufferBinding(GLuint index, Buffer *buffer, GLintptr offset, GLsizeiptr size)
-{
-    mTransformFeedbackBuffers[index].set(buffer, offset, size);
-}
-
-GLuint State::getIndexedTransformFeedbackBufferId(GLuint index) const
-{
-    ASSERT(static_cast<size_t>(index) < mTransformFeedbackBuffers.size());
-
-    return mTransformFeedbackBuffers[index].id();
-}
-
-Buffer *State::getIndexedTransformFeedbackBuffer(GLuint index) const
-{
-    ASSERT(static_cast<size_t>(index) < mTransformFeedbackBuffers.size());
-
-    return mTransformFeedbackBuffers[index].get();
-}
-
-GLuint State::getIndexedTransformFeedbackBufferOffset(GLuint index) const
-{
-    ASSERT(static_cast<size_t>(index) < mTransformFeedbackBuffers.size());
-
-    return mTransformFeedbackBuffers[index].getOffset();
-}
-
-size_t State::getTransformFeedbackBufferIndexRange() const
-{
-    return mTransformFeedbackBuffers.size();
-}
-
 void State::setCopyReadBufferBinding(Buffer *buffer)
 {
     mCopyReadBuffer.set(buffer);
@@ -1020,7 +985,7 @@ Buffer *State::getTargetBuffer(GLenum target) const
       case GL_ELEMENT_ARRAY_BUFFER:      return getVertexArray()->getElementArrayBuffer();
       case GL_PIXEL_PACK_BUFFER:         return mPack.pixelBuffer.get();
       case GL_PIXEL_UNPACK_BUFFER:       return mUnpack.pixelBuffer.get();
-      case GL_TRANSFORM_FEEDBACK_BUFFER: return mGenericTransformFeedbackBuffer.get();
+      case GL_TRANSFORM_FEEDBACK_BUFFER: return mTransformFeedback->getGenericBuffer().get();
       case GL_UNIFORM_BUFFER:            return mGenericUniformBuffer.get();
       default: UNREACHABLE();            return NULL;
     }
@@ -1147,8 +1112,8 @@ void State::getBooleanv(GLenum pname, GLboolean *params)
       case GL_DEPTH_TEST:                *params = mDepthStencil.depthTest;       break;
       case GL_BLEND:                     *params = mBlend.blend;                  break;
       case GL_DITHER:                    *params = mBlend.dither;                 break;
-      case GL_TRANSFORM_FEEDBACK_ACTIVE: *params = getCurrentTransformFeedback()->isStarted(); break;
-      case GL_TRANSFORM_FEEDBACK_PAUSED: *params = getCurrentTransformFeedback()->isPaused();  break;
+      case GL_TRANSFORM_FEEDBACK_ACTIVE: *params = getCurrentTransformFeedback()->isActive() ? GL_TRUE : GL_FALSE; break;
+      case GL_TRANSFORM_FEEDBACK_PAUSED: *params = getCurrentTransformFeedback()->isPaused() ? GL_TRUE : GL_FALSE; break;
       default:
         UNREACHABLE();
         break;
@@ -1296,7 +1261,7 @@ void State::getIntegerv(const gl::Data &data, GLenum pname, GLint *params)
       case GL_ALPHA_BITS:
         {
             gl::Framebuffer *framebuffer = getDrawFramebuffer();
-            gl::FramebufferAttachment *colorbuffer = framebuffer->getFirstColorbuffer();
+            const gl::FramebufferAttachment *colorbuffer = framebuffer->getFirstColorbuffer();
 
             if (colorbuffer)
             {
@@ -1316,8 +1281,8 @@ void State::getIntegerv(const gl::Data &data, GLenum pname, GLint *params)
         break;
       case GL_DEPTH_BITS:
         {
-            gl::Framebuffer *framebuffer = getDrawFramebuffer();
-            gl::FramebufferAttachment *depthbuffer = framebuffer->getDepthbuffer();
+            const gl::Framebuffer *framebuffer = getDrawFramebuffer();
+            const gl::FramebufferAttachment *depthbuffer = framebuffer->getDepthbuffer();
 
             if (depthbuffer)
             {
@@ -1331,8 +1296,8 @@ void State::getIntegerv(const gl::Data &data, GLenum pname, GLint *params)
         break;
       case GL_STENCIL_BITS:
         {
-            gl::Framebuffer *framebuffer = getDrawFramebuffer();
-            gl::FramebufferAttachment *stencilbuffer = framebuffer->getStencilbuffer();
+            const gl::Framebuffer *framebuffer = getDrawFramebuffer();
+            const gl::FramebufferAttachment *stencilbuffer = framebuffer->getStencilbuffer();
 
             if (stencilbuffer)
             {
@@ -1364,7 +1329,7 @@ void State::getIntegerv(const gl::Data &data, GLenum pname, GLint *params)
         *params = mGenericUniformBuffer.id();
         break;
       case GL_TRANSFORM_FEEDBACK_BUFFER_BINDING:
-        *params = mGenericTransformFeedbackBuffer.id();
+        *params = mTransformFeedback->getGenericBuffer().id();
         break;
       case GL_COPY_READ_BUFFER_BINDING:
         *params = mCopyReadBuffer.id();
@@ -1389,9 +1354,9 @@ bool State::getIndexedIntegerv(GLenum target, GLuint index, GLint *data)
     switch (target)
     {
       case GL_TRANSFORM_FEEDBACK_BUFFER_BINDING:
-        if (static_cast<size_t>(index) < mTransformFeedbackBuffers.size())
+        if (static_cast<size_t>(index) < mTransformFeedback->getIndexedBufferCount())
         {
-            *data = mTransformFeedbackBuffers[index].id();
+            *data = mTransformFeedback->getIndexedBuffer(index).id();
         }
         break;
       case GL_UNIFORM_BUFFER_BINDING:
@@ -1412,15 +1377,15 @@ bool State::getIndexedInteger64v(GLenum target, GLuint index, GLint64 *data)
     switch (target)
     {
       case GL_TRANSFORM_FEEDBACK_BUFFER_START:
-        if (static_cast<size_t>(index) < mTransformFeedbackBuffers.size())
+        if (static_cast<size_t>(index) < mTransformFeedback->getIndexedBufferCount())
         {
-            *data = mTransformFeedbackBuffers[index].getOffset();
+            *data = mTransformFeedback->getIndexedBuffer(index).getOffset();
         }
         break;
       case GL_TRANSFORM_FEEDBACK_BUFFER_SIZE:
-        if (static_cast<size_t>(index) < mTransformFeedbackBuffers.size())
+        if (static_cast<size_t>(index) < mTransformFeedback->getIndexedBufferCount())
         {
-            *data = mTransformFeedbackBuffers[index].getSize();
+            *data = mTransformFeedback->getIndexedBuffer(index).getSize();
         }
         break;
       case GL_UNIFORM_BUFFER_START:
@@ -1447,9 +1412,11 @@ bool State::hasMappedBuffer(GLenum target) const
     if (target == GL_ARRAY_BUFFER)
     {
         const VertexArray *vao = getVertexArray();
-        for (size_t attribIndex = 0; attribIndex < mVertexAttribCurrentValues.size(); attribIndex++)
+        const auto &vertexAttribs = vao->getVertexAttributes();
+        unsigned int maxEnabledAttrib = vao->getMaxEnabledAttribute();
+        for (size_t attribIndex = 0; attribIndex < maxEnabledAttrib; attribIndex++)
         {
-            const gl::VertexAttribute &vertexAttrib = vao->getVertexAttribute(attribIndex);
+            const gl::VertexAttribute &vertexAttrib = vertexAttribs[attribIndex];
             gl::Buffer *boundBuffer = vertexAttrib.buffer.get();
             if (vertexAttrib.enabled && boundBuffer && boundBuffer->isMapped())
             {

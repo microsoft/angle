@@ -26,12 +26,18 @@ class SurfaceD3D : public SurfaceImpl
 {
   public:
     static SurfaceD3D *createFromWindow(RendererD3D *renderer, egl::Display *display, const egl::Config *config,
+<<<<<<< HEAD
                                         EGLNativeWindowType window, EGLint fixedSize,
                                         EGLint width, EGLint height, EGLint postSubBufferSupported, bool renderToBackBuffer);
 
     static SurfaceD3D *createOffscreen(RendererD3D *renderer, egl::Display *display, const egl::Config *config,
                                        EGLClientBuffer shareHandle, EGLint width, EGLint height,
                                        EGLenum textureFormat, EGLenum textureTarget, bool renderToBackBuffer);
+=======
+                                        EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height);
+    static SurfaceD3D *createOffscreen(RendererD3D *renderer, egl::Display *display, const egl::Config *config,
+                                       EGLClientBuffer shareHandle, EGLint width, EGLint height);
+>>>>>>> google/master
     ~SurfaceD3D() override;
     void releaseSwapChain();
 
@@ -47,32 +53,42 @@ class SurfaceD3D : public SurfaceImpl
     EGLint getWidth() const override;
     EGLint getHeight() const override;
 
-    // D3D implementations (some virtual to hack across DLL boundaries)
-    virtual SwapChainD3D *getSwapChain() const;
+    EGLint isPostSubBufferSupported() const override;
+
+    // D3D implementations
+    SwapChainD3D *getSwapChain() const;
 
     egl::Error resetSwapChain();
 
     // Returns true if swapchain changed due to resize or interval update
     bool checkForOutOfDateSwapChain();
 
-  private:
-    DISALLOW_COPY_AND_ASSIGN(SurfaceD3D);
+    gl::Error getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,
+                                        FramebufferAttachmentRenderTarget **rtOut) override;
 
+  private:
     SurfaceD3D(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLint width, EGLint height,
+<<<<<<< HEAD
                EGLint fixedSize, EGLint postSubBufferSupported, EGLenum textureFormat,
                EGLenum textureType, EGLClientBuffer shareHandle, EGLNativeWindowType window, bool renderToBackBuffer);
+=======
+               EGLint fixedSize, EGLClientBuffer shareHandle, EGLNativeWindowType window);
+
+>>>>>>> google/master
     egl::Error swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
     egl::Error resetSwapChain(int backbufferWidth, int backbufferHeight);
     egl::Error resizeSwapChain(int backbufferWidth, int backbufferHeight);
 
-    void subclassWindow();
-    void unsubclassWindow();
-
     RendererD3D *mRenderer;
+    egl::Display *mDisplay;
+
+    bool mFixedSize;
+
+    GLenum mRenderTargetFormat;
+    GLenum mDepthStencilFormat;
 
     SwapChainD3D *mSwapChain;
     bool mSwapIntervalDirty;
-    bool mWindowSubclassed;        // Indicates whether we successfully subclassed mWindow for WM_RESIZE hooking
 
     bool mRenderToBackBuffer;
 

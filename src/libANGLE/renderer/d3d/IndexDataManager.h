@@ -10,11 +10,12 @@
 #ifndef LIBANGLE_INDEXDATAMANAGER_H_
 #define LIBANGLE_INDEXDATAMANAGER_H_
 
+#include <GLES2/gl2.h>
+
 #include "common/angleutils.h"
 #include "common/mathutil.h"
 #include "libANGLE/Error.h"
-
-#include <GLES2/gl2.h>
+#include "libANGLE/renderer/d3d/RendererD3D.h"
 
 namespace
 {
@@ -37,7 +38,7 @@ class RendererD3D;
 
 struct TranslatedIndexData
 {
-    RangeUI indexRange;
+    gl::RangeUI indexRange;
     unsigned int startIndex;
     unsigned int startOffset;   // In bytes
 
@@ -47,21 +48,19 @@ struct TranslatedIndexData
     unsigned int serial;
 };
 
-class IndexDataManager
+class IndexDataManager : angle::NonCopyable
 {
   public:
-    explicit IndexDataManager(RendererD3D *renderer);
+    explicit IndexDataManager(BufferFactoryD3D *factory, RendererClass rendererClass);
     virtual ~IndexDataManager();
 
     gl::Error prepareIndexData(GLenum type, GLsizei count, gl::Buffer *arrayElementBuffer, const GLvoid *indices, TranslatedIndexData *translated);
 
   private:
-     gl::Error getStreamingIndexBuffer(GLenum destinationIndexType, IndexBufferInterface **outBuffer);
+    gl::Error getStreamingIndexBuffer(GLenum destinationIndexType, IndexBufferInterface **outBuffer);
 
-    DISALLOW_COPY_AND_ASSIGN(IndexDataManager);
-
-    RendererD3D *const mRenderer;
-
+    BufferFactoryD3D *const mFactory;
+    RendererClass mRendererClass;
     StreamingIndexBufferInterface *mStreamingBufferShort;
     StreamingIndexBufferInterface *mStreamingBufferInt;
 };

@@ -23,9 +23,9 @@
 
 #include "common/angleutils.h"
 #include "compiler/translator/Common.h"
-#include "compiler/translator/Types.h"
 #include "compiler/translator/ConstantUnion.h"
 #include "compiler/translator/Operator.h"
+#include "compiler/translator/Types.h"
 
 class TIntermTraverser;
 class TIntermAggregate;
@@ -123,7 +123,6 @@ class TIntermTyped : public TIntermNode
     bool isScalar() const { return mType.isScalar(); }
     bool isScalarInt() const { return mType.isScalarInt(); }
     const char *getBasicString() const { return mType.getBasicString(); }
-    const char *getQualifierString() const { return mType.getQualifierString(); }
     TString getCompleteString() const { return mType.getCompleteString(); }
 
     int getArraySize() const { return mType.getArraySize(); }
@@ -212,7 +211,8 @@ class TIntermSymbol : public TIntermTyped
     // per compile it is essential to use "symbol = sym" to assign to symbol
     TIntermSymbol(int id, const TString &symbol, const TType &type)
         : TIntermTyped(type),
-          mId(id)
+          mId(id),
+          mInternal(false)
     {
         mSymbol = symbol;
     }
@@ -224,12 +224,16 @@ class TIntermSymbol : public TIntermTyped
 
     void setId(int newId) { mId = newId; }
 
+    bool isInternal() const { return mInternal; }
+    void setInternal(bool isInternal) { mInternal = isInternal; }
+
     virtual void traverse(TIntermTraverser *);
     virtual TIntermSymbol *getAsSymbolNode() { return this; }
     virtual bool replaceChildNode(TIntermNode *, TIntermNode *) { return false; }
 
   protected:
     int mId;
+    bool mInternal;
     TString mSymbol;
 };
 
@@ -259,13 +263,14 @@ class TIntermRaw : public TIntermTyped
 class TIntermConstantUnion : public TIntermTyped
 {
   public:
-    TIntermConstantUnion(ConstantUnion *unionPointer, const TType &type)
+    TIntermConstantUnion(TConstantUnion *unionPointer, const TType &type)
         : TIntermTyped(type),
           mUnionArrayPointer(unionPointer) { }
 
     virtual bool hasSideEffects() const { return false; }
 
-    ConstantUnion *getUnionArrayPointer() const { return mUnionArrayPointer; }
+    const TConstantUnion *getUnionArrayPointer() const { return mUnionArrayPointer; }
+    TConstantUnion *getUnionArrayPointer() { return mUnionArrayPointer; }
 
     int getIConst(size_t index) const
     {
@@ -284,14 +289,24 @@ class TIntermConstantUnion : public TIntermTyped
         return mUnionArrayPointer ? mUnionArrayPointer[index].getBConst() : false;
     }
 
+    void replaceConstantUnion(TConstantUnion *safeConstantUnion)
+    {
+        // Previous union pointer freed on pool deallocation.
+        mUnionArrayPointer = safeConstantUnion;
+    }
+
     virtual TIntermConstantUnion *getAsConstantUnion()  { return this; }
     virtual void traverse(TIntermTraverser *);
     virtual bool replaceChildNode(TIntermNode *, TIntermNode *) { return false; }
 
-    TIntermTyped *fold(TOperator, TIntermTyped *, TInfoSink &);
+    TIntermTyped *fold(TOperator op, TIntermConstantUnion *rightNode, TInfoSink &infoSink);
 
   protected:
-    ConstantUnion *mUnionArrayPointer;
+    TConstantUnion *mUnionArrayPointer;
+
+  private:
+    typedef float(*FloatTypeUnaryFunc) (float);
+    bool foldFloatTypeUnary(const TConstantUnion &parameter, FloatTypeUnaryFunc builtinFunc, TInfoSink &infoSink, TConstantUnion *result) const;
 };
 
 //
@@ -383,7 +398,7 @@ class TIntermUnary : public TIntermOperator
 
     void setOperand(TIntermTyped *operand) { mOperand = operand; }
     TIntermTyped *getOperand() { return mOperand; }
-    bool promote(TInfoSink &);
+    void promote(const TType *funcReturnType);
 
     void setUseEmulatedFunction() { mUseEmulatedFunction = true; }
     bool getUseEmulatedFunction() { return mUseEmulatedFunction; }
@@ -418,7 +433,8 @@ class TIntermAggregate : public TIntermOperator
     virtual void traverse(TIntermTraverser *);
     virtual bool replaceChildNode(
         TIntermNode *original, TIntermNode *replacement);
-
+    bool replaceChildNodeWithMultiple(TIntermNode *original, TIntermSequence replacements);
+    bool insertChildNodes(TIntermSequence::size_type position, TIntermSequence insertions);
     // Conservatively assume function calls and other aggregate operators have side-effects
     virtual bool hasSideEffects() const { return true; }
 
@@ -435,6 +451,9 @@ class TIntermAggregate : public TIntermOperator
     void setDebug(bool debug) { mDebug = debug; }
     bool getDebug() const { return mDebug; }
 
+    void setFunctionId(int functionId) { mFunctionId = functionId; }
+    int getFunctionId() const { return mFunctionId; }
+
     void setUseEmulatedFunction() { mUseEmulatedFunction = true; }
     bool getUseEmulatedFunction() { return mUseEmulatedFunction; }
 
@@ -447,6 +466,7 @@ class TIntermAggregate : public TIntermOperator
     TIntermSequence mSequence;
     TString mName;
     bool mUserDefined; // used for user defined function names
+    int mFunctionId;
 
     bool mOptimize;
     bool mDebug;
@@ -560,7 +580,7 @@ enum Visit
 // When using this, just fill in the methods for nodes you want visited.
 // Return false from a pre-visit to skip visiting that node's subtree.
 //
-class TIntermTraverser
+class TIntermTraverser : angle::NonCopyable
 {
   public:
     POOL_ALLOCATOR_NEW_DELETE();
@@ -617,7 +637,7 @@ class TIntermTraverser
     const bool rightToLeft;
 
     // If traversers need to replace nodes, they can add the replacements in
-    // mReplacements during traversal and the user of the traverser should call
+    // mReplacements/mMultiReplacements during traversal and the user of the traverser should call
     // this function after traversal to perform them.
     void updateTree();
 
@@ -628,6 +648,7 @@ class TIntermTraverser
     // All the nodes from root to the current node's parent during traversing.
     TVector<TIntermNode *> mPath;
 
+    // To replace a single node with another on the parent node
     struct NodeUpdateEntry
     {
         NodeUpdateEntry(TIntermNode *_parent,
@@ -645,12 +666,42 @@ class TIntermTraverser
         bool originalBecomesChildOfReplacement;
     };
 
-    // During traversing, save all the changes that need to happen into
-    // mReplacements, then do them by calling updateTree().
-    std::vector<NodeUpdateEntry> mReplacements;
+    // To replace a single node with multiple nodes on the parent aggregate node
+    struct NodeReplaceWithMultipleEntry
+    {
+        NodeReplaceWithMultipleEntry(TIntermAggregate *_parent, TIntermNode *_original, TIntermSequence _replacements)
+            : parent(_parent),
+              original(_original),
+              replacements(_replacements)
+        {
+        }
 
-  private:
-    DISALLOW_COPY_AND_ASSIGN(TIntermTraverser);
+        TIntermAggregate *parent;
+        TIntermNode *original;
+        TIntermSequence replacements;
+    };
+
+    // To insert multiple nodes on the parent aggregate node
+    struct NodeInsertMultipleEntry
+    {
+        NodeInsertMultipleEntry(TIntermAggregate *_parent, TIntermSequence::size_type _position, TIntermSequence _insertions)
+            : parent(_parent),
+            position(_position),
+            insertions(_insertions)
+        {
+        }
+
+        TIntermAggregate *parent;
+        TIntermSequence::size_type position;
+        TIntermSequence insertions;
+    };
+
+    // During traversing, save all the changes that need to happen into
+    // mReplacements/mMultiReplacements, then do them by calling updateTree().
+    // Multi replacements are processed after single replacements.
+    std::vector<NodeUpdateEntry> mReplacements;
+    std::vector<NodeReplaceWithMultipleEntry> mMultiReplacements;
+    std::vector<NodeInsertMultipleEntry> mInsertions;
 };
 
 //
@@ -676,9 +727,6 @@ class TMaxDepthTraverser : public TIntermTraverser
     bool depthCheck() const { return mMaxDepth < mDepthLimit; }
 
     int mDepthLimit;
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN(TMaxDepthTraverser);
 };
 
 #endif  // COMPILER_TRANSLATOR_INTERMNODE_H_

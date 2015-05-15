@@ -202,14 +202,14 @@ gl::Error PixelTransfer11::copyBufferToTexture(const gl::PixelUnpackState &unpac
     GLenum unsizedFormat = gl::GetInternalFormatInfo(destinationFormat).format;
     GLenum sourceFormat = gl::GetSizedInternalFormat(unsizedFormat, sourcePixelsType);
 
-    const d3d11::TextureFormat &sourceFormatInfo = d3d11::GetTextureFormatInfo(sourceFormat, mRenderer->getFeatureLevel());
+    const d3d11::TextureFormat &sourceFormatInfo = d3d11::GetTextureFormatInfo(sourceFormat, mRenderer->getRenderer11DeviceCaps());
     DXGI_FORMAT srvFormat = sourceFormatInfo.srvFormat;
     ASSERT(srvFormat != DXGI_FORMAT_UNKNOWN);
-    Buffer11 *bufferStorage11 = Buffer11::makeBuffer11(sourceBuffer.getImplementation());
+    Buffer11 *bufferStorage11 = GetAs<Buffer11>(sourceBuffer.getImplementation());
     ID3D11ShaderResourceView *bufferSRV = bufferStorage11->getSRV(srvFormat);
     ASSERT(bufferSRV != NULL);
 
-    ID3D11RenderTargetView *textureRTV = RenderTarget11::makeRenderTarget11(destRenderTarget)->getRenderTargetView();
+    ID3D11RenderTargetView *textureRTV = GetAs<RenderTarget11>(destRenderTarget)->getRenderTargetView();
     ASSERT(textureRTV != NULL);
 
     CopyShaderParams shaderParams;
@@ -249,8 +249,8 @@ gl::Error PixelTransfer11::copyBufferToTexture(const gl::PixelUnpackState &unpac
     D3D11_VIEWPORT viewport;
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
-    viewport.Width = destSize.width;
-    viewport.Height = destSize.height;
+    viewport.Width = static_cast<FLOAT>(destSize.width);
+    viewport.Height = static_cast<FLOAT>(destSize.height);
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f;
     deviceContext->RSSetViewports(1, &viewport);

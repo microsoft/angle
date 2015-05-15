@@ -13,13 +13,15 @@
 #include <cstdint>
 
 #include "libANGLE/angletypes.h"
-#include "libANGLE/renderer/DefaultAttachmentImpl.h"
 #include "libANGLE/renderer/FramebufferImpl.h"
 
 namespace gl
 {
 class FramebufferAttachment;
 struct PixelPackState;
+
+typedef std::vector<const FramebufferAttachment *> AttachmentList;
+
 }
 
 namespace rx
@@ -50,37 +52,16 @@ struct ClearParameters
     gl::Rectangle scissor;
 };
 
-class DefaultAttachmentD3D : public DefaultAttachmentImpl
-{
-  public:
-    DefaultAttachmentD3D(RenderTargetD3D *renderTarget);
-    virtual ~DefaultAttachmentD3D();
-
-    static DefaultAttachmentD3D *makeDefaultAttachmentD3D(DefaultAttachmentImpl* impl);
-
-    virtual GLsizei getWidth() const override;
-    virtual GLsizei getHeight() const override;
-    virtual GLenum getInternalFormat() const override;
-    virtual GLsizei getSamples() const override;
-
-    RenderTargetD3D *getRenderTarget() const;
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN(DefaultAttachmentD3D);
-
-    RenderTargetD3D *mRenderTarget;
-};
-
 class FramebufferD3D : public FramebufferImpl
 {
   public:
     FramebufferD3D(const gl::Framebuffer::Data &data, RendererD3D *renderer);
     virtual ~FramebufferD3D();
 
-    void setColorAttachment(size_t index, const gl::FramebufferAttachment *attachment) override;
-    void setDepthAttachment(const gl::FramebufferAttachment *attachment) override;
-    void setStencilAttachment(const gl::FramebufferAttachment *attachment) override;
-    void setDepthStencilAttachment(const gl::FramebufferAttachment *attachment) override;
+    void onUpdateColorAttachment(size_t index) override;
+    void onUpdateDepthAttachment() override;
+    void onUpdateStencilAttachment() override;
+    void onUpdateDepthStencilAttachment() override;
 
     void setDrawBuffers(size_t count, const GLenum *buffers) override;
     void setReadBuffer(GLenum buffer) override;
@@ -88,7 +69,7 @@ class FramebufferD3D : public FramebufferImpl
     gl::Error invalidate(size_t count, const GLenum *attachments) override;
     gl::Error invalidateSub(size_t count, const GLenum *attachments, const gl::Rectangle &area) override;
 
-    gl::Error clear(const gl::State &state, GLbitfield mask) override;
+    gl::Error clear(const gl::Data &data, GLbitfield mask) override;
     gl::Error clearBufferfv(const gl::State &state, GLenum buffer, GLint drawbuffer, const GLfloat *values) override;
     gl::Error clearBufferuiv(const gl::State &state, GLenum buffer, GLint drawbuffer, const GLuint *values) override;
     gl::Error clearBufferiv(const gl::State &state, GLenum buffer, GLint drawbuffer, const GLint *values) override;
@@ -111,8 +92,6 @@ class FramebufferD3D : public FramebufferImpl
     mutable bool mInvalidateColorAttachmentCache;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(FramebufferD3D);
-
     RendererD3D *const mRenderer;
 
     virtual gl::Error clear(const gl::State &state, const ClearParameters &clearParams) = 0;
@@ -127,7 +106,6 @@ class FramebufferD3D : public FramebufferImpl
     virtual GLenum getRenderTargetImplementationFormat(RenderTargetD3D *renderTarget) const = 0;
 };
 
-gl::Error GetAttachmentRenderTarget(const gl::FramebufferAttachment *attachment, RenderTargetD3D **outRT);
 unsigned int GetAttachmentSerial(const gl::FramebufferAttachment *attachment);
 
 }

@@ -262,7 +262,7 @@ int DynamicHLSL::packVaryings(InfoLog &infoLog, VaryingPacking packing, ShaderD3
         }
         else
         {
-            infoLog.append("Could not pack varying %s", varying->name.c_str());
+            infoLog << "Could not pack varying " << varying->name;
             return -1;
         }
     }
@@ -287,7 +287,7 @@ int DynamicHLSL::packVaryings(InfoLog &infoLog, VaryingPacking packing, ShaderD3
                 {
                     if (!packVarying(varying, maxVaryingVectors, packing))
                     {
-                        infoLog.append("Could not pack varying %s", varying->name.c_str());
+                        infoLog << "Could not pack varying " << varying->name;
                         return -1;
                     }
 
@@ -298,7 +298,9 @@ int DynamicHLSL::packVaryings(InfoLog &infoLog, VaryingPacking packing, ShaderD3
 
             if (!found)
             {
-                infoLog.append("Transform feedback varying %s does not exist in the vertex shader.", transformFeedbackVarying.c_str());
+                infoLog << "Transform feedback varying "
+                        << transformFeedbackVarying
+                        << " does not exist in the vertex shader.";
                 return -1;
             }
         }
@@ -379,7 +381,7 @@ std::string DynamicHLSL::generateVaryingHLSL(const ShaderD3D *shader) const
 
 std::string DynamicHLSL::generateVertexShaderForInputLayout(const std::string &sourceShader,
                                                             const VertexFormat inputLayout[],
-                                                            const sh::Attribute shaderAttributes[]) const
+                                                            const std::vector<sh::Attribute> &shaderAttributes) const
 {
     std::string structHLSL, initHLSL;
 
@@ -406,7 +408,7 @@ std::string DynamicHLSL::generateVertexShaderForInputLayout(const std::string &s
         structHLSL += "    float2 spriteTexCoord : SPRITETEXCOORD0;\n";
     }
 
-    for (unsigned int attributeIndex = 0; attributeIndex < MAX_VERTEX_ATTRIBS; attributeIndex++)
+    for (size_t attributeIndex = 0; attributeIndex < shaderAttributes.size(); ++attributeIndex)
     {
         const sh::Attribute &shaderAttribute = shaderAttributes[attributeIndex];
         if (!shaderAttribute.name.empty())
@@ -748,18 +750,13 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data, InfoLog &infoLog,
     }
 
     bool usesMRT = fragmentShader->mUsesMultipleRenderTargets;
-    bool usesFragColor = fragmentShader->mUsesFragColor;
-    bool usesFragData = fragmentShader->mUsesFragData;
     bool usesFragCoord = fragmentShader->mUsesFragCoord;
     bool usesPointCoord = fragmentShader->mUsesPointCoord;
     bool usesPointSize = vertexShader->mUsesPointSize;
     bool useInstancedPointSpriteEmulation = usesPointSize && mRenderer->getWorkarounds().useInstancedPointSpriteEmulation;
 
-    if (usesFragColor && usesFragData)
-    {
-        infoLog.append("Cannot use both gl_FragColor and gl_FragData in the same fragment shader.");
-        return false;
-    }
+    // Validation done in the compiler
+    ASSERT(!fragmentShader->mUsesFragColor || !fragmentShader->mUsesFragData);
 
     // Write the HLSL input/output declarations
     const int shaderModel = mRenderer->getMajorShaderModel();
@@ -783,7 +780,7 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data, InfoLog &infoLog,
 
     if (static_cast<GLuint>(registersNeeded) > data.caps->maxVaryingVectors)
     {
-        infoLog.append("No varying registers left to support gl_FragCoord/gl_PointCoord");
+        infoLog << "No varying registers left to support gl_FragCoord/gl_PointCoord";
         return false;
     }
 
@@ -1225,8 +1222,8 @@ std::string DynamicHLSL::generatePointSpriteHLSL(int registers, ShaderD3D *fragm
                 "    float2(0.0f, 0.0f)\n"
                 "};\n"
                 "\n"
-                "static float minPointSize = " + Str(mRenderer->getRendererCaps().minAliasedPointSize) + ".0f;\n"
-                "static float maxPointSize = " + Str(mRenderer->getRendererCaps().maxAliasedPointSize) + ".0f;\n"
+                "static float minPointSize = " + Str(static_cast<int>(mRenderer->getRendererCaps().minAliasedPointSize)) + ".0f;\n"
+                "static float maxPointSize = " + Str(static_cast<int>(mRenderer->getRendererCaps().maxAliasedPointSize)) + ".0f;\n"
                 "\n"
                 "[maxvertexcount(4)]\n"
                 "void main(point GS_INPUT input[1], inout TriangleStream<GS_OUTPUT> outStream)\n"

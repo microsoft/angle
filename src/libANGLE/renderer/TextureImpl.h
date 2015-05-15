@@ -9,14 +9,13 @@
 #ifndef LIBANGLE_RENDERER_TEXTUREIMPL_H_
 #define LIBANGLE_RENDERER_TEXTUREIMPL_H_
 
-#include "libANGLE/Error.h"
-#include "libANGLE/ImageIndex.h"
-
-#include "common/angleutils.h"
+#include <stdint.h>
 
 #include "angle_gl.h"
-
-#include <stdint.h>
+#include "common/angleutils.h"
+#include "libANGLE/Error.h"
+#include "libANGLE/FramebufferAttachment.h"
+#include "libANGLE/ImageIndex.h"
 
 namespace egl
 {
@@ -37,10 +36,11 @@ struct SamplerState;
 namespace rx
 {
 
-class TextureImpl
+class TextureImpl : public FramebufferAttachmentObjectImpl
 {
   public:
-    virtual ~TextureImpl() {};
+    TextureImpl() {}
+    virtual ~TextureImpl() {}
 
     virtual void setUsage(GLenum usage) = 0;
 
@@ -61,7 +61,7 @@ class TextureImpl
 
     virtual gl::Error setStorage(GLenum target, size_t levels, GLenum internalFormat, const gl::Extents &size) = 0;
 
-    virtual gl::Error generateMipmaps() = 0;
+    virtual gl::Error generateMipmaps(const gl::SamplerState &samplerState) = 0;
 
     virtual void bindTexImage(egl::Surface *surface) = 0;
     virtual void releaseTexImage() = 0;

@@ -133,6 +133,7 @@ Extensions::Extensions()
       fragDepth(false),
       textureUsage(false),
       translatedShaderSource(false),
+      fboRenderMipmap(false),
       colorBufferFloat(false)
 {
 }
@@ -182,6 +183,7 @@ std::vector<std::string> Extensions::getStrings() const
     InsertExtensionString("GL_EXT_frag_depth",                 fragDepth,                &extensionStrings);
     InsertExtensionString("GL_ANGLE_texture_usage",            textureUsage,             &extensionStrings);
     InsertExtensionString("GL_ANGLE_translated_shader_source", translatedShaderSource,   &extensionStrings);
+    InsertExtensionString("GL_OES_fbo_render_mipmap",          fboRenderMipmap,          &extensionStrings);
     InsertExtensionString("GL_EXT_color_buffer_float",         colorBufferFloat,         &extensionStrings);
 
     return extensionStrings;
@@ -446,7 +448,7 @@ Caps::Caps()
       maxTextureImageUnits(0),
       minProgramTexelOffset(0),
       maxProgramTexelOffset(0),
-
+      // Table 6.33
       maxUniformBufferBindings(0),
       maxUniformBlockSize(0),
       uniformBufferOffsetAlignment(0),
@@ -456,10 +458,12 @@ Caps::Caps()
       maxVaryingComponents(0),
       maxVaryingVectors(0),
       maxCombinedTextureImageUnits(0),
-
+      // Table 6.34
       maxTransformFeedbackInterleavedComponents(0),
       maxTransformFeedbackSeparateAttributes(0),
-      maxTransformFeedbackSeparateComponents(0)
+      maxTransformFeedbackSeparateComponents(0),
+      // Table 6.35
+      maxSamples(0)
 {
 }
 
@@ -480,7 +484,8 @@ DisplayExtensions::DisplayExtensions()
       querySurfacePointer(false),
       windowFixedSize(false),
       postSubBuffer(false),
-      createContext(false)
+      createContext(false),
+      deviceQuery(false)
 {
 }
 
@@ -496,10 +501,25 @@ std::vector<std::string> DisplayExtensions::getStrings() const
     InsertExtensionString("EGL_ANGLE_window_fixed_size",                   windowFixedSize,                &extensionStrings);
     InsertExtensionString("EGL_NV_post_sub_buffer",                        postSubBuffer,                  &extensionStrings);
     InsertExtensionString("EGL_KHR_create_context",                        createContext,                  &extensionStrings);
+    InsertExtensionString("EGL_EXT_device_query",                          deviceQuery,                    &extensionStrings);
 
     return extensionStrings;
 }
 
+DeviceExtensions::DeviceExtensions()
+    : deviceD3D(false)
+{
+}
+
+std::vector<std::string> DeviceExtensions::getStrings() const
+{
+    std::vector<std::string> extensionStrings;
+
+    //                   | Extension name                                 | Supported flag                | Output vector   |
+    InsertExtensionString("EGL_ANGLE_device_d3d",                          deviceD3D,                      &extensionStrings);
+
+    return extensionStrings;
+}
 
 ClientExtensions::ClientExtensions()
     : clientExtensions(false),

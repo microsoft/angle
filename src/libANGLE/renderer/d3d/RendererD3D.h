@@ -51,18 +51,31 @@ enum ShaderType
 enum RendererClass
 {
     RENDERER_D3D11,
-    RENDERER_D3D9,
+    RENDERER_D3D9
 };
 
-class RendererD3D : public Renderer
+// Useful for unit testing
+class BufferFactoryD3D
+{
+  public:
+    BufferFactoryD3D() {}
+    virtual ~BufferFactoryD3D() {}
+
+    virtual VertexBuffer *createVertexBuffer() = 0;
+    virtual IndexBuffer *createIndexBuffer() = 0;
+
+    // TODO(jmadill): add VertexFormatCaps
+    virtual VertexConversionType getVertexConversionType(const gl::VertexFormat &vertexFormat) const = 0;
+    virtual GLenum getVertexComponentType(const gl::VertexFormat &vertexFormat) const = 0;
+};
+
+class RendererD3D : public Renderer, public BufferFactoryD3D
 {
   public:
     explicit RendererD3D(egl::Display *display);
     virtual ~RendererD3D();
 
     virtual egl::Error initialize() = 0;
-
-    static RendererD3D *makeRendererD3D(Renderer *renderer);
 
     virtual egl::ConfigSet generateConfigs() const = 0;
 
@@ -73,7 +86,7 @@ class RendererD3D : public Renderer
     gl::Error drawElements(const gl::Data &data,
                            GLenum mode, GLsizei count, GLenum type,
                            const GLvoid *indices, GLsizei instances,
-                           const RangeUI &indexRange) override;
+                           const gl::RangeUI &indexRange) override;
 
     bool isDeviceLost() const override;
     std::string getVendorString() const override;
@@ -152,6 +165,7 @@ class RendererD3D : public Renderer
     // Image operations
     virtual ImageD3D *createImage() = 0;
     virtual gl::Error generateMipmap(ImageD3D *dest, ImageD3D *source) = 0;
+    virtual gl::Error generateMipmapsUsingD3D(TextureStorage *storage, const gl::SamplerState &samplerState) = 0;
     virtual TextureStorage *createTextureStorage2D(SwapChainD3D *swapChain) = 0;
     virtual TextureStorage *createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly) = 0;
     virtual TextureStorage *createTextureStorageCube(GLenum internalformat, bool renderTarget, int size, int levels, bool hintLevelZeroOnly) = 0;
@@ -163,17 +177,11 @@ class RendererD3D : public Renderer
     virtual gl::Error fastCopyBufferToTexture(const gl::PixelUnpackState &unpack, unsigned int offset, RenderTargetD3D *destRenderTarget,
                                               GLenum destinationFormat, GLenum sourcePixelsType, const gl::Box &destArea) = 0;
 
-    virtual VertexConversionType getVertexConversionType(const gl::VertexFormat &vertexFormat) const = 0;
-    virtual GLenum getVertexComponentType(const gl::VertexFormat &vertexFormat) const = 0;
-
-    virtual VertexBuffer *createVertexBuffer() = 0;
-    virtual IndexBuffer *createIndexBuffer() = 0;
-
     // Device lost
     void notifyDeviceLost() override;
     virtual bool resetDevice() = 0;
-
     virtual RendererClass getRendererClass() const = 0;
+    virtual void *getD3DDevice() = 0;
 
     gl::Error getScratchMemoryBuffer(size_t requestedSize, MemoryBuffer **bufferOut);
 
@@ -186,14 +194,15 @@ class RendererD3D : public Renderer
 
     void cleanup();
 
+    // dirtyPointer is a special value that will make the comparison with any valid pointer fail and force the renderer to re-apply the state.
+    static const uintptr_t DirtyPointer;
+
     egl::Display *mDisplay;
     bool mDeviceLost;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(RendererD3D);
-
     //FIXME(jmadill): std::array is currently prohibited by Chromium style guide
-    typedef std::array<unsigned int, gl::IMPLEMENTATION_MAX_FRAMEBUFFER_ATTACHMENTS> FramebufferTextureSerialArray;
+    typedef std::array<gl::Texture*, gl::IMPLEMENTATION_MAX_FRAMEBUFFER_ATTACHMENTS> FramebufferTextureArray;
 
     gl::Error generateSwizzles(const gl::Data &data, gl::SamplerType type);
     gl::Error generateSwizzles(const gl::Data &data);
@@ -202,14 +211,13 @@ class RendererD3D : public Renderer
     gl::Error applyState(const gl::Data &data, GLenum drawMode);
     gl::Error applyShaders(const gl::Data &data);
     gl::Error applyTextures(const gl::Data &data, gl::SamplerType shaderType,
-                            const FramebufferTextureSerialArray &framebufferSerials, size_t framebufferSerialCount);
+                            const FramebufferTextureArray &framebufferTextures, size_t framebufferTextureCount);
     gl::Error applyTextures(const gl::Data &data);
 
     bool skipDraw(const gl::Data &data, GLenum drawMode);
     void markTransformFeedbackUsage(const gl::Data &data);
 
-    size_t getBoundFramebufferTextureSerials(const gl::Data &data,
-                                             FramebufferTextureSerialArray *outSerialArray);
+    size_t getBoundFramebufferTextures(const gl::Data &data, FramebufferTextureArray *outTextureArray);
     gl::Texture *getIncompleteTexture(GLenum type);
 
     gl::TextureMap mIncompleteTextures;

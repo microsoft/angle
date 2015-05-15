@@ -24,7 +24,9 @@
 #include "common/platform.h"
 #include "libANGLE/Context.h"
 #include "libANGLE/Surface.h"
+#include "libANGLE/Device.h"
 #include "libANGLE/renderer/DisplayImpl.h"
+#include "third_party/trace_event/trace_event.h"
 
 #if defined(ANGLE_ENABLE_D3D9) || defined(ANGLE_ENABLE_D3D11)
 #   include "libANGLE/renderer/d3d/DisplayD3D.h"
@@ -33,6 +35,8 @@
 #if defined(ANGLE_ENABLE_OPENGL)
 #   if defined(ANGLE_PLATFORM_WINDOWS)
 #       include "libANGLE/renderer/gl/wgl/DisplayWGL.h"
+#   elif defined(ANGLE_PLATFORM_LINUX)
+#       include "libANGLE/renderer/gl/glx/DisplayGLX.h"
 #   else
 #       error Unsupported OpenGL platform.
 #   endif
@@ -105,6 +109,8 @@ rx::DisplayImpl *CreateDisplayImpl(const AttributeMap &attribMap)
 #if defined(ANGLE_ENABLE_D3D9) || defined(ANGLE_ENABLE_D3D11)
         // Default to D3D displays
         impl = new rx::DisplayD3D();
+#elif defined(ANGLE_PLATFORM_LINUX)
+        impl = new rx::DisplayGLX();
 #else
         // No display available
         UNREACHABLE();
@@ -125,6 +131,8 @@ rx::DisplayImpl *CreateDisplayImpl(const AttributeMap &attribMap)
 #if defined(ANGLE_ENABLE_OPENGL)
 #if defined(ANGLE_PLATFORM_WINDOWS)
         impl = new rx::DisplayWGL();
+#elif defined(ANGLE_PLATFORM_LINUX)
+        impl = new rx::DisplayGLX();
 #else
 #error Unsupported OpenGL platform.
 #endif
@@ -190,7 +198,8 @@ Display::Display(EGLNativeDisplayType displayId)
       mCaps(),
       mDisplayExtensions(),
       mDisplayExtensionString(),
-      mVendorString()
+      mVendorString(),
+      mDevice(nullptr)
 {
 }
 
@@ -205,6 +214,7 @@ Display::~Display()
         displays->erase(iter);
     }
 
+    SafeDelete(mDevice);
     SafeDelete(mImplementation);
 }
 
@@ -221,6 +231,8 @@ void Display::setAttributes(rx::DisplayImpl *impl, const AttributeMap &attribMap
 
 Error Display::initialize()
 {
+    TRACE_EVENT0("gpu.angle", "egl::Display::initialize");
+
     ASSERT(mImplementation != nullptr);
 
     if (isInitialized())
@@ -246,6 +258,21 @@ Error Display::initialize()
     initDisplayExtensions();
     initVendorString();
 
+    if (mDisplayExtensions.deviceQuery)
+    {
+        rx::DeviceImpl *impl = nullptr;
+        error = mImplementation->getDevice(&impl);
+        if (error.isError())
+        {
+            return error;
+        }
+        mDevice = new Device(this, impl);
+    }
+    else
+    {
+        mDevice = nullptr;
+    }
+
     mInitialized = true;
     return Error(EGL_SUCCESS);
 }
@@ -262,6 +289,7 @@ void Display::terminate()
     mConfigSet.clear();
 
     mImplementation->terminate();
+
     mInitialized = false;
 
     // De-init default platform
@@ -328,6 +356,7 @@ Error Display::createWindowSurface(const Config *configuration, EGLNativeWindowT
         }
     }
 
+<<<<<<< HEAD
     bool allowRenderToBackBuffer = (mAttributeMap.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, EGL_FALSE) == EGL_TRUE);
 
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
@@ -336,12 +365,18 @@ Error Display::createWindowSurface(const Config *configuration, EGLNativeWindowT
 
     rx::SurfaceImpl *surfaceImpl = nullptr;
     Error error = mImplementation->createWindowSurface(configuration, window, attribs, allowRenderToBackBuffer, &surfaceImpl);
+=======
+    rx::SurfaceImpl *surfaceImpl = mImplementation->createWindowSurface(configuration, window, attribs);
+    ASSERT(surfaceImpl != nullptr);
+
+    Error error = surfaceImpl->initialize();
+>>>>>>> google/master
     if (error.isError())
     {
+        SafeDelete(surfaceImpl);
         return error;
     }
 
-    ASSERT(surfaceImpl != nullptr);
     Surface *surface = new Surface(surfaceImpl, EGL_WINDOW_BIT, configuration, attribs);
     mImplementation->getSurfaceSet().insert(surface);
 
@@ -367,14 +402,16 @@ Error Display::createPbufferSurface(const Config *configuration, const Attribute
         }
     }
 
-    rx::SurfaceImpl *surfaceImpl = nullptr;
-    Error error = mImplementation->createPbufferSurface(configuration, attribs, &surfaceImpl);
+    rx::SurfaceImpl *surfaceImpl = mImplementation->createPbufferSurface(configuration, attribs);
+    ASSERT(surfaceImpl != nullptr);
+
+    Error error = surfaceImpl->initialize();
     if (error.isError())
     {
+        SafeDelete(surfaceImpl);
         return error;
     }
 
-    ASSERT(surfaceImpl != nullptr);
     Surface *surface = new Surface(surfaceImpl, EGL_PBUFFER_BIT, configuration, attribs);
     mImplementation->getSurfaceSet().insert(surface);
 
@@ -397,15 +434,49 @@ Error Display::createPbufferFromClientBuffer(const Config *configuration, EGLCli
         }
     }
 
-    rx::SurfaceImpl *surfaceImpl = nullptr;
-    Error error = mImplementation->createPbufferFromClientBuffer(configuration, shareHandle, attribs, &surfaceImpl);
+    rx::SurfaceImpl *surfaceImpl = mImplementation->createPbufferFromClientBuffer(configuration, shareHandle, attribs);
+    ASSERT(surfaceImpl != nullptr);
+
+    Error error = surfaceImpl->initialize();
     if (error.isError())
     {
+        SafeDelete(surfaceImpl);
         return error;
     }
 
-    ASSERT(surfaceImpl != nullptr);
     Surface *surface = new Surface(surfaceImpl, EGL_PBUFFER_BIT, configuration, attribs);
+    mImplementation->getSurfaceSet().insert(surface);
+
+    ASSERT(outSurface != nullptr);
+    *outSurface = surface;
+    return Error(EGL_SUCCESS);
+}
+
+Error Display::createPixmapSurface(const Config *configuration, NativePixmapType nativePixmap, const AttributeMap &attribs,
+                                   Surface **outSurface)
+{
+    ASSERT(isInitialized());
+
+    if (mImplementation->testDeviceLost())
+    {
+        Error error = restoreLostDevice();
+        if (error.isError())
+        {
+            return error;
+        }
+    }
+
+    rx::SurfaceImpl *surfaceImpl = mImplementation->createPixmapSurface(configuration, nativePixmap, attribs);
+    ASSERT(surfaceImpl != nullptr);
+
+    Error error = surfaceImpl->initialize();
+    if (error.isError())
+    {
+        SafeDelete(surfaceImpl);
+        return error;
+    }
+
+    Surface *surface = new Surface(surfaceImpl, EGL_PIXMAP_BIT, configuration, attribs);
     mImplementation->getSurfaceSet().insert(surface);
 
     ASSERT(outSurface != nullptr);
@@ -450,8 +521,9 @@ Error Display::makeCurrent(egl::Surface *drawSurface, egl::Surface *readSurface,
         return error;
     }
 
-    if (context && drawSurface)
+    if (context != nullptr && drawSurface != nullptr)
     {
+        ASSERT(readSurface == drawSurface);
         context->makeCurrent(drawSurface);
     }
 
@@ -646,6 +718,11 @@ const std::string &Display::getExtensionString() const
 const std::string &Display::getVendorString() const
 {
     return mVendorString;
+}
+
+Device *Display::getDevice() const
+{
+    return mDevice;
 }
 
 }

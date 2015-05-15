@@ -17,13 +17,16 @@ namespace rx
 class SurfaceGL : public SurfaceImpl
 {
   public:
-    SurfaceGL(egl::Display *display, const egl::Config *config,
-              EGLint fixedSize, EGLint postSubBufferSupported, EGLenum textureFormat,
-              EGLenum textureType);
+    SurfaceGL();
     ~SurfaceGL() override;
 
-  private:
-    DISALLOW_COPY_AND_ASSIGN(SurfaceGL);
+    gl::Error getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,
+                                        FramebufferAttachmentRenderTarget **rtOut) override
+    {
+        return gl::Error(GL_OUT_OF_MEMORY, "Not supported on OpenGL");
+    }
+
+    virtual egl::Error makeCurrent() = 0;
 };
 
 }

@@ -8,6 +8,7 @@
 #define COMPILER_TRANSLATOR_EMULATE_PRECISION_H_
 
 #include "common/angleutils.h"
+#include "compiler/translator/Compiler.h"
 #include "compiler/translator/InfoSink.h"
 #include "compiler/translator/IntermNode.h"
 #include "GLSLANG/ShaderLang.h"
@@ -30,8 +31,6 @@ class EmulatePrecision : public TIntermTraverser
     void writeEmulationHelpers(TInfoSinkBase& sink, ShShaderOutput outputLanguage);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(EmulatePrecision);
-
     struct TypePair
     {
         TypePair(const char *l, const char *r)

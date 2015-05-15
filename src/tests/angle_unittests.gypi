@@ -16,13 +16,17 @@
         'angle_unittests_sources':
         [
             '<(angle_path)/src/common/Optional_unittest.cpp',
+            '<(angle_path)/src/common/utilities_unittest.cpp',
             '<(angle_path)/src/libANGLE/Config_unittest.cpp',
             '<(angle_path)/src/libANGLE/Fence_unittest.cpp',
             '<(angle_path)/src/libANGLE/HandleAllocator_unittest.cpp',
             '<(angle_path)/src/libANGLE/ImageIndexIterator_unittest.cpp',
+            '<(angle_path)/src/libANGLE/Program_unittest.cpp',
             '<(angle_path)/src/libANGLE/ResourceManager_unittest.cpp',
             '<(angle_path)/src/libANGLE/Surface_unittest.cpp',
             '<(angle_path)/src/libANGLE/TransformFeedback_unittest.cpp',
+            '<(angle_path)/src/libANGLE/renderer/BufferImpl_mock.h',
+            '<(angle_path)/src/libANGLE/renderer/TransformFeedbackImpl_mock.h',
             '<(angle_path)/src/tests/angle_unittests_utils.h',
             '<(angle_path)/src/tests/compiler_tests/API_test.cpp',
             '<(angle_path)/src/tests/compiler_tests/CollectVariables_test.cpp',
@@ -30,8 +34,9 @@
             '<(angle_path)/src/tests/compiler_tests/DebugShaderPrecision_test.cpp',
             '<(angle_path)/src/tests/compiler_tests/ExpressionLimit_test.cpp',
             '<(angle_path)/src/tests/compiler_tests/MalformedShader_test.cpp',
-            '<(angle_path)/src/tests/compiler_tests/ShaderExtension_test.cpp',
             '<(angle_path)/src/tests/compiler_tests/NV_draw_buffers_test.cpp',
+            '<(angle_path)/src/tests/compiler_tests/PruneUnusedFunctions_test.cpp',
+            '<(angle_path)/src/tests/compiler_tests/ShaderExtension_test.cpp',
             '<(angle_path)/src/tests/compiler_tests/ShaderVariable_test.cpp',
             '<(angle_path)/src/tests/compiler_tests/TypeTracking_test.cpp',
             '<(angle_path)/src/tests/preprocessor_tests/char_test.cpp',
@@ -96,6 +101,14 @@
                     ],
                 },
             },
+        }],
+        ['OS=="win"',
+        {
+            # TODO(cwallez): make this angle_enable_hlsl instead (requires gyp file refactoring)
+            'sources':
+            [
+                '<(angle_path)/src/tests/compiler_tests/UnrollFlatten_test.cpp',
+            ],
         }],
     ],
 }

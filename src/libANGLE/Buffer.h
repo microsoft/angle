@@ -11,11 +11,10 @@
 #ifndef LIBANGLE_BUFFER_H_
 #define LIBANGLE_BUFFER_H_
 
-#include "libANGLE/Error.h"
-#include "libANGLE/RefCountObject.h"
-#include "libANGLE/renderer/IndexRangeCache.h"
-
 #include "common/angleutils.h"
+#include "libANGLE/Error.h"
+#include "libANGLE/IndexRangeCache.h"
+#include "libANGLE/RefCountObject.h"
 
 namespace rx
 {
@@ -35,11 +34,18 @@ class Buffer : public RefCountObject
     Error bufferData(const void *data, GLsizeiptr size, GLenum usage);
     Error bufferSubData(const void *data, GLsizeiptr size, GLintptr offset);
     Error copyBufferSubData(Buffer* source, GLintptr sourceOffset, GLintptr destOffset, GLsizeiptr size);
+    Error map(GLenum access);
     Error mapRange(GLintptr offset, GLsizeiptr length, GLbitfield access);
-    Error unmap();
+    Error unmap(GLboolean *result);
+
+    void onTransformFeedback();
+    void onPixelUnpack();
+
+    Error getIndexRange(GLenum type, size_t offset, size_t count, RangeUI *outRange) const;
 
     GLenum getUsage() const { return mUsage; }
-    GLint getAccessFlags() const {  return mAccessFlags; }
+    GLbitfield getAccessFlags() const { return mAccessFlags; }
+    GLenum getAccess() const { return mAccess; }
     GLboolean isMapped() const { return mMapped; }
     GLvoid *getMapPointer() const { return mMapPointer; }
     GLint64 getMapOffset() const { return mMapOffset; }
@@ -48,23 +54,19 @@ class Buffer : public RefCountObject
 
     rx::BufferImpl *getImplementation() const { return mBuffer; }
 
-    rx::IndexRangeCache *getIndexRangeCache() { return &mIndexRangeCache; }
-    const rx::IndexRangeCache *getIndexRangeCache() const { return &mIndexRangeCache; }
-
   private:
-    DISALLOW_COPY_AND_ASSIGN(Buffer);
-
     rx::BufferImpl *mBuffer;
 
     GLenum mUsage;
     GLint64 mSize;
-    GLint mAccessFlags;
+    GLbitfield mAccessFlags;
+    GLenum mAccess;
     GLboolean mMapped;
     GLvoid *mMapPointer;
     GLint64 mMapOffset;
     GLint64 mMapLength;
 
-    rx::IndexRangeCache mIndexRangeCache;
+    mutable IndexRangeCache mIndexRangeCache;
 };
 
 }

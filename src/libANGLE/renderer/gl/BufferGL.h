@@ -26,17 +26,16 @@ class BufferGL : public BufferImpl
     gl::Error setData(const void* data, size_t size, GLenum usage) override;
     gl::Error setSubData(const void* data, size_t size, size_t offset) override;
     gl::Error copySubData(BufferImpl* source, GLintptr sourceOffset, GLintptr destOffset, GLsizeiptr size) override;
-    gl::Error map(size_t offset, size_t length, GLbitfield access, GLvoid **mapPtr) override;
-    gl::Error unmap() override;
+    gl::Error map(GLenum access, GLvoid **mapPtr) override;
+    gl::Error mapRange(size_t offset, size_t length, GLbitfield access, GLvoid **mapPtr) override;
+    gl::Error unmap(GLboolean *result) override;
 
-    // This method may not have a corresponding GL-backed function. It is necessary
-    // for validation, for certain indexed draw calls.
-    gl::Error getData(const uint8_t **outData) override;
+    gl::Error getIndexRange(GLenum type, size_t offset, size_t count, gl::RangeUI *outRange) override;
 
     GLuint getBufferID() const;
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(BufferGL);
+    bool mIsMapped;
 
     const FunctionsGL *mFunctions;
     StateManagerGL *mStateManager;

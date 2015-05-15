@@ -9,6 +9,7 @@
 #include "libANGLE/renderer/gl/ProgramGL.h"
 
 #include "common/debug.h"
+#include "common/utilities.h"
 #include "libANGLE/renderer/gl/FunctionsGL.h"
 #include "libANGLE/renderer/gl/ShaderGL.h"
 #include "libANGLE/renderer/gl/StateManagerGL.h"
@@ -24,15 +25,14 @@ ProgramGL::ProgramGL(const FunctionsGL *functions, StateManagerGL *stateManager)
 {
     ASSERT(mFunctions);
     ASSERT(mStateManager);
+
+    mProgramID = mFunctions->createProgram();
 }
 
 ProgramGL::~ProgramGL()
 {
-    if (mProgramID != 0)
-    {
-        mFunctions->deleteProgram(mProgramID);
-        mProgramID = 0;
-    }
+    mFunctions->deleteProgram(mProgramID);
+    mProgramID = 0;
 }
 
 bool ProgramGL::usesPointSize() const
@@ -84,19 +84,18 @@ LinkResult ProgramGL::link(const gl::Data &data, gl::InfoLog &infoLog,
     ShaderGL *vertexShaderGL = GetImplAs<ShaderGL>(vertexShader);
     ShaderGL *fragmentShaderGL = GetImplAs<ShaderGL>(fragmentShader);
 
-    // Generate a new program, make sure one doesn't already exist
-    ASSERT(mProgramID == 0);
-    mProgramID = mFunctions->createProgram();
-
     // Attach the shaders
     mFunctions->attachShader(mProgramID, vertexShaderGL->getShaderID());
     mFunctions->attachShader(mProgramID, fragmentShaderGL->getShaderID());
 
-    // TODO: bind attribute locations?
-
     // Link and verify
     mFunctions->linkProgram(mProgramID);
 
+    // Detach the shaders
+    mFunctions->detachShader(mProgramID, vertexShaderGL->getShaderID());
+    mFunctions->detachShader(mProgramID, fragmentShaderGL->getShaderID());
+
+    // Verify the link
     GLint linkStatus = GL_FALSE;
     mFunctions->getProgramiv(mProgramID, GL_LINK_STATUS, &linkStatus);
     ASSERT(linkStatus == GL_TRUE);
@@ -112,7 +111,7 @@ LinkResult ProgramGL::link(const gl::Data &data, gl::InfoLog &infoLog,
         mFunctions->deleteProgram(mProgramID);
         mProgramID = 0;
 
-        infoLog.append(&buf[0]);
+        infoLog << &buf[0];
         TRACE("\n%s", &buf[0]);
 
         // TODO, return GL_OUT_OF_MEMORY or just fail the link? This is an unexpected case
@@ -135,11 +134,52 @@ LinkResult ProgramGL::link(const gl::Data &data, gl::InfoLog &infoLog,
         GLenum uniformType = GL_NONE;
         mFunctions->getActiveUniform(mProgramID, i, uniformNameBuffer.size(), &uniformNameLength, &uniformSize, &uniformType, &uniformNameBuffer[0]);
 
-        std::string uniformName(&uniformNameBuffer[0], uniformNameLength);
+        std::string uniformName = gl::ParseUniformName(std::string(&uniformNameBuffer[0], uniformNameLength), nullptr);
+
+        for (size_t arrayIndex = 0; arrayIndex < static_cast<size_t>(uniformSize); arrayIndex++)
+        {
+            std::string locationName = uniformName;
+            if (uniformSize > 1)
+            {
+                locationName += "[" + Str(arrayIndex) + "]";
+            }
+
+            GLint location = mFunctions->getUniformLocation(mProgramID, locationName.c_str());
+            if (location >= 0)
+            {
+                // Make sure the uniform index array is large enough
+                if (static_cast<size_t>(location) >= mUniformIndex.size())
+                {
+                    mUniformIndex.resize(location + 1);
+                }
+
+                mUniformIndex[location] = gl::VariableLocation(uniformName, arrayIndex, static_cast<unsigned int>(mUniforms.size()));
+
+                // If the uniform is a sampler, track it in the sampler bindings array
+                if (gl::IsSamplerType(uniformType))
+                {
+                    SamplerLocation samplerLoc;
+                    samplerLoc.samplerIndex = mSamplerBindings.size();
+                    samplerLoc.arrayIndex = arrayIndex;
+                    mSamplerUniformMap[location] = samplerLoc;
+                }
+            }
+        }
+
+        // ANGLE uses 0 to identify an non-array uniform.
+        unsigned int arraySize = (uniformSize > 1) ? static_cast<unsigned int>(uniformSize) : 0;
 
         // TODO: determine uniform precision
-        mUniforms.push_back(new gl::LinkedUniform(uniformType, GL_NONE, uniformName, uniformSize, -1, sh::BlockMemberInfo::getDefaultBlockInfo()));
-        mUniformIndex.push_back(gl::VariableLocation(uniformName, 0, i));
+        mUniforms.push_back(new gl::LinkedUniform(uniformType, GL_NONE, uniformName, arraySize, -1, sh::BlockMemberInfo::getDefaultBlockInfo()));
+
+        // If uniform is a sampler type, insert it into the mSamplerBindings array
+        if (gl::IsSamplerType(uniformType))
+        {
+            SamplerBindingGL samplerBinding;
+            samplerBinding.textureType = gl::SamplerTypeToTextureType(uniformType);
+            samplerBinding.boundTextureUnits.resize(uniformSize, 0);
+            mSamplerBindings.push_back(samplerBinding);
+        }
     }
 
     // Query the attribute information
@@ -159,15 +199,18 @@ LinkResult ProgramGL::link(const gl::Data &data, gl::InfoLog &infoLog,
 
         std::string attributeName(&attributeNameBuffer[0], attributeNameLength);
 
-        mShaderAttributes[i].type = attributeType;
+        GLint location = mFunctions->getAttribLocation(mProgramID, attributeName.c_str());
+
         // TODO: determine attribute precision
-        mShaderAttributes[i].precision = GL_NONE;
-        mShaderAttributes[i].name = attributeName;
-        mShaderAttributes[i].arraySize = attributeSize;
-        mShaderAttributes[i].location = i;
+        setShaderAttribute(static_cast<size_t>(i), attributeType, GL_NONE, attributeName, attributeSize, location);
     }
 
     return LinkResult(true, gl::Error(GL_NO_ERROR));
+}
+
+void ProgramGL::bindAttributeLocation(GLuint index, const std::string &name)
+{
+    mFunctions->bindAttribLocation(mProgramID, index, name.c_str());
 }
 
 void ProgramGL::setUniform1fv(GLint location, GLsizei count, const GLfloat *v)
@@ -198,6 +241,16 @@ void ProgramGL::setUniform1iv(GLint location, GLsizei count, const GLint *v)
 {
     mStateManager->useProgram(mProgramID);
     mFunctions->uniform1iv(location, count, v);
+
+    auto iter = mSamplerUniformMap.find(location);
+    if (iter != mSamplerUniformMap.end())
+    {
+        const SamplerLocation &samplerLoc = iter->second;
+        std::vector<GLuint> &boundTextureUnits = mSamplerBindings[samplerLoc.samplerIndex].boundTextureUnits;
+
+        size_t copyCount = std::max<size_t>(count, boundTextureUnits.size() - samplerLoc.arrayIndex);
+        std::copy(v, v + copyCount, boundTextureUnits.begin() + samplerLoc.arrayIndex);
+    }
 }
 
 void ProgramGL::setUniform2iv(GLint location, GLsizei count, const GLint *v)
@@ -336,7 +389,7 @@ void ProgramGL::updateSamplerMapping()
 
 bool ProgramGL::validateSamplers(gl::InfoLog *infoLog, const gl::Caps &caps)
 {
-    UNIMPLEMENTED();
+    //UNIMPLEMENTED();
     return true;
 }
 
@@ -367,7 +420,7 @@ gl::Error ProgramGL::applyUniforms()
     return gl::Error(GL_INVALID_OPERATION);
 }
 
-gl::Error ProgramGL::applyUniformBuffers(const gl::Data &data)
+gl::Error ProgramGL::applyUniformBuffers(const gl::Data &data, GLuint uniformBlockBindings[])
 {
     UNIMPLEMENTED();
     return gl::Error(GL_INVALID_OPERATION);
@@ -384,16 +437,18 @@ void ProgramGL::reset()
 {
     ProgramImpl::reset();
 
-    if (mProgramID)
-    {
-        mFunctions->deleteProgram(mProgramID);
-        mProgramID = 0;
-    }
+    mSamplerUniformMap.clear();
+    mSamplerBindings.clear();
 }
 
 GLuint ProgramGL::getProgramID() const
 {
     return mProgramID;
+}
+
+const std::vector<SamplerBindingGL> &ProgramGL::getAppliedSamplerUniforms() const
+{
+    return mSamplerBindings;
 }
 
 }

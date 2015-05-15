@@ -76,18 +76,6 @@ ShaderD3D::~ShaderD3D()
 {
 }
 
-ShaderD3D *ShaderD3D::makeShaderD3D(ShaderImpl *impl)
-{
-    ASSERT(HAS_DYNAMIC_TYPE(ShaderD3D*, impl));
-    return static_cast<ShaderD3D*>(impl);
-}
-
-const ShaderD3D *ShaderD3D::makeShaderD3D(const ShaderImpl *impl)
-{
-    ASSERT(HAS_DYNAMIC_TYPE(const ShaderD3D*, impl));
-    return static_cast<const ShaderD3D*>(impl);
-}
-
 std::string ShaderD3D::getDebugInfo() const
 {
     return mDebugInfo + std::string("\n// ") + GetShaderTypeString(mShaderType) + " SHADER END\n";
@@ -230,7 +218,7 @@ void ShaderD3D::compileToHLSL(ShHandle compiler, const std::string &source)
         {
             const sh::Uniform &uniform = mUniforms[uniformIndex];
 
-            if (uniform.staticUse)
+            if (uniform.staticUse && !uniform.isBuiltIn())
             {
                 unsigned int index = static_cast<unsigned int>(-1);
                 bool getUniformRegisterResult = ShGetUniformRegister(compiler, uniform.name, &index);
@@ -337,7 +325,7 @@ bool ShaderD3D::compile(gl::Compiler *compiler, const std::string &source)
 {
     uncompile();
 
-    CompilerD3D *compilerD3D = CompilerD3D::makeCompilerD3D(compiler->getImplementation());
+    CompilerD3D *compilerD3D = GetImplAs<CompilerD3D>(compiler);
     ShHandle compilerHandle = compilerD3D->getCompilerHandle(mShaderType);
 
     mCompilerOutputType = ShGetShaderOutputType(compilerHandle);

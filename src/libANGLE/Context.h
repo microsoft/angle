@@ -55,7 +55,7 @@ class VertexArray;
 class Sampler;
 class TransformFeedback;
 
-class Context
+class Context final : angle::NonCopyable
 {
   public:
     Context(const egl::Config *config, int clientVersion, const Context *shareContext, rx::Renderer *renderer, bool notifyResets, bool robustAccess);
@@ -63,11 +63,12 @@ class Context
     virtual ~Context();
 
     void makeCurrent(egl::Surface *surface);
+    void releaseSurface();
 
     virtual void markContextLost();
     bool isContextLost();
 
-    // These create  and destroy methods are merely pass-throughs to 
+    // These create  and destroy methods are merely pass-throughs to
     // ResourceManager, which owns these object types
     GLuint createBuffer();
     GLuint createShader(GLenum type);
@@ -94,7 +95,7 @@ class Context
     // NV Fences are owned by the Context.
     GLuint createFenceNV();
     void deleteFenceNV(GLuint fence);
-    
+
     // Queries are owned by the Context;
     GLuint createQuery();
     void deleteQuery(GLuint query);
@@ -124,8 +125,6 @@ class Context
 
     Error beginQuery(GLenum target, GLuint query);
     Error endQuery(GLenum target);
-
-    void setFramebufferZero(Framebuffer *framebuffer);
 
     void setVertexAttribDivisor(GLuint index, GLuint divisor);
 
@@ -168,7 +167,7 @@ class Context
     Error drawArrays(GLenum mode, GLint first, GLsizei count, GLsizei instances);
     Error drawElements(GLenum mode, GLsizei count, GLenum type,
                        const GLvoid *indices, GLsizei instances,
-                       const rx::RangeUI &indexRange);
+                       const RangeUI &indexRange);
     Error flush();
     Error finish();
 
@@ -199,11 +198,9 @@ class Context
     State &getState() { return mState; }
     const State &getState() const { return mState; }
 
-    Data getData() const;
+    const Data &getData() const { return mData; }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN(Context);
-
     void detachBuffer(GLuint buffer);
     void detachTexture(GLuint texture);
     void detachFramebuffer(GLuint framebuffer);
@@ -232,7 +229,6 @@ class Context
 
     EGLint mConfigID;
     EGLenum mClientType;
-    EGLenum mRenderBuffer;
 
     TextureMap mZeroTextures;
 
@@ -273,7 +269,11 @@ class Context
     bool mRobustAccess;
 
     ResourceManager *mResourceManager;
+
+    // Cache the Data object to avoid re-calling the constructor
+    Data mData;
 };
+
 }
 
 #endif   // LIBANGLE_CONTEXT_H_

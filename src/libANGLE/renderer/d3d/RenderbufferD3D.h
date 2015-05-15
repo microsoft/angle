@@ -26,17 +26,16 @@ class RenderbufferD3D : public RenderbufferImpl
     RenderbufferD3D(RendererD3D *renderer);
     virtual ~RenderbufferD3D();
 
-    static RenderbufferD3D *makeRenderbufferD3D(RenderbufferImpl *renderbuffer);
-
     virtual gl::Error setStorage(GLenum internalformat, size_t width, size_t height) override;
     virtual gl::Error setStorageMultisample(size_t samples, GLenum internalformat, size_t width, size_t height) override;
 
     RenderTargetD3D *getRenderTarget();
     unsigned int getRenderTargetSerial() const;
 
-  private:
-    DISALLOW_COPY_AND_ASSIGN(RenderbufferD3D);
+    gl::Error getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,
+                                        FramebufferAttachmentRenderTarget **rtOut) override;
 
+  private:
     RendererD3D *mRenderer;
     RenderTargetD3D *mRenderTarget;
 };

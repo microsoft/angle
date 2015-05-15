@@ -512,6 +512,20 @@ EGLBoolean EGLAPIENTRY MakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface r
         return EGL_FALSE;
     }
 
+    if (dpy == EGL_NO_DISPLAY)
+    {
+        SetGlobalError(Error(EGL_BAD_DISPLAY, "'dpy' not a valid EGLDisplay handle"));
+        return EGL_FALSE;
+    }
+
+    // EGL 1.5 spec: dpy can be uninitialized if all other parameters are null
+    if (dpy != EGL_NO_DISPLAY && !display->isInitialized() &&
+        (ctx != EGL_NO_CONTEXT || draw != EGL_NO_SURFACE || read != EGL_NO_SURFACE))
+    {
+        SetGlobalError(Error(EGL_NOT_INITIALIZED, "'dpy' not initialized"));
+        return EGL_FALSE;
+    }
+
     if (ctx != EGL_NO_CONTEXT)
     {
         Error error = ValidateContext(display, context);
@@ -564,14 +578,20 @@ EGLBoolean EGLAPIENTRY MakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface r
         UNIMPLEMENTED();   // FIXME
     }
 
+    gl::Context *previousContext = GetGlobalContext();
+
     SetGlobalDisplay(display);
     SetGlobalDrawSurface(drawSurface);
     SetGlobalReadSurface(readSurface);
     SetGlobalContext(context);
 
-    if (context != nullptr && display != nullptr && drawSurface != nullptr)
+    display->makeCurrent(drawSurface, readSurface, context);
+
+    // Release the surface from the previously-current context, to allow
+    // destroyed surfaces to delete themselves.
+    if (previousContext != nullptr && context != previousContext)
     {
-        display->makeCurrent(drawSurface, readSurface, context);
+        previousContext->releaseSurface();
     }
 
     SetGlobalError(Error(EGL_SUCCESS));
@@ -781,7 +801,12 @@ EGLBoolean EGLAPIENTRY BindTexImage(EGLDisplay dpy, EGLSurface surface, EGLint b
             return EGL_FALSE;
         }
 
-        eglSurface->bindTexImage(textureObject, buffer);
+        egl::Error error = eglSurface->bindTexImage(textureObject, buffer);
+        if (error.isError())
+        {
+            SetGlobalError(error);
+            return EGL_FALSE;
+        }
     }
 
     SetGlobalError(Error(EGL_SUCCESS));
@@ -845,7 +870,12 @@ EGLBoolean EGLAPIENTRY ReleaseTexImage(EGLDisplay dpy, EGLSurface surface, EGLin
 
     if (texture)
     {
-        eglSurface->releaseTexImage(buffer);
+        egl::Error error = eglSurface->releaseTexImage(buffer);
+        if (error.isError())
+        {
+            SetGlobalError(error);
+            return EGL_FALSE;
+        }
     }
 
     SetGlobalError(Error(EGL_SUCCESS));
@@ -873,7 +903,10 @@ EGLBoolean EGLAPIENTRY SwapInterval(EGLDisplay dpy, EGLint interval)
         return EGL_FALSE;
     }
 
-    draw_surface->setSwapInterval(interval);
+    const egl::Config *surfaceConfig = draw_surface->getConfig();
+    EGLint clampedInterval = std::min(std::max(interval, surfaceConfig->minSwapInterval), surfaceConfig->maxSwapInterval);
+
+    draw_surface->setSwapInterval(clampedInterval);
 
     SetGlobalError(Error(EGL_SUCCESS));
     return EGL_TRUE;
@@ -1071,6 +1104,9 @@ __eglMustCastToProperFunctionPointerType EGLAPIENTRY GetProcAddress(const char *
 
     static const Extension extensions[] =
     {
+        { "eglQueryDeviceAttribEXT", (__eglMustCastToProperFunctionPointerType)QueryDeviceAttribEXT },
+        { "eglQueryDeviceStringEXT", (__eglMustCastToProperFunctionPointerType)QueryDeviceStringEXT },
+        { "eglQueryDisplayAttribEXT", (__eglMustCastToProperFunctionPointerType)QueryDisplayAttribEXT },
         { "eglQuerySurfacePointerANGLE", (__eglMustCastToProperFunctionPointerType)QuerySurfacePointerANGLE },
         { "eglPostSubBufferNV", (__eglMustCastToProperFunctionPointerType)PostSubBufferNV },
         { "eglGetPlatformDisplayEXT", (__eglMustCastToProperFunctionPointerType)GetPlatformDisplayEXT },
