@@ -8,12 +8,7 @@
 
 #include <cstdint>
 
-<<<<<<< HEAD:src/tests/end2end_tests/BufferDataTest.cpp
-// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(BufferDataTest, ES2_D3D9, ES2_D3D11, ES2_D3D11_FL9_3);
-=======
 using namespace angle;
->>>>>>> google/master:src/tests/gl_tests/BufferDataTest.cpp
 
 class BufferDataTest : public ANGLETest
 {
@@ -412,4 +407,4 @@ ANGLE_INSTANTIATE_TEST(BufferDataTestES3, ES3_D3D11());
 ANGLE_INSTANTIATE_TEST(IndexedBufferCopyTest, ES3_D3D11());
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_INSTANTIATE_TEST(BufferDataTest, ES2_D3D9(), ES2_D3D11(), ES2_OPENGL());
+ANGLE_INSTANTIATE_TEST(BufferDataTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3(), ES2_OPENGL());

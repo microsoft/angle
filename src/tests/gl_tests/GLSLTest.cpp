@@ -4,17 +4,12 @@
 // found in the LICENSE file.
 //
 
-<<<<<<< HEAD:src/tests/end2end_tests/GLSLTest.cpp
-// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(GLSLTest, ES2_D3D9, ES2_D3D11_FL9_3, ES2_D3D11);
-=======
 #include "test_utils/ANGLETest.h"
 
 #include "libANGLE/Context.h"
 #include "libANGLE/Program.h"
 
 using namespace angle;
->>>>>>> google/master:src/tests/gl_tests/GLSLTest.cpp
 
 class GLSLTest : public ANGLETest
 {
@@ -1061,7 +1056,7 @@ TEST_P(GLSLTest, DISABLED_PowOfSmallConstant)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_INSTANTIATE_TEST(GLSLTest, ES2_D3D9(), ES2_D3D11());
+ANGLE_INSTANTIATE_TEST(GLSLTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3());
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
 ANGLE_INSTANTIATE_TEST(GLSLTest_ES3, ES3_D3D11());

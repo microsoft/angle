@@ -1443,7 +1443,8 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
         if (colorbuffers.size() > 0)
         {
             RenderTarget11 *renderTarget = NULL;
-            gl::Error error = d3d11::GetAttachmentRenderTarget(colorbuffers[0], &renderTarget);
+            const gl::FramebufferAttachment *colorbuffer = colorbuffers[0];
+            gl::Error error = colorbuffer->getRenderTarget(&renderTarget);
             if (error.isError())
             {
                 return error;
@@ -2904,45 +2905,6 @@ gl::Error Renderer11::createRenderTarget(int width, int height, GLenum format, G
     return gl::Error(GL_NO_ERROR);
 }
 
-<<<<<<< HEAD
-DefaultAttachmentImpl *Renderer11::createDefaultAttachment(GLenum type, egl::Surface *surface)
-{
-    SurfaceD3D *surfaceD3D = GetImplAs<SurfaceD3D>(surface);
-    SwapChain11 *swapChain = SwapChain11::makeSwapChain11(surfaceD3D->getSwapChain());
-
-    switch (type)
-    {
-      case GL_BACK:
-        return new DefaultAttachmentD3D(new SurfaceRenderTarget11(swapChain, this, false, swapChain->renderToBackBuffer()));
-
-      case GL_DEPTH:
-        if (gl::GetInternalFormatInfo(swapChain->GetDepthBufferInternalFormat()).depthBits > 0)
-        {
-            return new DefaultAttachmentD3D(new SurfaceRenderTarget11(swapChain, this, true, swapChain->renderToBackBuffer()));
-        }
-        else
-        {
-            return NULL;
-        }
-
-      case GL_STENCIL:
-        if (gl::GetInternalFormatInfo(swapChain->GetDepthBufferInternalFormat()).stencilBits > 0)
-        {
-            return new DefaultAttachmentD3D(new SurfaceRenderTarget11(swapChain, this, true, swapChain->renderToBackBuffer()));
-        }
-        else
-        {
-            return NULL;
-        }
-
-      default:
-        UNREACHABLE();
-        return NULL;
-    }
-}
-
-=======
->>>>>>> google/master
 FramebufferImpl *Renderer11::createDefaultFramebuffer(const gl::Framebuffer::Data &data)
 {
     return createFramebuffer(data);

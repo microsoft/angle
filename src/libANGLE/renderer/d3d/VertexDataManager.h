@@ -80,14 +80,10 @@ class VertexDataManager : angle::NonCopyable
 
     void hintUnmapAllResources(const std::vector<gl::VertexAttribute> &vertexAttributes);
 
-<<<<<<< HEAD
     void prepareStaticBufferForAttribute(const gl::VertexAttribute &attrib,
                                          const gl::VertexAttribCurrentValueData &currentValue) const;
 
-    RendererD3D *const mRenderer;
-=======
     BufferFactoryD3D *const mFactory;
->>>>>>> google/master
 
     StreamingVertexBufferInterface *mStreamingBuffer;
 

@@ -22,40 +22,20 @@ namespace rx
 {
 
 SurfaceD3D *SurfaceD3D::createOffscreen(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLClientBuffer shareHandle,
-<<<<<<< HEAD
-                                        EGLint width, EGLint height, EGLenum textureFormat, EGLenum textureType, bool renderToBackBuffer)
+                                        EGLint width, EGLint height, bool renderToBackBuffer)
 {
-    return new SurfaceD3D(renderer, display, config, width, height, EGL_TRUE, EGL_FALSE,
-                          textureFormat, textureType, shareHandle, NULL, renderToBackBuffer);
+    return new SurfaceD3D(renderer, display, config, width, height, EGL_TRUE, shareHandle, NULL, renderToBackBuffer);
 }
 
 SurfaceD3D *SurfaceD3D::createFromWindow(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLNativeWindowType window,
-                                         EGLint fixedSize, EGLint width, EGLint height, EGLint postSubBufferSupported, bool renderToBackBuffer)
+                                         EGLint fixedSize, EGLint width, EGLint height, bool renderToBackBuffer)
 {
-    return new SurfaceD3D(renderer, display, config, width, height, fixedSize, postSubBufferSupported,
-                          EGL_NO_TEXTURE, EGL_NO_TEXTURE, static_cast<EGLClientBuffer>(0), window, renderToBackBuffer);
-}
-
-SurfaceD3D::SurfaceD3D(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLint width, EGLint height,
-                       EGLint fixedSize, EGLint postSubBufferSupported, EGLenum textureFormat,
-                       EGLenum textureType, EGLClientBuffer shareHandle, EGLNativeWindowType window, bool renderToBackBuffer)
-    : SurfaceImpl(display, config, fixedSize, postSubBufferSupported, textureFormat, textureType),
-=======
-                                        EGLint width, EGLint height)
-{
-    return new SurfaceD3D(renderer, display, config, width, height, EGL_TRUE, shareHandle, NULL);
-}
-
-SurfaceD3D *SurfaceD3D::createFromWindow(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLNativeWindowType window,
-                                         EGLint fixedSize, EGLint width, EGLint height)
-{
-    return new SurfaceD3D(renderer, display, config, width, height, fixedSize, static_cast<EGLClientBuffer>(0), window);
+    return new SurfaceD3D(renderer, display, config, width, height, fixedSize, static_cast<EGLClientBuffer>(0), window, renderToBackBuffer);
 }
 
 SurfaceD3D::SurfaceD3D(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLint width, EGLint height, EGLint fixedSize,
-                       EGLClientBuffer shareHandle, EGLNativeWindowType window)
+                       EGLClientBuffer shareHandle, EGLNativeWindowType window, bool renderToBackBuffer)
     : SurfaceImpl(),
->>>>>>> google/master
       mRenderer(renderer),
       mDisplay(display),
       mFixedSize(fixedSize == EGL_TRUE),
@@ -138,13 +118,7 @@ egl::Error SurfaceD3D::resetSwapChain()
         height = mHeight;
     }
 
-<<<<<<< HEAD
-    mSwapChain = mRenderer->createSwapChain(mNativeWindow, mShareHandle,
-                                            mConfig->renderTargetFormat,
-                                            mConfig->depthStencilFormat, mRenderToBackBuffer);
-=======
-    mSwapChain = mRenderer->createSwapChain(mNativeWindow, mShareHandle, mRenderTargetFormat, mDepthStencilFormat);
->>>>>>> google/master
+    mSwapChain = mRenderer->createSwapChain(mNativeWindow, mShareHandle, mRenderTargetFormat, mDepthStencilFormat, mRenderToBackBuffer);
     if (!mSwapChain)
     {
         return egl::Error(EGL_BAD_ALLOC);

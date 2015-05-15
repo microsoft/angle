@@ -13,6 +13,7 @@
 #include "libANGLE/renderer/BufferImpl.h"
 
 #include <stdint.h>
+#include <map>
 
 namespace rx
 {
@@ -29,13 +30,9 @@ class BufferD3D : public BufferImpl
     unsigned int getSerial() const { return mSerial; }
 
     virtual size_t getSize() const = 0;
-<<<<<<< HEAD
     virtual bool supportsDirectIndexBinding() const = 0;
     virtual bool supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &attrib) = 0;
-    virtual RendererD3D *getRenderer() = 0;
-=======
-    virtual bool supportsDirectBinding() const = 0;
->>>>>>> google/master
+
     virtual void markTransformFeedbackUsage() = 0;
     virtual gl::Error getData(const uint8_t **outData) = 0;
 
@@ -55,9 +52,6 @@ class BufferD3D : public BufferImpl
     BufferFactoryD3D *mFactory;
     unsigned int mSerial;
     static unsigned int mNextSerial;
-
-<<<<<<< HEAD
-    void updateSerial();
 
     StaticVertexBufferInterface *findStaticVertexBufferForAttribute(const gl::VertexAttribute &attrib);
 
@@ -87,9 +81,6 @@ class BufferD3D : public BufferImpl
     std::map<AttribElement, StaticVertexBufferInterface*> mStaticVertexBufferForAttributeMap;
     std::map<AttribElement, unsigned int> mUnmodifiedVertexDataUseMap;
 
-=======
-    StaticVertexBufferInterface *mStaticVertexBuffer;
->>>>>>> google/master
     StaticIndexBufferInterface *mStaticIndexBuffer;
     unsigned int mUnmodifiedIndexDataUse;
 

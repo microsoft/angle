@@ -4,14 +4,9 @@
 // found in the LICENSE file.
 //
 
-<<<<<<< HEAD:src/tests/end2end_tests/MaxTextureSizeTest.cpp
-// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(MaxTextureSizeTest, ES2_D3D9, ES2_D3D11_FL9_3, ES2_D3D11);
-=======
 #include "test_utils/ANGLETest.h"
 
 using namespace angle;
->>>>>>> google/master:src/tests/gl_tests/MaxTextureSizeTest.cpp
 
 class MaxTextureSizeTest : public ANGLETest
 {
@@ -291,4 +286,4 @@ TEST_P(MaxTextureSizeTest, RenderToTexture)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_INSTANTIATE_TEST(MaxTextureSizeTest, ES2_D3D9(), ES2_D3D11());
+ANGLE_INSTANTIATE_TEST(MaxTextureSizeTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3());

@@ -98,7 +98,8 @@ class MockBufferD3D : public rx::BufferD3D
     MOCK_METHOD0(markTransformFeedbackUsage, void());
 
     // inlined for speed
-    bool supportsDirectBinding() const override { return false; }
+    bool supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &) override { return false; }
+    bool supportsDirectIndexBinding() const override { return false; }
     size_t getSize() const override { return mData.size(); }
 
     gl::Error getData(const uint8_t **outData) override
@@ -130,7 +131,9 @@ MockBufferD3D *InitMockBufferD3D(MockBufferFactoryD3D *mockFactory)
     MockBufferD3D *mockBufferD3D = new MockBufferD3D(mockFactory);
 
     EXPECT_CALL(*mockFactory, createVertexBuffer()).WillOnce(Return(nullptr)).RetiresOnSaturation();
-    mockBufferD3D->initializeStaticData();
+    // mockBufferD3D->initializeStaticData();
+    ASSERT(false);
+    // TODO: aukinros understand this
 
     return mockBufferD3D;
 }

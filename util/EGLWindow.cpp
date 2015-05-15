@@ -113,20 +113,13 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
 
     if (mPlatform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE || mPlatform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
     {
-<<<<<<< HEAD
-        EGL_PLATFORM_ANGLE_TYPE_ANGLE,              mPlatform.renderer,
-        EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, mPlatform.majorVersion,
-        EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE, mPlatform.minorVersion,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE,       mPlatform.deviceType,
-        EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, mPlatform.useRenderToBackBuffer,
-        EGL_NONE,
-    };
-=======
         displayAttributes.push_back(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE);
         displayAttributes.push_back(mPlatform.deviceType);
     }
+
+    displayAttributes.push_back(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER);
+    displayAttributes.push_back(mPlatform.useRenderToBackBuffer);
     displayAttributes.push_back(EGL_NONE);
->>>>>>> google/master
 
     mDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, osWindow->getNativeDisplay(), displayAttributes.data());
     if (mDisplay == EGL_NO_DISPLAY)

@@ -9,12 +9,7 @@
 #include <memory>
 #include <stdint.h>
 
-<<<<<<< HEAD:src/tests/end2end_tests/ProgramBinaryTest.cpp
-// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(ProgramBinaryTest, ES2_D3D9, ES2_D3D11_FL9_3, ES2_D3D11);
-=======
 using namespace angle;
->>>>>>> google/master:src/tests/gl_tests/ProgramBinaryTest.cpp
 
 class ProgramBinaryTest : public ANGLETest
 {
@@ -164,4 +159,4 @@ TEST_P(ProgramBinaryTest, SaveAndLoadBinary)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_INSTANTIATE_TEST(ProgramBinaryTest, ES2_D3D9(), ES2_D3D11());
+ANGLE_INSTANTIATE_TEST(ProgramBinaryTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3());

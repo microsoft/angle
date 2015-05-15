@@ -26,18 +26,10 @@ class SurfaceD3D : public SurfaceImpl
 {
   public:
     static SurfaceD3D *createFromWindow(RendererD3D *renderer, egl::Display *display, const egl::Config *config,
-<<<<<<< HEAD
-                                        EGLNativeWindowType window, EGLint fixedSize,
-                                        EGLint width, EGLint height, EGLint postSubBufferSupported, bool renderToBackBuffer);
+                                        EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height, bool renderToBackBuffer);
+    static SurfaceD3D *createOffscreen(RendererD3D *renderer, egl::Display *display, const egl::Config *config,
+                                       EGLClientBuffer shareHandle, EGLint width, EGLint height, bool renderToBackBuffer);
 
-    static SurfaceD3D *createOffscreen(RendererD3D *renderer, egl::Display *display, const egl::Config *config,
-                                       EGLClientBuffer shareHandle, EGLint width, EGLint height,
-                                       EGLenum textureFormat, EGLenum textureTarget, bool renderToBackBuffer);
-=======
-                                        EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height);
-    static SurfaceD3D *createOffscreen(RendererD3D *renderer, egl::Display *display, const egl::Config *config,
-                                       EGLClientBuffer shareHandle, EGLint width, EGLint height);
->>>>>>> google/master
     ~SurfaceD3D() override;
     void releaseSwapChain();
 
@@ -68,13 +60,8 @@ class SurfaceD3D : public SurfaceImpl
 
   private:
     SurfaceD3D(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLint width, EGLint height,
-<<<<<<< HEAD
-               EGLint fixedSize, EGLint postSubBufferSupported, EGLenum textureFormat,
-               EGLenum textureType, EGLClientBuffer shareHandle, EGLNativeWindowType window, bool renderToBackBuffer);
-=======
-               EGLint fixedSize, EGLClientBuffer shareHandle, EGLNativeWindowType window);
+               EGLint fixedSize, EGLClientBuffer shareHandle, EGLNativeWindowType window, bool renderToBackBuffer);
 
->>>>>>> google/master
     egl::Error swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
     egl::Error resetSwapChain(int backbufferWidth, int backbufferHeight);
     egl::Error resizeSwapChain(int backbufferWidth, int backbufferHeight);

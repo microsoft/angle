@@ -4,14 +4,9 @@
 // found in the LICENSE file.
 //
 
-<<<<<<< HEAD:src/tests/end2end_tests/DrawBuffersTest.cpp
-// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(DrawBuffersTest, ES2_D3D11, ES2_D3D11_FL9_3, ES3_D3D11);
-=======
 #include "test_utils/ANGLETest.h"
 
 using namespace angle;
->>>>>>> google/master:src/tests/gl_tests/DrawBuffersTest.cpp
 
 class DrawBuffersTest : public ANGLETest
 {
@@ -58,8 +53,7 @@ class DrawBuffersTest : public ANGLETest
 
         glGetIntegerv(GL_MAX_DRAW_BUFFERS, &mMaxDrawBuffers);
 
-        EGLPlatformParameters platform = fixtureType.GetPlatform();
-
+        const EGLPlatformParameters &platform = GetParam().mEGLPlatformParameters;
         if (platform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
         {
             if (platform.majorVersion == 9 && platform.minorVersion == 3)
@@ -224,8 +218,6 @@ class DrawBuffersTest : public ANGLETest
         EXPECT_PIXEL_EQ(getWindowWidth() / 2, getWindowHeight() / 2, r, g, b, 255);
     }
 
-    T fixtureType;
-
     GLuint mFBO;
     GLuint mTextures[4];
     GLuint mBuffer;
@@ -355,4 +347,4 @@ TEST_P(DrawBuffersTest, UnwrittenOutputVariablesShouldNotCrash)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_INSTANTIATE_TEST(DrawBuffersTest, ES2_D3D11(), ES3_D3D11());
+ANGLE_INSTANTIATE_TEST(DrawBuffersTest, ES2_D3D11(), ES3_D3D11(), ES2_D3D11_FL9_3());

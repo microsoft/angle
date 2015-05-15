@@ -146,15 +146,10 @@ DisplayD3D::DisplayD3D()
 {
 }
 
-<<<<<<< HEAD
-egl::Error DisplayD3D::createWindowSurface(const egl::Config *configuration, EGLNativeWindowType window,
-                                           const egl::AttributeMap &attribs, bool allowRenderToBackBuffer, SurfaceImpl **outSurface)
-=======
-
 SurfaceImpl *DisplayD3D::createWindowSurface(const egl::Config *configuration,
                                              EGLNativeWindowType window,
-                                             const egl::AttributeMap &attribs)
->>>>>>> google/master
+                                             const egl::AttributeMap &attribs,
+                                             bool allowRenderToBackBuffer)
 {
     ASSERT(mRenderer != nullptr);
 
@@ -170,7 +165,8 @@ SurfaceImpl *DisplayD3D::createWindowSurface(const egl::Config *configuration,
 
     if (renderToBackBuffer && !allowRenderToBackBuffer)
     {
-        return egl::Error(EGL_BAD_ATTRIBUTE);
+        // TODO: aukinros - properly tidy this error checking up
+        return NULL; //  egl::Error(EGL_BAD_ATTRIBUTE);
     }
 
     if (!fixedSize)
@@ -179,22 +175,8 @@ SurfaceImpl *DisplayD3D::createWindowSurface(const egl::Config *configuration,
         height = -1;
     }
 
-<<<<<<< HEAD
-    SurfaceD3D *surface = SurfaceD3D::createFromWindow(mRenderer, mDisplay, configuration, window, fixedSize,
-                                                       width, height, postSubBufferSupported, renderToBackBuffer);
-    egl::Error error = surface->initialize();
-    if (error.isError())
-    {
-        SafeDelete(surface);
-        return error;
-    }
-
-    *outSurface = surface;
-    return egl::Error(EGL_SUCCESS);
-=======
     return SurfaceD3D::createFromWindow(
-        mRenderer, mDisplay, configuration, window, fixedSize, width, height);
->>>>>>> google/master
+        mRenderer, mDisplay, configuration, window, fixedSize, width, height, renderToBackBuffer);
 }
 
 SurfaceImpl *DisplayD3D::createPbufferSurface(const egl::Config *configuration,
@@ -204,22 +186,8 @@ SurfaceImpl *DisplayD3D::createPbufferSurface(const egl::Config *configuration,
 
     EGLint width = attribs.get(EGL_WIDTH, 0);
     EGLint height = attribs.get(EGL_HEIGHT, 0);
-<<<<<<< HEAD
-    EGLenum textureFormat = attribs.get(EGL_TEXTURE_FORMAT, EGL_NO_TEXTURE);
-    EGLenum textureTarget = attribs.get(EGL_TEXTURE_TARGET, EGL_NO_TEXTURE);
-    
-    SurfaceD3D *surface = SurfaceD3D::createOffscreen(mRenderer, mDisplay, configuration, NULL,
-                                                      width, height, textureFormat, textureTarget, false);
-    egl::Error error = surface->initialize();
-    if (error.isError())
-    {
-        SafeDelete(surface);
-        return error;
-    }
-=======
->>>>>>> google/master
 
-    return SurfaceD3D::createOffscreen(mRenderer, mDisplay, configuration, nullptr, width, height);
+    return SurfaceD3D::createOffscreen(mRenderer, mDisplay, configuration, nullptr, width, height, false);
 }
 
 SurfaceImpl *DisplayD3D::createPbufferFromClientBuffer(const egl::Config *configuration,
@@ -231,20 +199,9 @@ SurfaceImpl *DisplayD3D::createPbufferFromClientBuffer(const egl::Config *config
     EGLint width = attribs.get(EGL_WIDTH, 0);
     EGLint height = attribs.get(EGL_HEIGHT, 0);
 
-<<<<<<< HEAD
-    SurfaceD3D *surface = SurfaceD3D::createOffscreen(mRenderer, mDisplay, configuration, shareHandle,
-                                                      width, height, textureFormat, textureTarget, false);
-    egl::Error error = surface->initialize();
-    if (error.isError())
-    {
-        SafeDelete(surface);
-        return error;
-    }
-=======
     return SurfaceD3D::createOffscreen(
-        mRenderer, mDisplay, configuration, shareHandle, width, height);
+        mRenderer, mDisplay, configuration, shareHandle, width, height, false);
 }
->>>>>>> google/master
 
 SurfaceImpl *DisplayD3D::createPixmapSurface(const egl::Config *configuration,
                                              NativePixmapType nativePixmap,

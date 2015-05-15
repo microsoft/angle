@@ -1044,7 +1044,7 @@ LinkResult ProgramD3D::compileProgramExecutables(gl::InfoLog &infoLog, gl::Shade
     {
         std::vector<char> tempCharBuffer(tempVertexShaderInfoLog.getLength() + 3);
         tempVertexShaderInfoLog.getLog(tempVertexShaderInfoLog.getLength(), NULL, &tempCharBuffer[0]);
-        infoLog.append(&tempCharBuffer[0]);
+        infoLog.appendSanitized(&tempCharBuffer[0]);
     }
 
     if (vertexShaderResult.isError())

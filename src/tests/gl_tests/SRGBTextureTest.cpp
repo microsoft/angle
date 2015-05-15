@@ -4,17 +4,12 @@
 // found in the LICENSE file.
 //
 
-<<<<<<< HEAD:src/tests/end2end_tests/SRGBTextureTest.cpp
-// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(SRGBTextureTest, ES2_D3D9, ES2_D3D11_FL9_3, ES2_D3D11, ES3_D3D11);
-=======
 #include "test_utils/ANGLETest.h"
 
 using namespace angle;
 
 namespace
 {
->>>>>>> google/master:src/tests/gl_tests/SRGBTextureTest.cpp
 
 class SRGBTextureTest : public ANGLETest
 {
@@ -149,6 +144,6 @@ TEST_P(SRGBTextureTest, SRGBARenderbuffer)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_INSTANTIATE_TEST(SRGBTextureTest, ES2_D3D9(), ES2_D3D11(), ES3_D3D11(), ES2_OPENGL());
+ANGLE_INSTANTIATE_TEST(SRGBTextureTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3(), ES3_D3D11(), ES2_OPENGL());
 
 } // namespace

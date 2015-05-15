@@ -23,7 +23,6 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>all</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
-    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
   <PropertyGroup Label="Configuration">
@@ -34,7 +33,6 @@
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
-  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
   <ImportGroup Label="ExtensionSettings"/>
   <ImportGroup Label="PropertySheets">
     <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
@@ -52,19 +50,19 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\angle\sample_util;..\util;..\src\tests\third_party\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\sample_util;..\util;..\src\tests\third_party\zlib;..\src\tests\third_party\libpng;..\src\tests\third_party\deqp\framework\delibs\debase;..\src\tests\third_party\deqp\framework\delibs\decpp;..\src\tests\third_party\deqp\framework\delibs\depool;..\src\tests\third_party\deqp\framework\delibs\dethread;..\src\tests\third_party\deqp\framework\delibs\deutil;..\src\tests\third_party\deqp\framework\delibs\destream;..\src\tests\third_party\deqp\framework\common;..\src\tests\third_party\deqp\framework\qphelper;..\src\tests\third_party\deqp\framework\platform\win32;..\src\tests\third_party\deqp\framework\egl;..\src\tests\third_party\deqp\framework\egl\wrapper;..\src\tests\third_party\deqp\framework\opengl;..\src\tests\third_party\deqp\framework\opengl\wrapper;..\src\tests\third_party\deqp\framework\referencerenderer;..\src\tests\third_party\deqp\framework\opengl\simplereference;..\src\tests\third_party\deqp\framework\randomshaders;..\src\tests\third_party\deqp\modules\gles2;..\src\tests\third_party\deqp\modules\gles2\functional;..\src\tests\third_party\deqp\modules\gles2\accuracy;..\src\tests\third_party\deqp\modules\gles2\performance;..\src\tests\third_party\deqp\modules\gles2\stress;..\src\tests\third_party\deqp\modules\gles2\usecases;..\src\tests\third_party\deqp\modules\gles3;..\src\tests\third_party\deqp\modules\gles3\functional;..\src\tests\third_party\deqp\modules\gles3\accuracy;..\src\tests\third_party\deqp\modules\gles3\performance;..\src\tests\third_party\deqp\modules\gles3\stress;..\src\tests\third_party\deqp\modules\gles3\usecases;..\src\tests\third_party\deqp\modules\gles31;..\src\tests\third_party\deqp\modules\gles31\functional;..\src\tests\third_party\deqp\modules\gles31\stress;..\src\tests\third_party\deqp\modules\glshared;..\src\tests\third_party\deqp\modules\glusecases;..\src\tests\third_party\deqp\executor;..\src\tests\third_party\deqp\execserver;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/EHsc /MP %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4201;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4100;4127;4244;4245;4389;4510;4512;4610;4611;4701;4702;4706;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;DEQP_SUPPORT_GLES3=1;DEQP_SUPPORT_GLES2=1;DEQP_SUPPORT_EGL=1;DEQP_TARGET_NAME=&quot;angle&quot;;DEQP_GLES3_RUNTIME_LOAD=1;DEQP_GLES2_RUNTIME_LOAD=1;QP_SUPPORT_PNG=1;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -74,7 +72,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Link>
-      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalDependencies>dbghelp.lib;gdi32.lib;user32.lib;ws2_32.lib</AdditionalDependencies>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -83,26 +81,26 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\angle\sample_util;..\util;..\src\tests\third_party\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\sample_util;..\util;..\src\tests\third_party\zlib;..\src\tests\third_party\libpng;..\src\tests\third_party\deqp\framework\delibs\debase;..\src\tests\third_party\deqp\framework\delibs\decpp;..\src\tests\third_party\deqp\framework\delibs\depool;..\src\tests\third_party\deqp\framework\delibs\dethread;..\src\tests\third_party\deqp\framework\delibs\deutil;..\src\tests\third_party\deqp\framework\delibs\destream;..\src\tests\third_party\deqp\framework\common;..\src\tests\third_party\deqp\framework\qphelper;..\src\tests\third_party\deqp\framework\platform\win32;..\src\tests\third_party\deqp\framework\egl;..\src\tests\third_party\deqp\framework\egl\wrapper;..\src\tests\third_party\deqp\framework\opengl;..\src\tests\third_party\deqp\framework\opengl\wrapper;..\src\tests\third_party\deqp\framework\referencerenderer;..\src\tests\third_party\deqp\framework\opengl\simplereference;..\src\tests\third_party\deqp\framework\randomshaders;..\src\tests\third_party\deqp\modules\gles2;..\src\tests\third_party\deqp\modules\gles2\functional;..\src\tests\third_party\deqp\modules\gles2\accuracy;..\src\tests\third_party\deqp\modules\gles2\performance;..\src\tests\third_party\deqp\modules\gles2\stress;..\src\tests\third_party\deqp\modules\gles2\usecases;..\src\tests\third_party\deqp\modules\gles3;..\src\tests\third_party\deqp\modules\gles3\functional;..\src\tests\third_party\deqp\modules\gles3\accuracy;..\src\tests\third_party\deqp\modules\gles3\performance;..\src\tests\third_party\deqp\modules\gles3\stress;..\src\tests\third_party\deqp\modules\gles3\usecases;..\src\tests\third_party\deqp\modules\gles31;..\src\tests\third_party\deqp\modules\gles31\functional;..\src\tests\third_party\deqp\modules\gles31\stress;..\src\tests\third_party\deqp\modules\glshared;..\src\tests\third_party\deqp\modules\glusecases;..\src\tests\third_party\deqp\executor;..\src\tests\third_party\deqp\execserver;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;_DEBUG;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;DEQP_SUPPORT_GLES3=1;DEQP_SUPPORT_GLES2=1;DEQP_SUPPORT_EGL=1;DEQP_TARGET_NAME=&quot;angle&quot;;DEQP_GLES3_RUNTIME_LOAD=1;DEQP_GLES2_RUNTIME_LOAD=1;QP_SUPPORT_PNG=1;_DEBUG;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\angle\sample_util;..\util;..\src\tests\third_party\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\sample_util;..\util;..\src\tests\third_party\zlib;..\src\tests\third_party\libpng;..\src\tests\third_party\deqp\framework\delibs\debase;..\src\tests\third_party\deqp\framework\delibs\decpp;..\src\tests\third_party\deqp\framework\delibs\depool;..\src\tests\third_party\deqp\framework\delibs\dethread;..\src\tests\third_party\deqp\framework\delibs\deutil;..\src\tests\third_party\deqp\framework\delibs\destream;..\src\tests\third_party\deqp\framework\common;..\src\tests\third_party\deqp\framework\qphelper;..\src\tests\third_party\deqp\framework\platform\win32;..\src\tests\third_party\deqp\framework\egl;..\src\tests\third_party\deqp\framework\egl\wrapper;..\src\tests\third_party\deqp\framework\opengl;..\src\tests\third_party\deqp\framework\opengl\wrapper;..\src\tests\third_party\deqp\framework\referencerenderer;..\src\tests\third_party\deqp\framework\opengl\simplereference;..\src\tests\third_party\deqp\framework\randomshaders;..\src\tests\third_party\deqp\modules\gles2;..\src\tests\third_party\deqp\modules\gles2\functional;..\src\tests\third_party\deqp\modules\gles2\accuracy;..\src\tests\third_party\deqp\modules\gles2\performance;..\src\tests\third_party\deqp\modules\gles2\stress;..\src\tests\third_party\deqp\modules\gles2\usecases;..\src\tests\third_party\deqp\modules\gles3;..\src\tests\third_party\deqp\modules\gles3\functional;..\src\tests\third_party\deqp\modules\gles3\accuracy;..\src\tests\third_party\deqp\modules\gles3\performance;..\src\tests\third_party\deqp\modules\gles3\stress;..\src\tests\third_party\deqp\modules\gles3\usecases;..\src\tests\third_party\deqp\modules\gles31;..\src\tests\third_party\deqp\modules\gles31\functional;..\src\tests\third_party\deqp\modules\gles31\stress;..\src\tests\third_party\deqp\modules\glshared;..\src\tests\third_party\deqp\modules\glusecases;..\src\tests\third_party\deqp\executor;..\src\tests\third_party\deqp\execserver;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/EHsc /MP %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4201;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4100;4127;4244;4245;4389;4510;4512;4610;4611;4701;4702;4706;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;DEQP_SUPPORT_GLES3=1;DEQP_SUPPORT_GLES2=1;DEQP_SUPPORT_EGL=1;DEQP_TARGET_NAME=&quot;angle&quot;;DEQP_GLES3_RUNTIME_LOAD=1;DEQP_GLES2_RUNTIME_LOAD=1;QP_SUPPORT_PNG=1;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -112,7 +110,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Lib>
     <Link>
-      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalDependencies>dbghelp.lib;gdi32.lib;user32.lib;ws2_32.lib</AdditionalDependencies>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -121,25 +119,25 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\angle\sample_util;..\util;..\src\tests\third_party\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\sample_util;..\util;..\src\tests\third_party\zlib;..\src\tests\third_party\libpng;..\src\tests\third_party\deqp\framework\delibs\debase;..\src\tests\third_party\deqp\framework\delibs\decpp;..\src\tests\third_party\deqp\framework\delibs\depool;..\src\tests\third_party\deqp\framework\delibs\dethread;..\src\tests\third_party\deqp\framework\delibs\deutil;..\src\tests\third_party\deqp\framework\delibs\destream;..\src\tests\third_party\deqp\framework\common;..\src\tests\third_party\deqp\framework\qphelper;..\src\tests\third_party\deqp\framework\platform\win32;..\src\tests\third_party\deqp\framework\egl;..\src\tests\third_party\deqp\framework\egl\wrapper;..\src\tests\third_party\deqp\framework\opengl;..\src\tests\third_party\deqp\framework\opengl\wrapper;..\src\tests\third_party\deqp\framework\referencerenderer;..\src\tests\third_party\deqp\framework\opengl\simplereference;..\src\tests\third_party\deqp\framework\randomshaders;..\src\tests\third_party\deqp\modules\gles2;..\src\tests\third_party\deqp\modules\gles2\functional;..\src\tests\third_party\deqp\modules\gles2\accuracy;..\src\tests\third_party\deqp\modules\gles2\performance;..\src\tests\third_party\deqp\modules\gles2\stress;..\src\tests\third_party\deqp\modules\gles2\usecases;..\src\tests\third_party\deqp\modules\gles3;..\src\tests\third_party\deqp\modules\gles3\functional;..\src\tests\third_party\deqp\modules\gles3\accuracy;..\src\tests\third_party\deqp\modules\gles3\performance;..\src\tests\third_party\deqp\modules\gles3\stress;..\src\tests\third_party\deqp\modules\gles3\usecases;..\src\tests\third_party\deqp\modules\gles31;..\src\tests\third_party\deqp\modules\gles31\functional;..\src\tests\third_party\deqp\modules\gles31\stress;..\src\tests\third_party\deqp\modules\glshared;..\src\tests\third_party\deqp\modules\glusecases;..\src\tests\third_party\deqp\executor;..\src\tests\third_party\deqp\execserver;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;_DEBUG;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;DEQP_SUPPORT_GLES3=1;DEQP_SUPPORT_GLES2=1;DEQP_SUPPORT_EGL=1;DEQP_TARGET_NAME=&quot;angle&quot;;DEQP_GLES3_RUNTIME_LOAD=1;DEQP_GLES2_RUNTIME_LOAD=1;QP_SUPPORT_PNG=1;_DEBUG;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\angle\sample_util;..\util;..\src\tests\third_party\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\sample_util;..\util;..\src\tests\third_party\zlib;..\src\tests\third_party\libpng;..\src\tests\third_party\deqp\framework\delibs\debase;..\src\tests\third_party\deqp\framework\delibs\decpp;..\src\tests\third_party\deqp\framework\delibs\depool;..\src\tests\third_party\deqp\framework\delibs\dethread;..\src\tests\third_party\deqp\framework\delibs\deutil;..\src\tests\third_party\deqp\framework\delibs\destream;..\src\tests\third_party\deqp\framework\common;..\src\tests\third_party\deqp\framework\qphelper;..\src\tests\third_party\deqp\framework\platform\win32;..\src\tests\third_party\deqp\framework\egl;..\src\tests\third_party\deqp\framework\egl\wrapper;..\src\tests\third_party\deqp\framework\opengl;..\src\tests\third_party\deqp\framework\opengl\wrapper;..\src\tests\third_party\deqp\framework\referencerenderer;..\src\tests\third_party\deqp\framework\opengl\simplereference;..\src\tests\third_party\deqp\framework\randomshaders;..\src\tests\third_party\deqp\modules\gles2;..\src\tests\third_party\deqp\modules\gles2\functional;..\src\tests\third_party\deqp\modules\gles2\accuracy;..\src\tests\third_party\deqp\modules\gles2\performance;..\src\tests\third_party\deqp\modules\gles2\stress;..\src\tests\third_party\deqp\modules\gles2\usecases;..\src\tests\third_party\deqp\modules\gles3;..\src\tests\third_party\deqp\modules\gles3\functional;..\src\tests\third_party\deqp\modules\gles3\accuracy;..\src\tests\third_party\deqp\modules\gles3\performance;..\src\tests\third_party\deqp\modules\gles3\stress;..\src\tests\third_party\deqp\modules\gles3\usecases;..\src\tests\third_party\deqp\modules\gles31;..\src\tests\third_party\deqp\modules\gles31\functional;..\src\tests\third_party\deqp\modules\gles31\stress;..\src\tests\third_party\deqp\modules\glshared;..\src\tests\third_party\deqp\modules\glusecases;..\src\tests\third_party\deqp\executor;..\src\tests\third_party\deqp\execserver;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/EHsc /MP %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4201;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4100;4127;4244;4245;4389;4510;4512;4610;4611;4701;4702;4706;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;DEQP_SUPPORT_GLES3=1;DEQP_SUPPORT_GLES2=1;DEQP_SUPPORT_EGL=1;DEQP_TARGET_NAME=&quot;angle&quot;;DEQP_GLES3_RUNTIME_LOAD=1;DEQP_GLES2_RUNTIME_LOAD=1;QP_SUPPORT_PNG=1;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -149,7 +147,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Link>
-      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalDependencies>dbghelp.lib;gdi32.lib;user32.lib;ws2_32.lib</AdditionalDependencies>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -158,25 +156,25 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\angle\sample_util;..\util;..\src\tests\third_party\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\sample_util;..\util;..\src\tests\third_party\zlib;..\src\tests\third_party\libpng;..\src\tests\third_party\deqp\framework\delibs\debase;..\src\tests\third_party\deqp\framework\delibs\decpp;..\src\tests\third_party\deqp\framework\delibs\depool;..\src\tests\third_party\deqp\framework\delibs\dethread;..\src\tests\third_party\deqp\framework\delibs\deutil;..\src\tests\third_party\deqp\framework\delibs\destream;..\src\tests\third_party\deqp\framework\common;..\src\tests\third_party\deqp\framework\qphelper;..\src\tests\third_party\deqp\framework\platform\win32;..\src\tests\third_party\deqp\framework\egl;..\src\tests\third_party\deqp\framework\egl\wrapper;..\src\tests\third_party\deqp\framework\opengl;..\src\tests\third_party\deqp\framework\opengl\wrapper;..\src\tests\third_party\deqp\framework\referencerenderer;..\src\tests\third_party\deqp\framework\opengl\simplereference;..\src\tests\third_party\deqp\framework\randomshaders;..\src\tests\third_party\deqp\modules\gles2;..\src\tests\third_party\deqp\modules\gles2\functional;..\src\tests\third_party\deqp\modules\gles2\accuracy;..\src\tests\third_party\deqp\modules\gles2\performance;..\src\tests\third_party\deqp\modules\gles2\stress;..\src\tests\third_party\deqp\modules\gles2\usecases;..\src\tests\third_party\deqp\modules\gles3;..\src\tests\third_party\deqp\modules\gles3\functional;..\src\tests\third_party\deqp\modules\gles3\accuracy;..\src\tests\third_party\deqp\modules\gles3\performance;..\src\tests\third_party\deqp\modules\gles3\stress;..\src\tests\third_party\deqp\modules\gles3\usecases;..\src\tests\third_party\deqp\modules\gles31;..\src\tests\third_party\deqp\modules\gles31\functional;..\src\tests\third_party\deqp\modules\gles31\stress;..\src\tests\third_party\deqp\modules\glshared;..\src\tests\third_party\deqp\modules\glusecases;..\src\tests\third_party\deqp\executor;..\src\tests\third_party\deqp\execserver;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;NDEBUG;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;DEQP_SUPPORT_GLES3=1;DEQP_SUPPORT_GLES2=1;DEQP_SUPPORT_EGL=1;DEQP_TARGET_NAME=&quot;angle&quot;;DEQP_GLES3_RUNTIME_LOAD=1;DEQP_GLES2_RUNTIME_LOAD=1;QP_SUPPORT_PNG=1;NDEBUG;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\angle\sample_util;..\util;..\src\tests\third_party\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\sample_util;..\util;..\src\tests\third_party\zlib;..\src\tests\third_party\libpng;..\src\tests\third_party\deqp\framework\delibs\debase;..\src\tests\third_party\deqp\framework\delibs\decpp;..\src\tests\third_party\deqp\framework\delibs\depool;..\src\tests\third_party\deqp\framework\delibs\dethread;..\src\tests\third_party\deqp\framework\delibs\deutil;..\src\tests\third_party\deqp\framework\delibs\destream;..\src\tests\third_party\deqp\framework\common;..\src\tests\third_party\deqp\framework\qphelper;..\src\tests\third_party\deqp\framework\platform\win32;..\src\tests\third_party\deqp\framework\egl;..\src\tests\third_party\deqp\framework\egl\wrapper;..\src\tests\third_party\deqp\framework\opengl;..\src\tests\third_party\deqp\framework\opengl\wrapper;..\src\tests\third_party\deqp\framework\referencerenderer;..\src\tests\third_party\deqp\framework\opengl\simplereference;..\src\tests\third_party\deqp\framework\randomshaders;..\src\tests\third_party\deqp\modules\gles2;..\src\tests\third_party\deqp\modules\gles2\functional;..\src\tests\third_party\deqp\modules\gles2\accuracy;..\src\tests\third_party\deqp\modules\gles2\performance;..\src\tests\third_party\deqp\modules\gles2\stress;..\src\tests\third_party\deqp\modules\gles2\usecases;..\src\tests\third_party\deqp\modules\gles3;..\src\tests\third_party\deqp\modules\gles3\functional;..\src\tests\third_party\deqp\modules\gles3\accuracy;..\src\tests\third_party\deqp\modules\gles3\performance;..\src\tests\third_party\deqp\modules\gles3\stress;..\src\tests\third_party\deqp\modules\gles3\usecases;..\src\tests\third_party\deqp\modules\gles31;..\src\tests\third_party\deqp\modules\gles31\functional;..\src\tests\third_party\deqp\modules\gles31\stress;..\src\tests\third_party\deqp\modules\glshared;..\src\tests\third_party\deqp\modules\glusecases;..\src\tests\third_party\deqp\executor;..\src\tests\third_party\deqp\execserver;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/EHsc /MP %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4201;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4201;4100;4127;4244;4245;4389;4510;4512;4610;4611;4701;4702;4706;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;DEQP_SUPPORT_GLES3=1;DEQP_SUPPORT_GLES2=1;DEQP_SUPPORT_EGL=1;DEQP_TARGET_NAME=&quot;angle&quot;;DEQP_GLES3_RUNTIME_LOAD=1;DEQP_GLES2_RUNTIME_LOAD=1;QP_SUPPORT_PNG=1;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -186,7 +184,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Lib>
     <Link>
-      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalDependencies>dbghelp.lib;gdi32.lib;user32.lib;ws2_32.lib</AdditionalDependencies>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -195,9 +193,9 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\angle\sample_util;..\util;..\src\tests\third_party\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\src\tests\third_party\googlemock;..\src\tests\third_party\googlemock\include;..\src\tests\third_party\googletest\include;..\src\tests\third_party\googletest;..\src;..\include;..\samples\sample_util;..\util;..\src\tests\third_party\zlib;..\src\tests\third_party\libpng;..\src\tests\third_party\deqp\framework\delibs\debase;..\src\tests\third_party\deqp\framework\delibs\decpp;..\src\tests\third_party\deqp\framework\delibs\depool;..\src\tests\third_party\deqp\framework\delibs\dethread;..\src\tests\third_party\deqp\framework\delibs\deutil;..\src\tests\third_party\deqp\framework\delibs\destream;..\src\tests\third_party\deqp\framework\common;..\src\tests\third_party\deqp\framework\qphelper;..\src\tests\third_party\deqp\framework\platform\win32;..\src\tests\third_party\deqp\framework\egl;..\src\tests\third_party\deqp\framework\egl\wrapper;..\src\tests\third_party\deqp\framework\opengl;..\src\tests\third_party\deqp\framework\opengl\wrapper;..\src\tests\third_party\deqp\framework\referencerenderer;..\src\tests\third_party\deqp\framework\opengl\simplereference;..\src\tests\third_party\deqp\framework\randomshaders;..\src\tests\third_party\deqp\modules\gles2;..\src\tests\third_party\deqp\modules\gles2\functional;..\src\tests\third_party\deqp\modules\gles2\accuracy;..\src\tests\third_party\deqp\modules\gles2\performance;..\src\tests\third_party\deqp\modules\gles2\stress;..\src\tests\third_party\deqp\modules\gles2\usecases;..\src\tests\third_party\deqp\modules\gles3;..\src\tests\third_party\deqp\modules\gles3\functional;..\src\tests\third_party\deqp\modules\gles3\accuracy;..\src\tests\third_party\deqp\modules\gles3\performance;..\src\tests\third_party\deqp\modules\gles3\stress;..\src\tests\third_party\deqp\modules\gles3\usecases;..\src\tests\third_party\deqp\modules\gles31;..\src\tests\third_party\deqp\modules\gles31\functional;..\src\tests\third_party\deqp\modules\gles31\stress;..\src\tests\third_party\deqp\modules\glshared;..\src\tests\third_party\deqp\modules\glusecases;..\src\tests\third_party\deqp\executor;..\src\tests\third_party\deqp\execserver;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;NDEBUG;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_VARIADIC_MAX=10;ANGLE_ENABLE_HLSL;ANGLE_TRANSLATOR_STATIC;GL_APICALL=;GL_GLEXT_PROTOTYPES=;EGLAPI=;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;DEQP_SUPPORT_GLES3=1;DEQP_SUPPORT_GLES2=1;DEQP_SUPPORT_EGL=1;DEQP_TARGET_NAME=&quot;angle&quot;;DEQP_GLES3_RUNTIME_LOAD=1;DEQP_GLES2_RUNTIME_LOAD=1;QP_SUPPORT_PNG=1;NDEBUG;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -248,16 +246,8 @@
       <Project>{47A3E249-4072-CEAC-C824-93730F91967A}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\samples\essl_to_glsl.vcxproj">
-      <Project>{77BF5E61-D417-460B-3577-C6DB11F1C835}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\samples\essl_to_hlsl.vcxproj">
-      <Project>{1B48E1FA-F164-F21D-BA38-D53C2A3D11E0}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\samples\dds_to_header.vcxproj">
-      <Project>{FC40D481-9BE0-9D33-D41D-29AB73012A9C}</Project>
+    <ProjectReference Include="..\samples\shader_translator.vcxproj">
+      <Project>{E4FBEC39-8BD5-8B85-7256-1D27AD0F6945}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\samples\sample_util.vcxproj">
@@ -276,44 +266,44 @@
       <Project>{8542F0DD-960F-568F-4A42-29BE80FE20EC}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\samples\particle_system.vcxproj">
-      <Project>{E1D85D74-24E3-C2BE-8BF6-5727B1604F4A}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\samples\simple_instancing.vcxproj">
-      <Project>{98C323F1-AAAD-E200-732B-130B5FE42F28}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\samples\tri_fan_microbench.vcxproj">
-      <Project>{21154EBC-791C-953B-9B89-36CFAC0D3158}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\samples\tex_redef_microbench.vcxproj">
-      <Project>{6C6F4C16-A57A-059D-F4AE-ED3E379924DB}</Project>
+    <ProjectReference Include="..\samples\multi_window.vcxproj">
+      <Project>{A600CD84-BACB-D38C-A1AA-D1A40BEAF9AE}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\samples\multiple_draw_buffers.vcxproj">
       <Project>{FFF96E0C-3EBD-BF28-5334-39F494EB02A1}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\samples\simple_texture_2d.vcxproj">
-      <Project>{B78CD201-9348-EB6A-8D4D-0C327F80DA8B}</Project>
+    <ProjectReference Include="..\samples\particle_system.vcxproj">
+      <Project>{E1D85D74-24E3-C2BE-8BF6-5727B1604F4A}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\samples\texture_loading_dds.vcxproj">
-      <Project>{D81D7D37-47C6-7F0F-EF2E-C1D1EFB076E6}</Project>
+    <ProjectReference Include="..\samples\post_sub_buffer.vcxproj">
+      <Project>{6633AF08-BADE-2C68-2017-D4F75DE9694B}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\samples\simple_instancing.vcxproj">
+      <Project>{98C323F1-AAAD-E200-732B-130B5FE42F28}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\samples\simple_texture_2d.vcxproj">
+      <Project>{B78CD201-9348-EB6A-8D4D-0C327F80DA8B}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\samples\simple_texture_cubemap.vcxproj">
       <Project>{C407D429-0F1C-BE5D-8F80-F08469D9DFC3}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\samples\simple_vertex_shader.vcxproj">
-      <Project>{3B6C9A4F-60D0-0D71-9FAD-70E40A6B9241}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="..\samples\stencil_operations.vcxproj">
       <Project>{8C560510-F9F5-10F8-5F9C-A15647F7D234}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\samples\tex_redef_microbench.vcxproj">
+      <Project>{6C6F4C16-A57A-059D-F4AE-ED3E379924DB}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\samples\texture_loading_dds.vcxproj">
+      <Project>{D81D7D37-47C6-7F0F-EF2E-C1D1EFB076E6}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\samples\texture_loading_wic.vcxproj">
@@ -324,8 +314,8 @@
       <Project>{48E2D2FB-F38E-3449-60F2-D4A11B0EED4A}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\samples\post_sub_buffer.vcxproj">
-      <Project>{6633AF08-BADE-2C68-2017-D4F75DE9694B}</Project>
+    <ProjectReference Include="..\samples\tri_fan_microbench.vcxproj">
+      <Project>{21154EBC-791C-953B-9B89-36CFAC0D3158}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\src\tests\angle_test_support.vcxproj">
@@ -368,12 +358,23 @@
       <Project>{18EBB747-E9AC-0B01-36CB-8EE179B18F92}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\src\tests\angle_deqp_tests.vcxproj">
-      <Project>{64D5727F-BFBC-24D6-5916-DE3443434361}</Project>
+    <ProjectReference Include="..\src\tests\angle_deqp_libgles2.vcxproj">
+      <Project>{B8670B8F-F1A6-79A6-AA66-3A46F71AAD0E}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\src\tests\angle_deqp_libgles3.vcxproj">
+      <Project>{5D22EEC4-4DCF-593A-54FB-E584C8A41EFA}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\src\tests\angle_deqp_gles2_tests.vcxproj">
+      <Project>{E07D9A57-D9BB-61BF-BF26-89FFBFB4D62D}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\src\tests\angle_deqp_gles3_tests.vcxproj">
+      <Project>{D14C335B-047B-1E6B-6C09-C7A068B039A9}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
-  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
   <ImportGroup Label="ExtensionTargets"/>
 </Project>

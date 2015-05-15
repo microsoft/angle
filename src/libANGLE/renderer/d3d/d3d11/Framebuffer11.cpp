@@ -167,13 +167,8 @@ gl::Error Framebuffer11::readPixels(const gl::Rectangle &area, GLenum format, GL
     gl::Buffer *packBuffer = pack.pixelBuffer.get();
     if (packBuffer != nullptr)
     {
-<<<<<<< HEAD
-        Buffer11 *packBufferStorage = Buffer11::makeBuffer11(packBuffer->getImplementation());
-        PackPixelsParams packParams(actualArea, format, type, outputPitch, actualPack, reinterpret_cast<ptrdiff_t>(pixels));
-=======
         Buffer11 *packBufferStorage = GetImplAs<Buffer11>(packBuffer);
-        PackPixelsParams packParams(area, format, type, outputPitch, pack, reinterpret_cast<ptrdiff_t>(pixels));
->>>>>>> google/master
+        PackPixelsParams packParams(actualArea, format, type, outputPitch, actualPack, reinterpret_cast<ptrdiff_t>(pixels));
 
         error = packBufferStorage->packPixels(colorBufferTexture, subresourceIndex, packParams);
         if (error.isError())

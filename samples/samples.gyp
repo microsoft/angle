@@ -169,30 +169,6 @@
             'sources': [ 'simple_texture_2d/SimpleTexture2D.cpp', ],
         },
 
-<<<<<<< HEAD
-                {
-                    'target_name': 'texture_loading_dds',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/texture_loading_dds -types *.cpp *.h)' ],
-                    'copies':
-                    [
-                        {
-                            'destination': '<(PRODUCT_DIR)',
-                            'files': [ '<!@(python <(angle_path)/enumerate_files.py angle/texture_loading_dds -types *.dds)' ],
-                        }
-                    ]
-                },
-
-                {
-                    'target_name': 'simple_texture_cubemap',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/simple_texture_cubemap -types *.cpp *.h)' ],
-                },
-=======
         {
             'target_name': 'simple_texture_cubemap',
             'type': 'executable',
@@ -200,7 +176,6 @@
             'includes': [ '../build/common_defines.gypi', ],
             'sources': [ 'simple_texture_cubemap/SimpleTextureCubemap.cpp', ],
         },
->>>>>>> google/master
 
         {
             'target_name': 'stencil_operations',
@@ -218,30 +193,52 @@
             'sources': [ 'tex_redef_microbench/TexRedefMicroBench.cpp', ],
         },
 
-<<<<<<< HEAD
+        {
+            'target_name': 'texture_loading_dds',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': 
+            [ 
+                'texture_loading_dds/DDSTextureLoader.cpp',
+                'texture_loading_dds/DDSTextureLoader.h',
+                'texture_loading_dds/TextureLoadingDDS.cpp'
+            ],
+            'copies':
+            [
                 {
-                    'target_name': 'texture_loading_wic',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/texture_loading_wic -types *.cpp *.h)' ],
-                    'copies':
+                    'destination': '<(PRODUCT_DIR)',
+                    'files':
                     [
-                        {
-                            'destination': '<(PRODUCT_DIR)',
-                            'files': [ '<!@(python <(angle_path)/enumerate_files.py angle/texture_loading_wic -types *.tiff)' ],
-                        }
-                    ]
-                },
-                
+                        'texture_loading_dds/bc3compressed.dds',
+                    ],
+                }
+            ]
+        },
+
+        {
+            'target_name': 'texture_loading_wic',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': 
+            [ 
+                'texture_loading_wic/WICTextureLoader.cpp',
+                'texture_loading_wic/WICTextureLoader.h',
+                'texture_loading_wic/TextureLoadingWICSample.cpp'
+            ],
+            'copies':
+            [
                 {
-                    'target_name': 'texture_wrap',
-                    'type': 'executable',
-                    'dependencies': [ 'sample_util' ],
-                    'includes': [ '../build/common_defines.gypi', ],
-                    'sources': [ '<!@(python <(angle_path)/enumerate_files.py angle/texture_wrap -types *.cpp *.h)' ],
-                },
-=======
+                    'destination': '<(PRODUCT_DIR)',
+                    'files':
+                    [
+                        'texture_loading_wic/fractal.tiff',
+                    ],
+                }
+            ]
+        },
+        
         {
             'target_name': 'texture_wrap',
             'type': 'executable',
@@ -249,7 +246,6 @@
             'includes': [ '../build/common_defines.gypi', ],
             'sources': [ 'texture_wrap/TextureWrap.cpp', ],
         },
->>>>>>> google/master
 
         {
             'target_name': 'tri_fan_microbench',

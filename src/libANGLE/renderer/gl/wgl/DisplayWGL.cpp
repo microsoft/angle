@@ -318,14 +318,10 @@ void DisplayWGL::terminate()
     mOpenGLModule = nullptr;
 }
 
-<<<<<<< HEAD
-egl::Error DisplayWGL::createWindowSurface(const egl::Config *configuration, EGLNativeWindowType window,
-                                           const egl::AttributeMap &attribs, bool allowRenderToBackBuffer, SurfaceImpl **outSurface)
-=======
 SurfaceImpl *DisplayWGL::createWindowSurface(const egl::Config *configuration,
                                              EGLNativeWindowType window,
-                                             const egl::AttributeMap &attribs)
->>>>>>> google/master
+                                             const egl::AttributeMap &attribs,
+                                             bool allowRenderToBackBuffer)
 {
     return new WindowSurfaceWGL(window, mWindowClass, mPixelFormat, mWGLContext, mFunctionsWGL);
 }

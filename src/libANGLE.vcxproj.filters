@@ -220,8 +220,17 @@
     <Filter Include="libANGLE">
       <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libANGLE\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
     </Filter>
     <Filter Include="libANGLE">
       <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
@@ -531,6 +540,24 @@
     </Filter>
     <Filter Include="..\include\platform">
       <UniqueIdentifier>{F040E8BA-F77A-8B19-E764-5FC5D53C4EF0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
     <Filter Include="libANGLE">
       <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
@@ -3544,6 +3571,30 @@
     <Filter Include="libANGLE\renderer\gl\wgl">
       <UniqueIdentifier>{3DC31FCF-53CD-5334-353B-CC59386FB5BD}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl">
+      <UniqueIdentifier>{71BB4E41-219D-601E-ACE4-FEA008E71300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl\wgl">
+      <UniqueIdentifier>{3DC31FCF-53CD-5334-353B-CC59386FB5BD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl">
+      <UniqueIdentifier>{71BB4E41-219D-601E-ACE4-FEA008E71300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl\wgl">
+      <UniqueIdentifier>{3DC31FCF-53CD-5334-353B-CC59386FB5BD}</UniqueIdentifier>
+    </Filter>
     <Filter Include="third_party">
       <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
     </Filter>
@@ -3615,6 +3666,12 @@
     <ClInclude Include="libANGLE\Data.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
+    <ClCompile Include="libANGLE\Device.cpp">
+      <Filter>libANGLE</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\Device.h">
+      <Filter>libANGLE</Filter>
+    </ClInclude>
     <ClCompile Include="libANGLE\Display.cpp">
       <Filter>libANGLE</Filter>
     </ClCompile>
@@ -3663,6 +3720,12 @@
     <ClCompile Include="libANGLE\ImageIndex.cpp">
       <Filter>libANGLE</Filter>
     </ClCompile>
+    <ClCompile Include="libANGLE\IndexRangeCache.cpp">
+      <Filter>libANGLE</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\IndexRangeCache.h">
+      <Filter>libANGLE</Filter>
+    </ClInclude>
     <ClCompile Include="libANGLE\Platform.cpp">
       <Filter>libANGLE</Filter>
     </ClCompile>
@@ -3765,6 +3828,9 @@
     <ClInclude Include="libANGLE\formatutils.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
+    <ClInclude Include="libANGLE\histogram_macros.h">
+      <Filter>libANGLE</Filter>
+    </ClInclude>
     <ClCompile Include="libANGLE\queryconversions.cpp">
       <Filter>libANGLE</Filter>
     </ClCompile>
@@ -3777,7 +3843,10 @@
     <ClInclude Include="libANGLE\renderer\CompilerImpl.h">
       <Filter>libANGLE\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="libANGLE\renderer\DefaultAttachmentImpl.h">
+    <ClCompile Include="libANGLE\renderer\DeviceImpl.cpp">
+      <Filter>libANGLE\renderer</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\renderer\DeviceImpl.h">
       <Filter>libANGLE\renderer</Filter>
     </ClInclude>
     <ClCompile Include="libANGLE\renderer\DisplayImpl.cpp">
@@ -3796,12 +3865,6 @@
       <Filter>libANGLE\renderer</Filter>
     </ClInclude>
     <ClInclude Include="libANGLE\renderer\ImplFactory.h">
-      <Filter>libANGLE\renderer</Filter>
-    </ClInclude>
-    <ClCompile Include="libANGLE\renderer\IndexRangeCache.cpp">
-      <Filter>libANGLE\renderer</Filter>
-    </ClCompile>
-    <ClInclude Include="libANGLE\renderer\IndexRangeCache.h">
       <Filter>libANGLE\renderer</Filter>
     </ClInclude>
     <ClCompile Include="libANGLE\renderer\ProgramImpl.cpp">
@@ -3942,6 +4005,12 @@
     <None Include="libANGLE\renderer\d3d\copyimage.inl">
       <Filter>libANGLE\renderer\d3d</Filter>
     </None>
+    <ClCompile Include="libANGLE\renderer\d3d\DeviceD3D.cpp">
+      <Filter>libANGLE\renderer\d3d</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\renderer\d3d\DeviceD3D.h">
+      <Filter>libANGLE\renderer\d3d</Filter>
+    </ClInclude>
     <ClCompile Include="libANGLE\renderer\d3d\DisplayD3D.cpp">
       <Filter>libANGLE\renderer\d3d</Filter>
     </ClCompile>
@@ -4527,12 +4596,6 @@
     <ClInclude Include="libANGLE\renderer\gl\CompilerGL.h">
       <Filter>libANGLE\renderer\gl</Filter>
     </ClInclude>
-    <ClCompile Include="libANGLE\renderer\gl\DefaultAttachmentGL.cpp">
-      <Filter>libANGLE\renderer\gl</Filter>
-    </ClCompile>
-    <ClInclude Include="libANGLE\renderer\gl\DefaultAttachmentGL.h">
-      <Filter>libANGLE\renderer\gl</Filter>
-    </ClInclude>
     <ClCompile Include="libANGLE\renderer\gl\DisplayGL.cpp">
       <Filter>libANGLE\renderer\gl</Filter>
     </ClCompile>
@@ -4623,6 +4686,12 @@
     <ClInclude Include="libANGLE\renderer\gl\VertexArrayGL.h">
       <Filter>libANGLE\renderer\gl</Filter>
     </ClInclude>
+    <ClCompile Include="libANGLE\renderer\gl\formatutilsgl.cpp">
+      <Filter>libANGLE\renderer\gl</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\renderer\gl\formatutilsgl.h">
+      <Filter>libANGLE\renderer\gl</Filter>
+    </ClInclude>
     <ClInclude Include="libANGLE\renderer\gl\functionsgl_enums.h">
       <Filter>libANGLE\renderer\gl</Filter>
     </ClInclude>
@@ -4647,10 +4716,16 @@
     <ClInclude Include="libANGLE\renderer\gl\wgl\FunctionsWGL.h">
       <Filter>libANGLE\renderer\gl\wgl</Filter>
     </ClInclude>
-    <ClCompile Include="libANGLE\renderer\gl\wgl\SurfaceWGL.cpp">
+    <ClCompile Include="libANGLE\renderer\gl\wgl\PbufferSurfaceWGL.cpp">
       <Filter>libANGLE\renderer\gl\wgl</Filter>
     </ClCompile>
-    <ClInclude Include="libANGLE\renderer\gl\wgl\SurfaceWGL.h">
+    <ClInclude Include="libANGLE\renderer\gl\wgl\PbufferSurfaceWGL.h">
+      <Filter>libANGLE\renderer\gl\wgl</Filter>
+    </ClInclude>
+    <ClCompile Include="libANGLE\renderer\gl\wgl\WindowSurfaceWGL.cpp">
+      <Filter>libANGLE\renderer\gl\wgl</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\renderer\gl\wgl\WindowSurfaceWGL.h">
       <Filter>libANGLE\renderer\gl\wgl</Filter>
     </ClInclude>
     <ClInclude Include="libANGLE\renderer\gl\wgl\functionswgl_typedefs.h">

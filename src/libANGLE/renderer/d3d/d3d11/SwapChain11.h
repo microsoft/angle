@@ -29,14 +29,10 @@ class SwapChain11 : public SwapChainD3D
     virtual EGLint swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
     virtual void recreate();
 
-<<<<<<< HEAD
-    virtual ID3D11Texture2D *getTargetTexture();
-=======
     RenderTargetD3D *getColorRenderTarget() override { return &mColorRenderTarget; }
     RenderTargetD3D *getDepthStencilRenderTarget() override { return &mDepthStencilRenderTarget; }
 
-    virtual ID3D11Texture2D *getOffscreenTexture();
->>>>>>> google/master
+    virtual ID3D11Texture2D *getTargetTexture();
     virtual ID3D11RenderTargetView *getRenderTarget();
     virtual ID3D11ShaderResourceView *getRenderTargetShaderResource();
 
@@ -47,13 +43,8 @@ class SwapChain11 : public SwapChainD3D
     EGLint getWidth() const { return mWidth; }
     EGLint getHeight() const { return mHeight; }
 
-<<<<<<< HEAD
     bool renderToBackBuffer() const { return mRenderToBackBuffer; }
 
-    static SwapChain11 *makeSwapChain11(SwapChainD3D *swapChain);
-
-=======
->>>>>>> google/master
   private:
     void release();
     void initPassThroughResources();

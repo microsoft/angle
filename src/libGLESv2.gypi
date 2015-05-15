@@ -744,7 +744,6 @@
                 {
                     'msvs_enable_winphone' : '1',
                 }],
-<<<<<<< HEAD
                 ['OS=="win"',
                 {
                     'configurations':
@@ -756,7 +755,8 @@
                                 'ANGLE_ENABLE_DEBUG_ANNOTATIONS',
                             ],
                         },
-=======
+                    },
+                }],
                 ['OS=="linux"',
                 {
                     'link_settings': {
@@ -766,7 +766,6 @@
                         'libraries': [
                             '<!@(pkg-config --libs-only-l x11 xi) -ldl',
                         ],
->>>>>>> google/master
                     },
                 }],
             ],

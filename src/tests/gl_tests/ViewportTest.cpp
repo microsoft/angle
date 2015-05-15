@@ -4,18 +4,12 @@
 // found in the LICENSE file.
 //
 
-<<<<<<< HEAD:src/tests/end2end_tests/ViewportTest.cpp
-// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-// D3D11 Feature Level 9 and D3D9 emulate large and negative viewports in the vertex shader. We should test both of these as well as D3D11 Feature Level 10_0+.
-ANGLE_TYPED_TEST_CASE(ViewportTest, ES2_D3D11_FL9_3);
-=======
 #include "test_utils/ANGLETest.h"
 
 using namespace angle;
 
 namespace
 {
->>>>>>> google/master:src/tests/gl_tests/ViewportTest.cpp
 
 class ViewportTest : public ANGLETest
 {

@@ -25,14 +25,11 @@ class Buffer9 : public BufferD3D
 
     // BufferD3D implementation
     virtual size_t getSize() const { return mSize; }
-<<<<<<< HEAD
     virtual bool supportsDirectIndexBinding() const { return false; }
     virtual bool supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &attrib) { return false; }
-    RendererD3D *getRenderer() override;
-=======
-    virtual bool supportsDirectBinding() const { return false; }
+
+    // virtual bool supportsDirectBinding() const { return false; }
     gl::Error getData(const uint8_t **outData) override;
->>>>>>> google/master
 
     // BufferImpl implementation
     virtual gl::Error setData(const void* data, size_t size, GLenum usage);

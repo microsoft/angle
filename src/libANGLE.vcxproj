@@ -23,7 +23,6 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>libANGLE</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
-    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
   <PropertyGroup Label="Configuration">
@@ -34,7 +33,6 @@
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
-  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
   <ImportGroup Label="ExtensionSettings"/>
   <ImportGroup Label="PropertySheets">
     <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
@@ -59,7 +57,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -103,7 +101,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -146,7 +144,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -189,7 +187,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -245,6 +243,7 @@
     <ClInclude Include="libANGLE\Constants.h"/>
     <ClInclude Include="libANGLE\Context.h"/>
     <ClInclude Include="libANGLE\Data.h"/>
+    <ClInclude Include="libANGLE\Device.h"/>
     <ClInclude Include="libANGLE\Display.h"/>
     <ClInclude Include="libANGLE\Error.h"/>
     <ClInclude Include="libANGLE\Fence.h"/>
@@ -252,6 +251,7 @@
     <ClInclude Include="libANGLE\FramebufferAttachment.h"/>
     <ClInclude Include="libANGLE\HandleAllocator.h"/>
     <ClInclude Include="libANGLE\ImageIndex.h"/>
+    <ClInclude Include="libANGLE\IndexRangeCache.h"/>
     <ClInclude Include="libANGLE\Program.h"/>
     <ClInclude Include="libANGLE\Query.h"/>
     <ClInclude Include="libANGLE\RefCountObject.h"/>
@@ -269,16 +269,16 @@
     <ClInclude Include="libANGLE\angletypes.h"/>
     <ClInclude Include="libANGLE\features.h"/>
     <ClInclude Include="libANGLE\formatutils.h"/>
+    <ClInclude Include="libANGLE\histogram_macros.h"/>
     <ClInclude Include="libANGLE\queryconversions.h"/>
     <ClInclude Include="libANGLE\renderer\BufferImpl.h"/>
     <ClInclude Include="libANGLE\renderer\CompilerImpl.h"/>
-    <ClInclude Include="libANGLE\renderer\DefaultAttachmentImpl.h"/>
+    <ClInclude Include="libANGLE\renderer\DeviceImpl.h"/>
     <ClInclude Include="libANGLE\renderer\DisplayImpl.h"/>
     <ClInclude Include="libANGLE\renderer\FenceNVImpl.h"/>
     <ClInclude Include="libANGLE\renderer\FenceSyncImpl.h"/>
     <ClInclude Include="libANGLE\renderer\FramebufferImpl.h"/>
     <ClInclude Include="libANGLE\renderer\ImplFactory.h"/>
-    <ClInclude Include="libANGLE\renderer\IndexRangeCache.h"/>
     <ClInclude Include="libANGLE\renderer\ProgramImpl.h"/>
     <ClInclude Include="libANGLE\renderer\QueryImpl.h"/>
     <ClInclude Include="libANGLE\renderer\RenderbufferImpl.h"/>
@@ -312,6 +312,7 @@
     <ClInclude Include="libANGLE\renderer\d3d\BufferD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\CompilerD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\copyimage.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\DeviceD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\DisplayD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\DynamicHLSL.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\formatutilsD3D.h"/>
@@ -440,7 +441,6 @@
     <ClInclude Include="third_party\systeminfo\SystemInfo.h"/>
     <ClInclude Include="libANGLE\renderer\gl\BufferGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\CompilerGL.h"/>
-    <ClInclude Include="libANGLE\renderer\gl\DefaultAttachmentGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\DisplayGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\FenceNVGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\FenceSyncGL.h"/>
@@ -456,12 +456,14 @@
     <ClInclude Include="libANGLE\renderer\gl\TextureGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\TransformFeedbackGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\VertexArrayGL.h"/>
+    <ClInclude Include="libANGLE\renderer\gl\formatutilsgl.h"/>
     <ClInclude Include="libANGLE\renderer\gl\functionsgl_enums.h"/>
     <ClInclude Include="libANGLE\renderer\gl\functionsgl_typedefs.h"/>
     <ClInclude Include="libANGLE\renderer\gl\renderergl_utils.h"/>
     <ClInclude Include="libANGLE\renderer\gl\wgl\DisplayWGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\wgl\FunctionsWGL.h"/>
-    <ClInclude Include="libANGLE\renderer\gl\wgl\SurfaceWGL.h"/>
+    <ClInclude Include="libANGLE\renderer\gl\wgl\PbufferSurfaceWGL.h"/>
+    <ClInclude Include="libANGLE\renderer\gl\wgl\WindowSurfaceWGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\wgl\functionswgl_typedefs.h"/>
     <ClInclude Include="libANGLE\renderer\gl\wgl\wgl_utils.h"/>
     <ClInclude Include="third_party\khronos\GL\wglext.h"/>
@@ -476,6 +478,7 @@
     <ClCompile Include="libANGLE\Config.cpp"/>
     <ClCompile Include="libANGLE\Context.cpp"/>
     <ClCompile Include="libANGLE\Data.cpp"/>
+    <ClCompile Include="libANGLE\Device.cpp"/>
     <ClCompile Include="libANGLE\Display.cpp"/>
     <ClCompile Include="libANGLE\Error.cpp"/>
     <ClCompile Include="libANGLE\Fence.cpp"/>
@@ -484,6 +487,7 @@
     <ClCompile Include="libANGLE\FramebufferAttachment.cpp"/>
     <ClCompile Include="libANGLE\HandleAllocator.cpp"/>
     <ClCompile Include="libANGLE\ImageIndex.cpp"/>
+    <ClCompile Include="libANGLE\IndexRangeCache.cpp"/>
     <ClCompile Include="libANGLE\Platform.cpp"/>
     <ClCompile Include="libANGLE\Program.cpp"/>
     <ClCompile Include="libANGLE\Query.cpp"/>
@@ -502,8 +506,8 @@
     <ClCompile Include="libANGLE\angletypes.cpp"/>
     <ClCompile Include="libANGLE\formatutils.cpp"/>
     <ClCompile Include="libANGLE\queryconversions.cpp"/>
+    <ClCompile Include="libANGLE\renderer\DeviceImpl.cpp"/>
     <ClCompile Include="libANGLE\renderer\DisplayImpl.cpp"/>
-    <ClCompile Include="libANGLE\renderer\IndexRangeCache.cpp"/>
     <ClCompile Include="libANGLE\renderer\ProgramImpl.cpp"/>
     <ClCompile Include="libANGLE\renderer\RenderbufferImpl.cpp"/>
     <ClCompile Include="libANGLE\renderer\Renderer.cpp"/>
@@ -516,6 +520,7 @@
     <ClCompile Include="libANGLE\renderer\d3d\BufferD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\CompilerD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\copyimage.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\DeviceD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\DisplayD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\DynamicHLSL.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\formatutilsD3D.cpp"/>
@@ -580,7 +585,6 @@
     <ClCompile Include="third_party\systeminfo\SystemInfo.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\BufferGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\CompilerGL.cpp"/>
-    <ClCompile Include="libANGLE\renderer\gl\DefaultAttachmentGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\DisplayGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\FenceNVGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\FenceSyncGL.cpp"/>
@@ -596,10 +600,12 @@
     <ClCompile Include="libANGLE\renderer\gl\TextureGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\TransformFeedbackGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\VertexArrayGL.cpp"/>
+    <ClCompile Include="libANGLE\renderer\gl\formatutilsgl.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\renderergl_utils.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\wgl\DisplayWGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\wgl\FunctionsWGL.cpp"/>
-    <ClCompile Include="libANGLE\renderer\gl\wgl\SurfaceWGL.cpp"/>
+    <ClCompile Include="libANGLE\renderer\gl\wgl\PbufferSurfaceWGL.cpp"/>
+    <ClCompile Include="libANGLE\renderer\gl\wgl\WindowSurfaceWGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\wgl\wgl_utils.cpp"/>
   </ItemGroup>
   <ItemGroup>
@@ -613,6 +619,5 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
-  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
   <ImportGroup Label="ExtensionTargets"/>
 </Project>

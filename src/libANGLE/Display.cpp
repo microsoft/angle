@@ -356,21 +356,16 @@ Error Display::createWindowSurface(const Config *configuration, EGLNativeWindowT
         }
     }
 
-<<<<<<< HEAD
     bool allowRenderToBackBuffer = (mAttributeMap.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, EGL_FALSE) == EGL_TRUE);
 
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
     allowRenderToBackBuffer = true;
 #endif
 
-    rx::SurfaceImpl *surfaceImpl = nullptr;
-    Error error = mImplementation->createWindowSurface(configuration, window, attribs, allowRenderToBackBuffer, &surfaceImpl);
-=======
-    rx::SurfaceImpl *surfaceImpl = mImplementation->createWindowSurface(configuration, window, attribs);
+    rx::SurfaceImpl *surfaceImpl = mImplementation->createWindowSurface(configuration, window, attribs, allowRenderToBackBuffer);
     ASSERT(surfaceImpl != nullptr);
 
     Error error = surfaceImpl->initialize();
->>>>>>> google/master
     if (error.isError())
     {
         SafeDelete(surfaceImpl);

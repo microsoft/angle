@@ -10,11 +10,8 @@
 
 #include "common/utilities.h"
 #include "libANGLE/renderer/d3d/IndexBuffer.h"
-<<<<<<< HEAD
 #include "libANGLE/vertexattribute.h"
-=======
 #include "libANGLE/renderer/d3d/VertexBuffer.h"
->>>>>>> google/master
 
 namespace rx
 {
@@ -23,15 +20,10 @@ unsigned int BufferD3D::mNextSerial = 1;
 
 BufferD3D::BufferD3D(BufferFactoryD3D *factory)
     : BufferImpl(),
-<<<<<<< HEAD
-      mStaticIndexBuffer(NULL),
-      mUseStaticBuffers(false)
-=======
-      mFactory(factory),
-      mStaticVertexBuffer(nullptr),
       mStaticIndexBuffer(nullptr),
-      mUnmodifiedDataUse(0)
->>>>>>> google/master
+      mUseStaticBuffers(false),
+      mFactory(factory),
+      mUnmodifiedIndexDataUse(0)
 {
     updateSerial();
 }
@@ -84,11 +76,7 @@ StaticVertexBufferInterface *BufferD3D::getStaticVertexBufferForAttribute(const 
     StaticVertexBufferInterface *bufferForAttribute = findStaticVertexBufferForAttribute(attrib);
     if (bufferForAttribute != NULL)
     {
-<<<<<<< HEAD
         return bufferForAttribute;
-=======
-        mStaticVertexBuffer = new StaticVertexBufferInterface(mFactory);
->>>>>>> google/master
     }
 
     // If we have too many static buffers (using up a lot of memory) then we should revert to streaming buffers.
@@ -112,7 +100,7 @@ StaticVertexBufferInterface *BufferD3D::getStaticVertexBufferForAttribute(const 
         if (totalStaticBufferSize <= 3 * getSize())
         {
             AttribElement element = CreateAttribElementFromAttrib(attrib);
-            bufferForAttribute = new StaticVertexBufferInterface(getRenderer());
+            bufferForAttribute = new StaticVertexBufferInterface(mFactory);
             mStaticVertexBufferForAttributeMap[element] = bufferForAttribute;
         }
     }
@@ -152,7 +140,7 @@ void BufferD3D::promoteStaticIndexUsage(int dataSize)
 
         if (mUnmodifiedIndexDataUse > 3 * getSize())
         {
-            mStaticIndexBuffer = new StaticIndexBufferInterface(getRenderer());
+            mStaticIndexBuffer = new StaticIndexBufferInterface(mFactory);
         }
     }
 }

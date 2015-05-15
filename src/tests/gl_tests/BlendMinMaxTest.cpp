@@ -4,14 +4,9 @@
 // found in the LICENSE file.
 //
 
-<<<<<<< HEAD:src/tests/end2end_tests/BlendMinMaxTest.cpp
-// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(BlendMinMaxTest, ES2_D3D9, ES2_D3D11, ES2_D3D11_FL9_3);
-=======
 #include "test_utils/ANGLETest.h"
 
 using namespace angle;
->>>>>>> google/master:src/tests/gl_tests/BlendMinMaxTest.cpp
 
 class BlendMinMaxTest : public ANGLETest
 {
@@ -186,4 +181,4 @@ TEST_P(BlendMinMaxTest, RGBA16F)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_INSTANTIATE_TEST(BlendMinMaxTest, ES2_D3D9(), ES2_D3D11(), ES2_OPENGL());
+ANGLE_INSTANTIATE_TEST(BlendMinMaxTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3(), ES2_OPENGL());

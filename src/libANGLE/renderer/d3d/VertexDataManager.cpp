@@ -91,26 +91,7 @@ void VertexDataManager::hintUnmapAllResources(const std::vector<gl::VertexAttrib
 {
     mStreamingBuffer->getVertexBuffer()->hintUnmapResource();
 
-    for (size_t i = 0; i < vertexAttributes.size(); i++)
-<<<<<<< HEAD
-=======
-    {
-        const gl::VertexAttribute &attrib = vertexAttributes[i];
-        if (attrib.enabled)
-        {
-            gl::Buffer *buffer = attrib.buffer.get();
-            BufferD3D *storage = buffer ? GetImplAs<BufferD3D>(buffer) : NULL;
-            StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBuffer() : NULL;
-
-            if (staticBuffer)
-            {
-                staticBuffer->getVertexBuffer()->hintUnmapResource();
-            }
-        }
-    }
-
-    for (int i = 0; i < gl::MAX_VERTEX_ATTRIBS; i++)
->>>>>>> google/master
+    for (size_t i = 0; i < gl::MAX_VERTEX_ATTRIBS; i++)
     {
         if (mCurrentValueBuffer[i] != NULL)
         {

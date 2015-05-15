@@ -700,28 +700,6 @@ Error Context::endQuery(GLenum target)
     return error;
 }
 
-<<<<<<< HEAD
-void Context::setFramebufferZero(Framebuffer *buffer)
-{
-    // First, check to see if the old default framebuffer
-    // was set for draw or read framebuffer, and change
-    // the bindings to point to the new one before deleting it.
-    if (mState.getDrawFramebuffer() == NULL || mState.getDrawFramebuffer()->id() == 0)
-    {
-        mState.setDrawFramebufferBinding(buffer);
-    }
-
-    if (mState.getReadFramebuffer() == NULL || mState.getReadFramebuffer()->id() == 0)
-    {
-        mState.setReadFramebufferBinding(buffer);
-    }
-
-    delete mFramebufferMap[0];
-    mFramebufferMap[0] = buffer;
-}
-
-=======
->>>>>>> google/master
 Framebuffer *Context::getFramebuffer(unsigned int handle) const
 {
     FramebufferMap::const_iterator framebuffer = mFramebufferMap.find(handle);

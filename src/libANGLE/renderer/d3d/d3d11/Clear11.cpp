@@ -236,10 +236,12 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
 
     gl::Rectangle actualScissor = clearParams.scissor;
 
-    if (colorAttachments.size() > 0 && colorAttachments[0] != nullptr)
+    // TODO: aukinros: understand this merge properly
+    // ASSERT(false);
+    if (colorAttachments.size() > 0 /* && colorAttachments[0] != nullptr */)
     {
         RenderTarget11 *renderTarget = NULL;
-        gl::Error error = d3d11::GetAttachmentRenderTarget(colorAttachments[0], &renderTarget);
+        gl::Error error = colorAttachments[0].getRenderTarget(&renderTarget);
         if (error.isError())
         {
             return error;

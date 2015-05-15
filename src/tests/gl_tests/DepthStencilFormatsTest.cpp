@@ -4,15 +4,9 @@
 // found in the LICENSE file.
 //
 
-<<<<<<< HEAD:src/tests/end2end_tests/DepthStencilFormatsTest.cpp
-// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_TYPED_TEST_CASE(DepthStencilFormatsTest, ES2_D3D9, ES2_D3D11_FL9_3, ES2_D3D11);
-ANGLE_TYPED_TEST_CASE(DepthStencilFormatsTestES3, ES3_D3D11);
-=======
 #include "test_utils/ANGLETest.h"
 
 using namespace angle;
->>>>>>> google/master:src/tests/gl_tests/DepthStencilFormatsTest.cpp
 
 class DepthStencilFormatsTestBase : public ANGLETest
 {
@@ -184,5 +178,5 @@ TEST_P(DepthStencilFormatsTestES3, DrawWithDepthStencil)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_INSTANTIATE_TEST(DepthStencilFormatsTest, ES2_D3D9(), ES2_D3D11());
+ANGLE_INSTANTIATE_TEST(DepthStencilFormatsTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3());
 ANGLE_INSTANTIATE_TEST(DepthStencilFormatsTestES3, ES3_D3D11());

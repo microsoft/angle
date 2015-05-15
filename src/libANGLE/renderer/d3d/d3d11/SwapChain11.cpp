@@ -26,8 +26,8 @@ SwapChain11::SwapChain11(Renderer11 *renderer, NativeWindow nativeWindow, HANDLE
                          GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer)
     : mRenderer(renderer),
       SwapChainD3D(nativeWindow, shareHandle, backBufferFormat, depthBufferFormat),
-      mColorRenderTarget(this, renderer, false),
-      mDepthStencilRenderTarget(this, renderer, true)
+      mColorRenderTarget(this, renderer, false, renderToBackBuffer),
+      mDepthStencilRenderTarget(this, renderer, true, false)
 {
     mSwapChain = NULL;
     mSwapChain1 = nullptr;
@@ -118,16 +118,12 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
 
     releaseOffscreenTexture();
 
-<<<<<<< HEAD
     HRESULT result;
-=======
-    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getRenderer11DeviceCaps());
->>>>>>> google/master
 
     if (!mRenderToBackBuffer)
     {
 
-        const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getFeatureLevel());
+        const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getRenderer11DeviceCaps());
 
         // If the app passed in a share handle, open the resource
         // See EGL_ANGLE_d3d_share_handle_client_buffer
@@ -484,16 +480,14 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
 
 void SwapChain11::initPassThroughResources()
 {
-<<<<<<< HEAD
+    TRACE_EVENT0("gpu.angle", "SwapChain11::initPassThroughResources");
+
     if (mRenderToBackBuffer)
     {
         // The passthrough resources aren't needed if we're rendering directly to the back buffer.
         return;
     }
 
-=======
-    TRACE_EVENT0("gpu.angle", "SwapChain11::initPassThroughResources");
->>>>>>> google/master
     ID3D11Device *device = mRenderer->getDevice();
 
     ASSERT(device != NULL);
@@ -626,27 +620,15 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
         deviceContext->PSSetShader(mPassThroughPS, NULL, 0);
         deviceContext->GSSetShader(NULL, NULL, 0);
 
-<<<<<<< HEAD
         // Apply render targets
         mRenderer->setOneTimeRenderTarget(mBackBufferRTView);
-=======
-    // Set the viewport
-    D3D11_VIEWPORT viewport;
-    viewport.TopLeftX = 0;
-    viewport.TopLeftY = 0;
-    viewport.Width = static_cast<FLOAT>(mWidth);
-    viewport.Height = static_cast<FLOAT>(mHeight);
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    deviceContext->RSSetViewports(1, &viewport);
->>>>>>> google/master
 
         // Set the viewport
         D3D11_VIEWPORT viewport;
         viewport.TopLeftX = 0;
         viewport.TopLeftY = 0;
-        viewport.Width = mWidth;
-        viewport.Height = mHeight;
+        viewport.Width = static_cast<FLOAT>(mWidth);
+        viewport.Height = static_cast<FLOAT>(mHeight);
         viewport.MinDepth = 0.0f;
         viewport.MaxDepth = 1.0f;
         deviceContext->RSSetViewports(1, &viewport);
