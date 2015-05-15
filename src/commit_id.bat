@@ -20,6 +20,11 @@ REM commit date
 set _Str=#define ANGLE_COMMIT_DATE "%_Str%"
 echo %_Str% >> %3%
 
+REM optional revision override specified by environment variable
+If not "%ANGLE_REVISION_OVERRIDE%"=="" (
+    echo #define ANGLE_REVISION %ANGLE_REVISION_OVERRIDE% >> %3%
+)
+
 exit
 
 :GitIsntInstalled
