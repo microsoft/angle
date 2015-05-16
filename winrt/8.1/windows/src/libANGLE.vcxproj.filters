@@ -439,8 +439,29 @@
     <Filter Include="src\libANGLE">
       <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libANGLE\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -807,6 +828,30 @@
     </Filter>
     <Filter Include="include\platform">
       <UniqueIdentifier>{F040E8BA-F77A-8B19-E764-5FC5D53C4EF0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -3423,6 +3468,12 @@
     <ClInclude Include="..\..\..\..\src\libANGLE\Data.h">
       <Filter>src\libANGLE</Filter>
     </ClInclude>
+    <ClCompile Include="..\..\..\..\src\libANGLE\Device.cpp">
+      <Filter>src\libANGLE</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\src\libANGLE\Device.h">
+      <Filter>src\libANGLE</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\..\..\src\libANGLE\Display.cpp">
       <Filter>src\libANGLE</Filter>
     </ClCompile>
@@ -3471,6 +3522,12 @@
     <ClCompile Include="..\..\..\..\src\libANGLE\ImageIndex.cpp">
       <Filter>src\libANGLE</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\libANGLE\IndexRangeCache.cpp">
+      <Filter>src\libANGLE</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\src\libANGLE\IndexRangeCache.h">
+      <Filter>src\libANGLE</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\..\..\src\libANGLE\Platform.cpp">
       <Filter>src\libANGLE</Filter>
     </ClCompile>
@@ -3573,6 +3630,9 @@
     <ClInclude Include="..\..\..\..\src\libANGLE\formatutils.h">
       <Filter>src\libANGLE</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\src\libANGLE\histogram_macros.h">
+      <Filter>src\libANGLE</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\..\..\src\libANGLE\queryconversions.cpp">
       <Filter>src\libANGLE</Filter>
     </ClCompile>
@@ -3585,7 +3645,10 @@
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\CompilerImpl.h">
       <Filter>src\libANGLE\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\DefaultAttachmentImpl.h">
+    <ClCompile Include="..\..\..\..\src\libANGLE\renderer\DeviceImpl.cpp">
+      <Filter>src\libANGLE\renderer</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\DeviceImpl.h">
       <Filter>src\libANGLE\renderer</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\DisplayImpl.cpp">
@@ -3604,12 +3667,6 @@
       <Filter>src\libANGLE\renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\libANGLE\renderer\ImplFactory.h">
-      <Filter>src\libANGLE\renderer</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\..\..\src\libANGLE\renderer\IndexRangeCache.cpp">
-      <Filter>src\libANGLE\renderer</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\IndexRangeCache.h">
       <Filter>src\libANGLE\renderer</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\ProgramImpl.cpp">
@@ -3750,6 +3807,12 @@
     <None Include="..\..\..\..\src\libANGLE\renderer\d3d\copyimage.inl">
       <Filter>src\libANGLE\renderer\d3d</Filter>
     </None>
+    <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\DeviceD3D.cpp">
+      <Filter>src\libANGLE\renderer\d3d</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\..\src\libANGLE\renderer\d3d\DeviceD3D.h">
+      <Filter>src\libANGLE\renderer\d3d</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\..\..\src\libANGLE\renderer\d3d\DisplayD3D.cpp">
       <Filter>src\libANGLE\renderer\d3d</Filter>
     </ClCompile>

@@ -73,7 +73,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -114,7 +114,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -155,7 +155,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -195,7 +195,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -235,7 +235,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -275,7 +275,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4244;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4267;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -328,6 +328,7 @@
     <ClInclude Include="..\..\..\src\libANGLE\Constants.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Context.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Data.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\Device.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Display.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Error.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Fence.h"/>
@@ -335,6 +336,7 @@
     <ClInclude Include="..\..\..\src\libANGLE\FramebufferAttachment.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\HandleAllocator.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\ImageIndex.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\IndexRangeCache.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Program.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Query.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\RefCountObject.h"/>
@@ -352,16 +354,16 @@
     <ClInclude Include="..\..\..\src\libANGLE\angletypes.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\features.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\formatutils.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\histogram_macros.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\queryconversions.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\BufferImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\CompilerImpl.h"/>
-    <ClInclude Include="..\..\..\src\libANGLE\renderer\DefaultAttachmentImpl.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\DeviceImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\DisplayImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\FenceNVImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\FenceSyncImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\FramebufferImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\ImplFactory.h"/>
-    <ClInclude Include="..\..\..\src\libANGLE\renderer\IndexRangeCache.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\ProgramImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\QueryImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\RenderbufferImpl.h"/>
@@ -395,6 +397,7 @@
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\BufferD3D.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\CompilerD3D.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\copyimage.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\DeviceD3D.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\DisplayD3D.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\DynamicHLSL.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\formatutilsD3D.h"/>
@@ -509,6 +512,7 @@
     <ClCompile Include="..\..\..\src\libANGLE\Config.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Context.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Data.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\Device.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Display.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Error.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Fence.cpp"/>
@@ -517,6 +521,7 @@
     <ClCompile Include="..\..\..\src\libANGLE\FramebufferAttachment.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\HandleAllocator.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\ImageIndex.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\IndexRangeCache.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Platform.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Program.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Query.cpp"/>
@@ -535,8 +540,8 @@
     <ClCompile Include="..\..\..\src\libANGLE\angletypes.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\formatutils.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\queryconversions.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\DeviceImpl.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\DisplayImpl.cpp"/>
-    <ClCompile Include="..\..\..\src\libANGLE\renderer\IndexRangeCache.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\ProgramImpl.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\RenderbufferImpl.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\Renderer.cpp"/>
@@ -549,6 +554,7 @@
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\BufferD3D.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\CompilerD3D.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\copyimage.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\DeviceD3D.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\DisplayD3D.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\DynamicHLSL.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\formatutilsD3D.cpp"/>
