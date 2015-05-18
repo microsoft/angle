@@ -801,7 +801,7 @@ EGLBoolean EGLAPIENTRY BindTexImage(EGLDisplay dpy, EGLSurface surface, EGLint b
             return EGL_FALSE;
         }
 
-        egl::Error error = eglSurface->bindTexImage(textureObject, buffer);
+        error = eglSurface->bindTexImage(textureObject, buffer);
         if (error.isError())
         {
             SetGlobalError(error);
@@ -870,7 +870,7 @@ EGLBoolean EGLAPIENTRY ReleaseTexImage(EGLDisplay dpy, EGLSurface surface, EGLin
 
     if (texture)
     {
-        egl::Error error = eglSurface->releaseTexImage(buffer);
+        error = eglSurface->releaseTexImage(buffer);
         if (error.isError())
         {
             SetGlobalError(error);

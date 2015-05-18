@@ -200,11 +200,11 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
 
     gl::Extents framebufferSize;
 
-    const gl::FramebufferAttachment *colorAttachment = fboData.getFirstColorAttachment();
-    if (colorAttachment != nullptr)
+    const gl::FramebufferAttachment *colorAttach = fboData.getFirstColorAttachment();
+    if (colorAttach != nullptr)
     {
-        framebufferSize.width = colorAttachment->getWidth();
-        framebufferSize.height = colorAttachment->getHeight();
+        framebufferSize.width = colorAttach->getWidth();
+        framebufferSize.height = colorAttach->getHeight();
         framebufferSize.depth = 1;
     }
     else if (depthAttachment != nullptr)
