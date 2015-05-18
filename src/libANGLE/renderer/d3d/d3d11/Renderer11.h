@@ -45,6 +45,8 @@ struct Renderer11DeviceCaps
     bool supportsDXGI1_2;               // Support for DXGI 1.2
     bool supportsClearView;             // Support for ID3D11DeviceContext1::ClearView
     bool supportsConstantBufferOffsets; // Support for Constant buffer offset
+    bool supportsB4G4R4A4;              // Full support for DXGI_FORMAT_B4G4R4A4 textures
+    bool supportsB5G5R5A1;              // Full support for DXGI_FORMAT_B5G5R5A1_UNORM textures
 };
 
 enum
@@ -274,6 +276,8 @@ class Renderer11 : public RendererD3D
     ID3D11Texture2D *resolveMultisampledTexture(ID3D11Texture2D *source, unsigned int subresource);
     void unsetConflictingSRVs(gl::SamplerType shaderType, uintptr_t resource, const gl::ImageIndex &index);
     void setRenderToBackBufferVariables(bool renderingToBackBuffer);
+
+    void populateRenderer11DeviceCaps();
 
     HMODULE mD3d11Module;
     HMODULE mDxgiModule;
