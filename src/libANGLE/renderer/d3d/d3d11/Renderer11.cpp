@@ -232,8 +232,8 @@ Renderer11::Renderer11(egl::Display *display)
     mRenderer11DeviceCaps.supportsClearView = false;
     mRenderer11DeviceCaps.supportsConstantBufferOffsets = false;
     mRenderer11DeviceCaps.supportsDXGI1_2 = false;
-    mRenderer11DeviceCaps.supportsB4G4R4A4 = false;
-    mRenderer11DeviceCaps.supportsB5G5R5A1 = false;
+    mRenderer11DeviceCaps.B4G4R4A4support = 0;
+    mRenderer11DeviceCaps.B5G5R5A1support = 0;
 
     mD3d11Module = NULL;
     mDxgiModule = NULL;
@@ -636,33 +636,16 @@ void Renderer11::populateRenderer11DeviceCaps()
         }
     }
 
-    UINT requiredFormatSupport = D3D11_FORMAT_SUPPORT_TEXTURE2D | D3D11_FORMAT_SUPPORT_TEXTURECUBE
-                                 | D3D11_FORMAT_SUPPORT_SHADER_SAMPLE | D3D11_FORMAT_SUPPORT_RENDER_TARGET
-                                 | D3D11_FORMAT_SUPPORT_MIP | D3D11_FORMAT_SUPPORT_MIP_AUTOGEN;
-
-    if (d3d11_gl::GetMaximumClientVersion(mRenderer11DeviceCaps.featureLevel) > 2)
+    hr = mDevice->CheckFormatSupport(DXGI_FORMAT_B4G4R4A4_UNORM, &(mRenderer11DeviceCaps.B4G4R4A4support));
+    if (FAILED(hr))
     {
-        requiredFormatSupport |= D3D11_FORMAT_SUPPORT_TEXTURE3D;
+        mRenderer11DeviceCaps.B4G4R4A4support = 0;
     }
 
-    UINT b4g4r4a4FormatSupport = 0;
-    hr = mDevice->CheckFormatSupport(DXGI_FORMAT_B4G4R4A4_UNORM, &b4g4r4a4FormatSupport);
+    hr = mDevice->CheckFormatSupport(DXGI_FORMAT_B5G5R5A1_UNORM, &(mRenderer11DeviceCaps.B5G5R5A1support));
     if (SUCCEEDED(hr))
     {
-        if ((b4g4r4a4FormatSupport & requiredFormatSupport) == requiredFormatSupport)
-        {
-            mRenderer11DeviceCaps.supportsB4G4R4A4 = true;
-        }
-    }
-
-    UINT b5g5r5a1FormatSupport = 0;
-    hr = mDevice->CheckFormatSupport(DXGI_FORMAT_B5G5R5A1_UNORM, &b5g5r5a1FormatSupport);
-    if (SUCCEEDED(hr))
-    {
-        if ((b5g5r5a1FormatSupport & requiredFormatSupport) == requiredFormatSupport)
-        {
-            mRenderer11DeviceCaps.supportsB5G5R5A1 = true;
-        }
+        mRenderer11DeviceCaps.B5G5R5A1support = 0;
     }
 
     IDXGIAdapter2 *dxgiAdapter2 = d3d11::DynamicCastComObject<IDXGIAdapter2>(mDxgiAdapter);
@@ -2813,7 +2796,7 @@ void Renderer11::setOneTimeRenderTarget(ID3D11RenderTargetView *renderTargetView
 
 gl::Error Renderer11::createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT)
 {
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(format, mRenderer11DeviceCaps);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(format, mRenderer11DeviceCaps, true);
 
     const gl::TextureCaps &textureCaps = getRendererTextureCaps().get(format);
     GLuint supportedSamples = textureCaps.getNearestSamples(samples);
@@ -3187,7 +3170,7 @@ bool Renderer11::supportsFastCopyBufferToTexture(GLenum internalFormat) const
     ASSERT(getRendererExtensions().pixelBufferObject);
 
     const gl::InternalFormat &internalFormatInfo = gl::GetInternalFormatInfo(internalFormat);
-    const d3d11::TextureFormat &d3d11FormatInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps);
+    const d3d11::TextureFormat &d3d11FormatInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, true);
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(d3d11FormatInfo.texFormat);
 
     // sRGB formats do not work with D3D11 buffer SRVs
@@ -3780,4 +3763,13 @@ void Renderer11::setShaderResource(gl::SamplerType shaderType, UINT resourceSlot
         }
     }
 }
+
+bool Renderer11::usesDifferentFormatForRenderableTexture(GLenum internalFormat)
+{
+    const d3d11::TextureFormat nonRenderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, false);
+    const d3d11::TextureFormat renderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, true);
+
+    return (renderableInfo.texFormat != nonRenderableInfo.texFormat);
+}
+
 }

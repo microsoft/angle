@@ -9,6 +9,7 @@
 
 #include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
 #include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
+#include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
 #include "libANGLE/formatutils.h"
 #include "libANGLE/renderer/Renderer.h"
 #include "libANGLE/renderer/d3d/copyimage.h"
@@ -298,39 +299,96 @@ static bool RequiresFeatureLevel(D3D_FEATURE_LEVEL featureLevel)
     return featureLevel >= requiredFeatureLevel;
 }
 
-typedef bool(*FormatSupportFunction)(const Renderer11DeviceCaps&);
+typedef bool(*FormatSupportFunction)(const Renderer11DeviceCaps&, bool renderable);
 
-static bool AnyDevice(const Renderer11DeviceCaps &deviceCaps)
+static bool AnyDevice(const Renderer11DeviceCaps &deviceCaps, bool /* renderable */)
 {
     return true;
 }
 
-static bool OnlyFL10Plus(const Renderer11DeviceCaps &deviceCaps)
+static bool OnlyFL10Plus(const Renderer11DeviceCaps &deviceCaps, bool /* renderable */)
 {
     return (deviceCaps.featureLevel >= D3D_FEATURE_LEVEL_10_0);
 }
 
-static bool OnlyFL9_3(const Renderer11DeviceCaps &deviceCaps)
+static bool OnlyFL9_3(const Renderer11DeviceCaps &deviceCaps, bool /* renderable */)
 {
     return (deviceCaps.featureLevel == D3D_FEATURE_LEVEL_9_3);
 }
 
 template <bool required>
-static bool SupportsDXGI1_2(const Renderer11DeviceCaps &deviceCaps)
+static bool SupportsDXGI1_2(const Renderer11DeviceCaps &deviceCaps, bool /* renderable */)
 {
     return (deviceCaps.supportsDXGI1_2 == required);
 }
 
-template <bool required>
-static bool FullB5G5R5A1Support(const Renderer11DeviceCaps &deviceCaps)
+template <DXGI_FORMAT format, bool required>
+static bool FullySupports(const Renderer11DeviceCaps &deviceCaps, bool /* renderable */)
 {
-    return (deviceCaps.supportsB5G5R5A1 == required);
+    // "Full support" requires texture, SRV and RTV support
+    UINT mustSupport = D3D11_FORMAT_SUPPORT_TEXTURE2D | D3D11_FORMAT_SUPPORT_TEXTURECUBE
+                       | D3D11_FORMAT_SUPPORT_SHADER_SAMPLE | D3D11_FORMAT_SUPPORT_MIP | D3D11_FORMAT_SUPPORT_RENDER_TARGET;
+
+    if (d3d11_gl::GetMaximumClientVersion(deviceCaps.featureLevel) > 2)
+    {
+        mustSupport |= D3D11_FORMAT_SUPPORT_TEXTURE3D;
+    }
+
+    bool fullSupport = false;
+
+    if (format == DXGI_FORMAT_B4G4R4A4_UNORM)
+    {
+        fullSupport = ((deviceCaps.B4G4R4A4support & mustSupport) == mustSupport);
+    }
+    else if (format == DXGI_FORMAT_B5G5R5A1_UNORM)
+    {
+        fullSupport = ((deviceCaps.B5G5R5A1support & mustSupport) == mustSupport);
+    }
+    else
+    {
+        ASSERT(false);
+        return false;
+    }
+
+    return (fullSupport = required);
 }
 
-template <bool required>
-static bool FullB4G4R4A4Support(const Renderer11DeviceCaps &deviceCaps)
+template <bool requireRenderSupport>
+static bool OnlyPartialB4G4R4A4(const Renderer11DeviceCaps &deviceCaps, bool renderable)
 {
-    return (deviceCaps.supportsB4G4R4A4 == required);
+    // "Partial" support for DXGI_B4G4R4A4_UNORM means we can use it as texture/SRV, but not a RTV.
+
+    if (renderable != requireRenderSupport)
+    {
+        // Either:
+        // - This entry in the format support table is meant to be used for non-renderable textures,
+        //   but ANGLE is looking for the format to use as a renderable texture
+        // - Vice versa
+        return false;
+    }
+
+    // "Only Partial support" for DXGI_FORMAT_B4G4R4A4_UNORM means that the device must support 
+    // it as a texture and SRV, but not RTV.
+    // RTV support would mean that "Full Support" should return true.
+
+    UINT cannotSupport = D3D11_FORMAT_SUPPORT_RENDER_TARGET;
+
+    UINT mustSupport = D3D11_FORMAT_SUPPORT_TEXTURE2D | D3D11_FORMAT_SUPPORT_TEXTURECUBE
+                       | D3D11_FORMAT_SUPPORT_SHADER_SAMPLE | D3D11_FORMAT_SUPPORT_MIP;
+
+    if (d3d11_gl::GetMaximumClientVersion(deviceCaps.featureLevel) > 2)
+    {
+        mustSupport |= D3D11_FORMAT_SUPPORT_TEXTURE3D;
+    }
+
+    return ((deviceCaps.B4G4R4A4support & mustSupport) == mustSupport)
+           && ((deviceCaps.B4G4R4A4support & cannotSupport) == 0);
+}
+
+static bool NoB4G4R4A4Support(const Renderer11DeviceCaps &deviceCaps, bool /* renderable */)
+{
+    // No partial B4G4R4A4 support, and no full support
+    return !(OnlyPartialB4G4R4A4<false>(deviceCaps, false) || FullySupports<DXGI_FORMAT_B4G4R4A4_UNORM, false>(deviceCaps, false));
 }
 
 ColorCopyFunction DXGIFormat::getFastCopyFunction(GLenum format, GLenum type) const
@@ -465,7 +523,7 @@ static DXGIFormatInfoMap BuildDXGIFormatInfoMap()
 
     // B5G6R5 in D3D11 is treated the same as R56GB5 in D3D9, so we can reuse the R5G6B5 functions used by the D3D9 renderer
     AddDXGIFormat(&map, DXGI_FORMAT_B5G6R5_UNORM,             16,  1, 1, GL_UNSIGNED_NORMALIZED, GenerateMip<R5G6B5>,        ReadColor<R5G6B5, GLfloat>,        RequiresFeatureLevel<D3D_FEATURE_LEVEL_9_1>);
-    AddDXGIFormat(&map, DXGI_FORMAT_B4G4R4A4_UNORM,           16,  1, 1, GL_UNSIGNED_NORMALIZED, GenerateMip<B4G4R4A4>,      ReadColor<B4G4R4A4, GLfloat>,      RequiresFeatureLevel<D3D_FEATURE_LEVEL_9_3>);
+    AddDXGIFormat(&map, DXGI_FORMAT_B4G4R4A4_UNORM,           16,  1, 1, GL_UNSIGNED_NORMALIZED, GenerateMip<B4G4R4A4>,      ReadColor<B4G4R4A4, GLfloat>,      NeverSupported);
     AddDXGIFormat(&map, DXGI_FORMAT_B5G5R5A1_UNORM,           16,  1, 1, GL_UNSIGNED_NORMALIZED, GenerateMip<B5G5R5A1>,      ReadColor<B5G5R5A1, GLfloat>,      NeverSupported);
 
     // Useful formats for vertex buffers
@@ -924,10 +982,12 @@ static D3D11ES3FormatMap BuildD3D11FormatMap()
     InsertD3D11FormatInfo(&map, GL_RGB8_SNORM,        DXGI_FORMAT_R8G8B8A8_SNORM,       DXGI_FORMAT_R8G8B8A8_SNORM,      DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice              );
     InsertD3D11FormatInfo(&map, GL_RGB565,            DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   SupportsDXGI1_2<false> );
     InsertD3D11FormatInfo(&map, GL_RGB565,            DXGI_FORMAT_B5G6R5_UNORM,         DXGI_FORMAT_B5G6R5_UNORM,        DXGI_FORMAT_B5G6R5_UNORM,        DXGI_FORMAT_UNKNOWN,   SupportsDXGI1_2<true>  );
-    InsertD3D11FormatInfo(&map, GL_RGBA4,             DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   FullB4G4R4A4Support<false>);
-    InsertD3D11FormatInfo(&map, GL_RGBA4,             DXGI_FORMAT_B4G4R4A4_UNORM,       DXGI_FORMAT_B4G4R4A4_UNORM,      DXGI_FORMAT_B4G4R4A4_UNORM,      DXGI_FORMAT_UNKNOWN,   FullB4G4R4A4Support<true> );
-    InsertD3D11FormatInfo(&map, GL_RGB5_A1,           DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   FullB5G5R5A1Support<false>);
-    InsertD3D11FormatInfo(&map, GL_RGB5_A1,           DXGI_FORMAT_B5G5R5A1_UNORM,       DXGI_FORMAT_B5G5R5A1_UNORM,      DXGI_FORMAT_B5G5R5A1_UNORM,      DXGI_FORMAT_UNKNOWN,   FullB5G5R5A1Support<true> );
+    InsertD3D11FormatInfo(&map, GL_RGBA4,             DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   NoB4G4R4A4Support      );
+    InsertD3D11FormatInfo(&map, GL_RGBA4,             DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   OnlyPartialB4G4R4A4<true>);
+    InsertD3D11FormatInfo(&map, GL_RGBA4,             DXGI_FORMAT_B4G4R4A4_UNORM,       DXGI_FORMAT_B4G4R4A4_UNORM,      DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   OnlyPartialB4G4R4A4<false>);
+    InsertD3D11FormatInfo(&map, GL_RGBA4,             DXGI_FORMAT_B4G4R4A4_UNORM,       DXGI_FORMAT_B4G4R4A4_UNORM,      DXGI_FORMAT_B4G4R4A4_UNORM,      DXGI_FORMAT_UNKNOWN,   FullySupports<DXGI_FORMAT_B4G4R4A4_UNORM, true>);
+    InsertD3D11FormatInfo(&map, GL_RGB5_A1,           DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   FullySupports<DXGI_FORMAT_B5G5R5A1_UNORM, false>);
+    InsertD3D11FormatInfo(&map, GL_RGB5_A1,           DXGI_FORMAT_B5G5R5A1_UNORM,       DXGI_FORMAT_B5G5R5A1_UNORM,      DXGI_FORMAT_B5G5R5A1_UNORM,      DXGI_FORMAT_UNKNOWN,   FullySupports<DXGI_FORMAT_B5G5R5A1_UNORM, true>);
     InsertD3D11FormatInfo(&map, GL_RGBA8,             DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice              );
     InsertD3D11FormatInfo(&map, GL_RGBA8_SNORM,       DXGI_FORMAT_R8G8B8A8_SNORM,       DXGI_FORMAT_R8G8B8A8_SNORM,      DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice              );
     InsertD3D11FormatInfo(&map, GL_RGB10_A2,          DXGI_FORMAT_R10G10B10A2_UNORM,    DXGI_FORMAT_R10G10B10A2_UNORM,   DXGI_FORMAT_R10G10B10A2_UNORM,   DXGI_FORMAT_UNKNOWN,   AnyDevice              );
@@ -1038,7 +1098,7 @@ static D3D11ES3FormatMap BuildD3D11FormatMap()
     return map;
 }
 
-const TextureFormat &GetTextureFormatInfo(GLenum internalFormat, const Renderer11DeviceCaps &renderer11DeviceCaps)
+const TextureFormat &GetTextureFormatInfo(GLenum internalFormat, const Renderer11DeviceCaps &renderer11DeviceCaps, bool renderable)
 {
     static const D3D11ES3FormatMap formatMap = BuildD3D11FormatMap();
 
@@ -1051,7 +1111,7 @@ const TextureFormat &GetTextureFormatInfo(GLenum internalFormat, const Renderer1
             const FormatSupportFunction supportFunction = formatVector[i].first;
             const TextureFormat &textureFormat = formatVector[i].second;
 
-            if (supportFunction(renderer11DeviceCaps))
+            if (supportFunction(renderer11DeviceCaps, renderable))
             {
                 return textureFormat;
             }
