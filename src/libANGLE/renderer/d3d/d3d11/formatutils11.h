@@ -79,7 +79,7 @@ struct TextureFormat
     typedef std::map<GLenum, LoadImageFunction> LoadFunctionMap;
     LoadFunctionMap loadFunctions;
 };
-const TextureFormat &GetTextureFormatInfo(GLenum internalFormat, const Renderer11DeviceCaps &renderer11DeviceCaps);
+const TextureFormat &GetTextureFormatInfo(GLenum internalFormat, const Renderer11DeviceCaps &renderer11DeviceCaps, bool renderable);
 
 struct VertexFormat
 {

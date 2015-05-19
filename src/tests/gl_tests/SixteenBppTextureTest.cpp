@@ -68,6 +68,9 @@ class SixteenBppTextureTest : public ANGLETest
 
     void simpleValidationBase(GLuint tex)
     {
+        GLuint fbo = 0;
+        glGenFramebuffers(1, &fbo);
+
         // Draw a quad using the texture
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(m2DProgram);
@@ -82,11 +85,22 @@ class SixteenBppTextureTest : public ANGLETest
         EXPECT_PIXEL_EQ(getWindowHeight() - 1, getWindowWidth() - 1, 255, 255,   0, 255);
         swapBuffers();
 
+        // Bind the texture as a framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+        EXPECT_GL_NO_ERROR();
+        EXPECT_PIXEL_EQ(0, 0, 255, 0, 0, 255);
+        EXPECT_PIXEL_EQ(1, 0, 0, 255, 0, 255);
+        EXPECT_PIXEL_EQ(0, 1, 0, 0, 255, 255);
+        EXPECT_PIXEL_EQ(1, 1, 255, 255, 0, 255);
+
         // Generate mipmaps
         glGenerateMipmap(GL_TEXTURE_2D);
 
         // Draw a quad using the texture
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT);
+        glBindTexture(GL_TEXTURE_2D, tex);
         glUseProgram(m2DProgram);
         glUniform1i(mTexture2DUniformLocation, 0);
         drawQuad(m2DProgram, "position", 0.5f);
@@ -100,8 +114,6 @@ class SixteenBppTextureTest : public ANGLETest
         swapBuffers();
 
         // Bind the texture as a framebuffer, render to it, then check the results
-        GLuint fbo = 0;
-        glGenFramebuffers(1, &fbo);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glBindTexture(GL_TEXTURE_2D, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);

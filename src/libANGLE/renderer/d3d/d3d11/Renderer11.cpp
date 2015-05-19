@@ -2815,7 +2815,7 @@ void Renderer11::setOneTimeRenderTarget(ID3D11RenderTargetView *renderTargetView
 
 gl::Error Renderer11::createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT)
 {
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(format, mRenderer11DeviceCaps);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(format, mRenderer11DeviceCaps, true);
 
     const gl::TextureCaps &textureCaps = getRendererTextureCaps().get(format);
     GLuint supportedSamples = textureCaps.getNearestSamples(samples);
@@ -3189,7 +3189,7 @@ bool Renderer11::supportsFastCopyBufferToTexture(GLenum internalFormat) const
     ASSERT(getRendererExtensions().pixelBufferObject);
 
     const gl::InternalFormat &internalFormatInfo = gl::GetInternalFormatInfo(internalFormat);
-    const d3d11::TextureFormat &d3d11FormatInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps);
+    const d3d11::TextureFormat &d3d11FormatInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, true);
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(d3d11FormatInfo.texFormat);
 
     // sRGB formats do not work with D3D11 buffer SRVs
@@ -3811,6 +3811,19 @@ gl::Error Renderer11::clearTextures(gl::SamplerType samplerType, size_t rangeSta
     }
 
     return gl::Error(GL_NO_ERROR);
+}
+
+bool Renderer11::usesAlternateRenderableFormat(GLenum internalFormat)
+{
+    // For some internal formats the renderer might use different underlying D3D11 formats
+    // depending on whether the app wishes to render to the texture or not.
+    // For example, if D3D supports sampling from DXGI_FORMAT_B4G4R4A4_UNORM in a shader but not
+    // rendering to it, then we might use DXGI's B4G4R4A4 format for non-renderable GL_RGBA4 textures
+    // and use DXGI's R8G8B8A8 format for renderable GL_RGBA4 textures.
+    const d3d11::TextureFormat nonRenderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, false);
+    const d3d11::TextureFormat renderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, true);
+
+    return (renderableInfo.texFormat != nonRenderableInfo.texFormat);
 }
 
 }

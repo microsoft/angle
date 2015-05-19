@@ -203,6 +203,10 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     // In D3D11, faster than calling setTexture a jillion times
     virtual gl::Error clearTextures(gl::SamplerType samplerType, size_t rangeStart, size_t rangeEnd) = 0;
 
+    // For some internal formats the renderer might use different underlying D3D formats
+    // depending on whether the app wishes to render to the texture or not.
+    virtual bool usesAlternateRenderableFormat(GLenum internalFormat) = 0;
+
   protected:
     virtual gl::Error drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool usesPointSize) = 0;
     virtual gl::Error drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,

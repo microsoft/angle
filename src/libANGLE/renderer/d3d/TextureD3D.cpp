@@ -144,6 +144,14 @@ bool TextureD3D::shouldUseSetData(const ImageD3D *image) const
         return false;
     }
 
+    if (mRenderer->usesAlternateRenderableFormat(image->getInternalFormat()))
+    {
+        // In this case, we should always use the Images to upload to the TextureStorage.
+        // This ensures that we correctly reclaim data from the non-renderable-format TextureStorage
+        // before we delete it and create a renderable-format TextureStorage instead.
+        return false;
+    }
+
     gl::InternalFormat internalFormat = gl::GetInternalFormatInfo(image->getInternalFormat());
 
     // We can only handle full updates for depth-stencil textures, so to avoid complications
@@ -564,18 +572,39 @@ gl::Error TextureD3D::ensureRenderTarget()
                 return error;
             }
 
-            error = mTexStorage->copyToStorage(newRenderTargetStorage);
-            if (error.isError())
+            GLenum baseInternalFormat = getBaseLevelImage()->getInternalFormat();
+            if (mRenderer->usesAlternateRenderableFormat(baseInternalFormat))
             {
-                SafeDelete(newRenderTargetStorage);
-                return error;
-            }
+                // We have to use the images to recover the data from the old texture storage,
+                // and copy it into the new texture storage
 
-            error = setCompleteTexStorage(newRenderTargetStorage);
-            if (error.isError())
+                // Deleting the texture storage will force the images to recover their data
+                SafeDelete(mTexStorage);
+
+                // Now update the TextureD3D to use the new storage
+                mTexStorage = newRenderTargetStorage;
+
+                // Now move the images' data into the new texture storage
+                updateStorage();
+            }
+            else
             {
-                SafeDelete(newRenderTargetStorage);
-                return error;
+                // If the renderTargetStorage and the old texture storage use the same format
+                // then we can just copy the old one into the new one
+
+                error = mTexStorage->copyToStorage(newRenderTargetStorage);
+                if (error.isError())
+                {
+                    SafeDelete(newRenderTargetStorage);
+                    return error;
+                }
+
+                error = setCompleteTexStorage(newRenderTargetStorage);
+                if (error.isError())
+                {
+                    SafeDelete(newRenderTargetStorage);
+                    return error;
+                }
             }
         }
     }

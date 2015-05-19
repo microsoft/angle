@@ -299,7 +299,7 @@ static gl::TextureCaps GenerateTextureFormatCaps(GLint maxClientVersion, GLenum 
 
     DXGISupportHelper support(device, renderer11DeviceCaps.featureLevel);
     const d3d11::TextureFormat &formatInfo =
-        d3d11::GetTextureFormatInfo(internalFormat, renderer11DeviceCaps);
+        d3d11::GetTextureFormatInfo(internalFormat, renderer11DeviceCaps, true);
 
     const gl::InternalFormat &internalFormatInfo = gl::GetInternalFormatInfo(internalFormat);
 
@@ -1182,10 +1182,21 @@ void GenerateInitialTextureData(GLint internalFormat, const Renderer11DeviceCaps
                                 GLuint mipLevels, std::vector<D3D11_SUBRESOURCE_DATA> *outSubresourceData,
                                 std::vector< std::vector<BYTE> > *outData)
 {
-    const d3d11::TextureFormat &d3dFormatInfo = d3d11::GetTextureFormatInfo(internalFormat, renderer11DeviceCaps);
-    ASSERT(d3dFormatInfo.dataInitializerFunction != NULL);
+    const d3d11::TextureFormat &d3dFormatInfoRenderable = d3d11::GetTextureFormatInfo(internalFormat, renderer11DeviceCaps, true);
 
-    const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(d3dFormatInfo.texFormat);
+#ifndef NDEBUG
+    // There's currently no support for an internal format having BOTH of these:
+    // - Use a different DXGI format for renderable and non-renderable textures
+    // - Using a data initialization function for either texture
+    // If these asserts trigger then the d3d11 format tables have been misconfigured.
+    const d3d11::TextureFormat &d3dFormatInfoNonRenderable = d3d11::GetTextureFormatInfo(internalFormat, renderer11DeviceCaps, false);
+    ASSERT(d3dFormatInfoRenderable.dataInitializerFunction == d3dFormatInfoNonRenderable.dataInitializerFunction);
+    ASSERT(d3dFormatInfoRenderable.texFormat == d3dFormatInfoNonRenderable.texFormat);
+#endif
+
+    ASSERT(d3dFormatInfoRenderable.dataInitializerFunction != NULL);
+
+    const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(d3dFormatInfoRenderable.texFormat);
 
     outSubresourceData->resize(mipLevels);
     outData->resize(mipLevels);
@@ -1200,7 +1211,7 @@ void GenerateInitialTextureData(GLint internalFormat, const Renderer11DeviceCaps
         unsigned int imageSize = rowWidth * height;
 
         outData->at(i).resize(rowWidth * mipHeight * mipDepth);
-        d3dFormatInfo.dataInitializerFunction(mipWidth, mipHeight, mipDepth, outData->at(i).data(), rowWidth, imageSize);
+        d3dFormatInfoRenderable.dataInitializerFunction(mipWidth, mipHeight, mipDepth, outData->at(i).data(), rowWidth, imageSize);
 
         outSubresourceData->at(i).pSysMem = outData->at(i).data();
         outSubresourceData->at(i).SysMemPitch = rowWidth;
