@@ -914,14 +914,14 @@ inline static void FlipDXT5Block( DXT5_BLOCK* block)
     uint32_t pixelRow1Swapped = ((pixelRow1 & 0x000fff) << 12) | ((pixelRow1 & 0xfff000) >> 12);
 
     // Swapped data from row 1 is written
-    block->alpha.data[0] = pixelRow1Swapped  & 0x0000ff;
-    block->alpha.data[1] = (pixelRow1Swapped & 0x00ff00) >> 8;
-    block->alpha.data[2] = (pixelRow1Swapped & 0xff0000) >> 16;
+    block->alpha.data[0] = static_cast<uint8_t>(pixelRow1Swapped  & 0x0000ff);
+    block->alpha.data[1] = static_cast<uint8_t>((pixelRow1Swapped & 0x00ff00) >> 8);
+    block->alpha.data[2] = static_cast<uint8_t>((pixelRow1Swapped & 0xff0000) >> 16);
 
     // Swapped data from row 0 is written
-    block->alpha.data[3] = pixelRow0Swapped  & 0x0000ff;
-    block->alpha.data[4] = (pixelRow0Swapped & 0x00ff00) >> 8;
-    block->alpha.data[5] = (pixelRow0Swapped & 0xff0000) >> 16;
+    block->alpha.data[3] = static_cast<uint8_t>(pixelRow0Swapped  & 0x0000ff);
+    block->alpha.data[4] = static_cast<uint8_t>((pixelRow0Swapped & 0x00ff00) >> 8);
+    block->alpha.data[5] = static_cast<uint8_t>((pixelRow0Swapped & 0xff0000) >> 16);
 
     // Flip the DXT1 block data
     FlipDXT1Block(&block->dxt1Data);
