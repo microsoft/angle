@@ -232,6 +232,9 @@ Renderer11::Renderer11(egl::Display *display)
     mRenderer11DeviceCaps.supportsClearView = false;
     mRenderer11DeviceCaps.supportsConstantBufferOffsets = false;
     mRenderer11DeviceCaps.supportsDXGI1_2 = false;
+    mRenderer11DeviceCaps.B5G6R5support = 0;
+    mRenderer11DeviceCaps.B4G4R4A4support = 0;
+    mRenderer11DeviceCaps.B5G5R5A1support = 0;
 
     mD3d11Module = NULL;
     mDxgiModule = NULL;
@@ -480,7 +483,6 @@ egl::Error Renderer11::initialize()
         SafeRelease(dxgiDevice);
 
         IDXGIAdapter2 *dxgiAdapter2 = d3d11::DynamicCastComObject<IDXGIAdapter2>(mDxgiAdapter);
-        mRenderer11DeviceCaps.supportsDXGI1_2 = (dxgiAdapter2 != nullptr);
 
         // On D3D_FEATURE_LEVEL_9_*, IDXGIAdapter::GetDesc returns "Software Adapter" for the description string.
         // If DXGI1.2 is available then IDXGIAdapter2::GetDesc2 can be used to get the actual hardware values.
@@ -569,6 +571,8 @@ void Renderer11::initializeDevice()
 {
     TRACE_EVENT0("gpu.angle", "Renderer11::initializeDevice");
 
+    populateRenderer11DeviceCaps();
+
     mStateCache.initialize(mDevice);
     mInputLayoutCache.initialize(mDevice, mDeviceContext);
 
@@ -599,17 +603,6 @@ void Renderer11::initializeDevice()
 
     const gl::Caps &rendererCaps = getRendererCaps();
 
-    if (mDeviceContext1)
-    {
-        D3D11_FEATURE_DATA_D3D11_OPTIONS d3d11Options;
-        HRESULT result = mDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS, &d3d11Options, sizeof(D3D11_FEATURE_DATA_D3D11_OPTIONS));
-        if (SUCCEEDED(result))
-        {
-            mRenderer11DeviceCaps.supportsClearView = (d3d11Options.ClearView != FALSE);
-            mRenderer11DeviceCaps.supportsConstantBufferOffsets = (d3d11Options.ConstantBufferOffsetting != FALSE);
-        }
-    }
-
     mForceSetVertexSamplerStates.resize(rendererCaps.maxVertexTextureImageUnits);
     mCurVertexSamplerStates.resize(rendererCaps.maxVertexTextureImageUnits);
 
@@ -638,6 +631,44 @@ void Renderer11::initializeDevice()
     ANGLE_HISTOGRAM_ENUMERATION("GPU.ANGLE.D3D11FeatureLevel",
                                 angleFeatureLevel,
                                 NUM_ANGLE_FEATURE_LEVELS);
+}
+
+void Renderer11::populateRenderer11DeviceCaps()
+{
+    HRESULT hr = S_OK;
+
+    if (mDeviceContext1)
+    {
+        D3D11_FEATURE_DATA_D3D11_OPTIONS d3d11Options;
+        HRESULT result = mDevice->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS, &d3d11Options, sizeof(D3D11_FEATURE_DATA_D3D11_OPTIONS));
+        if (SUCCEEDED(result))
+        {
+            mRenderer11DeviceCaps.supportsClearView = (d3d11Options.ClearView != FALSE);
+            mRenderer11DeviceCaps.supportsConstantBufferOffsets = (d3d11Options.ConstantBufferOffsetting != FALSE);
+        }
+    }
+
+    hr = mDevice->CheckFormatSupport(DXGI_FORMAT_B5G6R5_UNORM, &(mRenderer11DeviceCaps.B5G6R5support));
+    if (FAILED(hr))
+    {
+        mRenderer11DeviceCaps.B5G6R5support = 0;
+    }
+
+    hr = mDevice->CheckFormatSupport(DXGI_FORMAT_B4G4R4A4_UNORM, &(mRenderer11DeviceCaps.B4G4R4A4support));
+    if (FAILED(hr))
+    {
+        mRenderer11DeviceCaps.B4G4R4A4support = 0;
+    }
+
+    hr = mDevice->CheckFormatSupport(DXGI_FORMAT_B5G5R5A1_UNORM, &(mRenderer11DeviceCaps.B5G5R5A1support));
+    if (FAILED(hr))
+    {
+        mRenderer11DeviceCaps.B5G5R5A1support = 0;
+    }
+
+    IDXGIAdapter2 *dxgiAdapter2 = d3d11::DynamicCastComObject<IDXGIAdapter2>(mDxgiAdapter);
+    mRenderer11DeviceCaps.supportsDXGI1_2 = (dxgiAdapter2 != nullptr);
+    SafeRelease(dxgiAdapter2);
 }
 
 egl::ConfigSet Renderer11::generateConfigs() const
@@ -2800,7 +2831,7 @@ void Renderer11::setOneTimeRenderTarget(ID3D11RenderTargetView *renderTargetView
 
 gl::Error Renderer11::createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT)
 {
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(format, mRenderer11DeviceCaps);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(format, mRenderer11DeviceCaps, true);
 
     const gl::TextureCaps &textureCaps = getRendererTextureCaps().get(format);
     GLuint supportedSamples = textureCaps.getNearestSamples(samples);
@@ -3174,7 +3205,7 @@ bool Renderer11::supportsFastCopyBufferToTexture(GLenum internalFormat) const
     ASSERT(getRendererExtensions().pixelBufferObject);
 
     const gl::InternalFormat &internalFormatInfo = gl::GetInternalFormatInfo(internalFormat);
-    const d3d11::TextureFormat &d3d11FormatInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps);
+    const d3d11::TextureFormat &d3d11FormatInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, true);
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(d3d11FormatInfo.texFormat);
 
     // sRGB formats do not work with D3D11 buffer SRVs
@@ -3767,4 +3798,13 @@ void Renderer11::setShaderResource(gl::SamplerType shaderType, UINT resourceSlot
         }
     }
 }
+
+bool Renderer11::usesDifferentFormatForRenderableTexture(GLenum internalFormat)
+{
+    const d3d11::TextureFormat nonRenderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, false);
+    const d3d11::TextureFormat renderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, true);
+
+    return (renderableInfo.texFormat != nonRenderableInfo.texFormat);
+}
+
 }
