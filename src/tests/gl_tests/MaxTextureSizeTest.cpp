@@ -221,6 +221,11 @@ TEST_P(MaxTextureSizeTest, SpecificationTexStorage)
 
 TEST_P(MaxTextureSizeTest, RenderToTexture)
 {
+    if (getClientVersion() < 3 && (!extensionEnabled("GL_ANGLE_framebuffer_blit")))
+    {
+        return;
+    }
+    
     GLuint fbo = 0;
     GLuint textureId = 0;
     // create a 1-level texture at maximum size
