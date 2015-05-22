@@ -1233,10 +1233,7 @@ Workarounds GenerateWorkarounds(D3D_FEATURE_LEVEL featureLevel)
     workarounds.mrtPerfWorkaround = true;
     workarounds.setDataFasterThanImageUpload = true;
     workarounds.zeroMaxLodWorkaround = (featureLevel <= D3D_FEATURE_LEVEL_9_3);
-
-    // TODO: make render-to-backbuffer work with Geometry Shaders
-    // Until then, use the instanced point sprites everywhere, which work with render-to-backbuffer
-    workarounds.useInstancedPointSpriteEmulation = true; // (featureLevel <= D3D_FEATURE_LEVEL_9_3);
+    workarounds.useInstancedPointSpriteEmulation = (featureLevel <= D3D_FEATURE_LEVEL_9_3);
     return workarounds;
 }
 

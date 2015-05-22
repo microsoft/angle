@@ -1176,14 +1176,14 @@ void DynamicHLSL::defineOutputVariables(ShaderD3D *fragmentShader, std::map<int,
     }
 }
 
-std::string DynamicHLSL::generateGeometryShaderHLSL(int registers, ShaderD3D *fragmentShader, ShaderD3D *vertexShader) const
+std::string DynamicHLSL::generateGeometryShaderHLSL(int registers, bool useViewScale, ShaderD3D *fragmentShader, ShaderD3D *vertexShader) const
 {
     // for now we only handle point sprite emulation
     ASSERT(vertexShader->mUsesPointSize && mRenderer->getMajorShaderModel() >= 4);
-    return generatePointSpriteHLSL(registers, fragmentShader, vertexShader);
+    return generatePointSpriteHLSL(registers, useViewScale, fragmentShader, vertexShader);
 }
 
-std::string DynamicHLSL::generatePointSpriteHLSL(int registers, ShaderD3D *fragmentShader, ShaderD3D *vertexShader) const
+std::string DynamicHLSL::generatePointSpriteHLSL(int registers, bool useViewScale, ShaderD3D *fragmentShader, ShaderD3D *vertexShader) const
 {
     ASSERT(registers >= 0);
     ASSERT(vertexShader->mUsesPointSize);
@@ -1201,8 +1201,14 @@ std::string DynamicHLSL::generatePointSpriteHLSL(int registers, ShaderD3D *fragm
     std::string outLinkHLSL = generateVaryingLinkHLSL(outSemantics, varyingHLSL);
 
     // TODO(geofflang): use context's caps
-    geomHLSL += "uniform float4 dx_ViewCoords : register(c1);\n"
-                "\n"
+    geomHLSL += "uniform float4 dx_ViewCoords : register(c1);\n";
+
+    if (useViewScale)
+    {
+        geomHLSL += "uniform float2 dx_ViewScale : register(c3);\n";
+    }
+
+    geomHLSL += "\n"
                 "struct GS_INPUT\n" + inLinkHLSL + "\n" +
                 "struct GS_OUTPUT\n" + outLinkHLSL + "\n" +
                 "\n"
@@ -1249,9 +1255,17 @@ std::string DynamicHLSL::generatePointSpriteHLSL(int registers, ShaderD3D *fragm
 
     for (int corner = 0; corner < 4; corner++)
     {
-        geomHLSL += "    \n"
-                    "    output.dx_Position = dx_Position + float4(pointSpriteCorners[" + Str(corner) + "] * viewportScale * gl_PointSize, 0.0f, 0.0f);\n";
-
+        if (useViewScale)
+        {
+            geomHLSL += "    \n"
+                        "    output.dx_Position = dx_Position + float4(1.0, -dx_ViewScale.y, 1.0, 1.0)"
+                        "        * float4(pointSpriteCorners[" + Str(corner) + "] * viewportScale * gl_PointSize, 0.0f, 0.0f);\n";
+        }
+        else
+        {
+            geomHLSL += "    \n"
+                        "    output.dx_Position = dx_Position + float4(pointSpriteCorners[" + Str(corner) + "] * viewportScale * gl_PointSize, 0.0f, 0.0f);\n";
+        }
         if (fragmentShader->mUsesPointCoord)
         {
             geomHLSL += "    output.gl_PointCoord = pointSpriteTexcoords[" + Str(corner) + "];\n";

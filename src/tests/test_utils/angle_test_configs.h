@@ -84,6 +84,11 @@ inline std::ostream &operator<<(std::ostream& stream,
         break;
     }
 
+    if (pp.mEGLPlatformParameters.useRenderToBackBuffer == EGL_TRUE)
+    {
+        stream << "_RTBB";
+    }
+
     return stream;
 }
 
@@ -150,6 +155,16 @@ inline PlatformParameters ES2_D3D11()
         EGL_DONT_CARE, EGL_DONT_CARE,
         EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE,
         EGL_FALSE);
+    return PlatformParameters(2, eglParams);
+}
+
+inline PlatformParameters ES2_D3D11_RTBB()
+{
+    EGLPlatformParameters eglParams(
+        EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
+        EGL_DONT_CARE, EGL_DONT_CARE,
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE,
+        EGL_TRUE);
     return PlatformParameters(2, eglParams);
 }
 

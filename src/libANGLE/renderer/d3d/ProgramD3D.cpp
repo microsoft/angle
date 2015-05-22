@@ -1060,7 +1060,7 @@ LinkResult ProgramD3D::compileProgramExecutables(gl::InfoLog &infoLog, gl::Shade
 
     if (usesGeometryShader())
     {
-        std::string geometryHLSL = mDynamicHLSL->generateGeometryShaderHLSL(registers, fragmentShaderD3D, vertexShaderD3D);
+        std::string geometryHLSL = mDynamicHLSL->generateGeometryShaderHLSL(registers, mRenderer->isRenderingToBackBufferEnabled(), fragmentShaderD3D, vertexShaderD3D);
 
 
         error = mRenderer->compileToExecutable(infoLog, geometryHLSL, SHADER_GEOMETRY, mTransformFeedbackLinkedVaryings,
