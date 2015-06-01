@@ -15,9 +15,7 @@ OpenGLESPage::OpenGLESPage() :
 
 OpenGLESPage::OpenGLESPage(OpenGLES* openGLES) :
     mOpenGLES(openGLES),
-    mRenderSurface(EGL_NO_SURFACE),
-    mCustomRenderSurfaceSize(0,0),
-    mUseCustomRenderSurfaceSize(false)
+    mRenderSurface(EGL_NO_SURFACE)
 {
     InitializeComponent();
 
@@ -25,9 +23,6 @@ OpenGLESPage::OpenGLESPage(OpenGLES* openGLES) :
 
     window->VisibilityChanged +=
         ref new Windows::Foundation::TypedEventHandler<Windows::UI::Core::CoreWindow^, Windows::UI::Core::VisibilityChangedEventArgs^>(this, &OpenGLESPage::OnVisibilityChanged);
-
-    swapChainPanel->SizeChanged +=
-        ref new Windows::UI::Xaml::SizeChangedEventHandler(this, &OpenGLESPage::OnSwapChainPanelSizeChanged);
 
     this->Loaded +=
         ref new Windows::UI::Xaml::RoutedEventHandler(this, &OpenGLESPage::OnPageLoaded);
@@ -39,8 +34,6 @@ OpenGLESPage::OpenGLESPage(OpenGLES* openGLES) :
     pointerVisualizationSettings->IsContactFeedbackEnabled = false;
     pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
 #endif
-
-    mSwapChainPanelSize = { swapChainPanel->RenderSize.Width, swapChainPanel->RenderSize.Height };
 }
 
 OpenGLESPage::~OpenGLESPage()
@@ -68,44 +61,26 @@ void OpenGLESPage::OnVisibilityChanged(Windows::UI::Core::CoreWindow^ sender, Wi
     }
 }
 
-void OpenGLESPage::OnSwapChainPanelSizeChanged(Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
-{
-    // Size change events occur outside of the render thread.  A lock is required when updating
-    // the swapchainpanel size
-    critical_section::scoped_lock lock(mSwapChainPanelSizeCriticalSection);
-    mSwapChainPanelSize = { e->NewSize.Width, e->NewSize.Height };
-}
-
-void OpenGLESPage::GetSwapChainPanelSize(GLsizei* width, GLsizei* height)
-{
-    critical_section::scoped_lock lock(mSwapChainPanelSizeCriticalSection);
-    // If a custom render surface size is specified, return its size instead of
-    // the swapchain panel size.
-    if (mUseCustomRenderSurfaceSize)
-    {
-        *width = static_cast<GLsizei>(mCustomRenderSurfaceSize.Width);
-        *height = static_cast<GLsizei>(mCustomRenderSurfaceSize.Height);
-    }
-    else
-    {
-        *width = static_cast<GLsizei>(mSwapChainPanelSize.Width);
-        *height = static_cast<GLsizei>(mSwapChainPanelSize.Height);
-    }
-}
-
 void OpenGLESPage::CreateRenderSurface()
 {
     if (mOpenGLES && mRenderSurface == EGL_NO_SURFACE)
     {
+        // The app can configure the the SwapChainPanel which may boost performance.
+        // By default, this template uses the default configuration.
+        mRenderSurface = mOpenGLES->CreateSurface(swapChainPanel, nullptr, nullptr);
+        
+        // You can configure the SwapChainPanel to render at a lower resolution and be scaled up to
+        // the swapchain panel size. This scaling is often free on mobile hardware.
         //
-        // A Custom render surface size can be specified by uncommenting the following lines.
-        // The render surface will be automatically scaled to fit the entire window.  Using a
-        // smaller sized render surface can result in a performance gain.
+        // One way to configure the SwapChainPanel is to specify precisely which resolution it should render at.
+        // Size customRenderSurfaceSize = Size(800, 600);
+        // mRenderSurface = mOpenGLES->CreateSurface(swapChainPanel, &customRenderSurfaceSize, nullptr);
         //
-        //mCustomRenderSurfaceSize = Size(340, 400);
-        //mUseCustomRenderSurfaceSize = true;
-
-        mRenderSurface = mOpenGLES->CreateSurface(swapChainPanel, mUseCustomRenderSurfaceSize ? &mCustomRenderSurfaceSize : nullptr);
+        // Another way is to tell the SwapChainPanel to render at a certain scale factor compared to its size.
+        // e.g. if the SwapChainPanel is 1920x1280 then setting a factor of 0.5f will make the app render at 960x640
+        // float customResolutionScale = 0.5f;
+        // mRenderSurface = mOpenGLES->CreateSurface(swapChainPanel, nullptr, &customResolutionScale);
+        // 
     }
 }
 
@@ -154,10 +129,11 @@ void OpenGLESPage::StartRenderLoop()
 
         while (action->Status == Windows::Foundation::AsyncStatus::Started)
         {
-            GLsizei panelWidth = 0;
-            GLsizei panelHeight = 0;
-
-            GetSwapChainPanelSize(&panelWidth, &panelHeight);
+            EGLint panelWidth = 0;
+            EGLint panelHeight = 0;
+            mOpenGLES->GetSurfaceDimensions(mRenderSurface, &panelWidth, &panelHeight);
+            
+            // Logic to update the scene could go here
             renderer.UpdateWindowSize(panelWidth, panelHeight);
             renderer.Draw();
 

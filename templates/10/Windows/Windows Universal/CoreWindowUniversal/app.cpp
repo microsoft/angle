@@ -47,13 +47,9 @@ int main(Platform::Array<Platform::String^>^)
 App::App() :
     mWindowClosed(false),
     mWindowVisible(true),
-    mWindowWidth(0),
-    mWindowHeight(0),
     mEglDisplay(EGL_NO_DISPLAY),
     mEglContext(EGL_NO_CONTEXT),
-    mEglSurface(EGL_NO_SURFACE),
-    mCustomRenderSurfaceSize(0,0),
-    mUseCustomRenderSurfaceSize(false)
+    mEglSurface(EGL_NO_SURFACE)
 {
 }
 
@@ -79,12 +75,8 @@ void App::SetWindow(CoreWindow^ window)
     window->Closed += 
         ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::OnWindowClosed);
 
-    window->SizeChanged += 
-        ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &App::OnWindowSizeChanged);
-
     // The CoreWindow has been created, so EGL can be initialized.
     InitializeEGL(window);
-    UpdateWindowSize(Size(window->Bounds.Width, window->Bounds.Height));
 }
 
 // Initializes scene resources
@@ -98,7 +90,6 @@ void App::RecreateRenderer()
     if (!mCubeRenderer)
     {
         mCubeRenderer.reset(new SimpleRenderer());
-        mCubeRenderer->UpdateWindowSize(mWindowWidth, mWindowHeight);
     }
 }
 
@@ -111,7 +102,13 @@ void App::Run()
         {
             CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 
+            EGLint panelWidth = 0;
+            EGLint panelHeight = 0;
+            eglQuerySurface(mEglDisplay, mEglSurface, EGL_WIDTH, &panelWidth);
+            eglQuerySurface(mEglDisplay, mEglSurface, EGL_HEIGHT, &panelHeight);
+            
             // Logic to update the scene could go here
+            mCubeRenderer->UpdateWindowSize(panelWidth, panelHeight);
             mCubeRenderer->Draw();
 
             // The call to eglSwapBuffers might not be successful (e.g. due to Device Lost)
@@ -156,11 +153,6 @@ void App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ ar
 void App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 {
     mWindowClosed = true;
-}
-
-void App::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
-{
-    UpdateWindowSize(args->Size);
 }
 
 void App::InitializeEGL(CoreWindow^ window)
@@ -292,15 +284,17 @@ void App::InitializeEGL(CoreWindow^ window)
     PropertySet^ surfaceCreationProperties = ref new PropertySet();
     surfaceCreationProperties->Insert(ref new String(EGLNativeWindowTypeProperty), window);
 
+    // You can configure the surface to render at a lower resolution and be scaled up to
+    // the full window size. This scaling is often free on mobile hardware.
     //
-    // A Custom render surface size can be specified by uncommenting the following lines.
-    // The render surface will be automatically scaled to fit the entire window.  Using a
-    // smaller sized render surface can result in a performance gain.
+    // One way to configure the SwapChainPanel is to specify precisely which resolution it should render at.
+    // Size customRenderSurfaceSize = Size(800, 600);
+    // surfaceCreationProperties->Insert(ref new String(EGLRenderSurfaceSizeProperty), PropertyValue::CreateSize(customRenderSurfaceSize));
     //
-    //mCustomRenderSurfaceSize = Size(800, 600);
-    //mUseCustomRenderSurfaceSize = true;
-    //surfaceCreationProperties->Insert(ref new String(EGLRenderSurfaceSizeProperty), PropertyValue::CreateSize(mCustomRenderSurfaceSize));
-    //
+    // Another way is to tell the SwapChainPanel to render at a certain scale factor compared to its size.
+    // e.g. if the SwapChainPanel is 1920x1280 then setting a factor of 0.5f will make the app render at 960x640
+    // float customResolutionScale = 0.5f;
+    // surfaceCreationProperties->Insert(ref new String(EGLRenderResolutionScaleProperty), PropertyValue::CreateSingle(customResolutionScale));
 
     mEglSurface = eglCreateWindowSurface(mEglDisplay, config, reinterpret_cast<IInspectable*>(surfaceCreationProperties), surfaceAttributes);
     if (mEglSurface == EGL_NO_SURFACE)
@@ -338,30 +332,5 @@ void App::CleanupEGL()
     {
         eglTerminate(mEglDisplay);
         mEglDisplay = EGL_NO_DISPLAY;
-    }
-}
-
-void App::UpdateWindowSize(Size size)
-{
-    Size pixelSize;
-    // Use the dimensions of the custom render surface size if one was specified.
-    if (mUseCustomRenderSurfaceSize)
-    {
-        // Render surface size is already in pixels
-        pixelSize = mCustomRenderSurfaceSize;
-    }
-    else
-    {
-        DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
-        pixelSize = Size(ConvertDipsToPixels(size.Width, currentDisplayInformation->LogicalDpi), ConvertDipsToPixels(size.Height, currentDisplayInformation->LogicalDpi));
-    }
-
-    mWindowWidth = static_cast<GLsizei>(pixelSize.Width);
-    mWindowHeight = static_cast<GLsizei>(pixelSize.Height);
-
-    // mCubeRenderer might not have been initialized yet.
-    if (mCubeRenderer)
-    {
-        mCubeRenderer->UpdateWindowSize(mWindowWidth, mWindowHeight);
     }
 }

@@ -164,11 +164,16 @@ void OpenGLES::Reset()
     Initialize();
 }
 
-EGLSurface OpenGLES::CreateSurface(SwapChainPanel^ panel, const Size* renderSurfaceSize)
+EGLSurface OpenGLES::CreateSurface(SwapChainPanel^ panel, const Size* renderSurfaceSize, const float* resolutionScale)
 {
     if (!panel)
     {
         throw Exception::CreateException(E_INVALIDARG, L"SwapChainPanel parameter is invalid");
+    }
+    
+    if (renderSurfaceSize != nullptr && resolutionScale != nullptr)
+    {
+        throw Exception::CreateException(E_INVALIDARG, L"A size and a scale can't both be specified");
     }
 
     EGLSurface surface = EGL_NO_SURFACE;
@@ -191,6 +196,12 @@ EGLSurface OpenGLES::CreateSurface(SwapChainPanel^ panel, const Size* renderSurf
         surfaceCreationProperties->Insert(ref new String(EGLRenderSurfaceSizeProperty), PropertyValue::CreateSize(*renderSurfaceSize));
     }
 
+    // If a resolution scale is specified, add it to the surface creation properties
+    if (resolutionScale != nullptr)
+    {
+        surfaceCreationProperties->Insert(ref new String(EGLRenderResolutionScaleProperty), PropertyValue::CreateSingle(*resolutionScale));
+    }
+
     surface = eglCreateWindowSurface(mEglDisplay, mEglConfig, reinterpret_cast<IInspectable*>(surfaceCreationProperties), surfaceAttributes);
     if (surface == EGL_NO_SURFACE)
     {
@@ -198,6 +209,12 @@ EGLSurface OpenGLES::CreateSurface(SwapChainPanel^ panel, const Size* renderSurf
     }
 
     return surface;
+}
+
+void OpenGLES::GetSurfaceDimensions(const EGLSurface surface, EGLint* width, EGLint* height)
+{
+    eglQuerySurface(mEglDisplay, surface, EGL_WIDTH, width);
+    eglQuerySurface(mEglDisplay, surface, EGL_HEIGHT, height);
 }
 
 void OpenGLES::DestroySurface(const EGLSurface surface)

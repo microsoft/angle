@@ -26,26 +26,20 @@ namespace $ext_safeprojectname$
         void OnActivated(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs^ args);
 
         // Window event handlers.
-        void OnWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args);
         void OnVisibilityChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::VisibilityChangedEventArgs^ args);
         void OnWindowClosed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::CoreWindowEventArgs^ args);
 
-        void UpdateWindowSize(Windows::Foundation::Size size);
         void InitializeEGL(Windows::UI::Core::CoreWindow^ window);
         void CleanupEGL();
 
         bool mWindowClosed;
         bool mWindowVisible;
-        GLsizei mWindowWidth;
-        GLsizei mWindowHeight;
         
         EGLDisplay mEglDisplay;
         EGLContext mEglContext;
         EGLSurface mEglSurface;
 
         std::unique_ptr<SimpleRenderer> mCubeRenderer;
-        Windows::Foundation::Size mCustomRenderSurfaceSize;
-        bool mUseCustomRenderSurfaceSize;
     };
 
 }
