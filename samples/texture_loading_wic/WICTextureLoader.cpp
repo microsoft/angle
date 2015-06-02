@@ -50,6 +50,7 @@ static WICTranslate g_WICFormats[] =
     { GUID_WICPixelFormat64bppRGBAHalf,   { GL_RGBA,     GL_HALF_FLOAT_OES } },
     { GUID_WICPixelFormat32bppRGBA,       { GL_RGBA,     GL_UNSIGNED_BYTE } },
     { GUID_WICPixelFormat32bppBGRA,       { GL_BGRA_EXT, GL_UNSIGNED_BYTE } },
+    { GUID_WICPixelFormat24bppRGB,        { GL_RGB,      GL_UNSIGNED_BYTE } },
 };
 
 //-------------------------------------------------------------------------------------
@@ -85,8 +86,7 @@ static WICConvert g_WICConvert[] =
                                                
     { GUID_WICPixelFormat32bppBGR101010,       GUID_WICPixelFormat128bppRGBAFloat }, 
                                                
-    { GUID_WICPixelFormat24bppBGR,             GUID_WICPixelFormat32bppBGRA }, 
-    { GUID_WICPixelFormat24bppRGB,             GUID_WICPixelFormat32bppRGBA }, 
+    { GUID_WICPixelFormat24bppBGR,             GUID_WICPixelFormat24bppRGB },
     { GUID_WICPixelFormat32bppPBGRA,           GUID_WICPixelFormat32bppBGRA }, 
     { GUID_WICPixelFormat32bppPRGBA,           GUID_WICPixelFormat32bppRGBA }, 
                                                
