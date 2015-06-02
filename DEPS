@@ -8,7 +8,7 @@ deps = {
       "http://chromium.googlesource.com/external/googletest.git@23574bf2333f834ff665f894c97bef8a5b33a0a9",
 
   "src/tests/third_party/googlemock":
-      "http://googlemock.googlecode.com/svn/trunk@519",
+      "http://chromium.googlesource.com/external/googlemock.git@b2cb211e49d872101d991201362d7b97d7d69910",
 
   "src/tests/third_party/deqp":
       "https://android.googlesource.com/platform/external/deqp@d0cd12e34181184fcb63238790f93bda2313195a",
