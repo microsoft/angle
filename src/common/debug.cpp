@@ -97,7 +97,7 @@ void output(bool traceInDebugOnly, MessageType messageType, DebugTraceOutputType
 bool DebugAnnotationsActive()
 {
 #if defined(ANGLE_ENABLE_DEBUG_ANNOTATIONS)
-    return false; //  return g_debugAnnotator != nullptr && g_debugAnnotator->getStatus();
+    return g_debugAnnotator != nullptr && g_debugAnnotator->getStatus();
 #else
     return false;
 #endif
