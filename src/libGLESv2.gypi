@@ -731,8 +731,7 @@
                             'abstract': 1,
                             'defines':
                             [
-                                'ANGLE_ENABLE_DEBUG_ANNOTATIONS',
-                                'ANGLE_GENERATE_SHADER_DEBUG_INFO'
+                                'ANGLE_ENABLE_DEBUG_ANNOTATIONS'
                             ],
                         },
                     },
@@ -781,6 +780,20 @@
                         'libraries': [
                             '<!@(pkg-config --libs-only-l x11 xi) -ldl',
                         ],
+                    },
+                }],
+                ['OS=="win"',
+                {
+                    'configurations':
+                    {
+                        'Debug_Base':
+                        {
+                            'abstract': 1,
+                            'defines':
+                            [
+                                'ANGLE_ENABLE_DEBUG_ANNOTATIONS'
+                            ],
+                        },
                     },
                 }],
             ],
