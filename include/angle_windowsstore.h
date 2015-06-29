@@ -44,7 +44,7 @@ const wchar_t EGLRenderSurfaceSizeProperty[] = L"EGLRenderSurfaceSizeProperty";
 //                - scale is set to 1.2f then the surface will be 960x576
 //              If the window resizes or rotates then the surface will resize accordingly.
 //              EGLRenderResolutionScaleProperty and EGLRenderSurfaceSizeProperty cannot both be set.
-//              The scale factor should be > 0.0f and < 1.5f.
+//              The scale factor should be > 0.0f.
 //
 const wchar_t EGLRenderResolutionScaleProperty[] = L"EGLRenderResolutionScaleProperty";
 

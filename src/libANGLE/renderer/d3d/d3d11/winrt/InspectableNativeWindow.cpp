@@ -305,7 +305,7 @@ HRESULT GetOptionalSizePropertyValue(const ComPtr<ABI::Windows::Foundation::Coll
 // S_OK, valueExists == false - optional Single value was not found
 // E_INVALIDARG, valueExists = false - optional Single value was malformed in the property set.
 //    * Incorrect property type ( must be PropertyType_Single)
-//    * Invalid property value (must be > 0 and < 1.5f)
+//    * Invalid property value (must be > 0)
 // Additional errors may be returned from IMap or IPropertyValue
 //
 HRESULT GetOptionalSinglePropertyValue(const ComPtr<ABI::Windows::Foundation::Collections::IMap<HSTRING, IInspectable*>>& propertyMap,
@@ -333,7 +333,7 @@ HRESULT GetOptionalSinglePropertyValue(const ComPtr<ABI::Windows::Foundation::Co
         // Check if the expected Scale property is of PropertyType_Single type.
         if (SUCCEEDED(result) && propertyType == ABI::Windows::Foundation::PropertyType::PropertyType_Single)
         {
-            if (SUCCEEDED(propertyValue->GetSingle(&scaleValue)) && (scaleValue > 0.0f) && (scaleValue < 1.5f))
+            if (SUCCEEDED(propertyValue->GetSingle(&scaleValue)) && (scaleValue > 0.0f))
             {
                 // A valid property value exists
                 *value = scaleValue;
