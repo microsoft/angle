@@ -3742,9 +3742,11 @@ GLenum Renderer11::getVertexComponentType(const gl::VertexFormat &vertexFormat) 
     return d3d11::GetDXGIFormatInfo(d3d11::GetVertexFormatInfo(vertexFormat, mRenderer11DeviceCaps.featureLevel).nativeFormat).componentType;
 }
 
-void Renderer11::generateCaps(gl::Caps *outCaps, gl::TextureCapsMap *outTextureCaps, gl::Extensions *outExtensions) const
+void Renderer11::generateCaps(gl::Caps *outCaps, gl::TextureCapsMap *outTextureCaps,
+                              gl::Extensions *outExtensions, gl::Limitations *outLimitations) const
 {
-    d3d11_gl::GenerateCaps(mDevice, mDeviceContext, mRenderer11DeviceCaps, outCaps, outTextureCaps, outExtensions);
+    d3d11_gl::GenerateCaps(mDevice, mDeviceContext, mRenderer11DeviceCaps, outCaps, outTextureCaps,
+                           outExtensions, outLimitations);
 }
 
 Workarounds Renderer11::generateWorkarounds() const
