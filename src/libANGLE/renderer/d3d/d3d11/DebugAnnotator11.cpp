@@ -72,9 +72,7 @@ bool DebugAnnotator11::getStatus()
 #endif // _DEBUG && !ANGLE_ENABLE_WINDOWS_STORE
 
     // Otherwise, we have to return true here.
-    // TODO: We set this to false here to allow angle_end2end_tests to run at a reasonable speed.
-    //       We should figure out a better way of using the D3D11 debug annotations in classic desktop builds
-    return false;
+    return true;
 }
 
 void DebugAnnotator11::initializeDevice()
