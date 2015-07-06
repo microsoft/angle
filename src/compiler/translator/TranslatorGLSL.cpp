@@ -21,7 +21,8 @@ class TFragmentOutSearcher : public TIntermTraverser
 {
   public:
     TFragmentOutSearcher()
-        : mUsesGlFragColor(false),
+        : TIntermTraverser(true, false, false),
+          mUsesGlFragColor(false),
           mUsesGlFragData(false)
     {
     }
@@ -65,7 +66,12 @@ TranslatorGLSL::TranslatorGLSL(sh::GLenum type,
 void TranslatorGLSL::initBuiltInFunctionEmulator(BuiltInFunctionEmulator *emu, int compileOptions)
 {
     if (compileOptions & SH_EMULATE_BUILT_IN_FUNCTIONS)
-        InitBuiltInFunctionEmulatorForGLSL(emu, getShaderType());
+    {
+        InitBuiltInFunctionEmulatorForGLSLWorkarounds(emu, getShaderType());
+    }
+
+    int targetGLSLVersion = ShaderOutputTypeToGLSLVersion(getOutputType());
+    InitBuiltInFunctionEmulatorForGLSLMissingFunctions(emu, getShaderType(), targetGLSLVersion);
 }
 
 void TranslatorGLSL::translate(TIntermNode *root, int) {

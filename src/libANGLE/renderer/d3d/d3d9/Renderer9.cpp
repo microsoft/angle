@@ -80,9 +80,6 @@ enum
 Renderer9::Renderer9(egl::Display *display)
     : RendererD3D(display)
 {
-    // Initialize global annotator
-    gl::InitializeDebugAnnotations(&mAnnotator);
-
     mD3d9Module = NULL;
 
     mD3d9 = NULL;
@@ -134,6 +131,8 @@ Renderer9::Renderer9(egl::Display *display)
     mAppliedVertexShader = NULL;
     mAppliedPixelShader = NULL;
     mAppliedProgramSerial = 0;
+
+    initializeDebugAnnotator();
 }
 
 Renderer9::~Renderer9()
@@ -148,8 +147,6 @@ Renderer9::~Renderer9()
     }
 
     release();
-
-    gl::UninitializeDebugAnnotations();
 }
 
 void Renderer9::release()
@@ -374,6 +371,9 @@ void Renderer9::initializeDevice()
     ASSERT(!mVertexDataManager && !mIndexDataManager);
     mVertexDataManager = new VertexDataManager(this);
     mIndexDataManager = new IndexDataManager(this, getRendererClass());
+
+    // TODO(jmadill): use context caps, and place in common D3D location
+    mTranslatedAttribCache.resize(getRendererCaps().maxVertexAttributes);
 }
 
 D3DPRESENT_PARAMETERS Renderer9::getDefaultPresentParameters()
@@ -859,8 +859,8 @@ gl::Error Renderer9::setTexture(gl::SamplerType type, int index, gl::Texture *te
 }
 
 gl::Error Renderer9::setUniformBuffers(const gl::Data &/*data*/,
-                                       const GLint /*vertexUniformBuffers*/[],
-                                       const GLint /*fragmentUniformBuffers*/[])
+                                       const std::vector<GLint> &/*vertexUniformBuffers*/,
+                                       const std::vector<GLint> &/*fragmentUniformBuffers*/)
 {
     // No effect in ES2/D3D9
     return gl::Error(GL_NO_ERROR);
@@ -1170,8 +1170,8 @@ void Renderer9::setViewport(const gl::Rectangle &viewport, float zNear, float zF
         mCurFar = actualZFar;
         mCurDepthFront = depthFront;
 
-        dx_VertexConstants vc = {0};
-        dx_PixelConstants pc = {0};
+        dx_VertexConstants vc = {};
+        dx_PixelConstants pc = {};
 
         vc.viewAdjust[0] = (float)((actualViewport.width - (int)dxViewport.Width) + 2 * (actualViewport.x - (int)dxViewport.X) - 1) / dxViewport.Width;
         vc.viewAdjust[1] = (float)((actualViewport.height - (int)dxViewport.Height) + 2 * (actualViewport.y - (int)dxViewport.Y) - 1) / dxViewport.Height;
@@ -1418,22 +1418,21 @@ gl::Error Renderer9::applyRenderTarget(const gl::Framebuffer *framebuffer)
     return applyRenderTarget(framebuffer->getColorbuffer(0), framebuffer->getDepthOrStencilbuffer());
 }
 
-gl::Error Renderer9::applyVertexBuffer(const gl::State &state, GLenum mode, GLint first, GLsizei count, GLsizei instances)
+gl::Error Renderer9::applyVertexBuffer(const gl::State &state, GLenum mode, GLint first, GLsizei count, GLsizei instances, SourceIndexData * /*sourceInfo*/)
 {
-    TranslatedAttribute attributes[gl::MAX_VERTEX_ATTRIBS];
-    gl::Error error = mVertexDataManager->prepareVertexData(state, first, count, attributes, instances);
+    gl::Error error = mVertexDataManager->prepareVertexData(state, first, count, &mTranslatedAttribCache, instances);
     if (error.isError())
     {
         return error;
     }
 
-    return mVertexDeclarationCache.applyDeclaration(mDevice, attributes, state.getProgram(), instances, &mRepeatDraw);
+    return mVertexDeclarationCache.applyDeclaration(mDevice, mTranslatedAttribCache, state.getProgram(), instances, &mRepeatDraw);
 }
 
 // Applies the indices and element array bindings to the Direct3D 9 device
-gl::Error Renderer9::applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo)
+gl::Error Renderer9::applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo, SourceIndexData *sourceIndexInfo)
 {
-    gl::Error error = mIndexDataManager->prepareIndexData(type, count, elementArrayBuffer, indices, indexInfo);
+    gl::Error error = mIndexDataManager->prepareIndexData(type, count, elementArrayBuffer, indices, indexInfo, sourceIndexInfo);
     if (error.isError())
     {
         return error;
@@ -1500,7 +1499,8 @@ gl::Error Renderer9::drawArrays(const gl::Data &data, GLenum mode, GLsizei count
 }
 
 gl::Error Renderer9::drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,
-                                  gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei /*instances*/)
+                                  gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei /*instances*/,
+                                  bool /*usesPointSize*/)
 {
     startScene();
 
@@ -2464,9 +2464,16 @@ std::string Renderer9::getRendererDescription() const
     return rendererString.str();
 }
 
-GUID Renderer9::getAdapterIdentifier() const
+DeviceIdentifier Renderer9::getAdapterIdentifier() const
 {
-    return mAdapterIdentifier.DeviceIdentifier;
+    DeviceIdentifier deviceIdentifier = { 0 };
+    deviceIdentifier.VendorId = static_cast<UINT>(mAdapterIdentifier.VendorId);
+    deviceIdentifier.DeviceId = static_cast<UINT>(mAdapterIdentifier.DeviceId);
+    deviceIdentifier.SubSysId = static_cast<UINT>(mAdapterIdentifier.SubSysId);
+    deviceIdentifier.Revision = static_cast<UINT>(mAdapterIdentifier.Revision);
+    deviceIdentifier.FeatureLevel = 0;
+
+    return deviceIdentifier;
 }
 
 unsigned int Renderer9::getReservedVertexUniformVectors() const
@@ -2932,14 +2939,43 @@ GLenum Renderer9::getVertexComponentType(const gl::VertexFormat &vertexFormat) c
     return d3d9::GetVertexFormatInfo(getCapsDeclTypes(), vertexFormat).componentType;
 }
 
-void Renderer9::generateCaps(gl::Caps *outCaps, gl::TextureCapsMap *outTextureCaps, gl::Extensions *outExtensions) const
+void Renderer9::generateCaps(gl::Caps *outCaps, gl::TextureCapsMap *outTextureCaps,
+                             gl::Extensions *outExtensions,
+                             gl::Limitations * /*outLimitations */) const
 {
-    d3d9_gl::GenerateCaps(mD3d9, mDevice, mDeviceType, mAdapter, outCaps, outTextureCaps, outExtensions);
+    d3d9_gl::GenerateCaps(mD3d9, mDevice, mDeviceType, mAdapter, outCaps,
+                          outTextureCaps, outExtensions);
 }
 
 Workarounds Renderer9::generateWorkarounds() const
 {
     return d3d9::GenerateWorkarounds();
+}
+
+void Renderer9::createAnnotator()
+{
+    mAnnotator = new DebugAnnotator9();
+}
+
+gl::Error Renderer9::clearTextures(gl::SamplerType samplerType, size_t rangeStart, size_t rangeEnd)
+{
+    // TODO(jmadill): faster way?
+    for (size_t samplerIndex = rangeStart; samplerIndex < rangeEnd; samplerIndex++)
+    {
+        gl::Error error = setTexture(samplerType, samplerIndex, nullptr);
+        if (error.isError())
+        {
+            return error;
+        }
+    }
+
+    return gl::Error(GL_NO_ERROR);
+}
+
+bool Renderer9::usesAlternateRenderableFormat(GLenum /* internalFormat */)
+{
+    // The D3D9 renderer uses the same D3D texture format for renderable and non-renderable textures
+    return false;
 }
 
 }

@@ -74,6 +74,13 @@ VertexArrayGL::~VertexArrayGL()
 void VertexArrayGL::setElementArrayBuffer(const gl::Buffer *buffer)
 {
     mElementArrayBuffer.set(buffer);
+
+    // If the buffer is being unbound/deleted, reset the currently applied buffer ID
+    // so that even if a new buffer is generated with the same ID, it will be re-bound.
+    if (buffer == nullptr && mAppliedElementArrayBuffer != mStreamingElementArrayBuffer)
+    {
+        mAppliedElementArrayBuffer = 0;
+    }
 }
 
 void VertexArrayGL::setAttribute(size_t idx, const gl::VertexAttribute &attr)
@@ -103,7 +110,7 @@ gl::Error VertexArrayGL::syncDrawElementsState(GLsizei count, GLenum type, const
 
 gl::Error VertexArrayGL::syncDrawState(GLint first, GLsizei count, GLenum type, const GLvoid *indices, const GLvoid **outIndices) const
 {
-    mStateManager->bindVertexArray(mVertexArrayID);
+    mStateManager->bindVertexArray(mVertexArrayID, mAppliedElementArrayBuffer);
 
     // Check if any attributes need to be streamed, determines if the index range needs to be computed
     bool attributesNeedStreaming = doAttributesNeedStreaming();
@@ -209,8 +216,15 @@ gl::Error VertexArrayGL::syncAttributeState(bool attributesNeedStreaming, const 
             if (mAppliedAttributes[idx] != mAttributes[idx])
             {
                 const gl::Buffer *arrayBuffer = mAttributes[idx].buffer.get();
-                const BufferGL *arrayBufferGL = GetImplAs<BufferGL>(arrayBuffer);
-                mStateManager->bindBuffer(GL_ARRAY_BUFFER, arrayBufferGL->getBufferID());
+                if (arrayBuffer != nullptr)
+                {
+                    const BufferGL *arrayBufferGL = GetImplAs<BufferGL>(arrayBuffer);
+                    mStateManager->bindBuffer(GL_ARRAY_BUFFER, arrayBufferGL->getBufferID());
+                }
+                else
+                {
+                    mStateManager->bindBuffer(GL_ARRAY_BUFFER, 0);
+                }
 
                 if (mAttributes[idx].pureInteger)
                 {
@@ -395,6 +409,11 @@ gl::Error VertexArrayGL::streamAttributes(size_t streamingDataSize, size_t maxAt
 GLuint VertexArrayGL::getVertexArrayID() const
 {
     return mVertexArrayID;
+}
+
+GLuint VertexArrayGL::getAppliedElementArrayBufferID() const
+{
+    return mAppliedElementArrayBuffer;
 }
 
 }

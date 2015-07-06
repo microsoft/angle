@@ -9,6 +9,7 @@
 #include "libANGLE/renderer/d3d/RendererD3D.h"
 
 #include "common/MemoryBuffer.h"
+#include "common/debug.h"
 #include "common/utilities.h"
 #include "libANGLE/Display.h"
 #include "libANGLE/Framebuffer.h"
@@ -37,6 +38,7 @@ const uintptr_t RendererD3D::DirtyPointer = std::numeric_limits<uintptr_t>::max(
 RendererD3D::RendererD3D(egl::Display *display)
     : mDisplay(display),
       mDeviceLost(false),
+      mAnnotator(nullptr),
       mScratchMemoryBufferResetCounter(0)
 {
 }
@@ -54,6 +56,12 @@ void RendererD3D::cleanup()
         incompleteTexture.second.set(NULL);
     }
     mIncompleteTextures.clear();
+
+    if (mAnnotator != nullptr)
+    {
+        gl::UninitializeDebugAnnotations();
+        SafeDelete(mAnnotator);
+    }
 }
 
 gl::Error RendererD3D::drawElements(const gl::Data &data,
@@ -98,7 +106,10 @@ gl::Error RendererD3D::drawElements(const gl::Data &data,
     gl::VertexArray *vao = data.state->getVertexArray();
     TranslatedIndexData indexInfo;
     indexInfo.indexRange = indexRange;
-    error = applyIndexBuffer(indices, vao->getElementArrayBuffer(), count, mode, type, &indexInfo);
+
+    SourceIndexData sourceIndexInfo;
+
+    error = applyIndexBuffer(indices, vao->getElementArrayBuffer(), count, mode, type, &indexInfo, &sourceIndexInfo);
     if (error.isError())
     {
         return error;
@@ -110,7 +121,7 @@ gl::Error RendererD3D::drawElements(const gl::Data &data,
     ASSERT(!data.state->isTransformFeedbackActiveUnpaused());
 
     GLsizei vertexCount = indexInfo.indexRange.length() + 1;
-    error = applyVertexBuffer(*data.state, mode, indexInfo.indexRange.start, vertexCount, instances);
+    error = applyVertexBuffer(*data.state, mode, indexInfo.indexRange.start, vertexCount, instances, &sourceIndexInfo);
     if (error.isError())
     {
         return error;
@@ -136,7 +147,7 @@ gl::Error RendererD3D::drawElements(const gl::Data &data,
 
     if (!skipDraw(data, mode))
     {
-        error = drawElements(mode, count, type, indices, vao->getElementArrayBuffer(), indexInfo, instances);
+        error = drawElements(mode, count, type, indices, vao->getElementArrayBuffer(), indexInfo, instances, program->usesPointSize());
         if (error.isError())
         {
             return error;
@@ -180,7 +191,7 @@ gl::Error RendererD3D::drawArrays(const gl::Data &data,
 
     applyTransformFeedbackBuffers(*data.state);
 
-    error = applyVertexBuffer(*data.state, mode, first, count, instances);
+    error = applyVertexBuffer(*data.state, mode, first, count, instances, nullptr);
     if (error.isError())
     {
         return error;
@@ -437,14 +448,7 @@ gl::Error RendererD3D::applyTextures(const gl::Data &data, gl::SamplerType shade
     // Set all the remaining textures to NULL
     size_t samplerCount = (shaderType == gl::SAMPLER_PIXEL) ? data.caps->maxTextureImageUnits
                                                             : data.caps->maxVertexTextureImageUnits;
-    for (size_t samplerIndex = samplerRange; samplerIndex < samplerCount; samplerIndex++)
-    {
-        gl::Error error = setTexture(shaderType, samplerIndex, NULL);
-        if (error.isError())
-        {
-            return error;
-        }
-    }
+    clearTextures(shaderType, samplerRange, samplerCount);
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -616,6 +620,46 @@ gl::Error RendererD3D::getScratchMemoryBuffer(size_t requestedSize, MemoryBuffer
 
     *bufferOut = &mScratchMemoryBuffer;
     return gl::Error(GL_NO_ERROR);
+}
+
+void RendererD3D::insertEventMarker(GLsizei length, const char *marker)
+{
+    std::vector<wchar_t> wcstring (length + 1);
+    size_t convertedChars = 0;
+    errno_t err = mbstowcs_s(&convertedChars, wcstring.data(), length + 1, marker, _TRUNCATE);
+    if (err == 0)
+    {
+        getAnnotator()->setMarker(wcstring.data());
+    }
+}
+
+void RendererD3D::pushGroupMarker(GLsizei length, const char *marker)
+{
+    std::vector<wchar_t> wcstring(length + 1);
+    size_t convertedChars = 0;
+    errno_t err = mbstowcs_s(&convertedChars, wcstring.data(), length + 1, marker, _TRUNCATE);
+    if (err == 0)
+    {
+        getAnnotator()->beginEvent(wcstring.data());
+    }
+}
+
+void RendererD3D::popGroupMarker()
+{
+    getAnnotator()->endEvent();
+}
+
+void RendererD3D::initializeDebugAnnotator()
+{
+    createAnnotator();
+    ASSERT(mAnnotator);
+    gl::InitializeDebugAnnotations(mAnnotator);
+}
+
+gl::DebugAnnotator *RendererD3D::getAnnotator()
+{
+    ASSERT(mAnnotator);
+    return mAnnotator;
 }
 
 }

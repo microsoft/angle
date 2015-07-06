@@ -20,6 +20,7 @@ class DrawBuffersTest : public ANGLETest
         setConfigBlueBits(8);
         setConfigAlphaBits(8);
         setConfigDepthBits(24);
+        mMaxDrawBuffers = 0;
     }
 
     virtual void SetUp()
@@ -52,6 +53,7 @@ class DrawBuffersTest : public ANGLETest
         glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6, data, GL_STATIC_DRAW);
 
         glGetIntegerv(GL_MAX_DRAW_BUFFERS, &mMaxDrawBuffers);
+<<<<<<< HEAD
 
         const EGLPlatformParameters &platform = GetParam().mEGLPlatformParameters;
         if (platform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
@@ -72,6 +74,8 @@ class DrawBuffersTest : public ANGLETest
             // If any other renderer is used then more checks should be added here.
             ASSERT_TRUE(false);
         }
+=======
+>>>>>>> master
 
         ASSERT_GL_NO_ERROR();
     }
@@ -224,6 +228,30 @@ class DrawBuffersTest : public ANGLETest
     GLint mMaxDrawBuffers;
 };
 
+// Verify that GL_MAX_DRAW_BUFFERS returns the expected values for D3D11
+TEST_P(DrawBuffersTest, VerifyD3DLimits)
+{
+    EGLPlatformParameters platform = GetParam().eglParameters;
+    if (platform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
+    {
+        if (platform.majorVersion == 9 && platform.minorVersion == 3)
+        {
+            // D3D11 Feature Level 9_3 supports 4 draw buffers
+            ASSERT_EQ(mMaxDrawBuffers, 4);
+        }
+        else
+        {
+            // D3D11 Feature Level 10_0+ supports 8 draw buffers
+            ASSERT_EQ(mMaxDrawBuffers, 8);
+        }
+    }
+    else
+    {
+        std::cout << "Test skipped for non-D3D11 renderers." << std::endl;
+        return;
+    }
+}
+
 TEST_P(DrawBuffersTest, Gaps)
 {
     glBindTexture(GL_TEXTURE_2D, mTextures[0]);
@@ -286,12 +314,23 @@ TEST_P(DrawBuffersTest, FirstHalfNULL)
     bool flags[8] = { false };
     GLenum bufs[8] = { GL_NONE };
 
+<<<<<<< HEAD
     for (GLint texIndex = 0; texIndex < mMaxDrawBuffers / 2; texIndex++)
     {
         glBindTexture(GL_TEXTURE_2D, mTextures[texIndex]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + mMaxDrawBuffers / 2 + texIndex, GL_TEXTURE_2D, mTextures[texIndex], 0);
         flags[texIndex + mMaxDrawBuffers / 2] = true;
         bufs[texIndex + mMaxDrawBuffers / 2] = GL_COLOR_ATTACHMENT0 + mMaxDrawBuffers / 2 + texIndex;
+=======
+    GLuint halfMaxDrawBuffers = static_cast<GLuint>(mMaxDrawBuffers) / 2;
+
+    for (GLuint texIndex = 0; texIndex < halfMaxDrawBuffers; texIndex++)
+    {
+        glBindTexture(GL_TEXTURE_2D, mTextures[texIndex]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + halfMaxDrawBuffers + texIndex, GL_TEXTURE_2D, mTextures[texIndex], 0);
+        flags[texIndex + halfMaxDrawBuffers] = true;
+        bufs[texIndex + halfMaxDrawBuffers] = GL_COLOR_ATTACHMENT0 + halfMaxDrawBuffers + texIndex;
+>>>>>>> master
     }
 
     GLuint program;
@@ -301,9 +340,15 @@ TEST_P(DrawBuffersTest, FirstHalfNULL)
     glDrawBuffersEXT(mMaxDrawBuffers, bufs);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
+<<<<<<< HEAD
     for (GLint texIndex = 0; texIndex < mMaxDrawBuffers / 2; texIndex++)
     {
         verifyAttachment(texIndex + mMaxDrawBuffers / 2, mTextures[texIndex]);
+=======
+    for (GLuint texIndex = 0; texIndex < halfMaxDrawBuffers; texIndex++)
+    {
+        verifyAttachment(texIndex + halfMaxDrawBuffers, mTextures[texIndex]);
+>>>>>>> master
     }
 
     EXPECT_GL_NO_ERROR();

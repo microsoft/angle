@@ -41,4 +41,8 @@ if __name__ == '__main__':
     generateProjects("winrt/8.1/windowsphone", True, "2013e", "8.1");
 
     # Generate Windows 10 projects
+<<<<<<< HEAD
     generateProjects("winrt/10", False, "2015", "8.2");
+=======
+    generateProjects("winrt/10", False, "2015", "8.2");
+>>>>>>> master

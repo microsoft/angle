@@ -12,11 +12,26 @@
 #include "ANGLEPerfTest.h"
 #include "shader_utils.h"
 
+using namespace angle;
+
 namespace
 {
 
 struct BufferSubDataParams final : public RenderTestParams
 {
+    BufferSubDataParams()
+    {
+        // Common default values
+        majorVersion = 2;
+        minorVersion = 0;
+        widowWidth = 512;
+        windowHeight = 512;
+        updateSize = 3000;
+        bufferSize = 40000000;
+        iterations = 2;
+        updateRate = 1;
+    }
+
     std::string suffix() const override;
 
     GLboolean vertexNormalized;
@@ -29,6 +44,12 @@ struct BufferSubDataParams final : public RenderTestParams
     GLsizeiptr bufferSize;
     unsigned int iterations;
 };
+
+inline std::ostream &operator<<(std::ostream &os, const BufferSubDataParams &params)
+{
+    os << params.suffix().substr(1);
+    return os;
+}
 
 class BufferSubDataBenchmark : public ANGLERenderTest,
                                public ::testing::WithParamInterface<BufferSubDataParams>
@@ -318,36 +339,30 @@ void BufferSubDataBenchmark::drawBenchmark()
 BufferSubDataParams BufferUpdateD3D11Params()
 {
     BufferSubDataParams params;
-    params.glesMajorVersion = 2;
-    params.widowWidth = 512;
-    params.windowHeight = 512;
-    params.requestedRenderer = EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE;
-    params.deviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE;
+    params.eglParameters = egl_platform::D3D11();
     params.vertexType = GL_FLOAT;
     params.vertexComponentCount = 4;
     params.vertexNormalized = GL_FALSE;
-    params.updateSize = 3000;
-    params.bufferSize = 40000000;
-    params.iterations = 2;
-    params.updateRate = 1;
     return params;
 }
 
 BufferSubDataParams BufferUpdateD3D9Params()
 {
     BufferSubDataParams params;
-    params.glesMajorVersion = 2;
-    params.widowWidth = 512;
-    params.windowHeight = 512;
-    params.requestedRenderer = EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE;
-    params.deviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE;
+    params.eglParameters = egl_platform::D3D9();
     params.vertexType = GL_FLOAT;
     params.vertexComponentCount = 4;
     params.vertexNormalized = GL_FALSE;
-    params.updateSize = 3000;
-    params.bufferSize = 40000000;
-    params.iterations = 2;
-    params.updateRate = 1;
+    return params;
+}
+
+BufferSubDataParams BufferUpdateOpenGLParams()
+{
+    BufferSubDataParams params;
+    params.eglParameters = egl_platform::OPENGL();
+    params.vertexType = GL_FLOAT;
+    params.vertexComponentCount = 4;
+    params.vertexNormalized = GL_FALSE;
     return params;
 }
 
@@ -356,8 +371,8 @@ TEST_P(BufferSubDataBenchmark, Run)
     run();
 }
 
-INSTANTIATE_TEST_CASE_P(BufferUpdates,
-                        BufferSubDataBenchmark,
-                        ::testing::Values(BufferUpdateD3D11Params(), BufferUpdateD3D9Params()));
+ANGLE_INSTANTIATE_TEST(BufferSubDataBenchmark,
+                       BufferUpdateD3D11Params(), BufferUpdateD3D9Params(),
+                       BufferUpdateOpenGLParams());
 
 } // namespace

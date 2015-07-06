@@ -219,7 +219,6 @@ class TextureTest : public ANGLETest
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         drawQuad(m2DProgram, "position", 0.5f);
-        swapBuffers();
 
         int testImageChannels = std::min(sourceImageChannels, destImageChannels);
 
@@ -373,7 +372,7 @@ TEST_P(TextureTest, CubeMapFBO)
     glBindTexture(GL_TEXTURE_CUBE_MAP, mTextureCube);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, mTextureCube, 0);
 
-    EXPECT_EQ(GL_FRAMEBUFFER_COMPLETE, glCheckFramebufferStatus(GL_FRAMEBUFFER));
+    EXPECT_GLENUM_EQ(GL_FRAMEBUFFER_COMPLETE, glCheckFramebufferStatus(GL_FRAMEBUFFER));
 
     glDeleteFramebuffers(1, &fbo);
 
@@ -611,6 +610,6 @@ TEST_P(TextureTest, TextureNPOT_GL_ALPHA_UBYTE)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-ANGLE_INSTANTIATE_TEST(TextureTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3());
+ANGLE_INSTANTIATE_TEST(TextureTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3()); // TODO(geofflang): Figure out why this test fails on Intel OpenGL
 
 } // namespace

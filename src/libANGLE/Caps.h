@@ -73,6 +73,7 @@ struct Extensions
 
     // Set all texture related extension support based on the supported textures.
     // Determines support for:
+    // GL_OES_packed_depth_stencil
     // GL_OES_rgb8_rgba8
     // GL_EXT_texture_format_BGRA8888
     // GL_OES_texture_half_float, GL_OES_texture_half_float_linear
@@ -212,10 +213,32 @@ struct Extensions
     // GL_OES_fbo_render_mipmap
     bool fboRenderMipmap;
 
+    // GL_EXT_discard_framebuffer
+    bool discardFramebuffer;
+
+    // EXT_debug_marker
+    bool debugMarker;
+
     // ES3 Extension support
 
     // GL_EXT_color_buffer_float
     bool colorBufferFloat;
+};
+
+struct Limitations
+{
+    Limitations();
+
+    // Renderer doesn't support gl_FrontFacing in fragment shaders
+    bool noFrontFacingSupport;
+
+    // Renderer doesn't support GL_SAMPLE_ALPHA_TO_COVERAGE
+    bool noSampleAlphaToCoverageSupport;
+
+    // In glVertexAttribDivisorANGLE, attribute zero must have a zero divisor
+    bool attributeZeroRequiresZeroDivisorInEXT;
+
+    // TODO: add entry for renderers that don't support separate stencil masks/refs
 };
 
 struct TypePrecision

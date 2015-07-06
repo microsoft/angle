@@ -10,20 +10,24 @@
 
 #include "common/debug.h"
 
+#include "libANGLE/renderer/gl/glx/DisplayGLX.h"
 #include "libANGLE/renderer/gl/glx/FunctionsGLX.h"
 
 namespace rx
 {
 
-WindowSurfaceGLX::WindowSurfaceGLX(const FunctionsGLX &glx, EGLNativeWindowType window, Display *display, GLXContext context, GLXFBConfig fbConfig)
+WindowSurfaceGLX::WindowSurfaceGLX(const FunctionsGLX &glx, const DisplayGLX &glxDisplay, Window window, Display *display,
+                                   glx::Context context, glx::FBConfig fbConfig)
     : SurfaceGL(),
-      mGLX(glx),
       mParent(window),
+      mWindow(0),
       mDisplay(display),
+      mGLX(glx),
+      mGLXDisplay(glxDisplay),
       mContext(context),
       mFBConfig(fbConfig),
-      mWindow(0),
-      mGLXWindow(0)
+      mGLXWindow(0),
+      mMaxSwapInterval(1)
 {
 }
 
@@ -38,6 +42,8 @@ WindowSurfaceGLX::~WindowSurfaceGLX()
     {
         XDestroyWindow(mDisplay, mWindow);
     }
+
+    mGLXDisplay.syncXCommands();
 }
 
 egl::Error WindowSurfaceGLX::initialize()
@@ -55,8 +61,10 @@ egl::Error WindowSurfaceGLX::initialize()
     }
     Visual* visual = visualInfo->visual;
 
-    XWindowAttributes parentAttribs;
-    XGetWindowAttributes(mDisplay, mParent, &parentAttribs);
+    if (!getWindowDimensions(mParent, &mParentWidth, &mParentHeight))
+    {
+        return egl::Error(EGL_BAD_NATIVE_WINDOW, "Failed to get the parent window's dimensions.");
+    }
 
     // The depth, colormap and visual must match otherwise we get a X error
     // so we specify the colormap attribute. Also we do not want the window
@@ -78,15 +86,22 @@ egl::Error WindowSurfaceGLX::initialize()
     attributes.background_pixel = 0;
 
     //TODO(cwallez) set up our own error handler to see if the call failed
-    mWindow = XCreateWindow(mDisplay, mParent, 0, 0, parentAttribs.width, parentAttribs.height,
+    mWindow = XCreateWindow(mDisplay, mParent, 0, 0, mParentWidth, mParentHeight,
                             0, visualInfo->depth, InputOutput, visual, attributeMask, &attributes);
     mGLXWindow = mGLX.createWindow(mFBConfig, mWindow, nullptr);
+
+    if (mGLX.hasExtension("GLX_EXT_swap_control"))
+    {
+        mGLX.queryDrawable(mGLXWindow, GLX_MAX_SWAP_INTERVAL_EXT, &mMaxSwapInterval);
+    }
 
     XMapWindow(mDisplay, mWindow);
     XFlush(mDisplay);
 
     XFree(visualInfo);
     XFreeColormap(mDisplay, colormap);
+
+    mGLXDisplay.syncXCommands();
 
     return egl::Error(EGL_SUCCESS);
 }
@@ -102,9 +117,26 @@ egl::Error WindowSurfaceGLX::makeCurrent()
 
 egl::Error WindowSurfaceGLX::swap()
 {
-    //TODO(cwallez) resize support
-    //TODO(cwallez) set up our own error handler to see if the call failed
     mGLX.swapBuffers(mGLXWindow);
+
+    //TODO(cwallez) set up our own error handler to see if the call failed
+    unsigned int newParentWidth, newParentHeight;
+    if (!getWindowDimensions(mParent, &newParentWidth, &newParentHeight))
+    {
+        // TODO(cwallez) What error type here?
+        return egl::Error(EGL_BAD_CURRENT_SURFACE, "Failed to retrieve the size of the parent window.");
+    }
+
+    if (mParentWidth != newParentWidth || mParentHeight != newParentHeight)
+    {
+        mParentWidth = newParentWidth;
+        mParentHeight = newParentHeight;
+
+        mGLX.waitGL();
+        XResizeWindow(mDisplay, mWindow, mParentWidth, mParentHeight);
+        mGLX.waitX();
+    }
+
     return egl::Error(EGL_SUCCESS);
 }
 
@@ -134,37 +166,38 @@ egl::Error WindowSurfaceGLX::releaseTexImage(EGLint buffer)
 
 void WindowSurfaceGLX::setSwapInterval(EGLint interval)
 {
-    // TODO(cwallez) WGL has this, implement it
+    if (mGLX.hasExtension("GLX_EXT_swap_control"))
+    {
+        // TODO(cwallez) error checking?
+        const int realInterval = std::min(interval, static_cast<int>(mMaxSwapInterval));
+        mGLX.swapIntervalEXT(mGLXWindow, realInterval);
+    }
 }
 
 EGLint WindowSurfaceGLX::getWidth() const
 {
-    Window root;
-    int x, y;
-    unsigned width, height, border, depth;
-    if (!XGetGeometry(mDisplay, mParent, &root, &x, &y, &width, &height, &border, &depth))
-    {
-        return 0;
-    }
-    return width;
+    // The size of the window is always the same as the cached size of its parent.
+    return mParentWidth;
 }
 
 EGLint WindowSurfaceGLX::getHeight() const
 {
-    Window root;
-    int x, y;
-    unsigned width, height, border, depth;
-    if (!XGetGeometry(mDisplay, mParent, &root, &x, &y, &width, &height, &border, &depth))
-    {
-        return 0;
-    }
-    return height;
+    // The size of the window is always the same as the cached size of its parent.
+    return mParentHeight;
 }
 
 EGLint WindowSurfaceGLX::isPostSubBufferSupported() const
 {
     UNIMPLEMENTED();
     return EGL_FALSE;
+}
+
+bool WindowSurfaceGLX::getWindowDimensions(Window window, unsigned int *width, unsigned int *height) const
+{
+    Window root;
+    int x, y;
+    unsigned int border, depth;
+    return XGetGeometry(mDisplay, window, &root, &x, &y, width, height, &border, &depth) != 0;
 }
 
 }

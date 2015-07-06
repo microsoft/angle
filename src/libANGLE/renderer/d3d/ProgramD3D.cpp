@@ -444,6 +444,16 @@ bool ProgramD3D::validateSamplers(gl::InfoLog *infoLog, const gl::Caps &caps)
 
 LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
 {
+    DeviceIdentifier binaryDeviceIdentifier = { 0 };
+    stream->readBytes(reinterpret_cast<unsigned char*>(&binaryDeviceIdentifier), sizeof(DeviceIdentifier));
+
+    DeviceIdentifier identifier = mRenderer->getAdapterIdentifier();
+    if (memcmp(&identifier, &binaryDeviceIdentifier, sizeof(DeviceIdentifier)) != 0)
+    {
+        infoLog << "Invalid program binary, device configuration has changed.";
+        return LinkResult(false, gl::Error(GL_NO_ERROR));
+    }
+
     int compileFlags = stream->readInt<int>();
     if (compileFlags != ANGLE_COMPILE_OPTIMIZATION_LEVEL)
     {
@@ -686,16 +696,6 @@ LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
         stream->skip(geometryShaderSize);
     }
 
-    GUID binaryIdentifier = {0};
-    stream->readBytes(reinterpret_cast<unsigned char*>(&binaryIdentifier), sizeof(GUID));
-
-    GUID identifier = mRenderer->getAdapterIdentifier();
-    if (memcmp(&identifier, &binaryIdentifier, sizeof(GUID)) != 0)
-    {
-        infoLog << "Invalid program binary.";
-        return LinkResult(false, gl::Error(GL_NO_ERROR));
-    }
-
     initializeUniformStorage();
     initAttributesByLayout();
 
@@ -704,6 +704,11 @@ LinkResult ProgramD3D::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
 
 gl::Error ProgramD3D::save(gl::BinaryOutputStream *stream)
 {
+    // Output the DeviceIdentifier before we output any shader code
+    // When we load the binary again later, we can validate the device identifier before trying to compile any HLSL
+    DeviceIdentifier binaryIdentifier = mRenderer->getAdapterIdentifier();
+    stream->writeBytes(reinterpret_cast<unsigned char*>(&binaryIdentifier), sizeof(DeviceIdentifier));
+
     stream->writeInt(ANGLE_COMPILE_OPTIMIZATION_LEVEL);
 
     stream->writeInt(mShaderVersion);
@@ -856,9 +861,6 @@ gl::Error ProgramD3D::save(gl::BinaryOutputStream *stream)
         const uint8_t *geometryBlob = mGeometryExecutable->getFunction();
         stream->writeBytes(geometryBlob, geometryShaderSize);
     }
-
-    GUID binaryIdentifier = mRenderer->getAdapterIdentifier();
-    stream->writeBytes(reinterpret_cast<unsigned char*>(&binaryIdentifier), sizeof(GUID));
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -1119,8 +1121,17 @@ LinkResult ProgramD3D::link(const gl::Data &data, gl::InfoLog &infoLog,
     vertexShaderD3D->generateWorkarounds(&mVertexWorkarounds);
     mShaderVersion = vertexShaderD3D->getShaderVersion();
 
+    if (mRenderer->getRendererLimitations().noFrontFacingSupport)
+    {
+        if (fragmentShaderD3D->usesFrontFacing())
+        {
+            infoLog << "The current renderer doesn't support gl_FrontFacing";
+            return LinkResult(false, gl::Error(GL_NO_ERROR));
+        }
+    }
+
     // Map the varyings to the register file
-    VaryingPacking packing = { NULL };
+    VaryingPacking packing = {};
     *registers = mDynamicHLSL->packVaryings(infoLog, packing, fragmentShaderD3D, vertexShaderD3D, transformFeedbackVaryings);
 
     if (*registers < 0)
@@ -1204,18 +1215,8 @@ gl::Error ProgramD3D::applyUniforms()
 
 gl::Error ProgramD3D::applyUniformBuffers(const gl::Data &data, GLuint uniformBlockBindings[])
 {
-    GLint vertexUniformBuffers[gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS];
-    GLint fragmentUniformBuffers[gl::IMPLEMENTATION_MAX_FRAGMENT_SHADER_UNIFORM_BUFFERS];
-
-    for (unsigned int registerIndex = 0; registerIndex < gl::IMPLEMENTATION_MAX_VERTEX_SHADER_UNIFORM_BUFFERS; ++registerIndex)
-    {
-        vertexUniformBuffers[registerIndex] = -1;
-    }
-
-    for (unsigned int registerIndex = 0; registerIndex < gl::IMPLEMENTATION_MAX_FRAGMENT_SHADER_UNIFORM_BUFFERS; ++registerIndex)
-    {
-        fragmentUniformBuffers[registerIndex] = -1;
-    }
+    mVertexUBOCache.clear();
+    mFragmentUBOCache.clear();
 
     const unsigned int reservedBuffersInVS = mRenderer->getReservedVertexUniformBuffers();
     const unsigned int reservedBuffersInFS = mRenderer->getReservedFragmentUniformBuffers();
@@ -1236,21 +1237,33 @@ gl::Error ProgramD3D::applyUniformBuffers(const gl::Data &data, GLuint uniformBl
         if (uniformBlock->isReferencedByVertexShader())
         {
             unsigned int registerIndex = uniformBlock->vsRegisterIndex - reservedBuffersInVS;
-            ASSERT(vertexUniformBuffers[registerIndex] == -1);
             ASSERT(registerIndex < data.caps->maxVertexUniformBlocks);
-            vertexUniformBuffers[registerIndex] = blockBinding;
+
+            if (mFragmentUBOCache.size() <= registerIndex)
+            {
+                mVertexUBOCache.resize(registerIndex + 1, -1);
+            }
+
+            ASSERT(mVertexUBOCache[registerIndex] == -1);
+            mVertexUBOCache[registerIndex] = blockBinding;
         }
 
         if (uniformBlock->isReferencedByFragmentShader())
         {
             unsigned int registerIndex = uniformBlock->psRegisterIndex - reservedBuffersInFS;
-            ASSERT(fragmentUniformBuffers[registerIndex] == -1);
             ASSERT(registerIndex < data.caps->maxFragmentUniformBlocks);
-            fragmentUniformBuffers[registerIndex] = blockBinding;
+
+            if (mFragmentUBOCache.size() <= registerIndex)
+            {
+                mFragmentUBOCache.resize(registerIndex + 1, -1);
+            }
+
+            ASSERT(mFragmentUBOCache[registerIndex] == -1);
+            mFragmentUBOCache[registerIndex] = blockBinding;
         }
     }
 
-    return mRenderer->setUniformBuffers(data, vertexUniformBuffers, fragmentUniformBuffers);
+    return mRenderer->setUniformBuffers(data, mVertexUBOCache, mFragmentUBOCache);
 }
 
 bool ProgramD3D::assignUniformBlockRegister(gl::InfoLog &infoLog, gl::UniformBlock *uniformBlock, GLenum shader,
@@ -2081,21 +2094,15 @@ void ProgramD3D::initAttributesByLayout()
     std::sort(&mAttributesByLayout[0], &mAttributesByLayout[gl::MAX_VERTEX_ATTRIBS], AttributeSorter(mSemanticIndex));
 }
 
-void ProgramD3D::sortAttributesByLayout(rx::TranslatedAttribute attributes[gl::MAX_VERTEX_ATTRIBS],
-                                        int sortedSemanticIndices[gl::MAX_VERTEX_ATTRIBS]) const
+void ProgramD3D::sortAttributesByLayout(const std::vector<TranslatedAttribute> &unsortedAttributes,
+                                        int sortedSemanticIndicesOut[gl::MAX_VERTEX_ATTRIBS],
+                                        const rx::TranslatedAttribute *sortedAttributesOut[gl::MAX_VERTEX_ATTRIBS]) const
 {
-    rx::TranslatedAttribute oldTranslatedAttributes[gl::MAX_VERTEX_ATTRIBS];
-
-    for (int i = 0; i < gl::MAX_VERTEX_ATTRIBS; i++)
+    for (size_t attribIndex = 0; attribIndex < unsortedAttributes.size(); ++attribIndex)
     {
-        oldTranslatedAttributes[i] = attributes[i];
-    }
-
-    for (int i = 0; i < gl::MAX_VERTEX_ATTRIBS; i++)
-    {
-        int oldIndex = mAttributesByLayout[i];
-        sortedSemanticIndices[i] = mSemanticIndex[oldIndex];
-        attributes[i] = oldTranslatedAttributes[oldIndex];
+        int oldIndex = mAttributesByLayout[attribIndex];
+        sortedSemanticIndicesOut[attribIndex] = mSemanticIndex[oldIndex];
+        sortedAttributesOut[attribIndex] = &unsortedAttributes[oldIndex];
     }
 }
 

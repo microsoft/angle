@@ -47,16 +47,6 @@
                 'sample_util/tga_utils.cpp',
                 'sample_util/tga_utils.h',
             ],
-            'conditions':
-            [
-                ['OS=="linux"',
-                {
-                    'ldflags':
-                    [
-                        '-lX11'
-                    ],
-                }],
-            ],
             'msvs_disabled_warnings': [ 4201 ],
             'direct_dependent_settings':
             {
@@ -175,6 +165,14 @@
             'dependencies': [ 'sample_util' ],
             'includes': [ '../build/common_defines.gypi', ],
             'sources': [ 'simple_texture_cubemap/SimpleTextureCubemap.cpp', ],
+        },
+
+        {
+            'target_name': 'simple_vertex_shader',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../build/common_defines.gypi', ],
+            'sources': [ 'simple_vertex_shader/SimpleVertexShader.cpp', ],
         },
 
         {

@@ -338,14 +338,14 @@ function_call_header_no_parameters
 
 function_call_header_with_parameters
     : function_call_header assignment_expression {
-        TParameter param = { 0, new TType($2->getType()) };
-        $1->addParameter(param);
+        const TType *type = new TType($2->getType());
+        $1->addParameter(TConstParameter(type));
         $$.function = $1;
         $$.nodePair.node1 = $2;
     }
     | function_call_header_with_parameters COMMA assignment_expression {
-        TParameter param = { 0, new TType($3->getType()) };
-        $1.function->addParameter(param);
+        const TType *type = new TType($3->getType());
+        $1.function->addParameter(TConstParameter(type));
         $$.function = $1.function;
         $$.nodePair.node1 = context->intermediate.growAggregate($1.intermNode, $3, @2);
     }
@@ -369,14 +369,14 @@ function_identifier
     | IDENTIFIER {
         if (context->reservedErrorCheck(@1, *$1.string))
             context->recover();
-        TType type(EbtVoid, EbpUndefined);
+        const TType *type = new TType(EbtVoid, EbpUndefined);
         TFunction *function = new TFunction($1.string, type);
         $$ = function;
     }
     | FIELD_SELECTION {
         if (context->reservedErrorCheck(@1, *$1.string))
             context->recover();
-        TType type(EbtVoid, EbpUndefined);
+        const TType *type = new TType(EbtVoid, EbpUndefined);
         TFunction *function = new TFunction($1.string, type);
         $$ = function;
     }
@@ -608,7 +608,7 @@ declaration
         
         for (size_t i = 0; i < function.getParamCount(); i++)
         {
-            const TParameter &param = function.getParam(i);
+            const TConstParameter &param = function.getParam(i);
             if (param.name != 0)
             {
                 TVariable variable(param.name, *param.type);
@@ -700,7 +700,7 @@ function_prototype
         else
         {
             // Insert the unmangled name to detect potential future redefinition as a variable.
-            TFunction *function = new TFunction(NewPoolTString($1->getName().c_str()), $1->getReturnType());
+            TFunction *function = new TFunction(NewPoolTString($1->getName().c_str()), &$1->getReturnType());
             context->symbolTable.getOuterLevel()->insertUnmangled(function);
         }
 
@@ -732,7 +732,7 @@ function_header_with_parameters
         // Add the parameter
         $$ = $1;
         if ($2.param.type->getBasicType() != EbtVoid)
-            $1->addParameter($2.param);
+            $1->addParameter($2.param.turnToConst());
         else
             delete $2.param.type;
     }
@@ -751,7 +751,7 @@ function_header_with_parameters
         } else {
             // Add the parameter
             $$ = $1;
-            $1->addParameter($3.param);
+            $1->addParameter($3.param.turnToConst());
         }
     }
     ;
@@ -768,7 +768,7 @@ function_header
 
         // Add the function as a prototype after parsing it (we do not support recursion)
         TFunction *function;
-        TType type($1);
+        const TType *type = new TType($1);
         function = new TFunction($2.string, type);
         $$ = function;
         
@@ -1719,7 +1719,7 @@ function_definition
         //
         TIntermAggregate* paramNodes = new TIntermAggregate;
         for (size_t i = 0; i < function->getParamCount(); i++) {
-            const TParameter& param = function->getParam(i);
+            const TConstParameter& param = function->getParam(i);
             if (param.name != 0) {
                 TVariable *variable = new TVariable(param.name, *param.type);
                 //

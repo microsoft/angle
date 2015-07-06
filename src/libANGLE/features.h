@@ -37,9 +37,19 @@
 #define ANGLE_SHADER_DEBUG_INFO ANGLE_DISABLED
 #endif
 
+<<<<<<< HEAD
 // Should we compile the D3D vertex and pixel shaders on separate threads at glLinkProgram() time?
 #if !defined(ANGLE_MULTITHREADED_D3D_SHADER_COMPILE)
 #define ANGLE_MULTITHREADED_D3D_SHADER_COMPILE ANGLE_DISABLED
+=======
+// Program link validation of precisions for uniforms. This feature was
+// requested by developers to allow non-conformant shaders to be used which
+// contain mismatched precisions.
+// ENABLED validate that precision for uniforms match between vertex and fragment shaders
+// DISABLED allow precision for uniforms to differ between vertex and fragment shaders
+#if !defined(ANGLE_PROGRAM_LINK_VALIDATE_UNIFORM_PRECISION)
+#define ANGLE_PROGRAM_LINK_VALIDATE_UNIFORM_PRECISION ANGLE_ENABLED
+>>>>>>> master
 #endif
 
 #endif // LIBANGLE_FEATURES_H_

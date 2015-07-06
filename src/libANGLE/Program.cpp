@@ -144,10 +144,10 @@ LinkedVarying::LinkedVarying(const std::string &name, GLenum type, GLsizei size,
 Program::Program(rx::ProgramImpl *impl, ResourceManager *manager, GLuint handle)
     : mProgram(impl),
       mValidated(false),
-      mTransformFeedbackVaryings(),
-      mTransformFeedbackBufferMode(GL_NONE),
       mFragmentShader(nullptr),
       mVertexShader(nullptr),
+      mTransformFeedbackVaryings(),
+      mTransformFeedbackBufferMode(GL_NONE),
       mLinked(false),
       mDeleteStatus(false),
       mRefCount(0),
@@ -594,7 +594,7 @@ const int *Program::getSemanticIndexes() const
     return mProgram->getSemanticIndexes();
 }
 
-int Program::getSemanticIndex(int attributeIndex)
+int Program::getSemanticIndex(int attributeIndex) const
 {
     ASSERT(attributeIndex >= 0 && attributeIndex < MAX_VERTEX_ATTRIBS);
 
@@ -1291,7 +1291,7 @@ bool Program::linkAttributes(const Data &data,
     GLuint maxAttribs = data.caps->maxVertexAttributes;
 
     // TODO(jmadill): handle aliasing robustly
-    if (shaderAttributes.size() >= maxAttribs)
+    if (shaderAttributes.size() > maxAttribs)
     {
         infoLog << "Too many vertex attributes.";
         return false;
@@ -1533,7 +1533,13 @@ bool Program::linkValidateVariablesBase(InfoLog &infoLog, const std::string &var
 
 bool Program::linkValidateUniforms(InfoLog &infoLog, const std::string &uniformName, const sh::Uniform &vertexUniform, const sh::Uniform &fragmentUniform)
 {
-    if (!linkValidateVariablesBase(infoLog, uniformName, vertexUniform, fragmentUniform, true))
+#if ANGLE_PROGRAM_LINK_VALIDATE_UNIFORM_PRECISION == ANGLE_ENABLED
+    const bool validatePrecision = true;
+#else
+    const bool validatePrecision = false;
+#endif
+
+    if (!linkValidateVariablesBase(infoLog, uniformName, vertexUniform, fragmentUniform, validatePrecision))
     {
         return false;
     }
@@ -1605,6 +1611,7 @@ bool Program::gatherTransformFeedbackLinkedVaryings(InfoLog &infoLog, const std:
 
         // All transform feedback varyings are expected to exist since packVaryings checks for them.
         ASSERT(found);
+        UNUSED_ASSERTION_VARIABLE(found);
     }
 
     if (transformFeedbackBufferMode == GL_INTERLEAVED_ATTRIBS &&

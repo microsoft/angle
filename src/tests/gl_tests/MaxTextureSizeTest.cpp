@@ -223,9 +223,16 @@ TEST_P(MaxTextureSizeTest, RenderToTexture)
 {
     if (getClientVersion() < 3 && (!extensionEnabled("GL_ANGLE_framebuffer_blit")))
     {
+<<<<<<< HEAD
         return;
     }
     
+=======
+        std::cout << "Test skipped due to missing glBlitFramebuffer[ANGLE] support." << std::endl;
+        return;
+    }
+
+>>>>>>> master
     GLuint fbo = 0;
     GLuint textureId = 0;
     // create a 1-level texture at maximum size
@@ -249,7 +256,7 @@ TEST_P(MaxTextureSizeTest, RenderToTexture)
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
 
     EXPECT_GL_NO_ERROR();
-    EXPECT_EQ(glCheckFramebufferStatus(GL_FRAMEBUFFER), GL_FRAMEBUFFER_COMPLETE);
+    EXPECT_GLENUM_EQ(GL_FRAMEBUFFER_COMPLETE, glCheckFramebufferStatus(GL_FRAMEBUFFER));
 
     const int frameCount = 64;
     for (int i = 0; i < frameCount; i++)

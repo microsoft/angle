@@ -24,22 +24,23 @@
 #include "tcuDefs.hpp"
 #include "tcuPlatform.hpp"
 #include "gluPlatform.hpp"
-#include "tcuWin32API.h"
 
 #ifndef _EGLUPLATFORM_HPP
 #   include "egluPlatform.hpp"
 #endif
 
+#include "tcuANGLENativeDisplayFactory.h"
+
 namespace tcu
 {
 
-class ANGLEWin32Platform : public tcu::Platform,
-                           private glu::Platform,
-                           private eglu::Platform
+class ANGLEPlatform : public tcu::Platform,
+                      private glu::Platform,
+                      private eglu::Platform
 {
   public:
-    ANGLEWin32Platform();
-    ~ANGLEWin32Platform();
+    ANGLEPlatform();
+    ~ANGLEPlatform();
 
     bool processEvents() override;
 
@@ -47,7 +48,7 @@ class ANGLEWin32Platform : public tcu::Platform,
     const eglu::Platform &getEGLPlatform() const override { return static_cast<const eglu::Platform&>(*this); }
 
   private:
-    HINSTANCE mInstance;
+    EventState mEvents;
 };
 
 } // tcu

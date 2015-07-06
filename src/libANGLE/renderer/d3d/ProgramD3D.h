@@ -127,8 +127,9 @@ class ProgramD3D : public ProgramImpl
     unsigned int getSerial() const;
 
     void initAttributesByLayout();
-    void sortAttributesByLayout(rx::TranslatedAttribute attributes[gl::MAX_VERTEX_ATTRIBS],
-                                int sortedSemanticIndices[gl::MAX_VERTEX_ATTRIBS]) const;
+    void sortAttributesByLayout(const std::vector<TranslatedAttribute> &unsortedAttributes,
+                                int sortedSemanticIndicesOut[gl::MAX_VERTEX_ATTRIBS],
+                                const rx::TranslatedAttribute *sortedAttributesOut[gl::MAX_VERTEX_ATTRIBS]) const;
 
   private:
     class VertexExecutable
@@ -239,6 +240,9 @@ class ProgramD3D : public ProgramImpl
     unsigned int mSerial;
 
     Optional<bool> mCachedValidateSamplersResult;
+
+    std::vector<GLint> mVertexUBOCache;
+    std::vector<GLint> mFragmentUBOCache;
 
     static unsigned int issueSerial();
     static unsigned int mCurrentSerial;

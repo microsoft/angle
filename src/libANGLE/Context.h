@@ -171,6 +171,10 @@ class Context final : angle::NonCopyable
     Error flush();
     Error finish();
 
+    void insertEventMarker(GLsizei length, const char *marker);
+    void pushGroupMarker(GLsizei length, const char *marker);
+    void popGroupMarker();
+
     void recordError(const Error &error);
 
     GLenum getError();
@@ -179,13 +183,14 @@ class Context final : angle::NonCopyable
 
     virtual int getClientVersion() const;
 
-    EGLint getConfigID() const;
+    const egl::Config *getConfig() const;
     EGLenum getClientType() const;
     EGLenum getRenderBuffer() const;
 
     const Caps &getCaps() const;
     const TextureCapsMap &getTextureCaps() const;
     const Extensions &getExtensions() const;
+    const Limitations &getLimitations() const;
 
     const std::string &getRendererString() const;
 
@@ -218,6 +223,7 @@ class Context final : angle::NonCopyable
     Caps mCaps;
     TextureCapsMap mTextureCaps;
     Extensions mExtensions;
+    Limitations mLimitations;
 
     // Shader compiler
     Compiler *mCompiler;
@@ -227,7 +233,7 @@ class Context final : angle::NonCopyable
 
     int mClientVersion;
 
-    EGLint mConfigID;
+    const egl::Config *mConfig;
     EGLenum mClientType;
 
     TextureMap mZeroTextures;

@@ -6,7 +6,7 @@
     'includes': [ 'common_defines.gypi', ],
     'variables':
     {
-        'angle_path%': '<(DEPTH)',
+        'angle_path': '<(DEPTH)',
         'angle_build_winrt%': '0',
         'angle_build_winphone%': '0',
         'angle_build_winrt_app_type_revision%': '8.1',
@@ -23,7 +23,6 @@
             '-Wextra',
             '-Wformat=2',
             '-Winit-self',
-            '-Wno-sign-compare',
             '-Wno-unused-function',
             '-Wno-unused-parameter',
             '-Wno-unknown-pragmas',
@@ -31,9 +30,7 @@
             '-Wpointer-arith',
             '-Wundef',
             '-Wwrite-strings',
-            '-Wno-reorder',
             '-Wno-format-nonliteral',
-            '-Wno-deprecated-register',
         ],
     },
     'target_defaults':
@@ -71,7 +68,13 @@
                 {
                     'VCCLCompilerTool':
                     {
-                        'AdditionalOptions': ['/MP'],
+                        # Control Flow Guard is a security feature in Windows
+                        # 8.1 and higher designed to prevent exploitation of
+                        # indirect calls in executables.
+                        # Control Flow Guard is enabled using the /d2guard4
+                        # compiler setting in combination with the /guard:cf
+                        # linker setting.
+                        'AdditionalOptions': ['/MP', '/d2guard4'],
                         'BufferSecurityCheck': 'true',
                         'DebugInformationFormat': '3',
                         'ExceptionHandling': '0',
@@ -82,6 +85,13 @@
                     },
                     'VCLinkerTool':
                     {
+                        # Control Flow Guard is a security feature in Windows
+                        # 8.1 and higher designed to prevent exploitation of
+                        # indirect calls in executables.
+                        # Control Flow Guard is enabled using the /d2guard4
+                        # compiler setting in combination with the /guard:cf
+                        # linker setting.
+                        'AdditionalOptions': ['/guard:cf'],
                         'FixedBaseAddress': '1',
                         'ImportLibrary': '$(OutDir)\\lib\\$(TargetName).lib',
                         'MapFileName': '$(OutDir)\\$(TargetName).map',
@@ -320,6 +330,9 @@
                 'cflags':
                 [
                     '-fPIC',
+                ],
+                'cflags_cc':
+                [
                     '-std=c++0x',
                 ],
             },

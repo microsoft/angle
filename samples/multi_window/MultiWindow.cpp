@@ -4,13 +4,15 @@
 // found in the LICENSE file.
 //
 
-#include "Matrix.h"
 #include "SampleApplication.h"
+
+#include <cmath>
+#include <algorithm>
+#include <vector>
+
+#include "Matrix.h"
 #include "random_utils.h"
 #include "shader_utils.h"
-
-#include <vector>
-#include <algorithm>
 
 class MultiWindowSample : public SampleApplication
 {
@@ -99,6 +101,11 @@ class MultiWindowSample : public SampleApplication
     virtual void step(float dt, double totalTime)
     {
         mRotation = fmod(mRotation + (dt * 40.0f), 360.0f);
+
+        for (size_t i = 1; i < mWindows.size(); i++)
+        {
+            mWindows[i].osWindow->messageLoop();
+        }
     }
 
     virtual void draw()

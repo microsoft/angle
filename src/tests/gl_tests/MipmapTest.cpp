@@ -94,6 +94,9 @@ class MipmapTest : public ANGLETest
         m2DPositionAttributePosition = glGetAttribLocation(m2DProgram, "aPosition");
         m2DTexCoordAttributePosition = glGetAttribLocation(m2DProgram, "aTexCoord");
 
+        mCubeTextureUniformPosition = glGetUniformLocation(mCubeProgram, "uTexture");
+        mCubePositionAttributePosition = glGetAttribLocation(mCubeProgram, "aPosition");
+
         mLevelZeroBlueInitData = createRGBInitData(getWindowWidth(), getWindowHeight(), 0, 0, 255); // Blue
         mLevelZeroWhiteInitData = createRGBInitData(getWindowWidth(), getWindowHeight(), 255, 255, 255); // White
         mLevelOneInitData = createRGBInitData((getWindowWidth() / 2), (getWindowHeight() / 2), 0, 255, 0);   // Green
@@ -111,7 +114,7 @@ class MipmapTest : public ANGLETest
         // Bind the texture2D to the offscreen framebuffer's color buffer.
         glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFramebuffer);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mOffscreenTexture2D, 0);
-        ASSERT_EQ(glCheckFramebufferStatus(GL_FRAMEBUFFER), GL_FRAMEBUFFER_COMPLETE);
+        ASSERT_GLENUM_EQ(GL_FRAMEBUFFER_COMPLETE, glCheckFramebufferStatus(GL_FRAMEBUFFER));
 
         // Create a non-mipped texture cube. Set the negative-Y face to be blue.
         glGenTextures(1, &mOffscreenTextureCube);
@@ -209,6 +212,9 @@ class MipmapTest : public ANGLETest
     GLint m2DTextureUniformPosition;
     GLint m2DPositionAttributePosition;
     GLint m2DTexCoordAttributePosition;
+
+    GLint mCubeTextureUniformPosition;
+    GLint mCubePositionAttributePosition;
 
     GLubyte* mLevelZeroBlueInitData;
     GLubyte* mLevelZeroWhiteInitData;
@@ -558,9 +564,9 @@ TEST_P(MipmapTest, GenerateMipmapFromRenderedImage)
 TEST_P(MipmapTest, RenderOntoLevelZeroAfterGenerateMipmap)
 {
     // TODO(geofflang): Figure out why this is broken on AMD OpenGL
-    if (isAMD() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
+    if ((isAMD() || isIntel()) && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
     {
-        std::cout << "Test skipped on AMD OpenGL." << std::endl;
+        std::cout << "Test skipped on Intel/AMD OpenGL." << std::endl;
         return;
     }
 
@@ -590,7 +596,7 @@ TEST_P(MipmapTest, RenderOntoLevelZeroAfterGenerateMipmap)
 
     // Now tell GL to use the generated mips.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-    EXPECT_EQ(glGetError(), GL_NONE);
+    EXPECT_GL_NO_ERROR();
 
     // Now render the textured quad again. It should be still be blue.
     ClearAndDrawTexturedQuad(mOffscreenTexture2D, getWindowWidth(), getWindowHeight());
@@ -645,9 +651,9 @@ TEST_P(MipmapTest, TextureCubeGeneralLevelZero)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, getWindowWidth(), getWindowHeight());
     glUseProgram(mCubeProgram);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertexLocations);
-    glEnableVertexAttribArray(0);
-    glUniform1i(0, 0);
+    glVertexAttribPointer(mCubePositionAttributePosition, 3, GL_FLOAT, GL_FALSE, 0, vertexLocations);
+    glEnableVertexAttribArray(mCubePositionAttributePosition);
+    glUniform1i(mCubeTextureUniformPosition, 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, mOffscreenTextureCube);
 
@@ -673,7 +679,7 @@ TEST_P(MipmapTest, TextureCubeGeneralLevelZero)
     // Now clear the negative-Y face of the cube to red.
     glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFramebuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, mOffscreenTextureCube, 0);
-    ASSERT_EQ(glCheckFramebufferStatus(GL_FRAMEBUFFER), GL_FRAMEBUFFER_COMPLETE);
+    ASSERT_GLENUM_EQ(GL_FRAMEBUFFER_COMPLETE, glCheckFramebufferStatus(GL_FRAMEBUFFER));
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -719,9 +725,9 @@ TEST_P(MipmapTest, TextureCubeRenderToLevelZero)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, getWindowWidth(), getWindowHeight());
     glUseProgram(mCubeProgram);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertexLocations);
-    glEnableVertexAttribArray(0);
-    glUniform1i(0, 0);
+    glVertexAttribPointer(mCubePositionAttributePosition, 3, GL_FLOAT, GL_FALSE, 0, vertexLocations);
+    glEnableVertexAttribArray(mCubePositionAttributePosition);
+    glUniform1i(mCubeTextureUniformPosition, 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, mOffscreenTextureCube);
 
@@ -733,7 +739,7 @@ TEST_P(MipmapTest, TextureCubeRenderToLevelZero)
     // Now clear the negative-Y face of the cube to red.
     glBindFramebuffer(GL_FRAMEBUFFER, mOffscreenFramebuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, mOffscreenTextureCube, 0);
-    ASSERT_EQ(glCheckFramebufferStatus(GL_FRAMEBUFFER), GL_FRAMEBUFFER_COMPLETE);
+    ASSERT_GLENUM_EQ(GL_FRAMEBUFFER_COMPLETE, glCheckFramebufferStatus(GL_FRAMEBUFFER));
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 

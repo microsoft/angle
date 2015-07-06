@@ -73,26 +73,6 @@ DisplayWGL::~DisplayWGL()
 {
 }
 
-static LRESULT CALLBACK IntermediateWindowProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-      case WM_ERASEBKGND:
-        // Prevent windows from erasing the background.
-        return 1;
-      case WM_PAINT:
-        // Do not paint anything.
-        PAINTSTRUCT paint;
-        if (BeginPaint(window, &paint))
-        {
-            EndPaint(window, &paint);
-        }
-        return 0;
-    }
-
-    return DefWindowProc(window, message, wParam, lParam);
-}
-
 egl::Error DisplayWGL::initialize(egl::Display *display)
 {
     mDisplay = display;
@@ -112,24 +92,26 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
     // Work around compile error from not defining "UNICODE" while Chromium does
     const LPSTR idcArrow = MAKEINTRESOURCEA(32512);
 
+    std::string className = FormatString("ANGLE DisplayWGL 0x%0.8p Intermediate Window Class", mDisplay);
+
     WNDCLASSA intermediateClassDesc = { 0 };
     intermediateClassDesc.style = CS_OWNDC;
-    intermediateClassDesc.lpfnWndProc = IntermediateWindowProc;
+    intermediateClassDesc.lpfnWndProc = DefWindowProc;
     intermediateClassDesc.cbClsExtra = 0;
     intermediateClassDesc.cbWndExtra = 0;
-    intermediateClassDesc.hInstance = GetModuleHandle(NULL);
-    intermediateClassDesc.hIcon = NULL;
-    intermediateClassDesc.hCursor = LoadCursorA(NULL, idcArrow);
+    intermediateClassDesc.hInstance = GetModuleHandle(nullptr);
+    intermediateClassDesc.hIcon = nullptr;
+    intermediateClassDesc.hCursor = LoadCursorA(nullptr, idcArrow);
     intermediateClassDesc.hbrBackground = 0;
-    intermediateClassDesc.lpszMenuName = NULL;
-    intermediateClassDesc.lpszClassName = "ANGLE Intermediate Window";
+    intermediateClassDesc.lpszMenuName = nullptr;
+    intermediateClassDesc.lpszClassName = className.c_str();
     mWindowClass = RegisterClassA(&intermediateClassDesc);
     if (!mWindowClass)
     {
         return egl::Error(EGL_NOT_INITIALIZED, "Failed to register intermediate OpenGL window class.");
     }
 
-    HWND dummyWindow = CreateWindowExA(WS_EX_NOPARENTNOTIFY,
+    HWND dummyWindow = CreateWindowExA(0,
                                        reinterpret_cast<const char *>(mWindowClass),
                                        "ANGLE Dummy Window",
                                        WS_OVERLAPPEDWINDOW,
@@ -137,10 +119,10 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
                                        CW_USEDEFAULT,
                                        CW_USEDEFAULT,
                                        CW_USEDEFAULT,
-                                       NULL,
-                                       NULL,
-                                       NULL,
-                                       NULL);
+                                       nullptr,
+                                       nullptr,
+                                       nullptr,
+                                       nullptr);
     if (!dummyWindow)
     {
         return egl::Error(EGL_NOT_INITIALIZED, "Failed to create dummy OpenGL window.");
@@ -188,16 +170,13 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
     mFunctionsWGL->initialize(mOpenGLModule, dummyDeviceContext);
 
     // Destroy the dummy window and context
-    mFunctionsWGL->makeCurrent(dummyDeviceContext, NULL);
+    mFunctionsWGL->makeCurrent(dummyDeviceContext, nullptr);
     mFunctionsWGL->deleteContext(dummyWGLContext);
     ReleaseDC(dummyWindow, dummyDeviceContext);
     DestroyWindow(dummyWindow);
 
     // Create the real intermediate context and windows
-    HDC parentHDC = display->getNativeDisplayId();
-    HWND parentWindow = WindowFromDC(parentHDC);
-
-    mWindow = CreateWindowExA(WS_EX_NOPARENTNOTIFY,
+    mWindow = CreateWindowExA(0,
                               reinterpret_cast<const char *>(mWindowClass),
                               "ANGLE Intermediate Window",
                               WS_OVERLAPPEDWINDOW,
@@ -205,10 +184,10 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
                               CW_USEDEFAULT,
                               CW_USEDEFAULT,
                               CW_USEDEFAULT,
-                              parentWindow,
-                              NULL,
-                              NULL,
-                              NULL);
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr);
     if (!mWindow)
     {
         return egl::Error(EGL_NOT_INITIALIZED, "Failed to create intermediate OpenGL window.");
@@ -238,17 +217,24 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
         // TODO: handle robustness
 
         int mask = 0;
-        // Request core profile, TODO: Don't request core if requested GL version is less than 3.0
+        // Request core profile
         mask |= WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
 
         std::vector<int> contextCreationAttibutes;
 
-        // TODO: create a context version based on the requested version and validate the version numbers
-        contextCreationAttibutes.push_back(WGL_CONTEXT_MAJOR_VERSION_ARB);
-        contextCreationAttibutes.push_back(3);
+        // Don't request a specific version unless the user wants one.  WGL will return the highest version
+        // that the driver supports if no version is requested.
+        const egl::AttributeMap &displayAttributes = display->getAttributeMap();
+        EGLint requestedMajorVersion = displayAttributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, EGL_DONT_CARE);
+        EGLint requestedMinorVersion = displayAttributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE, EGL_DONT_CARE);
+        if (requestedMajorVersion != EGL_DONT_CARE && requestedMinorVersion != EGL_DONT_CARE)
+        {
+            contextCreationAttibutes.push_back(WGL_CONTEXT_MAJOR_VERSION_ARB);
+            contextCreationAttibutes.push_back(requestedMajorVersion);
 
-        contextCreationAttibutes.push_back(WGL_CONTEXT_MINOR_VERSION_ARB);
-        contextCreationAttibutes.push_back(1);
+            contextCreationAttibutes.push_back(WGL_CONTEXT_MINOR_VERSION_ARB);
+            contextCreationAttibutes.push_back(requestedMinorVersion);
+        }
 
         // Set the flag attributes
         if (flags != 0)
@@ -323,7 +309,7 @@ SurfaceImpl *DisplayWGL::createWindowSurface(const egl::Config *configuration,
                                              const egl::AttributeMap &attribs,
                                              bool allowRenderToBackBuffer)
 {
-    return new WindowSurfaceWGL(window, mWindowClass, mPixelFormat, mWGLContext, mFunctionsWGL);
+    return new WindowSurfaceWGL(window, mPixelFormat, mWGLContext, mFunctionsWGL);
 }
 
 SurfaceImpl *DisplayWGL::createPbufferSurface(const egl::Config *configuration,
@@ -385,6 +371,10 @@ egl::ConfigSet DisplayWGL::generateConfigs() const
         maxSwapInterval = 8;
     }
 
+    const gl::Version &maxVersion = getMaxSupportedESVersion();
+    ASSERT(maxVersion >= gl::Version(2, 0));
+    bool supportsES3 = maxVersion >= gl::Version(3, 0);
+
     PIXELFORMATDESCRIPTOR pixelFormatDescriptor;
     DescribePixelFormat(mDeviceContext, mPixelFormat, sizeof(pixelFormatDescriptor), &pixelFormatDescriptor);
 
@@ -402,7 +392,7 @@ egl::ConfigSet DisplayWGL::generateConfigs() const
     config.bindToTextureRGBA = (QueryWGLFormatAttrib(mDeviceContext, mPixelFormat, WGL_BIND_TO_TEXTURE_RGBA_ARB, mFunctionsWGL) == TRUE);
     config.colorBufferType = EGL_RGB_BUFFER;
     config.configCaveat = EGL_NONE;
-    config.conformant = EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES3_BIT_KHR; // TODO: determine the GL version and what ES versions it supports
+    config.conformant = EGL_OPENGL_ES2_BIT | (supportsES3 ? EGL_OPENGL_ES3_BIT_KHR : 0);
     config.depthSize = pixelFormatDescriptor.cDepthBits;
     config.level = 0;
     config.matchNativePixmap = EGL_NONE;
@@ -414,7 +404,7 @@ egl::ConfigSet DisplayWGL::generateConfigs() const
     config.nativeRenderable = EGL_TRUE; // Direct rendering
     config.nativeVisualID = 0;
     config.nativeVisualType = EGL_NONE;
-    config.renderableType = EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES3_BIT_KHR; // TODO
+    config.renderableType = EGL_OPENGL_ES2_BIT | (supportsES3 ? EGL_OPENGL_ES3_BIT_KHR : 0);
     config.sampleBuffers = 0; // FIXME: enumerate multi-sampling
     config.samples = 0;
     config.stencilSize = pixelFormatDescriptor.cStencilBits;

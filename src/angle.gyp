@@ -26,7 +26,7 @@
                 'angle_enable_d3d11%': 1,
                 'angle_enable_hlsl%': 1,
             }],
-            ['OS=="linux"',
+            ['OS=="linux" and use_x11==1 and chromeos==0',
             {
                 'angle_enable_gl%': 1,
             }],
@@ -72,6 +72,20 @@
                 ['angle_build_winphone==1',
                 {
                     'msvs_enable_winphone' : '1',
+                }],
+                ['OS=="win"',
+                {
+                    'configurations':
+                    {
+                        'Debug_Base':
+                        {
+                            'abstract': 1,
+                            'defines':
+                            [
+                                'ANGLE_ENABLE_DEBUG_ANNOTATIONS'
+                            ],
+                        },
+                    },
                 }],
             ],
         },

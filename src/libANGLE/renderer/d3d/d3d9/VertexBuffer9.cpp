@@ -56,15 +56,18 @@ gl::Error VertexBuffer9::initialize(unsigned int size, bool dynamicUsage)
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error VertexBuffer9::storeVertexAttributes(const gl::VertexAttribute &attrib, const gl::VertexAttribCurrentValueData &currentValue,
-                                               GLint start, GLsizei count, GLsizei instances, unsigned int offset)
+gl::Error VertexBuffer9::storeVertexAttributes(const gl::VertexAttribute &attrib,
+                                               GLenum currentValueType,
+                                               GLint start,
+                                               GLsizei count,
+                                               GLsizei instances,
+                                               unsigned int offset,
+                                               const uint8_t *sourceData)
 {
     if (!mVertexBuffer)
     {
         return gl::Error(GL_OUT_OF_MEMORY, "Internal vertex buffer is not initialized.");
     }
-
-    gl::Buffer *buffer = attrib.buffer.get();
 
     int inputStride = gl::ComputeVertexAttributeStride(attrib);
     int elementSize = gl::ComputeVertexAttributeTypeSize(attrib);
@@ -86,36 +89,14 @@ gl::Error VertexBuffer9::storeVertexAttributes(const gl::VertexAttribute &attrib
         return gl::Error(GL_OUT_OF_MEMORY, "Failed to lock internal vertex buffer, HRESULT: 0x%08x.", result);
     }
 
-    const uint8_t *input = NULL;
-    if (attrib.enabled)
-    {
-        if (buffer)
-        {
-            BufferD3D *storage = GetImplAs<BufferD3D>(buffer);
-            ASSERT(storage);
-            error = storage->getData(&input);
-            if (error.isError())
-            {
-                return error;
-            }
-            input += static_cast<int>(attrib.offset);
-        }
-        else
-        {
-            input = static_cast<const uint8_t*>(attrib.pointer);
-        }
-    }
-    else
-    {
-        input = reinterpret_cast<const uint8_t*>(currentValue.FloatValues);
-    }
+    const uint8_t *input = sourceData;
 
     if (instances == 0 || attrib.divisor == 0)
     {
         input += inputStride * start;
     }
 
-    gl::VertexFormat vertexFormat(attrib, currentValue.Type);
+    gl::VertexFormat vertexFormat(attrib, currentValueType);
     const d3d9::VertexFormat &d3dVertexInfo = d3d9::GetVertexFormatInfo(mRenderer->getCapsDeclTypes(), vertexFormat);
     bool needsConversion = (d3dVertexInfo.conversionType & VERTEX_CONVERT_CPU) > 0;
 

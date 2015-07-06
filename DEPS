@@ -1,6 +1,10 @@
 deps = {
   "third_party/gyp":
+<<<<<<< HEAD
       "http://chromium.googlesource.com/external/gyp@9f594095c5b14f8bc518081a660e77890c294861",
+=======
+      "http://chromium.googlesource.com/external/gyp@b4781fc38236b0fb1238969c918a75a200cfffdb",
+>>>>>>> master
 
   # TODO(kbr): figure out how to better stay in sync with Chromium's
   # versions of googletest and googlemock.
@@ -10,13 +14,13 @@ deps = {
   "src/tests/third_party/googlemock":
       "http://chromium.googlesource.com/external/googlemock.git@b2cb211e49d872101d991201362d7b97d7d69910",
 
-  "src/tests/third_party/deqp":
-      "https://android.googlesource.com/platform/external/deqp@d0cd12e34181184fcb63238790f93bda2313195a",
+  "third_party/deqp/src":
+      "https://android.googlesource.com/platform/external/deqp@92f7752da82925ca5e7288c5b4814efa7a381d89",
 
-  "src/tests/third_party/libpng":
+  "third_party/libpng":
       "https://android.googlesource.com/platform/external/libpng@094e181e79a3d6c23fd005679025058b7df1ad6c",
 
-  "src/tests/third_party/zlib":
+  "third_party/zlib":
       "https://chromium.googlesource.com/chromium/src/third_party/zlib@afd8c4593c010c045902f6c0501718f1823064a3",
 }
 

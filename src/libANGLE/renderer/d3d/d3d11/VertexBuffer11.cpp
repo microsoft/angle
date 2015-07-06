@@ -103,15 +103,19 @@ void VertexBuffer11::hintUnmapResource()
     }
 }
 
-gl::Error VertexBuffer11::storeVertexAttributes(const gl::VertexAttribute &attrib, const gl::VertexAttribCurrentValueData &currentValue,
-                                                GLint start, GLsizei count, GLsizei instances, unsigned int offset)
+gl::Error VertexBuffer11::storeVertexAttributes(const gl::VertexAttribute &attrib,
+                                                GLenum currentValueType,
+                                                GLint start,
+                                                GLsizei count,
+                                                GLsizei instances,
+                                                unsigned int offset,
+                                                const uint8_t *sourceData)
 {
     if (!mBuffer)
     {
         return gl::Error(GL_OUT_OF_MEMORY, "Internal vertex buffer is not initialized.");
     }
 
-    gl::Buffer *buffer = attrib.buffer.get();
     int inputStride = ComputeVertexAttributeStride(attrib);
 
     // This will map the resource if it isn't already mapped.
@@ -123,35 +127,14 @@ gl::Error VertexBuffer11::storeVertexAttributes(const gl::VertexAttribute &attri
 
     uint8_t *output = mMappedResourceData + offset;
 
-    const uint8_t *input = NULL;
-    if (attrib.enabled)
-    {
-        if (buffer)
-        {
-            BufferD3D *storage = GetImplAs<BufferD3D>(buffer);
-            error = storage->getData(&input);
-            if (error.isError())
-            {
-                return error;
-            }
-            input += static_cast<int>(attrib.offset);
-        }
-        else
-        {
-            input = static_cast<const uint8_t*>(attrib.pointer);
-        }
-    }
-    else
-    {
-        input = reinterpret_cast<const uint8_t*>(currentValue.FloatValues);
-    }
+    const uint8_t *input = sourceData;
 
     if (instances == 0 || attrib.divisor == 0)
     {
         input += inputStride * start;
     }
 
-    gl::VertexFormat vertexFormat(attrib, currentValue.Type);
+    gl::VertexFormat vertexFormat(attrib, currentValueType);
     const D3D_FEATURE_LEVEL featureLevel = mRenderer->getRenderer11DeviceCaps().featureLevel;
     const d3d11::VertexFormat &vertexFormatInfo = d3d11::GetVertexFormatInfo(vertexFormat, featureLevel);
     ASSERT(vertexFormatInfo.copyFunction != NULL);

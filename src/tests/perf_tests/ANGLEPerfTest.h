@@ -20,6 +20,9 @@
 #include "OSWindow.h"
 #include "Timer.h"
 #include "common/angleutils.h"
+#include "common/debug.h"
+#include "test_utils/angle_test_configs.h"
+#include "test_utils/angle_test_instantiate.h"
 
 class Event;
 
@@ -42,6 +45,9 @@ class ANGLEPerfTest : public testing::Test, angle::NonCopyable
     void SetUp() override;
     void TearDown() override;
 
+    // Normalize a time value according to the number of test loop iterations (mFrameCount)
+    double normalizedTime(size_t value) const;
+
     std::string mName;
     std::string mSuffix;
 
@@ -50,13 +56,10 @@ class ANGLEPerfTest : public testing::Test, angle::NonCopyable
     int mNumFrames;
 };
 
-struct RenderTestParams
+struct RenderTestParams : public angle::PlatformParameters
 {
     virtual std::string suffix() const;
 
-    EGLint requestedRenderer;
-    EGLint deviceType;
-    EGLint glesMajorVersion;
     EGLint widowWidth;
     EGLint windowHeight;
 };

@@ -113,7 +113,7 @@ void StateManagerGL::deleteVertexArray(GLuint vao)
     {
         if (mVAO == vao)
         {
-            bindVertexArray(0);
+            bindVertexArray(0, 0);
         }
 
         mFunctions->deleteVertexArrays(1, &vao);
@@ -194,11 +194,12 @@ void StateManagerGL::useProgram(GLuint program)
     }
 }
 
-void StateManagerGL::bindVertexArray(GLuint vao)
+void StateManagerGL::bindVertexArray(GLuint vao, GLuint elementArrayBuffer)
 {
     if (mVAO != vao)
     {
         mVAO = vao;
+        mBuffers[GL_ELEMENT_ARRAY_BUFFER] = elementArrayBuffer;
         mFunctions->bindVertexArray(vao);
     }
 }
@@ -284,7 +285,12 @@ void StateManagerGL::setClearState(const gl::State &state, GLbitfield mask)
     setRasterizerDiscardEnabled(rasterizerState.rasterizerDiscard);
     if (!rasterizerState.rasterizerDiscard)
     {
-        setScissor(state.getScissor());
+        setScissorTestEnabled(state.isScissorTestEnabled());
+        if (state.isScissorTestEnabled())
+        {
+            setScissor(state.getScissor());
+        }
+
         setViewport(state.getViewport());
 
         if ((mask & GL_COLOR_BUFFER_BIT) != 0)
@@ -317,7 +323,7 @@ gl::Error StateManagerGL::setDrawArraysState(const gl::Data &data, GLint first, 
     const gl::VertexArray *vao = state.getVertexArray();
     const VertexArrayGL *vaoGL = GetImplAs<VertexArrayGL>(vao);
     vaoGL->syncDrawArraysState(first, count);
-    bindVertexArray(vaoGL->getVertexArrayID());
+    bindVertexArray(vaoGL->getVertexArrayID(), vaoGL->getAppliedElementArrayBufferID());
 
     return setGenericDrawState(data);
 }
@@ -336,7 +342,7 @@ gl::Error StateManagerGL::setDrawElementsState(const gl::Data &data, GLsizei cou
         return error;
     }
 
-    bindVertexArray(vaoGL->getVertexArrayID());
+    bindVertexArray(vaoGL->getVertexArrayID(), vaoGL->getAppliedElementArrayBufferID());
 
     return setGenericDrawState(data);
 }
@@ -467,9 +473,9 @@ void StateManagerGL::setAttributeCurrentData(size_t index, const gl::VertexAttri
         mVertexAttribCurrentValues[index] = data;
         switch (mVertexAttribCurrentValues[index].Type)
         {
-          case GL_FLOAT:        mFunctions->vertexAttrib4fv(index,  mVertexAttribCurrentValues[index].FloatValues);
-          case GL_INT:          mFunctions->vertexAttrib4iv(index,  mVertexAttribCurrentValues[index].IntValues);
-          case GL_UNSIGNED_INT: mFunctions->vertexAttrib4uiv(index, mVertexAttribCurrentValues[index].UnsignedIntValues);
+          case GL_FLOAT:        mFunctions->vertexAttrib4fv(index,  mVertexAttribCurrentValues[index].FloatValues);       break;
+          case GL_INT:          mFunctions->vertexAttrib4iv(index,  mVertexAttribCurrentValues[index].IntValues);         break;
+          case GL_UNSIGNED_INT: mFunctions->vertexAttrib4uiv(index, mVertexAttribCurrentValues[index].UnsignedIntValues); break;
           default: UNREACHABLE();
         }
     }
@@ -564,7 +570,7 @@ void StateManagerGL::setBlendEquations(GLenum blendEquationRGB, GLenum blendEqua
     if (mBlendEquationRGB != blendEquationRGB || mBlendEquationAlpha != blendEquationAlpha)
     {
         mBlendEquationRGB = blendEquationRGB;
-        mBlendEquationAlpha = mDestBlendAlpha;
+        mBlendEquationAlpha = blendEquationAlpha;
 
         mFunctions->blendEquationSeparate(mBlendEquationRGB, mBlendEquationAlpha);
     }

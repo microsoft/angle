@@ -23,8 +23,9 @@
 #include "common/mathutil.h"
 #include "common/platform.h"
 #include "libANGLE/Context.h"
-#include "libANGLE/Surface.h"
 #include "libANGLE/Device.h"
+#include "libANGLE/histogram_macros.h"
+#include "libANGLE/Surface.h"
 #include "libANGLE/renderer/DisplayImpl.h"
 #include "third_party/trace_event/trace_event.h"
 
@@ -35,7 +36,7 @@
 #if defined(ANGLE_ENABLE_OPENGL)
 #   if defined(ANGLE_PLATFORM_WINDOWS)
 #       include "libANGLE/renderer/gl/wgl/DisplayWGL.h"
-#   elif defined(ANGLE_PLATFORM_LINUX)
+#   elif defined(ANGLE_USE_X11)
 #       include "libANGLE/renderer/gl/glx/DisplayGLX.h"
 #   else
 #       error Unsupported OpenGL platform.
@@ -109,7 +110,7 @@ rx::DisplayImpl *CreateDisplayImpl(const AttributeMap &attribMap)
 #if defined(ANGLE_ENABLE_D3D9) || defined(ANGLE_ENABLE_D3D11)
         // Default to D3D displays
         impl = new rx::DisplayD3D();
-#elif defined(ANGLE_PLATFORM_LINUX)
+#elif defined(ANGLE_USE_X11)
         impl = new rx::DisplayGLX();
 #else
         // No display available
@@ -131,7 +132,7 @@ rx::DisplayImpl *CreateDisplayImpl(const AttributeMap &attribMap)
 #if defined(ANGLE_ENABLE_OPENGL)
 #if defined(ANGLE_PLATFORM_WINDOWS)
         impl = new rx::DisplayWGL();
-#elif defined(ANGLE_PLATFORM_LINUX)
+#elif defined(ANGLE_USE_X11)
         impl = new rx::DisplayGLX();
 #else
 #error Unsupported OpenGL platform.
@@ -231,6 +232,11 @@ void Display::setAttributes(rx::DisplayImpl *impl, const AttributeMap &attribMap
 
 Error Display::initialize()
 {
+    // Re-initialize default platform if it's needed
+    InitDefaultPlatformImpl();
+
+    double createDeviceBegin = ANGLEPlatformCurrent()->currentTime();
+
     TRACE_EVENT0("gpu.angle", "egl::Display::initialize");
 
     ASSERT(mImplementation != nullptr);
@@ -274,6 +280,11 @@ Error Display::initialize()
     }
 
     mInitialized = true;
+
+    double displayInitializeSec = ANGLEPlatformCurrent()->currentTime() - createDeviceBegin;
+    int displayInitializeMS = static_cast<int>(displayInitializeSec * 1000);
+    ANGLE_HISTOGRAM_TIMES("GPU.ANGLE.DisplayInitializeMS", displayInitializeMS);
+
     return Error(EGL_SUCCESS);
 }
 
@@ -316,6 +327,7 @@ bool Display::getConfigAttrib(const Config *configuration, EGLint attribute, EGL
       case EGL_CONFIG_ID:                 *value = configuration->configID;               break;
       case EGL_LEVEL:                     *value = configuration->level;                  break;
       case EGL_NATIVE_RENDERABLE:         *value = configuration->nativeRenderable;       break;
+      case EGL_NATIVE_VISUAL_ID:          *value = configuration->nativeVisualID;         break;
       case EGL_NATIVE_VISUAL_TYPE:        *value = configuration->nativeVisualType;       break;
       case EGL_SAMPLES:                   *value = configuration->samples;                break;
       case EGL_SAMPLE_BUFFERS:            *value = configuration->sampleBuffers;          break;
@@ -558,6 +570,7 @@ void Display::destroySurface(Surface *surface)
         }
 
         ASSERT(surfaceRemoved);
+        UNUSED_ASSERTION_VARIABLE(surfaceRemoved);
     }
 
     mImplementation->destroySurface(surface);

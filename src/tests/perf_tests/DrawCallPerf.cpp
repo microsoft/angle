@@ -12,11 +12,25 @@
 #include "ANGLEPerfTest.h"
 #include "shader_utils.h"
 
+using namespace angle;
+
 namespace
 {
 
 struct DrawCallPerfParams final : public RenderTestParams
 {
+    // Common default options
+    DrawCallPerfParams()
+    {
+        majorVersion = 2;
+        minorVersion = 0;
+        widowWidth = 256;
+        windowHeight = 256;
+        iterations = 50;
+        numTris = 1;
+        runTimeSeconds = 10.0;
+    }
+
     std::string suffix() const override
     {
         std::stringstream strstr;
@@ -28,6 +42,11 @@ struct DrawCallPerfParams final : public RenderTestParams
             strstr << "_validation_only";
         }
 
+        if (eglParameters.deviceType == EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE)
+        {
+            strstr << "_null";
+        }
+
         return strstr.str();
     }
 
@@ -35,6 +54,12 @@ struct DrawCallPerfParams final : public RenderTestParams
     double runTimeSeconds;
     int numTris;
 };
+
+inline std::ostream &operator<<(std::ostream &os, const DrawCallPerfParams &params)
+{
+    os << params.suffix().substr(1);
+    return os;
+}
 
 class DrawCallPerfBenchmark : public ANGLERenderTest,
                               public ::testing::WithParamInterface<DrawCallPerfParams>
@@ -159,45 +184,36 @@ void DrawCallPerfBenchmark::drawBenchmark()
     ASSERT_GL_NO_ERROR();
 }
 
-DrawCallPerfParams DrawCallPerfD3D11Params()
+using namespace egl_platform;
+
+DrawCallPerfParams DrawCallPerfD3D11Params(bool useNullDevice)
 {
     DrawCallPerfParams params;
-    params.glesMajorVersion = 2;
-    params.widowWidth = 256;
-    params.windowHeight = 256;
-    params.requestedRenderer = EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE;
-    params.deviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE;
-    params.iterations = 50;
-    params.numTris = 1;
-    params.runTimeSeconds = 10.0;
+    params.eglParameters = useNullDevice ? D3D11_NULL() : D3D11();
+    return params;
+}
+
+DrawCallPerfParams DrawCallPerfD3D9Params(bool useNullDevice)
+{
+    DrawCallPerfParams params;
+    params.eglParameters = useNullDevice ? D3D9_NULL() : D3D9();
+    return params;
+}
+
+DrawCallPerfParams DrawCallPerfOpenGLParams(bool useNullDevice)
+{
+    DrawCallPerfParams params;
+    params.eglParameters = useNullDevice ? OPENGL_NULL() : OPENGL();
     return params;
 }
 
 DrawCallPerfParams DrawCallPerfValidationOnly()
 {
     DrawCallPerfParams params;
-    params.glesMajorVersion = 2;
-    params.widowWidth = 256;
-    params.windowHeight = 256;
-    params.requestedRenderer = EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE;
-    params.deviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE;
+    params.eglParameters = DEFAULT();
     params.iterations = 100;
     params.numTris = 0;
     params.runTimeSeconds = 5.0;
-    return params;
-}
-
-DrawCallPerfParams DrawCallPerfD3D9Params()
-{
-    DrawCallPerfParams params;
-    params.glesMajorVersion = 2;
-    params.widowWidth = 256;
-    params.windowHeight = 256;
-    params.requestedRenderer = EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE;
-    params.deviceType = EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE;
-    params.iterations = 50;
-    params.numTris = 1;
-    params.runTimeSeconds = 10.0;
     return params;
 }
 
@@ -206,10 +222,13 @@ TEST_P(DrawCallPerfBenchmark, Run)
     run();
 }
 
-INSTANTIATE_TEST_CASE_P(DrawCallPerf,
-                        DrawCallPerfBenchmark,
-                        ::testing::Values(DrawCallPerfD3D11Params(),
-                                          DrawCallPerfD3D9Params(),
-                                          DrawCallPerfValidationOnly()));
+ANGLE_INSTANTIATE_TEST(DrawCallPerfBenchmark,
+                       DrawCallPerfD3D11Params(false),
+                       DrawCallPerfD3D9Params(false),
+                       DrawCallPerfOpenGLParams(false),
+                       DrawCallPerfD3D11Params(true),
+                       DrawCallPerfD3D9Params(true),
+                       DrawCallPerfOpenGLParams(true),
+                       DrawCallPerfValidationOnly());
 
 } // namespace

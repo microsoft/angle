@@ -10,21 +10,24 @@
             'com_utils.h',
             'keyboard.h',
             'mouse.h',
-            'path_utils.h',
             'random_utils.cpp',
             'random_utils.h',
             'shader_utils.cpp',
             'shader_utils.h',
+            'system_utils.h',
+            'Event.h',
             'EGLWindow.cpp',
             'EGLWindow.h',
-            'Event.h',
+            'OSPixmap.h',
             'OSWindow.cpp',
             'OSWindow.h',
             'Timer.h',
         ],
         'util_win32_sources':
         [
-            'win32/Win32_path_utils.cpp',
+            'win32/Win32_system_utils.cpp',
+            'win32/Win32Pixmap.cpp',
+            'win32/Win32Pixmap.h',
             'win32/Win32Timer.cpp',
             'win32/Win32Timer.h',
             'win32/Win32Window.cpp',
@@ -32,12 +35,27 @@
         ],
         'util_linux_sources':
         [
-            'linux/Linux_path_utils.cpp',
+            'linux/Linux_system_utils.cpp',
             'linux/LinuxTimer.cpp',
             'linux/LinuxTimer.h',
+            'posix/Posix_system_utils.cpp',
+        ],
+        'util_x11_sources':
+        [
+            'x11/X11Pixmap.cpp',
+            'x11/X11Pixmap.h',
             'x11/X11Window.cpp',
             'x11/X11Window.h',
-        ]
+        ],
+        'util_osx_sources':
+        [
+            'osx/OSX_system_utils.cpp',
+            'osx/OSXTimer.cpp',
+            'osx/OSXTimer.h',
+            'osx/OSXWindow.cpp',
+            'osx/OSXWindow.h',
+            'posix/Posix_system_utils.cpp',
+        ],
     },
     'targets':
     [
@@ -88,14 +106,31 @@
                     [
                         '<@(util_linux_sources)',
                     ],
-                    'link_settings': {
-                        'ldflags': [
+                }],
+                ['use_x11==1',
+                {
+                    'sources':
+                    [
+                        '<@(util_x11_sources)',
+                    ],
+                    'link_settings':
+                    {
+                        'ldflags':
+                        [
                             '<!@(pkg-config --libs-only-L --libs-only-other x11 xi)',
                         ],
-                        'libraries': [
+                        'libraries':
+                        [
                             '<!@(pkg-config --libs-only-l x11 xi) -lrt',
                         ],
                     },
+                }],
+                ['OS=="mac"',
+                {
+                    'sources':
+                    [
+                        '<@(util_osx_sources)',
+                    ],
                 }],
             ],
         },

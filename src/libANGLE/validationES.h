@@ -89,6 +89,11 @@ bool ValidateGetUniformiv(Context *context, GLuint program, GLint location, GLin
 bool ValidateGetnUniformfvEXT(Context *context, GLuint program, GLint location, GLsizei bufSize, GLfloat* params);
 bool ValidateGetnUniformivEXT(Context *context, GLuint program, GLint location, GLsizei bufSize, GLint* params);
 
+bool ValidateDiscardFramebufferBase(Context *context, GLenum target, GLsizei numAttachments,
+                                    const GLenum *attachments, bool defaultFramebuffer);
+
+bool ValidateInsertEventMarkerEXT(Context *context, GLsizei length, const char *marker);
+bool ValidatePushGroupMarkerEXT(Context *context, GLsizei length, const char *marker);
 }
 
 #endif // LIBANGLE_VALIDATION_ES_H_

@@ -44,6 +44,9 @@ struct EGLPlatformParameters
     EGLPlatformParameters(EGLint renderer, EGLint majorVersion, EGLint minorVersion, EGLint deviceType, EGLBoolean useRenderToBackBuffer);
 };
 
+bool operator<(const EGLPlatformParameters &a, const EGLPlatformParameters &b);
+bool operator==(const EGLPlatformParameters &a, const EGLPlatformParameters &b);
+
 class EGLWindow : angle::NonCopyable
 {
   public:
@@ -62,6 +65,8 @@ class EGLWindow : angle::NonCopyable
     void setConfigStencilBits(int bits) { mStencilBits = bits; }
     void setMultisample(bool multisample) { mMultisample = multisample; }
     void setSwapInterval(EGLint swapInterval) { mSwapInterval = swapInterval; }
+
+    static EGLBoolean FindEGLConfig(EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *config);
 
     void swap();
 

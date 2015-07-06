@@ -103,10 +103,6 @@ class TextureD3D : public TextureImpl
     bool mImmutable;
     TextureStorage *mTexStorage;
 
-    // TODO(jmadill): remove this debugging code after we fix the bug
-    friend class Renderer11;
-    bool mTriedToInitIncompleteStorage;
-
   private:
     virtual gl::Error initializeStorage(bool renderTarget) = 0;
 
@@ -138,9 +134,9 @@ class TextureD3D_2D : public TextureD3D
                           const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
 
     gl::Error setCompressedImage(GLenum target, size_t level, GLenum internalFormat, const gl::Extents &size,
-                                 const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
+                                 const gl::PixelUnpackState &unpack, size_t imageSize, const uint8_t *pixels) override;
     gl::Error setCompressedSubImage(GLenum target, size_t level, const gl::Box &area, GLenum format,
-                                    const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
+                                    const gl::PixelUnpackState &unpack, size_t imageSize, const uint8_t *pixels) override;
 
     gl::Error copyImage(GLenum target, size_t level, const gl::Rectangle &sourceArea, GLenum internalFormat,
                         const gl::Framebuffer *source) override;
@@ -201,9 +197,9 @@ class TextureD3D_Cube : public TextureD3D
                           const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
 
     gl::Error setCompressedImage(GLenum target, size_t level, GLenum internalFormat, const gl::Extents &size,
-                                 const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
+                                 const gl::PixelUnpackState &unpack, size_t imageSize, const uint8_t *pixels) override;
     gl::Error setCompressedSubImage(GLenum target, size_t level, const gl::Box &area, GLenum format,
-                                    const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
+                                    const gl::PixelUnpackState &unpack, size_t imageSize, const uint8_t *pixels) override;
 
     gl::Error copyImage(GLenum target, size_t level, const gl::Rectangle &sourceArea, GLenum internalFormat,
                         const gl::Framebuffer *source) override;
@@ -263,9 +259,9 @@ class TextureD3D_3D : public TextureD3D
                           const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
 
     gl::Error setCompressedImage(GLenum target, size_t level, GLenum internalFormat, const gl::Extents &size,
-                                 const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
+                                 const gl::PixelUnpackState &unpack, size_t imageSize, const uint8_t *pixels) override;
     gl::Error setCompressedSubImage(GLenum target, size_t level, const gl::Box &area, GLenum format,
-                                    const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
+                                    const gl::PixelUnpackState &unpack, size_t imageSize, const uint8_t *pixels) override;
 
     gl::Error copyImage(GLenum target, size_t level, const gl::Rectangle &sourceArea, GLenum internalFormat,
                         const gl::Framebuffer *source) override;
@@ -323,9 +319,9 @@ class TextureD3D_2DArray : public TextureD3D
                           const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
 
     gl::Error setCompressedImage(GLenum target, size_t level, GLenum internalFormat, const gl::Extents &size,
-                                 const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
+                                 const gl::PixelUnpackState &unpack, size_t imageSize, const uint8_t *pixels) override;
     gl::Error setCompressedSubImage(GLenum target, size_t level, const gl::Box &area, GLenum format,
-                                    const gl::PixelUnpackState &unpack, const uint8_t *pixels) override;
+                                    const gl::PixelUnpackState &unpack, size_t imageSize, const uint8_t *pixels) override;
 
     gl::Error copyImage(GLenum target, size_t level, const gl::Rectangle &sourceArea, GLenum internalFormat,
                         const gl::Framebuffer *source) override;

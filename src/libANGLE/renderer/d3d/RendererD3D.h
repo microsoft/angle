@@ -9,9 +9,11 @@
 #ifndef LIBANGLE_RENDERER_D3D_RENDERERD3D_H_
 #define LIBANGLE_RENDERER_D3D_RENDERERD3D_H_
 
+#include "common/debug.h"
 #include "common/MemoryBuffer.h"
 #include "libANGLE/Data.h"
 #include "libANGLE/renderer/Renderer.h"
+#include "libANGLE/renderer/d3d/VertexDataManager.h"
 #include "libANGLE/renderer/d3d/formatutilsD3D.h"
 #include "libANGLE/renderer/d3d/d3d11/NativeWindow.h"
 
@@ -28,6 +30,7 @@ namespace gl
 class InfoLog;
 struct LinkedVarying;
 class Texture;
+class DebugAnnotator;
 }
 
 namespace rx
@@ -46,6 +49,15 @@ enum ShaderType
     SHADER_VERTEX,
     SHADER_PIXEL,
     SHADER_GEOMETRY
+};
+
+struct DeviceIdentifier
+{
+    UINT VendorId;
+    UINT DeviceId;
+    UINT SubSysId;
+    UINT Revision;
+    UINT FeatureLevel;
 };
 
 enum RendererClass
@@ -95,7 +107,7 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     virtual std::string getShaderModelSuffix() const = 0;
 
     // Direct3D Specific methods
-    virtual GUID getAdapterIdentifier() const = 0;
+    virtual DeviceIdentifier getAdapterIdentifier() const = 0;
 
     virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer) = 0;
 
@@ -104,8 +116,8 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     virtual gl::Error setTexture(gl::SamplerType type, int index, gl::Texture *texture) = 0;
 
     virtual gl::Error setUniformBuffers(const gl::Data &data,
-                                        const GLint vertexUniformBuffers[],
-                                        const GLint fragmentUniformBuffers[]) = 0;
+                                        const std::vector<GLint> &vertexUniformBuffers,
+                                        const std::vector<GLint> &fragmentUniformBuffers) = 0;
 
     virtual gl::Error setRasterizerState(const gl::RasterizerState &rasterState) = 0;
     virtual gl::Error setBlendState(const gl::Framebuffer *framebuffer, const gl::BlendState &blendState, const gl::ColorF &blendColor,
@@ -122,8 +134,8 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
                                    bool rasterizerDiscard, bool transformFeedbackActive) = 0;
     virtual gl::Error applyUniforms(const ProgramImpl &program, const std::vector<gl::LinkedUniform*> &uniformArray) = 0;
     virtual bool applyPrimitiveType(GLenum primitiveType, GLsizei elementCount, bool usesPointSize) = 0;
-    virtual gl::Error applyVertexBuffer(const gl::State &state, GLenum mode, GLint first, GLsizei count, GLsizei instances) = 0;
-    virtual gl::Error applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo) = 0;
+    virtual gl::Error applyVertexBuffer(const gl::State &state, GLenum mode, GLint first, GLsizei count, GLsizei instances, SourceIndexData *sourceIndexInfo) = 0;
+    virtual gl::Error applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo, SourceIndexData *sourceIndexInfo) = 0;
     virtual void applyTransformFeedbackBuffers(const gl::State& state) = 0;
 
     virtual void markAllStateDirty() = 0;
@@ -185,20 +197,40 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
 
     gl::Error getScratchMemoryBuffer(size_t requestedSize, MemoryBuffer **bufferOut);
 
+    // EXT_debug_marker
+    void insertEventMarker(GLsizei length, const char *marker) override;
+    void pushGroupMarker(GLsizei length, const char *marker) override;
+    void popGroupMarker() override;
+
+    // In D3D11, faster than calling setTexture a jillion times
+    virtual gl::Error clearTextures(gl::SamplerType samplerType, size_t rangeStart, size_t rangeEnd) = 0;
+
+    // For some internal formats the renderer might use different underlying D3D formats
+    // depending on whether the app wishes to render to the texture or not.
+    virtual bool usesAlternateRenderableFormat(GLenum internalFormat) = 0;
+
   protected:
     virtual gl::Error drawArrays(const gl::Data &data, GLenum mode, GLsizei count, GLsizei instances, bool usesPointSize) = 0;
     virtual gl::Error drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices,
-                                   gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei instances) = 0;
+                                   gl::Buffer *elementArrayBuffer, const TranslatedIndexData &indexInfo, GLsizei instances,
+                                   bool usesPointSize) = 0;
 
     virtual bool getLUID(LUID *adapterLuid) const = 0;
 
     void cleanup();
+
+    virtual void createAnnotator() = 0;
 
     // dirtyPointer is a special value that will make the comparison with any valid pointer fail and force the renderer to re-apply the state.
     static const uintptr_t DirtyPointer;
 
     egl::Display *mDisplay;
     bool mDeviceLost;
+
+    void initializeDebugAnnotator();
+    gl::DebugAnnotator *mAnnotator;
+
+    std::vector<TranslatedAttribute> mTranslatedAttribCache;
 
   private:
     //FIXME(jmadill): std::array is currently prohibited by Chromium style guide
@@ -219,6 +251,8 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
 
     size_t getBoundFramebufferTextures(const gl::Data &data, FramebufferTextureArray *outTextureArray);
     gl::Texture *getIncompleteTexture(GLenum type);
+
+    gl::DebugAnnotator *getAnnotator();
 
     gl::TextureMap mIncompleteTextures;
     MemoryBuffer mScratchMemoryBuffer;

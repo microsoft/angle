@@ -2,6 +2,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# import the use_x11 variable
+import("//build/config/ui.gni")
+
 gles_gypi = exec_script(
   "//build/gypi_to_gn.py",
   [ rebase_path("src/libGLESv2.gypi") ],
@@ -113,9 +116,17 @@ config("translator_static_config") {
 
 static_library("angle_common") {
   sources = rebase_path(gles_gypi.libangle_common_sources, ".", "src")
+
+  if (is_debug) {
+    defines += [
+      "ANGLE_ENABLE_DEBUG_ANNOTATIONS",
+    ]
+  }
+
   configs -= [ "//build/config/compiler:chromium_code" ]
   configs += [
     ":internal_config",
+    "//build/config/compiler:no_chromium_code",
   ]
 }
 
@@ -197,6 +208,9 @@ config("libANGLE_config") {
   if (angle_enable_gl) {
     defines += [ "ANGLE_ENABLE_OPENGL" ]
   }
+  if (use_x11) {
+    defines += [ "ANGLE_USE_X11" ]
+  }
   defines += [
     "GL_APICALL=",
     "GL_GLEXT_PROTOTYPES=",
@@ -244,7 +258,7 @@ static_library("libANGLE") {
     if (is_win) {
       sources += rebase_path(gles_gypi.libangle_gl_wgl_sources, ".", "src")
     }
-    if (is_linux) {
+    if (use_x11) {
       sources += rebase_path(gles_gypi.libangle_gl_glx_sources, ".", "src")
       libs += [ "X11" ]
     }
@@ -283,6 +297,12 @@ shared_library("libGLESv2") {
   if (is_win) {
     ldflags = [ "/DEF:" +
                 rebase_path("src/libGLESv2/libGLESv2.def", root_build_dir) ]
+  }
+
+  if (is_debug) {
+    defines += [
+      "ANGLE_ENABLE_DEBUG_ANNOTATIONS",
+    ]
   }
 
   configs -= [ "//build/config/compiler:chromium_code" ]

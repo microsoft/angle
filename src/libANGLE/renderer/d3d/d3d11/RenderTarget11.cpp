@@ -348,7 +348,7 @@ GLsizei SurfaceRenderTarget11::getDepth() const
 
 GLenum SurfaceRenderTarget11::getInternalFormat() const
 {
-    return (mDepth ? mSwapChain->GetDepthBufferInternalFormat() : mSwapChain->GetBackBufferInternalFormat());
+    return (mDepth ? mSwapChain->GetDepthBufferInternalFormat() : mSwapChain->GetRenderTargetInternalFormat());
 }
 
 GLsizei SurfaceRenderTarget11::getSamples() const
@@ -384,7 +384,7 @@ unsigned int SurfaceRenderTarget11::getSubresourceIndex() const
 
 DXGI_FORMAT SurfaceRenderTarget11::getDXGIFormat() const
 {
-    return d3d11::GetTextureFormatInfo(getInternalFormat(), mRenderer->getRenderer11DeviceCaps()).texFormat;
+    return d3d11::GetTextureFormatInfo(getInternalFormat(), mRenderer->getRenderer11DeviceCaps(), true).texFormat;
 }
 
 }

@@ -11,6 +11,30 @@
 # target containing a gtest harness in a main.cpp.
 
 {
+    'variables':
+    {
+        'angle_perf_tests_sources':
+        [
+            '<(angle_path)/src/tests/perf_tests/ANGLEPerfTest.cpp',
+            '<(angle_path)/src/tests/perf_tests/ANGLEPerfTest.h',
+            '<(angle_path)/src/tests/perf_tests/BufferSubData.cpp',
+            '<(angle_path)/src/tests/perf_tests/DrawCallPerf.cpp',
+            '<(angle_path)/src/tests/perf_tests/EGLInitializePerf.cpp',
+            '<(angle_path)/src/tests/perf_tests/IndexConversionPerf.cpp',
+            '<(angle_path)/src/tests/perf_tests/PointSprites.cpp',
+            '<(angle_path)/src/tests/perf_tests/TexSubImage.cpp',
+            '<(angle_path)/src/tests/perf_tests/third_party/perf/perf_test.cc',
+            '<(angle_path)/src/tests/perf_tests/third_party/perf/perf_test.h',
+            '<(angle_path)/src/tests/test_utils/angle_test_configs.cpp',
+            '<(angle_path)/src/tests/test_utils/angle_test_configs.h',
+            '<(angle_path)/src/tests/test_utils/angle_test_instantiate.cpp',
+            '<(angle_path)/src/tests/test_utils/angle_test_instantiate.h',
+        ],
+        'angle_perf_tests_win_sources':
+        [
+            '<(angle_path)/src/tests/perf_tests/IndexDataManagerTest.cpp',
+        ]
+    },
     'dependencies':
     [
         '<(angle_path)/src/angle.gyp:angle_common',
@@ -23,18 +47,20 @@
     'include_dirs':
     [
         '<(angle_path)/include',
+        '<(angle_path)/src/tests'
     ],
     'sources':
     [
-        'perf_tests/ANGLEPerfTest.cpp',
-        'perf_tests/ANGLEPerfTest.h',
-        'perf_tests/BufferSubData.cpp',
-        'perf_tests/DrawCallPerf.cpp',
-        'perf_tests/IndexConversionPerf.cpp',
-        'perf_tests/IndexDataManagerTest.cpp',
-        'perf_tests/PointSprites.cpp',
-        'perf_tests/TexSubImage.cpp',
-        'perf_tests/third_party/perf/perf_test.cc',
-        'perf_tests/third_party/perf/perf_test.h',
+        '<@(angle_perf_tests_sources)',
     ],
+    'conditions':
+    [
+        ['OS=="win"',
+        {
+            'sources':
+            [
+                '<@(angle_perf_tests_win_sources)',
+            ],
+        }],
+    ]
 }

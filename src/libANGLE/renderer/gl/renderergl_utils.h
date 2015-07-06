@@ -4,7 +4,7 @@
 // found in the LICENSE file.
 //
 
-// renderer11_utils.h: Conversion functions and other utility routines
+// renderergl_utils.h: Conversion functions and other utility routines
 // specific to the OpenGL renderer.
 
 #ifndef LIBANGLE_RENDERER_GL_RENDERERGLUTILS_H_
@@ -20,6 +20,7 @@ namespace gl
 struct Caps;
 class TextureCapsMap;
 struct Extensions;
+struct Version;
 }
 
 namespace rx
@@ -30,10 +31,9 @@ namespace nativegl_gl
 {
 
 void GenerateCaps(const FunctionsGL *functions, gl::Caps *caps, gl::TextureCapsMap *textureCapsMap,
-                  gl::Extensions *extensions);
+                  gl::Extensions *extensions, gl::Version *maxSupportedESVersion);
 }
 
-std::vector<std::string> TokenizeExtensionsString(const char *extensions);
 }
 
 #endif // LIBANGLE_RENDERER_GL_RENDERERGLUTILS_H_

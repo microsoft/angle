@@ -8,7 +8,10 @@
 
 #include "libANGLE/renderer/gl/RendererGL.h"
 
+#include <EGL/eglext.h>
+
 #include "common/debug.h"
+#include "libANGLE/AttributeMap.h"
 #include "libANGLE/Data.h"
 #include "libANGLE/Surface.h"
 #include "libANGLE/renderer/gl/BufferGL.h"
@@ -75,10 +78,12 @@ static void INTERNAL_GL_APIENTRY LogGLDebugMessage(GLenum source, GLenum type, G
 namespace rx
 {
 
-RendererGL::RendererGL(const FunctionsGL *functions)
+RendererGL::RendererGL(const FunctionsGL *functions, const egl::AttributeMap &attribMap)
     : Renderer(),
+      mMaxSupportedESVersion(0, 0),
       mFunctions(functions),
-      mStateManager(nullptr)
+      mStateManager(nullptr),
+      mSkipDrawCalls(false)
 {
     ASSERT(mFunctions);
     mStateManager = new StateManagerGL(mFunctions, getRendererCaps());
@@ -94,6 +99,12 @@ RendererGL::RendererGL(const FunctionsGL *functions)
         mFunctions->debugMessageCallback(&LogGLDebugMessage, nullptr);
     }
 #endif
+
+    EGLint deviceType = attribMap.get(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE, EGL_NONE);
+    if (deviceType == EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE)
+    {
+        mSkipDrawCalls = true;
+    }
 }
 
 RendererGL::~RendererGL()
@@ -122,7 +133,10 @@ gl::Error RendererGL::drawArrays(const gl::Data &data, GLenum mode,
         return error;
     }
 
-    mFunctions->drawArrays(mode, first, count);
+    if (!mSkipDrawCalls)
+    {
+        mFunctions->drawArrays(mode, first, count);
+    }
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -143,14 +157,17 @@ gl::Error RendererGL::drawElements(const gl::Data &data, GLenum mode, GLsizei co
         return error;
     }
 
-    mFunctions->drawElements(mode, count, type, drawIndexPointer);
+    if (!mSkipDrawCalls)
+    {
+        mFunctions->drawElements(mode, count, type, drawIndexPointer);
+    }
 
     return gl::Error(GL_NO_ERROR);
 }
 
 CompilerImpl *RendererGL::createCompiler(const gl::Data &data)
 {
-    return new CompilerGL(data);
+    return new CompilerGL(data, mFunctions);
 }
 
 ShaderImpl *RendererGL::createShader(GLenum type)
@@ -213,6 +230,21 @@ TransformFeedbackImpl *RendererGL::createTransformFeedback()
     return new TransformFeedbackGL();
 }
 
+void RendererGL::insertEventMarker(GLsizei, const char *)
+{
+    UNREACHABLE();
+}
+
+void RendererGL::pushGroupMarker(GLsizei, const char *)
+{
+    UNREACHABLE();
+}
+
+void RendererGL::popGroupMarker()
+{
+    UNREACHABLE();
+}
+
 void RendererGL::notifyDeviceLost()
 {
     UNIMPLEMENTED();
@@ -254,18 +286,28 @@ std::string RendererGL::getRendererDescription() const
 
     std::ostringstream rendererString;
     rendererString << nativeVendorString << " " << nativeRendererString << " OpenGL";
-    if (mFunctions->openGLES)
+    if (mFunctions->standard == STANDARD_GL_ES)
     {
         rendererString << " ES";
     }
-    rendererString << " " << mFunctions->majorVersion << "." << mFunctions->minorVersion;
+    rendererString << " " << mFunctions->version.major << "." << mFunctions->version.minor;
 
     return rendererString.str();
 }
 
-void RendererGL::generateCaps(gl::Caps *outCaps, gl::TextureCapsMap* outTextureCaps, gl::Extensions *outExtensions) const
+const gl::Version &RendererGL::getMaxSupportedESVersion() const
 {
-    nativegl_gl::GenerateCaps(mFunctions, outCaps, outTextureCaps, outExtensions);
+    // Force generation of caps
+    getRendererCaps();
+
+    return mMaxSupportedESVersion;
+}
+
+void RendererGL::generateCaps(gl::Caps *outCaps, gl::TextureCapsMap* outTextureCaps,
+                              gl::Extensions *outExtensions,
+                              gl::Limitations * /* outLimitations */) const
+{
+    nativegl_gl::GenerateCaps(mFunctions, outCaps, outTextureCaps, outExtensions, &mMaxSupportedESVersion);
 }
 
 Workarounds RendererGL::generateWorkarounds() const

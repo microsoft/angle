@@ -38,6 +38,7 @@ namespace gl
 
 Context::Context(const egl::Config *config, int clientVersion, const Context *shareContext, rx::Renderer *renderer, bool notifyResets, bool robustAccess)
     : mRenderer(renderer),
+      mConfig(config),
       mData(clientVersion, mState, mCaps, mTextureCaps, mExtensions, nullptr)
 {
     ASSERT(robustAccess == false);   // Unimplemented
@@ -47,7 +48,6 @@ Context::Context(const egl::Config *config, int clientVersion, const Context *sh
 
     mClientVersion = clientVersion;
 
-    mConfigID = config->configID;
     mClientType = EGL_OPENGL_ES_API;
 
     mFenceNVHandleAllocator.setBaseHandle(0);
@@ -794,6 +794,9 @@ void Context::getFloatv(GLenum pname, GLfloat *params)
         ASSERT(mExtensions.textureFilterAnisotropic);
         *params = mExtensions.maxTextureAnisotropy;
         break;
+      case GL_MAX_TEXTURE_LOD_BIAS:
+        *params = mCaps.maxLODBias;
+        break;
       default:
         mState.getFloatv(pname, params);
         break;
@@ -831,6 +834,10 @@ void Context::getIntegerv(GLenum pname, GLint *params)
       case GL_MAX_VERTEX_UNIFORM_BLOCKS:                *params = mCaps.maxVertexUniformBlocks;                         break;
       case GL_MAX_FRAGMENT_UNIFORM_BLOCKS:              *params = mCaps.maxFragmentUniformBlocks;                       break;
       case GL_MAX_COMBINED_UNIFORM_BLOCKS:              *params = mCaps.maxCombinedTextureImageUnits;                   break;
+      case GL_MAX_VERTEX_OUTPUT_COMPONENTS:             *params = mCaps.maxVertexOutputComponents;                      break;
+      case GL_MAX_FRAGMENT_INPUT_COMPONENTS:            *params = mCaps.maxFragmentInputComponents;                     break;
+      case GL_MIN_PROGRAM_TEXEL_OFFSET:                 *params = mCaps.minProgramTexelOffset;                          break;
+      case GL_MAX_PROGRAM_TEXEL_OFFSET:                 *params = mCaps.maxProgramTexelOffset;                          break;
       case GL_MAJOR_VERSION:                            *params = mClientVersion;                                       break;
       case GL_MINOR_VERSION:                            *params = 0;                                                    break;
       case GL_MAX_ELEMENTS_INDICES:                     *params = mCaps.maxElementsIndices;                             break;
@@ -1147,10 +1154,14 @@ bool Context::getQueryParameterInfo(GLenum pname, GLenum *type, unsigned int *nu
       case GL_MAX_VERTEX_UNIFORM_BLOCKS:
       case GL_MAX_FRAGMENT_UNIFORM_BLOCKS:
       case GL_MAX_COMBINED_UNIFORM_BLOCKS:
+      case GL_MAX_VERTEX_OUTPUT_COMPONENTS:
+      case GL_MAX_FRAGMENT_INPUT_COMPONENTS:
       case GL_MAX_VARYING_COMPONENTS:
       case GL_VERTEX_ARRAY_BINDING:
       case GL_MAX_VERTEX_UNIFORM_COMPONENTS:
       case GL_MAX_FRAGMENT_UNIFORM_COMPONENTS:
+      case GL_MIN_PROGRAM_TEXEL_OFFSET:
+      case GL_MAX_PROGRAM_TEXEL_OFFSET:
       case GL_NUM_EXTENSIONS:
       case GL_MAJOR_VERSION:
       case GL_MINOR_VERSION:
@@ -1180,6 +1191,13 @@ bool Context::getQueryParameterInfo(GLenum pname, GLenum *type, unsigned int *nu
       case GL_TRANSFORM_FEEDBACK_PAUSED:
         {
             *type = GL_BOOL;
+            *numParams = 1;
+        }
+        return true;
+
+      case GL_MAX_TEXTURE_LOD_BIAS:
+        {
+            *type = GL_FLOAT;
             *numParams = 1;
         }
         return true;
@@ -1258,6 +1276,24 @@ Error Context::finish()
     return mRenderer->finish();
 }
 
+void Context::insertEventMarker(GLsizei length, const char *marker)
+{
+    ASSERT(mRenderer);
+    mRenderer->insertEventMarker(length, marker);
+}
+
+void Context::pushGroupMarker(GLsizei length, const char *marker)
+{
+    ASSERT(mRenderer);
+    mRenderer->pushGroupMarker(length, marker);
+}
+
+void Context::popGroupMarker()
+{
+    ASSERT(mRenderer);
+    mRenderer->popGroupMarker();
+}
+
 void Context::recordError(const Error &error)
 {
     if (error.isError())
@@ -1320,9 +1356,9 @@ int Context::getClientVersion() const
     return mClientVersion;
 }
 
-EGLint Context::getConfigID() const
+const egl::Config *Context::getConfig() const
 {
-    return mConfigID;
+    return mConfig;
 }
 
 EGLenum Context::getClientType() const
@@ -1351,6 +1387,11 @@ const TextureCapsMap &Context::getTextureCaps() const
 const Extensions &Context::getExtensions() const
 {
     return mExtensions;
+}
+
+const Limitations &Context::getLimitations() const
+{
+    return mLimitations;
 }
 
 void Context::detachTexture(GLuint texture)
@@ -1568,6 +1609,8 @@ void Context::initCaps(GLuint clientVersion)
     mCaps = mRenderer->getRendererCaps();
 
     mExtensions = mRenderer->getRendererExtensions();
+
+    mLimitations = mRenderer->getRendererLimitations();
 
     if (clientVersion < 3)
     {

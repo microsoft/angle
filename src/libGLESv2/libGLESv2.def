@@ -177,6 +177,10 @@ EXPORTS
     glGetBufferPointervOES          @287
     glMapBufferRangeEXT             @288
     glFlushMappedBufferRangeEXT     @289
+    glDiscardFramebufferEXT         @293
+    glInsertEventMarkerEXT          @294
+    glPushGroupMarkerEXT            @295
+    glPopGroupMarkerEXT             @296
 
     ; GLES 3.0 Functions
     glReadBuffer                    @180

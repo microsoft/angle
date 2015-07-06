@@ -68,12 +68,20 @@ void ANGLEPerfTest::TearDown()
     printResult("score", static_cast<size_t>(mNumFrames), "score", true);
 }
 
+double ANGLEPerfTest::normalizedTime(size_t value) const
+{
+    return static_cast<double>(value) / static_cast<double>(mNumFrames);
+}
+
 std::string RenderTestParams::suffix() const
 {
-    switch (requestedRenderer)
+    switch (getRenderer())
     {
         case EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE: return "_d3d11";
         case EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE: return "_d3d9";
+        case EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE: return "_gl";
+        case EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE: return "_gles";
+        case EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE: return "_default";
         default: assert(0); return "_unk";
     }
 }
@@ -96,16 +104,19 @@ ANGLERenderTest::~ANGLERenderTest()
 
 void ANGLERenderTest::SetUp()
 {
+<<<<<<< HEAD
     EGLPlatformParameters platformParams(mTestParams.requestedRenderer,
                                          EGL_DONT_CARE,
                                          EGL_DONT_CARE,
                                          mTestParams.deviceType, false);
 
+=======
+>>>>>>> master
     mOSWindow = CreateOSWindow();
     mEGLWindow = new EGLWindow(mTestParams.widowWidth,
                                mTestParams.windowHeight,
-                               mTestParams.glesMajorVersion,
-                               platformParams);
+                               mTestParams.majorVersion,
+                               mTestParams.eglParameters);
     mEGLWindow->setSwapInterval(0);
 
     if (!mOSWindow->initialize(mName, mEGLWindow->getWidth(), mEGLWindow->getHeight()))

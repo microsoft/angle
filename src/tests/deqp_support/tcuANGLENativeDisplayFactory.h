@@ -24,25 +24,37 @@
 #include "tcuDefs.hpp"
 #include "egluNativeDisplay.hpp"
 #include "eglwDefs.hpp"
-#include "tcuWin32API.h"
 
 namespace tcu
 {
 
-class ANGLEWin32NativeDisplayFactory : public eglu::NativeDisplayFactory
+class EventState
 {
   public:
-    ANGLEWin32NativeDisplayFactory(const std::string &name,
-                                   const std::string &description,
-                                   const std::vector<eglw::EGLAttrib> &platformAttributes,
-                                   HINSTANCE instance);
-    ~ANGLEWin32NativeDisplayFactory() override;
+    EventState()
+        : mQuit(false)
+    {
+    }
+    bool quitSignaled() const { return mQuit; };
+    void signalQuitEvent() { mQuit = true; };
+
+  private:
+    bool mQuit;
+};
+
+class ANGLENativeDisplayFactory : public eglu::NativeDisplayFactory
+{
+  public:
+    ANGLENativeDisplayFactory(const std::string &name,
+                              const std::string &description,
+                              const std::vector<eglw::EGLAttrib> &platformAttributes,
+                              EventState *eventState);
+    ~ANGLENativeDisplayFactory() override;
 
     eglu::NativeDisplay *createDisplay(const eglw::EGLAttrib* attribList) const override;
 
   private:
     std::vector<eglw::EGLAttrib> mPlatformAttributes;
-    const HINSTANCE mInstance;
 };
 
 } // tcu

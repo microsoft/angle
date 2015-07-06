@@ -53,24 +53,30 @@ class DisplayGLX : public DisplayGL
 
     std::string getVendorString() const override;
 
+    // Synchronizes with the X server, if the display has been opened by ANGLE.
+    // Calling this is required at the end of every functions that does buffered
+    // X calls (not for glX calls) otherwise there might be race conditions
+    // between the application's display and ANGLE's one.
+    void syncXCommands() const;
+
   private:
     const FunctionsGL *getFunctionsGL() const override;
 
     void generateExtensions(egl::DisplayExtensions *outExtensions) const override;
     void generateCaps(egl::Caps *outCaps) const override;
 
-    int getGLXFBConfigAttrib(GLXFBConfig config, int attrib) const;
+    int getGLXFBConfigAttrib(glx::FBConfig config, int attrib) const;
 
     FunctionsGL *mFunctionsGL;
 
     //TODO(cwallez) yuck, change generateConfigs to be non-const or add a userdata member to egl::Config?
-    mutable std::map<int, GLXFBConfig> configIdToGLXConfig;
+    mutable std::map<int, glx::FBConfig> configIdToGLXConfig;
 
-    // The ID of the visual used to create the context
-    int mContextVisualId;
-    GLXContext mContext;
+    glx::Context mContext;
     // A pbuffer the context is current on during ANGLE initialization
-    GLXPbuffer mDummyPbuffer;
+    glx::Pbuffer mDummyPbuffer;
+
+    bool mUsesNewXDisplay;
 
     FunctionsGLX mGLX;
     egl::Display *mEGLDisplay;

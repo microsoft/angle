@@ -13,6 +13,7 @@
 #include "compiler/translator/ParseContext.h"
 #include "compiler/translator/PruneEmptyDeclarations.h"
 #include "compiler/translator/RegenerateStructNames.h"
+#include "compiler/translator/RemovePow.h"
 #include "compiler/translator/RenameFunction.h"
 #include "compiler/translator/ScalarizeVecAndMatConstructorArgs.h"
 #include "compiler/translator/UnfoldShortCircuitAST.h"
@@ -37,8 +38,15 @@ bool IsWebGLBasedSpec(ShShaderSpec spec)
 bool IsGLSL130OrNewer(ShShaderOutput output)
 {
     return (output == SH_GLSL_130_OUTPUT ||
+            output == SH_GLSL_140_OUTPUT ||
+            output == SH_GLSL_150_CORE_OUTPUT ||
+            output == SH_GLSL_330_CORE_OUTPUT ||
+            output == SH_GLSL_400_CORE_OUTPUT ||
             output == SH_GLSL_410_CORE_OUTPUT ||
-            output == SH_GLSL_420_CORE_OUTPUT);
+            output == SH_GLSL_420_CORE_OUTPUT ||
+            output == SH_GLSL_430_CORE_OUTPUT ||
+            output == SH_GLSL_440_CORE_OUTPUT ||
+            output == SH_GLSL_450_CORE_OUTPUT);
 }
 
 size_t GetGlobalMaxTokenSize(ShShaderSpec spec)
@@ -310,6 +318,11 @@ TIntermNode *TCompiler::compileTreeImpl(const char* const shaderStrings[],
             UnfoldShortCircuitAST unfoldShortCircuit;
             root->traverse(&unfoldShortCircuit);
             unfoldShortCircuit.updateTree();
+        }
+
+        if (success && (compileOptions & SH_REMOVE_POW_WITH_CONSTANT_EXPONENT))
+        {
+            RemovePow(root);
         }
 
         if (success && (compileOptions & SH_VARIABLES))

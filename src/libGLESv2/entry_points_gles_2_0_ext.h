@@ -22,6 +22,9 @@ ANGLE_EXPORT void GL_APIENTRY BlitFramebufferANGLE(GLint srcX0, GLint srcY0, GLi
 // GL_ANGLE_framebuffer_multisample
 ANGLE_EXPORT void GL_APIENTRY RenderbufferStorageMultisampleANGLE(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
 
+// GL_EXT_discard_framebuffer
+ANGLE_EXPORT void GL_APIENTRY DiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments);
+
 // GL_NV_fence
 ANGLE_EXPORT void GL_APIENTRY DeleteFencesNV(GLsizei n, const GLuint* fences);
 ANGLE_EXPORT void GL_APIENTRY GenFencesNV(GLsizei n, GLuint* fences);
@@ -72,6 +75,11 @@ ANGLE_EXPORT void GL_APIENTRY GetBufferPointervOES(GLenum target, GLenum pname, 
 // GL_EXT_map_buffer_range
 ANGLE_EXPORT void *GL_APIENTRY MapBufferRangeEXT(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access);
 ANGLE_EXPORT void GL_APIENTRY FlushMappedBufferRangeEXT(GLenum target, GLintptr offset, GLsizeiptr length);
+
+// GL_EXT_debug_marker
+ANGLE_EXPORT void GL_APIENTRY InsertEventMarkerEXT(GLsizei length, const char *marker);
+ANGLE_EXPORT void GL_APIENTRY PushGroupMarkerEXT(GLsizei length, const char *marker);
+ANGLE_EXPORT void GL_APIENTRY PopGroupMarkerEXT();
 
 }
 

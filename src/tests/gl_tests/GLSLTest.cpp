@@ -497,7 +497,6 @@ TEST_P(GLSLTest, ElseIfRewriting)
     ASSERT_NE(0u, program);
 
     drawQuad(program, "a_position", 0.5f);
-    swapBuffers();
 
     EXPECT_PIXEL_EQ(0, 0, 255, 0, 0, 255);
     EXPECT_PIXEL_EQ(getWindowWidth()-1, 0, 0, 255, 0, 255);
@@ -552,16 +551,7 @@ TEST_P(GLSLTest, InvariantVaryingOut)
 
 TEST_P(GLSLTest, FrontFacingAndVarying)
 {
-    EGLPlatformParameters platform = GetParam().mEGLPlatformParameters;
-
-    // Disable this test on D3D11 feature level 9_3, since gl_FrontFacing isn't supported.
-    if (platform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
-    {
-        if (platform.majorVersion == 9 && platform.minorVersion == 3)
-        {
-            return;
-        }
-    }
+    EGLPlatformParameters platform = GetParam().eglParameters;
 
     const std::string vertexShaderSource = SHADER_SOURCE
     (
@@ -595,6 +585,18 @@ TEST_P(GLSLTest, FrontFacingAndVarying)
     );
 
     GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
+
+    // Compilation should fail on D3D11 feature level 9_3, since gl_FrontFacing isn't supported.
+    if (platform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
+    {
+        if (platform.majorVersion == 9 && platform.minorVersion == 3)
+        {
+            EXPECT_EQ(0u, program);
+            return;
+        }
+    }
+
+    // Otherwise, compilation should succeed
     EXPECT_NE(0u, program);
 }
 
