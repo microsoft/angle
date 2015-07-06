@@ -45,12 +45,6 @@ class Clear11 : angle::NonCopyable
 
     struct ClearShader final : public angle::NonCopyable
     {
-<<<<<<< HEAD
-        ClearShader() : inputLayout(NULL), vertexShader(NULL), pixelShader(NULL){}
-        ID3D11InputLayout *inputLayout;
-        ID3D11VertexShader *vertexShader;
-        ID3D11PixelShader *pixelShader;
-=======
         ClearShader(DXGI_FORMAT colorType,
                     const char *inputLayoutName,
                     const BYTE *vsByteCode,
@@ -64,7 +58,6 @@ class Clear11 : angle::NonCopyable
         d3d11::LazyInputLayout *inputLayout;
         d3d11::LazyShader<ID3D11VertexShader> vertexShader;
         d3d11::LazyShader<ID3D11PixelShader> pixelShader;
->>>>>>> master
     };
 
     template <unsigned int vsSize, unsigned int psSize>

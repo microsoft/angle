@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="simple_vertex_shader">
+      <UniqueIdentifier>{B50155D0-892A-4C65-4754-9C5D58289F2E}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="simple_vertex_shader\SimpleVertexShader.cpp">
+      <Filter>simple_vertex_shader</Filter>
+    </ClCompile>
+    <None Include="samples.gyp"/>
+  </ItemGroup>
+</Project>

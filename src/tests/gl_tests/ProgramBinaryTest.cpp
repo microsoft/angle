@@ -163,10 +163,7 @@ TEST_P(ProgramBinaryTest, SaveAndLoadBinary)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-<<<<<<< HEAD
 ANGLE_INSTANTIATE_TEST(ProgramBinaryTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3());
-=======
-ANGLE_INSTANTIATE_TEST(ProgramBinaryTest, ES2_D3D9(), ES2_D3D11());
 
 // For the ProgramBinariesAcrossPlatforms tests, we need two sets of params:
 // - a set to save the program binary
@@ -442,4 +439,3 @@ ANGLE_INSTANTIATE_TEST(ProgramBinariesAcrossPlatforms,
                        // Compiling a program with client version 3, saving the binary, then loading it with client version 2 should not work
                        // PlatformsWithLinkResult(ES3_D3D11(),         ES2_D3D11(),            false       )
                        );
->>>>>>> master

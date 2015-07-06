@@ -141,33 +141,20 @@ inline bool isDeviceLostError(HRESULT errorCode)
 
 inline ID3D11VertexShader *CompileVS(ID3D11Device *device, const BYTE *byteCode, size_t N, const char *name)
 {
-<<<<<<< HEAD
-    ID3D11VertexShader *vs = NULL;
-    HRESULT result = device->CreateVertexShader(byteCode, N, NULL, &vs);
-=======
     ID3D11VertexShader *vs = nullptr;
     HRESULT result = device->CreateVertexShader(byteCode, N, nullptr, &vs);
->>>>>>> master
     ASSERT(SUCCEEDED(result));
     if (SUCCEEDED(result))
     {
         SetDebugName(vs, name);
         return vs;
     }
-<<<<<<< HEAD
-    return NULL;
-=======
     return nullptr;
->>>>>>> master
 }
 
 template <unsigned int N>
 ID3D11VertexShader *CompileVS(ID3D11Device *device, const BYTE (&byteCode)[N], const char *name)
 {
-<<<<<<< HEAD
-    ID3D11GeometryShader *gs = NULL;
-    HRESULT result = device->CreateGeometryShader(byteCode, N, NULL, &gs);
-=======
     return CompileVS(device, byteCode, N, name);
 }
 
@@ -175,27 +162,18 @@ inline ID3D11GeometryShader *CompileGS(ID3D11Device *device, const BYTE *byteCod
 {
     ID3D11GeometryShader *gs = nullptr;
     HRESULT result = device->CreateGeometryShader(byteCode, N, nullptr, &gs);
->>>>>>> master
     ASSERT(SUCCEEDED(result));
     if (SUCCEEDED(result))
     {
         SetDebugName(gs, name);
         return gs;
     }
-<<<<<<< HEAD
-    return NULL;
-=======
     return nullptr;
->>>>>>> master
 }
 
 template <unsigned int N>
 ID3D11GeometryShader *CompileGS(ID3D11Device *device, const BYTE (&byteCode)[N], const char *name)
 {
-<<<<<<< HEAD
-    ID3D11PixelShader *ps = NULL;
-    HRESULT result = device->CreatePixelShader(byteCode, N, NULL, &ps);
-=======
     return CompileGS(device, byteCode, N, name);
 }
 
@@ -203,16 +181,12 @@ inline ID3D11PixelShader *CompilePS(ID3D11Device *device, const BYTE *byteCode, 
 {
     ID3D11PixelShader *ps = nullptr;
     HRESULT result = device->CreatePixelShader(byteCode, N, nullptr, &ps);
->>>>>>> master
     ASSERT(SUCCEEDED(result));
     if (SUCCEEDED(result))
     {
         SetDebugName(ps, name);
         return ps;
     }
-<<<<<<< HEAD
-    return NULL;
-=======
     return nullptr;
 }
 
@@ -347,7 +321,6 @@ inline ID3D11InputLayout *LazyInputLayout::resolve(ID3D11Device *device)
     }
 
     return mResource;
->>>>>>> master
 }
 
 // Copy data to small D3D11 buffers, such as for small constant buffers, which use one struct to

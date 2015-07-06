@@ -71,13 +71,6 @@ Clear11::ClearShader::ClearShader(DXGI_FORMAT colorType,
       vertexShader(vsByteCode, vsSize, vsDebugName),
       pixelShader(psByteCode, psSize, psDebugName)
 {
-<<<<<<< HEAD
-    HRESULT result;
-
-    ClearShader shader;
-
-=======
->>>>>>> master
     D3D11_INPUT_ELEMENT_DESC quadLayout[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,  0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -495,11 +488,7 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
             return gl::Error(GL_OUT_OF_MEMORY, "Failed to map internal masked clear vertex buffer, HRESULT: 0x%X.", result);
         }
 
-<<<<<<< HEAD
-        const gl::Rectangle *scissorPtr = clearParams.scissorEnabled ? &actualScissor : NULL;
-=======
-        const gl::Rectangle *scissorPtr = clearParams.scissorEnabled ? &clearParams.scissor : nullptr;
->>>>>>> master
+        const gl::Rectangle *scissorPtr = clearParams.scissorEnabled ? &actualScissor : nullptr;
         switch (clearParams.colorClearType)
         {
           case GL_FLOAT:

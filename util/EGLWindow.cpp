@@ -16,12 +16,8 @@ EGLPlatformParameters::EGLPlatformParameters()
     : renderer(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE),
       majorVersion(EGL_DONT_CARE),
       minorVersion(EGL_DONT_CARE),
-<<<<<<< HEAD
-      deviceType(EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE),
-      useRenderToBackBuffer(EGL_FALSE)
-=======
+      useRenderToBackBuffer(EGL_FALSE),
       deviceType(EGL_DONT_CARE)
->>>>>>> master
 {
 }
 
@@ -29,12 +25,8 @@ EGLPlatformParameters::EGLPlatformParameters(EGLint renderer)
     : renderer(renderer),
       majorVersion(EGL_DONT_CARE),
       minorVersion(EGL_DONT_CARE),
-<<<<<<< HEAD
-      deviceType(EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE),
-      useRenderToBackBuffer(EGL_FALSE)
-=======
+      useRenderToBackBuffer(EGL_FALSE),
       deviceType(EGL_DONT_CARE)
->>>>>>> master
 {
     if (renderer == EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE ||
         renderer == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)

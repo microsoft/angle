@@ -31,17 +31,11 @@ class RenderTarget11 : public RenderTargetD3D
     virtual unsigned int getSubresourceIndex() const = 0;
 
     virtual DXGI_FORMAT getDXGIFormat() const = 0;
-<<<<<<< HEAD
 
     bool renderToBackBuffer() const { return mRenderToBackBuffer; };
 
 protected:
     bool mRenderToBackBuffer;
-
-  private:
-    D3D_FEATURE_LEVEL mFeatureLevel;
-=======
->>>>>>> master
 };
 
 class TextureRenderTarget11 : public RenderTarget11

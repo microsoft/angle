@@ -104,14 +104,6 @@ ANGLERenderTest::~ANGLERenderTest()
 
 void ANGLERenderTest::SetUp()
 {
-<<<<<<< HEAD
-    EGLPlatformParameters platformParams(mTestParams.requestedRenderer,
-                                         EGL_DONT_CARE,
-                                         EGL_DONT_CARE,
-                                         mTestParams.deviceType, false);
-
-=======
->>>>>>> master
     mOSWindow = CreateOSWindow();
     mEGLWindow = new EGLWindow(mTestParams.widowWidth,
                                mTestParams.windowHeight,

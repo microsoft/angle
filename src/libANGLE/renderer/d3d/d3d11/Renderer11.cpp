@@ -356,7 +356,6 @@ Renderer11::Renderer11(egl::Display *display)
         UNREACHABLE();
     }
 
-<<<<<<< HEAD
     EGLBoolean defaultRenderToBackBuffer = EGL_FALSE;
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
     defaultRenderToBackBuffer = EGL_TRUE;
@@ -364,9 +363,8 @@ Renderer11::Renderer11(egl::Display *display)
 
     mRenderToBackBufferEnabled = (attributes.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, defaultRenderToBackBuffer) == EGL_TRUE);
     mRenderToBackBufferActive = false;
-=======
+
     initializeDebugAnnotator();
->>>>>>> master
 }
 
 Renderer11::~Renderer11()
@@ -542,11 +540,7 @@ egl::Error Renderer11::initialize()
         // If DXGI1.2 is available then IDXGIAdapter2::GetDesc2 can be used to get the actual hardware values.
         if (mRenderer11DeviceCaps.featureLevel <= D3D_FEATURE_LEVEL_9_3 && dxgiAdapter2 != NULL)
         {
-<<<<<<< HEAD
-            DXGI_ADAPTER_DESC2 adapterDesc2 = { 0 };
-=======
             DXGI_ADAPTER_DESC2 adapterDesc2 = {};
->>>>>>> master
             result = dxgiAdapter2->GetDesc2(&adapterDesc2);
             if (SUCCEEDED(result))
             {
@@ -573,11 +567,7 @@ egl::Error Renderer11::initialize()
         {
             return egl::Error(EGL_NOT_INITIALIZED,
                               D3D11_INIT_OTHER_ERROR,
-<<<<<<< HEAD
-                              "Could read DXGI adaptor description.");
-=======
                               "Could not read DXGI adaptor description.");
->>>>>>> master
         }
 
         memset(mDescription, 0, sizeof(mDescription));
@@ -2267,11 +2257,7 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
         ASSERT(SUCCEEDED(result));
         if (FAILED(result))
         {
-<<<<<<< HEAD
-            return gl::Error(GL_OUT_OF_MEMORY);
-=======
             return gl::Error(GL_OUT_OF_MEMORY, "Failed to create vertex shader constant buffer, result: 0x%X.", result);
->>>>>>> master
         }
         mDeviceContext->VSSetConstantBuffers(1, 1, &mDriverConstantBufferVS);
     }
@@ -2290,11 +2276,7 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
         ASSERT(SUCCEEDED(result));
         if (FAILED(result))
         {
-<<<<<<< HEAD
-            return gl::Error(GL_OUT_OF_MEMORY);
-=======
             return gl::Error(GL_OUT_OF_MEMORY, "Failed to create pixel shader constant buffer, result: 0x%X.", result);
->>>>>>> master
         }
         mDeviceContext->PSSetConstantBuffers(1, 1, &mDriverConstantBufferPS);
     }

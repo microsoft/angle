@@ -54,7 +54,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -80,6 +80,7 @@
     <Link>
       <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -99,7 +100,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -125,6 +126,7 @@
     <Link>
       <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -144,7 +146,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -169,6 +171,7 @@
     <Link>
       <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -188,7 +191,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;..\include;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -213,6 +216,7 @@
     <Link>
       <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -281,8 +285,9 @@
     <ClInclude Include="compiler\translator\PoolAlloc.h"/>
     <ClInclude Include="compiler\translator\Pragma.h"/>
     <ClInclude Include="compiler\translator\PruneEmptyDeclarations.h"/>
-    <ClInclude Include="compiler\translator\QualifierAlive.h"/>
+    <ClInclude Include="compiler\translator\RecordConstantPrecision.h"/>
     <ClInclude Include="compiler\translator\RegenerateStructNames.h"/>
+    <ClInclude Include="compiler\translator\RemovePow.h"/>
     <ClInclude Include="compiler\translator\RenameFunction.h"/>
     <ClInclude Include="compiler\translator\ScalarizeVecAndMatConstructorArgs.h"/>
     <ClInclude Include="compiler\translator\SearchSymbol.h"/>
@@ -304,7 +309,6 @@
     <ClInclude Include="compiler\translator\depgraph\DependencyGraphOutput.h"/>
     <ClInclude Include="compiler\translator\glslang.h"/>
     <ClInclude Include="compiler\translator\glslang_tab.h"/>
-    <ClInclude Include="compiler\translator\intermediate.h"/>
     <ClInclude Include="compiler\translator\length_limits.h"/>
     <ClInclude Include="compiler\translator\timing\RestrictFragmentShaderTiming.h"/>
     <ClInclude Include="compiler\translator\timing\RestrictVertexShaderTiming.h"/>
@@ -319,7 +323,7 @@
     <ClInclude Include="compiler\translator\RewriteElseBlocks.h"/>
     <ClInclude Include="compiler\translator\SeparateArrayInitialization.h"/>
     <ClInclude Include="compiler\translator\SeparateDeclarations.h"/>
-    <ClInclude Include="compiler\translator\SimplifyArrayAssignment.h"/>
+    <ClInclude Include="compiler\translator\SeparateExpressionsReturningArrays.h"/>
     <ClInclude Include="compiler\translator\StructureHLSL.h"/>
     <ClInclude Include="compiler\translator\TranslatorHLSL.h"/>
     <ClInclude Include="compiler\translator\UnfoldShortCircuitToIf.h"/>
@@ -353,8 +357,9 @@
     <ClCompile Include="compiler\translator\ParseContext.cpp"/>
     <ClCompile Include="compiler\translator\PoolAlloc.cpp"/>
     <ClCompile Include="compiler\translator\PruneEmptyDeclarations.cpp"/>
-    <ClCompile Include="compiler\translator\QualifierAlive.cpp"/>
+    <ClCompile Include="compiler\translator\RecordConstantPrecision.cpp"/>
     <ClCompile Include="compiler\translator\RegenerateStructNames.cpp"/>
+    <ClCompile Include="compiler\translator\RemovePow.cpp"/>
     <ClCompile Include="compiler\translator\ScalarizeVecAndMatConstructorArgs.cpp"/>
     <ClCompile Include="compiler\translator\SearchSymbol.cpp"/>
     <ClCompile Include="compiler\translator\SymbolTable.cpp"/>
@@ -391,7 +396,7 @@
     <ClCompile Include="compiler\translator\RewriteElseBlocks.cpp"/>
     <ClCompile Include="compiler\translator\SeparateArrayInitialization.cpp"/>
     <ClCompile Include="compiler\translator\SeparateDeclarations.cpp"/>
-    <ClCompile Include="compiler\translator\SimplifyArrayAssignment.cpp"/>
+    <ClCompile Include="compiler\translator\SeparateExpressionsReturningArrays.cpp"/>
     <ClCompile Include="compiler\translator\StructureHLSL.cpp"/>
     <ClCompile Include="compiler\translator\TranslatorHLSL.cpp"/>
     <ClCompile Include="compiler\translator\UnfoldShortCircuitToIf.cpp"/>

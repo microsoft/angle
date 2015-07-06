@@ -23,20 +23,12 @@ namespace rx
 {
 
 SwapChain11::SwapChain11(Renderer11 *renderer, NativeWindow nativeWindow, HANDLE shareHandle,
-<<<<<<< HEAD
                          GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer)
-    : mRenderer(renderer),
-      SwapChainD3D(nativeWindow, shareHandle, backBufferFormat, depthBufferFormat),
-      mColorRenderTarget(this, renderer, false, renderToBackBuffer),
-      mDepthStencilRenderTarget(this, renderer, true, false)
-=======
-                         GLenum backBufferFormat, GLenum depthBufferFormat)
     : SwapChainD3D(nativeWindow, shareHandle, backBufferFormat, depthBufferFormat),
       mRenderer(renderer),
-      mColorRenderTarget(this, renderer, false),
-      mDepthStencilRenderTarget(this, renderer, true),
+      mColorRenderTarget(this, renderer, false, renderToBackBuffer),
+      mDepthStencilRenderTarget(this, renderer, true, false),
       mPassThroughResourcesInit(false)
->>>>>>> master
 {
     mSwapChain = NULL;
     mSwapChain1 = nullptr;
@@ -57,11 +49,7 @@ SwapChain11::SwapChain11(Renderer11 *renderer, NativeWindow nativeWindow, HANDLE
     mHeight = -1;
     mSwapInterval = 0;
     mAppCreatedShareHandle = mShareHandle != NULL;
-<<<<<<< HEAD
-    mPassThroughResourcesInit = false;
     mRenderToBackBuffer = renderToBackBuffer;
-=======
->>>>>>> master
 }
 
 SwapChain11::~SwapChain11()
@@ -130,17 +118,11 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
 
     releaseOffscreenTexture();
 
-<<<<<<< HEAD
     HRESULT result;
-=======
     const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mOffscreenRenderTargetFormat, mRenderer->getRenderer11DeviceCaps(), true);
->>>>>>> master
 
     if (!mRenderToBackBuffer)
     {
-
-        const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getRenderer11DeviceCaps());
-
         // If the app passed in a share handle, open the resource
         // See EGL_ANGLE_d3d_share_handle_client_buffer
         if (mAppCreatedShareHandle)
@@ -388,12 +370,7 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
         return EGL_BAD_ALLOC;
     }
 
-<<<<<<< HEAD
-    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mBackBufferFormat, mRenderer->getRenderer11DeviceCaps());
-    result = mSwapChain->ResizeBuffers(desc.BufferCount, backbufferWidth, backbufferHeight, backbufferFormatInfo.texFormat, 0);
-=======
     result = mSwapChain->ResizeBuffers(desc.BufferCount, backbufferWidth, backbufferHeight, getSwapChainNativeFormat(), 0);
->>>>>>> master
 
     if (FAILED(result))
     {
@@ -586,7 +563,6 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
         return EGL_SUCCESS;
     }
 
-<<<<<<< HEAD
     if (mRenderToBackBuffer)
     {
         // When rendering directly to the backbuffer, we must swap the whole buffer.
@@ -599,9 +575,7 @@ EGLint SwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
     }
 
     HRESULT result = S_OK;
-=======
     initPassThroughResources();
->>>>>>> master
 
     ID3D11Device *device = mRenderer->getDevice();
 

@@ -342,11 +342,6 @@ TEST_P(IndexedPointsTestUInt, UnsignedIntOffset3)
     runTest(3);
 }
 
-<<<<<<< HEAD
-ANGLE_INSTANTIATE_TEST(IndexedPointsTestUByte, ES2_D3D11(), ES2_D3D11_RTBB());
-ANGLE_INSTANTIATE_TEST(IndexedPointsTestUShort, ES2_D3D11(), ES2_D3D11_RTBB());
-ANGLE_INSTANTIATE_TEST(IndexedPointsTestUInt, ES2_D3D11(), ES2_D3D11_RTBB());
-=======
 TEST_P(IndexedPointsTestUInt, VertexWithColorUnsignedIntOffset0)
 {
     if (getClientVersion() < 3 && !extensionEnabled("GL_OES_element_index_uint"))
@@ -391,4 +386,3 @@ TEST_P(IndexedPointsTestUInt, VertexWithColorUnsignedIntOffset3)
 ANGLE_INSTANTIATE_TEST(IndexedPointsTestUByte, ES2_D3D11(), ES2_D3D11_FL9_3());
 ANGLE_INSTANTIATE_TEST(IndexedPointsTestUShort, ES2_D3D11(), ES2_D3D11_FL9_3());
 ANGLE_INSTANTIATE_TEST(IndexedPointsTestUInt, ES2_D3D11(), ES2_D3D11_FL9_3());
->>>>>>> master

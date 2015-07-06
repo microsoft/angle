@@ -7,11 +7,8 @@
     <Filter Include="common">
       <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common">
-      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="common">
-      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
     </Filter>
     <Filter Include="libANGLE">
       <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
@@ -2044,6 +2041,30 @@
     <Filter Include="libANGLE\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
     <Filter Include="libANGLE\renderer\d3d\d3d11\shaders">
       <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
     </Filter>
@@ -3606,12 +3627,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="common\debug.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
-    <ClInclude Include="common\debug.h">
-      <Filter>common</Filter>
-    </ClInclude>
     <ClCompile Include="common\event_tracer.cpp">
       <Filter>common</Filter>
     </ClCompile>
@@ -3693,9 +3708,6 @@
     <ClInclude Include="libANGLE\Fence.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
-    <ClCompile Include="libANGLE\Float16ToFloat32.cpp">
-      <Filter>libANGLE</Filter>
-    </ClCompile>
     <ClCompile Include="libANGLE\Framebuffer.cpp">
       <Filter>libANGLE</Filter>
     </ClCompile>
@@ -3801,6 +3813,12 @@
     <ClInclude Include="libANGLE\Uniform.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
+    <ClInclude Include="libANGLE\Version.h">
+      <Filter>libANGLE</Filter>
+    </ClInclude>
+    <None Include="libANGLE\Version.inl">
+      <Filter>libANGLE</Filter>
+    </None>
     <ClCompile Include="libANGLE\VertexArray.cpp">
       <Filter>libANGLE</Filter>
     </ClCompile>
@@ -4309,6 +4327,12 @@
       <Filter>libANGLE\renderer\d3d\d3d11</Filter>
     </ClCompile>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\DebugAnnotator11.h">
+      <Filter>libANGLE\renderer\d3d\d3d11</Filter>
+    </ClInclude>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d11\dxgi_support_table.cpp">
+      <Filter>libANGLE\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\dxgi_support_table.h">
       <Filter>libANGLE\renderer\d3d\d3d11</Filter>
     </ClInclude>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\Fence11.cpp">

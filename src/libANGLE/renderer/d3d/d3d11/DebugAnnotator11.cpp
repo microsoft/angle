@@ -111,10 +111,7 @@ void DebugAnnotator11::initializeDevice()
         {
             mUserDefinedAnnotation = d3d11::DynamicCastComObject<ID3DUserDefinedAnnotation>(context);
             ASSERT(mUserDefinedAnnotation != nullptr);
-<<<<<<< HEAD
-=======
             mInitialized = true;
->>>>>>> master
         }
 
         SafeRelease(device);

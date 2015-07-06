@@ -303,39 +303,23 @@ static bool RequiresFeatureLevel(D3D_FEATURE_LEVEL featureLevel)
     return featureLevel >= requiredFeatureLevel;
 }
 
-<<<<<<< HEAD
-typedef bool(*FormatSupportFunction)(const Renderer11DeviceCaps&);
-
-static bool AnyDevice(const Renderer11DeviceCaps &deviceCaps)
-=======
 typedef bool(*FormatSupportFunction)(const Renderer11DeviceCaps&, bool renderable);
 
 static bool AnyDevice(const Renderer11DeviceCaps &deviceCaps, bool /* renderable */)
->>>>>>> master
 {
     return true;
 }
 
-<<<<<<< HEAD
-static bool OnlyFL10Plus(const Renderer11DeviceCaps &deviceCaps)
-=======
 static bool OnlyFL10Plus(const Renderer11DeviceCaps &deviceCaps, bool /* renderable */)
->>>>>>> master
 {
     return (deviceCaps.featureLevel >= D3D_FEATURE_LEVEL_10_0);
 }
 
-<<<<<<< HEAD
-static bool OnlyFL9_3(const Renderer11DeviceCaps &deviceCaps)
-=======
 static bool OnlyFL9_3(const Renderer11DeviceCaps &deviceCaps, bool /* renderable */)
->>>>>>> master
 {
     return (deviceCaps.featureLevel == D3D_FEATURE_LEVEL_9_3);
 }
 
-<<<<<<< HEAD
-=======
 template <DXGI_FORMAT format, bool requireSupport>
 static bool SupportsFormat(const Renderer11DeviceCaps &deviceCaps, bool /* renderable */)
 {
@@ -428,7 +412,6 @@ static bool NoB4G4R4A4Support(const Renderer11DeviceCaps &deviceCaps, bool /* re
     return (!(OnlyPartialB4G4R4A4<false>(deviceCaps, false)) && !(SupportsFormat<DXGI_FORMAT_B4G4R4A4_UNORM, true>(deviceCaps, false)));
 }
 
->>>>>>> master
 ColorCopyFunction DXGIFormat::getFastCopyFunction(GLenum format, GLenum type) const
 {
     FastCopyFunctionMap::const_iterator iter = fastCopyFunctions.find(std::make_pair(format, type));
@@ -703,21 +686,12 @@ static void UnreachableLoadFunction(size_t width, size_t height, size_t depth,
 // A helper function to insert data into the D3D11LoadFunctionMap with fewer characters.
 static inline void InsertLoadFunction(D3D11LoadFunctionMap *map, GLenum internalFormat, GLenum type,
                                       DXGI_FORMAT dxgiFormat, LoadImageFunction loadFunc)
-<<<<<<< HEAD
 {
     (*map)[internalFormat].push_back(GLTypeDXGIFunctionPair(type, DxgiFormatLoadFunctionPair(dxgiFormat, loadFunc)));
 }
 
 D3D11LoadFunctionMap BuildD3D11LoadFunctionMap()
 {
-=======
-{
-    (*map)[internalFormat].push_back(GLTypeDXGIFunctionPair(type, DxgiFormatLoadFunctionPair(dxgiFormat, loadFunc)));
-}
-
-D3D11LoadFunctionMap BuildD3D11LoadFunctionMap()
-{
->>>>>>> master
     D3D11LoadFunctionMap map;
 
     //                      | Internal format      | Type                             | Target DXGI Format              | Load function                       |
@@ -727,15 +701,10 @@ D3D11LoadFunctionMap BuildD3D11LoadFunctionMap()
     InsertLoadFunction(&map, GL_SRGB8_ALPHA8,       GL_UNSIGNED_BYTE,                  DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,  LoadToNative<GLubyte, 4>             );
     InsertLoadFunction(&map, GL_RGBA8_SNORM,        GL_BYTE,                           DXGI_FORMAT_R8G8B8A8_SNORM,       LoadToNative<GLbyte, 4>              );
     InsertLoadFunction(&map, GL_RGBA4,              GL_UNSIGNED_SHORT_4_4_4_4,         DXGI_FORMAT_R8G8B8A8_UNORM,       LoadRGBA4ToRGBA8                     );
-<<<<<<< HEAD
-    InsertLoadFunction(&map, GL_RGB10_A2,           GL_UNSIGNED_INT_2_10_10_10_REV,    DXGI_FORMAT_R10G10B10A2_UNORM,    LoadToNative<GLuint, 1>              );
-    InsertLoadFunction(&map, GL_RGB5_A1,            GL_UNSIGNED_SHORT_5_5_5_1,         DXGI_FORMAT_R8G8B8A8_UNORM,       LoadRGB5A1ToRGBA8                    );
-=======
     InsertLoadFunction(&map, GL_RGBA4,              GL_UNSIGNED_SHORT_4_4_4_4,         DXGI_FORMAT_B4G4R4A4_UNORM,       LoadRGBA4ToARGB4                     );
     InsertLoadFunction(&map, GL_RGB10_A2,           GL_UNSIGNED_INT_2_10_10_10_REV,    DXGI_FORMAT_R10G10B10A2_UNORM,    LoadToNative<GLuint, 1>              );
     InsertLoadFunction(&map, GL_RGB5_A1,            GL_UNSIGNED_SHORT_5_5_5_1,         DXGI_FORMAT_R8G8B8A8_UNORM,       LoadRGB5A1ToRGBA8                    );
     InsertLoadFunction(&map, GL_RGB5_A1,            GL_UNSIGNED_SHORT_5_5_5_1,         DXGI_FORMAT_B5G5R5A1_UNORM,       LoadRGB5A1ToA1RGB5                   );
->>>>>>> master
     InsertLoadFunction(&map, GL_RGB5_A1,            GL_UNSIGNED_INT_2_10_10_10_REV,    DXGI_FORMAT_R8G8B8A8_UNORM,       LoadRGB10A2ToRGBA8                   );
     InsertLoadFunction(&map, GL_RGBA16F,            GL_HALF_FLOAT,                     DXGI_FORMAT_R16G16B16A16_FLOAT,   LoadToNative<GLhalf, 4>              );
     InsertLoadFunction(&map, GL_RGBA16F,            GL_HALF_FLOAT_OES,                 DXGI_FORMAT_R16G16B16A16_FLOAT,   LoadToNative<GLhalf, 4>              );
@@ -753,10 +722,7 @@ D3D11LoadFunctionMap BuildD3D11LoadFunctionMap()
     InsertLoadFunction(&map, GL_SRGB8,              GL_UNSIGNED_BYTE,                  DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,  LoadToNative3To4<GLubyte, 0xFF>      );
     InsertLoadFunction(&map, GL_RGB8_SNORM,         GL_BYTE,                           DXGI_FORMAT_R8G8B8A8_SNORM,       LoadToNative3To4<GLbyte, 0x7F>       );
     InsertLoadFunction(&map, GL_RGB565,             GL_UNSIGNED_SHORT_5_6_5,           DXGI_FORMAT_R8G8B8A8_UNORM,       LoadR5G6B5ToRGBA8                    );
-<<<<<<< HEAD
-=======
     InsertLoadFunction(&map, GL_RGB565,             GL_UNSIGNED_SHORT_5_6_5,           DXGI_FORMAT_B5G6R5_UNORM,         LoadToNative<GLushort, 1>            );
->>>>>>> master
     InsertLoadFunction(&map, GL_R11F_G11F_B10F,     GL_UNSIGNED_INT_10F_11F_11F_REV,   DXGI_FORMAT_R11G11B10_FLOAT,      LoadToNative<GLuint, 1>              );
     InsertLoadFunction(&map, GL_RGB9_E5,            GL_UNSIGNED_INT_5_9_9_9_REV,       DXGI_FORMAT_R9G9B9E5_SHAREDEXP,   LoadToNative<GLuint, 1>              );
     InsertLoadFunction(&map, GL_RGB16F,             GL_HALF_FLOAT,                     DXGI_FORMAT_R16G16B16A16_FLOAT,   LoadToNative3To4<GLhalf, gl::Float16One>);
@@ -1028,67 +994,6 @@ static D3D11ES3FormatMap BuildD3D11FormatMap()
     D3D11ES3FormatMap map;
 
     //                         | GL internal format  | D3D11 texture format            | D3D11 SRV format               | D3D11 RTV format               | D3D11 DSV format     | Requirements
-<<<<<<< HEAD
-    InsertD3D11FormatInfo(&map, GL_NONE,              DXGI_FORMAT_UNKNOWN,              DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R8,                DXGI_FORMAT_R8_UNORM,             DXGI_FORMAT_R8_UNORM,            DXGI_FORMAT_R8_UNORM,            DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R8_SNORM,          DXGI_FORMAT_R8_SNORM,             DXGI_FORMAT_R8_SNORM,            DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RG8,               DXGI_FORMAT_R8G8_UNORM,           DXGI_FORMAT_R8G8_UNORM,          DXGI_FORMAT_R8G8_UNORM,          DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RG8_SNORM,         DXGI_FORMAT_R8G8_SNORM,           DXGI_FORMAT_R8G8_SNORM,          DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB8,              DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB8_SNORM,        DXGI_FORMAT_R8G8B8A8_SNORM,       DXGI_FORMAT_R8G8B8A8_SNORM,      DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB565,            DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA4,             DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB5_A1,           DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA8,             DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA8_SNORM,       DXGI_FORMAT_R8G8B8A8_SNORM,       DXGI_FORMAT_R8G8B8A8_SNORM,      DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB10_A2,          DXGI_FORMAT_R10G10B10A2_UNORM,    DXGI_FORMAT_R10G10B10A2_UNORM,   DXGI_FORMAT_R10G10B10A2_UNORM,   DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB10_A2UI,        DXGI_FORMAT_R10G10B10A2_UINT,     DXGI_FORMAT_R10G10B10A2_UINT,    DXGI_FORMAT_R10G10B10A2_UINT,    DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_SRGB8,             DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,  DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_SRGB8_ALPHA8,      DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,  DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R16F,              DXGI_FORMAT_R16_FLOAT,            DXGI_FORMAT_R16_FLOAT,           DXGI_FORMAT_R16_FLOAT,           DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RG16F,             DXGI_FORMAT_R16G16_FLOAT,         DXGI_FORMAT_R16G16_FLOAT,        DXGI_FORMAT_R16G16_FLOAT,        DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB16F,            DXGI_FORMAT_R16G16B16A16_FLOAT,   DXGI_FORMAT_R16G16B16A16_FLOAT,  DXGI_FORMAT_R16G16B16A16_FLOAT,  DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA16F,           DXGI_FORMAT_R16G16B16A16_FLOAT,   DXGI_FORMAT_R16G16B16A16_FLOAT,  DXGI_FORMAT_R16G16B16A16_FLOAT,  DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R32F,              DXGI_FORMAT_R32_FLOAT,            DXGI_FORMAT_R32_FLOAT,           DXGI_FORMAT_R32_FLOAT,           DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RG32F,             DXGI_FORMAT_R32G32_FLOAT,         DXGI_FORMAT_R32G32_FLOAT,        DXGI_FORMAT_R32G32_FLOAT,        DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB32F,            DXGI_FORMAT_R32G32B32A32_FLOAT,   DXGI_FORMAT_R32G32B32A32_FLOAT,  DXGI_FORMAT_R32G32B32A32_FLOAT,  DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA32F,           DXGI_FORMAT_R32G32B32A32_FLOAT,   DXGI_FORMAT_R32G32B32A32_FLOAT,  DXGI_FORMAT_R32G32B32A32_FLOAT,  DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R11F_G11F_B10F,    DXGI_FORMAT_R11G11B10_FLOAT,      DXGI_FORMAT_R11G11B10_FLOAT,     DXGI_FORMAT_R11G11B10_FLOAT,     DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB9_E5,           DXGI_FORMAT_R9G9B9E5_SHAREDEXP,   DXGI_FORMAT_R9G9B9E5_SHAREDEXP,  DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R8I,               DXGI_FORMAT_R8_SINT,              DXGI_FORMAT_R8_SINT,             DXGI_FORMAT_R8_SINT,             DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R8UI,              DXGI_FORMAT_R8_UINT,              DXGI_FORMAT_R8_UINT,             DXGI_FORMAT_R8_UINT,             DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R16I,              DXGI_FORMAT_R16_SINT,             DXGI_FORMAT_R16_SINT,            DXGI_FORMAT_R16_SINT,            DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R16UI,             DXGI_FORMAT_R16_UINT,             DXGI_FORMAT_R16_UINT,            DXGI_FORMAT_R16_UINT,            DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R32I,              DXGI_FORMAT_R32_SINT,             DXGI_FORMAT_R32_SINT,            DXGI_FORMAT_R32_SINT,            DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_R32UI,             DXGI_FORMAT_R32_UINT,             DXGI_FORMAT_R32_UINT,            DXGI_FORMAT_R32_UINT,            DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RG8I,              DXGI_FORMAT_R8G8_SINT,            DXGI_FORMAT_R8G8_SINT,           DXGI_FORMAT_R8G8_SINT,           DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RG8UI,             DXGI_FORMAT_R8G8_UINT,            DXGI_FORMAT_R8G8_UINT,           DXGI_FORMAT_R8G8_UINT,           DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RG16I,             DXGI_FORMAT_R16G16_SINT,          DXGI_FORMAT_R16G16_SINT,         DXGI_FORMAT_R16G16_SINT,         DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RG16UI,            DXGI_FORMAT_R16G16_UINT,          DXGI_FORMAT_R16G16_UINT,         DXGI_FORMAT_R16G16_UINT,         DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RG32I,             DXGI_FORMAT_R32G32_SINT,          DXGI_FORMAT_R32G32_SINT,         DXGI_FORMAT_R32G32_SINT,         DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RG32UI,            DXGI_FORMAT_R32G32_UINT,          DXGI_FORMAT_R32G32_UINT,         DXGI_FORMAT_R32G32_UINT,         DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB8I,             DXGI_FORMAT_R8G8B8A8_SINT,        DXGI_FORMAT_R8G8B8A8_SINT,       DXGI_FORMAT_R8G8B8A8_SINT,       DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB8UI,            DXGI_FORMAT_R8G8B8A8_UINT,        DXGI_FORMAT_R8G8B8A8_UINT,       DXGI_FORMAT_R8G8B8A8_UINT,       DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB16I,            DXGI_FORMAT_R16G16B16A16_SINT,    DXGI_FORMAT_R16G16B16A16_SINT,   DXGI_FORMAT_R16G16B16A16_SINT,   DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB16UI,           DXGI_FORMAT_R16G16B16A16_UINT,    DXGI_FORMAT_R16G16B16A16_UINT,   DXGI_FORMAT_R16G16B16A16_UINT,   DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB32I,            DXGI_FORMAT_R32G32B32A32_SINT,    DXGI_FORMAT_R32G32B32A32_SINT,   DXGI_FORMAT_R32G32B32A32_SINT,   DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB32UI,           DXGI_FORMAT_R32G32B32A32_UINT,    DXGI_FORMAT_R32G32B32A32_UINT,   DXGI_FORMAT_R32G32B32A32_UINT,   DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA8I,            DXGI_FORMAT_R8G8B8A8_SINT,        DXGI_FORMAT_R8G8B8A8_SINT,       DXGI_FORMAT_R8G8B8A8_SINT,       DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA8UI,           DXGI_FORMAT_R8G8B8A8_UINT,        DXGI_FORMAT_R8G8B8A8_UINT,       DXGI_FORMAT_R8G8B8A8_UINT,       DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA16I,           DXGI_FORMAT_R16G16B16A16_SINT,    DXGI_FORMAT_R16G16B16A16_SINT,   DXGI_FORMAT_R16G16B16A16_SINT,   DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA16UI,          DXGI_FORMAT_R16G16B16A16_UINT,    DXGI_FORMAT_R16G16B16A16_UINT,   DXGI_FORMAT_R16G16B16A16_UINT,   DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA32I,           DXGI_FORMAT_R32G32B32A32_SINT,    DXGI_FORMAT_R32G32B32A32_SINT,   DXGI_FORMAT_R32G32B32A32_SINT,   DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA32UI,          DXGI_FORMAT_R32G32B32A32_UINT,    DXGI_FORMAT_R32G32B32A32_UINT,   DXGI_FORMAT_R32G32B32A32_UINT,   DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-                                                                                                                                                                                
-    // Unsized formats, TODO: Are types of float and half float allowed for the unsized types? Would it change the DXGI format?                                                 
-    InsertD3D11FormatInfo(&map, GL_ALPHA,             DXGI_FORMAT_A8_UNORM,             DXGI_FORMAT_A8_UNORM,            DXGI_FORMAT_A8_UNORM,            DXGI_FORMAT_UNKNOWN,   OnlyFL10Plus);
-    InsertD3D11FormatInfo(&map, GL_ALPHA,             DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   OnlyFL9_3   );
-    InsertD3D11FormatInfo(&map, GL_LUMINANCE,         DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_LUMINANCE_ALPHA,   DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGB,               DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_RGBA,              DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-    InsertD3D11FormatInfo(&map, GL_BGRA_EXT,          DXGI_FORMAT_B8G8R8A8_UNORM,       DXGI_FORMAT_B8G8R8A8_UNORM,      DXGI_FORMAT_B8G8R8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice   );
-=======
     InsertD3D11FormatInfo(&map, GL_NONE,              DXGI_FORMAT_UNKNOWN,              DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice  );
     InsertD3D11FormatInfo(&map, GL_R8,                DXGI_FORMAT_R8_UNORM,             DXGI_FORMAT_R8_UNORM,            DXGI_FORMAT_R8_UNORM,            DXGI_FORMAT_UNKNOWN,   AnyDevice  );
     InsertD3D11FormatInfo(&map, GL_R8_SNORM,          DXGI_FORMAT_R8_SNORM,             DXGI_FORMAT_R8_SNORM,            DXGI_FORMAT_UNKNOWN,             DXGI_FORMAT_UNKNOWN,   AnyDevice  );
@@ -1153,7 +1058,6 @@ static D3D11ES3FormatMap BuildD3D11FormatMap()
     InsertD3D11FormatInfo(&map, GL_RGB,               DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice    );
     InsertD3D11FormatInfo(&map, GL_RGBA,              DXGI_FORMAT_R8G8B8A8_UNORM,       DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_R8G8B8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice    );
     InsertD3D11FormatInfo(&map, GL_BGRA_EXT,          DXGI_FORMAT_B8G8R8A8_UNORM,       DXGI_FORMAT_B8G8R8A8_UNORM,      DXGI_FORMAT_B8G8R8A8_UNORM,      DXGI_FORMAT_UNKNOWN,   AnyDevice    );
->>>>>>> master
 
     // From GL_EXT_texture_storage
     //                           | GL internal format     | D3D11 texture format          | D3D11 SRV format                    | D3D11 RTV format              | D3D11 DSV format    | Requirements
@@ -1228,11 +1132,7 @@ const TextureFormat &GetTextureFormatInfo(GLenum internalFormat, const Renderer1
             const FormatSupportFunction supportFunction = formatVector[i].first;
             const TextureFormat &textureFormat = formatVector[i].second;
 
-<<<<<<< HEAD
-            if (supportFunction(renderer11DeviceCaps))
-=======
             if (supportFunction(renderer11DeviceCaps, renderable))
->>>>>>> master
             {
                 return textureFormat;
             }

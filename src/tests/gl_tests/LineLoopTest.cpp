@@ -201,8 +201,4 @@ TEST_P(LineLoopTest, LineLoopUIntIndexBuffer)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-<<<<<<< HEAD
-ANGLE_INSTANTIATE_TEST(LineLoopTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3());
-=======
-ANGLE_INSTANTIATE_TEST(LineLoopTest, ES2_D3D9(), ES2_D3D11(), ES2_OPENGL());
->>>>>>> master
+ANGLE_INSTANTIATE_TEST(LineLoopTest, ES2_D3D9(), ES2_D3D11(), ES2_D3D11_FL9_3(), ES2_OPENGL());

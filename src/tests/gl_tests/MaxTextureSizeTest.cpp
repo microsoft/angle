@@ -223,16 +223,10 @@ TEST_P(MaxTextureSizeTest, RenderToTexture)
 {
     if (getClientVersion() < 3 && (!extensionEnabled("GL_ANGLE_framebuffer_blit")))
     {
-<<<<<<< HEAD
-        return;
-    }
-    
-=======
         std::cout << "Test skipped due to missing glBlitFramebuffer[ANGLE] support." << std::endl;
         return;
     }
 
->>>>>>> master
     GLuint fbo = 0;
     GLuint textureId = 0;
     // create a 1-level texture at maximum size

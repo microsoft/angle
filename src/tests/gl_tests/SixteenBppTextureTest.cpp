@@ -26,11 +26,7 @@ class SixteenBppTextureTest : public ANGLETest
         setConfigAlphaBits(8);
     }
 
-<<<<<<< HEAD
-    virtual void SetUp()
-=======
     void SetUp() override
->>>>>>> master
     {
         ANGLETest::SetUp();
 
@@ -63,11 +59,7 @@ class SixteenBppTextureTest : public ANGLETest
         mTexture2DUniformLocation = glGetUniformLocation(m2DProgram, "tex");
     }
 
-<<<<<<< HEAD
-    virtual void TearDown()
-=======
     void TearDown() override
->>>>>>> master
     {
         glDeleteProgram(m2DProgram);
 
@@ -144,8 +136,6 @@ class SixteenBppTextureTest : public ANGLETest
 // Samples from the texture, renders to it, generates mipmaps etc.
 TEST_P(SixteenBppTextureTest, RGB565Validation)
 {
-<<<<<<< HEAD
-=======
     // These tests fail on certain Intel machines running an un-updated version of Win7
     // The tests pass after installing the latest updates from Windows Update.
     // TODO: reenable these tests once the bots have been updated
@@ -155,7 +145,6 @@ TEST_P(SixteenBppTextureTest, RGB565Validation)
         return;
     }
 
->>>>>>> master
     GLushort pixels[4] =
     {
         0xF800, // Red
@@ -188,8 +177,6 @@ TEST_P(SixteenBppTextureTest, RGB565Validation)
 // Samples from the texture, renders to it, generates mipmaps etc.
 TEST_P(SixteenBppTextureTest, RGBA5551Validation)
 {
-<<<<<<< HEAD
-=======
     // These tests fail on certain Intel machines running an un-updated version of Win7
     // The tests pass after installing the latest updates from Windows Update.
     // TODO: reenable these tests once the bots have been updated
@@ -199,7 +186,6 @@ TEST_P(SixteenBppTextureTest, RGBA5551Validation)
         return;
     }
 
->>>>>>> master
     GLushort pixels[4] =
     {
         0xF801, // Red
@@ -229,8 +215,6 @@ TEST_P(SixteenBppTextureTest, RGBA5551Validation)
 // Based on WebGL test conformance/textures/texture-attachment-formats.html
 TEST_P(SixteenBppTextureTest, RGBA5551ClearAlpha)
 {
-<<<<<<< HEAD
-=======
     // These tests fail on certain Intel machines running an un-updated version of Win7
     // The tests pass after installing the latest updates from Windows Update.
     // TODO: reenable these tests once the bots have been updated
@@ -240,7 +224,6 @@ TEST_P(SixteenBppTextureTest, RGBA5551ClearAlpha)
         return;
     }
 
->>>>>>> master
     GLuint tex = 0;
     GLuint fbo = 0;
     GLubyte pixel[4];
@@ -278,8 +261,6 @@ TEST_P(SixteenBppTextureTest, RGBA5551ClearAlpha)
 // Samples from the texture, renders to it, generates mipmaps etc.
 TEST_P(SixteenBppTextureTest, RGBA4444Validation)
 {
-<<<<<<< HEAD
-=======
     // These tests fail on certain Intel machines running an un-updated version of Win7
     // The tests pass after installing the latest updates from Windows Update.
     // TODO: reenable these tests once the bots have been updated
@@ -289,7 +270,6 @@ TEST_P(SixteenBppTextureTest, RGBA4444Validation)
         return;
     }
 
->>>>>>> master
     GLushort pixels[4] =
     {
         0xF00F, // Red
@@ -319,10 +299,6 @@ TEST_P(SixteenBppTextureTest, RGBA4444Validation)
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
-<<<<<<< HEAD
 ANGLE_INSTANTIATE_TEST(SixteenBppTextureTest, ES2_D3D9(),  ES2_D3D11(), ES2_D3D11_RTBB(), ES2_D3D11_FL9_3(), ES2_OPENGL());
-=======
-ANGLE_INSTANTIATE_TEST(SixteenBppTextureTest, ES2_D3D9(),  ES2_D3D11(), ES2_D3D11_FL9_3(), ES2_OPENGL());
->>>>>>> master
 
 } // namespace
