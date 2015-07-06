@@ -565,39 +565,18 @@ gl::Error TextureD3D::ensureRenderTarget()
                 return error;
             }
 
-            GLenum baseInternalFormat = getBaseLevelImage()->getInternalFormat();
-            if (mRenderer->usesDifferentFormatForRenderableTexture(baseInternalFormat))
+            error = mTexStorage->copyToStorage(newRenderTargetStorage);
+            if (error.isError())
             {
-                // We have to use the images to recover the data from the old texture storage,
-                // and copy it into the new texture storage
-
-                // Deleting the texture storage will force the images to recover their data
-                SafeDelete(mTexStorage);
-
-                // Now update the TextureD3D to use the new storage
-                mTexStorage = newRenderTargetStorage;
-
-                // Now move the images' data into the new texture storage
-                updateStorage();
+                SafeDelete(newRenderTargetStorage);
+                return error;
             }
-            else
+
+            error = setCompleteTexStorage(newRenderTargetStorage);
+            if (error.isError())
             {
-                // If the renderTargetStorage and the old texture storage use the same format
-                // then we can just copy the old one into the new one
-
-                error = mTexStorage->copyToStorage(newRenderTargetStorage);
-                if (error.isError())
-                {
-                    SafeDelete(newRenderTargetStorage);
-                    return error;
-                }
-
-                error = setCompleteTexStorage(newRenderTargetStorage);
-                if (error.isError())
-                {
-                    SafeDelete(newRenderTargetStorage);
-                    return error;
-                }
+                SafeDelete(newRenderTargetStorage);
+                return error;
             }
         }
     }
