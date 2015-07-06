@@ -1103,7 +1103,6 @@ void GenerateCaps(ID3D11Device *device, ID3D11DeviceContext *deviceContext, cons
     extensions->shaderTextureLOD = GetShaderTextureLODSupport(featureLevel);
     extensions->fragDepth = true;
     extensions->textureUsage = true; // This could be false since it has no effect in D3D11
-    extensions->discardFramebuffer = true;
     extensions->translatedShaderSource = true;
     extensions->fboRenderMipmap = false;
 }
