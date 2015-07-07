@@ -217,11 +217,8 @@ static float GetLogicalDpi()
             return dpi;
         }
     }
-<<<<<<< HEAD
-=======
-
     // Return 96 dpi as a default if display properties cannot be obtained.
->>>>>>> master
+
     return 96.0f;
 }
 

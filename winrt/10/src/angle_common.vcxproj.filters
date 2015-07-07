@@ -40,8 +40,29 @@
     <Filter Include="common">
       <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
     </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\common\Float16ToFloat32.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\common\MemoryBuffer.cpp">
       <Filter>common</Filter>
     </ClCompile>
@@ -57,13 +78,28 @@
     <ClInclude Include="..\..\..\src\common\angleutils.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClCompile Include="..\..\..\src\common\debug.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\src\common\debug.h">
+      <Filter>common</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\..\src\common\mathutil.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClInclude Include="..\..\..\src\common\mathutil.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\common\matrix_utils.h">
+      <Filter>common</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\src\common\platform.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\src\common\string_utils.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\src\common\string_utils.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\src\common\tls.cpp">

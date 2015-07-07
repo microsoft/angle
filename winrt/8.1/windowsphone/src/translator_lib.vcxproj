@@ -57,7 +57,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -81,6 +81,7 @@
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib</AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -100,7 +101,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -124,6 +125,7 @@
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib</AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -143,7 +145,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -166,6 +168,7 @@
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -185,7 +188,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -208,6 +211,7 @@
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
@@ -276,8 +280,9 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\PoolAlloc.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\Pragma.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\PruneEmptyDeclarations.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\QualifierAlive.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\RecordConstantPrecision.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\RegenerateStructNames.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\RemovePow.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\RenameFunction.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ScalarizeVecAndMatConstructorArgs.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\SearchSymbol.h"/>
@@ -299,7 +304,6 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\depgraph\DependencyGraphOutput.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\glslang.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\glslang_tab.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\intermediate.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\length_limits.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\timing\RestrictFragmentShaderTiming.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\timing\RestrictVertexShaderTiming.h"/>
@@ -314,7 +318,7 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\RewriteElseBlocks.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\SeparateArrayInitialization.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\SeparateDeclarations.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\SimplifyArrayAssignment.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\SeparateExpressionsReturningArrays.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\StructureHLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\TranslatorHLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuitToIf.h"/>
@@ -348,8 +352,9 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\ParseContext.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\PoolAlloc.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\PruneEmptyDeclarations.cpp"/>
-    <ClCompile Include="..\..\..\..\src\compiler\translator\QualifierAlive.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\RecordConstantPrecision.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\RegenerateStructNames.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\RemovePow.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ScalarizeVecAndMatConstructorArgs.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SearchSymbol.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SymbolTable.cpp"/>
@@ -386,7 +391,7 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\RewriteElseBlocks.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SeparateArrayInitialization.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SeparateDeclarations.cpp"/>
-    <ClCompile Include="..\..\..\..\src\compiler\translator\SimplifyArrayAssignment.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\SeparateExpressionsReturningArrays.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\StructureHLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\TranslatorHLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuitToIf.cpp"/>

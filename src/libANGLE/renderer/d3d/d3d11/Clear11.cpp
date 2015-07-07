@@ -264,7 +264,7 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
 
     // TODO: aukinros: understand this merge properly
     // ASSERT(false);
-    if (colorAttachments.size() > 0 /* && colorAttachments[0] != nullptr */)
+    if (colorAttachments.size() > 0 && colorAttachments[0].isAttached())
     {
         RenderTarget11 *renderTarget = NULL;
         gl::Error error = colorAttachments[0].getRenderTarget(&renderTarget);
