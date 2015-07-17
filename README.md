@@ -54,6 +54,26 @@ None
 </tr>
 </table>
 
+Getting ANGLE
+=====
+
+There are two ways to get ANGLE for Windows Store applications:
+  1. Download compiled ANGLE binaries as a [NuGet package](http://github.com/MSOpenTech/angle/wiki/How-To-Use-the-ANGLE-NuGet-Package)
+  2. Download and compile the ANGLE source code from this GitHub repository
+
+Easy-to-use Visual Studio app templates are currently available for option 2 above. See the 'Quick Start' section below for more details.
+
+Requirements
+=====
+
+Windows 10 Development:
+* [Visual Studio 2015 Community RC or higher](https://www.visualstudio.com/downloads/visual-studio-2015-downloads-vs.aspx)
+* Windows 10 for local Windows development
+
+Windows 8.1 and/or Windows Phone 8.1 Development:
+* Visual Studio Community 2013 (Update 4), or higher/later.
+* Windows 8.1 for local Windows development.
+
 More Info
 =====
 
@@ -67,18 +87,7 @@ contains lots of useful information about ANGLE, including:
 
 For a broad overview of ANGLE and how it works, please take a look at [//BUILD/ 2015 presentation](http://channel9.msdn.com/Events/Build/2015/3-686).
 
-Requirements
-=====
-
-Windows 10 Development:
-* [Visual Studio 2015 Community RC or higher](https://www.visualstudio.com/downloads/visual-studio-2015-downloads-vs.aspx)
-* Windows 10 for local Windows development
-
-Windows 8.1 and/or Windows Phone 8.1 Development:
-* Visual Studio Community 2013 (Update 4), or higher/later.
-* Windows 8.1 for local Windows development.
-
-Quick Start
+Quick Start (compiling from source)
 =====
 1. Clone or download ANGLE from our GitHub repository
 2. Install our easy-to-use Visual Studio templates by running install.bat in the /templates/ directory of your copy of ANGLE, or follow [these manual steps](https://github.com/MSOpenTech/angle/wiki/Installing-Templates).
