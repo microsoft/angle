@@ -85,7 +85,7 @@ contains lots of useful information about ANGLE, including:
 - Sample code and documentation
 - And more!
 
-For a broad overview of ANGLE and how it works, please take a look at [//BUILD/ 2015 presentation](http://channel9.msdn.com/Events/Build/2015/3-686).
+For a broad overview of ANGLE and how it works, please take a look at our [//BUILD/ 2015 presentation](http://channel9.msdn.com/Events/Build/2015/3-686).
 
 Quick Start (compiling from source)
 =====
