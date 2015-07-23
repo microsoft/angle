@@ -109,6 +109,11 @@ std::ostream &operator<<(std::ostream& stream, const PlatformParameters &pp)
         break;
     }
 
+    if (pp.eglParameters.useRenderToBackBuffer)
+    {
+        stream << "_RTBB";
+    }
+
     return stream;
 }
 

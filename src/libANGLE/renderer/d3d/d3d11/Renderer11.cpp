@@ -3675,11 +3675,55 @@ gl::Error Renderer11::blitRenderbufferRect(const gl::Rectangle &readRect, const 
     }
     else
     {
-        readTexture = readRenderTarget11->getTexture();
-        readTexture->AddRef();
+        if (readRenderTarget11->renderToBackBuffer())
+        {
+            // The backbuffer can't be created with SRV flags.
+            // As a result, when the app wants to blit directly from the backbuffer, we must copy the backbuffer's
+            // contents into a texture with the SRV flags set and blit from that.
+            ID3D11Texture2D *backbufferTexture = d3d11::DynamicCastComObject<ID3D11Texture2D>(readRenderTarget11->getTexture());
+            ASSERT(backbufferTexture);
+
+            D3D11_TEXTURE2D_DESC readTextureDesc;
+            backbufferTexture->GetDesc(&readTextureDesc);
+            readTextureDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+
+            ID3D11Texture2D *readTexture2D = nullptr;
+            HRESULT hr = mDevice->CreateTexture2D(&readTextureDesc, NULL, &readTexture2D);
+            if (FAILED(hr))
+            {
+                SafeRelease(backbufferTexture);
+                return gl::Error(GL_OUT_OF_MEMORY, "Failed to create temporary blitting read texture.");
+            }
+            readTexture = readTexture2D;
+
+            const d3d11::TextureFormat &readTextureInfo = d3d11::GetTextureFormatInfo(readRenderTarget11->getInternalFormat(), getRenderer11DeviceCaps(), true);
+
+            D3D11_SHADER_RESOURCE_VIEW_DESC readSRVDesc;
+            readSRVDesc.Format = readTextureInfo.srvFormat;
+            readSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+            readSRVDesc.Texture2D.MostDetailedMip = 0;
+            readSRVDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
+
+            hr = mDevice->CreateShaderResourceView(readTexture, &readSRVDesc, &readSRV);
+            if (FAILED(hr))
+            {
+                SafeRelease(backbufferTexture);
+                SafeRelease(readTexture);
+                return gl::Error(GL_OUT_OF_MEMORY, "Failed to create temporary blitting read SRV.");
+            }
+
+            mDeviceContext->CopyResource(readTexture2D, backbufferTexture);
+            SafeRelease(backbufferTexture);
+        }
+        else
+        {
+            readTexture = readRenderTarget11->getTexture();
+            readTexture->AddRef();
+            readSRV = readRenderTarget11->getShaderResourceView();
+            readSRV->AddRef();
+        }
+
         readSubresource = readRenderTarget11->getSubresourceIndex();
-        readSRV = readRenderTarget11->getShaderResourceView();
-        readSRV->AddRef();
     }
 
     if (!readTexture || !readSRV)

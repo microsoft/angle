@@ -365,7 +365,23 @@ gl::Error Framebuffer11::blit(const gl::Rectangle &sourceArea, const gl::Rectang
                 }
                 ASSERT(drawRenderTarget);
 
-                error = mRenderer->blitRenderbufferRect(sourceArea, destArea, readRenderTarget, drawRenderTarget,
+                gl::Rectangle actualSourceArea = sourceArea;
+                RenderTarget11 *readRenderTarget11 = GetAs<RenderTarget11>(readRenderTarget);
+                if (readRenderTarget11->renderToBackBuffer())
+                {
+                    actualSourceArea.y = readRenderTarget11->getHeight() - sourceArea.y;
+                    actualSourceArea.height = -sourceArea.height;
+                }
+
+                gl::Rectangle actualDestArea = destArea;
+                RenderTarget11 *drawRenderTarget11 = GetAs<RenderTarget11>(drawRenderTarget);
+                if (drawRenderTarget11->renderToBackBuffer())
+                {
+                    actualDestArea.y = drawRenderTarget11->getHeight() - destArea.y;
+                    actualDestArea.height = -destArea.height;
+                }
+
+                error = mRenderer->blitRenderbufferRect(actualSourceArea, actualDestArea, readRenderTarget, drawRenderTarget,
                                                         filter, scissor, blitRenderTarget, false, false);
                 if (error.isError())
                 {
