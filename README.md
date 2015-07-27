@@ -1,8 +1,25 @@
-ANGLE -- ms-master branch
+ANGLE -- Microsoft Windows Store branch
 =====
 ANGLE allows Windows users to seamlessly run OpenGL ES content by efficiently translating 
-OpenGL ES API into DirectX 11 API calls. This repository contains a version of ANGLE focused 
-on helping you build great Windows apps.
+OpenGL ES API into DirectX 11 API calls.
+
+The ms-master branch in this repository is maintained by Microsoft to support 
+the use of ANGLE by Windows Store app developers. It contains:
+
+- A copy of ANGLE that is regularly updated from the ANGLE 
+  [master branch](https://code.google.com/p/angleproject)
+- Recent changes made by Microsoft that have not yet been merged back to ANGLE master 
+  _(our goal is to eventually merge everything, but if you want the latest and greatest 
+  Windows Store features, you will find them here first)_
+- [Documentation](https://github.com/MSOpenTech/angle/wiki) and 
+  [project templates](https://github.com/MSOpenTech/angle/tree/ms-master/templates) 
+  focused on Windows Store app development
+- Sample code and utilities such as 
+  [DDS](https://github.com/MSOpenTech/angle/wiki/Loading-textures-from-dds-files) and 
+  [WIC](https://github.com/MSOpenTech/angle/wiki/Loading-textures-from-image-files) 
+  texture loaders
+- This branch is the source for building the ANGLE binaries that we publish on 
+  [NuGet](https://www.nuget.org/packages/ANGLE.WindowsStore)
 
 ANGLE fully supports these C++ app types:
 - Universal Windows apps (Windows 10)
