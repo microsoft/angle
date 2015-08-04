@@ -149,25 +149,13 @@ DisplayD3D::DisplayD3D()
 SurfaceImpl *DisplayD3D::createWindowSurface(const egl::Config *configuration,
                                              EGLNativeWindowType window,
                                              const egl::AttributeMap &attribs,
-                                             bool allowRenderToBackBuffer)
+                                             bool renderToBackBuffer)
 {
     ASSERT(mRenderer != nullptr);
 
     EGLint width = attribs.get(EGL_WIDTH, 0);
     EGLint height = attribs.get(EGL_HEIGHT, 0);
     EGLint fixedSize = attribs.get(EGL_FIXED_SIZE_ANGLE, EGL_FALSE);
-
-    bool renderToBackBuffer = (attribs.get(EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER, EGL_FALSE) == EGL_TRUE);
-
-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
-    renderToBackBuffer = true;
-#endif
-
-    if (renderToBackBuffer && !allowRenderToBackBuffer)
-    {
-        // TODO: aukinros - properly tidy this error checking up
-        return NULL; //  egl::Error(EGL_BAD_ATTRIBUTE);
-    }
 
     if (!fixedSize)
     {
