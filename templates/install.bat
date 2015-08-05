@@ -76,13 +76,21 @@ IF NOT EXIST "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTempla
 echo    Visual Studio 2015 templates directory found
 
 REM delete any old ANGLE templates
-IF EXIST "%userprofile%\Documents\Visual Studio 2013\Templates\ProjectTemplates\Windows\Windows Universal\CoreWindowUniversal" (
+IF EXIST "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTemplates\Windows\Windows Universal\CoreWindowUniversal" (
 echo    Removing old VS2015 CoreWindowUniversal template
-@RD /S /Q "%userprofile%\Documents\Visual Studio 2013\Templates\ProjectTemplates\Windows\Windows Universal\CoreWindowUniversal"
+@RD /S /Q "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTemplates\Windows\Windows Universal\CoreWindowUniversal"
 )
-IF EXIST "%userprofile%\Documents\Visual Studio 2013\Templates\ProjectTemplates\Windows\Windows Universal\XamlUniversal" (
+IF EXIST "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTemplates\Windows\Windows Universal\XamlUniversal" (
 echo    Removing old VS2015 XamlUniversal template
-@RD /S /Q "%userprofile%\Documents\Visual Studio 2013\Templates\ProjectTemplates\Windows\Windows Universal\XamlUniversal"
+@RD /S /Q "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTemplates\Windows\Windows Universal\XamlUniversal"
+)
+IF EXIST "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTemplates\Windows\Universal\CoreWindowUniversal" (
+echo    Removing old VS2015 CoreWindowUniversal template
+@RD /S /Q "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTemplates\Windows\Universal\CoreWindowUniversal"
+)
+IF EXIST "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTemplates\Windows\Universal\XamlUniversal" (
+echo    Removing old VS2015 XamlUniversal template
+@RD /S /Q "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTemplates\Windows\Universal\XamlUniversal"
 )
 
 XCOPY "%~dp010" "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTemplates" /s /d /y > nul
@@ -99,20 +107,6 @@ GOTO ENDVS2015
 echo    Visual Studio 2015 template directory not found. Skipped installing VS2015 templates.
 :ENDVS2015
 REM ---------------------------------------------------------------------------------------------------------
-
-REM ---------------------------------------------------------------------------------------------------------
-REM Log Win10 users off their machines, to enable start menu to pick up new system environment variable
-REM ---------------------------------------------------------------------------------------------------------
-ver > nul REM reset the error level
-ver | find "Version 10.0" > nul
-IF %ERRORLEVEL% EQU 0 ( 
-    echo Log off Windows 10 machine if necessary
-    echo    On Windows 10 machines, you must log off and log back in again to use the new templates.
-    echo    This script will now log you off.
-    pause
-    shutdown -l
-    GOTO END
-)
 
 echo Script complete.
 :END
