@@ -2768,6 +2768,11 @@ gl::Error Renderer11::copyImage2D(const gl::Framebuffer *framebuffer, const gl::
     gl::Box destArea(destOffset.x, destOffset.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents destSize(destRenderTarget->getWidth(), destRenderTarget->getHeight(), 1);
 
+    if (sourceRenderTarget->renderToBackBuffer())
+    {
+        sourceArea.y = d3d11::InvertYAxis(colorbuffer->getHeight(), sourceArea.y, sourceArea.height);
+    }
+
     // Use nearest filtering because source and destination are the same size for the direct
     // copy
     error = mBlit->copyTexture(source, sourceArea, sourceSize, dest, destArea, destSize, NULL, destFormat, GL_NEAREST);
@@ -2818,6 +2823,11 @@ gl::Error Renderer11::copyImageCube(const gl::Framebuffer *framebuffer, const gl
 
     gl::Box destArea(destOffset.x, destOffset.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents destSize(destRenderTarget->getWidth(), destRenderTarget->getHeight(), 1);
+
+    if (sourceRenderTarget->renderToBackBuffer())
+    {
+        sourceArea.y = d3d11::InvertYAxis(colorbuffer->getHeight(), sourceArea.y, sourceArea.height);
+    }
 
     // Use nearest filtering because source and destination are the same size for the direct
     // copy
@@ -2870,6 +2880,11 @@ gl::Error Renderer11::copyImage3D(const gl::Framebuffer *framebuffer, const gl::
     gl::Box destArea(destOffset.x, destOffset.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents destSize(destRenderTarget->getWidth(), destRenderTarget->getHeight(), 1);
 
+    if (sourceRenderTarget->renderToBackBuffer())
+    {
+        sourceArea.y = d3d11::InvertYAxis(colorbuffer->getHeight(), sourceArea.y, sourceArea.height);
+    }
+
     // Use nearest filtering because source and destination are the same size for the direct
     // copy
     error = mBlit->copyTexture(source, sourceArea, sourceSize, dest, destArea, destSize, NULL, destFormat, GL_NEAREST);
@@ -2920,6 +2935,11 @@ gl::Error Renderer11::copyImage2DArray(const gl::Framebuffer *framebuffer, const
 
     gl::Box destArea(destOffset.x, destOffset.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents destSize(destRenderTarget->getWidth(), destRenderTarget->getHeight(), 1);
+
+    if (sourceRenderTarget->renderToBackBuffer())
+    {
+        sourceArea.y = d3d11::InvertYAxis(colorbuffer->getHeight(), sourceArea.y, sourceArea.height);
+    }
 
     // Use nearest filtering because source and destination are the same size for the direct
     // copy
