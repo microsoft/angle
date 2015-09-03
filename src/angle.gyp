@@ -68,7 +68,6 @@
                 {
                     'msvs_enable_winrt' : '1',
                     'msvs_application_type_revision' : '<(angle_build_winrt_app_type_revision)',
-                    'msvs_target_platform_version' : '<(angle_build_winrt_target_platform_ver)',
                 }],
                 ['angle_build_winphone==1',
                 {
@@ -95,7 +94,6 @@
                 {
                     'msvs_enable_winrt' : '1',
                     'msvs_application_type_revision' : '<(angle_build_winrt_app_type_revision)',
-                    'msvs_target_platform_version' : '<(angle_build_winrt_target_platform_ver)',
                     'type' : 'shared_library',
                 }],
                 ['angle_build_winphone==1',
@@ -145,7 +143,6 @@
                         {
                             'msvs_enable_winrt' : '1',
                             'msvs_application_type_revision' : '<(angle_build_winrt_app_type_revision)',
-                            'msvs_target_platform_version' : '<(angle_build_winrt_target_platform_ver)',
                             'type' : 'shared_library',
                         }],
                         ['angle_build_winphone==1',
@@ -184,7 +181,6 @@
                         {
                             'msvs_enable_winrt' : '1',
                             'msvs_application_type_revision' : '<(angle_build_winrt_app_type_revision)',
-                            'msvs_target_platform_version' : '<(angle_build_winrt_target_platform_ver)',
                             'type' : 'shared_library',
                         }],
                         ['angle_build_winphone==1',
@@ -230,7 +226,6 @@
                         {
                             'msvs_enable_winrt' : '1',
                             'msvs_application_type_revision' : '<(angle_build_winrt_app_type_revision)',
-                            'msvs_target_platform_version' : '<(angle_build_winrt_target_platform_ver)',
                             'type' : 'shared_library',
                         }],
                         ['angle_build_winphone==1',
