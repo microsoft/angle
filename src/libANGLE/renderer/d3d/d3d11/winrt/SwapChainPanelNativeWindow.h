@@ -18,14 +18,11 @@ class SwapChainPanelNativeWindow : public InspectableNativeWindow, public std::e
   public:
     ~SwapChainPanelNativeWindow();
 
-    bool initialize(EGLNativeWindowType window, IPropertySet *propertySet) override;
-    HRESULT createSwapChain(ID3D11Device *device, DXGIFactory *factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain **swapChain) override;
-
-  protected:
-    HRESULT scaleSwapChain(const SIZE &windowSize, const RECT &clientRect) override;
-
+    bool initialize(EGLNativeWindowType window, IPropertySet *propertySet);
     bool registerForSizeChangeEvents();
     void unregisterForSizeChangeEvents();
+    HRESULT createSwapChain(ID3D11Device *device, DXGIFactory *factory, DXGI_FORMAT format, unsigned int width, unsigned int height, DXGISwapChain **swapChain);
+    HRESULT scaleSwapChain(const SIZE &newSize);
 
   private:
     ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> mSwapChainPanel;
@@ -77,6 +74,6 @@ class SwapChainPanelSizeChangedHandler :
     std::weak_ptr<InspectableNativeWindow> mHost;
 };
 
-HRESULT GetSwapChainPanelSize(const ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> &swapChainPanel, SIZE *windowSize);
+HRESULT GetSwapChainPanelSize(const ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> &swapChainPanel, RECT *windowSize);
 }
 #endif // LIBANGLE_RENDERER_D3D_D3D11_WINRT_SWAPCHAINPANELNATIVEWINDOW_H_

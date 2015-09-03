@@ -24,6 +24,7 @@ bool CoreWindowNativeWindow::initialize(EGLNativeWindowType window, IPropertySet
     ComPtr<IPropertySet> props = propertySet;
     ComPtr<IInspectable> win = window;
     SIZE swapChainSize = {};
+    bool swapChainSizeSpecified = false;
     HRESULT result = S_OK;
 
     // IPropertySet is an optional parameter and can be null.
@@ -32,40 +33,12 @@ bool CoreWindowNativeWindow::initialize(EGLNativeWindowType window, IPropertySet
     if (propertySet)
     {
         result = props.As(&mPropertyMap);
-        if (FAILED(result))
+        if (SUCCEEDED(result))
         {
-            return false;
-        }
-
-        // The EGLRenderSurfaceSizeProperty is optional and may be missing. The IPropertySet
-        // was prevalidated to contain the EGLNativeWindowType before being passed to
-        // this host.
-        result = GetOptionalSizePropertyValue(mPropertyMap, EGLRenderSurfaceSizeProperty, &swapChainSize, &mSwapChainSizeSpecified);
-        if (FAILED(result))
-        {
-            return false;
-        }
-
-        // The EGLRenderResolutionScaleProperty is optional and may be missing. The IPropertySet
-        // was prevalidated to contain the EGLNativeWindowType before being passed to
-        // this host.
-        result = GetOptionalSinglePropertyValue(mPropertyMap, EGLRenderResolutionScaleProperty, &mSwapChainScale, &mSwapChainScaleSpecified);
-        if (FAILED(result))
-        {
-            return false;
-        }
-
-        if (!mSwapChainScaleSpecified)
-        {
-            // Default value for the scale is 1.0f
-            mSwapChainScale = 1.0f;
-        }
-
-        // A EGLRenderSurfaceSizeProperty and a EGLRenderResolutionScaleProperty can't both be specified
-        if (mSwapChainScaleSpecified && mSwapChainSizeSpecified)
-        {
-            ERR("It is invalid to specify both an EGLRenderSurfaceSizeProperty and a EGLRenderResolutionScaleProperty.");
-            return false;
+            // The EGLRenderSurfaceSizeProperty is optional and may be missing.  The IPropertySet
+            // was prevalidated to contain the EGLNativeWindowType before being passed to
+            // this host.
+            result = GetOptionalSizePropertyValue(mPropertyMap, EGLRenderSurfaceSizeProperty, &swapChainSize, &swapChainSizeSpecified);
         }
     }
 
@@ -82,19 +55,14 @@ bool CoreWindowNativeWindow::initialize(EGLNativeWindowType window, IPropertySet
         // of the host.
         // Scaling of the swapchain output occurs automatically because if
         // the scaling mode setting DXGI_SCALING_STRETCH on the swapchain.
-        if (mSwapChainSizeSpecified)
+        if (swapChainSizeSpecified)
         {
             mClientRect = { 0, 0, swapChainSize.cx, swapChainSize.cy };
+            mSupportsSwapChainResize = false;
         }
         else
         {
-            SIZE coreWindowSize;
-            result = GetCoreWindowSizeInPixels(mCoreWindow, &coreWindowSize);
-
-            if (SUCCEEDED(result))
-            {
-                mClientRect = { 0, 0, static_cast<long>(coreWindowSize.cx * mSwapChainScale), static_cast<long>(coreWindowSize.cy * mSwapChainScale) };
-            }
+            result = GetCoreWindowSizeInPixels(mCoreWindow, &mClientRect);
         }
     }
 
@@ -186,20 +154,13 @@ HRESULT CoreWindowNativeWindow::createSwapChain(ID3D11Device *device, DXGIFactor
     return result;
 }
 
-inline HRESULT CoreWindowNativeWindow::scaleSwapChain(const SIZE &windowSize, const RECT &clientRect)
-{
-    // We don't need to do any additional work to scale CoreWindow swapchains.
-    // Using DXGI_SCALING_STRETCH to create the swapchain above does all the necessary work.
-    return S_OK;
-}
-
-HRESULT GetCoreWindowSizeInPixels(const ComPtr<ABI::Windows::UI::Core::ICoreWindow>& coreWindow, SIZE *windowSize)
+HRESULT GetCoreWindowSizeInPixels(const ComPtr<ABI::Windows::UI::Core::ICoreWindow>& coreWindow, RECT *windowSize)
 {
     ABI::Windows::Foundation::Rect bounds;
     HRESULT result = coreWindow->get_Bounds(&bounds);
     if (SUCCEEDED(result))
     {
-        *windowSize = { ConvertDipsToPixels(bounds.Width), ConvertDipsToPixels(bounds.Height) };
+        *windowSize = { 0, 0, ConvertDipsToPixels(bounds.Width), ConvertDipsToPixels(bounds.Height) };
     }
 
     return result;
