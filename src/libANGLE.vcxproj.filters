@@ -232,8 +232,14 @@
     <Filter Include="libANGLE">
       <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libANGLE\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
     </Filter>
     <Filter Include="libANGLE">
       <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
@@ -3493,6 +3499,33 @@
     <Filter Include="libANGLE\renderer\gl">
       <UniqueIdentifier>{71BB4E41-219D-601E-ACE4-FEA008E71300}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl">
+      <UniqueIdentifier>{71BB4E41-219D-601E-ACE4-FEA008E71300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl">
+      <UniqueIdentifier>{71BB4E41-219D-601E-ACE4-FEA008E71300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl">
+      <UniqueIdentifier>{71BB4E41-219D-601E-ACE4-FEA008E71300}</UniqueIdentifier>
+    </Filter>
     <Filter Include="libANGLE\renderer\gl\wgl">
       <UniqueIdentifier>{3DC31FCF-53CD-5334-353B-CC59386FB5BD}</UniqueIdentifier>
     </Filter>
@@ -3726,6 +3759,12 @@
     <ClInclude Include="libANGLE\HandleAllocator.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
+    <ClInclude Include="libANGLE\Image.h">
+      <Filter>libANGLE</Filter>
+    </ClInclude>
+    <ClCompile Include="libANGLE\Image.cpp">
+      <Filter>libANGLE</Filter>
+    </ClCompile>
     <ClInclude Include="libANGLE\ImageIndex.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
@@ -3831,12 +3870,18 @@
     <ClInclude Include="libANGLE\VertexAttribute.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
+    <None Include="libANGLE\VertexAttribute.inl">
+      <Filter>libANGLE</Filter>
+    </None>
     <ClCompile Include="libANGLE\angletypes.cpp">
       <Filter>libANGLE</Filter>
     </ClCompile>
     <ClInclude Include="libANGLE\angletypes.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
+    <None Include="libANGLE\angletypes.inl">
+      <Filter>libANGLE</Filter>
+    </None>
     <ClInclude Include="libANGLE\features.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
@@ -3882,6 +3927,9 @@
     <ClInclude Include="libANGLE\renderer\FramebufferImpl.h">
       <Filter>libANGLE\renderer</Filter>
     </ClInclude>
+    <ClInclude Include="libANGLE\renderer\ImageImpl.h">
+      <Filter>libANGLE\renderer</Filter>
+    </ClInclude>
     <ClInclude Include="libANGLE\renderer\ImplFactory.h">
       <Filter>libANGLE\renderer</Filter>
     </ClInclude>
@@ -3897,9 +3945,6 @@
     <ClInclude Include="libANGLE\renderer\RenderbufferImpl.h">
       <Filter>libANGLE\renderer</Filter>
     </ClInclude>
-    <ClCompile Include="libANGLE\renderer\RenderbufferImpl.cpp">
-      <Filter>libANGLE\renderer</Filter>
-    </ClCompile>
     <ClCompile Include="libANGLE\renderer\Renderer.cpp">
       <Filter>libANGLE\renderer</Filter>
     </ClCompile>
@@ -3922,9 +3967,6 @@
       <Filter>libANGLE\renderer</Filter>
     </ClInclude>
     <ClInclude Include="libANGLE\renderer\VertexArrayImpl.h">
-      <Filter>libANGLE\renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="libANGLE\renderer\Workarounds.h">
       <Filter>libANGLE\renderer</Filter>
     </ClInclude>
     <ClCompile Include="libANGLE\validationEGL.cpp">
@@ -4149,9 +4191,6 @@
     <ClInclude Include="libANGLE\renderer\d3d\TextureD3D.h">
       <Filter>libANGLE\renderer\d3d</Filter>
     </ClInclude>
-    <ClCompile Include="libANGLE\renderer\d3d\TextureStorage.cpp">
-      <Filter>libANGLE\renderer\d3d</Filter>
-    </ClCompile>
     <ClInclude Include="libANGLE\renderer\d3d\TextureStorage.h">
       <Filter>libANGLE\renderer\d3d</Filter>
     </ClInclude>
@@ -4171,6 +4210,9 @@
       <Filter>libANGLE\renderer\d3d</Filter>
     </ClCompile>
     <ClInclude Include="libANGLE\renderer\d3d\VertexDataManager.h">
+      <Filter>libANGLE\renderer\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="libANGLE\renderer\d3d\WorkaroundsD3D.h">
       <Filter>libANGLE\renderer\d3d</Filter>
     </ClInclude>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\Blit9.cpp">
@@ -4608,6 +4650,12 @@
     <ClInclude Include="third_party\systeminfo\SystemInfo.h">
       <Filter>third_party\systeminfo</Filter>
     </ClInclude>
+    <ClCompile Include="libANGLE\renderer\gl\BlitGL.cpp">
+      <Filter>libANGLE\renderer\gl</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\renderer\gl\BlitGL.h">
+      <Filter>libANGLE\renderer\gl</Filter>
+    </ClInclude>
     <ClCompile Include="libANGLE\renderer\gl\BufferGL.cpp">
       <Filter>libANGLE\renderer\gl</Filter>
     </ClCompile>
@@ -4708,6 +4756,9 @@
       <Filter>libANGLE\renderer\gl</Filter>
     </ClCompile>
     <ClInclude Include="libANGLE\renderer\gl\VertexArrayGL.h">
+      <Filter>libANGLE\renderer\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="libANGLE\renderer\gl\WorkaroundsGL.h">
       <Filter>libANGLE\renderer\gl</Filter>
     </ClInclude>
     <ClCompile Include="libANGLE\renderer\gl\formatutilsgl.cpp">

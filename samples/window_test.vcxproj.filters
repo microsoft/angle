@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="WindowTest">
+      <UniqueIdentifier>{08F499C3-6575-7A08-F061-F21D3EE9C6B4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WindowTest\WindowTest.cpp">
+      <Filter>WindowTest</Filter>
+    </ClCompile>
+    <None Include="samples.gyp"/>
+  </ItemGroup>
+</Project>
