@@ -10,6 +10,7 @@
         'angle_build_winrt%': '0',
         'angle_build_winphone%': '0',
         'angle_build_winrt_app_type_revision%': '8.1',
+        'angle_build_winrt_target_platform_ver%' : '',
         # angle_code is set to 1 for the core ANGLE targets defined in src/build_angle.gyp.
         # angle_code is set to 0 for test code, sample code, and third party code.
         # When angle_code is 1, we build with additional warning flags on Mac and Linux.
@@ -51,6 +52,19 @@
                         'WarnAsError': 'true',
                     },
                 },
+            }],
+        ],
+        'conditions':
+        [
+            ['angle_build_winrt==1',
+            {
+                'msvs_enable_winrt' : '1',
+                'msvs_application_type_revision' : '<(angle_build_winrt_app_type_revision)',
+                'msvs_target_platform_version' : '<(angle_build_winrt_target_platform_ver)',
+            }],
+            ['angle_build_winphone==1',
+            {
+                'msvs_enable_winphone' : '1',
             }],
         ],
         'configurations':
@@ -103,6 +117,10 @@
                     {
                         'Culture': '1033',
                     },
+                },
+                'xcode_settings':
+                {
+                    'CLANG_CXX_LANGUAGE_STANDARD': 'c++11',
                 },
             },    # Common_Base
 
@@ -160,7 +178,6 @@
                 },
                 'xcode_settings':
                 {
-                    'CLANG_CXX_LANGUAGE_STANDARD': 'c++11',
                     'COPY_PHASE_STRIP': 'NO',
                     'GCC_OPTIMIZATION_LEVEL': '0',
                 },
@@ -344,6 +361,9 @@
                 'cflags':
                 [
                     '-pthread',
+                ],
+                'cflags_cc':
+                [
                     '-fno-exceptions',
                 ],
                 'ldflags':

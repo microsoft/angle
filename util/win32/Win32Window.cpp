@@ -443,14 +443,15 @@ bool Win32Window::initialize(const std::string &name, size_t width, size_t heigh
     DWORD parentStyle = WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
     DWORD parentExtendedStyle = WS_EX_APPWINDOW;
 
-    RECT sizeRect = { 0, 0, width, height };
+    RECT sizeRect = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
     AdjustWindowRectEx(&sizeRect, parentStyle, FALSE, parentExtendedStyle);
 
     mParentWindow = CreateWindowExA(parentExtendedStyle, mParentClassName.c_str(), name.c_str(), parentStyle, CW_USEDEFAULT, CW_USEDEFAULT,
                                     sizeRect.right - sizeRect.left, sizeRect.bottom - sizeRect.top, NULL, NULL,
                                     GetModuleHandle(NULL), this);
 
-    mNativeWindow = CreateWindowExA(0, mChildClassName.c_str(), name.c_str(), WS_CHILD, 0, 0, width, height,
+    mNativeWindow = CreateWindowExA(0, mChildClassName.c_str(), name.c_str(), WS_CHILD, 0, 0,
+                                    static_cast<int>(width), static_cast<int>(height),
                                     mParentWindow, NULL, GetModuleHandle(NULL), this);
 
     mNativeDisplay = GetDC(mNativeWindow);
@@ -704,6 +705,8 @@ void Win32Window::pushEvent(Event event)
     {
       case Event::EVENT_RESIZED:
         MoveWindow(mNativeWindow, 0, 0, mWidth, mHeight, FALSE);
+        break;
+      default:
         break;
     }
 }

@@ -28,24 +28,24 @@ protected:
     }
 
     // Set up the per compile resources
-    void GenerateResources(ShBuiltInResources* resources)
+    static void GenerateResources(ShBuiltInResources *res)
     {
-        ShInitBuiltInResources(resources);
+        ShInitBuiltInResources(res);
 
-        resources->MaxVertexAttribs = 8;
-        resources->MaxVertexUniformVectors = 128;
-        resources->MaxVaryingVectors = 8;
-        resources->MaxVertexTextureImageUnits = 0;
-        resources->MaxCombinedTextureImageUnits = 8;
-        resources->MaxTextureImageUnits = 8;
-        resources->MaxFragmentUniformVectors = 16;
-        resources->MaxDrawBuffers = 1;
+        res->MaxVertexAttribs             = 8;
+        res->MaxVertexUniformVectors      = 128;
+        res->MaxVaryingVectors            = 8;
+        res->MaxVertexTextureImageUnits   = 0;
+        res->MaxCombinedTextureImageUnits = 8;
+        res->MaxTextureImageUnits         = 8;
+        res->MaxFragmentUniformVectors    = 16;
+        res->MaxDrawBuffers               = 1;
 
-        resources->OES_standard_derivatives = 0;
-        resources->OES_EGL_image_external = 0;
+        res->OES_standard_derivatives = 0;
+        res->OES_EGL_image_external   = 0;
 
-        resources->MaxExpressionComplexity = kMaxExpressionComplexity;
-        resources->MaxCallStackDepth = kMaxCallStackDepth;
+        res->MaxExpressionComplexity = kMaxExpressionComplexity;
+        res->MaxCallStackDepth       = kMaxCallStackDepth;
     }
 
     void GenerateLongExpression(int length, std::stringstream* ss)
@@ -405,12 +405,9 @@ TEST_F(ExpressionLimitTest, Recursion)
             return vec3(float(r) / 255.0, float(g) / 255.0, float(b) / 255.0);
         }
 
-        // these external calls used to incorrectly trigger
-        // recursion detection.
-        vec3 hairColor0 = rgb(151, 200, 234);
-        vec3 faceColor2 = rgb(183, 148, 133);
-
         void main() {
+            vec3 hairColor0 = rgb(151, 200, 234);
+            vec3 faceColor2 = rgb(183, 148, 133);
             gl_FragColor = u_color + vec4(hairColor0 + faceColor2, 0);
         }
     );

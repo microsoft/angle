@@ -7,9 +7,11 @@
     {
         'component%': 'static_library',
         'windows_sdk_path%': 'C:/Program Files (x86)/Windows Kits/8.1',
+        # build/gyp_angle sets this to 1.
+        'angle_standalone%': '0',
+
         'angle_build_winrt%': '0',
         'angle_build_winphone%': '0',
-        'angle_build_winrt_app_type_revision%': '8.1',
         'conditions':
         [
             ['OS=="linux" and use_x11==1 and chromeos==0', {
@@ -24,9 +26,6 @@
     [
         4100, # Unreferenced formal parameter. Not interesting.
         4127, # conditional expression is constant. Too noisy to be useful.
-
-        # Conversion warnings.  These fire all over the place in ANGLE.
-        4267, # Conversion from 'size_t' to 'type', possible loss of data
 
         # TODO: 4702 doesn't fire on xtree in VS2015 (CTP6). We can remove C4702 after moving to VS2015.
         4702, # Unreachable code. Should only fire on system header xtree.
@@ -53,12 +52,11 @@
                 '<(windows_sdk_path)/Include/um',
             ],
         }],
-        ['angle_build_winrt==1' and 'angle_build_winphone==1',
+        ['angle_standalone==1',
         {
-            'msvs_system_include_dirs':
+            'defines':
             [
-                '<(windows_sdk_path)/Include/shared',
-                '<(windows_sdk_path)/Include/um',
+                'ANGLE_STANDALONE_BUILD',
             ],
         }],
     ],

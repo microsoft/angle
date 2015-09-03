@@ -17,6 +17,9 @@ class ValidateGlobalInitializerTraverser : public TIntermTraverser
     ValidateGlobalInitializerTraverser(const TParseContext *context);
 
     void visitSymbol(TIntermSymbol *node) override;
+    bool visitAggregate(Visit visit, TIntermAggregate *node) override;
+    bool visitBinary(Visit visit, TIntermBinary *node) override;
+    bool visitUnary(Visit visit, TIntermUnary *node) override;
 
     bool isValid() const { return mIsValid; }
     bool issueWarning() const { return mIssueWarning; }
@@ -57,6 +60,35 @@ void ValidateGlobalInitializerTraverser::visitSymbol(TIntermSymbol *node)
             mIsValid = false;
         }
     }
+}
+
+bool ValidateGlobalInitializerTraverser::visitAggregate(Visit visit, TIntermAggregate *node)
+{
+    // Disallow calls to user-defined functions and texture lookup functions in global variable initializers.
+    // This is done simply by disabling all function calls - built-in math functions don't use EOpFunctionCall.
+    if (node->getOp() == EOpFunctionCall)
+    {
+        mIsValid = false;
+    }
+    return true;
+}
+
+bool ValidateGlobalInitializerTraverser::visitBinary(Visit visit, TIntermBinary *node)
+{
+    if (node->isAssignment())
+    {
+        mIsValid = false;
+    }
+    return true;
+}
+
+bool ValidateGlobalInitializerTraverser::visitUnary(Visit visit, TIntermUnary *node)
+{
+    if (node->isAssignment())
+    {
+        mIsValid = false;
+    }
+    return true;
 }
 
 ValidateGlobalInitializerTraverser::ValidateGlobalInitializerTraverser(const TParseContext *context)

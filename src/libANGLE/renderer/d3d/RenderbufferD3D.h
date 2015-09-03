@@ -26,12 +26,14 @@ class RenderbufferD3D : public RenderbufferImpl
     RenderbufferD3D(RendererD3D *renderer);
     virtual ~RenderbufferD3D();
 
-    virtual gl::Error setStorage(GLenum internalformat, size_t width, size_t height) override;
-    virtual gl::Error setStorageMultisample(size_t samples, GLenum internalformat, size_t width, size_t height) override;
+    gl::Error setStorage(GLenum internalformat, size_t width, size_t height) override;
+    gl::Error setStorageMultisample(size_t samples,
+                                    GLenum internalformat,
+                                    size_t width,
+                                    size_t height) override;
+    gl::Error setStorageEGLImageTarget(egl::Image *image) override;
 
     RenderTargetD3D *getRenderTarget();
-    unsigned int getRenderTargetSerial() const;
-
     gl::Error getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,
                                         FramebufferAttachmentRenderTarget **rtOut) override;
 
@@ -39,6 +41,7 @@ class RenderbufferD3D : public RenderbufferImpl
     RendererD3D *mRenderer;
     RenderTargetD3D *mRenderTarget;
 };
+
 }
 
 #endif // LIBANGLE_RENDERER_D3D_RENDERBUFFERD3D_H_

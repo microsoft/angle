@@ -53,7 +53,7 @@ class VertexAttributeTest : public ANGLETest
         GLint midPixelX = (viewportSize[0] + viewportSize[2]) / 2;
         GLint midPixelY = (viewportSize[1] + viewportSize[3]) / 2;
 
-        for (size_t i = 0; i < 4; i++)
+        for (GLint i = 0; i < 4; i++)
         {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glVertexAttribPointer(mTestAttrib, i + 1, test.type, test.normalized, 0, test.inputData);
@@ -331,6 +331,22 @@ TEST_P(VertexAttributeTest, MaxAttribsPlusOne)
 
     GLuint program = compileMultiAttribProgram(drawAttribs);
     ASSERT_EQ(0u, program);
+}
+
+// Simple test for when we use glBindAttribLocation
+TEST_P(VertexAttributeTest, SimpleBindAttribLocation)
+{
+    // Re-use the multi-attrib program, binding attribute 0
+    GLuint program = compileMultiAttribProgram(1);
+    glBindAttribLocation(program, 2, "position");
+    glBindAttribLocation(program, 3, "a0");
+    glLinkProgram(program);
+
+    // Setup and draw the quad
+    setupMultiAttribs(program, 1, 0.5f);
+    drawQuad(program, "position", 0.5f);
+    EXPECT_GL_NO_ERROR();
+    EXPECT_PIXEL_NEAR(0, 0, 128, 0, 0, 255, 1);
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.

@@ -348,6 +348,13 @@ TEST_F(EGLSurfaceTest, ResizeD3DWindow)
 // support GL_RGB565
 TEST_F(EGLSurfaceTest, CreateWithEGLConfig5650Support)
 {
+    const char *extensionsString = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
+    if (strstr(extensionsString, "EGL_ANGLE_platform_angle_d3d") == nullptr)
+    {
+        std::cout << "D3D Platform not supported in ANGLE" << std::endl;
+        return;
+    }
+
     const EGLint configAttributes[] =
     {
         EGL_RED_SIZE, 5,
@@ -383,6 +390,13 @@ TEST_F(EGLSurfaceTest, CreateWithEGLConfig5650Support)
 // support GL_RGBA4
 TEST_F(EGLSurfaceTest, CreateWithEGLConfig4444Support)
 {
+    const char *extensionsString = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
+    if (strstr(extensionsString, "EGL_ANGLE_platform_angle_d3d") == nullptr)
+    {
+        std::cout << "D3D Platform not supported in ANGLE" << std::endl;
+        return;
+    }
+
     const EGLint configAttributes[] =
     {
         EGL_RED_SIZE, 4,
@@ -418,6 +432,13 @@ TEST_F(EGLSurfaceTest, CreateWithEGLConfig4444Support)
 // support GL_RGB5_A1
 TEST_F(EGLSurfaceTest, CreateWithEGLConfig5551Support)
 {
+    const char *extensionsString = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
+    if (strstr(extensionsString, "EGL_ANGLE_platform_angle_d3d") == nullptr)
+    {
+        std::cout << "D3D Platform not supported in ANGLE" << std::endl;
+        return;
+    }
+
     const EGLint configAttributes[] =
     {
         EGL_RED_SIZE, 5,

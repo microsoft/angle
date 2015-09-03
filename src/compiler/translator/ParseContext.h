@@ -58,7 +58,8 @@ class TParseContext : angle::NonCopyable
           mPreprocessor(&mDiagnostics, &mDirectiveHandler),
           mScanner(nullptr),
           mUsesFragData(false),
-          mUsesFragColor(false)
+          mUsesFragColor(false),
+          mUsesSecondaryOutputs(false)
     {
     }
 
@@ -113,7 +114,6 @@ class TParseContext : angle::NonCopyable
     const TVariable *getNamedVariable(const TSourceLoc &location, const TString *name, const TSymbol *symbol);
 
     bool parseVectorFields(const TString&, int vecSize, TVectorFields&, const TSourceLoc &line);
-    bool parseMatrixFields(const TString&, int matCols, int matRows, TMatrixFields&, const TSourceLoc &line);
 
     bool reservedErrorCheck(const TSourceLoc &line, const TString &identifier);
     void assignError(const TSourceLoc &line, const char *op, TString left, TString right);
@@ -140,6 +140,9 @@ class TParseContext : angle::NonCopyable
     bool layoutLocationErrorCheck(const TSourceLoc &location, const TLayoutQualifier &layoutQualifier);
     bool functionCallLValueErrorCheck(const TFunction *fnCandidate, TIntermAggregate *);
     void es3InvariantErrorCheck(const TQualifier qualifier, const TSourceLoc &invariantLocation);
+    void es3InputOutputTypeCheck(const TQualifier qualifier,
+                                 const TPublicType &type,
+                                 const TSourceLoc &qualifierLocation);
 
     const TPragma &pragma() const { return mDirectiveHandler.pragma(); }
     const TExtensionBehavior &extensionBehavior() const { return mDirectiveHandler.extensionBehavior(); }
@@ -220,6 +223,11 @@ class TParseContext : angle::NonCopyable
                                                TIntermTyped *initializer);
 
     void parseGlobalLayoutQualifier(const TPublicType &typeQualifier);
+    void parseFunctionPrototype(const TSourceLoc &location,
+                                TFunction *function,
+                                TIntermAggregate **aggregateOut);
+    TFunction *parseFunctionDeclarator(const TSourceLoc &location,
+                                       TFunction *function);
     TFunction *addConstructorFunc(const TPublicType &publicType);
     TIntermTyped *addConstructor(TIntermNode *arguments,
                                  TType *type,
@@ -344,6 +352,8 @@ class TParseContext : angle::NonCopyable
     void *mScanner;
     bool mUsesFragData; // track if we are using both gl_FragData and gl_FragColor
     bool mUsesFragColor;
+    bool mUsesSecondaryOutputs;  // Track if we are using either gl_SecondaryFragData or
+                                 // gl_Secondary FragColor or both.
 };
 
 int PaParseStrings(

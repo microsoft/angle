@@ -35,6 +35,27 @@ const char *GetShaderTypeString(GLenum type)
     }
 }
 
+// true if varying x has a higher priority in packing than y
+bool CompareVarying(const sh::Varying &x, const sh::Varying &y)
+{
+    if (x.type == y.type)
+    {
+        return x.arraySize > y.arraySize;
+    }
+
+    // Special case for handling structs: we sort these to the end of the list
+    if (x.type == GL_STRUCT_ANGLEX)
+    {
+        return false;
+    }
+
+    if (y.type == GL_STRUCT_ANGLEX)
+    {
+        return true;
+    }
+
+    return gl::VariableSortOrder(x.type) < gl::VariableSortOrder(y.type);
+}
 }
 
 namespace rx
@@ -65,9 +86,7 @@ const std::vector<VarT> *GetShaderVariables(const std::vector<VarT> *variableLis
     return variableList;
 }
 
-ShaderD3D::ShaderD3D(GLenum type)
-    : mShaderType(type),
-      mShaderVersion(100)
+ShaderD3D::ShaderD3D(GLenum type, RendererD3D *renderer) : mShaderType(type), mRenderer(renderer)
 {
     uncompile();
 }
@@ -89,10 +108,7 @@ void ShaderD3D::parseVaryings(ShHandle compiler)
         const std::vector<sh::Varying> *varyings = ShGetVaryings(compiler);
         ASSERT(varyings);
 
-        for (size_t varyingIndex = 0; varyingIndex < varyings->size(); varyingIndex++)
-        {
-            mVaryings.push_back(gl::PackedVarying((*varyings)[varyingIndex]));
-        }
+        mVaryings = *varyings;
 
         mUsesMultipleRenderTargets   = mTranslatedSource.find("GL_USES_MRT")                          != std::string::npos;
         mUsesFragColor               = mTranslatedSource.find("GL_USES_FRAG_COLOR")                   != std::string::npos;
@@ -107,14 +123,6 @@ void ShaderD3D::parseVaryings(ShHandle compiler)
         mUsesNestedBreak             = mTranslatedSource.find("ANGLE_USES_NESTED_BREAK")              != std::string::npos;
         mUsesDeferredInit            = mTranslatedSource.find("ANGLE_USES_DEFERRED_INIT")             != std::string::npos;
         mRequiresIEEEStrictCompiling = mTranslatedSource.find("ANGLE_REQUIRES_IEEE_STRICT_COMPILING") != std::string::npos;
-    }
-}
-
-void ShaderD3D::resetVaryingsRegisterAssignment()
-{
-    for (size_t varyingIndex = 0; varyingIndex < mVaryings.size(); varyingIndex++)
-    {
-        mVaryings[varyingIndex].resetRegisterAssignment();
     }
 }
 
@@ -152,6 +160,16 @@ void ShaderD3D::uncompile()
 void ShaderD3D::compileToHLSL(ShHandle compiler, const std::string &source)
 {
     int compileOptions = (SH_OBJECT_CODE | SH_VARIABLES);
+
+    // D3D11 Feature Level 9_3 and below do not support non-constant loop indexers in fragment
+    // shaders.
+    // Shader compilation will fail. To provide a better error message we can instruct the
+    // compiler to pre-validate.
+    if (mRenderer->getRendererLimitations().shadersRequireIndexedLoopValidation)
+    {
+        compileOptions |= SH_VALIDATE_LOOP_INDEXING;
+    }
+
     std::string sourcePath;
 
 #if !defined (ANGLE_ENABLE_WINDOWS_STORE)
@@ -277,28 +295,6 @@ void ShaderD3D::generateWorkarounds(D3DCompilerWorkarounds *workarounds) const
     }
 }
 
-// true if varying x has a higher priority in packing than y
-bool ShaderD3D::compareVarying(const gl::PackedVarying &x, const gl::PackedVarying &y)
-{
-    if (x.type == y.type)
-    {
-        return x.arraySize > y.arraySize;
-    }
-
-    // Special case for handling structs: we sort these to the end of the list
-    if (x.type == GL_STRUCT_ANGLEX)
-    {
-        return false;
-    }
-
-    if (y.type == GL_STRUCT_ANGLEX)
-    {
-        return true;
-    }
-
-    return gl::VariableSortOrder(x.type) < gl::VariableSortOrder(y.type);
-}
-
 unsigned int ShaderD3D::getUniformRegister(const std::string &uniformName) const
 {
     ASSERT(mUniformRegisterMap.count(uniformName) > 0);
@@ -341,7 +337,7 @@ bool ShaderD3D::compile(gl::Compiler *compiler, const std::string &source)
 
     if (mShaderType == GL_FRAGMENT_SHADER)
     {
-        std::sort(mVaryings.begin(), mVaryings.end(), compareVarying);
+        std::sort(mVaryings.begin(), mVaryings.end(), CompareVarying);
 
         const std::string &hlsl = getTranslatedSource();
         if (!hlsl.empty())

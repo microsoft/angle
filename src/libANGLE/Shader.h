@@ -33,25 +33,6 @@ class Compiler;
 class ResourceManager;
 struct Data;
 
-struct PackedVarying : public sh::Varying
-{
-    unsigned int registerIndex; // Assigned during link
-    unsigned int columnIndex; // Assigned during link, defaults to 0
-
-    PackedVarying(const sh::Varying &varying)
-      : sh::Varying(varying),
-        registerIndex(GL_INVALID_INDEX),
-        columnIndex(0)
-    {}
-
-    bool registerAssigned() const { return registerIndex != GL_INVALID_INDEX; }
-
-    void resetRegisterAssignment()
-    {
-        registerIndex = GL_INVALID_INDEX;
-    }
-};
-
 class Shader : angle::NonCopyable
 {
   public:
@@ -84,17 +65,19 @@ class Shader : angle::NonCopyable
     bool isFlaggedForDeletion() const;
     void flagForDeletion();
 
-    const std::vector<gl::PackedVarying> &getVaryings() const;
+    int getShaderVersion() const;
+
+    const std::vector<sh::Varying> &getVaryings() const;
     const std::vector<sh::Uniform> &getUniforms() const;
     const std::vector<sh::InterfaceBlock> &getInterfaceBlocks() const;
     const std::vector<sh::Attribute> &getActiveAttributes() const;
-    const std::vector<sh::Attribute> &getActiveOutputVariables() const;
+    const std::vector<sh::OutputVariable> &getActiveOutputVariables() const;
 
-    std::vector<gl::PackedVarying> &getVaryings();
+    std::vector<sh::Varying> &getVaryings();
     std::vector<sh::Uniform> &getUniforms();
     std::vector<sh::InterfaceBlock> &getInterfaceBlocks();
     std::vector<sh::Attribute> &getActiveAttributes();
-    std::vector<sh::Attribute> &getActiveOutputVariables();
+    std::vector<sh::OutputVariable> &getActiveOutputVariables();
 
     int getSemanticIndex(const std::string &attributeName) const;
 

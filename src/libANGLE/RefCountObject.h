@@ -29,6 +29,8 @@ class RefCountObject : angle::NonCopyable
 
     GLuint id() const { return mId; }
 
+    size_t getRefCount() const { return mRefCount; }
+
   private:
     GLuint mId;
 
@@ -38,7 +40,7 @@ class RefCountObject : angle::NonCopyable
 template <class ObjectType>
 class BindingPointer
 {
-public:
+  public:
     BindingPointer()
         : mObject(nullptr)
     {

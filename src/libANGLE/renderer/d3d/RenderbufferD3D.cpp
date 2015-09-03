@@ -53,7 +53,9 @@ gl::Error RenderbufferD3D::setStorageMultisample(size_t samples, GLenum internal
     }
 
     RenderTargetD3D *newRT = NULL;
-    gl::Error error = mRenderer->createRenderTarget(width, height, creationFormat, samples, &newRT);
+    gl::Error error =
+        mRenderer->createRenderTarget(static_cast<int>(width), static_cast<int>(height),
+                                      creationFormat, static_cast<GLsizei>(samples), &newRT);
     if (error.isError())
     {
         return error;
@@ -65,14 +67,15 @@ gl::Error RenderbufferD3D::setStorageMultisample(size_t samples, GLenum internal
     return gl::Error(GL_NO_ERROR);
 }
 
+gl::Error RenderbufferD3D::setStorageEGLImageTarget(egl::Image *image)
+{
+    UNIMPLEMENTED();
+    return gl::Error(GL_NO_ERROR);
+}
+
 RenderTargetD3D *RenderbufferD3D::getRenderTarget()
 {
     return mRenderTarget;
-}
-
-unsigned int RenderbufferD3D::getRenderTargetSerial() const
-{
-    return (mRenderTarget ? mRenderTarget->getSerial() : 0);
 }
 
 gl::Error RenderbufferD3D::getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,

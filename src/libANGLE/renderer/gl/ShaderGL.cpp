@@ -114,6 +114,8 @@ bool ShaderGL::compile(gl::Compiler *compiler, const std::string &source)
     }
 
     // Gather the shader information
+    mShaderVersion = ShGetShaderVersion(compilerHandle);
+
     // TODO: refactor this out, gathering of the attributes, varyings and outputs should be done
     // at the gl::Shader level
     if (mType == GL_VERTEX_SHADER)
@@ -121,12 +123,7 @@ bool ShaderGL::compile(gl::Compiler *compiler, const std::string &source)
         mActiveAttributes = GetFilteredShaderVariables(ShGetAttributes(compilerHandle));
     }
 
-    const std::vector<sh::Varying> &varyings = GetShaderVariables(ShGetVaryings(compilerHandle));
-    for (size_t varyingIndex = 0; varyingIndex < varyings.size(); varyingIndex++)
-    {
-        mVaryings.push_back(gl::PackedVarying(varyings[varyingIndex]));
-    }
-
+    mVaryings        = GetShaderVariables(ShGetVaryings(compilerHandle));
     mUniforms = GetShaderVariables(ShGetUniforms(compilerHandle));
     mInterfaceBlocks = GetShaderVariables(ShGetInterfaceBlocks(compilerHandle));
 

@@ -50,6 +50,7 @@ struct TranslatedIndexData
 
 struct SourceIndexData
 {
+    BufferD3D *srcBuffer;
     const GLvoid *srcIndices;
     unsigned int srcCount;
     GLenum srcIndexType;
@@ -62,10 +63,15 @@ class IndexDataManager : angle::NonCopyable
     explicit IndexDataManager(BufferFactoryD3D *factory, RendererClass rendererClass);
     virtual ~IndexDataManager();
 
-    gl::Error prepareIndexData(GLenum type, GLsizei count, gl::Buffer *arrayElementBuffer, const GLvoid *indices, TranslatedIndexData *translated, SourceIndexData *sourceData);
+    gl::Error prepareIndexData(GLenum srcType, GLsizei count, gl::Buffer *glBuffer,
+                               const GLvoid *indices, TranslatedIndexData *translated,
+                               SourceIndexData *sourceData);
 
   private:
-    gl::Error getStreamingIndexBuffer(GLenum destinationIndexType, IndexBufferInterface **outBuffer);
+    gl::Error streamIndexData(const GLvoid *data, unsigned int count, GLenum srcType,
+                              GLenum dstType, TranslatedIndexData *translated);
+    gl::Error getStreamingIndexBuffer(GLenum destinationIndexType,
+                                      IndexBufferInterface **outBuffer);
 
     BufferFactoryD3D *const mFactory;
     RendererClass mRendererClass;

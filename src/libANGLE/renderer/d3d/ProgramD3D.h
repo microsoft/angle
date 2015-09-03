@@ -9,15 +9,16 @@
 #ifndef LIBANGLE_RENDERER_D3D_PROGRAMD3D_H_
 #define LIBANGLE_RENDERER_D3D_PROGRAMD3D_H_
 
+#include <string>
+#include <vector>
+
 #include "common/Optional.h"
 #include "compiler/translator/blocklayoutHLSL.h"
 #include "libANGLE/Constants.h"
+#include "libANGLE/formatutils.h"
 #include "libANGLE/renderer/ProgramImpl.h"
-#include "libANGLE/renderer/Workarounds.h"
 #include "libANGLE/renderer/d3d/DynamicHLSL.h"
-
-#include <string>
-#include <vector>
+#include "libANGLE/renderer/d3d/WorkaroundsD3D.h"
 
 namespace gl
 {
@@ -41,12 +42,13 @@ class ShaderExecutableD3D;
 class ProgramD3D : public ProgramImpl
 {
   public:
-    ProgramD3D(RendererD3D *renderer);
+    typedef int SemanticIndexArray[gl::MAX_VERTEX_ATTRIBS];
+
+    ProgramD3D(const gl::Program::Data &data, RendererD3D *renderer);
     virtual ~ProgramD3D();
 
     const std::vector<PixelShaderOutputVariable> &getPixelShaderKey() { return mPixelShaderKey; }
     int getShaderVersion() const { return mShaderVersion; }
-    GLenum getTransformFeedbackBufferMode() const { return mTransformFeedbackBufferMode; }
 
     GLint getSamplerMapping(gl::SamplerType type, unsigned int samplerIndex, const gl::Caps &caps) const;
     GLenum getSamplerTextureType(gl::SamplerType type, unsigned int samplerIndex) const;
@@ -65,28 +67,19 @@ class ProgramD3D : public ProgramImpl
 
     gl::Error getPixelExecutableForFramebuffer(const gl::Framebuffer *fbo, ShaderExecutableD3D **outExectuable);
     gl::Error getPixelExecutableForOutputLayout(const std::vector<GLenum> &outputLayout, ShaderExecutableD3D **outExectuable, gl::InfoLog *infoLog);
-    gl::Error getVertexExecutableForInputLayout(const gl::VertexFormat inputLayout[gl::MAX_VERTEX_ATTRIBS], ShaderExecutableD3D **outExectuable, gl::InfoLog *infoLog);
+    gl::Error getVertexExecutableForInputLayout(const gl::InputLayout &inputLayout, ShaderExecutableD3D **outExectuable, gl::InfoLog *infoLog);
     ShaderExecutableD3D *getGeometryExecutable() const { return mGeometryExecutable; }
 
-    LinkResult compileProgramExecutables(gl::InfoLog &infoLog, gl::Shader *fragmentShader, gl::Shader *vertexShader,
-                                         int registers);
-
-    LinkResult link(const gl::Data &data, gl::InfoLog &infoLog,
-                    gl::Shader *fragmentShader, gl::Shader *vertexShader,
-                    const std::vector<std::string> &transformFeedbackVaryings,
-                    GLenum transformFeedbackBufferMode,
-                    int *registers, std::vector<gl::LinkedVarying> *linkedVaryings,
-                    std::map<int, gl::VariableLocation> *outputVariables);
-
-    void bindAttributeLocation(GLuint index, const std::string &name) override;
-
-    void getInputLayoutSignature(const gl::VertexFormat inputLayout[], GLenum signature[]) const;
+    LinkResult link(const gl::Data &data, gl::InfoLog &infoLog) override;
+    GLboolean validate(const gl::Caps &caps, gl::InfoLog *infoLog) override;
 
     void initializeUniformStorage();
     gl::Error applyUniforms();
-    gl::Error applyUniformBuffers(const gl::Data &data, GLuint uniformBlockBindings[]) override;
-    bool assignUniformBlockRegister(gl::InfoLog &infoLog, gl::UniformBlock *uniformBlock, GLenum shader,
-                                    unsigned int registerIndex, const gl::Caps &caps);
+    gl::Error applyUniformBuffers(const gl::Data &data);
+    void assignUniformBlockRegister(gl::UniformBlock *uniformBlock,
+                                    GLenum shader,
+                                    unsigned int registerIndex,
+                                    const gl::Caps &caps);
     void dirtyAllUniforms();
 
     void setUniform1fv(GLint location, GLsizei count, const GLfloat *v);
@@ -118,37 +111,42 @@ class ProgramD3D : public ProgramImpl
     const UniformStorageD3D &getVertexUniformStorage() const { return *mVertexUniformStorage; }
     const UniformStorageD3D &getFragmentUniformStorage() const { return *mFragmentUniformStorage; }
 
-    bool linkUniforms(gl::InfoLog &infoLog, const gl::Shader &vertexShader, const gl::Shader &fragmentShader,
-                      const gl::Caps &caps);
-    bool defineUniformBlock(gl::InfoLog &infoLog, const gl::Shader &shader, const sh::InterfaceBlock &interfaceBlock, const gl::Caps &caps);
-
     void reset();
 
     unsigned int getSerial() const;
 
-    void initAttributesByLayout();
     void sortAttributesByLayout(const std::vector<TranslatedAttribute> &unsortedAttributes,
                                 int sortedSemanticIndicesOut[gl::MAX_VERTEX_ATTRIBS],
                                 const rx::TranslatedAttribute *sortedAttributesOut[gl::MAX_VERTEX_ATTRIBS]) const;
+    const SemanticIndexArray &getSemanticIndexes() const { return mSemanticIndexes; }
+    const SemanticIndexArray &getAttributesByLayout() const { return mAttributesByLayout; }
+
+    void updateCachedInputLayout(const gl::State &state);
+    const gl::InputLayout &getCachedInputLayout() const { return mCachedInputLayout; }
 
   private:
     class VertexExecutable
     {
       public:
-        VertexExecutable(const gl::VertexFormat inputLayout[gl::MAX_VERTEX_ATTRIBS],
-                         const GLenum signature[gl::MAX_VERTEX_ATTRIBS],
+        typedef std::vector<bool> Signature;
+
+        VertexExecutable(const gl::InputLayout &inputLayout,
+                         const Signature &signature,
                          ShaderExecutableD3D *shaderExecutable);
         ~VertexExecutable();
 
-        bool matchesSignature(const GLenum convertedLayout[gl::MAX_VERTEX_ATTRIBS]) const;
+        bool matchesSignature(const Signature &signature) const;
+        static void getSignature(RendererD3D *renderer,
+                                 const gl::InputLayout &inputLayout,
+                                 Signature *signatureOut);
 
-        const gl::VertexFormat *inputs() const { return mInputs; }
-        const GLenum *signature() const { return mSignature; }
+        const gl::InputLayout &inputs() const { return mInputs; }
+        const Signature &signature() const { return mSignature; }
         ShaderExecutableD3D *shaderExecutable() const { return mShaderExecutable; }
 
       private:
-        gl::VertexFormat mInputs[gl::MAX_VERTEX_ATTRIBS];
-        GLenum mSignature[gl::MAX_VERTEX_ATTRIBS];
+        gl::InputLayout mInputs;
+        Signature mSignature;
         ShaderExecutableD3D *mShaderExecutable;
     };
 
@@ -177,6 +175,7 @@ class ProgramD3D : public ProgramImpl
         GLenum textureType;
     };
 
+    bool defineUniforms(gl::InfoLog &infoLog, const gl::Caps &caps);
     void defineUniformBase(const ShaderD3D *shader, const sh::Uniform &uniform, unsigned int uniformRegister);
     void defineUniform(const ShaderD3D *shader, const sh::ShaderVariable &uniform, const std::string &fullName,
                        sh::HLSLBlockEncoder *encoder);
@@ -184,6 +183,11 @@ class ProgramD3D : public ProgramImpl
     bool indexUniforms(gl::InfoLog &infoLog, const gl::Caps &caps);
     static bool assignSamplers(unsigned int startSamplerIndex, GLenum samplerType, unsigned int samplerCount,
                                std::vector<Sampler> &outSamplers, GLuint *outUsedRange);
+
+    void defineUniformBlocks(const gl::Caps &caps);
+    void defineUniformBlock(const gl::Shader &shader,
+                            const sh::InterfaceBlock &interfaceBlock,
+                            const gl::Caps &caps);
 
     template <typename T>
     void setUniform(GLint location, GLsizei count, const T* v, GLenum targetUniformType);
@@ -198,6 +202,15 @@ class ProgramD3D : public ProgramImpl
     void defineUniformBlockMembers(const std::vector<VarT> &fields, const std::string &prefix, int blockIndex,
                                    sh::BlockLayoutEncoder *encoder, std::vector<unsigned int> *blockUniformIndexes,
                                    bool inRowMajorLayout);
+
+    LinkResult compileProgramExecutables(gl::InfoLog &infoLog,
+                                         int registers,
+                                         const std::vector<PackedVarying> &packedVaryings);
+
+    void gatherTransformFeedbackVaryings(const std::vector<gl::LinkedVarying> &varyings);
+
+    void initSemanticIndex();
+    void initAttributesByLayout();
 
     RendererD3D *mRenderer;
     DynamicHLSL *mDynamicHLSL;
@@ -219,8 +232,6 @@ class ProgramD3D : public ProgramImpl
     UniformStorageD3D *mVertexUniformStorage;
     UniformStorageD3D *mFragmentUniformStorage;
 
-    GLenum mTransformFeedbackBufferMode;
-
     std::vector<Sampler> mSamplersPS;
     std::vector<Sampler> mSamplersVS;
     GLuint mUsedVertexSamplerRange;
@@ -235,7 +246,8 @@ class ProgramD3D : public ProgramImpl
 
     int mShaderVersion;
 
-    int mAttributesByLayout[gl::MAX_VERTEX_ATTRIBS];
+    SemanticIndexArray mSemanticIndexes;
+    SemanticIndexArray mAttributesByLayout;
 
     unsigned int mSerial;
 
@@ -243,6 +255,10 @@ class ProgramD3D : public ProgramImpl
 
     std::vector<GLint> mVertexUBOCache;
     std::vector<GLint> mFragmentUBOCache;
+    VertexExecutable::Signature mCachedVertexSignature;
+    gl::InputLayout mCachedInputLayout;
+
+    std::vector<gl::LinkedVarying> mTransformFeedbackLinkedVaryings;
 
     static unsigned int issueSerial();
     static unsigned int mCurrentSerial;

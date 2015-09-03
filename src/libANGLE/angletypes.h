@@ -14,6 +14,8 @@
 
 #include <stdint.h>
 
+#include <bitset>
+
 namespace gl
 {
 class Buffer;
@@ -41,19 +43,10 @@ struct Color
 };
 
 template <typename T>
-bool operator==(const Color<T> &a, const Color<T> &b)
-{
-    return a.red == b.red &&
-           a.green == b.green &&
-           a.blue == b.blue &&
-           a.alpha == b.alpha;
-}
+bool operator==(const Color<T> &a, const Color<T> &b);
 
 template <typename T>
-bool operator!=(const Color<T> &a, const Color<T> &b)
-{
-    return !(a == b);
-}
+bool operator!=(const Color<T> &a, const Color<T> &b);
 
 typedef Color<float> ColorF;
 typedef Color<int> ColorI;
@@ -198,10 +191,10 @@ struct SamplerState
     GLenum swizzleAlpha;
 
     bool swizzleRequired() const;
-
-    bool operator==(const SamplerState &other) const;
-    bool operator!=(const SamplerState &other) const;
 };
+
+bool operator==(const SamplerState &a, const SamplerState &b);
+bool operator!=(const SamplerState &a, const SamplerState &b);
 
 struct PixelUnpackState
 {
@@ -258,37 +251,18 @@ struct PixelPackState
     {}
 };
 
-struct VertexFormat
-{
-    GLenum      mType;
-    GLboolean   mNormalized;
-    GLuint      mComponents;
-    bool        mPureInteger;
-
-    VertexFormat();
-    VertexFormat(GLenum type, GLboolean normalized, GLuint components, bool pureInteger);
-    explicit VertexFormat(const VertexAttribute &attribute);
-    VertexFormat(const VertexAttribute &attribute, GLenum currentValueType);
-
-    static void GetInputLayout(VertexFormat *inputLayout,
-                               Program *program,
-                               const State& currentValues);
-
-    bool operator==(const VertexFormat &other) const;
-    bool operator!=(const VertexFormat &other) const;
-    bool operator<(const VertexFormat& other) const;
-};
-
+// Used in Program and VertexArray.
+typedef std::bitset<MAX_VERTEX_ATTRIBS> AttributesMask;
 }
 
 namespace rx
 {
-
 enum VendorID : uint32_t
 {
-    VENDOR_ID_AMD = 0x1002,
-    VENDOR_ID_INTEL = 0x8086,
-    VENDOR_ID_NVIDIA = 0x10DE,
+    VENDOR_ID_UNKNOWN = 0x0,
+    VENDOR_ID_AMD     = 0x1002,
+    VENDOR_ID_INTEL   = 0x8086,
+    VENDOR_ID_NVIDIA  = 0x10DE,
 };
 
 // A macro that determines whether an object has a given runtime type.
@@ -337,6 +311,54 @@ inline const DestT *GetImplAs(const SrcT *src)
     return GetAs<const DestT>(src->getImplementation());
 }
 
+}
+
+#include "angletypes.inl"
+
+namespace angle
+{
+// Zero-based for better array indexing
+enum FramebufferBinding
+{
+    FramebufferBindingRead = 0,
+    FramebufferBindingDraw,
+    FramebufferBindingSingletonMax,
+    FramebufferBindingBoth = FramebufferBindingSingletonMax,
+    FramebufferBindingMax,
+    FramebufferBindingUnknown = FramebufferBindingMax,
+};
+
+inline FramebufferBinding EnumToFramebufferBinding(GLenum enumValue)
+{
+    switch (enumValue)
+    {
+        case GL_READ_FRAMEBUFFER:
+            return FramebufferBindingRead;
+        case GL_DRAW_FRAMEBUFFER:
+            return FramebufferBindingDraw;
+        case GL_FRAMEBUFFER:
+            return FramebufferBindingBoth;
+        default:
+            UNREACHABLE();
+            return FramebufferBindingUnknown;
+    }
+}
+
+inline GLenum FramebufferBindingToEnum(FramebufferBinding binding)
+{
+    switch (binding)
+    {
+        case FramebufferBindingRead:
+            return GL_READ_FRAMEBUFFER;
+        case FramebufferBindingDraw:
+            return GL_DRAW_FRAMEBUFFER;
+        case FramebufferBindingBoth:
+            return GL_FRAMEBUFFER;
+        default:
+            UNREACHABLE();
+            return GL_NONE;
+    }
+}
 }
 
 #endif // LIBANGLE_ANGLETYPES_H_

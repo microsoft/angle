@@ -109,13 +109,8 @@ class TVariable : public TSymbol
           unionArray(0)
     {
     }
-    virtual ~TVariable()
-    {
-    }
-    virtual bool isVariable() const
-    {
-        return true;
-    }
+    ~TVariable() override {}
+    bool isVariable() const override { return true; }
     TType &getType()
     {
         return type;
@@ -223,17 +218,14 @@ class TFunction : public TSymbol
     TFunction(const TString *name, const TType *retType, TOperator tOp = EOpNull, const char *ext = "")
         : TSymbol(name),
           returnType(retType),
-          mangledName(TFunction::mangleName(*name)),
+          mangledName(nullptr),
           op(tOp),
           defined(false)
     {
         relateToExtension(ext);
     }
-    virtual ~TFunction();
-    virtual bool isFunction() const
-    {
-        return true;
-    }
+    ~TFunction() override;
+    bool isFunction() const override { return true; }
 
     static TString mangleName(const TString &name)
     {
@@ -245,14 +237,18 @@ class TFunction : public TSymbol
     }
 
     void addParameter(const TConstParameter &p)
-    { 
+    {
         parameters.push_back(p);
-        mangledName = mangledName + p.type->getMangledName();
+        mangledName = nullptr;
     }
 
-    const TString &getMangledName() const
+    const TString &getMangledName() const override
     {
-        return mangledName;
+        if (mangledName == nullptr)
+        {
+            mangledName = buildMangledName();
+        }
+        return *mangledName;
     }
     const TType &getReturnType() const
     {
@@ -283,10 +279,12 @@ class TFunction : public TSymbol
     }
 
   private:
+    const TString *buildMangledName() const;
+
     typedef TVector<TConstParameter> TParamList;
     TParamList parameters;
     const TType *returnType;
-    TString mangledName;
+    mutable const TString *mangledName;
     TOperator op;
     bool defined;
 };
@@ -404,6 +402,14 @@ class TSymbolTable : angle::NonCopyable
             NewPoolTString(name), TType(EbtInt, EbpUndefined, EvqConst, 1));
         constant->getConstPointer()->setIConst(value);
         return insert(level, constant);
+    }
+
+    bool insertConstIntExt(ESymbolLevel level, const char *ext, const char *name, int value)
+    {
+        TVariable *constant =
+            new TVariable(NewPoolTString(name), TType(EbtInt, EbpUndefined, EvqConst, 1));
+        constant->getConstPointer()->setIConst(value);
+        return insert(level, ext, constant);
     }
 
     void insertBuiltIn(ESymbolLevel level, TOperator op, const char *ext, const TType *rvalue, const char *name,

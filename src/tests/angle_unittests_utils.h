@@ -23,10 +23,9 @@ class NullFactory : public ImplFactory
     // Shader creation
     CompilerImpl *createCompiler(const gl::Data &data) override { return nullptr; }
     ShaderImpl *createShader(GLenum type) override { return nullptr; }
-    ProgramImpl *createProgram() override { return nullptr; }
+    ProgramImpl *createProgram(const gl::Program::Data &data) override { return nullptr; }
 
     // Framebuffer creation
-    FramebufferImpl *createDefaultFramebuffer(const gl::Framebuffer::Data &data) override { return nullptr; }
     FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) override { return nullptr; }
 
     // Texture creation
@@ -39,7 +38,7 @@ class NullFactory : public ImplFactory
     BufferImpl *createBuffer() override { return nullptr; }
 
     // Vertex Array creation
-    VertexArrayImpl *createVertexArray() override { return nullptr; }
+    VertexArrayImpl *createVertexArray(const gl::VertexArray::Data &data) override { return nullptr; }
 
     // Query and Fence creation
     QueryImpl *createQuery(GLenum type) override { return nullptr; }

@@ -233,8 +233,10 @@ Blit11::Blit11(Renderer11 *renderer)
     ID3D11Device *device = mRenderer->getDevice();
 
     D3D11_BUFFER_DESC vbDesc;
-    vbDesc.ByteWidth = std::max(sizeof(d3d11::PositionLayerTexCoord3DVertex), sizeof(d3d11::PositionTexCoordVertex)) *
-                       6 * renderer->getRendererCaps().max3DTextureSize;
+    vbDesc.ByteWidth =
+        static_cast<unsigned int>(std::max(sizeof(d3d11::PositionLayerTexCoord3DVertex),
+                                           sizeof(d3d11::PositionTexCoordVertex)) *
+                                  6 * renderer->getRendererCaps().max3DTextureSize);
     vbDesc.Usage = D3D11_USAGE_DYNAMIC;
     vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -372,7 +374,7 @@ Blit11::BlitShaderType Blit11::GetBlitShaderType(GLenum destinationFormat, bool 
               case GL_RGBA_INTEGER: return BLITSHADER_3D_RGBAI;
               case GL_RGB_INTEGER:  return BLITSHADER_3D_RGBI;
               case GL_RG_INTEGER:   return BLITSHADER_3D_RGI;
-              case GL_RED:          return BLITSHADER_3D_RI;
+              case GL_RED_INTEGER:  return BLITSHADER_3D_RI;
               default:
                 UNREACHABLE();
                 return BLITSHADER_INVALID;
@@ -407,7 +409,7 @@ Blit11::BlitShaderType Blit11::GetBlitShaderType(GLenum destinationFormat, bool 
           case GL_RGBA_INTEGER: return BLITSHADER_2D_RGBAI;
           case GL_RGB_INTEGER:  return BLITSHADER_2D_RGBI;
           case GL_RG_INTEGER:   return BLITSHADER_2D_RGI;
-          case GL_RED:          return BLITSHADER_2D_RI;
+          case GL_RED_INTEGER:  return BLITSHADER_2D_RI;
           default:
             UNREACHABLE();
             return BLITSHADER_INVALID;

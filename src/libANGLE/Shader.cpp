@@ -66,7 +66,8 @@ void Shader::setSource(GLsizei count, const char *const *string, const GLint *le
 
 int Shader::getInfoLogLength() const
 {
-    return  mShader->getInfoLog().empty() ? 0 : (mShader->getInfoLog().length() + 1);
+    return mShader->getInfoLog().empty() ? 0
+                                         : (static_cast<int>(mShader->getInfoLog().length()) + 1);
 }
 
 void Shader::getInfoLog(GLsizei bufSize, GLsizei *length, char *infoLog) const
@@ -89,12 +90,14 @@ void Shader::getInfoLog(GLsizei bufSize, GLsizei *length, char *infoLog) const
 
 int Shader::getSourceLength() const
 {
-    return mSource.empty() ? 0 : (mSource.length() + 1);
+    return mSource.empty() ? 0 : (static_cast<int>(mSource.length()) + 1);
 }
 
 int Shader::getTranslatedSourceLength() const
 {
-    return mShader->getTranslatedSource().empty() ? 0 : (mShader->getTranslatedSource().length() + 1);
+    return mShader->getTranslatedSource().empty()
+               ? 0
+               : (static_cast<int>(mShader->getTranslatedSource().length()) + 1);
 }
 
 void Shader::getSourceImpl(const std::string &source, GLsizei bufSize, GLsizei *length, char *buffer)
@@ -166,7 +169,12 @@ void Shader::flagForDeletion()
     mDeleteStatus = true;
 }
 
-const std::vector<gl::PackedVarying> &Shader::getVaryings() const
+int Shader::getShaderVersion() const
+{
+    return mShader->getShaderVersion();
+}
+
+const std::vector<sh::Varying> &Shader::getVaryings() const
 {
     return mShader->getVaryings();
 }
@@ -186,12 +194,12 @@ const std::vector<sh::Attribute> &Shader::getActiveAttributes() const
     return mShader->getActiveAttributes();
 }
 
-const std::vector<sh::Attribute> &Shader::getActiveOutputVariables() const
+const std::vector<sh::OutputVariable> &Shader::getActiveOutputVariables() const
 {
     return mShader->getActiveOutputVariables();
 }
 
-std::vector<gl::PackedVarying> &Shader::getVaryings()
+std::vector<sh::Varying> &Shader::getVaryings()
 {
     return mShader->getVaryings();
 }
@@ -211,7 +219,7 @@ std::vector<sh::Attribute> &Shader::getActiveAttributes()
     return mShader->getActiveAttributes();
 }
 
-std::vector<sh::Attribute> &Shader::getActiveOutputVariables()
+std::vector<sh::OutputVariable> &Shader::getActiveOutputVariables()
 {
     return mShader->getActiveOutputVariables();
 }

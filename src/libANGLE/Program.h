@@ -20,17 +20,16 @@
 #include <GLES2/gl2.h>
 #include <GLSLANG/ShaderLang.h>
 
-#include <vector>
+#include <set>
 #include <sstream>
 #include <string>
-#include <set>
+#include <vector>
 
 namespace rx
 {
-class Renderer;
-class Renderer;
-struct TranslatedAttribute;
+class ImplFactory;
 class ProgramImpl;
+struct TranslatedAttribute;
 }
 
 namespace gl
@@ -163,7 +162,56 @@ struct LinkedVarying
 class Program : angle::NonCopyable
 {
   public:
-    Program(rx::ProgramImpl *impl, ResourceManager *manager, GLuint handle);
+    class Data final : angle::NonCopyable
+    {
+      public:
+        Data();
+        ~Data();
+
+        const Shader *getAttachedVertexShader() const { return mAttachedVertexShader; }
+        const Shader *getAttachedFragmentShader() const { return mAttachedFragmentShader; }
+        const std::vector<std::string> &getTransformFeedbackVaryingNames() const
+        {
+            return mTransformFeedbackVaryingNames;
+        }
+        GLint getTransformFeedbackBufferMode() const { return mTransformFeedbackBufferMode; }
+        GLuint getUniformBlockBinding(GLuint uniformBlockIndex) const
+        {
+            ASSERT(uniformBlockIndex < IMPLEMENTATION_MAX_COMBINED_SHADER_UNIFORM_BUFFERS);
+            return mUniformBlockBindings[uniformBlockIndex];
+        }
+        const std::vector<sh::Attribute> &getAttributes() const { return mAttributes; }
+        const AttributesMask &getActiveAttribLocationsMask() const
+        {
+            return mActiveAttribLocationsMask;
+        }
+        const std::map<int, VariableLocation> &getOutputVariables() const
+        {
+            return mOutputVariables;
+        }
+
+      private:
+        friend class Program;
+
+        Shader *mAttachedFragmentShader;
+        Shader *mAttachedVertexShader;
+
+        std::vector<std::string> mTransformFeedbackVaryingNames;
+        std::vector<sh::Varying> mTransformFeedbackVaryingVars;
+        GLenum mTransformFeedbackBufferMode;
+
+        GLuint mUniformBlockBindings[IMPLEMENTATION_MAX_COMBINED_SHADER_UNIFORM_BUFFERS];
+
+        std::vector<sh::Attribute> mAttributes;
+        std::bitset<MAX_VERTEX_ATTRIBS> mActiveAttribLocationsMask;
+
+        // TODO(jmadill): use unordered/hash map when available
+        std::map<int, VariableLocation> mOutputVariables;
+
+        // TODO(jmadill): move more state into Data.
+    };
+
+    Program(rx::ImplFactory *factory, ResourceManager *manager, GLuint handle);
     ~Program();
 
     GLuint id() const { return mHandle; }
@@ -177,7 +225,7 @@ class Program : angle::NonCopyable
 
     void bindAttributeLocation(GLuint index, const char *name);
 
-    Error link(const Data &data);
+    Error link(const gl::Data &data);
     bool isLinked();
 
     Error loadBinary(GLenum binaryFormat, const void *binary, GLsizei length);
@@ -189,17 +237,12 @@ class Program : angle::NonCopyable
     void getAttachedShaders(GLsizei maxCount, GLsizei *count, GLuint *shaders);
 
     GLuint getAttributeLocation(const std::string &name);
-    int getSemanticIndex(int attributeIndex) const;
-    const int *getSemanticIndexes() const;
+    bool isAttribLocationActive(size_t attribLocation) const;
 
     void getActiveAttribute(GLuint index, GLsizei bufsize, GLsizei *length, GLint *size, GLenum *type, GLchar *name);
     GLint getActiveAttributeCount();
     GLint getActiveAttributeMaxLength();
-
-    GLint getSamplerMapping(SamplerType type, unsigned int samplerIndex, const Caps &caps);
-    GLenum getSamplerTextureType(SamplerType type, unsigned int samplerIndex);
-    GLint getUsedSamplerRange(SamplerType type);
-    bool usesPointSize() const;
+    const std::vector<sh::Attribute> &getAttributes() const { return mData.mAttributes; }
 
     GLint getFragDataLocation(const std::string &name) const;
 
@@ -239,9 +282,6 @@ class Program : angle::NonCopyable
     void getUniformiv(GLint location, GLint *params);
     void getUniformuiv(GLint location, GLuint *params);
 
-    Error applyUniforms();
-    Error applyUniformBuffers(const gl::Data &data);
-
     void getActiveUniformBlockName(GLuint uniformBlockIndex, GLsizei bufSize, GLsizei *length, GLchar *uniformBlockName) const;
     void getActiveUniformBlockiv(GLuint uniformBlockIndex, GLenum pname, GLint *params) const;
     GLuint getActiveUniformBlockCount();
@@ -260,7 +300,6 @@ class Program : angle::NonCopyable
     GLsizei getTransformFeedbackVaryingMaxLength() const;
     GLenum getTransformFeedbackBufferMode() const;
 
-    static bool linkVaryings(InfoLog &infoLog, Shader *fragmentShader, Shader *vertexShader);
     static bool linkValidateUniforms(InfoLog &infoLog, const std::string &uniformName, const sh::Uniform &vertexUniform, const sh::Uniform &fragmentUniform);
     static bool linkValidateInterfaceBlockFields(InfoLog &infoLog, const std::string &uniformName, const sh::InterfaceBlockField &vertexUniform, const sh::InterfaceBlockField &fragmentUniform);
 
@@ -273,17 +312,25 @@ class Program : angle::NonCopyable
     void validate(const Caps &caps);
     bool validateSamplers(InfoLog *infoLog, const Caps &caps);
     bool isValidated() const;
-    void updateSamplerMapping();
+
+    const AttributesMask &getActiveAttribLocationsMask() const
+    {
+        return mData.mActiveAttribLocationsMask;
+    }
 
   private:
     void unlink(bool destroy = false);
     void resetUniformBlockBindings();
 
-    bool linkAttributes(const Data &data,
+    bool linkAttributes(const gl::Data &data,
                         InfoLog &infoLog,
                         const AttributeBindings &attributeBindings,
                         const Shader *vertexShader);
-    bool linkUniformBlocks(InfoLog &infoLog, const Shader &vertexShader, const Shader &fragmentShader, const Caps &caps);
+    bool linkUniformBlocks(InfoLog &infoLog, const Caps &caps);
+    static bool linkVaryings(InfoLog &infoLog,
+                             const Shader *vertexShader,
+                             const Shader *fragmentShader);
+    bool linkUniforms(gl::InfoLog &infoLog, const gl::Caps &caps) const;
     bool areMatchingInterfaceBlocks(gl::InfoLog &infoLog, const sh::InterfaceBlock &vertexInterfaceBlock,
                                     const sh::InterfaceBlock &fragmentInterfaceBlock);
 
@@ -294,31 +341,23 @@ class Program : angle::NonCopyable
                                           bool validatePrecision);
 
     static bool linkValidateVaryings(InfoLog &infoLog, const std::string &varyingName, const sh::Varying &vertexVarying, const sh::Varying &fragmentVarying);
-    bool gatherTransformFeedbackLinkedVaryings(InfoLog &infoLog, const std::vector<LinkedVarying> &linkedVaryings,
-                                               const std::vector<std::string> &transformFeedbackVaryingNames,
-                                               GLenum transformFeedbackBufferMode,
-                                               std::vector<LinkedVarying> *outTransformFeedbackLinkedVaryings,
-                                               const Caps &caps) const;
+    bool linkValidateTransformFeedback(InfoLog &infoLog,
+                                       const std::vector<const sh::Varying *> &linkedVaryings,
+                                       const Caps &caps) const;
+
+    void gatherTransformFeedbackVaryings(const std::vector<const sh::Varying *> &varyings);
     bool assignUniformBlockRegister(InfoLog &infoLog, UniformBlock *uniformBlock, GLenum shader, unsigned int registerIndex, const Caps &caps);
     void defineOutputVariables(Shader *fragmentShader);
 
+    std::vector<const sh::Varying *> getMergedVaryings() const;
+    void linkOutputVariables();
+
+    Data mData;
     rx::ProgramImpl *mProgram;
-
-    sh::Attribute mLinkedAttribute[MAX_VERTEX_ATTRIBS];
-
-    std::map<int, VariableLocation> mOutputVariables;
 
     bool mValidated;
 
-    Shader *mFragmentShader;
-    Shader *mVertexShader;
-
     AttributeBindings mAttributeBindings;
-
-    GLuint mUniformBlockBindings[IMPLEMENTATION_MAX_COMBINED_SHADER_UNIFORM_BUFFERS];
-
-    std::vector<std::string> mTransformFeedbackVaryings;
-    GLenum mTransformFeedbackBufferMode;
 
     bool mLinked;
     bool mDeleteStatus;   // Flag to indicate that the program can be deleted when no longer in use

@@ -50,7 +50,6 @@ class TextureD3D : public TextureImpl
     bool isImmutable() const { return mImmutable; }
 
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTargetD3D **outRT) = 0;
-    virtual unsigned int getRenderTargetSerial(const gl::ImageIndex &index) = 0;
 
     // Returns an iterator over all "Images" for this particular Texture.
     virtual gl::ImageIndexIterator imageIterator() const = 0;
@@ -68,13 +67,17 @@ class TextureD3D : public TextureImpl
                                         FramebufferAttachmentRenderTarget **rtOut) override;
 
   protected:
-    gl::Error setImage(const gl::ImageIndex &index, GLenum type,
-                       const gl::PixelUnpackState &unpack, const uint8_t *pixels,
-                       ptrdiff_t layerOffset);
+    gl::Error setImageImpl(const gl::ImageIndex &index,
+                           GLenum type,
+                           const gl::PixelUnpackState &unpack,
+                           const uint8_t *pixels,
+                           ptrdiff_t layerOffset);
     gl::Error subImage(const gl::ImageIndex &index, const gl::Box &area, GLenum format, GLenum type,
                        const gl::PixelUnpackState &unpack, const uint8_t *pixels, ptrdiff_t layerOffset);
-    gl::Error setCompressedImage(const gl::ImageIndex &index, const gl::PixelUnpackState &unpack,
-                                 const uint8_t *pixels, ptrdiff_t layerOffset);
+    gl::Error setCompressedImageImpl(const gl::ImageIndex &index,
+                                     const gl::PixelUnpackState &unpack,
+                                     const uint8_t *pixels,
+                                     ptrdiff_t layerOffset);
     gl::Error subImageCompressed(const gl::ImageIndex &index, const gl::Box &area, GLenum format,
                                  const gl::PixelUnpackState &unpack, const uint8_t *pixels, ptrdiff_t layerOffset);
     bool isFastUnpackable(const gl::PixelUnpackState &unpack, GLenum sizedInternalFormat);
@@ -148,8 +151,9 @@ class TextureD3D_2D : public TextureD3D
     virtual void bindTexImage(egl::Surface *surface);
     virtual void releaseTexImage();
 
+    gl::Error setEGLImageTarget(GLenum target, egl::Image *image) override;
+
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTargetD3D **outRT);
-    virtual unsigned int getRenderTargetSerial(const gl::ImageIndex &index);
 
     virtual gl::ImageIndexIterator imageIterator() const;
     virtual gl::ImageIndex getImageIndex(GLint mip, GLint layer) const;
@@ -169,7 +173,10 @@ class TextureD3D_2D : public TextureD3D
 
     gl::Error updateStorageLevel(int level);
 
-    void redefineImage(GLint level, GLenum internalformat, const gl::Extents &size);
+    void redefineImage(size_t level,
+                       GLenum internalformat,
+                       const gl::Extents &size,
+                       bool forceRelease);
 
     ImageD3D *mImageArray[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 };
@@ -211,8 +218,9 @@ class TextureD3D_Cube : public TextureD3D
     virtual void bindTexImage(egl::Surface *surface);
     virtual void releaseTexImage();
 
+    gl::Error setEGLImageTarget(GLenum target, egl::Image *image) override;
+
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTargetD3D **outRT);
-    virtual unsigned int getRenderTargetSerial(const gl::ImageIndex &index);
 
     virtual gl::ImageIndexIterator imageIterator() const;
     virtual gl::ImageIndex getImageIndex(GLint mip, GLint layer) const;
@@ -273,8 +281,9 @@ class TextureD3D_3D : public TextureD3D
     virtual void bindTexImage(egl::Surface *surface);
     virtual void releaseTexImage();
 
+    gl::Error setEGLImageTarget(GLenum target, egl::Image *image) override;
+
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTargetD3D **outRT);
-    virtual unsigned int getRenderTargetSerial(const gl::ImageIndex &index);
 
     virtual gl::ImageIndexIterator imageIterator() const;
     virtual gl::ImageIndex getImageIndex(GLint mip, GLint layer) const;
@@ -333,8 +342,9 @@ class TextureD3D_2DArray : public TextureD3D
     virtual void bindTexImage(egl::Surface *surface);
     virtual void releaseTexImage();
 
+    gl::Error setEGLImageTarget(GLenum target, egl::Image *image) override;
+
     virtual gl::Error getRenderTarget(const gl::ImageIndex &index, RenderTargetD3D **outRT);
-    virtual unsigned int getRenderTargetSerial(const gl::ImageIndex &index);
 
     virtual gl::ImageIndexIterator imageIterator() const;
     virtual gl::ImageIndex getImageIndex(GLint mip, GLint layer) const;

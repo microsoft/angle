@@ -18,6 +18,7 @@
 #include "libANGLE/Constants.h"
 #include "libANGLE/Error.h"
 #include "libANGLE/FramebufferAttachment.h"
+#include "libANGLE/Image.h"
 #include "libANGLE/angletypes.h"
 #include "libANGLE/renderer/TextureImpl.h"
 
@@ -28,17 +29,17 @@ class Surface;
 
 namespace gl
 {
+class Context;
 class Framebuffer;
 struct Data;
 
 bool IsMipmapFiltered(const gl::SamplerState &samplerState);
 
-class Texture final : public FramebufferAttachmentObject
+class Texture final : public egl::ImageSibling, public gl::FramebufferAttachmentObject
 {
   public:
     Texture(rx::TextureImpl *impl, GLuint id, GLenum target);
-
-    virtual ~Texture();
+    ~Texture();
 
     GLenum getTarget() const;
 
@@ -54,29 +55,62 @@ class Texture final : public FramebufferAttachmentObject
     GLenum getInternalFormat(GLenum target, size_t level) const;
 
     bool isSamplerComplete(const SamplerState &samplerState, const Data &data) const;
+    bool isMipmapComplete() const;
     bool isCubeComplete() const;
+    size_t getMipCompleteLevels() const;
 
-    virtual Error setImage(GLenum target, size_t level, GLenum internalFormat, const Extents &size, GLenum format, GLenum type,
-                           const PixelUnpackState &unpack, const uint8_t *pixels);
-    virtual Error setSubImage(GLenum target, size_t level, const Box &area, GLenum format, GLenum type,
-                              const PixelUnpackState &unpack, const uint8_t *pixels);
+    Error setImage(Context *context,
+                   GLenum target,
+                   size_t level,
+                   GLenum internalFormat,
+                   const Extents &size,
+                   GLenum format,
+                   GLenum type,
+                   const uint8_t *pixels);
+    Error setSubImage(Context *context,
+                      GLenum target,
+                      size_t level,
+                      const Box &area,
+                      GLenum format,
+                      GLenum type,
+                      const uint8_t *pixels);
 
-    virtual Error setCompressedImage(GLenum target, size_t level, GLenum internalFormat, const Extents &size,
-                                     const PixelUnpackState &unpack, size_t imageSize, const uint8_t *pixels);
-    virtual Error setCompressedSubImage(GLenum target, size_t level, const Box &area, GLenum format,
-                                        const PixelUnpackState &unpack, size_t imageSize, const uint8_t *pixels);
+    Error setCompressedImage(Context *context,
+                             GLenum target,
+                             size_t level,
+                             GLenum internalFormat,
+                             const Extents &size,
+                             size_t imageSize,
+                             const uint8_t *pixels);
+    Error setCompressedSubImage(Context *context,
+                                GLenum target,
+                                size_t level,
+                                const Box &area,
+                                GLenum format,
+                                size_t imageSize,
+                                const uint8_t *pixels);
 
-    virtual Error copyImage(GLenum target, size_t level, const Rectangle &sourceArea, GLenum internalFormat,
-                            const Framebuffer *source);
-    virtual Error copySubImage(GLenum target, size_t level, const Offset &destOffset, const Rectangle &sourceArea,
-                              const Framebuffer *source);
+    Error copyImage(GLenum target,
+                    size_t level,
+                    const Rectangle &sourceArea,
+                    GLenum internalFormat,
+                    const Framebuffer *source);
+    Error copySubImage(GLenum target,
+                       size_t level,
+                       const Offset &destOffset,
+                       const Rectangle &sourceArea,
+                       const Framebuffer *source);
 
-    virtual Error setStorage(GLenum target, size_t levels, GLenum internalFormat, const Extents &size);
+    Error setStorage(GLenum target, size_t levels, GLenum internalFormat, const Extents &size);
 
-    virtual Error generateMipmaps();
+    Error setEGLImageTarget(GLenum target, egl::Image *imageTarget);
+
+    Error generateMipmaps();
 
     bool isImmutable() const;
     GLsizei immutableLevelCount();
+
+    egl::Surface *getBoundSurface() const;
 
     rx::TextureImpl *getImplementation() { return mTexture; }
     const rx::TextureImpl *getImplementation() const { return mTexture; }
@@ -86,6 +120,10 @@ class Texture final : public FramebufferAttachmentObject
     GLsizei getAttachmentHeight(const FramebufferAttachment::Target &target) const override;
     GLenum getAttachmentInternalFormat(const FramebufferAttachment::Target &target) const override;
     GLsizei getAttachmentSamples(const FramebufferAttachment::Target &target) const override;
+
+    void onAttach() override;
+    void onDetach() override;
+    GLuint getId() const override;
 
   private:
     rx::FramebufferAttachmentObjectImpl *getAttachmentImpl() const override { return mTexture; }
@@ -114,7 +152,6 @@ class Texture final : public FramebufferAttachmentObject
     };
 
     GLenum getBaseImageTarget() const;
-    size_t getExpectedMipLevels() const;
 
     bool computeSamplerCompleteness(const SamplerState &samplerState, const Data &data) const;
     bool computeMipmapCompleteness(const gl::SamplerState &samplerState) const;

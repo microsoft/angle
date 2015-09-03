@@ -81,6 +81,11 @@ egl::Error SurfaceD3D::initialize()
     return egl::Error(EGL_SUCCESS);
 }
 
+FramebufferImpl *SurfaceD3D::createDefaultFramebuffer(const gl::Framebuffer::Data &data)
+{
+    return mRenderer->createFramebuffer(data);
+}
+
 egl::Error SurfaceD3D::bindTexImage(EGLint)
 {
     return egl::Error(EGL_SUCCESS);
@@ -296,10 +301,23 @@ EGLint SurfaceD3D::isPostSubBufferSupported() const
     return EGL_TRUE;
 }
 
+EGLint SurfaceD3D::getSwapBehavior() const
+{
+    return EGL_BUFFER_PRESERVED;
+}
+
 egl::Error SurfaceD3D::querySurfacePointerANGLE(EGLint attribute, void **value)
 {
-    ASSERT(attribute == EGL_D3D_TEXTURE_2D_SHARE_HANDLE_ANGLE);
-    *value = mSwapChain->getShareHandle();
+    if (attribute == EGL_D3D_TEXTURE_2D_SHARE_HANDLE_ANGLE)
+    {
+        *value = mSwapChain->getShareHandle();
+    }
+    else if (attribute == EGL_DXGI_KEYED_MUTEX_ANGLE)
+    {
+        *value = mSwapChain->getKeyedMutex();
+    }
+    else UNREACHABLE();
+
     return egl::Error(EGL_SUCCESS);
 }
 

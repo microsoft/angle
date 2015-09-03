@@ -3,6 +3,8 @@
 # found in the LICENSE file.
 
 {
+    # Everything below  this is duplicated in the GN build, except Mac support.
+    # If you change anything also change angle/BUILD.gn
     'variables':
     {
         'util_sources':
@@ -52,7 +54,7 @@
             'osx/OSX_system_utils.cpp',
             'osx/OSXTimer.cpp',
             'osx/OSXTimer.h',
-            'osx/OSXWindow.cpp',
+            'osx/OSXWindow.mm',
             'osx/OSXWindow.h',
             'posix/Posix_system_utils.cpp',
         ],
@@ -131,6 +133,13 @@
                     [
                         '<@(util_osx_sources)',
                     ],
+                    'link_settings':
+                    {
+                        'libraries':
+                        [
+                            '-framework AppKit',
+                        ],
+                    },
                 }],
             ],
         },

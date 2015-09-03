@@ -7,12 +7,16 @@
 #include "SampleApplication.h"
 #include "EGLWindow.h"
 
-SampleApplication::SampleApplication(const std::string& name, size_t width, size_t height,
-                                     EGLint glesMajorVersion, EGLint requestedRenderer)
-    : mName(name),
-      mRunning(false)
+SampleApplication::SampleApplication(const std::string &name,
+                                     size_t width,
+                                     size_t height,
+                                     EGLint glesMajorVersion,
+                                     EGLint glesMinorVersion,
+                                     EGLint requestedRenderer)
+    : mName(name), mWidth(width), mHeight(height), mRunning(false)
 {
-    mEGLWindow.reset(new EGLWindow(width, height, glesMajorVersion, EGLPlatformParameters(requestedRenderer)));
+    mEGLWindow.reset(new EGLWindow(glesMajorVersion, glesMinorVersion,
+                                   EGLPlatformParameters(requestedRenderer)));
     mTimer.reset(CreateTimer());
     mOSWindow.reset(CreateOSWindow());
 
@@ -80,7 +84,7 @@ EGLContext SampleApplication::getContext() const
 
 int SampleApplication::run()
 {
-    if (!mOSWindow->initialize(mName, mEGLWindow->getWidth(), mEGLWindow->getHeight()))
+    if (!mOSWindow->initialize(mName, mWidth, mHeight))
     {
         return -1;
     }

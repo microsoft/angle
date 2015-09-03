@@ -11,6 +11,7 @@
 
 #include "common/debug.h"
 #include "libANGLE/Error.h"
+#include "libANGLE/State.h"
 #include "libANGLE/angletypes.h"
 #include "libANGLE/renderer/gl/functionsgl_typedefs.h"
 
@@ -28,7 +29,7 @@ namespace rx
 
 class FunctionsGL;
 
-class StateManagerGL : angle::NonCopyable
+class StateManagerGL final : angle::NonCopyable
 {
   public:
     StateManagerGL(const FunctionsGL *functions, const gl::Caps &rendererCaps);
@@ -45,18 +46,8 @@ class StateManagerGL : angle::NonCopyable
     void bindBuffer(GLenum type, GLuint buffer);
     void activeTexture(size_t unit);
     void bindTexture(GLenum type, GLuint texture);
-    void setPixelUnpackState(GLint alignment, GLint rowLength);
     void bindFramebuffer(GLenum type, GLuint framebuffer);
     void bindRenderbuffer(GLenum type, GLuint renderbuffer);
-
-    void setClearState(const gl::State &state, GLbitfield mask);
-
-    gl::Error setDrawArraysState(const gl::Data &data, GLint first, GLsizei count);
-    gl::Error setDrawElementsState(const gl::Data &data, GLsizei count, GLenum type, const GLvoid *indices,
-                                   const GLvoid **outIndices);
-
-  private:
-    gl::Error setGenericDrawState(const gl::Data &data);
 
     void setAttributeCurrentData(size_t index, const gl::VertexAttribCurrentValueData &data);
 
@@ -68,7 +59,10 @@ class StateManagerGL : angle::NonCopyable
 
     void setBlendEnabled(bool enabled);
     void setBlendColor(const gl::ColorF &blendColor);
-    void setBlendFuncs(GLenum sourceBlendRGB, GLenum destBlendRGB, GLenum sourceBlendAlpha, GLenum destBlendAlpha);
+    void setBlendFuncs(GLenum sourceBlendRGB,
+                       GLenum destBlendRGB,
+                       GLenum sourceBlendAlpha,
+                       GLenum destBlendAlpha);
     void setBlendEquations(GLenum blendEquationRGB, GLenum blendEquationAlpha);
     void setColorMask(bool red, bool green, bool blue, bool alpha);
     void setSampleAlphaToCoverageEnabled(bool enabled);
@@ -101,6 +95,37 @@ class StateManagerGL : angle::NonCopyable
     void setClearDepth(float clearDepth);
     void setClearStencil(GLint clearStencil);
 
+    void setPixelUnpackState(const gl::PixelUnpackState &unpack);
+    void setPixelUnpackState(GLint alignment,
+                             GLint rowLength,
+                             GLint skipRows,
+                             GLint skipPixels,
+                             GLint imageHeight,
+                             GLint skipImages,
+                             GLuint unpackBuffer);
+    void setPixelPackState(const gl::PixelPackState &pack);
+    void setPixelPackState(GLint alignment,
+                           GLint rowLength,
+                           GLint skipRows,
+                           GLint skipPixels,
+                           GLuint packBuffer);
+
+    gl::Error setDrawArraysState(const gl::Data &data,
+                                 GLint first,
+                                 GLsizei count,
+                                 GLsizei instanceCount);
+    gl::Error setDrawElementsState(const gl::Data &data,
+                                   GLsizei count,
+                                   GLenum type,
+                                   const GLvoid *indices,
+                                   GLsizei instanceCount,
+                                   const GLvoid **outIndices);
+
+    void syncState(const gl::State &state, const gl::State::DirtyBits &dirtyBits);
+
+  private:
+    gl::Error setGenericDrawState(const gl::Data &data);
+
     const FunctionsGL *mFunctions;
 
     GLuint mProgram;
@@ -115,8 +140,18 @@ class StateManagerGL : angle::NonCopyable
 
     GLint mUnpackAlignment;
     GLint mUnpackRowLength;
+    GLint mUnpackSkipRows;
+    GLint mUnpackSkipPixels;
+    GLint mUnpackImageHeight;
+    GLint mUnpackSkipImages;
 
-    std::map<GLenum, GLuint> mFramebuffers;
+    GLint mPackAlignment;
+    GLint mPackRowLength;
+    GLint mPackSkipRows;
+    GLint mPackSkipPixels;
+
+    // TODO(jmadill): Convert to std::array when available
+    std::vector<GLenum> mFramebuffers;
     GLuint mRenderbuffer;
 
     bool mScissorTestEnabled;
@@ -177,6 +212,8 @@ class StateManagerGL : angle::NonCopyable
     gl::ColorF mClearColor;
     float mClearDepth;
     GLint mClearStencil;
+
+    gl::State::DirtyBits mLocalDirtyBits;
 };
 
 }

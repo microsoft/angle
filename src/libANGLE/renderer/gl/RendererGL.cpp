@@ -14,6 +14,7 @@
 #include "libANGLE/AttributeMap.h"
 #include "libANGLE/Data.h"
 #include "libANGLE/Surface.h"
+#include "libANGLE/renderer/gl/BlitGL.h"
 #include "libANGLE/renderer/gl/BufferGL.h"
 #include "libANGLE/renderer/gl/CompilerGL.h"
 #include "libANGLE/renderer/gl/FenceNVGL.h"
@@ -83,10 +84,13 @@ RendererGL::RendererGL(const FunctionsGL *functions, const egl::AttributeMap &at
       mMaxSupportedESVersion(0, 0),
       mFunctions(functions),
       mStateManager(nullptr),
+      mBlitter(nullptr),
       mSkipDrawCalls(false)
 {
     ASSERT(mFunctions);
     mStateManager = new StateManagerGL(mFunctions, getRendererCaps());
+    nativegl_gl::GenerateWorkarounds(mFunctions, &mWorkarounds);
+    mBlitter = new BlitGL(functions, mWorkarounds, mStateManager);
 
 #ifndef NDEBUG
     if (mFunctions->debugMessageControl && mFunctions->debugMessageCallback)
@@ -110,6 +114,7 @@ RendererGL::RendererGL(const FunctionsGL *functions, const egl::AttributeMap &at
 RendererGL::~RendererGL()
 {
     SafeDelete(mStateManager);
+    SafeDelete(mBlitter);
 }
 
 gl::Error RendererGL::flush()
@@ -124,10 +129,9 @@ gl::Error RendererGL::finish()
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error RendererGL::drawArrays(const gl::Data &data, GLenum mode,
-                                 GLint first, GLsizei count, GLsizei instances)
+gl::Error RendererGL::drawArrays(const gl::Data &data, GLenum mode, GLint first, GLsizei count)
 {
-    gl::Error error = mStateManager->setDrawArraysState(data, first, count);
+    gl::Error error = mStateManager->setDrawArraysState(data, first, count, 0);
     if (error.isError())
     {
         return error;
@@ -141,17 +145,36 @@ gl::Error RendererGL::drawArrays(const gl::Data &data, GLenum mode,
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error RendererGL::drawElements(const gl::Data &data, GLenum mode, GLsizei count, GLenum type,
-                                   const GLvoid *indices, GLsizei instances,
-                                   const gl::RangeUI &indexRange)
+gl::Error RendererGL::drawArraysInstanced(const gl::Data &data,
+                                          GLenum mode,
+                                          GLint first,
+                                          GLsizei count,
+                                          GLsizei instanceCount)
 {
-    if (instances > 0)
+    gl::Error error = mStateManager->setDrawArraysState(data, first, count, instanceCount);
+    if (error.isError())
     {
-        UNIMPLEMENTED();
+        return error;
     }
 
+    if (!mSkipDrawCalls)
+    {
+        mFunctions->drawArraysInstanced(mode, first, count, instanceCount);
+    }
+
+    return gl::Error(GL_NO_ERROR);
+}
+
+gl::Error RendererGL::drawElements(const gl::Data &data,
+                                   GLenum mode,
+                                   GLsizei count,
+                                   GLenum type,
+                                   const GLvoid *indices,
+                                   const gl::RangeUI &indexRange)
+{
     const GLvoid *drawIndexPointer = nullptr;
-    gl::Error error = mStateManager->setDrawElementsState(data, count, type, indices, &drawIndexPointer);
+    gl::Error error =
+        mStateManager->setDrawElementsState(data, count, type, indices, 0, &drawIndexPointer);
     if (error.isError())
     {
         return error;
@@ -160,6 +183,55 @@ gl::Error RendererGL::drawElements(const gl::Data &data, GLenum mode, GLsizei co
     if (!mSkipDrawCalls)
     {
         mFunctions->drawElements(mode, count, type, drawIndexPointer);
+    }
+
+    return gl::Error(GL_NO_ERROR);
+}
+
+gl::Error RendererGL::drawElementsInstanced(const gl::Data &data,
+                                            GLenum mode,
+                                            GLsizei count,
+                                            GLenum type,
+                                            const GLvoid *indices,
+                                            GLsizei instances,
+                                            const gl::RangeUI &indexRange)
+{
+    const GLvoid *drawIndexPointer = nullptr;
+    gl::Error error = mStateManager->setDrawElementsState(data, count, type, indices, instances,
+                                                          &drawIndexPointer);
+    if (error.isError())
+    {
+        return error;
+    }
+
+    if (!mSkipDrawCalls)
+    {
+        mFunctions->drawElementsInstanced(mode, count, type, drawIndexPointer, instances);
+    }
+
+    return gl::Error(GL_NO_ERROR);
+}
+
+gl::Error RendererGL::drawRangeElements(const gl::Data &data,
+                                        GLenum mode,
+                                        GLuint start,
+                                        GLuint end,
+                                        GLsizei count,
+                                        GLenum type,
+                                        const GLvoid *indices,
+                                        const gl::RangeUI &indexRange)
+{
+    const GLvoid *drawIndexPointer = nullptr;
+    gl::Error error =
+        mStateManager->setDrawElementsState(data, count, type, indices, 0, &drawIndexPointer);
+    if (error.isError())
+    {
+        return error;
+    }
+
+    if (!mSkipDrawCalls)
+    {
+        mFunctions->drawRangeElements(mode, start, end, count, type, drawIndexPointer);
     }
 
     return gl::Error(GL_NO_ERROR);
@@ -175,14 +247,9 @@ ShaderImpl *RendererGL::createShader(GLenum type)
     return new ShaderGL(type, mFunctions);
 }
 
-ProgramImpl *RendererGL::createProgram()
+ProgramImpl *RendererGL::createProgram(const gl::Program::Data &data)
 {
-    return new ProgramGL(mFunctions, mStateManager);
-}
-
-FramebufferImpl *RendererGL::createDefaultFramebuffer(const gl::Framebuffer::Data &data)
-{
-    return new FramebufferGL(data, mFunctions, mStateManager, true);
+    return new ProgramGL(data, mFunctions, mStateManager);
 }
 
 FramebufferImpl *RendererGL::createFramebuffer(const gl::Framebuffer::Data &data)
@@ -192,12 +259,12 @@ FramebufferImpl *RendererGL::createFramebuffer(const gl::Framebuffer::Data &data
 
 TextureImpl *RendererGL::createTexture(GLenum target)
 {
-    return new TextureGL(target, mFunctions, mStateManager);
+    return new TextureGL(target, mFunctions, mWorkarounds, mStateManager, mBlitter);
 }
 
 RenderbufferImpl *RendererGL::createRenderbuffer()
 {
-    return new RenderbufferGL(mFunctions, mStateManager, getRendererTextureCaps());
+    return new RenderbufferGL(mFunctions, mWorkarounds, mStateManager, getRendererTextureCaps());
 }
 
 BufferImpl *RendererGL::createBuffer()
@@ -205,9 +272,9 @@ BufferImpl *RendererGL::createBuffer()
     return new BufferGL(mFunctions, mStateManager);
 }
 
-VertexArrayImpl *RendererGL::createVertexArray()
+VertexArrayImpl *RendererGL::createVertexArray(const gl::VertexArray::Data &data)
 {
-    return new VertexArrayGL(mFunctions, mStateManager);
+    return new VertexArrayGL(data, mFunctions, mStateManager);
 }
 
 QueryImpl *RendererGL::createQuery(GLenum type)
@@ -291,6 +358,19 @@ std::string RendererGL::getRendererDescription() const
         rendererString << " ES";
     }
     rendererString << " " << mFunctions->version.major << "." << mFunctions->version.minor;
+    if (mFunctions->standard == STANDARD_GL_DESKTOP)
+    {
+        // Some drivers (NVIDIA) use a profile mask of 0 when in compatibility profile.
+        if ((mFunctions->profile & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT) != 0 ||
+            (mFunctions->isAtLeastGL(gl::Version(3, 2)) && mFunctions->profile == 0))
+        {
+            rendererString << " compatibility";
+        }
+        else if ((mFunctions->profile & GL_CONTEXT_CORE_PROFILE_BIT) != 0)
+        {
+            rendererString << " core";
+        }
+    }
 
     return rendererString.str();
 }
@@ -310,10 +390,8 @@ void RendererGL::generateCaps(gl::Caps *outCaps, gl::TextureCapsMap* outTextureC
     nativegl_gl::GenerateCaps(mFunctions, outCaps, outTextureCaps, outExtensions, &mMaxSupportedESVersion);
 }
 
-Workarounds RendererGL::generateWorkarounds() const
+void RendererGL::syncState(const gl::State &state, const gl::State::DirtyBits &dirtyBits)
 {
-    Workarounds workarounds;
-    return workarounds;
+    mStateManager->syncState(state, dirtyBits);
 }
-
 }

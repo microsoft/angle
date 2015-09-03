@@ -199,7 +199,7 @@ class EGLRenderToBackbufferTest : public testing::TestWithParam<PlatformParamete
     EGLContext mContext;
     EGLSurface mSurface;
     OSWindow *mOSWindow;
-    size_t mWindowWidth;
+    GLint mWindowWidth;
 };
 
 TEST_P(EGLRenderToBackbufferTest, AllowAndEnable)

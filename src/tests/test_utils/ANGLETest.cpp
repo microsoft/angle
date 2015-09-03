@@ -3,9 +3,12 @@
 #include "OSWindow.h"
 
 ANGLETest::ANGLETest()
-    : mEGLWindow(nullptr)
+    : mEGLWindow(nullptr),
+      mWidth(0),
+      mHeight(0)
 {
-    mEGLWindow = new EGLWindow(1280, 720, GetParam().majorVersion, GetParam().eglParameters);
+    mEGLWindow =
+        new EGLWindow(GetParam().majorVersion, GetParam().minorVersion, GetParam().eglParameters);
 }
 
 ANGLETest::~ANGLETest()
@@ -15,15 +18,35 @@ ANGLETest::~ANGLETest()
 
 void ANGLETest::SetUp()
 {
-    if (!ResizeWindow(mEGLWindow->getWidth(), mEGLWindow->getHeight()))
+    // Resize the window before creating the context so that the first make current
+    // sets the viewport and scissor box to the right size.
+    bool needSwap = false;
+    if (mOSWindow->getWidth() != mWidth || mOSWindow->getHeight() != mHeight)
     {
-        FAIL() << "Failed to resize ANGLE test window.";
+        if (!mOSWindow->resize(mWidth, mHeight))
+        {
+            FAIL() << "Failed to resize ANGLE test window.";
+        }
+        needSwap = true;
     }
 
     if (!createEGLContext())
     {
         FAIL() << "egl context creation failed.";
     }
+
+    if (needSwap)
+    {
+        // Swap the buffers so that the default framebuffer picks up the resize
+        // which will allow follow-up test code to assume the framebuffer covers
+        // the whole window.
+        swapBuffers();
+    }
+
+    // This Viewport command is not strictly necessary but we add it so that programs
+    // taking OpenGL traces can guess the size of the default framebuffer and show it
+    // in their UIs
+    glViewport(0, 0, mWidth, mHeight);
 }
 
 void ANGLETest::TearDown()
@@ -100,7 +123,7 @@ GLuint ANGLETest::compileShader(GLenum type, const std::string &source)
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
         std::vector<GLchar> infoLog(infoLogLength);
-        glGetShaderInfoLog(shader, infoLog.size(), NULL, &infoLog[0]);
+        glGetShaderInfoLog(shader, static_cast<GLsizei>(infoLog.size()), NULL, &infoLog[0]);
 
         std::cerr << "shader compilation failed: " << &infoLog[0];
 
@@ -111,20 +134,35 @@ GLuint ANGLETest::compileShader(GLenum type, const std::string &source)
     return shader;
 }
 
+static bool checkExtensionExists(const char *allExtensions, const std::string &extName)
+{
+    return strstr(allExtensions, extName.c_str()) != nullptr;
+}
+
 bool ANGLETest::extensionEnabled(const std::string &extName)
 {
-    const char* extString = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
-    return strstr(extString, extName.c_str()) != NULL;
+    return checkExtensionExists(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)),
+                                extName);
+}
+
+bool ANGLETest::eglDisplayExtensionEnabled(EGLDisplay display, const std::string &extName)
+{
+    return checkExtensionExists(eglQueryString(display, EGL_EXTENSIONS), extName);
+}
+
+bool ANGLETest::eglClientExtensionEnabled(const std::string &extName)
+{
+    return checkExtensionExists(eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS), extName);
 }
 
 void ANGLETest::setWindowWidth(int width)
 {
-    mEGLWindow->setWidth(width);
+    mWidth = width;
 }
 
 void ANGLETest::setWindowHeight(int height)
 {
-    mEGLWindow->setHeight(height);
+    mHeight = height;
 }
 
 void ANGLETest::setConfigRedBits(int bits)
@@ -164,7 +202,7 @@ void ANGLETest::setMultisampleEnabled(bool enabled)
 
 int ANGLETest::getClientVersion() const
 {
-    return mEGLWindow->getClientVersion();
+    return mEGLWindow->getClientMajorVersion();
 }
 
 EGLWindow *ANGLETest::getEGLWindow() const
@@ -174,12 +212,12 @@ EGLWindow *ANGLETest::getEGLWindow() const
 
 int ANGLETest::getWindowWidth() const
 {
-    return mEGLWindow->getWidth();
+    return mWidth;
 }
 
 int ANGLETest::getWindowHeight() const
 {
-    return mEGLWindow->getHeight();
+    return mHeight;
 }
 
 bool ANGLETest::isMultisampleEnabled() const
@@ -221,11 +259,6 @@ bool ANGLETest::DestroyTestWindow()
     }
 
     return true;
-}
-
-bool ANGLETest::ResizeWindow(int width, int height)
-{
-    return mOSWindow->resize(width, height);
 }
 
 void ANGLETest::SetWindowVisible(bool isVisible)

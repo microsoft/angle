@@ -20,7 +20,7 @@ namespace rx
 class ShaderImpl : angle::NonCopyable
 {
   public:
-    ShaderImpl() { }
+    ShaderImpl() : mShaderVersion(100) {}
     virtual ~ShaderImpl() { }
 
     virtual bool compile(gl::Compiler *compiler, const std::string &source) = 0;
@@ -29,27 +29,35 @@ class ShaderImpl : angle::NonCopyable
     virtual const std::string &getInfoLog() const { return mInfoLog; }
     virtual const std::string &getTranslatedSource() const { return mTranslatedSource; }
 
-    const std::vector<gl::PackedVarying> &getVaryings() const { return mVaryings; }
+    int getShaderVersion() const { return mShaderVersion; }
+
+    const std::vector<sh::Varying> &getVaryings() const { return mVaryings; }
     const std::vector<sh::Uniform> &getUniforms() const { return mUniforms; }
     const std::vector<sh::InterfaceBlock> &getInterfaceBlocks() const  { return mInterfaceBlocks; }
     const std::vector<sh::Attribute> &getActiveAttributes() const { return mActiveAttributes; }
-    const std::vector<sh::Attribute> &getActiveOutputVariables() const { return mActiveOutputVariables; }
+    const std::vector<sh::OutputVariable> &getActiveOutputVariables() const
+    {
+        return mActiveOutputVariables;
+    }
 
-    std::vector<gl::PackedVarying> &getVaryings() { return mVaryings; }
+    std::vector<sh::Varying> &getVaryings() { return mVaryings; }
     std::vector<sh::Uniform> &getUniforms() { return mUniforms; }
     std::vector<sh::InterfaceBlock> &getInterfaceBlocks() { return mInterfaceBlocks; }
     std::vector<sh::Attribute> &getActiveAttributes() { return mActiveAttributes; }
-    std::vector<sh::Attribute> &getActiveOutputVariables() { return mActiveOutputVariables; }
+    std::vector<sh::OutputVariable> &getActiveOutputVariables() { return mActiveOutputVariables; }
 
   protected:
     std::string mInfoLog;
     std::string mTranslatedSource;
 
-    std::vector<gl::PackedVarying> mVaryings;
+    // TODO(jmadill): make part of shared non-Impl state
+    int mShaderVersion;
+
+    std::vector<sh::Varying> mVaryings;
     std::vector<sh::Uniform> mUniforms;
     std::vector<sh::InterfaceBlock> mInterfaceBlocks;
     std::vector<sh::Attribute> mActiveAttributes;
-    std::vector<sh::Attribute> mActiveOutputVariables;
+    std::vector<sh::OutputVariable> mActiveOutputVariables;
 };
 
 }

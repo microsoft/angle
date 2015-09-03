@@ -444,17 +444,25 @@ void GL_APIENTRY BlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha
             return;
         }
 
-        bool constantColorUsed = (srcRGB == GL_CONSTANT_COLOR || srcRGB == GL_ONE_MINUS_CONSTANT_COLOR ||
-                                  dstRGB == GL_CONSTANT_COLOR || dstRGB == GL_ONE_MINUS_CONSTANT_COLOR);
-
-        bool constantAlphaUsed = (srcRGB == GL_CONSTANT_ALPHA || srcRGB == GL_ONE_MINUS_CONSTANT_ALPHA ||
-                                  dstRGB == GL_CONSTANT_ALPHA || dstRGB == GL_ONE_MINUS_CONSTANT_ALPHA);
-
-        if (constantColorUsed && constantAlphaUsed)
+        if (context->getLimitations().noSimultaneousConstantColorAndAlphaBlendFunc)
         {
-            ERR("Simultaneous use of GL_CONSTANT_ALPHA/GL_ONE_MINUS_CONSTANT_ALPHA and GL_CONSTANT_COLOR/GL_ONE_MINUS_CONSTANT_COLOR invalid under WebGL");
-            context->recordError(Error(GL_INVALID_OPERATION));
-            return;
+            bool constantColorUsed =
+                (srcRGB == GL_CONSTANT_COLOR || srcRGB == GL_ONE_MINUS_CONSTANT_COLOR ||
+                 dstRGB == GL_CONSTANT_COLOR || dstRGB == GL_ONE_MINUS_CONSTANT_COLOR);
+
+            bool constantAlphaUsed =
+                (srcRGB == GL_CONSTANT_ALPHA || srcRGB == GL_ONE_MINUS_CONSTANT_ALPHA ||
+                 dstRGB == GL_CONSTANT_ALPHA || dstRGB == GL_ONE_MINUS_CONSTANT_ALPHA);
+
+            if (constantColorUsed && constantAlphaUsed)
+            {
+                ERR(
+                    "Simultaneous use of GL_CONSTANT_ALPHA/GL_ONE_MINUS_CONSTANT_ALPHA and "
+                    "GL_CONSTANT_COLOR/GL_ONE_MINUS_CONSTANT_COLOR not supported by this "
+                    "implementation.");
+                context->recordError(Error(GL_INVALID_OPERATION));
+                return;
+            }
         }
 
         context->getState().setBlendFactors(srcRGB, dstRGB, srcAlpha, dstAlpha);
@@ -628,7 +636,7 @@ void GL_APIENTRY Clear(GLbitfield mask)
             return;
         }
 
-        Error error = framebufferObject->clear(context->getData(), mask);
+        Error error = framebufferObject->clear(context, mask);
         if (error.isError())
         {
             context->recordError(error);
@@ -743,8 +751,9 @@ void GL_APIENTRY CompressedTexImage2D(GLenum target, GLint level, GLenum interna
 
         Extents size(width, height, 1);
         Texture *texture = context->getTargetTexture(IsCubeMapTextureTarget(target) ? GL_TEXTURE_CUBE_MAP : target);
-        Error error = texture->setCompressedImage(target, level, internalformat, size, context->getState().getUnpackState(), 
-                                                  imageSize, reinterpret_cast<const uint8_t *>(data));
+        Error error =
+            texture->setCompressedImage(context, target, level, internalformat, size, imageSize,
+                                        reinterpret_cast<const uint8_t *>(data));
         if (error.isError())
         {
             context->recordError(error);
@@ -785,11 +794,11 @@ void GL_APIENTRY CompressedTexSubImage2D(GLenum target, GLint level, GLint xoffs
             return;
         }
 
-
         Box area(xoffset, yoffset, 0, width, height, 1);
         Texture *texture = context->getTargetTexture(IsCubeMapTextureTarget(target) ? GL_TEXTURE_CUBE_MAP : target);
-        Error error = texture->setCompressedSubImage(target, level, area, format, context->getState().getUnpackState(),
-                                                     imageSize, reinterpret_cast<const uint8_t *>(data));
+        Error error =
+            texture->setCompressedSubImage(context, target, level, area, format, imageSize,
+                                           reinterpret_cast<const uint8_t *>(data));
         if (error.isError())
         {
             context->recordError(error);
@@ -1219,7 +1228,7 @@ void GL_APIENTRY DrawArrays(GLenum mode, GLint first, GLsizei count)
             return;
         }
 
-        Error error = context->drawArrays(mode, first, count, 0);
+        Error error = context->drawArrays(mode, first, count);
         if (error.isError())
         {
             context->recordError(error);
@@ -1242,7 +1251,7 @@ void GL_APIENTRY DrawElements(GLenum mode, GLsizei count, GLenum type, const GLv
             return;
         }
 
-        Error error = context->drawElements(mode, count, type, indices, 0, indexRange);
+        Error error = context->drawElements(mode, count, type, indices, indexRange);
         if (error.isError())
         {
             context->recordError(error);
@@ -1499,7 +1508,9 @@ void GL_APIENTRY GenerateMipmap(GLenum target)
         }
 
         // Non-power of 2 ES2 check
-        if (!context->getExtensions().textureNPOT && (!isPow2(texture->getWidth(baseTarget, 0)) || !isPow2(texture->getHeight(baseTarget, 0))))
+        if (!context->getExtensions().textureNPOT &&
+            (!isPow2(static_cast<int>(texture->getWidth(baseTarget, 0))) ||
+             !isPow2(static_cast<int>(texture->getHeight(baseTarget, 0)))))
         {
             ASSERT(context->getClientVersion() <= 2 && (target == GL_TEXTURE_2D || target == GL_TEXTURE_CUBE_MAP));
             context->recordError(Error(GL_INVALID_OPERATION));
@@ -2479,44 +2490,50 @@ const GLubyte *GL_APIENTRY GetString(GLenum name)
 
     Context *context = GetValidGlobalContext();
 
-    switch (name)
+    if (context)
     {
-      case GL_VENDOR:
-        return (GLubyte*)"Google Inc.";
-
-      case GL_RENDERER:
-        return (GLubyte*)((context != NULL) ? context->getRendererString().c_str() : "ANGLE");
-
-      case GL_VERSION:
-        if (context->getClientVersion() == 2)
+        switch (name)
         {
-            return (GLubyte*)"OpenGL ES 2.0 (ANGLE " ANGLE_VERSION_STRING ")";
-        }
-        else
-        {
-            return (GLubyte*)"OpenGL ES 3.0 (ANGLE " ANGLE_VERSION_STRING ")";
-        }
+            case GL_VENDOR:
+                return reinterpret_cast<const GLubyte *>("Google Inc.");
 
-      case GL_SHADING_LANGUAGE_VERSION:
-        if (context->getClientVersion() == 2)
-        {
-            return (GLubyte*)"OpenGL ES GLSL ES 1.00 (ANGLE " ANGLE_VERSION_STRING ")";
-        }
-        else
-        {
-            return (GLubyte*)"OpenGL ES GLSL ES 3.00 (ANGLE " ANGLE_VERSION_STRING ")";
-        }
+            case GL_RENDERER:
+                return reinterpret_cast<const GLubyte *>(context->getRendererString().c_str());
 
-      case GL_EXTENSIONS:
-        return (GLubyte*)((context != NULL) ? context->getExtensionString().c_str() : "");
+            case GL_VERSION:
+                if (context->getClientVersion() == 2)
+                {
+                    return reinterpret_cast<const GLubyte *>(
+                        "OpenGL ES 2.0 (ANGLE " ANGLE_VERSION_STRING ")");
+                }
+                else
+                {
+                    return reinterpret_cast<const GLubyte *>(
+                        "OpenGL ES 3.0 (ANGLE " ANGLE_VERSION_STRING ")");
+                }
 
-      default:
-        if (context)
-        {
+            case GL_SHADING_LANGUAGE_VERSION:
+                if (context->getClientVersion() == 2)
+                {
+                    return reinterpret_cast<const GLubyte *>(
+                        "OpenGL ES GLSL ES 1.00 (ANGLE " ANGLE_VERSION_STRING ")");
+                }
+                else
+                {
+                    return reinterpret_cast<const GLubyte *>(
+                        "OpenGL ES GLSL ES 3.00 (ANGLE " ANGLE_VERSION_STRING ")");
+                }
+
+            case GL_EXTENSIONS:
+                return reinterpret_cast<const GLubyte *>(context->getExtensionString().c_str());
+
+            default:
             context->recordError(Error(GL_INVALID_ENUM));
+            return nullptr;
         }
-        return NULL;
     }
+
+    return nullptr;
 }
 
 void GL_APIENTRY GetTexParameterfv(GLenum target, GLenum pname, GLfloat* params)
@@ -3319,7 +3336,7 @@ void GL_APIENTRY ReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
         ASSERT(framebufferObject);
 
         Rectangle area(x, y, width, height);
-        Error error = framebufferObject->readPixels(context->getState(), area, format, type, pixels);
+        Error error = framebufferObject->readPixels(context, area, format, type, pixels);
         if (error.isError())
         {
             context->recordError(error);
@@ -3657,7 +3674,7 @@ void GL_APIENTRY TexImage2D(GLenum target, GLint level, GLint internalformat, GL
 
         Extents size(width, height, 1);
         Texture *texture = context->getTargetTexture(IsCubeMapTextureTarget(target) ? GL_TEXTURE_CUBE_MAP : target);
-        Error error = texture->setImage(target, level, internalformat, size, format, type, context->getState().getUnpackState(),
+        Error error = texture->setImage(context, target, level, internalformat, size, format, type,
                                         reinterpret_cast<const uint8_t *>(pixels));
         if (error.isError())
         {
@@ -3810,7 +3827,7 @@ void GL_APIENTRY TexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint 
 
         Box area(xoffset, yoffset, 0, width, height, 1);
         Texture *texture = context->getTargetTexture(IsCubeMapTextureTarget(target) ? GL_TEXTURE_CUBE_MAP : target);
-        Error error = texture->setSubImage(target, level, area, format, type, context->getState().getUnpackState(),
+        Error error = texture->setSubImage(context, target, level, area, format, type,
                                            reinterpret_cast<const uint8_t *>(pixels));
         if (error.isError())
         {

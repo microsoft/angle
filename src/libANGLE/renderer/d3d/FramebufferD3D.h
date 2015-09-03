@@ -27,7 +27,7 @@ typedef std::vector<const FramebufferAttachment *> AttachmentList;
 namespace rx
 {
 class RenderTargetD3D;
-class RendererD3D;
+struct WorkaroundsD3D;
 
 struct ClearParameters
 {
@@ -55,7 +55,7 @@ struct ClearParameters
 class FramebufferD3D : public FramebufferImpl
 {
   public:
-    FramebufferD3D(const gl::Framebuffer::Data &data, RendererD3D *renderer);
+    FramebufferD3D(const gl::Framebuffer::Data &data);
     virtual ~FramebufferD3D();
 
     void onUpdateColorAttachment(size_t index) override;
@@ -81,7 +81,7 @@ class FramebufferD3D : public FramebufferImpl
 
     GLenum checkStatus() const override;
 
-    const gl::AttachmentList &getColorAttachmentsForRender(const Workarounds &workarounds) const;
+    const gl::AttachmentList &getColorAttachmentsForRender(const WorkaroundsD3D &workarounds) const;
 
   protected:
     // Cache variable
@@ -89,8 +89,6 @@ class FramebufferD3D : public FramebufferImpl
     mutable bool mInvalidateColorAttachmentCache;
 
   private:
-    RendererD3D *const mRenderer;
-
     virtual gl::Error clear(const gl::State &state, const ClearParameters &clearParams) = 0;
 
     virtual gl::Error readPixels(const gl::Rectangle &area, GLenum format, GLenum type, size_t outputPitch,
@@ -102,8 +100,6 @@ class FramebufferD3D : public FramebufferImpl
 
     virtual GLenum getRenderTargetImplementationFormat(RenderTargetD3D *renderTarget) const = 0;
 };
-
-unsigned int GetAttachmentSerial(const gl::FramebufferAttachment *attachment);
 
 }
 

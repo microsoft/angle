@@ -100,7 +100,7 @@ void GL_APIENTRY DrawArraysInstancedANGLE(GLenum mode, GLint first, GLsizei coun
             return;
         }
 
-        Error error = context->drawArrays(mode, first, count, primcount);
+        Error error = context->drawArraysInstanced(mode, first, count, primcount);
         if (error.isError())
         {
             context->recordError(error);
@@ -123,7 +123,8 @@ void GL_APIENTRY DrawElementsInstancedANGLE(GLenum mode, GLsizei count, GLenum t
             return;
         }
 
-        Error error = context->drawElements(mode, count, type, indices, primcount, indexRange);
+        Error error =
+            context->drawElementsInstanced(mode, count, type, indices, primcount, indexRange);
         if (error.isError())
         {
             context->recordError(error);
@@ -496,7 +497,7 @@ void GL_APIENTRY ReadnPixelsEXT(GLint x, GLint y, GLsizei width, GLsizei height,
         ASSERT(framebufferObject);
 
         Rectangle area(x, y, width, height);
-        Error error = framebufferObject->readPixels(context->getState(), area, format, type, data);
+        Error error = framebufferObject->readPixels(context, area, format, type, data);
         if (error.isError())
         {
             context->recordError(error);
@@ -1182,4 +1183,52 @@ void GL_APIENTRY PopGroupMarkerEXT()
     }
 }
 
+ANGLE_EXPORT void GL_APIENTRY EGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
+{
+    EVENT("(GLenum target = 0x%X, GLeglImageOES image = 0x%0.8p)", target, image);
+
+    Context *context = GetValidGlobalContext();
+    if (context)
+    {
+        egl::Display *display   = egl::GetGlobalDisplay();
+        egl::Image *imageObject = reinterpret_cast<egl::Image *>(image);
+        if (!ValidateEGLImageTargetTexture2DOES(context, display, target, imageObject))
+        {
+            return;
+        }
+
+        Texture *texture = context->getTargetTexture(target);
+        Error error = texture->setEGLImageTarget(target, imageObject);
+        if (error.isError())
+        {
+            context->recordError(error);
+            return;
+        }
+    }
+}
+
+ANGLE_EXPORT void GL_APIENTRY EGLImageTargetRenderbufferStorageOES(GLenum target,
+                                                                   GLeglImageOES image)
+{
+    EVENT("(GLenum target = 0x%X, GLeglImageOES image = 0x%0.8p)", target, image);
+
+    Context *context = GetValidGlobalContext();
+    if (context)
+    {
+        egl::Display *display   = egl::GetGlobalDisplay();
+        egl::Image *imageObject = reinterpret_cast<egl::Image *>(image);
+        if (!ValidateEGLImageTargetRenderbufferStorageOES(context, display, target, imageObject))
+        {
+            return;
+        }
+
+        Renderbuffer *renderbuffer = context->getState().getCurrentRenderbuffer();
+        Error error = renderbuffer->setStorageEGLImageTarget(imageObject);
+        if (error.isError())
+        {
+            context->recordError(error);
+            return;
+        }
+    }
+}
 }

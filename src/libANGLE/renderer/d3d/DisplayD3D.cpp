@@ -199,6 +199,14 @@ SurfaceImpl *DisplayD3D::createPixmapSurface(const egl::Config *configuration,
     return nullptr;
 }
 
+ImageImpl *DisplayD3D::createImage(EGLenum target,
+                                   egl::ImageSibling *buffer,
+                                   const egl::AttributeMap &attribs)
+{
+    UNIMPLEMENTED();
+    return nullptr;
+}
+
 egl::Error DisplayD3D::getDevice(DeviceImpl **device)
 {
     *device = reinterpret_cast<DeviceImpl*>(mDevice);
@@ -304,26 +312,7 @@ bool DisplayD3D::isValidNativeWindow(EGLNativeWindowType window) const
 
 void DisplayD3D::generateExtensions(egl::DisplayExtensions *outExtensions) const
 {
-    outExtensions->createContextRobustness = true;
-
-    // ANGLE-specific extensions
-    if (mRenderer->getShareHandleSupport())
-    {
-        outExtensions->d3dShareHandleClientBuffer = true;
-        outExtensions->surfaceD3DTexture2DShareHandle = true;
-    }
-
-    outExtensions->querySurfacePointer = true;
-    outExtensions->windowFixedSize = true;
-
-    if (mRenderer->getPostSubBufferSupport())
-    {
-        outExtensions->postSubBuffer = true;
-    }
-
-    outExtensions->createContext = true;
-
-    outExtensions->deviceQuery = true;
+    mRenderer->generateDisplayExtensions(outExtensions);
 }
 
 std::string DisplayD3D::getVendorString() const

@@ -9,8 +9,8 @@
 #ifndef LIBANGLE_RENDERER_D3D_SHADERD3D_H_
 #define LIBANGLE_RENDERER_D3D_SHADERD3D_H_
 
+#include "libANGLE/renderer/d3d/WorkaroundsD3D.h"
 #include "libANGLE/renderer/ShaderImpl.h"
-#include "libANGLE/renderer/Workarounds.h"
 #include "libANGLE/Shader.h"
 
 #include <map>
@@ -25,7 +25,7 @@ class ShaderD3D : public ShaderImpl
     friend class DynamicHLSL;
 
   public:
-    ShaderD3D(GLenum type);
+    ShaderD3D(GLenum type, RendererD3D *renderer);
     virtual ~ShaderD3D();
 
     // ShaderImpl implementation
@@ -33,7 +33,6 @@ class ShaderD3D : public ShaderImpl
 
     // D3D-specific methods
     virtual void uncompile();
-    void resetVaryingsRegisterAssignment();
     unsigned int getUniformRegister(const std::string &uniformName) const;
     unsigned int getInterfaceBlockRegister(const std::string &blockName) const;
     void appendDebugInfo(const std::string &info) { mDebugInfo += info; }
@@ -56,11 +55,7 @@ class ShaderD3D : public ShaderImpl
 
     void parseAttributes(ShHandle compiler);
 
-    static bool compareVarying(const gl::PackedVarying &x, const gl::PackedVarying &y);
-
     GLenum mShaderType;
-
-    int mShaderVersion;
 
     bool mUsesMultipleRenderTargets;
     bool mUsesFragColor;
@@ -80,6 +75,7 @@ class ShaderD3D : public ShaderImpl
     std::string mDebugInfo;
     std::map<std::string, unsigned int> mUniformRegisterMap;
     std::map<std::string, unsigned int> mInterfaceBlockRegisterMap;
+    RendererD3D *mRenderer;
 };
 
 }

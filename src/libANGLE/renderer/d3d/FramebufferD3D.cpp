@@ -84,13 +84,11 @@ ClearParameters GetClearParameters(const gl::State &state, GLbitfield mask)
 
 }
 
-FramebufferD3D::FramebufferD3D(const gl::Framebuffer::Data &data, RendererD3D *renderer)
+FramebufferD3D::FramebufferD3D(const gl::Framebuffer::Data &data)
     : FramebufferImpl(data),
       mColorAttachmentsForRender(mData.getColorAttachments().size(), nullptr),
-      mInvalidateColorAttachmentCache(true),
-      mRenderer(renderer)
+      mInvalidateColorAttachmentCache(true)
 {
-    ASSERT(mRenderer != nullptr);
 }
 
 FramebufferD3D::~FramebufferD3D()
@@ -339,7 +337,8 @@ GLenum FramebufferD3D::checkStatus() const
     return GL_FRAMEBUFFER_COMPLETE;
 }
 
-const gl::AttachmentList &FramebufferD3D::getColorAttachmentsForRender(const Workarounds &workarounds) const
+const gl::AttachmentList &FramebufferD3D::getColorAttachmentsForRender(
+    const WorkaroundsD3D &workarounds) const
 {
     if (!mInvalidateColorAttachmentCache)
     {
@@ -370,47 +369,6 @@ const gl::AttachmentList &FramebufferD3D::getColorAttachmentsForRender(const Wor
 
     mInvalidateColorAttachmentCache = false;
     return mColorAttachmentsForRender;
-}
-
-// Note: RenderTarget serials should ideally be in the RenderTargets themselves.
-unsigned int GetAttachmentSerial(const gl::FramebufferAttachment *attachment)
-{
-    if (attachment->type() == GL_TEXTURE)
-    {
-        gl::Texture *texture = attachment->getTexture();
-        ASSERT(texture);
-        TextureD3D *textureD3D = GetImplAs<TextureD3D>(texture);
-        const gl::ImageIndex &index = attachment->getTextureImageIndex();
-        return textureD3D->getRenderTargetSerial(index);
-    }
-    else if (attachment->type() == GL_RENDERBUFFER)
-    {
-        gl::Renderbuffer *renderbuffer = attachment->getRenderbuffer();
-        ASSERT(renderbuffer);
-        RenderbufferD3D *renderbufferD3D = GetImplAs<RenderbufferD3D>(renderbuffer);
-        return renderbufferD3D->getRenderTargetSerial();
-    }
-    else if (attachment->type() == GL_FRAMEBUFFER_DEFAULT)
-    {
-        const egl::Surface *surface = attachment->getSurface();
-        ASSERT(surface);
-        const SurfaceD3D *surfaceD3D = GetImplAs<SurfaceD3D>(surface);
-        ASSERT(surfaceD3D);
-
-        if (attachment->getBinding() == GL_BACK)
-        {
-            return surfaceD3D->getSwapChain()->getColorRenderTarget()->getSerial();
-        }
-        else
-        {
-            return surfaceD3D->getSwapChain()->getDepthStencilRenderTarget()->getSerial();
-        }
-    }
-    else
-    {
-        UNREACHABLE();
-        return 0;
-    }
 }
 
 }

@@ -16,14 +16,19 @@
 namespace rx
 {
 
-WindowSurfaceGLX::WindowSurfaceGLX(const FunctionsGLX &glx, const DisplayGLX &glxDisplay, Window window, Display *display,
-                                   glx::Context context, glx::FBConfig fbConfig)
-    : SurfaceGL(),
+WindowSurfaceGLX::WindowSurfaceGLX(const FunctionsGLX &glx,
+                                   DisplayGLX *glxDisplay,
+                                   RendererGL *renderer,
+                                   Window window,
+                                   Display *display,
+                                   glx::Context context,
+                                   glx::FBConfig fbConfig)
+    : SurfaceGL(renderer),
       mParent(window),
       mWindow(0),
       mDisplay(display),
       mGLX(glx),
-      mGLXDisplay(glxDisplay),
+      mGLXDisplay(*glxDisplay),
       mContext(context),
       mFBConfig(fbConfig),
       mGLXWindow(0),
@@ -83,7 +88,7 @@ egl::Error WindowSurfaceGLX::initialize()
         return egl::Error(EGL_BAD_NATIVE_WINDOW, "Failed to create the Colormap for the child window.");
     }
     attributes.colormap = colormap;
-    attributes.background_pixel = 0;
+    attributes.border_pixel = 0;
 
     //TODO(cwallez) set up our own error handler to see if the call failed
     mWindow = XCreateWindow(mDisplay, mParent, 0, 0, mParentWidth, mParentHeight,
@@ -117,8 +122,6 @@ egl::Error WindowSurfaceGLX::makeCurrent()
 
 egl::Error WindowSurfaceGLX::swap()
 {
-    mGLX.swapBuffers(mGLXWindow);
-
     //TODO(cwallez) set up our own error handler to see if the call failed
     unsigned int newParentWidth, newParentHeight;
     if (!getWindowDimensions(mParent, &newParentWidth, &newParentHeight))
@@ -136,6 +139,8 @@ egl::Error WindowSurfaceGLX::swap()
         XResizeWindow(mDisplay, mWindow, mParentWidth, mParentHeight);
         mGLX.waitX();
     }
+
+    mGLX.swapBuffers(mGLXWindow);
 
     return egl::Error(EGL_SUCCESS);
 }
@@ -190,6 +195,11 @@ EGLint WindowSurfaceGLX::isPostSubBufferSupported() const
 {
     UNIMPLEMENTED();
     return EGL_FALSE;
+}
+
+EGLint WindowSurfaceGLX::getSwapBehavior() const
+{
+    return EGL_BUFFER_PRESERVED;
 }
 
 bool WindowSurfaceGLX::getWindowDimensions(Window window, unsigned int *width, unsigned int *height) const

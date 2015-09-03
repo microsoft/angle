@@ -10,10 +10,12 @@
 #include "libANGLE/validationES2.h"
 #include "libANGLE/validationES3.h"
 #include "libANGLE/Context.h"
+#include "libANGLE/Display.h"
 #include "libANGLE/Texture.h"
 #include "libANGLE/Framebuffer.h"
 #include "libANGLE/FramebufferAttachment.h"
 #include "libANGLE/formatutils.h"
+#include "libANGLE/Image.h"
 #include "libANGLE/Query.h"
 #include "libANGLE/Program.h"
 #include "libANGLE/Uniform.h"
@@ -25,6 +27,71 @@
 
 namespace gl
 {
+namespace
+{
+bool ValidateDrawAttribs(gl::Context *context, GLint primcount, GLint maxVertex)
+{
+    const gl::State &state     = context->getState();
+    const gl::Program *program = state.getProgram();
+
+    const VertexArray *vao     = state.getVertexArray();
+    const auto &vertexAttribs  = vao->getVertexAttributes();
+    size_t maxEnabledAttrib = vao->getMaxEnabledAttribute();
+    for (size_t attributeIndex = 0; attributeIndex < maxEnabledAttrib; ++attributeIndex)
+    {
+        const VertexAttribute &attrib = vertexAttribs[attributeIndex];
+        if (program->isAttribLocationActive(attributeIndex) && attrib.enabled)
+        {
+            gl::Buffer *buffer = attrib.buffer.get();
+
+            if (buffer)
+            {
+                GLint64 attribStride     = static_cast<GLint64>(ComputeVertexAttributeStride(attrib));
+                GLint64 maxVertexElement = 0;
+
+                if (attrib.divisor > 0)
+                {
+                    maxVertexElement =
+                        static_cast<GLint64>(primcount) / static_cast<GLint64>(attrib.divisor);
+                }
+                else
+                {
+                    maxVertexElement = static_cast<GLint64>(maxVertex);
+                }
+
+                // If we're drawing zero vertices, we have enough data.
+                if (maxVertexElement > 0)
+                {
+                    // Note: Last vertex element does not take the full stride!
+                    GLint64 attribSize =
+                        static_cast<GLint64>(ComputeVertexAttributeTypeSize(attrib));
+                    GLint64 attribDataSize = (maxVertexElement - 1) * attribStride + attribSize;
+
+                    // [OpenGL ES 3.0.2] section 2.9.4 page 40:
+                    // We can return INVALID_OPERATION if our vertex attribute does not have
+                    // enough backing data.
+                    if (attribDataSize > buffer->getSize())
+                    {
+                        context->recordError(Error(GL_INVALID_OPERATION));
+                        return false;
+                    }
+                }
+            }
+            else if (attrib.pointer == NULL)
+            {
+                // This is an application error that would normally result in a crash,
+                // but we catch it and return an error
+                context->recordError(Error(
+                    GL_INVALID_OPERATION, "An enabled vertex array has no buffer and no pointer."));
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+}  // anonymous namespace
 
 bool ValidCap(const Context *context, GLenum cap)
 {
@@ -113,7 +180,7 @@ bool ValidBufferTarget(const Context *context, GLenum target)
 
       case GL_PIXEL_PACK_BUFFER:
       case GL_PIXEL_UNPACK_BUFFER:
-        return context->getExtensions().pixelBufferObject;
+          return (context->getExtensions().pixelBufferObject || context->getClientVersion() >= 3);
 
       case GL_COPY_READ_BUFFER:
       case GL_COPY_WRITE_BUFFER:
@@ -173,7 +240,7 @@ bool ValidMipLevel(const Context *context, GLenum target, GLint level)
       default: UNREACHABLE();
     }
 
-    return level <= gl::log2(maxDimension);
+    return level <= gl::log2(static_cast<int>(maxDimension));
 }
 
 bool ValidImageSize(const Context *context, GLenum target, GLint level,
@@ -536,7 +603,7 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
             GLenum readInternalFormat = readColorBuffer->getInternalFormat();
             const InternalFormat &readFormatInfo = GetInternalFormatInfo(readInternalFormat);
 
-            for (GLuint i = 0; i < context->getCaps().maxColorAttachments; i++)
+            for (size_t i = 0; i < drawFramebuffer->getNumColorBuffers(); i++)
             {
                 if (drawFramebuffer->isEnabledColorAttachment(i))
                 {
@@ -592,7 +659,8 @@ bool ValidateBlitFramebufferParameters(gl::Context *context, GLint srcX0, GLint 
                     return false;
                 }
 
-                for (GLuint colorAttachment = 0; colorAttachment < context->getCaps().maxColorAttachments; ++colorAttachment)
+                for (size_t colorAttachment = 0;
+                     colorAttachment < drawFramebuffer->getNumColorBuffers(); ++colorAttachment)
                 {
                     if (drawFramebuffer->isEnabledColorAttachment(colorAttachment))
                     {
@@ -1059,7 +1127,7 @@ static bool ValidateUniformCommonBase(gl::Context *context, GLenum targetUniform
     LinkedUniform *uniform = program->getUniformByLocation(location);
 
     // attempting to write an array to a non-array uniform is an INVALID_OPERATION
-    if (uniform->elementCount() == 1 && count > 1)
+    if (!uniform->isArray() && count > 1)
     {
         context->recordError(Error(GL_INVALID_OPERATION));
         return false;
@@ -1337,7 +1405,7 @@ bool ValidateCopyTexImageParametersBase(gl::Context *context, GLenum target, GLi
     return true;
 }
 
-static bool ValidateDrawBase(Context *context, GLenum mode, GLsizei count, GLsizei maxVertex, GLsizei primcount)
+static bool ValidateDrawBase(Context *context, GLenum mode, GLsizei count, GLsizei primcount)
 {
     switch (mode)
     {
@@ -1369,17 +1437,21 @@ static bool ValidateDrawBase(Context *context, GLenum mode, GLsizei count, GLsiz
         return false;
     }
 
-    const gl::DepthStencilState &depthStencilState = state.getDepthStencilState();
-    if (depthStencilState.stencilWritemask != depthStencilState.stencilBackWritemask ||
-        state.getStencilRef() != state.getStencilBackRef() ||
-        depthStencilState.stencilMask != depthStencilState.stencilBackMask)
+    if (context->getLimitations().noSeparateStencilRefsAndMasks)
     {
-        // Note: these separate values are not supported in WebGL, due to D3D's limitations.
-        // See Section 6.10 of the WebGL 1.0 spec
-        ERR("This ANGLE implementation does not support separate front/back stencil "
-            "writemasks, reference values, or stencil mask values.");
-        context->recordError(Error(GL_INVALID_OPERATION));
-        return false;
+        const gl::DepthStencilState &depthStencilState = state.getDepthStencilState();
+        if (depthStencilState.stencilWritemask != depthStencilState.stencilBackWritemask ||
+            state.getStencilRef() != state.getStencilBackRef() ||
+            depthStencilState.stencilMask != depthStencilState.stencilBackMask)
+        {
+            // Note: these separate values are not supported in WebGL, due to D3D's limitations. See
+            // Section 6.10 of the WebGL 1.0 spec
+            ERR(
+                "This ANGLE implementation does not support separate front/back stencil "
+                "writemasks, reference values, or stencil mask values.");
+            context->recordError(Error(GL_INVALID_OPERATION));
+            return false;
+        }
     }
 
     const gl::Framebuffer *fbo = state.getDrawFramebuffer();
@@ -1400,54 +1472,6 @@ static bool ValidateDrawBase(Context *context, GLenum mode, GLsizei count, GLsiz
     {
         context->recordError(Error(GL_INVALID_OPERATION));
         return false;
-    }
-
-    // Buffer validations
-    const VertexArray *vao = state.getVertexArray();
-    const auto &vertexAttribs = vao->getVertexAttributes();
-    const int *semanticIndexes = program->getSemanticIndexes();
-    unsigned int maxEnabledAttrib = vao->getMaxEnabledAttribute();
-    for (size_t attributeIndex = 0; attributeIndex < maxEnabledAttrib; ++attributeIndex)
-    {
-        const VertexAttribute &attrib = vertexAttribs[attributeIndex];
-        bool attribActive = (semanticIndexes[attributeIndex] != -1);
-        if (attribActive && attrib.enabled)
-        {
-            gl::Buffer *buffer = attrib.buffer.get();
-
-            if (buffer)
-            {
-                GLint64 attribStride = static_cast<GLint64>(ComputeVertexAttributeStride(attrib));
-                GLint64 maxVertexElement = 0;
-
-                if (attrib.divisor > 0)
-                {
-                    maxVertexElement = static_cast<GLint64>(primcount) / static_cast<GLint64>(attrib.divisor);
-                }
-                else
-                {
-                    maxVertexElement = static_cast<GLint64>(maxVertex);
-                }
-
-                GLint64 attribDataSize = maxVertexElement * attribStride;
-
-                // [OpenGL ES 3.0.2] section 2.9.4 page 40:
-                // We can return INVALID_OPERATION if our vertex attribute does not have
-                // enough backing data.
-                if (attribDataSize > buffer->getSize())
-                {
-                    context->recordError(Error(GL_INVALID_OPERATION));
-                    return false;
-                }
-            }
-            else if (attrib.pointer == NULL)
-            {
-                // This is an application error that would normally result in a crash,
-                // but we catch it and return an error
-                context->recordError(Error(GL_INVALID_OPERATION, "An enabled vertex array has no buffer and no pointer."));
-                return false;
-            }
-        }
     }
 
     // Uniform buffer validation
@@ -1504,7 +1528,12 @@ bool ValidateDrawArrays(Context *context, GLenum mode, GLint first, GLsizei coun
         return false;
     }
 
-    if (!ValidateDrawBase(context, mode, count, count, primcount))
+    if (!ValidateDrawBase(context, mode, count, primcount))
+    {
+        return false;
+    }
+
+    if (!ValidateDrawAttribs(context, primcount, count))
     {
         return false;
     }
@@ -1537,11 +1566,10 @@ static bool ValidateDrawInstancedANGLE(Context *context)
     gl::Program *program = state.getProgram();
 
     const VertexArray *vao = state.getVertexArray();
-    for (int attributeIndex = 0; attributeIndex < MAX_VERTEX_ATTRIBS; attributeIndex++)
+    for (size_t attributeIndex = 0; attributeIndex < MAX_VERTEX_ATTRIBS; attributeIndex++)
     {
         const VertexAttribute &attrib = vao->getVertexAttribute(attributeIndex);
-        bool active = (program->getSemanticIndex(attributeIndex) != -1);
-        if (active && attrib.divisor == 0)
+        if (program->isAttribLocationActive(attributeIndex) && attrib.divisor == 0)
         {
             return true;
         }
@@ -1601,7 +1629,7 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
     }
 
     const gl::VertexArray *vao = state.getVertexArray();
-    gl::Buffer *elementArrayBuffer = vao->getElementArrayBuffer();
+    gl::Buffer *elementArrayBuffer = vao->getElementArrayBuffer().get();
     if (!indices && !elementArrayBuffer)
     {
         context->recordError(Error(GL_INVALID_OPERATION));
@@ -1637,6 +1665,11 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
         return false;
     }
 
+    if (!ValidateDrawBase(context, mode, count, primcount))
+    {
+        return false;
+    }
+
     // Use max index to validate if our vertex buffers are large enough for the pull.
     // TODO: offer fast path, with disabled index validation.
     // TODO: also disable index checking on back-ends that are robust to out-of-range accesses.
@@ -1655,7 +1688,7 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
         *indexRangeOut = ComputeIndexRange(type, indices, count);
     }
 
-    if (!ValidateDrawBase(context, mode, count, static_cast<GLsizei>(indexRangeOut->end), primcount))
+    if (!ValidateDrawAttribs(context, primcount, static_cast<GLsizei>(indexRangeOut->end)))
     {
         return false;
     }
@@ -1976,4 +2009,86 @@ bool ValidatePushGroupMarkerEXT(Context *context, GLsizei length, const char *ma
     return true;
 }
 
+bool ValidateEGLImageTargetTexture2DOES(Context *context,
+                                        egl::Display *display,
+                                        GLenum target,
+                                        egl::Image *image)
+{
+    if (!context->getExtensions().eglImage && !context->getExtensions().eglImageExternal)
+    {
+        context->recordError(Error(GL_INVALID_OPERATION));
+        return false;
+    }
+
+    switch (target)
+    {
+        case GL_TEXTURE_2D:
+            break;
+
+        default:
+            context->recordError(Error(GL_INVALID_ENUM, "invalid texture target."));
+            return false;
+    }
+
+    if (!display->isValidImage(image))
+    {
+        context->recordError(Error(GL_INVALID_VALUE, "EGL image is not valid."));
+        return false;
+    }
+
+    if (image->getSamples() > 0)
+    {
+        context->recordError(Error(GL_INVALID_OPERATION,
+                                   "cannot create a 2D texture from a multisampled EGL image."));
+        return false;
+    }
+
+    const TextureCaps &textureCaps = context->getTextureCaps().get(image->getInternalFormat());
+    if (!textureCaps.texturable)
+    {
+        context->recordError(Error(GL_INVALID_OPERATION,
+                                   "EGL image internal format is not supported as a texture."));
+        return false;
+    }
+
+    return true;
+}
+
+bool ValidateEGLImageTargetRenderbufferStorageOES(Context *context,
+                                                  egl::Display *display,
+                                                  GLenum target,
+                                                  egl::Image *image)
+{
+    if (!context->getExtensions().eglImage)
+    {
+        context->recordError(Error(GL_INVALID_OPERATION));
+        return false;
+    }
+
+    switch (target)
+    {
+        case GL_RENDERBUFFER:
+            break;
+
+        default:
+            context->recordError(Error(GL_INVALID_ENUM, "invalid renderbuffer target."));
+            return false;
+    }
+
+    if (!display->isValidImage(image))
+    {
+        context->recordError(Error(GL_INVALID_VALUE, "EGL image is not valid."));
+        return false;
+    }
+
+    const TextureCaps &textureCaps = context->getTextureCaps().get(image->getInternalFormat());
+    if (!textureCaps.renderable)
+    {
+        context->recordError(Error(
+            GL_INVALID_OPERATION, "EGL image internal format is not supported as a renderbuffer."));
+        return false;
+    }
+
+    return true;
+}
 }

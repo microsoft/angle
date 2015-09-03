@@ -72,14 +72,15 @@ bool operator==(const EGLPlatformParameters &a, const EGLPlatformParameters &b)
            (a.deviceType == b.deviceType);
 }
 
-EGLWindow::EGLWindow(size_t width, size_t height, EGLint glesMajorVersion, const EGLPlatformParameters &platform)
+EGLWindow::EGLWindow(EGLint glesMajorVersion,
+                     EGLint glesMinorVersion,
+                     const EGLPlatformParameters &platform)
     : mDisplay(EGL_NO_DISPLAY),
       mSurface(EGL_NO_SURFACE),
       mContext(EGL_NO_CONTEXT),
-      mClientVersion(glesMajorVersion),
+      mClientMajorVersion(glesMajorVersion),
+      mClientMinorVersion(glesMinorVersion),
       mPlatform(platform),
-      mWidth(width),
-      mHeight(height),
       mRedBits(-1),
       mGreenBits(-1),
       mBlueBits(-1),
@@ -161,6 +162,16 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
         return false;
     }
 
+    const char *displayExtensions = eglQueryString(mDisplay, EGL_EXTENSIONS);
+
+    // EGL_KHR_create_context is required to request a non-ES2 context.
+    bool hasKHRCreateContext = strstr(displayExtensions, "EGL_KHR_create_context") != nullptr;
+    if (majorVersion != 2 && minorVersion != 0 && !hasKHRCreateContext)
+    {
+        destroyGL();
+        return false;
+    }
+
     eglBindAPI(EGL_OPENGL_ES_API);
     if (eglGetError() != EGL_SUCCESS)
     {
@@ -190,12 +201,12 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
     eglGetConfigAttrib(mDisplay, mConfig, EGL_RED_SIZE, &mRedBits);
     eglGetConfigAttrib(mDisplay, mConfig, EGL_GREEN_SIZE, &mGreenBits);
     eglGetConfigAttrib(mDisplay, mConfig, EGL_BLUE_SIZE, &mBlueBits);
-    eglGetConfigAttrib(mDisplay, mConfig, EGL_ALPHA_SIZE, &mBlueBits);
+    eglGetConfigAttrib(mDisplay, mConfig, EGL_ALPHA_SIZE, &mAlphaBits);
     eglGetConfigAttrib(mDisplay, mConfig, EGL_DEPTH_SIZE, &mDepthBits);
     eglGetConfigAttrib(mDisplay, mConfig, EGL_STENCIL_SIZE, &mStencilBits);
 
     std::vector<EGLint> surfaceAttributes;
-    if (strstr(eglQueryString(mDisplay, EGL_EXTENSIONS), "EGL_NV_post_sub_buffer") != nullptr)
+    if (strstr(displayExtensions, "EGL_NV_post_sub_buffer") != nullptr)
     {
         surfaceAttributes.push_back(EGL_POST_SUB_BUFFER_SUPPORTED_NV);
         surfaceAttributes.push_back(EGL_TRUE);
@@ -214,13 +225,18 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
     }
     ASSERT(mSurface != EGL_NO_SURFACE);
 
-    EGLint contextAttibutes[] =
+    std::vector<EGLint> contextAttributes;
+    if (hasKHRCreateContext)
     {
-        EGL_CONTEXT_CLIENT_VERSION, mClientVersion,
-        EGL_NONE
-    };
+        contextAttributes.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR);
+        contextAttributes.push_back(mClientMajorVersion);
 
-    mContext = eglCreateContext(mDisplay, mConfig, NULL, contextAttibutes);
+        contextAttributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
+        contextAttributes.push_back(mClientMinorVersion);
+    }
+    contextAttributes.push_back(EGL_NONE);
+
+    mContext = eglCreateContext(mDisplay, mConfig, nullptr, &contextAttributes[0]);
     if (eglGetError() != EGL_SUCCESS)
     {
         destroyGL();
@@ -280,7 +296,7 @@ EGLBoolean EGLWindow::FindEGLConfig(EGLDisplay dpy, const EGLint *attrib_list, E
     EGLint numConfigs = 0;
     eglGetConfigs(dpy, nullptr, 0, &numConfigs);
     std::vector<EGLConfig> allConfigs(numConfigs);
-    eglGetConfigs(dpy, allConfigs.data(), allConfigs.size(), &numConfigs);
+    eglGetConfigs(dpy, allConfigs.data(), static_cast<EGLint>(allConfigs.size()), &numConfigs);
 
     for (size_t i = 0; i < allConfigs.size(); i++)
     {

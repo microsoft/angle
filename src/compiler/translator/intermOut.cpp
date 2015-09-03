@@ -34,14 +34,14 @@ class TOutputTraverser : public TIntermTraverser
     TInfoSinkBase& sink;
 
   protected:
-    void visitSymbol(TIntermSymbol *);
-    void visitConstantUnion(TIntermConstantUnion *);
-    bool visitBinary(Visit visit, TIntermBinary *);
-    bool visitUnary(Visit visit, TIntermUnary *);
-    bool visitSelection(Visit visit, TIntermSelection *);
-    bool visitAggregate(Visit visit, TIntermAggregate *);
-    bool visitLoop(Visit visit, TIntermLoop *);
-    bool visitBranch(Visit visit, TIntermBranch *);
+    void visitSymbol(TIntermSymbol *) override;
+    void visitConstantUnion(TIntermConstantUnion *) override;
+    bool visitBinary(Visit visit, TIntermBinary *) override;
+    bool visitUnary(Visit visit, TIntermUnary *) override;
+    bool visitSelection(Visit visit, TIntermSelection *) override;
+    bool visitAggregate(Visit visit, TIntermAggregate *) override;
+    bool visitLoop(Visit visit, TIntermLoop *) override;
+    bool visitBranch(Visit visit, TIntermBranch *) override;
 };
 
 //
@@ -417,7 +417,13 @@ bool TOutputTraverser::visitAggregate(Visit visit, TIntermAggregate *node)
       case EOpConstructUVec3: out << "Construct uvec3"; break;
       case EOpConstructUVec4: out << "Construct uvec4"; break;
       case EOpConstructMat2:  out << "Construct mat2";  break;
+      case EOpConstructMat2x3:  out << "Construct mat2x3";  break;
+      case EOpConstructMat2x4:  out << "Construct mat2x4";  break;
+      case EOpConstructMat3x2:  out << "Construct mat3x2";  break;
       case EOpConstructMat3:  out << "Construct mat3";  break;
+      case EOpConstructMat3x4:  out << "Construct mat3x4";  break;
+      case EOpConstructMat4x2:  out << "Construct mat4x2";  break;
+      case EOpConstructMat4x3:  out << "Construct mat4x3";  break;
       case EOpConstructMat4:  out << "Construct mat4";  break;
       case EOpConstructStruct:  out << "Construct structure";  break;
 

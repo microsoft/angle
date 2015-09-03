@@ -15,13 +15,29 @@
 namespace rx
 {
 
+class BlitGL;
 class FunctionsGL;
 class StateManagerGL;
+struct WorkaroundsGL;
+
+struct LUMAWorkaround
+{
+    bool enabled;
+    GLenum sourceFormat;
+    GLenum workaroundFormat;
+
+    LUMAWorkaround();
+    LUMAWorkaround(bool enabled, GLenum sourceFormat, GLenum workaroundFormat);
+};
 
 class TextureGL : public TextureImpl
 {
   public:
-    TextureGL(GLenum type, const FunctionsGL *functions, StateManagerGL *stateManager);
+    TextureGL(GLenum type,
+              const FunctionsGL *functions,
+              const WorkaroundsGL &workarounds,
+              StateManagerGL *stateManager,
+              BlitGL *blitter);
     ~TextureGL() override;
 
     void setUsage(GLenum usage) override;
@@ -48,6 +64,8 @@ class TextureGL : public TextureImpl
     void bindTexImage(egl::Surface *surface) override;
     void releaseTexImage() override;
 
+    gl::Error setEGLImageTarget(GLenum target, egl::Image *image) override;
+
     void syncSamplerState(const gl::SamplerState &samplerState) const;
     GLuint getTextureID() const;
 
@@ -61,7 +79,11 @@ class TextureGL : public TextureImpl
     GLenum mTextureType;
 
     const FunctionsGL *mFunctions;
+    const WorkaroundsGL &mWorkarounds;
     StateManagerGL *mStateManager;
+    BlitGL *mBlitter;
+
+    std::vector<LUMAWorkaround> mLUMAWorkaroundLevels;
 
     mutable gl::SamplerState mAppliedSamplerState;
     GLuint mTextureID;

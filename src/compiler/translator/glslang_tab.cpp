@@ -87,6 +87,7 @@
 #endif
 
 #include "angle_gl.h"
+#include "compiler/translator/Cache.h"
 #include "compiler/translator/SymbolTable.h"
 #include "compiler/translator/ParseContext.h"
 #include "GLSLANG/ShaderLang.h"
@@ -693,34 +694,34 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   211,   211,   212,   215,   239,   242,   247,   252,   257,
-     262,   268,   271,   274,   277,   280,   283,   289,   297,   308,
-     312,   320,   323,   329,   333,   340,   346,   355,   363,   369,
-     376,   386,   389,   392,   395,   405,   406,   407,   408,   416,
-     417,   420,   423,   430,   431,   434,   440,   441,   445,   452,
-     453,   456,   459,   462,   468,   469,   472,   478,   479,   486,
-     487,   494,   495,   502,   503,   509,   510,   516,   517,   523,
-     524,   530,   531,   539,   540,   541,   542,   546,   547,   548,
-     552,   556,   560,   564,   571,   574,   585,   593,   601,   629,
-     635,   646,   650,   654,   658,   665,   721,   724,   731,   739,
-     760,   781,   791,   819,   824,   834,   839,   849,   852,   855,
-     858,   864,   871,   874,   878,   882,   887,   892,   899,   903,
-     907,   911,   916,   921,   925,   932,   942,   948,   951,   957,
-     963,   970,   979,   989,   997,  1000,  1007,  1011,  1015,  1020,
-    1028,  1031,  1035,  1039,  1048,  1057,  1065,  1075,  1087,  1090,
-    1093,  1099,  1106,  1109,  1115,  1118,  1121,  1127,  1130,  1135,
-    1150,  1154,  1158,  1162,  1166,  1170,  1175,  1180,  1185,  1190,
-    1195,  1200,  1205,  1210,  1215,  1220,  1225,  1230,  1235,  1240,
-    1245,  1250,  1255,  1260,  1265,  1270,  1275,  1279,  1283,  1287,
-    1291,  1295,  1299,  1303,  1307,  1311,  1315,  1319,  1323,  1327,
-    1331,  1335,  1343,  1351,  1355,  1368,  1368,  1371,  1371,  1377,
-    1380,  1396,  1399,  1408,  1412,  1418,  1425,  1440,  1444,  1448,
-    1449,  1455,  1456,  1457,  1458,  1459,  1460,  1461,  1465,  1466,
-    1466,  1466,  1476,  1477,  1481,  1481,  1482,  1482,  1487,  1490,
-    1500,  1503,  1509,  1510,  1514,  1522,  1526,  1533,  1533,  1540,
-    1543,  1550,  1555,  1570,  1570,  1575,  1575,  1582,  1582,  1590,
-    1593,  1599,  1602,  1608,  1612,  1619,  1622,  1625,  1628,  1631,
-    1640,  1644,  1651,  1654,  1660,  1660
+       0,   212,   212,   213,   216,   240,   243,   248,   253,   258,
+     263,   269,   272,   275,   278,   281,   284,   290,   298,   309,
+     313,   321,   324,   330,   334,   341,   347,   356,   364,   370,
+     377,   387,   390,   393,   396,   406,   407,   408,   409,   417,
+     418,   421,   424,   431,   432,   435,   441,   442,   446,   453,
+     454,   457,   460,   463,   469,   470,   473,   479,   480,   487,
+     488,   495,   496,   503,   504,   510,   511,   517,   518,   524,
+     525,   531,   532,   540,   541,   542,   543,   547,   548,   549,
+     553,   557,   561,   565,   572,   575,   586,   594,   602,   630,
+     636,   647,   651,   655,   659,   666,   672,   675,   682,   690,
+     711,   738,   748,   776,   781,   791,   796,   806,   809,   812,
+     815,   821,   828,   831,   835,   839,   844,   849,   856,   860,
+     864,   868,   873,   878,   882,   889,   899,   905,   908,   914,
+     920,   927,   936,   946,   954,   957,   964,   968,   972,   977,
+     985,   988,   992,   996,  1005,  1014,  1022,  1032,  1044,  1047,
+    1050,  1056,  1063,  1066,  1072,  1075,  1078,  1084,  1087,  1092,
+    1107,  1111,  1115,  1119,  1123,  1127,  1132,  1137,  1142,  1147,
+    1152,  1157,  1162,  1167,  1172,  1177,  1182,  1187,  1192,  1197,
+    1202,  1207,  1212,  1217,  1222,  1227,  1232,  1236,  1240,  1244,
+    1248,  1252,  1256,  1260,  1264,  1268,  1272,  1276,  1280,  1284,
+    1288,  1292,  1300,  1308,  1312,  1325,  1325,  1328,  1328,  1334,
+    1337,  1353,  1356,  1365,  1369,  1375,  1382,  1397,  1401,  1405,
+    1406,  1412,  1413,  1414,  1415,  1416,  1417,  1418,  1422,  1423,
+    1423,  1423,  1433,  1434,  1438,  1438,  1439,  1439,  1444,  1447,
+    1457,  1460,  1466,  1467,  1471,  1479,  1483,  1490,  1490,  1497,
+    1500,  1507,  1512,  1527,  1527,  1532,  1532,  1539,  1539,  1547,
+    1550,  1556,  1559,  1565,  1569,  1576,  1579,  1582,  1585,  1588,
+    1597,  1601,  1608,  1611,  1617,  1617
 };
 #endif
 
@@ -2603,7 +2604,7 @@ yyreduce:
     {
         if (context->reservedErrorCheck((yylsp[0]), *(yyvsp[0].lex).string))
             context->recover();
-        const TType *type = new TType(EbtVoid, EbpUndefined);
+        const TType *type = TCache::getType(EbtVoid, EbpUndefined);
         TFunction *function = new TFunction((yyvsp[0].lex).string, type);
         (yyval.interm.function) = function;
     }
@@ -2615,7 +2616,7 @@ yyreduce:
     {
         if (context->reservedErrorCheck((yylsp[0]), *(yyvsp[0].lex).string))
             context->recover();
-        const TType *type = new TType(EbtVoid, EbpUndefined);
+        const TType *type = TCache::getType(EbtVoid, EbpUndefined);
         TFunction *function = new TFunction((yyvsp[0].lex).string, type);
         (yyval.interm.function) = function;
     }
@@ -3162,57 +3163,7 @@ yyreduce:
   case 95:
 
     {
-        //
-        // Multiple declarations of the same function are allowed.
-        //
-        // If this is a definition, the definition production code will check for redefinitions
-        // (we don't know at this point if it's a definition or not).
-        //
-        // Redeclarations are allowed.  But, return types and parameter qualifiers must match.
-        //
-        TFunction* prevDec = static_cast<TFunction*>(context->symbolTable.find((yyvsp[-1].interm.function)->getMangledName(), context->getShaderVersion()));
-        if (prevDec) {
-            if (prevDec->getReturnType() != (yyvsp[-1].interm.function)->getReturnType()) {
-                context->error((yylsp[0]), "overloaded functions must have the same return type", (yyvsp[-1].interm.function)->getReturnType().getBasicString());
-                context->recover();
-            }
-            for (size_t i = 0; i < prevDec->getParamCount(); ++i) {
-                if (prevDec->getParam(i).type->getQualifier() != (yyvsp[-1].interm.function)->getParam(i).type->getQualifier()) {
-                    context->error((yylsp[0]), "overloaded functions must have the same parameter qualifiers", (yyvsp[-1].interm.function)->getParam(i).type->getQualifierString());
-                    context->recover();
-                }
-            }
-        }
-
-        //
-        // Check for previously declared variables using the same name.
-        //
-        TSymbol *prevSym = context->symbolTable.find((yyvsp[-1].interm.function)->getName(), context->getShaderVersion());
-        if (prevSym)
-        {
-            if (!prevSym->isFunction())
-            {
-                context->error((yylsp[0]), "redefinition", (yyvsp[-1].interm.function)->getName().c_str(), "function");
-                context->recover();
-            }
-        }
-        else
-        {
-            // Insert the unmangled name to detect potential future redefinition as a variable.
-            TFunction *function = new TFunction(NewPoolTString((yyvsp[-1].interm.function)->getName().c_str()), &(yyvsp[-1].interm.function)->getReturnType());
-            context->symbolTable.getOuterLevel()->insertUnmangled(function);
-        }
-
-        //
-        // If this is a redeclaration, it could also be a definition,
-        // in which case, we want to use the variable names from this one, and not the one that's
-        // being redeclared.  So, pass back up this declaration, not the one in the symbol table.
-        //
-        (yyval.interm).function = (yyvsp[-1].interm.function);
-
-        // We're at the inner scope level of the function's arguments and body statement.
-        // Add the function prototype to the surrounding scope instead.
-        context->symbolTable.getOuterLevel()->insert((yyval.interm).function);
+        (yyval.interm).function = context->parseFunctionDeclarator((yylsp[0]), (yyvsp[-1].interm.function));
     }
 
     break;
@@ -3272,8 +3223,14 @@ yyreduce:
   case 100:
 
     {
-        if ((yyvsp[-2].interm.type).qualifier != EvqGlobal && (yyvsp[-2].interm.type).qualifier != EvqTemporary) {
+        if ((yyvsp[-2].interm.type).qualifier != EvqGlobal && (yyvsp[-2].interm.type).qualifier != EvqTemporary)
+        {
             context->error((yylsp[-1]), "no qualifiers allowed for function return", getQualifierString((yyvsp[-2].interm.type).qualifier));
+            context->recover();
+        }
+        if (!(yyvsp[-2].interm.type).layoutQualifier.isEmpty())
+        {
+            context->error((yylsp[-1]), "no qualifiers allowed for function return", "layout");
             context->recover();
         }
         // make sure a sampler is not involved as well...
@@ -4896,95 +4853,7 @@ yyreduce:
   case 274:
 
     {
-        TFunction* function = (yyvsp[0].interm).function;
-        
-        const TSymbol *builtIn = context->symbolTable.findBuiltIn(function->getMangledName(), context->getShaderVersion());
-        
-        if (builtIn)
-        {
-            context->error((yylsp[0]), "built-in functions cannot be redefined", function->getName().c_str());
-            context->recover();
-        }
-        
-        TFunction* prevDec = static_cast<TFunction*>(context->symbolTable.find(function->getMangledName(), context->getShaderVersion()));
-        //
-        // Note:  'prevDec' could be 'function' if this is the first time we've seen function
-        // as it would have just been put in the symbol table.  Otherwise, we're looking up
-        // an earlier occurance.
-        //
-        if (prevDec->isDefined()) {
-            //
-            // Then this function already has a body.
-            //
-            context->error((yylsp[0]), "function already has a body", function->getName().c_str());
-            context->recover();
-        }
-        prevDec->setDefined();
-        //
-        // Overload the unique ID of the definition to be the same unique ID as the declaration.
-        // Eventually we will probably want to have only a single definition and just swap the
-        // arguments to be the definition's arguments.
-        //
-        function->setUniqueId(prevDec->getUniqueId());
-
-        //
-        // Raise error message if main function takes any parameters or return anything other than void
-        //
-        if (function->getName() == "main") {
-            if (function->getParamCount() > 0) {
-                context->error((yylsp[0]), "function cannot take any parameter(s)", function->getName().c_str());
-                context->recover();
-            }
-            if (function->getReturnType().getBasicType() != EbtVoid) {
-                context->error((yylsp[0]), "", function->getReturnType().getBasicString(), "main function cannot return a value");
-                context->recover();
-            }
-        }
-
-        //
-        // Remember the return type for later checking for RETURN statements.
-        //
-        context->setCurrentFunctionType(&(prevDec->getReturnType()));
-        context->setFunctionReturnsValue(false);
-
-        //
-        // Insert parameters into the symbol table.
-        // If the parameter has no name, it's not an error, just don't insert it
-        // (could be used for unused args).
-        //
-        // Also, accumulate the list of parameters into the HIL, so lower level code
-        // knows where to find parameters.
-        //
-        TIntermAggregate* paramNodes = new TIntermAggregate;
-        for (size_t i = 0; i < function->getParamCount(); i++) {
-            const TConstParameter& param = function->getParam(i);
-            if (param.name != 0) {
-                TVariable *variable = new TVariable(param.name, *param.type);
-                //
-                // Insert the parameters with name in the symbol table.
-                //
-                if (! context->symbolTable.declare(variable)) {
-                    context->error((yylsp[0]), "redefinition", variable->getName().c_str());
-                    context->recover();
-                    delete variable;
-                }
-
-                //
-                // Add the parameter to the HIL
-                //
-                paramNodes = context->intermediate.growAggregate(
-                                               paramNodes,
-                                               context->intermediate.addSymbol(variable->getUniqueId(),
-                                                                       variable->getName(),
-                                                                       variable->getType(), (yylsp[0])),
-                                               (yylsp[0]));
-            } else {
-                paramNodes = context->intermediate.growAggregate(paramNodes, context->intermediate.addSymbol(0, "", *param.type, (yylsp[0])), (yylsp[0]));
-            }
-        }
-        context->intermediate.setAggregateOperator(paramNodes, EOpParameters, (yylsp[0]));
-        (yyvsp[0].interm).intermAggregate = paramNodes;
-        context->setLoopNestingLevel(0);
+        context->parseFunctionPrototype((yylsp[0]), (yyvsp[0].interm).function, &(yyvsp[0].interm).intermAggregate);
     }
 
     break;
@@ -5004,11 +4873,6 @@ yyreduce:
         (yyval.interm.intermNode)->getAsAggregate()->setName((yyvsp[-2].interm).function->getMangledName().c_str());
         (yyval.interm.intermNode)->getAsAggregate()->setType((yyvsp[-2].interm).function->getReturnType());
         (yyval.interm.intermNode)->getAsAggregate()->setFunctionId((yyvsp[-2].interm).function->getUniqueId());
-
-        // store the pragma information for debug and optimize and other vendor specific
-        // information. This information can be queried from the parse tree
-        (yyval.interm.intermNode)->getAsAggregate()->setOptimize(context->pragma().optimize);
-        (yyval.interm.intermNode)->getAsAggregate()->setDebug(context->pragma().debug);
 
         context->symbolTable.pop();
     }

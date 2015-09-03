@@ -75,7 +75,8 @@ void GL_APIENTRY DrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsize
         // a drawRangeElements call - the GL back-end is free to choose to call drawRangeElements based on the
         // validated index range. If index validation is removed, adding drawRangeElements to the context interface
         // should be reconsidered.
-        Error error = context->drawElements(mode, count, type, indices, 0, indexRange);
+        Error error =
+            context->drawRangeElements(mode, start, end, count, type, indices, indexRange);
         if (error.isError())
         {
             context->recordError(error);
@@ -109,7 +110,7 @@ void GL_APIENTRY TexImage3D(GLenum target, GLint level, GLint internalformat, GL
 
         Extents size(width, height, depth);
         Texture *texture = context->getTargetTexture(target);
-        Error error = texture->setImage(target, level, internalformat, size, format, type, context->getState().getUnpackState(),
+        Error error = texture->setImage(context, target, level, internalformat, size, format, type,
                                         reinterpret_cast<const uint8_t *>(pixels));
         if (error.isError())
         {
@@ -151,7 +152,7 @@ void GL_APIENTRY TexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint 
 
         Box area(xoffset, yoffset, zoffset, width, height, depth);
         Texture *texture = context->getTargetTexture(target);
-        Error error = texture->setSubImage(target, level, area, format, type, context->getState().getUnpackState(),
+        Error error = texture->setSubImage(context, target, level, area, format, type,
                                            reinterpret_cast<const uint8_t *>(pixels));
         if (error.isError())
         {
@@ -206,30 +207,17 @@ void GL_APIENTRY CompressedTexImage3D(GLenum target, GLint level, GLenum interna
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        if (context->getClientVersion() < 3)
-        {
-            context->recordError(Error(GL_INVALID_OPERATION));
-            return;
-        }
-
-        const InternalFormat &formatInfo = GetInternalFormatInfo(internalformat);
-        if (imageSize < 0 || static_cast<GLuint>(imageSize) != formatInfo.computeBlockSize(GL_UNSIGNED_BYTE, width, height))
-        {
-            context->recordError(Error(GL_INVALID_VALUE));
-            return;
-        }
-
-        // validateES3TexImageFormat sets the error code if there is an error
-        if (!ValidateES3TexImageParameters(context, target, level, internalformat, true, false,
-                                           0, 0, 0, width, height, depth, border, GL_NONE, GL_NONE, data))
+        if (!gl::ValidateCompressedTexImage3D(context, target, level, internalformat, width, height,
+                                              depth, border, imageSize, data))
         {
             return;
         }
 
         Extents size(width, height, depth);
         Texture *texture = context->getTargetTexture(target);
-        Error error = texture->setCompressedImage(target, level, internalformat, size, context->getState().getUnpackState(),
-                                                  imageSize, reinterpret_cast<const uint8_t *>(data));
+        Error error =
+            texture->setCompressedImage(context, target, level, internalformat, size, imageSize,
+                                        reinterpret_cast<const uint8_t *>(data));
         if (error.isError())
         {
             context->recordError(error);
@@ -282,8 +270,9 @@ void GL_APIENTRY CompressedTexSubImage3D(GLenum target, GLint level, GLint xoffs
 
         Box area(xoffset, yoffset, zoffset, width, height, depth);
         Texture *texture = context->getTargetTexture(target);
-        Error error = texture->setCompressedSubImage(target, level, area, format, context->getState().getUnpackState(),
-                                                     imageSize, reinterpret_cast<const uint8_t *>(data));
+        Error error =
+            texture->setCompressedSubImage(context, target, level, area, format, imageSize,
+                                           reinterpret_cast<const uint8_t *>(data));
         if (error.isError())
         {
             context->recordError(error);
@@ -1745,7 +1734,7 @@ void GL_APIENTRY ClearBufferiv(GLenum buffer, GLint drawbuffer, const GLint* val
         Framebuffer *framebufferObject = context->getState().getDrawFramebuffer();
         ASSERT(framebufferObject);
 
-        Error error = framebufferObject->clearBufferiv(context->getState(), buffer, drawbuffer, value);
+        Error error = framebufferObject->clearBufferiv(context, buffer, drawbuffer, value);
         if (error.isError())
         {
             context->recordError(error);
@@ -1785,7 +1774,7 @@ void GL_APIENTRY ClearBufferuiv(GLenum buffer, GLint drawbuffer, const GLuint* v
         Framebuffer *framebufferObject = context->getState().getDrawFramebuffer();
         ASSERT(framebufferObject);
 
-        Error error = framebufferObject->clearBufferuiv(context->getState(), buffer, drawbuffer, value);
+        Error error = framebufferObject->clearBufferuiv(context, buffer, drawbuffer, value);
         if (error.isError())
         {
             context->recordError(error);
@@ -1833,7 +1822,7 @@ void GL_APIENTRY ClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat* v
         Framebuffer *framebufferObject = context->getState().getDrawFramebuffer();
         ASSERT(framebufferObject);
 
-        Error error = framebufferObject->clearBufferfv(context->getState(), buffer, drawbuffer, value);
+        Error error = framebufferObject->clearBufferfv(context, buffer, drawbuffer, value);
         if (error.isError())
         {
             context->recordError(error);
@@ -1873,7 +1862,13 @@ void GL_APIENTRY ClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, G
         Framebuffer *framebufferObject = context->getState().getDrawFramebuffer();
         ASSERT(framebufferObject);
 
-        Error error = framebufferObject->clearBufferfi(context->getState(), buffer, drawbuffer, depth, stencil);
+        // If a buffer is not present, the clear has no effect
+        if (framebufferObject->getDepthbuffer() == nullptr && framebufferObject->getStencilbuffer() == nullptr)
+        {
+            return;
+        }
+
+        Error error = framebufferObject->clearBufferfi(context, buffer, drawbuffer, depth, stencil);
         if (error.isError())
         {
             context->recordError(error);
@@ -2305,7 +2300,7 @@ void GL_APIENTRY DrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GL
             return;
         }
 
-        Error error = context->drawArrays(mode, first, count, instanceCount);
+        Error error = context->drawArraysInstanced(mode, first, count, instanceCount);
         if (error.isError())
         {
             context->recordError(error);
@@ -2334,7 +2329,8 @@ void GL_APIENTRY DrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, 
             return;
         }
 
-        Error error = context->drawElements(mode, count, type, indices, instanceCount, indexRange);
+        Error error =
+            context->drawElementsInstanced(mode, count, type, indices, instanceCount, indexRange);
         if (error.isError())
         {
             context->recordError(error);
@@ -3357,7 +3353,7 @@ void GL_APIENTRY GetInternalformativ(GLenum target, GLenum internalformat, GLenu
           case GL_NUM_SAMPLE_COUNTS:
             if (bufSize != 0)
             {
-                *params = formatCaps.sampleCounts.size();
+                *params = static_cast<GLint>(formatCaps.sampleCounts.size());
             }
             break;
 

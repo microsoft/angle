@@ -219,6 +219,15 @@ struct Extensions
     // EXT_debug_marker
     bool debugMarker;
 
+    // GL_OES_EGL_image
+    bool eglImage;
+
+    // GL_OES_EGL_image_external
+    bool eglImageExternal;
+
+    // GL_OES_EGL_image_external_essl3
+    bool eglImageExternalEssl3;
+
     // ES3 Extension support
 
     // GL_EXT_color_buffer_float
@@ -238,7 +247,15 @@ struct Limitations
     // In glVertexAttribDivisorANGLE, attribute zero must have a zero divisor
     bool attributeZeroRequiresZeroDivisorInEXT;
 
-    // TODO: add entry for renderers that don't support separate stencil masks/refs
+    // Unable to support different values for front and back faces for stencil refs and masks
+    bool noSeparateStencilRefsAndMasks;
+
+    // Renderer doesn't support non-constant indexing loops in fragment shader
+    bool shadersRequireIndexedLoopValidation;
+
+    // Renderer doesn't support Simultaneous use of GL_CONSTANT_ALPHA/GL_ONE_MINUS_CONSTANT_ALPHA
+    // and GL_CONSTANT_COLOR/GL_ONE_MINUS_CONSTANT_COLOR blend functions.
+    bool noSimultaneousConstantColorAndAlphaBlendFunc;
 };
 
 struct TypePrecision
@@ -368,6 +385,9 @@ struct DisplayExtensions
     // EGL_ANGLE_window_fixed_size
     bool windowFixedSize;
 
+    // EGL_ANGLE_keyed_mutex
+    bool keyedMutex;
+
     // EGL_NV_post_sub_buffer
     bool postSubBuffer;
 
@@ -376,6 +396,30 @@ struct DisplayExtensions
 
     // EGL_EXT_device_query
     bool deviceQuery;
+
+    // EGL_KHR_image
+    bool image;
+
+    // EGL_KHR_image_base
+    bool imageBase;
+
+    // EGL_KHR_image_pixmap
+    bool imagePixmap;
+
+    // EGL_KHR_gl_texture_2D_image
+    bool glTexture2DImage;
+
+    // EGL_KHR_gl_texture_cubemap_image
+    bool glTextureCubemapImage;
+
+    // EGL_KHR_gl_texture_3D_image
+    bool glTexture3DImage;
+
+    // EGL_KHR_gl_renderbuffer_image
+    bool glRenderbufferImage;
+
+    // EGL_KHR_get_all_proc_addresses
+    bool getAllProcAddresses;
 };
 
 struct DeviceExtensions
@@ -410,6 +454,9 @@ struct ClientExtensions
 
     // EGL_ANGLE_platform_angle_opengl
     bool platformANGLEOpenGL;
+
+    // EGL_KHR_client_get_all_proc_addresses
+    bool clientGetAllProcAddresses;
 };
 
 }

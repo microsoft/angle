@@ -26,25 +26,19 @@ struct SamplerBindingGL
 class ProgramGL : public ProgramImpl
 {
   public:
-    ProgramGL(const FunctionsGL *functions, StateManagerGL *stateManager);
+    ProgramGL(const gl::Program::Data &data,
+              const FunctionsGL *functions,
+              StateManagerGL *stateManager);
     ~ProgramGL() override;
 
-    bool usesPointSize() const override;
     int getShaderVersion() const override;
-    GLenum getTransformFeedbackBufferMode() const override;
 
     GLenum getBinaryFormat() override;
     LinkResult load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream) override;
     gl::Error save(gl::BinaryOutputStream *stream) override;
 
-    LinkResult link(const gl::Data &data, gl::InfoLog &infoLog,
-                    gl::Shader *fragmentShader, gl::Shader *vertexShader,
-                    const std::vector<std::string> &transformFeedbackVaryings,
-                    GLenum transformFeedbackBufferMode,
-                    int *registers, std::vector<gl::LinkedVarying> *linkedVaryings,
-                    std::map<int, gl::VariableLocation> *outputVariables) override;
-
-    void bindAttributeLocation(GLuint index, const std::string &name) override;
+    LinkResult link(const gl::Data &data, gl::InfoLog &infoLog) override;
+    GLboolean validate(const gl::Caps &caps, gl::InfoLog *infoLog) override;
 
     void setUniform1fv(GLint location, GLsizei count, const GLfloat *v) override;
     void setUniform2fv(GLint location, GLsizei count, const GLfloat *v) override;
@@ -72,24 +66,7 @@ class ProgramGL : public ProgramImpl
     void getUniformiv(GLint location, GLint *params) override;
     void getUniformuiv(GLint location, GLuint *params) override;
 
-    GLint getSamplerMapping(gl::SamplerType type, unsigned int samplerIndex, const gl::Caps &caps) const override;
-    GLenum getSamplerTextureType(gl::SamplerType type, unsigned int samplerIndex) const override;
-    GLint getUsedSamplerRange(gl::SamplerType type) const override;
-    void updateSamplerMapping() override;
     bool validateSamplers(gl::InfoLog *infoLog, const gl::Caps &caps) override;
-
-    LinkResult compileProgramExecutables(gl::InfoLog &infoLog, gl::Shader *fragmentShader, gl::Shader *vertexShader,
-                                         int registers) override;
-
-    bool linkUniforms(gl::InfoLog &infoLog, const gl::Shader &vertexShader, const gl::Shader &fragmentShader,
-                      const gl::Caps &caps) override;
-    bool defineUniformBlock(gl::InfoLog &infoLog, const gl::Shader &shader, const sh::InterfaceBlock &interfaceBlock,
-                            const gl::Caps &caps) override;
-
-    gl::Error applyUniforms() override;
-    gl::Error applyUniformBuffers(const gl::Data &data, GLuint uniformBlockBindings[]) override;
-    bool assignUniformBlockRegister(gl::InfoLog &infoLog, gl::UniformBlock *uniformBlock, GLenum shader,
-                                    unsigned int registerIndex, const gl::Caps &caps) override;
 
     void reset() override;
 

@@ -7,10 +7,12 @@
 // VertexDeclarationCache.cpp: Implements a helper class to construct and cache vertex declarations.
 
 #include "libANGLE/renderer/d3d/d3d9/VertexDeclarationCache.h"
+
+#include "libANGLE/VertexAttribute.h"
+#include "libANGLE/formatutils.h"
+#include "libANGLE/renderer/d3d/ProgramD3D.h"
 #include "libANGLE/renderer/d3d/d3d9/VertexBuffer9.h"
 #include "libANGLE/renderer/d3d/d3d9/formatutils9.h"
-#include "libANGLE/Program.h"
-#include "libANGLE/VertexAttribute.h"
 
 namespace rx
 {
@@ -99,6 +101,9 @@ gl::Error VertexDeclarationCache::applyDeclaration(IDirect3DDevice9 *device,
     D3DVERTEXELEMENT9 elements[gl::MAX_VERTEX_ATTRIBS + 1];
     D3DVERTEXELEMENT9 *element = &elements[0];
 
+    ProgramD3D *programD3D      = GetImplAs<ProgramD3D>(program);
+    const auto &semanticIndexes = programD3D->getSemanticIndexes();
+
     for (size_t i = 0; i < attributes.size(); i++)
     {
         if (attributes[i].active)
@@ -106,7 +111,7 @@ gl::Error VertexDeclarationCache::applyDeclaration(IDirect3DDevice9 *device,
             // Directly binding the storage buffer is not supported for d3d9
             ASSERT(attributes[i].storage == NULL);
 
-            int stream = i;
+            int stream = static_cast<int>(i);
 
             if (instances > 0)
             {
@@ -123,7 +128,7 @@ gl::Error VertexDeclarationCache::applyDeclaration(IDirect3DDevice9 *device,
                     }
                     else if (i == 0)
                     {
-                        stream = indexedAttribute;
+                        stream = static_cast<int>(indexedAttribute);
                     }
 
                     UINT frequency = 1;
@@ -154,15 +159,15 @@ gl::Error VertexDeclarationCache::applyDeclaration(IDirect3DDevice9 *device,
                 mAppliedVBs[stream].offset = attributes[i].offset;
             }
 
-            gl::VertexFormat vertexFormat(*attributes[i].attribute, GL_FLOAT);
-            const d3d9::VertexFormat &d3d9VertexInfo = d3d9::GetVertexFormatInfo(caps.DeclTypes, vertexFormat);
+            gl::VertexFormatType vertexformatType = gl::GetVertexFormatType(*attributes[i].attribute, GL_FLOAT);
+            const d3d9::VertexFormat &d3d9VertexInfo = d3d9::GetVertexFormatInfo(caps.DeclTypes, vertexformatType);
 
             element->Stream = static_cast<WORD>(stream);
             element->Offset = 0;
             element->Type = static_cast<BYTE>(d3d9VertexInfo.nativeFormat);
             element->Method = D3DDECLMETHOD_DEFAULT;
             element->Usage = D3DDECLUSAGE_TEXCOORD;
-            element->UsageIndex = static_cast<BYTE>(program->getSemanticIndex(i));
+            element->UsageIndex = static_cast<BYTE>(semanticIndexes[i]);
             element++;
         }
     }

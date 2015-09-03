@@ -31,7 +31,7 @@ const EGLint contextAttribs[] =
 
 }
 
-class EGLContextCompatibilityTest : public testing::TestWithParam<PlatformParameters>
+class EGLContextCompatibilityTest : public ANGLETest
 {
   public:
     EGLContextCompatibilityTest()
