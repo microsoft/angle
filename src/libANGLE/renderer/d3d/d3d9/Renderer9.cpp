@@ -131,8 +131,6 @@ Renderer9::Renderer9(egl::Display *display)
     mAppliedVertexShader = NULL;
     mAppliedPixelShader = NULL;
     mAppliedProgramSerial = 0;
-
-    initializeDebugAnnotator();
 }
 
 Renderer9::~Renderer9()

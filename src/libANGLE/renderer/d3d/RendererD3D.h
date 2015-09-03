@@ -227,7 +227,6 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     egl::Display *mDisplay;
     bool mDeviceLost;
 
-    void initializeDebugAnnotator();
     gl::DebugAnnotator *mAnnotator;
 
     std::vector<TranslatedAttribute> mTranslatedAttribCache;
