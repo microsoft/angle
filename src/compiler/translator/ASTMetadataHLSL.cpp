@@ -244,9 +244,9 @@ class PullComputeDiscontinuousLoops : public TIntermTraverser
                 // A return or discard jumps out of all the enclosing loops
                 if (!mLoopsAndSwitches.empty())
                 {
-                    for (TIntermNode* intermNode : mLoopsAndSwitches)
+                    for (TIntermNode* node : mLoopsAndSwitches)
                     {
-                        TIntermLoop *loop = intermNode->getAsLoopNode();
+                        TIntermLoop *loop = node->getAsLoopNode();
                         if (loop)
                         {
                             mMetadata->mDiscontinuousLoops.insert(loop);
