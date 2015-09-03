@@ -263,7 +263,7 @@ gl::Error Buffer11::setData(const void *data, size_t size, GLenum usage)
 
     if (usage == GL_STATIC_DRAW)
     {
-        enableStaticData();
+        initializeStaticData();
     }
 
     return error;
@@ -311,7 +311,7 @@ gl::Error Buffer11::setSubData(const void *data, size_t size, size_t offset)
         // Use system memory storage for dynamic buffers.
 
         BufferStorage *writeBuffer = nullptr;
-        if (supportsDirectIndexBinding())
+        if (supportsDirectBinding())
         {
             writeBuffer = getStagingStorage();
 
@@ -351,7 +351,7 @@ gl::Error Buffer11::setSubData(const void *data, size_t size, size_t offset)
     }
 
     mSize = std::max(mSize, requiredSize);
-    invalidateStaticIndexData();
+    invalidateStaticData();
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -404,7 +404,7 @@ gl::Error Buffer11::copySubData(BufferImpl* source, GLintptr sourceOffset, GLint
     copyDest->setDataRevision(copyDest->getDataRevision() + 1);
 
     mSize = std::max<size_t>(mSize, destOffset + size);
-    invalidateStaticIndexData();
+    invalidateStaticData();
 
     return gl::Error(GL_NO_ERROR);
 }
@@ -478,7 +478,7 @@ void Buffer11::markTransformFeedbackUsage()
         transformFeedbackStorage->setDataRevision(transformFeedbackStorage->getDataRevision() + 1);
     }
 
-    invalidateStaticIndexData();
+    invalidateStaticData();
 }
 
 void Buffer11::markBufferUsage()
@@ -821,27 +821,12 @@ Buffer11::PackStorage *Buffer11::getPackStorage()
     return GetAs<PackStorage>(packStorage);
 }
 
-bool Buffer11::supportsDirectIndexBinding() const
+bool Buffer11::supportsDirectBinding() const
 {
     // Do not support direct buffers for dynamic data. The streaming buffer
     // offers better performance for data which changes every frame.
     // Check for absence of static buffer interfaces to detect dynamic data.
-    return (mStaticIndexBuffer != NULL);
-}
-
-bool Buffer11::supportsDirectVertexBindingForAttrib(const gl::VertexAttribute &attrib)
-{
-    size_t attributeOffset = static_cast<size_t>(attrib.offset) % ComputeVertexAttributeStride(attrib);
-    AttribElement element = { attrib.type, attrib.size, static_cast<GLuint>(ComputeVertexAttributeStride(attrib)), attrib.normalized, attrib.pureInteger, attributeOffset };
-    StaticBufferIteratorType mapElement = mStaticVertexBufferForAttributeMap.find(element);
-
-    // If we've already created a StaticVertexBufferInterface for this attribute, then we return it
-    if (mapElement != mStaticVertexBufferForAttributeMap.end())
-    {
-        return true;
-    }
-
-    return false;
+    return (mStaticVertexBuffer && mStaticIndexBuffer);
 }
 
 Buffer11::BufferStorage::BufferStorage(Renderer11 *renderer, BufferUsage usage)

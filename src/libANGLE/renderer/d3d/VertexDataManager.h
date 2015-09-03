@@ -96,9 +96,6 @@ class VertexDataManager : angle::NonCopyable
 
     void hintUnmapAllResources(const std::vector<gl::VertexAttribute> &vertexAttributes);
 
-    void prepareStaticBufferForAttribute(const gl::VertexAttribute &attrib,
-                                         const gl::VertexAttribCurrentValueData &currentValue) const;
-
     BufferFactoryD3D *const mFactory;
 
     StreamingVertexBufferInterface *mStreamingBuffer;

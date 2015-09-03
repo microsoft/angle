@@ -98,6 +98,18 @@ void VertexDataManager::hintUnmapAllResources(const std::vector<gl::VertexAttrib
 {
     mStreamingBuffer->getVertexBuffer()->hintUnmapResource();
 
+    for (const TranslatedAttribute *translated : mActiveEnabledAttributes)
+    {
+        gl::Buffer *buffer = translated->attribute->buffer.get();
+        BufferD3D *storage = buffer ? GetImplAs<BufferD3D>(buffer) : nullptr;
+        StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBuffer() : nullptr;
+
+        if (staticBuffer)
+        {
+            staticBuffer->getVertexBuffer()->hintUnmapResource();
+        }
+    }
+
     for (auto &currentValue : mCurrentValueCache)
     {
         if (currentValue.buffer != nullptr)
@@ -147,7 +159,9 @@ gl::Error VertexDataManager::prepareVertexData(const gl::State &state,
             {
                 mActiveEnabledAttributes.push_back(translated);
 
-                prepareStaticBufferForAttribute(vertexAttributes[attribIndex], state.getVertexAttribCurrentValue(attribIndex));
+                // Also invalidate static buffers that don't contain matching attributes
+                invalidateMatchingStaticData(vertexAttributes[attribIndex],
+                                             state.getVertexAttribCurrentValue(attribIndex));
             }
             else
             {
@@ -204,32 +218,32 @@ gl::Error VertexDataManager::prepareVertexData(const gl::State &state,
 
         if (buffer)
         {
-            BufferD3D *bufferImpl = GetImplAs<BufferD3D>(buffer);
-            bufferImpl->promoteStaticVertexUsageForAttrib(*activeAttrib->attribute, count * ComputeVertexAttributeTypeSize(*activeAttrib->attribute));
+            BufferD3D *bufferD3D = GetImplAs<BufferD3D>(buffer);
+            size_t typeSize = ComputeVertexAttributeTypeSize(*activeAttrib->attribute);
+            bufferD3D->promoteStaticUsage(count * typeSize);
         }
     }
 
     return gl::Error(GL_NO_ERROR);
 }
 
-void VertexDataManager::prepareStaticBufferForAttribute(const gl::VertexAttribute &attrib,
-                                                        const gl::VertexAttribCurrentValueData &currentValue) const
+void VertexDataManager::invalidateMatchingStaticData(const gl::VertexAttribute &attrib,
+                                                     const gl::VertexAttribCurrentValueData &currentValue) const
 {
     gl::Buffer *buffer = attrib.buffer.get();
 
     if (buffer)
     {
         BufferD3D *bufferImpl = GetImplAs<BufferD3D>(buffer);
+        StaticVertexBufferInterface *staticBuffer = bufferImpl->getStaticVertexBuffer();
 
-        // This will create the static buffer in the right circumstances
-        StaticVertexBufferInterface *staticBuffer = bufferImpl->getStaticVertexBufferForAttribute(attrib);
-        UNUSED_ASSERTION_VARIABLE(staticBuffer);
-
-        // This check validates that a valid static vertex buffer was returned above
-        ASSERT(!(staticBuffer &&
-                 staticBuffer->getBufferSize() > 0 &&
-                 !staticBuffer->lookupAttribute(attrib, NULL) &&
-                 !staticBuffer->directStoragePossible(attrib, currentValue.Type)));
+        if (staticBuffer &&
+            staticBuffer->getBufferSize() > 0 &&
+            !staticBuffer->lookupAttribute(attrib, NULL) &&
+            !staticBuffer->directStoragePossible(attrib, currentValue.Type))
+        {
+            bufferImpl->invalidateStaticData();
+        }
     }
 }
 
@@ -240,7 +254,7 @@ gl::Error VertexDataManager::reserveSpaceForAttrib(const TranslatedAttribute &tr
     const gl::VertexAttribute &attrib = *translatedAttrib.attribute;
     gl::Buffer *buffer = attrib.buffer.get();
     BufferD3D *bufferImpl = buffer ? GetImplAs<BufferD3D>(buffer) : NULL;
-    StaticVertexBufferInterface *staticBuffer = bufferImpl ? bufferImpl->getStaticVertexBufferForAttribute(attrib) : NULL;
+    StaticVertexBufferInterface *staticBuffer = bufferImpl ? bufferImpl->getStaticVertexBuffer() : NULL;
     VertexBufferInterface *vertexBuffer = staticBuffer ? staticBuffer : static_cast<VertexBufferInterface*>(mStreamingBuffer);
 
     if (!vertexBuffer->directStoragePossible(attrib, translatedAttrib.currentValueType))
@@ -285,7 +299,7 @@ gl::Error VertexDataManager::storeAttribute(TranslatedAttribute *translated,
     ASSERT(attrib.enabled);
 
     BufferD3D *storage = buffer ? GetImplAs<BufferD3D>(buffer) : NULL;
-    StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBufferForAttribute(attrib) : NULL;
+    StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBuffer() : NULL;
     VertexBufferInterface *vertexBuffer = staticBuffer ? staticBuffer : static_cast<VertexBufferInterface*>(mStreamingBuffer);
     bool directStorage = vertexBuffer->directStoragePossible(attrib, translated->currentValueType);
 
@@ -338,12 +352,13 @@ gl::Error VertexDataManager::storeAttribute(TranslatedAttribute *translated,
             int totalCount = ElementsInBuffer(attrib, storage->getSize());
             int startIndex = attrib.offset / ComputeVertexAttributeStride(attrib);
 
-            error = staticBuffer->storeVertexAttributes(attrib, translated->currentValueType, -startIndex, totalCount,
-                                                        0, &streamOffset, sourceData);
-
-            // Each staticBuffer only contains the data for one attribute, so we know that it won't be modified again.
-            // We can therefore safely unmap it here without hurting perf.
-            staticBuffer->getVertexBuffer()->hintUnmapResource();
+            error = staticBuffer->storeVertexAttributes(attrib,
+                                                        translated->currentValueType,
+                                                        -startIndex,
+                                                        totalCount,
+                                                        0,
+                                                        &streamOffset,
+                                                        sourceData);
             if (error.isError())
             {
                 return error;
