@@ -1552,29 +1552,37 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
         }
     }
 
+    bool isBackbuffer = false;
+
+    if (colorbuffers.size() > 0)
+    {
+        RenderTarget11 *renderTarget = NULL;
+        const gl::FramebufferAttachment *colorbuffer = colorbuffers[0];
+        gl::Error error = colorbuffer->getRenderTarget(&renderTarget);
+        if (error.isError())
+        {
+            return error;
+        }
+        ASSERT(renderTarget);
+
+        ID3D11Resource* res = NULL;
+        framebufferRTVs[0]->GetResource(&res);
+        ASSERT(d3d11::IsBackbuffer(res) == renderTarget->renderToBackBuffer());
+        isBackbuffer = d3d11::IsBackbuffer(res);
+        SafeRelease(res);
+    }
+
     // Apply the render target and depth stencil
     if (!mRenderTargetDescInitialized || !mDepthStencilInitialized ||
         memcmp(framebufferRTVs, mAppliedRTVs, sizeof(framebufferRTVs)) != 0 ||
-        reinterpret_cast<uintptr_t>(framebufferDSV) != mAppliedDSV)
+        reinterpret_cast<uintptr_t>(framebufferDSV) != mAppliedDSV ||
+        isBackbuffer)
     {
         mDeviceContext->OMSetRenderTargets(getRendererCaps().maxDrawBuffers, framebufferRTVs, framebufferDSV);
 
         if (colorbuffers.size() > 0)
         {
-            RenderTarget11 *renderTarget = NULL;
-            const gl::FramebufferAttachment *colorbuffer = colorbuffers[0];
-            gl::Error error = colorbuffer->getRenderTarget(&renderTarget);
-            if (error.isError())
-            {
-                return error;
-            }
-            ASSERT(renderTarget);
-
-            ID3D11Resource* res = NULL;
-            framebufferRTVs[0]->GetResource(&res);
-            ASSERT(d3d11::IsBackbuffer(res) == renderTarget->renderToBackBuffer());
-            setRenderToBackBufferVariables(d3d11::IsBackbuffer(res));
-            SafeRelease(res);
+            setRenderToBackBufferVariables(isBackbuffer);
         }
 
         mRenderTargetDesc.width = renderTargetWidth;
