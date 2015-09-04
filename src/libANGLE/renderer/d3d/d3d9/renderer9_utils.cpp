@@ -435,7 +435,7 @@ void GenerateCaps(IDirect3D9 *d3d9,
     // Vertex shader limits
     caps->maxVertexAttributes = 16;
 
-    const size_t reservedVertexUniformVectors = 2; // dx_ViewAdjust and dx_DepthRange.
+    const size_t reservedVertexUniformVectors = 4; // dx_ViewAdjust, dx_DepthRange, dx_ViewCoords and dx_ViewScale
     const size_t MAX_VERTEX_CONSTANT_VECTORS_D3D9 = 256;
     caps->maxVertexUniformVectors = MAX_VERTEX_CONSTANT_VECTORS_D3D9 - reservedVertexUniformVectors;
     caps->maxVertexUniformComponents = caps->maxVertexUniformVectors * 4;
@@ -463,7 +463,7 @@ void GenerateCaps(IDirect3D9 *d3d9,
     }
 
     // Fragment shader limits
-    const size_t reservedPixelUniformVectors = 3; // dx_ViewCoords, dx_DepthFront and dx_DepthRange.
+    const size_t reservedPixelUniformVectors = 4; // dx_ViewAdjust, dx_DepthRange, dx_ViewCoords and dx_ViewScale
 
     const size_t MAX_PIXEL_CONSTANT_VECTORS_SM3 = 224;
     const size_t MAX_PIXEL_CONSTANT_VECTORS_SM2 = 32;

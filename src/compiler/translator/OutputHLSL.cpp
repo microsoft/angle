@@ -150,8 +150,8 @@ OutputHLSL::OutputHLSL(sh::GLenum shaderType, int shaderVersion,
     {
         if (mShaderType == GL_FRAGMENT_SHADER)
         {
-            // Reserve registers for dx_DepthRange, dx_ViewCoords and dx_DepthFront
-            mUniformHLSL->reserveUniformRegisters(3);
+            // Reserve registers for dx_DepthRange, dx_ViewCoords, dx_ViewScale and dx_DepthFront
+            mUniformHLSL->reserveUniformRegisters(4);
         }
         else
         {
