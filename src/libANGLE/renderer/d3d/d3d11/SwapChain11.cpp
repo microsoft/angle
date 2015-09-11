@@ -57,6 +57,9 @@ SwapChain11::SwapChain11(Renderer11 *renderer, NativeWindow nativeWindow, HANDLE
     mDepthStencilDSView = NULL;
     mDepthStencilSRView = NULL;
 
+    mOffscreenTextureForReadback = NULL;
+    mOffscreenForReadbackSRView = NULL;
+
     mQuadVB = NULL;
     mPassThroughSampler = NULL;
     mPassThroughIL = NULL;
@@ -84,6 +87,8 @@ void SwapChain11::release()
     SafeRelease(mDepthStencilTexture);
     SafeRelease(mDepthStencilDSView);
     SafeRelease(mDepthStencilSRView);
+    SafeRelease(mOffscreenTextureForReadback);
+    SafeRelease(mOffscreenForReadbackSRView);
     SafeRelease(mQuadVB);
     SafeRelease(mPassThroughSampler);
     SafeRelease(mPassThroughIL);
@@ -109,6 +114,8 @@ void SwapChain11::releaseOffscreenTexture()
     SafeRelease(mDepthStencilTexture);
     SafeRelease(mDepthStencilDSView);
     SafeRelease(mDepthStencilSRView);
+    SafeRelease(mOffscreenTextureForReadback);
+    SafeRelease(mOffscreenForReadbackSRView);
 }
 
 EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHeight)
@@ -373,6 +380,8 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
 
     SafeRelease(mBackBufferTexture);
     SafeRelease(mBackBufferRTView);
+    SafeRelease(mOffscreenTextureForReadback);
+    SafeRelease(mOffscreenForReadbackSRView);
 
     // Resize swap chain
     DXGI_SWAP_CHAIN_DESC desc;
@@ -742,8 +751,59 @@ ID3D11ShaderResourceView *SwapChain11::getRenderTargetShaderResource()
 {
     if (mRenderToBackBuffer)
     {
-        // We shouldn't sample from the swapchain in a shader
-        return NULL;
+        if (!mOffscreenTextureForReadback)
+        {
+            ID3D11Device *device = mRenderer->getDevice();
+
+            HRESULT result;
+            const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mOffscreenRenderTargetFormat, mRenderer->getRenderer11DeviceCaps(), true);
+
+            D3D11_TEXTURE2D_DESC offscreenTextureDesc = { 0 };
+            offscreenTextureDesc.Width = mWidth;
+            offscreenTextureDesc.Height = mHeight;
+            offscreenTextureDesc.Format = backbufferFormatInfo.texFormat;
+            offscreenTextureDesc.MipLevels = 1;
+            offscreenTextureDesc.ArraySize = 1;
+            offscreenTextureDesc.SampleDesc.Count = 1;
+            offscreenTextureDesc.SampleDesc.Quality = 0;
+            offscreenTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+            offscreenTextureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+            offscreenTextureDesc.CPUAccessFlags = 0;
+            offscreenTextureDesc.MiscFlags = 0;
+
+            result = device->CreateTexture2D(&offscreenTextureDesc, NULL, &mOffscreenTextureForReadback);
+
+            if (FAILED(result))
+            {
+                ERR("Could not create offscreen texture for readback: %08lX", result);
+
+                return NULL;
+            }
+
+            d3d11::SetDebugName(mOffscreenTextureForReadback, "Offscreen back buffer texture for readback");
+
+            D3D11_SHADER_RESOURCE_VIEW_DESC offscreenSRVDesc;
+            offscreenSRVDesc.Format = backbufferFormatInfo.srvFormat;
+            offscreenSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+            offscreenSRVDesc.Texture2D.MostDetailedMip = 0;
+            offscreenSRVDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
+
+            result = device->CreateShaderResourceView(mOffscreenTextureForReadback, &offscreenSRVDesc, &mOffscreenForReadbackSRView);
+            if (FAILED(result))
+            {
+                ERR("Could not create offscreen srview for readback: %08lX", result);
+
+                SafeRelease(mOffscreenTextureForReadback);
+                return NULL;
+            }
+
+            d3d11::SetDebugName(mOffscreenForReadbackSRView, "Offscreen back buffer for readback shader resource");
+        }
+
+        ID3D11DeviceContext *deviceContext = mRenderer->getDeviceContext();
+        deviceContext->CopyResource(mOffscreenTextureForReadback, mBackBufferTexture);
+
+        return mOffscreenForReadbackSRView;
     }
     else
     {

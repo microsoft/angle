@@ -77,6 +77,9 @@ class SwapChain11 : public SwapChainD3D
     ID3D11DepthStencilView *mDepthStencilDSView;
     ID3D11ShaderResourceView *mDepthStencilSRView;
 
+    ID3D11Texture2D *mOffscreenTextureForReadback;
+    ID3D11ShaderResourceView *mOffscreenForReadbackSRView;
+
     ID3D11Buffer *mQuadVB;
     ID3D11SamplerState *mPassThroughSampler;
     ID3D11InputLayout *mPassThroughIL;
