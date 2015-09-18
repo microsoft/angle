@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 13.00
-# Visual Studio 2013
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle_common", "angle_common.vcxproj", "{7AB4B0C9-D974-3A65-ED87-61816B6917CB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "commit_id", "commit_id.vcxproj", "{6CCCC557-DFA3-68D4-31FA-1EFB0C5F37B2}"

@@ -84,12 +84,15 @@ Requirements
 =====
 
 Windows 10 Development:
-* [Visual Studio 2015 Community RC or higher](https://www.visualstudio.com/downloads/visual-studio-2015-downloads-vs.aspx)
+* [Visual Studio 2015 Community or higher](https://www.visualstudio.com/downloads/visual-studio-2015-downloads-vs.aspx)
 * Windows 10 for local Windows development
 
 Windows 8.1 and/or Windows Phone 8.1 Development:
 * Visual Studio Community 2013 (Update 4), or higher/later.
 * Windows 8.1 for local Windows development.
+
+Clasic Windows (Desktop) Development:
+* Visual Studio 2015 Community or higher.
 
 More Info
 =====
