@@ -40,3 +40,4 @@ TestResults.qpa
 *.vsp
 *.nvuser
 buildtools/
+/winrt/**/build/

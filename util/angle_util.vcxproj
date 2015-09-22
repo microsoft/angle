@@ -59,7 +59,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4702;4718;4201;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -104,7 +104,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4702;4718;4201;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -148,7 +148,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4702;4718;4201;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -192,7 +192,7 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4702;4718;4201;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
@@ -244,19 +244,20 @@
     <ClInclude Include="OSPixmap.h"/>
     <ClInclude Include="OSWindow.h"/>
     <ClInclude Include="Timer.h"/>
-    <ClInclude Include="win32\Win32Pixmap.h"/>
-    <ClInclude Include="win32\Win32Timer.h"/>
-    <ClInclude Include="win32\Win32Window.h"/>
+    <ClInclude Include="windows\win32\Win32Pixmap.h"/>
+    <ClInclude Include="windows\win32\Win32Window.h"/>
+    <ClInclude Include="windows\WindowsTimer.h"/>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="random_utils.cpp"/>
     <ClCompile Include="shader_utils.cpp"/>
     <ClCompile Include="EGLWindow.cpp"/>
     <ClCompile Include="OSWindow.cpp"/>
-    <ClCompile Include="win32\Win32_system_utils.cpp"/>
-    <ClCompile Include="win32\Win32Pixmap.cpp"/>
-    <ClCompile Include="win32\Win32Timer.cpp"/>
-    <ClCompile Include="win32\Win32Window.cpp"/>
+    <ClCompile Include="windows\win32\Win32_system_utils.cpp"/>
+    <ClCompile Include="windows\win32\Win32Pixmap.cpp"/>
+    <ClCompile Include="windows\win32\Win32Window.cpp"/>
+    <ClCompile Include="windows\Windows_system_utils.cpp"/>
+    <ClCompile Include="windows\WindowsTimer.cpp"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\libEGL.vcxproj">
