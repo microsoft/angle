@@ -42,3 +42,7 @@ TestResults.qpa
 buildtools/
 /winrt/**/build/
 /winrt/**/util/
+*.mdf
+*.ldf
+Generated Files/
+AppPackages/
