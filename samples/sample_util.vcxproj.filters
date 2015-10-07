@@ -19,48 +19,12 @@
     <Filter Include="sample_util">
       <UniqueIdentifier>{60D21765-6E5A-8668-B584-931D7874AF54}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sample_util">
-      <UniqueIdentifier>{60D21765-6E5A-8668-B584-931D7874AF54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sample_util">
-      <UniqueIdentifier>{60D21765-6E5A-8668-B584-931D7874AF54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sample_util">
-      <UniqueIdentifier>{60D21765-6E5A-8668-B584-931D7874AF54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sample_util">
-      <UniqueIdentifier>{60D21765-6E5A-8668-B584-931D7874AF54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sample_util">
-      <UniqueIdentifier>{60D21765-6E5A-8668-B584-931D7874AF54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="sample_util">
-      <UniqueIdentifier>{60D21765-6E5A-8668-B584-931D7874AF54}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sample_util\Matrix.cpp">
-      <Filter>sample_util</Filter>
-    </ClCompile>
-    <ClInclude Include="sample_util\Matrix.h">
-      <Filter>sample_util</Filter>
-    </ClInclude>
     <ClCompile Include="sample_util\SampleApplication.cpp">
       <Filter>sample_util</Filter>
     </ClCompile>
     <ClInclude Include="sample_util\SampleApplication.h">
-      <Filter>sample_util</Filter>
-    </ClInclude>
-    <ClCompile Include="sample_util\Vector.cpp">
-      <Filter>sample_util</Filter>
-    </ClCompile>
-    <ClInclude Include="sample_util\Vector.h">
-      <Filter>sample_util</Filter>
-    </ClInclude>
-    <ClCompile Include="sample_util\geometry_utils.cpp">
-      <Filter>sample_util</Filter>
-    </ClCompile>
-    <ClInclude Include="sample_util\geometry_utils.h">
       <Filter>sample_util</Filter>
     </ClInclude>
     <ClCompile Include="sample_util\texture_utils.cpp">

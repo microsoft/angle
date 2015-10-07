@@ -320,8 +320,9 @@
     <ClInclude Include="..\..\..\..\include\GLES2\gl2ext.h"/>
     <ClInclude Include="..\..\..\..\include\GLES2\gl2platform.h"/>
     <ClInclude Include="..\..\..\..\include\GLES3\gl3.h"/>
-    <ClInclude Include="..\..\..\..\include\GLES3\gl3ext.h"/>
     <ClInclude Include="..\..\..\..\include\GLES3\gl3platform.h"/>
+    <ClInclude Include="..\..\..\..\include\GLES3\gl31.h"/>
+    <ClInclude Include="..\..\..\..\include\GLES3\gl32.h"/>
     <ClInclude Include="..\..\..\..\include\GLSLANG\ShaderLang.h"/>
     <ClInclude Include="..\..\..\..\include\GLSLANG\ShaderVars.h"/>
     <ClInclude Include="..\..\..\..\include\KHR\khrplatform.h"/>
@@ -363,6 +364,7 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\RecordConstantPrecision.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\RegenerateStructNames.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\RemovePow.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\RewriteDoWhile.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\RenameFunction.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ScalarizeVecAndMatConstructorArgs.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\SearchSymbol.h"/>
@@ -394,6 +396,7 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\blocklayoutHLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\BuiltInFunctionEmulatorHLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\OutputHLSL.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\RemoveDynamicIndexing.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\RemoveSwitchFallThrough.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\RewriteElseBlocks.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\SeparateArrayInitialization.h"/>
@@ -436,6 +439,7 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\RecordConstantPrecision.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\RegenerateStructNames.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\RemovePow.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\RewriteDoWhile.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ScalarizeVecAndMatConstructorArgs.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SearchSymbol.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SymbolTable.cpp"/>
@@ -468,6 +472,7 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\blocklayoutHLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\BuiltInFunctionEmulatorHLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\OutputHLSL.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\RemoveDynamicIndexing.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\RemoveSwitchFallThrough.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\RewriteElseBlocks.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SeparateArrayInitialization.cpp"/>

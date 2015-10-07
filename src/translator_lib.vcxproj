@@ -246,8 +246,9 @@
     <ClInclude Include="..\include\GLES2\gl2ext.h"/>
     <ClInclude Include="..\include\GLES2\gl2platform.h"/>
     <ClInclude Include="..\include\GLES3\gl3.h"/>
-    <ClInclude Include="..\include\GLES3\gl3ext.h"/>
     <ClInclude Include="..\include\GLES3\gl3platform.h"/>
+    <ClInclude Include="..\include\GLES3\gl31.h"/>
+    <ClInclude Include="..\include\GLES3\gl32.h"/>
     <ClInclude Include="..\include\GLSLANG\ShaderLang.h"/>
     <ClInclude Include="..\include\GLSLANG\ShaderVars.h"/>
     <ClInclude Include="..\include\KHR\khrplatform.h"/>
@@ -289,6 +290,7 @@
     <ClInclude Include="compiler\translator\RecordConstantPrecision.h"/>
     <ClInclude Include="compiler\translator\RegenerateStructNames.h"/>
     <ClInclude Include="compiler\translator\RemovePow.h"/>
+    <ClInclude Include="compiler\translator\RewriteDoWhile.h"/>
     <ClInclude Include="compiler\translator\RenameFunction.h"/>
     <ClInclude Include="compiler\translator\ScalarizeVecAndMatConstructorArgs.h"/>
     <ClInclude Include="compiler\translator\SearchSymbol.h"/>
@@ -320,6 +322,7 @@
     <ClInclude Include="compiler\translator\blocklayoutHLSL.h"/>
     <ClInclude Include="compiler\translator\BuiltInFunctionEmulatorHLSL.h"/>
     <ClInclude Include="compiler\translator\OutputHLSL.h"/>
+    <ClInclude Include="compiler\translator\RemoveDynamicIndexing.h"/>
     <ClInclude Include="compiler\translator\RemoveSwitchFallThrough.h"/>
     <ClInclude Include="compiler\translator\RewriteElseBlocks.h"/>
     <ClInclude Include="compiler\translator\SeparateArrayInitialization.h"/>
@@ -362,6 +365,7 @@
     <ClCompile Include="compiler\translator\RecordConstantPrecision.cpp"/>
     <ClCompile Include="compiler\translator\RegenerateStructNames.cpp"/>
     <ClCompile Include="compiler\translator\RemovePow.cpp"/>
+    <ClCompile Include="compiler\translator\RewriteDoWhile.cpp"/>
     <ClCompile Include="compiler\translator\ScalarizeVecAndMatConstructorArgs.cpp"/>
     <ClCompile Include="compiler\translator\SearchSymbol.cpp"/>
     <ClCompile Include="compiler\translator\SymbolTable.cpp"/>
@@ -394,6 +398,7 @@
     <ClCompile Include="compiler\translator\blocklayoutHLSL.cpp"/>
     <ClCompile Include="compiler\translator\BuiltInFunctionEmulatorHLSL.cpp"/>
     <ClCompile Include="compiler\translator\OutputHLSL.cpp"/>
+    <ClCompile Include="compiler\translator\RemoveDynamicIndexing.cpp"/>
     <ClCompile Include="compiler\translator\RemoveSwitchFallThrough.cpp"/>
     <ClCompile Include="compiler\translator\RewriteElseBlocks.cpp"/>
     <ClCompile Include="compiler\translator\SeparateArrayInitialization.cpp"/>

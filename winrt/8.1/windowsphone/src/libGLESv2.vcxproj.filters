@@ -55,12 +55,6 @@
     <Filter Include="libGLESv2">
       <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libGLESv2">
-      <UniqueIdentifier>{A62A9415-2E9D-A6D2-631D-1F25A5CD626F}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\common\angleutils.h">
@@ -97,12 +91,6 @@
       <Filter>libGLESv2</Filter>
     </ClCompile>
     <ClInclude Include="..\..\..\..\src\libGLESv2\entry_points_gles_3_0.h">
-      <Filter>libGLESv2</Filter>
-    </ClInclude>
-    <ClCompile Include="..\..\..\..\src\libGLESv2\entry_points_gles_3_0_ext.cpp">
-      <Filter>libGLESv2</Filter>
-    </ClCompile>
-    <ClInclude Include="..\..\..\..\src\libGLESv2\entry_points_gles_3_0_ext.h">
       <Filter>libGLESv2</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\..\src\libGLESv2\global_state.cpp">

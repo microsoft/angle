@@ -294,6 +294,7 @@
     <ClInclude Include="libANGLE\renderer\QueryImpl.h"/>
     <ClInclude Include="libANGLE\renderer\RenderbufferImpl.h"/>
     <ClInclude Include="libANGLE\renderer\Renderer.h"/>
+    <ClInclude Include="libANGLE\renderer\SamplerImpl.h"/>
     <ClInclude Include="libANGLE\renderer\ShaderImpl.h"/>
     <ClInclude Include="libANGLE\renderer\SurfaceImpl.h"/>
     <ClInclude Include="libANGLE\renderer\TextureImpl.h"/>
@@ -313,8 +314,9 @@
     <ClInclude Include="..\include\GLES2\gl2ext.h"/>
     <ClInclude Include="..\include\GLES2\gl2platform.h"/>
     <ClInclude Include="..\include\GLES3\gl3.h"/>
-    <ClInclude Include="..\include\GLES3\gl3ext.h"/>
     <ClInclude Include="..\include\GLES3\gl3platform.h"/>
+    <ClInclude Include="..\include\GLES3\gl31.h"/>
+    <ClInclude Include="..\include\GLES3\gl32.h"/>
     <ClInclude Include="..\include\GLSLANG\ShaderLang.h"/>
     <ClInclude Include="..\include\GLSLANG\ShaderVars.h"/>
     <ClInclude Include="..\include\KHR\khrplatform.h"/>
@@ -325,6 +327,7 @@
     <ClInclude Include="libANGLE\renderer\d3d\DeviceD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\DisplayD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\DynamicHLSL.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\EGLImageD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\formatutilsD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\FramebufferD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\generatemip.h"/>
@@ -338,6 +341,7 @@
     <ClInclude Include="libANGLE\renderer\d3d\RenderbufferD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\RendererD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\RenderTargetD3D.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\SamplerD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\ShaderD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\ShaderExecutableD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\SurfaceD3D.h"/>
@@ -446,8 +450,11 @@
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\swizzleui2dps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\swizzleui3dps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\SwapChain11.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\swizzle_format_info.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\TextureStorage11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\Trim11.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\texture_format_table.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\texture_format_util.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\VertexArray11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\VertexBuffer11.h"/>
     <ClInclude Include="third_party\systeminfo\SystemInfo.h"/>
@@ -463,6 +470,7 @@
     <ClInclude Include="libANGLE\renderer\gl\QueryGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\RenderbufferGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\RendererGL.h"/>
+    <ClInclude Include="libANGLE\renderer\gl\SamplerGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\ShaderGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\StateManagerGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\SurfaceGL.h"/>
@@ -521,7 +529,6 @@
     <ClCompile Include="libANGLE\queryconversions.cpp"/>
     <ClCompile Include="libANGLE\renderer\DeviceImpl.cpp"/>
     <ClCompile Include="libANGLE\renderer\DisplayImpl.cpp"/>
-    <ClCompile Include="libANGLE\renderer\ProgramImpl.cpp"/>
     <ClCompile Include="libANGLE\renderer\Renderer.cpp"/>
     <ClCompile Include="libANGLE\renderer\SurfaceImpl.cpp"/>
     <ClCompile Include="libANGLE\validationEGL.cpp"/>
@@ -535,6 +542,7 @@
     <ClCompile Include="libANGLE\renderer\d3d\DeviceD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\DisplayD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\DynamicHLSL.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\EGLImageD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\formatutilsD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\FramebufferD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\HLSLCompiler.cpp"/>
@@ -590,8 +598,11 @@
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\RenderTarget11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\ShaderExecutable11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\SwapChain11.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d11\swizzle_format_info.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\TextureStorage11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\Trim11.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d11\texture_format_table.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d11\texture_format_util.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\VertexBuffer11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\win32\NativeWindow.cpp"/>
     <ClCompile Include="third_party\systeminfo\SystemInfo.cpp"/>
@@ -607,6 +618,7 @@
     <ClCompile Include="libANGLE\renderer\gl\QueryGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\RenderbufferGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\RendererGL.cpp"/>
+    <ClCompile Include="libANGLE\renderer\gl\SamplerGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\ShaderGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\StateManagerGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\SurfaceGL.cpp"/>

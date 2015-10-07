@@ -65,7 +65,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;GL_GLEXT_PROTOTYPES;EGL_EGLEXT_PROTOTYPES;ANGLE_STANDALONE_BUILD;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -93,7 +93,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\include;..\util;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GL_GLEXT_PROTOTYPES;EGL_EGLEXT_PROTOTYPES;ANGLE_STANDALONE_BUILD;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -110,7 +110,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;GL_GLEXT_PROTOTYPES;EGL_EGLEXT_PROTOTYPES;ANGLE_STANDALONE_BUILD;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -138,7 +138,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\include;..\util;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GL_GLEXT_PROTOTYPES;EGL_EGLEXT_PROTOTYPES;ANGLE_STANDALONE_BUILD;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -154,7 +154,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;GL_GLEXT_PROTOTYPES;EGL_EGLEXT_PROTOTYPES;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -182,7 +182,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\include;..\util;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GL_GLEXT_PROTOTYPES;EGL_EGLEXT_PROTOTYPES;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -198,7 +198,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;GL_GLEXT_PROTOTYPES;EGL_EGLEXT_PROTOTYPES;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -226,7 +226,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\include;..\util;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GL_GLEXT_PROTOTYPES;EGL_EGLEXT_PROTOTYPES;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -235,24 +235,30 @@
   <ItemGroup>
     <ClInclude Include="com_utils.h"/>
     <ClInclude Include="keyboard.h"/>
+    <ClInclude Include="geometry_utils.h"/>
     <ClInclude Include="mouse.h"/>
     <ClInclude Include="random_utils.h"/>
     <ClInclude Include="shader_utils.h"/>
     <ClInclude Include="system_utils.h"/>
     <ClInclude Include="Event.h"/>
     <ClInclude Include="EGLWindow.h"/>
+    <ClInclude Include="Matrix.h"/>
     <ClInclude Include="OSPixmap.h"/>
     <ClInclude Include="OSWindow.h"/>
     <ClInclude Include="Timer.h"/>
+    <ClInclude Include="Vector.h"/>
     <ClInclude Include="windows\win32\Win32Pixmap.h"/>
     <ClInclude Include="windows\win32\Win32Window.h"/>
     <ClInclude Include="windows\WindowsTimer.h"/>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="geometry_utils.cpp"/>
     <ClCompile Include="random_utils.cpp"/>
     <ClCompile Include="shader_utils.cpp"/>
     <ClCompile Include="EGLWindow.cpp"/>
+    <ClCompile Include="Matrix.cpp"/>
     <ClCompile Include="OSWindow.cpp"/>
+    <ClCompile Include="Vector.cpp"/>
     <ClCompile Include="windows\win32\Win32_system_utils.cpp"/>
     <ClCompile Include="windows\win32\Win32Pixmap.cpp"/>
     <ClCompile Include="windows\win32\Win32Window.cpp"/>

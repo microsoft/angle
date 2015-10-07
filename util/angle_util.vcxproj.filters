@@ -44,6 +44,8 @@
   <ItemGroup>
     <ClInclude Include="com_utils.h"/>
     <ClInclude Include="keyboard.h"/>
+    <ClCompile Include="geometry_utils.cpp"/>
+    <ClInclude Include="geometry_utils.h"/>
     <ClInclude Include="mouse.h"/>
     <ClCompile Include="random_utils.cpp"/>
     <ClInclude Include="random_utils.h"/>
@@ -53,10 +55,14 @@
     <ClInclude Include="Event.h"/>
     <ClCompile Include="EGLWindow.cpp"/>
     <ClInclude Include="EGLWindow.h"/>
+    <ClCompile Include="Matrix.cpp"/>
+    <ClInclude Include="Matrix.h"/>
     <ClInclude Include="OSPixmap.h"/>
     <ClCompile Include="OSWindow.cpp"/>
     <ClInclude Include="OSWindow.h"/>
     <ClInclude Include="Timer.h"/>
+    <ClCompile Include="Vector.cpp"/>
+    <ClInclude Include="Vector.h"/>
     <ClCompile Include="windows\win32\Win32_system_utils.cpp">
       <Filter>windows\win32</Filter>
     </ClCompile>

@@ -817,6 +817,12 @@
     <Filter Include="include">
       <UniqueIdentifier>{57CA55B8-BCC5-4000-CE3A-58972F82E9CB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\GLES3">
+      <UniqueIdentifier>{E18FF71E-3DE4-F6D0-36B6-93BA54EEDEE1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{57CA55B8-BCC5-4000-CE3A-58972F82E9CB}</UniqueIdentifier>
+    </Filter>
     <Filter Include="include\GLSLANG">
       <UniqueIdentifier>{AD7D3D9B-E716-B150-1F3A-64569B7F5415}</UniqueIdentifier>
     </Filter>
@@ -1534,8 +1540,29 @@
     <Filter Include="src\libANGLE\renderer\d3d">
       <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -2121,54 +2148,6 @@
     </Filter>
     <Filter Include="src\libANGLE\renderer\d3d\d3d11">
       <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders\compiled">
-      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE">
-      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d">
-      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders\compiled">
-      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE">
-      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer">
-      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d">
-      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
-      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders">
-      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders\compiled">
-      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -3198,6 +3177,159 @@
     </Filter>
     <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders\compiled">
       <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders">
+      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders\compiled">
+      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders">
+      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders\compiled">
+      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders">
+      <UniqueIdentifier>{467D5622-06CC-2CF1-19E5-3CDD46A4008C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11\shaders\compiled">
+      <UniqueIdentifier>{F444E9E6-7D51-0546-F1E4-B6C8FCDA5FC6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d">
+      <UniqueIdentifier>{3AC19AE3-A12C-4021-D645-4CEA5BC956DB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\libANGLE\renderer\d3d\d3d11">
+      <UniqueIdentifier>{10FB1414-88D2-B512-6D76-522749905268}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
@@ -3720,9 +3852,6 @@
     <ClInclude Include="..\..\..\src\libANGLE\renderer\ImplFactory.h">
       <Filter>src\libANGLE\renderer</Filter>
     </ClInclude>
-    <ClCompile Include="..\..\..\src\libANGLE\renderer\ProgramImpl.cpp">
-      <Filter>src\libANGLE\renderer</Filter>
-    </ClCompile>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\ProgramImpl.h">
       <Filter>src\libANGLE\renderer</Filter>
     </ClInclude>
@@ -3736,6 +3865,9 @@
       <Filter>src\libANGLE\renderer</Filter>
     </ClCompile>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\Renderer.h">
+      <Filter>src\libANGLE\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\SamplerImpl.h">
       <Filter>src\libANGLE\renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\ShaderImpl.h">
@@ -3813,10 +3945,13 @@
     <ClInclude Include="..\..\..\include\GLES3\gl3.h">
       <Filter>include\GLES3</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\GLES3\gl3ext.h">
+    <ClInclude Include="..\..\..\include\GLES3\gl3platform.h">
       <Filter>include\GLES3</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\GLES3\gl3platform.h">
+    <ClInclude Include="..\..\..\include\GLES3\gl31.h">
+      <Filter>include\GLES3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\GLES3\gl32.h">
       <Filter>include\GLES3</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\GLSLANG\ShaderLang.h">
@@ -3868,6 +4003,12 @@
       <Filter>src\libANGLE\renderer\d3d</Filter>
     </ClCompile>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\DynamicHLSL.h">
+      <Filter>src\libANGLE\renderer\d3d</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\EGLImageD3D.cpp">
+      <Filter>src\libANGLE\renderer\d3d</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\EGLImageD3D.h">
       <Filter>src\libANGLE\renderer\d3d</Filter>
     </ClInclude>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\formatutilsD3D.cpp">
@@ -3951,6 +4092,9 @@
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\RenderTargetD3D.cpp">
       <Filter>src\libANGLE\renderer\d3d</Filter>
     </ClCompile>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\SamplerD3D.h">
+      <Filter>src\libANGLE\renderer\d3d</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\ShaderD3D.cpp">
       <Filter>src\libANGLE\renderer\d3d</Filter>
     </ClCompile>
@@ -4281,6 +4425,12 @@
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\SwapChain11.h">
       <Filter>src\libANGLE\renderer\d3d\d3d11</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\swizzle_format_info.h">
+      <Filter>src\libANGLE\renderer\d3d\d3d11</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\swizzle_format_info.cpp">
+      <Filter>src\libANGLE\renderer\d3d\d3d11</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\TextureStorage11.cpp">
       <Filter>src\libANGLE\renderer\d3d\d3d11</Filter>
     </ClCompile>
@@ -4291,6 +4441,18 @@
       <Filter>src\libANGLE\renderer\d3d\d3d11</Filter>
     </ClCompile>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\Trim11.h">
+      <Filter>src\libANGLE\renderer\d3d\d3d11</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\texture_format_table.cpp">
+      <Filter>src\libANGLE\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\texture_format_table.h">
+      <Filter>src\libANGLE\renderer\d3d\d3d11</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\texture_format_util.cpp">
+      <Filter>src\libANGLE\renderer\d3d\d3d11</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\texture_format_util.h">
       <Filter>src\libANGLE\renderer\d3d\d3d11</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\VertexArray11.h">
