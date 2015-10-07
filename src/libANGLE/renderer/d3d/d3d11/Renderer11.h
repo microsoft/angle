@@ -270,7 +270,6 @@ class Renderer11 : public RendererD3D
     RendererClass getRendererClass() const override { return RENDERER_D3D11; }
     InputLayoutCache *getInputLayoutCache() { return &mInputLayoutCache; }
 
-    bool usesAlternateRenderableFormat(GLenum internalFormat) override;
     void onSwap();
     void onBufferDelete(const Buffer11 *deleted);
 

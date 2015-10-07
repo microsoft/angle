@@ -79,25 +79,6 @@ namespace rx
 namespace
 {
 
-static const DXGI_FORMAT RenderTargetFormats[] =
-    {
-        DXGI_FORMAT_B8G8R8A8_UNORM,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
-        DXGI_FORMAT_B5G6R5_UNORM,
-
-        // These formats are typically not valid swapchain buffer formats.
-        // TODO: find a way to support these formats when EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER is true.
-        DXGI_FORMAT_B5G5R5A1_UNORM,
-        DXGI_FORMAT_B4G4R4A4_UNORM
-    };
-
-static const DXGI_FORMAT DepthStencilFormats[] =
-    {
-        DXGI_FORMAT_UNKNOWN,
-        DXGI_FORMAT_D24_UNORM_S8_UINT,
-        DXGI_FORMAT_D16_UNORM
-    };
-
 enum
 {
     MAX_TEXTURE_IMAGE_UNITS_VTF_SM4 = 16
@@ -4134,19 +4115,6 @@ gl::Error Renderer11::clearTextures(gl::SamplerType samplerType, size_t rangeSta
     }
 
     return gl::Error(GL_NO_ERROR);
-}
-
-bool Renderer11::usesAlternateRenderableFormat(GLenum internalFormat)
-{
-    // For some internal formats the renderer might use different underlying D3D11 formats
-    // depending on whether the app wishes to render to the texture or not.
-    // For example, if D3D supports sampling from DXGI_FORMAT_B4G4R4A4_UNORM in a shader but not
-    // rendering to it, then we might use DXGI's B4G4R4A4 format for non-renderable GL_RGBA4 textures
-    // and use DXGI's R8G8B8A8 format for renderable GL_RGBA4 textures.
-    const d3d11::TextureFormat nonRenderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps);
-    const d3d11::TextureFormat renderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps);
-
-    return (renderableInfo.texFormat != nonRenderableInfo.texFormat);
 }
 
 }

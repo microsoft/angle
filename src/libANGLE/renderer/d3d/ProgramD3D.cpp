@@ -1076,15 +1076,6 @@ LinkResult ProgramD3D::link(const gl::Data &data, gl::InfoLog &infoLog)
     std::vector<PackedVarying> packedVaryings =
         MergeVaryings(*vertexShader, *fragmentShader, mData.getTransformFeedbackVaryingNames());
 
-    if (mRenderer->getRendererLimitations().noFrontFacingSupport)
-    {
-        if (fragmentShaderD3D->usesFrontFacing())
-        {
-            infoLog << "The current renderer doesn't support gl_FrontFacing";
-            return LinkResult(false, gl::Error(GL_NO_ERROR));
-        }
-    }
-
     // Map the varyings to the register file
     int registers = mDynamicHLSL->packVaryings(infoLog, &packedVaryings,
                                                mData.getTransformFeedbackVaryingNames());

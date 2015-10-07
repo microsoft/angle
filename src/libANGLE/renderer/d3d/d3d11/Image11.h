@@ -10,10 +10,10 @@
 #ifndef LIBANGLE_RENDERER_D3D_D3D11_IMAGE11_H_
 #define LIBANGLE_RENDERER_D3D_D3D11_IMAGE11_H_
 
-#include "common/debug.h"
-#include "libANGLE/ImageIndex.h"
-#include "libANGLE/renderer/d3d/formatutilsD3D.h"
 #include "libANGLE/renderer/d3d/ImageD3D.h"
+#include "libANGLE/ImageIndex.h"
+
+#include "common/debug.h"
 
 namespace gl
 {
@@ -60,19 +60,8 @@ class Image11 : public ImageD3D
     gl::Error copyToStorageImpl(TextureStorage11 *storage11, const gl::ImageIndex &index, const gl::Box &region);
     gl::Error copy(const gl::Offset &destOffset, const gl::Box &sourceArea, ID3D11Resource *source, UINT sourceSubResource);
 
-    gl::Error copyAndConvertTexture(ID3D11Resource *input, DXGI_FORMAT inputFormat,
-                                    ID3D11Resource *output, DXGI_FORMAT outputFormat,
-                                    unsigned int subresourceIndex, size_t width, size_t height, size_t depth);
-
-    gl::Error createTemporaryRenderableFormatImage2D(DXGI_FORMAT format, ID3D11Texture2D **output);
-    gl::Error createTemporaryRenderableFormatImage3D(DXGI_FORMAT format, ID3D11Texture3D **output);
-
     gl::Error getStagingTexture(ID3D11Resource **outStagingTexture, unsigned int *outSubresourceIndex);
     gl::Error createStagingTexture();
-    gl::Error copyAndConvertViaTemporaryTexture(ID3D11Resource *stagingTexture, TextureStorage11 *storage11,
-                                                unsigned int stagingSubresourceIndex,
-                                                const gl::ImageIndex &index, const gl::Box &region,
-                                                bool intoStorage);
     void releaseStagingTexture();
 
     Renderer11 *mRenderer;
@@ -85,8 +74,6 @@ class Image11 : public ImageD3D
     TextureStorage11 *mAssociatedStorage;
     gl::ImageIndex mAssociatedImageIndex;
     unsigned int mRecoveredFromStorageCount;
-
-    bool mUsesAlternateRenderableFormat;
 };
 
 }

@@ -100,14 +100,6 @@ void LoadRGBA4ToARGB4(size_t width, size_t height, size_t depth,
                       const uint8_t *input, size_t inputRowPitch, size_t inputDepthPitch,
                       uint8_t *output, size_t outputRowPitch, size_t outputDepthPitch);
 
-void LoadARGB4ToRGBA8(size_t width, size_t height, size_t depth,
-                      const uint8_t *input, size_t inputRowPitch, size_t inputDepthPitch,
-                      uint8_t *output, size_t outputRowPitch, size_t outputDepthPitch);
-
-void LoadRGBA8toARGB4(size_t width, size_t height, size_t depth,
-                      const uint8_t *input, size_t inputRowPitch, size_t inputDepthPitch,
-                      uint8_t *output, size_t outputRowPitch, size_t outputDepthPitch);
-
 void LoadRGBA4ToBGRA8(size_t width, size_t height, size_t depth,
                       const uint8_t *input, size_t inputRowPitch, size_t inputDepthPitch,
                       uint8_t *output, size_t outputRowPitch, size_t outputDepthPitch);
