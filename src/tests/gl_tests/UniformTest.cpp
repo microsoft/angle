@@ -454,6 +454,15 @@ TEST_P(UniformTestES3, TranposedMatrixArrayUniformStateQuery)
 // Check that sampler uniforms only show up one time in the list
 TEST_P(UniformTest, SamplerUniformsAppearOnce)
 {
+    int maxVertexTextureImageUnits = 0;
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &maxVertexTextureImageUnits);
+
+    if (maxVertexTextureImageUnits == 0)
+    {
+        std::cout << "Renderer doesn't support vertex texture fetch, skipping test" << std::endl;
+        return;
+    }
+
     const std::string &vertShader =
         "attribute vec2 position;\n"
         "uniform sampler2D tex2D;\n"
