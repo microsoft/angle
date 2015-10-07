@@ -40,8 +40,9 @@
             '../include/GLES2/gl2ext.h',
             '../include/GLES2/gl2platform.h',
             '../include/GLES3/gl3.h',
-            '../include/GLES3/gl3ext.h',
             '../include/GLES3/gl3platform.h',
+            '../include/GLES3/gl31.h',
+            '../include/GLES3/gl32.h',
             '../include/GLSLANG/ShaderLang.h',
             '../include/GLSLANG/ShaderVars.h',
             '../include/KHR/khrplatform.h',
@@ -140,12 +141,12 @@
             'libANGLE/renderer/FramebufferImpl.h',
             'libANGLE/renderer/ImageImpl.h',
             'libANGLE/renderer/ImplFactory.h',
-            'libANGLE/renderer/ProgramImpl.cpp',
             'libANGLE/renderer/ProgramImpl.h',
             'libANGLE/renderer/QueryImpl.h',
             'libANGLE/renderer/RenderbufferImpl.h',
             'libANGLE/renderer/Renderer.cpp',
             'libANGLE/renderer/Renderer.h',
+            'libANGLE/renderer/SamplerImpl.h',
             'libANGLE/renderer/ShaderImpl.h',
             'libANGLE/renderer/SurfaceImpl.cpp',
             'libANGLE/renderer/SurfaceImpl.h',
@@ -178,6 +179,8 @@
             'libANGLE/renderer/d3d/DisplayD3D.h',
             'libANGLE/renderer/d3d/DynamicHLSL.cpp',
             'libANGLE/renderer/d3d/DynamicHLSL.h',
+            'libANGLE/renderer/d3d/EGLImageD3D.cpp',
+            'libANGLE/renderer/d3d/EGLImageD3D.h',
             'libANGLE/renderer/d3d/formatutilsD3D.cpp',
             'libANGLE/renderer/d3d/formatutilsD3D.h',
             'libANGLE/renderer/d3d/FramebufferD3D.cpp',
@@ -205,6 +208,7 @@
             'libANGLE/renderer/d3d/RendererD3D.h',
             'libANGLE/renderer/d3d/RenderTargetD3D.h',
             'libANGLE/renderer/d3d/RenderTargetD3D.cpp',
+            'libANGLE/renderer/d3d/SamplerD3D.h',
             'libANGLE/renderer/d3d/ShaderD3D.cpp',
             'libANGLE/renderer/d3d/ShaderD3D.h',
             'libANGLE/renderer/d3d/ShaderExecutableD3D.cpp',
@@ -363,10 +367,16 @@
             'libANGLE/renderer/d3d/d3d11/shaders/compiled/swizzleui3dps.h',
             'libANGLE/renderer/d3d/d3d11/SwapChain11.cpp',
             'libANGLE/renderer/d3d/d3d11/SwapChain11.h',
+            'libANGLE/renderer/d3d/d3d11/swizzle_format_info.h',
+            'libANGLE/renderer/d3d/d3d11/swizzle_format_info.cpp',
             'libANGLE/renderer/d3d/d3d11/TextureStorage11.cpp',
             'libANGLE/renderer/d3d/d3d11/TextureStorage11.h',
             'libANGLE/renderer/d3d/d3d11/Trim11.cpp',
             'libANGLE/renderer/d3d/d3d11/Trim11.h',
+            'libANGLE/renderer/d3d/d3d11/texture_format_table.cpp',
+            'libANGLE/renderer/d3d/d3d11/texture_format_table.h',
+            'libANGLE/renderer/d3d/d3d11/texture_format_util.cpp',
+            'libANGLE/renderer/d3d/d3d11/texture_format_util.h',
             'libANGLE/renderer/d3d/d3d11/VertexArray11.h',
             'libANGLE/renderer/d3d/d3d11/VertexBuffer11.cpp',
             'libANGLE/renderer/d3d/d3d11/VertexBuffer11.h',
@@ -412,6 +422,8 @@
             'libANGLE/renderer/gl/RenderbufferGL.h',
             'libANGLE/renderer/gl/RendererGL.cpp',
             'libANGLE/renderer/gl/RendererGL.h',
+            'libANGLE/renderer/gl/SamplerGL.cpp',
+            'libANGLE/renderer/gl/SamplerGL.h',
             'libANGLE/renderer/gl/ShaderGL.cpp',
             'libANGLE/renderer/gl/ShaderGL.h',
             'libANGLE/renderer/gl/StateManagerGL.cpp',
@@ -464,6 +476,8 @@
         [
             'libANGLE/renderer/gl/cgl/DisplayCGL.mm',
             'libANGLE/renderer/gl/cgl/DisplayCGL.h',
+            'libANGLE/renderer/gl/cgl/PbufferSurfaceCGL.mm',
+            'libANGLE/renderer/gl/cgl/PbufferSurfaceCGL.h',
             'libANGLE/renderer/gl/cgl/WindowSurfaceCGL.mm',
             'libANGLE/renderer/gl/cgl/WindowSurfaceCGL.h',
         ],
@@ -481,8 +495,6 @@
             'libGLESv2/entry_points_gles_2_0_ext.h',
             'libGLESv2/entry_points_gles_3_0.cpp',
             'libGLESv2/entry_points_gles_3_0.h',
-            'libGLESv2/entry_points_gles_3_0_ext.cpp',
-            'libGLESv2/entry_points_gles_3_0_ext.h',
             'libGLESv2/global_state.cpp',
             'libGLESv2/global_state.h',
             'libGLESv2/libGLESv2.cpp',
@@ -536,7 +548,7 @@
                 ],
                 'defines':
                 [
-                    'GL_GLEXT_PROTOTYPES=',
+                    'GL_GLEXT_PROTOTYPES',
                     'ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ "d3dcompiler_47.dll", "d3dcompiler_46.dll", "d3dcompiler_43.dll" }',
                 ],
                 'conditions':
@@ -740,6 +752,22 @@
                             [
                                 '<@(libangle_gl_cgl_sources)',
                             ],
+                            'link_settings':
+                            {
+                                'libraries':
+                                [
+                                    '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
+                                    '$(SDKROOT)/System/Library/Frameworks/IOSurface.framework',
+                                    '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
+                                    '$(SDKROOT)/System/Library/Frameworks/QuartzCore.framework',
+                                ],
+                            },
+                            'all_dependent_settings':
+                            {
+                                'xcode_settings': {
+                                    'LD_RUNPATH_SEARCH_PATHS': ['@executable_path/.'],
+                                },
+                            }
                         }],
                     ],
                 }],
@@ -795,15 +823,10 @@
                         }
                     },
                 }],
-                ['OS == "mac"',
+                ['angle_build_winphone==1',
                 {
-                    'all_dependent_settings':
-                    {
-                        'xcode_settings': {
-                            'LD_RUNPATH_SEARCH_PATHS': ['@executable_path/.'],
-                        },
-                    }
-                }]
+                    'msvs_enable_winphone' : '1',
+                }],
             ],
         },
     ],

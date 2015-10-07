@@ -9,10 +9,11 @@
 #include "libANGLE/renderer/d3d/d3d11/SwapChain11.h"
 
 #include "libANGLE/features.h"
+#include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
 #include "libANGLE/renderer/d3d/d3d11/NativeWindow.h"
 #include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
-#include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
 #include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
+#include "libANGLE/renderer/d3d/d3d11/texture_format_table.h"
 #include "third_party/trace_event/trace_event.h"
 
 // Precompiled shaders
@@ -141,7 +142,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
     releaseOffscreenTexture();
 
     HRESULT result = S_OK;
-    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mOffscreenRenderTargetFormat, mRenderer->getRenderer11DeviceCaps(), true);
+    const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mOffscreenRenderTargetFormat, mRenderer->getRenderer11DeviceCaps());
 
     if (!mRenderToBackBuffer)
     {
@@ -267,7 +268,7 @@ EGLint SwapChain11::resetOffscreenTexture(int backbufferWidth, int backbufferHei
         d3d11::SetDebugName(mOffscreenSRView, "Offscreen back buffer shader resource");
     }
 
-    const d3d11::TextureFormat &depthBufferFormatInfo = d3d11::GetTextureFormatInfo(mDepthBufferFormat, mRenderer->getRenderer11DeviceCaps(), true);
+    const d3d11::TextureFormat &depthBufferFormatInfo = d3d11::GetTextureFormatInfo(mDepthBufferFormat, mRenderer->getRenderer11DeviceCaps());
 
     if (mDepthBufferFormat != GL_NONE)
     {
@@ -756,7 +757,7 @@ ID3D11ShaderResourceView *SwapChain11::getRenderTargetShaderResource()
             ID3D11Device *device = mRenderer->getDevice();
 
             HRESULT result;
-            const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mOffscreenRenderTargetFormat, mRenderer->getRenderer11DeviceCaps(), true);
+            const d3d11::TextureFormat &backbufferFormatInfo = d3d11::GetTextureFormatInfo(mOffscreenRenderTargetFormat, mRenderer->getRenderer11DeviceCaps());
 
             D3D11_TEXTURE2D_DESC offscreenTextureDesc = { 0 };
             offscreenTextureDesc.Width = mWidth;

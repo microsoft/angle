@@ -21,7 +21,6 @@
 #include "libANGLE/angletypes.h"
 #include "libANGLE/features.h"
 #include "libANGLE/formatutils.h"
-#include "libANGLE/renderer/d3d/CompilerD3D.h"
 #include "libANGLE/renderer/d3d/FramebufferD3D.h"
 #include "libANGLE/renderer/d3d/IndexDataManager.h"
 #include "libANGLE/renderer/d3d/ProgramD3D.h"
@@ -523,6 +522,11 @@ void Renderer9::generateDisplayExtensions(egl::DisplayExtensions *outExtensions)
     outExtensions->postSubBuffer       = true;
     outExtensions->createContext       = true;
     outExtensions->deviceQuery         = true;
+
+    outExtensions->image               = true;
+    outExtensions->imageBase           = true;
+    outExtensions->glTexture2DImage    = true;
+    outExtensions->glRenderbufferImage = true;
 }
 
 void Renderer9::startScene()
@@ -789,7 +793,7 @@ gl::Error Renderer9::setSamplerState(gl::SamplerType type, int index, gl::Textur
     // Storage should exist, texture should be complete
     ASSERT(storage);
 
-    DWORD baseLevel = samplerState.baseLevel + storage->getTopLevel();
+    DWORD baseLevel = texture->getBaseLevel() + storage->getTopLevel();
 
     if (appliedSampler.forceSet || appliedSampler.baseLevel != baseLevel ||
         memcmp(&samplerState, &appliedSampler, sizeof(gl::SamplerState)) != 0)
@@ -1544,10 +1548,12 @@ gl::Error Renderer9::drawElementsImpl(GLenum mode,
     }
     else
     {
+        size_t vertexCount = indexInfo.indexRange.vertexCount();
         for (int i = 0; i < mRepeatDraw; i++)
         {
-            GLsizei vertexCount = static_cast<int>(indexInfo.indexRange.length()) + 1;
-            mDevice->DrawIndexedPrimitive(mPrimitiveType, -minIndex, minIndex, vertexCount, indexInfo.startIndex, mPrimitiveCount);
+            mDevice->DrawIndexedPrimitive(mPrimitiveType, -minIndex, minIndex,
+                                          static_cast<UINT>(vertexCount), indexInfo.startIndex,
+                                          mPrimitiveCount);
         }
         return gl::Error(GL_NO_ERROR);
     }
@@ -1910,46 +1916,45 @@ gl::Error Renderer9::applyShaders(gl::Program *program,
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Renderer9::applyUniforms(const ProgramImpl &program, const std::vector<gl::LinkedUniform*> &uniformArray)
+gl::Error Renderer9::applyUniforms(const ProgramD3D &programD3D,
+                                   const std::vector<D3DUniform *> &uniformArray)
 {
-    for (size_t uniformIndex = 0; uniformIndex < uniformArray.size(); uniformIndex++)
+    for (const D3DUniform *targetUniform : uniformArray)
     {
-        gl::LinkedUniform *targetUniform = uniformArray[uniformIndex];
+        if (!targetUniform->dirty)
+            continue;
 
-        if (targetUniform->dirty)
+        GLfloat *f = (GLfloat *)targetUniform->data;
+        GLint *i   = (GLint *)targetUniform->data;
+
+        switch (targetUniform->type)
         {
-            GLfloat *f = (GLfloat*)targetUniform->data;
-            GLint *i = (GLint*)targetUniform->data;
-
-            switch (targetUniform->type)
-            {
-              case GL_SAMPLER_2D:
-              case GL_SAMPLER_CUBE:
+            case GL_SAMPLER_2D:
+            case GL_SAMPLER_CUBE:
                 break;
-              case GL_BOOL:
-              case GL_BOOL_VEC2:
-              case GL_BOOL_VEC3:
-              case GL_BOOL_VEC4:
+            case GL_BOOL:
+            case GL_BOOL_VEC2:
+            case GL_BOOL_VEC3:
+            case GL_BOOL_VEC4:
                 applyUniformnbv(targetUniform, i);
                 break;
-              case GL_FLOAT:
-              case GL_FLOAT_VEC2:
-              case GL_FLOAT_VEC3:
-              case GL_FLOAT_VEC4:
-              case GL_FLOAT_MAT2:
-              case GL_FLOAT_MAT3:
-              case GL_FLOAT_MAT4:
+            case GL_FLOAT:
+            case GL_FLOAT_VEC2:
+            case GL_FLOAT_VEC3:
+            case GL_FLOAT_VEC4:
+            case GL_FLOAT_MAT2:
+            case GL_FLOAT_MAT3:
+            case GL_FLOAT_MAT4:
                 applyUniformnfv(targetUniform, f);
                 break;
-              case GL_INT:
-              case GL_INT_VEC2:
-              case GL_INT_VEC3:
-              case GL_INT_VEC4:
+            case GL_INT:
+            case GL_INT_VEC2:
+            case GL_INT_VEC3:
+            case GL_INT_VEC4:
                 applyUniformniv(targetUniform, i);
                 break;
-              default:
+            default:
                 UNREACHABLE();
-            }
         }
     }
 
@@ -1964,7 +1969,7 @@ gl::Error Renderer9::applyUniforms(const ProgramImpl &program, const std::vector
     return gl::Error(GL_NO_ERROR);
 }
 
-void Renderer9::applyUniformnfv(gl::LinkedUniform *targetUniform, const GLfloat *v)
+void Renderer9::applyUniformnfv(const D3DUniform *targetUniform, const GLfloat *v)
 {
     if (targetUniform->isReferencedByFragmentShader())
     {
@@ -1977,7 +1982,7 @@ void Renderer9::applyUniformnfv(gl::LinkedUniform *targetUniform, const GLfloat 
     }
 }
 
-void Renderer9::applyUniformniv(gl::LinkedUniform *targetUniform, const GLint *v)
+void Renderer9::applyUniformniv(const D3DUniform *targetUniform, const GLint *v)
 {
     ASSERT(targetUniform->registerCount <= MAX_VERTEX_CONSTANT_VECTORS_D3D9);
     GLfloat vector[MAX_VERTEX_CONSTANT_VECTORS_D3D9][4];
@@ -1993,7 +1998,7 @@ void Renderer9::applyUniformniv(gl::LinkedUniform *targetUniform, const GLint *v
     applyUniformnfv(targetUniform, (GLfloat*)vector);
 }
 
-void Renderer9::applyUniformnbv(gl::LinkedUniform *targetUniform, const GLint *v)
+void Renderer9::applyUniformnbv(const D3DUniform *targetUniform, const GLint *v)
 {
     ASSERT(targetUniform->registerCount <= MAX_VERTEX_CONSTANT_VECTORS_D3D9);
     GLfloat vector[MAX_VERTEX_CONSTANT_VECTORS_D3D9][4];
@@ -2509,12 +2514,12 @@ DeviceIdentifier Renderer9::getAdapterIdentifier() const
 
 unsigned int Renderer9::getReservedVertexUniformVectors() const
 {
-    return 2;   // dx_ViewAdjust and dx_DepthRange.
+    return d3d9_gl::GetReservedVertexUniformVectors();
 }
 
 unsigned int Renderer9::getReservedFragmentUniformVectors() const
 {
-    return 3;   // dx_ViewCoords, dx_DepthFront and dx_DepthRange.
+    return d3d9_gl::GetReservedFragmentUniformVectors();
 }
 
 unsigned int Renderer9::getReservedVertexUniformBuffers() const
@@ -2676,19 +2681,41 @@ gl::Error Renderer9::createRenderTarget(int width, int height, GLenum format, GL
     return gl::Error(GL_NO_ERROR);
 }
 
+gl::Error Renderer9::createRenderTargetCopy(RenderTargetD3D *source, RenderTargetD3D **outRT)
+{
+    ASSERT(source != nullptr);
+
+    RenderTargetD3D *newRT = nullptr;
+    gl::Error error = createRenderTarget(source->getWidth(), source->getHeight(),
+                                         source->getInternalFormat(), source->getSamples(), &newRT);
+    if (error.isError())
+    {
+        return error;
+    }
+
+    RenderTarget9 *source9 = GetAs<RenderTarget9>(source);
+    RenderTarget9 *dest9   = GetAs<RenderTarget9>(newRT);
+
+    HRESULT result = mDevice->StretchRect(source9->getSurface(), nullptr, dest9->getSurface(),
+                                          nullptr, D3DTEXF_NONE);
+    if (FAILED(result))
+    {
+        ASSERT(result == D3DERR_OUTOFVIDEOMEMORY || result == E_OUTOFMEMORY);
+        return gl::Error(GL_OUT_OF_MEMORY, "Failed to copy render target, result: 0x%X.", result);
+    }
+
+    *outRT = newRT;
+    return gl::Error(GL_NO_ERROR);
+}
+
 FramebufferImpl *Renderer9::createFramebuffer(const gl::Framebuffer::Data &data)
 {
     return new Framebuffer9(data, this);
 }
 
-CompilerImpl *Renderer9::createCompiler(const gl::Data &data)
+ShaderImpl *Renderer9::createShader(const gl::Shader::Data &data)
 {
-    return new CompilerD3D(data, SH_HLSL9_OUTPUT);
-}
-
-ShaderImpl *Renderer9::createShader(GLenum type)
-{
-    return new ShaderD3D(type, this);
+    return new ShaderD3D(data);
 }
 
 ProgramImpl *Renderer9::createProgram(const gl::Program::Data &data)
@@ -2895,7 +2922,8 @@ gl::Error Renderer9::generateMipmap(ImageD3D *dest, ImageD3D *src)
     return Image9::generateMipmap(dst9, src9);
 }
 
-gl::Error Renderer9::generateMipmapsUsingD3D(TextureStorage *storage, const gl::SamplerState &samplerState)
+gl::Error Renderer9::generateMipmapsUsingD3D(TextureStorage *storage,
+                                             const gl::TextureState &textureState)
 {
     UNREACHABLE();
     return gl::Error(GL_NO_ERROR);
@@ -2905,6 +2933,11 @@ TextureStorage *Renderer9::createTextureStorage2D(SwapChainD3D *swapChain)
 {
     SwapChain9 *swapChain9 = GetAs<SwapChain9>(swapChain);
     return new TextureStorage9_2D(this, swapChain9);
+}
+
+TextureStorage *Renderer9::createTextureStorageEGLImage(EGLImageD3D *eglImage)
+{
+    return new TextureStorage9_EGLImage(this, eglImage);
 }
 
 TextureStorage *Renderer9::createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly)

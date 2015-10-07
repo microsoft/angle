@@ -18,14 +18,20 @@
 #include "libANGLE/renderer/gl/RenderbufferGL.h"
 #include "libANGLE/renderer/gl/StateManagerGL.h"
 #include "libANGLE/renderer/gl/TextureGL.h"
+#include "libANGLE/renderer/gl/WorkaroundsGL.h"
 
 namespace rx
 {
 
-FramebufferGL::FramebufferGL(const gl::Framebuffer::Data &data, const FunctionsGL *functions, StateManagerGL *stateManager, bool isDefault)
+FramebufferGL::FramebufferGL(const gl::Framebuffer::Data &data,
+                             const FunctionsGL *functions,
+                             StateManagerGL *stateManager,
+                             const WorkaroundsGL &workarounds,
+                             bool isDefault)
     : FramebufferImpl(data),
       mFunctions(functions),
       mStateManager(stateManager),
+      mWorkarounds(workarounds),
       mFramebufferID(0),
       mIsDefault(isDefault)
 {
@@ -33,6 +39,20 @@ FramebufferGL::FramebufferGL(const gl::Framebuffer::Data &data, const FunctionsG
     {
         mFunctions->genFramebuffers(1, &mFramebufferID);
     }
+}
+
+FramebufferGL::FramebufferGL(GLuint id,
+                             const gl::Framebuffer::Data &data,
+                             const FunctionsGL *functions,
+                             const WorkaroundsGL &workarounds,
+                             StateManagerGL *stateManager)
+    : FramebufferImpl(data),
+      mFunctions(functions),
+      mStateManager(stateManager),
+      mWorkarounds(workarounds),
+      mFramebufferID(id),
+      mIsDefault(true)
+{
 }
 
 FramebufferGL::~FramebufferGL()
@@ -185,6 +205,7 @@ gl::Error FramebufferGL::invalidateSub(size_t count, const GLenum *attachments, 
 
 gl::Error FramebufferGL::clear(const gl::Data &data, GLbitfield mask)
 {
+    syncClearState(mask);
     mStateManager->bindFramebuffer(GL_FRAMEBUFFER, mFramebufferID);
     mFunctions->clear(mask);
 
@@ -193,6 +214,7 @@ gl::Error FramebufferGL::clear(const gl::Data &data, GLbitfield mask)
 
 gl::Error FramebufferGL::clearBufferfv(const gl::State &state, GLenum buffer, GLint drawbuffer, const GLfloat *values)
 {
+    syncClearBufferState(buffer, drawbuffer);
     mStateManager->bindFramebuffer(GL_FRAMEBUFFER, mFramebufferID);
     mFunctions->clearBufferfv(buffer, drawbuffer, values);
 
@@ -201,6 +223,7 @@ gl::Error FramebufferGL::clearBufferfv(const gl::State &state, GLenum buffer, GL
 
 gl::Error FramebufferGL::clearBufferuiv(const gl::State &state, GLenum buffer, GLint drawbuffer, const GLuint *values)
 {
+    syncClearBufferState(buffer, drawbuffer);
     mStateManager->bindFramebuffer(GL_FRAMEBUFFER, mFramebufferID);
     mFunctions->clearBufferuiv(buffer, drawbuffer, values);
 
@@ -209,6 +232,7 @@ gl::Error FramebufferGL::clearBufferuiv(const gl::State &state, GLenum buffer, G
 
 gl::Error FramebufferGL::clearBufferiv(const gl::State &state, GLenum buffer, GLint drawbuffer, const GLint *values)
 {
+    syncClearBufferState(buffer, drawbuffer);
     mStateManager->bindFramebuffer(GL_FRAMEBUFFER, mFramebufferID);
     mFunctions->clearBufferiv(buffer, drawbuffer, values);
 
@@ -217,6 +241,7 @@ gl::Error FramebufferGL::clearBufferiv(const gl::State &state, GLenum buffer, GL
 
 gl::Error FramebufferGL::clearBufferfi(const gl::State &state, GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)
 {
+    syncClearBufferState(buffer, drawbuffer);
     mStateManager->bindFramebuffer(GL_FRAMEBUFFER, mFramebufferID);
     mFunctions->clearBufferfi(buffer, drawbuffer, depth, stencil);
 
@@ -241,11 +266,10 @@ GLenum FramebufferGL::getImplementationColorReadType() const
 
 gl::Error FramebufferGL::readPixels(const gl::State &state, const gl::Rectangle &area, GLenum format, GLenum type, GLvoid *pixels) const
 {
+    // TODO: don't sync the pixel pack state here once the dirty bits contain the pixel pack buffer
+    // binding
     const gl::PixelPackState &packState = state.getPackState();
-    if (packState.pixelBuffer.get() != nullptr)
-    {
-        UNIMPLEMENTED();
-    }
+    mStateManager->setPixelPackState(packState);
 
     mStateManager->bindFramebuffer(GL_READ_FRAMEBUFFER, mFramebufferID);
     mFunctions->readPixels(area.x, area.y, area.width, area.height, format, type, pixels);
@@ -279,4 +303,72 @@ GLuint FramebufferGL::getFramebufferID() const
     return mFramebufferID;
 }
 
+void FramebufferGL::syncDrawState() const
+{
+    if (mFunctions->standard == STANDARD_GL_DESKTOP)
+    {
+        // Enable SRGB blending for all framebuffers except the default framebuffer on Desktop
+        // OpenGL.
+        // When SRGB blending is enabled, only SRGB capable formats will use it but the default
+        // framebuffer will always use it if it is enabled.
+        // TODO(geofflang): Update this when the framebuffer binding dirty changes, when it exists.
+        mStateManager->setFramebufferSRGBEnabled(!mIsDefault);
+    }
+}
+
+void FramebufferGL::syncClearState(GLbitfield mask)
+{
+    if (mWorkarounds.doesSRGBClearsOnLinearFramebufferAttachments &&
+        (mask & GL_COLOR_BUFFER_BIT) != 0 && !mIsDefault)
+    {
+        bool hasSRBAttachment = false;
+        for (const auto &attachment : mData.getColorAttachments())
+        {
+            if (attachment.isAttached() && attachment.getColorEncoding() == GL_SRGB)
+            {
+                hasSRBAttachment = true;
+                break;
+            }
+        }
+
+        mStateManager->setFramebufferSRGBEnabled(hasSRBAttachment);
+    }
+    else
+    {
+        mStateManager->setFramebufferSRGBEnabled(!mIsDefault);
+    }
+}
+
+void FramebufferGL::syncClearBufferState(GLenum buffer, GLint drawBuffer)
+{
+    if (mFunctions->standard == STANDARD_GL_DESKTOP)
+    {
+        if (mWorkarounds.doesSRGBClearsOnLinearFramebufferAttachments && buffer == GL_COLOR &&
+            !mIsDefault)
+        {
+            // If doing a clear on a color buffer, set SRGB blend enabled only if the color buffer
+            // is an SRGB format.
+            const auto &drawbufferState  = mData.getDrawBufferStates();
+            const auto &colorAttachments = mData.getColorAttachments();
+
+            const gl::FramebufferAttachment *attachment = nullptr;
+            if (drawbufferState[drawBuffer] >= GL_COLOR_ATTACHMENT0 &&
+                drawbufferState[drawBuffer] < GL_COLOR_ATTACHMENT0 + colorAttachments.size())
+            {
+                size_t attachmentIdx =
+                    static_cast<size_t>(drawbufferState[drawBuffer] - GL_COLOR_ATTACHMENT0);
+                attachment = &colorAttachments[attachmentIdx];
+            }
+
+            if (attachment != nullptr)
+            {
+                mStateManager->setFramebufferSRGBEnabled(attachment->getColorEncoding() == GL_SRGB);
+            }
+        }
+        else
+        {
+            mStateManager->setFramebufferSRGBEnabled(!mIsDefault);
+        }
+    }
+}
 }

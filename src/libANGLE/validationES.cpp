@@ -265,6 +265,23 @@ bool ValidImageSize(const Context *context, GLenum target, GLint level,
     return true;
 }
 
+bool CompressedTextureFormatRequiresExactSize(GLenum internalFormat)
+{
+    // List of compressed format that require that the texture size is smaller than or a multiple of
+    // the compressed block size.
+    switch (internalFormat)
+    {
+        case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
+        case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+        case GL_COMPRESSED_RGBA_S3TC_DXT3_ANGLE:
+        case GL_COMPRESSED_RGBA_S3TC_DXT5_ANGLE:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 bool ValidCompressedImageSize(const Context *context, GLenum internalFormat, GLsizei width, GLsizei height)
 {
     const gl::InternalFormat &formatInfo = gl::GetInternalFormatInfo(internalFormat);
@@ -273,10 +290,20 @@ bool ValidCompressedImageSize(const Context *context, GLenum internalFormat, GLs
         return false;
     }
 
-    if (width  < 0 || (static_cast<GLuint>(width)  > formatInfo.compressedBlockWidth  && width  % formatInfo.compressedBlockWidth != 0) ||
-        height < 0 || (static_cast<GLuint>(height) > formatInfo.compressedBlockHeight && height % formatInfo.compressedBlockHeight != 0))
+    if (width < 0 || height < 0)
     {
         return false;
+    }
+
+    if (CompressedTextureFormatRequiresExactSize(internalFormat))
+    {
+        if ((static_cast<GLuint>(width) > formatInfo.compressedBlockWidth &&
+             width % formatInfo.compressedBlockWidth != 0) ||
+            (static_cast<GLuint>(height) > formatInfo.compressedBlockHeight &&
+             height % formatInfo.compressedBlockHeight != 0))
+        {
+            return false;
+        }
     }
 
     return true;
@@ -299,28 +326,50 @@ bool ValidQueryType(const Context *context, GLenum queryType)
     }
 }
 
-bool ValidProgram(Context *context, GLuint id)
+Program *GetValidProgram(Context *context, GLuint id)
 {
     // ES3 spec (section 2.11.1) -- "Commands that accept shader or program object names will generate the
     // error INVALID_VALUE if the provided name is not the name of either a shader or program object and
     // INVALID_OPERATION if the provided name identifies an object that is not the expected type."
 
-    if (context->getProgram(id) != NULL)
+    Program *validProgram = context->getProgram(id);
+
+    if (!validProgram)
     {
-        return true;
+        if (context->getShader(id))
+        {
+            context->recordError(
+                Error(GL_INVALID_OPERATION, "Expected a program name, but found a shader name"));
+        }
+        else
+        {
+            context->recordError(Error(GL_INVALID_VALUE, "Program name is not valid"));
+        }
     }
-    else if (context->getShader(id) != NULL)
+
+    return validProgram;
+}
+
+Shader *GetValidShader(Context *context, GLuint id)
+{
+    // See ValidProgram for spec details.
+
+    Shader *validShader = context->getShader(id);
+
+    if (!validShader)
     {
-        // ID is the wrong type
-        context->recordError(Error(GL_INVALID_OPERATION));
-        return false;
+        if (context->getProgram(id))
+        {
+            context->recordError(
+                Error(GL_INVALID_OPERATION, "Expected a shader name, but found a program name"));
+        }
+        else
+        {
+            context->recordError(Error(GL_INVALID_VALUE, "Shader name is invalid"));
+        }
     }
-    else
-    {
-        // No shader/program object has this ID
-        context->recordError(Error(GL_INVALID_VALUE));
-        return false;
-    }
+
+    return validShader;
 }
 
 bool ValidateAttachmentTarget(gl::Context *context, GLenum attachment)
@@ -1096,8 +1145,11 @@ bool ValidateEndQuery(gl::Context *context, GLenum target)
     return true;
 }
 
-static bool ValidateUniformCommonBase(gl::Context *context, GLenum targetUniformType,
-                                      GLint location, GLsizei count, LinkedUniform **uniformOut)
+static bool ValidateUniformCommonBase(gl::Context *context,
+                                      GLenum targetUniformType,
+                                      GLint location,
+                                      GLsizei count,
+                                      const LinkedUniform **uniformOut)
 {
     if (count < 0)
     {
@@ -1124,16 +1176,16 @@ static bool ValidateUniformCommonBase(gl::Context *context, GLenum targetUniform
         return false;
     }
 
-    LinkedUniform *uniform = program->getUniformByLocation(location);
+    const LinkedUniform &uniform = program->getUniformByLocation(location);
 
     // attempting to write an array to a non-array uniform is an INVALID_OPERATION
-    if (!uniform->isArray() && count > 1)
+    if (!uniform.isArray() && count > 1)
     {
         context->recordError(Error(GL_INVALID_OPERATION));
         return false;
     }
 
-    *uniformOut = uniform;
+    *uniformOut = &uniform;
     return true;
 }
 
@@ -1146,7 +1198,7 @@ bool ValidateUniform(gl::Context *context, GLenum uniformType, GLint location, G
         return false;
     }
 
-    LinkedUniform *uniform = NULL;
+    const LinkedUniform *uniform = nullptr;
     if (!ValidateUniformCommonBase(context, uniformType, location, count, &uniform))
     {
         return false;
@@ -1181,7 +1233,7 @@ bool ValidateUniformMatrix(gl::Context *context, GLenum matrixType, GLint locati
         return false;
     }
 
-    LinkedUniform *uniform = NULL;
+    const LinkedUniform *uniform = nullptr;
     if (!ValidateUniformCommonBase(context, matrixType, location, count, &uniform))
     {
         return false;
@@ -1349,7 +1401,7 @@ bool ValidateCopyTexImageParametersBase(gl::Context *context, GLenum target, GLi
         return false;
     }
 
-    if (texture->isImmutable() && !isSubImage)
+    if (texture->getImmutableFormat() && !isSubImage)
     {
         context->recordError(Error(GL_INVALID_OPERATION));
         return false;
@@ -1477,26 +1529,26 @@ static bool ValidateDrawBase(Context *context, GLenum mode, GLsizei count, GLsiz
     // Uniform buffer validation
     for (unsigned int uniformBlockIndex = 0; uniformBlockIndex < program->getActiveUniformBlockCount(); uniformBlockIndex++)
     {
-        const gl::UniformBlock *uniformBlock = program->getUniformBlockByIndex(uniformBlockIndex);
+        const gl::UniformBlock &uniformBlock = program->getUniformBlockByIndex(uniformBlockIndex);
         GLuint blockBinding = program->getUniformBlockBinding(uniformBlockIndex);
-        const gl::Buffer *uniformBuffer = state.getIndexedUniformBuffer(blockBinding);
+        const OffsetBindingPointer<Buffer> &uniformBuffer =
+            state.getIndexedUniformBuffer(blockBinding);
 
-        if (!uniformBuffer)
+        if (uniformBuffer.get() == nullptr)
         {
             // undefined behaviour
             context->recordError(Error(GL_INVALID_OPERATION, "It is undefined behaviour to have a used but unbound uniform buffer."));
             return false;
         }
 
-        size_t uniformBufferSize = state.getIndexedUniformBufferSize(blockBinding);
-
+        size_t uniformBufferSize = uniformBuffer.getSize();
         if (uniformBufferSize == 0)
         {
             // Bind the whole buffer.
             uniformBufferSize = static_cast<size_t>(uniformBuffer->getSize());
         }
 
-        if (uniformBufferSize < uniformBlock->dataSize)
+        if (uniformBufferSize < uniformBlock.dataSize)
         {
             // undefined behaviour
             context->recordError(Error(GL_INVALID_OPERATION, "It is undefined behaviour to use a uniform buffer that is too small."));
@@ -1590,8 +1642,13 @@ bool ValidateDrawArraysInstancedANGLE(Context *context, GLenum mode, GLint first
     return ValidateDrawArraysInstanced(context, mode, first, count, primcount);
 }
 
-bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum type,
-                          const GLvoid *indices, GLsizei primcount, RangeUI *indexRangeOut)
+bool ValidateDrawElements(Context *context,
+                          GLenum mode,
+                          GLsizei count,
+                          GLenum type,
+                          const GLvoid *indices,
+                          GLsizei primcount,
+                          IndexRange *indexRangeOut)
 {
     switch (type)
     {
@@ -1676,7 +1733,9 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
     if (elementArrayBuffer)
     {
         uintptr_t offset = reinterpret_cast<uintptr_t>(indices);
-        Error error = elementArrayBuffer->getIndexRange(type, static_cast<size_t>(offset), count, indexRangeOut);
+        Error error =
+            elementArrayBuffer->getIndexRange(type, static_cast<size_t>(offset), count,
+                                              state.isPrimitiveRestartEnabled(), indexRangeOut);
         if (error.isError())
         {
             context->recordError(error);
@@ -1685,7 +1744,7 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
     }
     else
     {
-        *indexRangeOut = ComputeIndexRange(type, indices, count);
+        *indexRangeOut = ComputeIndexRange(type, indices, count, state.isPrimitiveRestartEnabled());
     }
 
     if (!ValidateDrawAttribs(context, primcount, static_cast<GLsizei>(indexRangeOut->end)))
@@ -1693,13 +1752,17 @@ bool ValidateDrawElements(Context *context, GLenum mode, GLsizei count, GLenum t
         return false;
     }
 
-    return true;
+    // No op if there are no real indices in the index data (all are primitive restart).
+    return (indexRangeOut->vertexIndexCount > 0);
 }
 
 bool ValidateDrawElementsInstanced(Context *context,
-                                   GLenum mode, GLsizei count, GLenum type,
-                                   const GLvoid *indices, GLsizei primcount,
-                                   RangeUI *indexRangeOut)
+                                   GLenum mode,
+                                   GLsizei count,
+                                   GLenum type,
+                                   const GLvoid *indices,
+                                   GLsizei primcount,
+                                   IndexRange *indexRangeOut)
 {
     if (primcount < 0)
     {
@@ -1716,8 +1779,13 @@ bool ValidateDrawElementsInstanced(Context *context,
     return (primcount > 0);
 }
 
-bool ValidateDrawElementsInstancedANGLE(Context *context, GLenum mode, GLsizei count, GLenum type,
-                                        const GLvoid *indices, GLsizei primcount, RangeUI *indexRangeOut)
+bool ValidateDrawElementsInstancedANGLE(Context *context,
+                                        GLenum mode,
+                                        GLsizei count,
+                                        GLenum type,
+                                        const GLvoid *indices,
+                                        GLsizei primcount,
+                                        IndexRange *indexRangeOut)
 {
     if (!ValidateDrawInstancedANGLE(context))
     {
@@ -1853,12 +1921,11 @@ bool ValidateGetUniformBase(Context *context, GLuint program, GLint location)
         return false;
     }
 
-    if (!ValidProgram(context, program))
+    gl::Program *programObject = GetValidProgram(context, program);
+    if (!programObject)
     {
         return false;
     }
-
-    gl::Program *programObject = context->getProgram(program);
 
     if (!programObject || !programObject->isLinked())
     {
@@ -1896,8 +1963,8 @@ static bool ValidateSizedGetUniform(Context *context, GLuint program, GLint loca
     ASSERT(programObject);
 
     // sized queries -- ensure the provided buffer is large enough
-    LinkedUniform *uniform = programObject->getUniformByLocation(location);
-    size_t requiredBytes = VariableExternalSize(uniform->type);
+    const LinkedUniform &uniform = programObject->getUniformByLocation(location);
+    size_t requiredBytes = VariableExternalSize(uniform.type);
     if (static_cast<size_t>(bufSize) < requiredBytes)
     {
         context->recordError(Error(GL_INVALID_OPERATION));

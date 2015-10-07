@@ -8,12 +8,13 @@
 //
 
 #include "libANGLE/angletypes.h"
-#include "libANGLE/formatutils.h"
 #include "libANGLE/Context.h"
+#include "libANGLE/formatutils.h"
 #include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
 #include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
-#include "test_utils/ANGLETest.h"
+#include "libANGLE/renderer/d3d/d3d11/texture_format_table.h"
 #include "test_utils/angle_test_instantiate.h"
+#include "test_utils/ANGLETest.h"
 
 using namespace angle;
 
@@ -45,7 +46,7 @@ TEST_P(D3D11FormatTablesTest, TestFormatSupport)
     for (GLenum internalFormat : allFormats)
     {
         const rx::d3d11::TextureFormat &formatInfo =
-            rx::d3d11::GetTextureFormatInfo(internalFormat, renderer->getRenderer11DeviceCaps(), true);
+            rx::d3d11::GetTextureFormatInfo(internalFormat, renderer->getRenderer11DeviceCaps());
         const auto &textureInfo = textureCaps.get(internalFormat);
 
         // Bits for texturing

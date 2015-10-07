@@ -24,27 +24,72 @@
 
 namespace rx
 {
+class ImplFactory;
 class ShaderImpl;
+class ShaderSh;
 }
 
 namespace gl
 {
 class Compiler;
+struct Limitations;
 class ResourceManager;
 struct Data;
 
 class Shader : angle::NonCopyable
 {
   public:
-    Shader(ResourceManager *manager, rx::ShaderImpl *impl, GLenum type, GLuint handle);
+    class Data final : angle::NonCopyable
+    {
+      public:
+        Data(GLenum shaderType);
+        ~Data();
+
+        const std::string &getSource() const { return mSource; }
+        const std::string &getTranslatedSource() const { return mTranslatedSource; }
+
+        GLenum getShaderType() const { return mShaderType; }
+        int getShaderVersion() const { return mShaderVersion; }
+
+        const std::vector<sh::Varying> &getVaryings() const { return mVaryings; }
+        const std::vector<sh::Uniform> &getUniforms() const { return mUniforms; }
+        const std::vector<sh::InterfaceBlock> &getInterfaceBlocks() const
+        {
+            return mInterfaceBlocks;
+        }
+        const std::vector<sh::Attribute> &getActiveAttributes() const { return mActiveAttributes; }
+        const std::vector<sh::OutputVariable> &getActiveOutputVariables() const
+        {
+            return mActiveOutputVariables;
+        }
+
+      private:
+        friend class Shader;
+
+        GLenum mShaderType;
+        int mShaderVersion;
+        std::string mTranslatedSource;
+        std::string mSource;
+
+        std::vector<sh::Varying> mVaryings;
+        std::vector<sh::Uniform> mUniforms;
+        std::vector<sh::InterfaceBlock> mInterfaceBlocks;
+        std::vector<sh::Attribute> mActiveAttributes;
+        std::vector<sh::OutputVariable> mActiveOutputVariables;
+    };
+
+    Shader(ResourceManager *manager,
+           rx::ImplFactory *implFactory,
+           const gl::Limitations &rendererLimitations,
+           GLenum type,
+           GLuint handle);
 
     virtual ~Shader();
 
     GLenum getType() const { return mType; }
     GLuint getHandle() const;
 
-    rx::ShaderImpl *getImplementation() { return mShader; }
-    const rx::ShaderImpl *getImplementation() const { return mShader; }
+    const rx::ShaderImpl *getImplementation() const { return mImplementation; }
 
     void deleteSource();
     void setSource(GLsizei count, const char *const *string, const GLint *length);
@@ -53,6 +98,7 @@ class Shader : angle::NonCopyable
     int getSourceLength() const;
     void getSource(GLsizei bufSize, GLsizei *length, char *buffer) const;
     int getTranslatedSourceLength() const;
+    const std::string &getTranslatedSource() const { return mData.getTranslatedSource(); }
     void getTranslatedSource(GLsizei bufSize, GLsizei *length, char *buffer) const;
     void getTranslatedSourceWithDebugInfo(GLsizei bufSize, GLsizei *length, char *buffer) const;
 
@@ -73,24 +119,20 @@ class Shader : angle::NonCopyable
     const std::vector<sh::Attribute> &getActiveAttributes() const;
     const std::vector<sh::OutputVariable> &getActiveOutputVariables() const;
 
-    std::vector<sh::Varying> &getVaryings();
-    std::vector<sh::Uniform> &getUniforms();
-    std::vector<sh::InterfaceBlock> &getInterfaceBlocks();
-    std::vector<sh::Attribute> &getActiveAttributes();
-    std::vector<sh::OutputVariable> &getActiveOutputVariables();
-
     int getSemanticIndex(const std::string &attributeName) const;
 
   private:
     static void getSourceImpl(const std::string &source, GLsizei bufSize, GLsizei *length, char *buffer);
 
-    rx::ShaderImpl *mShader;
+    Data mData;
+    rx::ShaderImpl *mImplementation;
+    const gl::Limitations &mRendererLimitations;
     const GLuint mHandle;
     const GLenum mType;
-    std::string mSource;
     unsigned int mRefCount;     // Number of program objects this shader is attached to
     bool mDeleteStatus;         // Flag to indicate that the shader can be deleted when no longer in use
     bool mCompiled;             // Indicates if this shader has been successfully compiled
+    std::string mInfoLog;
 
     ResourceManager *mResourceManager;
 };

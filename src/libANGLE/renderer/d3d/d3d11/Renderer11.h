@@ -137,7 +137,8 @@ class Renderer11 : public RendererD3D
                            bool rasterizerDiscard,
                            bool transformFeedbackActive) override;
 
-    virtual gl::Error applyUniforms(const ProgramImpl &program, const std::vector<gl::LinkedUniform*> &uniformArray);
+    gl::Error applyUniforms(const ProgramD3D &programD3D,
+                            const std::vector<D3DUniform *> &uniformArray) override;
     virtual gl::Error applyVertexBuffer(const gl::State &state, GLenum mode, GLint first, GLsizei count, GLsizei instances, SourceIndexData *sourceIndexInfo);
     virtual gl::Error applyIndexBuffer(const GLvoid *indices, gl::Buffer *elementArrayBuffer, GLsizei count, GLenum mode, GLenum type, TranslatedIndexData *indexInfo, SourceIndexData *sourceIndexInfo);
     void applyTransformFeedbackBuffers(const gl::State &state) override;
@@ -178,14 +179,14 @@ class Renderer11 : public RendererD3D
 
     // RenderTarget creation
     virtual gl::Error createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT);
+    gl::Error createRenderTargetCopy(RenderTargetD3D *source, RenderTargetD3D **outRT) override;
 
     // Framebuffer creation
     FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) override;
 
     // Shader creation
-    virtual CompilerImpl *createCompiler(const gl::Data &data);
-    virtual ShaderImpl *createShader(GLenum type);
-    virtual ProgramImpl *createProgram(const gl::Program::Data &data);
+    ShaderImpl *createShader(const gl::Shader::Data &data) override;
+    ProgramImpl *createProgram(const gl::Program::Data &data) override;
 
     // Shader operations
     virtual gl::Error loadExecutable(const void *function, size_t length, ShaderType type,
@@ -200,8 +201,10 @@ class Renderer11 : public RendererD3D
     // Image operations
     virtual ImageD3D *createImage();
     gl::Error generateMipmap(ImageD3D *dest, ImageD3D *source) override;
-    gl::Error generateMipmapsUsingD3D(TextureStorage *storage, const gl::SamplerState &samplerState) override;
+    gl::Error generateMipmapsUsingD3D(TextureStorage *storage,
+                                      const gl::TextureState &textureState) override;
     virtual TextureStorage *createTextureStorage2D(SwapChainD3D *swapChain);
+    TextureStorage *createTextureStorageEGLImage(EGLImageD3D *eglImage) override;
     virtual TextureStorage *createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly);
     virtual TextureStorage *createTextureStorageCube(GLenum internalformat, bool renderTarget, int size, int levels, bool hintLevelZeroOnly);
     virtual TextureStorage *createTextureStorage3D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, GLsizei depth, int levels);

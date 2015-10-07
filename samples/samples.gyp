@@ -34,18 +34,17 @@
             ],
             'sources':
             [
-                'sample_util/Matrix.cpp',
-                'sample_util/Matrix.h',
                 'sample_util/SampleApplication.cpp',
                 'sample_util/SampleApplication.h',
-                'sample_util/Vector.cpp',
-                'sample_util/Vector.h',
-                'sample_util/geometry_utils.cpp',
-                'sample_util/geometry_utils.h',
                 'sample_util/texture_utils.cpp',
                 'sample_util/texture_utils.h',
                 'sample_util/tga_utils.cpp',
                 'sample_util/tga_utils.h',
+            ],
+            'defines':
+            [
+                'GL_GLEXT_PROTOTYPES',
+                'EGL_EGLEXT_PROTOTYPES',
             ],
             'msvs_disabled_warnings': [ 4201 ],
             'direct_dependent_settings':
@@ -54,6 +53,11 @@
                 'include_dirs':
                 [
                     'sample_util',
+                ],
+                'defines':
+                [
+                    'GL_GLEXT_PROTOTYPES',
+                    'EGL_EGLEXT_PROTOTYPES',
                 ],
             },
         },

@@ -12,6 +12,7 @@
 
 #include "libANGLE/Framebuffer.h"
 #include "libANGLE/Program.h"
+#include "libANGLE/Shader.h"
 #include "libANGLE/VertexArray.h"
 
 namespace rx
@@ -24,6 +25,7 @@ class FramebufferImpl;
 class ProgramImpl;
 class QueryImpl;
 class RenderbufferImpl;
+class SamplerImpl;
 class ShaderImpl;
 class TextureImpl;
 class TransformFeedbackImpl;
@@ -36,8 +38,8 @@ class ImplFactory : angle::NonCopyable
     virtual ~ImplFactory() {}
 
     // Shader creation
-    virtual CompilerImpl *createCompiler(const gl::Data &data) = 0;
-    virtual ShaderImpl *createShader(GLenum type) = 0;
+    virtual CompilerImpl *createCompiler() = 0;
+    virtual ShaderImpl *createShader(const gl::Shader::Data &data) = 0;
     virtual ProgramImpl *createProgram(const gl::Program::Data &data) = 0;
 
     // Framebuffer creation
@@ -62,6 +64,9 @@ class ImplFactory : angle::NonCopyable
 
     // Transform Feedback creation
     virtual TransformFeedbackImpl *createTransformFeedback() = 0;
+
+    // Sampler object creation
+    virtual SamplerImpl *createSampler() = 0;
 };
 
 }

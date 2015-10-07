@@ -28,8 +28,10 @@ State::State()
     // TODO(jmadill): additional ES3 state
     mUnpackStateBitMask.set(DIRTY_BIT_UNPACK_ALIGNMENT);
     mUnpackStateBitMask.set(DIRTY_BIT_UNPACK_ROW_LENGTH);
+
     mPackStateBitMask.set(DIRTY_BIT_PACK_ALIGNMENT);
     mPackStateBitMask.set(DIRTY_BIT_PACK_REVERSE_ROW_ORDER);
+
     mClearStateBitMask.set(DIRTY_BIT_RASTERIZER_DISCARD_ENABLED);
     mClearStateBitMask.set(DIRTY_BIT_SCISSOR_TEST_ENABLED);
     mClearStateBitMask.set(DIRTY_BIT_SCISSOR);
@@ -41,6 +43,9 @@ State::State()
     mClearStateBitMask.set(DIRTY_BIT_DEPTH_MASK);
     mClearStateBitMask.set(DIRTY_BIT_STENCIL_WRITEMASK_FRONT);
     mClearStateBitMask.set(DIRTY_BIT_STENCIL_WRITEMASK_BACK);
+
+    mBlitStateBitMask.set(DIRTY_BIT_SCISSOR_TEST_ENABLED);
+    mBlitStateBitMask.set(DIRTY_BIT_SCISSOR);
 }
 
 State::~State()
@@ -633,6 +638,7 @@ Texture *State::getSamplerTexture(unsigned int sampler, GLenum type) const
 {
     const auto it = mSamplerTextures.find(type);
     ASSERT(it != mSamplerTextures.end());
+    ASSERT(sampler < it->second.size());
     return it->second[sampler].get();
 }
 
@@ -640,6 +646,7 @@ GLuint State::getSamplerTextureId(unsigned int sampler, GLenum type) const
 {
     const auto it = mSamplerTextures.find(type);
     ASSERT(it != mSamplerTextures.end());
+    ASSERT(sampler < it->second.size());
     return it->second[sampler].id();
 }
 
@@ -988,32 +995,10 @@ void State::setIndexedUniformBufferBinding(GLuint index, Buffer *buffer, GLintpt
     mUniformBuffers[index].set(buffer, offset, size);
 }
 
-GLuint State::getIndexedUniformBufferId(GLuint index) const
+const OffsetBindingPointer<Buffer> &State::getIndexedUniformBuffer(size_t index) const
 {
     ASSERT(static_cast<size_t>(index) < mUniformBuffers.size());
-
-    return mUniformBuffers[index].id();
-}
-
-Buffer *State::getIndexedUniformBuffer(GLuint index) const
-{
-    ASSERT(static_cast<size_t>(index) < mUniformBuffers.size());
-
-    return mUniformBuffers[index].get();
-}
-
-GLintptr State::getIndexedUniformBufferOffset(GLuint index) const
-{
-    ASSERT(static_cast<size_t>(index) < mUniformBuffers.size());
-
-    return mUniformBuffers[index].getOffset();
-}
-
-GLsizeiptr State::getIndexedUniformBufferSize(GLuint index) const
-{
-    ASSERT(static_cast<size_t>(index) < mUniformBuffers.size());
-
-    return mUniformBuffers[index].getSize();
+    return mUniformBuffers[index];
 }
 
 void State::setCopyReadBufferBinding(Buffer *buffer)

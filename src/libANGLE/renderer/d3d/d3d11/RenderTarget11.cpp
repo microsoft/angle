@@ -8,10 +8,12 @@
 // retained by Renderbuffers.
 
 #include "libANGLE/renderer/d3d/d3d11/RenderTarget11.h"
+
+#include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
 #include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
 #include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
 #include "libANGLE/renderer/d3d/d3d11/SwapChain11.h"
-#include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
+#include "libANGLE/renderer/d3d/d3d11/texture_format_table.h"
 
 namespace rx
 {
@@ -384,7 +386,7 @@ unsigned int SurfaceRenderTarget11::getSubresourceIndex() const
 
 DXGI_FORMAT SurfaceRenderTarget11::getDXGIFormat() const
 {
-    return d3d11::GetTextureFormatInfo(getInternalFormat(), mRenderer->getRenderer11DeviceCaps(), true).texFormat;
+    return d3d11::GetTextureFormatInfo(getInternalFormat(), mRenderer->getRenderer11DeviceCaps()).texFormat;
 }
 
 }

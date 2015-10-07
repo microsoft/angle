@@ -20,8 +20,7 @@ class Framebuffer;
 
 namespace rx
 {
-
-class ImageD3D;
+class EGLImageD3D;
 class ImageD3D;
 class RendererD3D;
 class RenderTargetD3D;
@@ -59,7 +58,7 @@ class TextureD3D : public TextureImpl
     virtual gl::ImageIndex getImageIndex(GLint mip, GLint layer) const = 0;
     virtual bool isValidIndex(const gl::ImageIndex &index) const = 0;
 
-    virtual gl::Error generateMipmaps(const gl::SamplerState &samplerState);
+    gl::Error generateMipmaps(const gl::TextureState &textureState) override;
     TextureStorage *getStorage();
     ImageD3D *getBaseLevelImage() const;
 
@@ -178,6 +177,7 @@ class TextureD3D_2D : public TextureD3D
                        const gl::Extents &size,
                        bool forceRelease);
 
+    bool mEGLImageTarget;
     ImageD3D *mImageArray[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 };
 

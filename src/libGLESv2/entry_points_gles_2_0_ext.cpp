@@ -117,7 +117,7 @@ void GL_APIENTRY DrawElementsInstancedANGLE(GLenum mode, GLsizei count, GLenum t
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        RangeUI indexRange;
+        IndexRange indexRange;
         if (!ValidateDrawElementsInstancedANGLE(context, mode, count, type, indices, primcount, &indexRange))
         {
             return;
@@ -691,7 +691,8 @@ void GL_APIENTRY BlitFramebufferANGLE(GLint srcX0, GLint srcY0, GLint srcX1, GLi
         Rectangle srcArea(srcX0, srcY0, srcX1 - srcX0, srcY1 - srcY0);
         Rectangle dstArea(dstX0, dstY0, dstX1 - dstX0, dstY1 - dstY0);
 
-        Error error = drawFramebuffer->blit(context->getState(), srcArea, dstArea, mask, filter, readFramebuffer);
+        Error error =
+            drawFramebuffer->blit(context, srcArea, dstArea, mask, filter, readFramebuffer);
         if (error.isError())
         {
             context->recordError(error);
@@ -806,39 +807,9 @@ void GL_APIENTRY DrawBuffersEXT(GLsizei n, const GLenum *bufs)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        if (n < 0 || static_cast<GLuint>(n) > context->getCaps().maxDrawBuffers)
+        if (!ValidateDrawBuffers(context, n, bufs))
         {
-            context->recordError(Error(GL_INVALID_VALUE));
             return;
-        }
-
-        ASSERT(context->getState().getDrawFramebuffer());
-
-        if (context->getState().getDrawFramebuffer()->id() == 0)
-        {
-            if (n != 1)
-            {
-                context->recordError(Error(GL_INVALID_OPERATION));
-                return;
-            }
-
-            if (bufs[0] != GL_NONE && bufs[0] != GL_BACK)
-            {
-                context->recordError(Error(GL_INVALID_OPERATION));
-                return;
-            }
-        }
-        else
-        {
-            for (int colorAttachment = 0; colorAttachment < n; colorAttachment++)
-            {
-                const GLenum attachment = GL_COLOR_ATTACHMENT0_EXT + colorAttachment;
-                if (bufs[colorAttachment] != GL_NONE && bufs[colorAttachment] != attachment)
-                {
-                    context->recordError(Error(GL_INVALID_OPERATION));
-                    return;
-                }
-            }
         }
 
         Framebuffer *framebuffer = context->getState().getDrawFramebuffer();

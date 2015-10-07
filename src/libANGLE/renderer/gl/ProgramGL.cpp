@@ -34,18 +34,6 @@ ProgramGL::~ProgramGL()
     mProgramID = 0;
 }
 
-int ProgramGL::getShaderVersion() const
-{
-    UNIMPLEMENTED();
-    return int();
-}
-
-GLenum ProgramGL::getBinaryFormat()
-{
-    UNIMPLEMENTED();
-    return GLenum();
-}
-
 LinkResult ProgramGL::load(gl::InfoLog &infoLog, gl::BinaryInputStream *stream)
 {
     UNIMPLEMENTED();
@@ -115,68 +103,41 @@ LinkResult ProgramGL::link(const gl::Data &data, gl::InfoLog &infoLog)
     }
 
     // Query the uniform information
-    // TODO: A lot of this logic should be done at the gl::Program level
-    GLint activeUniformMaxLength = 0;
-    mFunctions->getProgramiv(mProgramID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &activeUniformMaxLength);
-
-    std::vector<GLchar> uniformNameBuffer(activeUniformMaxLength);
-
-    GLint uniformCount = 0;
-    mFunctions->getProgramiv(mProgramID, GL_ACTIVE_UNIFORMS, &uniformCount);
-    for (GLint i = 0; i < uniformCount; i++)
+    ASSERT(mUniformRealLocationMap.empty());
+    const auto &uniforms = mData.getUniforms();
+    for (const gl::VariableLocation &entry : mData.getUniformLocations())
     {
-        GLsizei uniformNameLength = 0;
-        GLint uniformSize = 0;
-        GLenum uniformType = GL_NONE;
-        mFunctions->getActiveUniform(mProgramID, i, static_cast<GLsizei>(uniformNameBuffer.size()),
-                                     &uniformNameLength, &uniformSize, &uniformType,
-                                     &uniformNameBuffer[0]);
-
-        size_t subscript = 0;
-        std::string uniformName = gl::ParseUniformName(std::string(&uniformNameBuffer[0], uniformNameLength), &subscript);
-
-        bool isArray = uniformSize > 1 || subscript != GL_INVALID_INDEX;
-
-        for (size_t arrayIndex = 0; arrayIndex < static_cast<size_t>(uniformSize); arrayIndex++)
+        // From the spec:
+        // "Locations for sequential array indices are not required to be sequential."
+        const gl::LinkedUniform &uniform = uniforms[entry.index];
+        std::stringstream fullNameStr;
+        fullNameStr << uniform.name;
+        if (uniform.isArray())
         {
-            std::string locationName = uniformName;
-            if (isArray)
-            {
-                locationName += "[" + Str(static_cast<int>(arrayIndex)) + "]";
-            }
-
-            GLint location = mFunctions->getUniformLocation(mProgramID, locationName.c_str());
-            if (location >= 0)
-            {
-                mUniformIndex[location] =
-                    gl::VariableLocation(uniformName, static_cast<unsigned int>(arrayIndex),
-                                         static_cast<unsigned int>(mUniforms.size()));
-
-                // If the uniform is a sampler, track it in the sampler bindings array
-                if (gl::IsSamplerType(uniformType))
-                {
-                    SamplerLocation samplerLoc;
-                    samplerLoc.samplerIndex = mSamplerBindings.size();
-                    samplerLoc.arrayIndex = arrayIndex;
-                    mSamplerUniformMap[location] = samplerLoc;
-                }
-            }
+            fullNameStr << "[" << entry.element << "]";
         }
+        const std::string &fullName = fullNameStr.str();
 
-        // ANGLE uses 0 to identify an non-array uniform.
-        unsigned int arraySize = isArray ? static_cast<unsigned int>(uniformSize) : 0;
+        GLint realLocation = mFunctions->getUniformLocation(mProgramID, fullName.c_str());
+        mUniformRealLocationMap.push_back(realLocation);
+    }
 
-        // TODO: determine uniform precision
-        mUniforms.push_back(new gl::LinkedUniform(uniformType, GL_NONE, uniformName, arraySize, -1, sh::BlockMemberInfo::getDefaultBlockInfo()));
+    mUniformIndexToSamplerIndex.resize(mData.getUniforms().size(), GL_INVALID_INDEX);
+
+    for (size_t uniformId = 0; uniformId < uniforms.size(); ++uniformId)
+    {
+        const gl::LinkedUniform &linkedUniform = uniforms[uniformId];
+
+        if (!linkedUniform.isSampler() || !linkedUniform.staticUse)
+            continue;
+
+        mUniformIndexToSamplerIndex[uniformId] = mSamplerBindings.size();
 
         // If uniform is a sampler type, insert it into the mSamplerBindings array
-        if (gl::IsSamplerType(uniformType))
-        {
-            SamplerBindingGL samplerBinding;
-            samplerBinding.textureType = gl::SamplerTypeToTextureType(uniformType);
-            samplerBinding.boundTextureUnits.resize(uniformSize, 0);
-            mSamplerBindings.push_back(samplerBinding);
-        }
+        SamplerBindingGL samplerBinding;
+        samplerBinding.textureType = gl::SamplerTypeToTextureType(linkedUniform.type);
+        samplerBinding.boundTextureUnits.resize(linkedUniform.elementCount(), 0);
+        mSamplerBindings.push_back(samplerBinding);
     }
 
     return LinkResult(true, gl::Error(GL_NO_ERROR));
@@ -191,59 +152,61 @@ GLboolean ProgramGL::validate(const gl::Caps & /*caps*/, gl::InfoLog * /*infoLog
 void ProgramGL::setUniform1fv(GLint location, GLsizei count, const GLfloat *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform1fv(location, count, v);
+    mFunctions->uniform1fv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniform2fv(GLint location, GLsizei count, const GLfloat *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform2fv(location, count, v);
+    mFunctions->uniform2fv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniform3fv(GLint location, GLsizei count, const GLfloat *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform3fv(location, count, v);
+    mFunctions->uniform3fv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniform4fv(GLint location, GLsizei count, const GLfloat *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform4fv(location, count, v);
+    mFunctions->uniform4fv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniform1iv(GLint location, GLsizei count, const GLint *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform1iv(location, count, v);
+    mFunctions->uniform1iv(uniLoc(location), count, v);
 
-    auto iter = mSamplerUniformMap.find(location);
-    if (iter != mSamplerUniformMap.end())
+    const gl::VariableLocation &locationEntry = mData.getUniformLocations()[location];
+
+    size_t samplerIndex = mUniformIndexToSamplerIndex[locationEntry.index];
+    if (samplerIndex != GL_INVALID_INDEX)
     {
-        const SamplerLocation &samplerLoc = iter->second;
-        std::vector<GLuint> &boundTextureUnits = mSamplerBindings[samplerLoc.samplerIndex].boundTextureUnits;
+        std::vector<GLuint> &boundTextureUnits = mSamplerBindings[samplerIndex].boundTextureUnits;
 
-        size_t copyCount = std::max<size_t>(count, boundTextureUnits.size() - samplerLoc.arrayIndex);
-        std::copy(v, v + copyCount, boundTextureUnits.begin() + samplerLoc.arrayIndex);
+        size_t copyCount =
+            std::max<size_t>(count, boundTextureUnits.size() - locationEntry.element);
+        std::copy(v, v + copyCount, boundTextureUnits.begin() + locationEntry.element);
     }
 }
 
 void ProgramGL::setUniform2iv(GLint location, GLsizei count, const GLint *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform2iv(location, count, v);
+    mFunctions->uniform2iv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniform3iv(GLint location, GLsizei count, const GLint *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform3iv(location, count, v);
+    mFunctions->uniform3iv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniform4iv(GLint location, GLsizei count, const GLint *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform4iv(location, count, v);
+    mFunctions->uniform4iv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniform1uiv(GLint location, GLsizei count, const GLuint *v)
@@ -255,102 +218,86 @@ void ProgramGL::setUniform1uiv(GLint location, GLsizei count, const GLuint *v)
 void ProgramGL::setUniform2uiv(GLint location, GLsizei count, const GLuint *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform2uiv(location, count, v);
+    mFunctions->uniform2uiv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniform3uiv(GLint location, GLsizei count, const GLuint *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform3uiv(location, count, v);
+    mFunctions->uniform3uiv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniform4uiv(GLint location, GLsizei count, const GLuint *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform4uiv(location, count, v);
+    mFunctions->uniform4uiv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniformMatrix2fv(location, count, transpose, value);
+    mFunctions->uniformMatrix2fv(uniLoc(location), count, transpose, value);
 }
 
 void ProgramGL::setUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniformMatrix3fv(location, count, transpose, value);
+    mFunctions->uniformMatrix3fv(uniLoc(location), count, transpose, value);
 }
 
 void ProgramGL::setUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniformMatrix4fv(location, count, transpose, value);
+    mFunctions->uniformMatrix4fv(uniLoc(location), count, transpose, value);
 }
 
 void ProgramGL::setUniformMatrix2x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniformMatrix2x3fv(location, count, transpose, value);
+    mFunctions->uniformMatrix2x3fv(uniLoc(location), count, transpose, value);
 }
 
 void ProgramGL::setUniformMatrix3x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniformMatrix3x2fv(location, count, transpose, value);
+    mFunctions->uniformMatrix3x2fv(uniLoc(location), count, transpose, value);
 }
 
 void ProgramGL::setUniformMatrix2x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniformMatrix2x4fv(location, count, transpose, value);
+    mFunctions->uniformMatrix2x4fv(uniLoc(location), count, transpose, value);
 }
 
 void ProgramGL::setUniformMatrix4x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniformMatrix4x2fv(location, count, transpose, value);
+    mFunctions->uniformMatrix4x2fv(uniLoc(location), count, transpose, value);
 }
 
 void ProgramGL::setUniformMatrix3x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniformMatrix3x4fv(location, count, transpose, value);
+    mFunctions->uniformMatrix3x4fv(uniLoc(location), count, transpose, value);
 }
 
 void ProgramGL::setUniformMatrix4x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniformMatrix4x3fv(location, count, transpose, value);
+    mFunctions->uniformMatrix4x3fv(uniLoc(location), count, transpose, value);
 }
 
-void ProgramGL::getUniformfv(GLint location, GLfloat *params)
+void ProgramGL::setUniformBlockBinding(GLuint uniformBlockIndex, GLuint uniformBlockBinding)
 {
-    mFunctions->getUniformfv(mProgramID, location, params);
-}
-
-void ProgramGL::getUniformiv(GLint location, GLint *params)
-{
-    mFunctions->getUniformiv(mProgramID, location, params);
-}
-
-void ProgramGL::getUniformuiv(GLint location, GLuint *params)
-{
-    mFunctions->getUniformuiv(mProgramID, location, params);
-}
-
-bool ProgramGL::validateSamplers(gl::InfoLog *infoLog, const gl::Caps &caps)
-{
-    //UNIMPLEMENTED();
-    return true;
+    mFunctions->uniformBlockBinding(mProgramID, mUniformBlockRealLocationMap[uniformBlockIndex],
+                                    uniformBlockBinding);
 }
 
 void ProgramGL::reset()
 {
-    ProgramImpl::reset();
-
-    mSamplerUniformMap.clear();
+    mUniformRealLocationMap.clear();
     mSamplerBindings.clear();
+    mUniformIndexToSamplerIndex.clear();
 }
 
 GLuint ProgramGL::getProgramID() const
@@ -363,4 +310,105 @@ const std::vector<SamplerBindingGL> &ProgramGL::getAppliedSamplerUniforms() cons
     return mSamplerBindings;
 }
 
+void ProgramGL::gatherUniformBlockInfo(std::vector<gl::UniformBlock> *uniformBlocks,
+                                       std::vector<gl::LinkedUniform> *uniforms)
+{
+    mUniformBlockRealLocationMap.resize(uniformBlocks->size(), 0);
+
+    for (int i = 0; i < static_cast<int>(uniformBlocks->size()); i++)
+    {
+        auto &uniformBlock = uniformBlocks->at(i);
+
+        std::stringstream fullNameStr;
+        fullNameStr << uniformBlock.name;
+        if (uniformBlock.isArray)
+        {
+            fullNameStr << "[" << uniformBlock.arrayElement << "]";
+        }
+
+        GLuint blockIndex = mFunctions->getUniformBlockIndex(mProgramID, fullNameStr.str().c_str());
+        if (blockIndex != GL_INVALID_INDEX)
+        {
+            mUniformBlockRealLocationMap[i] = blockIndex;
+
+            GLint dataSize = 0;
+            mFunctions->getActiveUniformBlockiv(mProgramID, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE,
+                                                &dataSize);
+            uniformBlock.dataSize = dataSize;
+        }
+        else
+        {
+            // Remove this uniform block
+            uniformBlocks->erase(uniformBlocks->begin() + i);
+            i--;
+        }
+    }
+
+    for (int uniformIdx = 0; uniformIdx < static_cast<int>(uniforms->size()); uniformIdx++)
+    {
+        auto &uniform = uniforms->at(uniformIdx);
+        if (uniform.isInDefaultBlock())
+        {
+            continue;
+        }
+
+        const GLchar *uniformName = uniform.name.c_str();
+        GLuint uniformIndex = 0;
+        mFunctions->getUniformIndices(mProgramID, 1, &uniformName, &uniformIndex);
+
+        if (uniformIndex == GL_INVALID_INDEX)
+        {
+            // Uniform member has been optimized out, remove it from the list
+            // TODO: Clean this up by using a class to wrap around the uniforms so manual removal is
+            // not needed.
+            for (size_t uniformBlockIdx = 0; uniformBlockIdx < uniformBlocks->size();
+                 uniformBlockIdx++)
+            {
+                auto &uniformBlock = uniformBlocks->at(uniformBlockIdx);
+                for (int memberIndex = 0;
+                     memberIndex < static_cast<int>(uniformBlock.memberUniformIndexes.size());
+                     memberIndex++)
+                {
+                    if (uniformBlock.memberUniformIndexes[memberIndex] ==
+                        static_cast<unsigned int>(uniformIdx))
+                    {
+                        uniformBlock.memberUniformIndexes.erase(
+                            uniformBlock.memberUniformIndexes.begin() + memberIndex);
+                        memberIndex--;
+                    }
+                    else if (uniformBlock.memberUniformIndexes[memberIndex] >
+                             static_cast<unsigned int>(uniformIdx))
+                    {
+                        uniformBlock.memberUniformIndexes[memberIndex]--;
+                    }
+                }
+            }
+            uniforms->erase(uniforms->begin() + uniformIdx);
+            uniformIdx--;
+        }
+        else
+        {
+            GLint offset = 0;
+            mFunctions->getActiveUniformsiv(mProgramID, 1, &uniformIndex, GL_UNIFORM_OFFSET,
+                                            &offset);
+            uniform.blockInfo.offset = offset;
+
+            GLint arrayStride = 0;
+            mFunctions->getActiveUniformsiv(mProgramID, 1, &uniformIndex, GL_UNIFORM_ARRAY_STRIDE,
+                                            &arrayStride);
+            uniform.blockInfo.arrayStride = arrayStride;
+
+            GLint matrixStride = 0;
+            mFunctions->getActiveUniformsiv(mProgramID, 1, &uniformIndex, GL_UNIFORM_MATRIX_STRIDE,
+                                            &matrixStride);
+            uniform.blockInfo.matrixStride = matrixStride;
+
+            // TODO: determine this at the gl::Program level.
+            GLint isRowMajorMatrix = 0;
+            mFunctions->getActiveUniformsiv(mProgramID, 1, &uniformIndex, GL_UNIFORM_IS_ROW_MAJOR,
+                                            &isRowMajorMatrix);
+            uniform.blockInfo.isRowMajorMatrix = isRowMajorMatrix != GL_FALSE;
+        }
+    }
+}
 }

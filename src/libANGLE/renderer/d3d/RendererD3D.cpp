@@ -19,9 +19,11 @@
 #include "libANGLE/VertexArray.h"
 #include "libANGLE/formatutils.h"
 #include "libANGLE/renderer/d3d/BufferD3D.h"
+#include "libANGLE/renderer/d3d/CompilerD3D.h"
 #include "libANGLE/renderer/d3d/DisplayD3D.h"
 #include "libANGLE/renderer/d3d/IndexDataManager.h"
 #include "libANGLE/renderer/d3d/ProgramD3D.h"
+#include "libANGLE/renderer/d3d/SamplerD3D.h"
 
 namespace rx
 {
@@ -33,7 +35,7 @@ namespace
 // degenerate case where we are stuck hogging memory.
 const int ScratchMemoryBufferLifetime = 1000;
 
-}
+}  // anonymous namespace
 
 const uintptr_t RendererD3D::DirtyPointer = std::numeric_limits<uintptr_t>::max();
 
@@ -67,6 +69,16 @@ void RendererD3D::cleanup()
     }
 }
 
+CompilerImpl *RendererD3D::createCompiler()
+{
+    return new CompilerD3D(getRendererClass());
+}
+
+SamplerImpl *RendererD3D::createSampler()
+{
+    return new SamplerD3D();
+}
+
 gl::Error RendererD3D::drawArrays(const gl::Data &data, GLenum mode, GLint first, GLsizei count)
 {
     return genericDrawArrays(data, mode, first, count, 0);
@@ -86,7 +98,7 @@ gl::Error RendererD3D::drawElements(const gl::Data &data,
                                     GLsizei count,
                                     GLenum type,
                                     const GLvoid *indices,
-                                    const gl::RangeUI &indexRange)
+                                    const gl::IndexRange &indexRange)
 {
     return genericDrawElements(data, mode, count, type, indices, 0, indexRange);
 }
@@ -97,7 +109,7 @@ gl::Error RendererD3D::drawElementsInstanced(const gl::Data &data,
                                              GLenum type,
                                              const GLvoid *indices,
                                              GLsizei instances,
-                                             const gl::RangeUI &indexRange)
+                                             const gl::IndexRange &indexRange)
 {
     return genericDrawElements(data, mode, count, type, indices, instances, indexRange);
 }
@@ -109,7 +121,7 @@ gl::Error RendererD3D::drawRangeElements(const gl::Data &data,
                                          GLsizei count,
                                          GLenum type,
                                          const GLvoid *indices,
-                                         const gl::RangeUI &indexRange)
+                                         const gl::IndexRange &indexRange)
 {
     return genericDrawElements(data, mode, count, type, indices, 0, indexRange);
 }
@@ -120,7 +132,7 @@ gl::Error RendererD3D::genericDrawElements(const gl::Data &data,
                                            GLenum type,
                                            const GLvoid *indices,
                                            GLsizei instances,
-                                           const gl::RangeUI &indexRange)
+                                           const gl::IndexRange &indexRange)
 {
     if (data.state->isPrimitiveRestartEnabled())
     {
@@ -175,8 +187,9 @@ gl::Error RendererD3D::genericDrawElements(const gl::Data &data,
     // layer.
     ASSERT(!data.state->isTransformFeedbackActiveUnpaused());
 
-    GLsizei vertexCount = indexInfo.indexRange.length() + 1;
-    error = applyVertexBuffer(*data.state, mode, indexInfo.indexRange.start, vertexCount, instances, &sourceIndexInfo);
+    size_t vertexCount = indexInfo.indexRange.vertexCount();
+    error = applyVertexBuffer(*data.state, mode, static_cast<GLsizei>(indexInfo.indexRange.start),
+                              static_cast<GLsizei>(vertexCount), instances, &sourceIndexInfo);
     if (error.isError())
     {
         return error;
@@ -306,7 +319,7 @@ gl::Error RendererD3D::generateSwizzles(const gl::Data &data, gl::SamplerType ty
         {
             gl::Texture *texture = data.state->getSamplerTexture(textureUnit, textureType);
             ASSERT(texture);
-            if (texture->getSamplerState().swizzleRequired())
+            if (texture->getTextureState().swizzleRequired())
             {
                 gl::Error error = generateSwizzle(texture);
                 if (error.isError())
@@ -458,19 +471,18 @@ gl::Error RendererD3D::applyTextures(const gl::Data &data, gl::SamplerType shade
         {
             gl::Texture *texture = data.state->getSamplerTexture(textureUnit, textureType);
             ASSERT(texture);
-            gl::SamplerState sampler = texture->getSamplerState();
 
             gl::Sampler *samplerObject = data.state->getSampler(textureUnit);
-            if (samplerObject)
-            {
-                samplerObject->getState(&sampler);
-            }
+
+            const gl::SamplerState &samplerState =
+                samplerObject ? samplerObject->getSamplerState() : texture->getSamplerState();
 
             // TODO: std::binary_search may become unavailable using older versions of GCC
-            if (texture->isSamplerComplete(sampler, data) &&
-                !std::binary_search(framebufferTextures.begin(), framebufferTextures.begin() + framebufferTextureCount, texture))
+            if (texture->isSamplerComplete(samplerState, data) &&
+                !std::binary_search(framebufferTextures.begin(),
+                                    framebufferTextures.begin() + framebufferTextureCount, texture))
             {
-                gl::Error error = setSamplerState(shaderType, samplerIndex, texture, sampler);
+                gl::Error error = setSamplerState(shaderType, samplerIndex, texture, samplerState);
                 if (error.isError())
                 {
                     return error;

@@ -8,21 +8,39 @@
 
 #include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
 
-#include <sstream>
 #include <EGL/eglext.h>
+#include <sstream>
 
-#include "common/utilities.h"
 #include "common/tls.h"
+#include "common/utilities.h"
 #include "libANGLE/Buffer.h"
 #include "libANGLE/Display.h"
+#include "libANGLE/formatutils.h"
 #include "libANGLE/Framebuffer.h"
 #include "libANGLE/FramebufferAttachment.h"
-#include "libANGLE/Program.h"
-#include "libANGLE/State.h"
-#include "libANGLE/Surface.h"
-#include "libANGLE/formatutils.h"
 #include "libANGLE/histogram_macros.h"
+#include "libANGLE/Program.h"
 #include "libANGLE/renderer/d3d/CompilerD3D.h"
+#include "libANGLE/renderer/d3d/d3d11/Blit11.h"
+#include "libANGLE/renderer/d3d/d3d11/Buffer11.h"
+#include "libANGLE/renderer/d3d/d3d11/Clear11.h"
+#include "libANGLE/renderer/d3d/d3d11/dxgi_support_table.h"
+#include "libANGLE/renderer/d3d/d3d11/Fence11.h"
+#include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
+#include "libANGLE/renderer/d3d/d3d11/Framebuffer11.h"
+#include "libANGLE/renderer/d3d/d3d11/Image11.h"
+#include "libANGLE/renderer/d3d/d3d11/IndexBuffer11.h"
+#include "libANGLE/renderer/d3d/d3d11/PixelTransfer11.h"
+#include "libANGLE/renderer/d3d/d3d11/Query11.h"
+#include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
+#include "libANGLE/renderer/d3d/d3d11/RenderTarget11.h"
+#include "libANGLE/renderer/d3d/d3d11/ShaderExecutable11.h"
+#include "libANGLE/renderer/d3d/d3d11/SwapChain11.h"
+#include "libANGLE/renderer/d3d/d3d11/texture_format_table.h"
+#include "libANGLE/renderer/d3d/d3d11/TextureStorage11.h"
+#include "libANGLE/renderer/d3d/d3d11/Trim11.h"
+#include "libANGLE/renderer/d3d/d3d11/VertexArray11.h"
+#include "libANGLE/renderer/d3d/d3d11/VertexBuffer11.h"
 #include "libANGLE/renderer/d3d/FramebufferD3D.h"
 #include "libANGLE/renderer/d3d/IndexDataManager.h"
 #include "libANGLE/renderer/d3d/ProgramD3D.h"
@@ -32,25 +50,9 @@
 #include "libANGLE/renderer/d3d/TextureD3D.h"
 #include "libANGLE/renderer/d3d/TransformFeedbackD3D.h"
 #include "libANGLE/renderer/d3d/VertexDataManager.h"
-#include "libANGLE/renderer/d3d/d3d11/Blit11.h"
-#include "libANGLE/renderer/d3d/d3d11/Buffer11.h"
-#include "libANGLE/renderer/d3d/d3d11/Clear11.h"
-#include "libANGLE/renderer/d3d/d3d11/Fence11.h"
-#include "libANGLE/renderer/d3d/d3d11/Framebuffer11.h"
-#include "libANGLE/renderer/d3d/d3d11/Image11.h"
-#include "libANGLE/renderer/d3d/d3d11/IndexBuffer11.h"
-#include "libANGLE/renderer/d3d/d3d11/PixelTransfer11.h"
-#include "libANGLE/renderer/d3d/d3d11/Query11.h"
-#include "libANGLE/renderer/d3d/d3d11/RenderTarget11.h"
-#include "libANGLE/renderer/d3d/d3d11/ShaderExecutable11.h"
-#include "libANGLE/renderer/d3d/d3d11/SwapChain11.h"
-#include "libANGLE/renderer/d3d/d3d11/TextureStorage11.h"
-#include "libANGLE/renderer/d3d/d3d11/Trim11.h"
-#include "libANGLE/renderer/d3d/d3d11/VertexArray11.h"
-#include "libANGLE/renderer/d3d/d3d11/VertexBuffer11.h"
-#include "libANGLE/renderer/d3d/d3d11/dxgi_support_table.h"
-#include "libANGLE/renderer/d3d/d3d11/formatutils11.h"
-#include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
+#include "libANGLE/State.h"
+#include "libANGLE/Surface.h"
+#include "third_party/trace_event/trace_event.h"
 
 // Include the D3D9 debug annotator header for use by the desktop D3D11 renderer
 // because the D3D11 interface method ID3DUserDefinedAnnotation::GetStatus
@@ -58,8 +60,6 @@
 #ifdef ANGLE_ENABLE_D3D9
 #include "libANGLE/renderer/d3d/d3d9/DebugAnnotator9.h"
 #endif
-
-#include "third_party/trace_event/trace_event.h"
 
 // Enable ANGLE_SKIP_DXGI_1_2_CHECK if there is not a possibility of using cross-process
 // HWNDs or the Windows 7 Platform Update (KB2670838) is expected to be installed.
@@ -829,6 +829,12 @@ void Renderer11::generateDisplayExtensions(egl::DisplayExtensions *outExtensions
     outExtensions->createContext = true;
 
     outExtensions->deviceQuery = true;
+
+    outExtensions->image                 = true;
+    outExtensions->imageBase             = true;
+    outExtensions->glTexture2DImage      = true;
+    outExtensions->glTextureCubemapImage = true;
+    outExtensions->glRenderbufferImage   = true;
 }
 
 gl::Error Renderer11::flush()
@@ -907,10 +913,10 @@ gl::Error Renderer11::generateSwizzle(gl::Texture *texture)
         if (texStorage)
         {
             TextureStorage11 *storage11 = GetAs<TextureStorage11>(texStorage);
-            error = storage11->generateSwizzles(texture->getSamplerState().swizzleRed,
-                                                texture->getSamplerState().swizzleGreen,
-                                                texture->getSamplerState().swizzleBlue,
-                                                texture->getSamplerState().swizzleAlpha);
+            const gl::TextureState &textureState = texture->getTextureState();
+            error =
+                storage11->generateSwizzles(textureState.swizzleRed, textureState.swizzleGreen,
+                                            textureState.swizzleBlue, textureState.swizzleAlpha);
             if (error.isError())
             {
                 return error;
@@ -921,11 +927,13 @@ gl::Error Renderer11::generateSwizzle(gl::Texture *texture)
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Renderer11::setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &samplerStateParam)
+gl::Error Renderer11::setSamplerState(gl::SamplerType type,
+                                      int index,
+                                      gl::Texture *texture,
+                                      const gl::SamplerState &samplerState)
 {
     // Make sure to add the level offset for our tiny compressed texture workaround
     TextureD3D *textureD3D = GetImplAs<TextureD3D>(texture);
-    gl::SamplerState samplerStateInternal = samplerStateParam;
 
     TextureStorage *storage = nullptr;
     gl::Error error = textureD3D->getNativeTexture(&storage);
@@ -937,16 +945,15 @@ gl::Error Renderer11::setSamplerState(gl::SamplerType type, int index, gl::Textu
     // Storage should exist, texture should be complete
     ASSERT(storage);
 
-    samplerStateInternal.baseLevel += storage->getTopLevel();
-
     if (type == gl::SAMPLER_PIXEL)
     {
         ASSERT(static_cast<unsigned int>(index) < getRendererCaps().maxTextureImageUnits);
 
-        if (mForceSetPixelSamplerStates[index] || memcmp(&samplerStateInternal, &mCurPixelSamplerStates[index], sizeof(gl::SamplerState)) != 0)
+        if (mForceSetPixelSamplerStates[index] ||
+            memcmp(&samplerState, &mCurPixelSamplerStates[index], sizeof(gl::SamplerState)) != 0)
         {
             ID3D11SamplerState *dxSamplerState = NULL;
-            error = mStateCache.getSamplerState(samplerStateInternal, &dxSamplerState);
+            error = mStateCache.getSamplerState(samplerState, &dxSamplerState);
             if (error.isError())
             {
                 return error;
@@ -955,7 +962,7 @@ gl::Error Renderer11::setSamplerState(gl::SamplerType type, int index, gl::Textu
             ASSERT(dxSamplerState != NULL);
             mDeviceContext->PSSetSamplers(index, 1, &dxSamplerState);
 
-            mCurPixelSamplerStates[index] = samplerStateInternal;
+            mCurPixelSamplerStates[index] = samplerState;
         }
 
         mForceSetPixelSamplerStates[index] = false;
@@ -964,10 +971,11 @@ gl::Error Renderer11::setSamplerState(gl::SamplerType type, int index, gl::Textu
     {
         ASSERT(static_cast<unsigned int>(index) < getRendererCaps().maxVertexTextureImageUnits);
 
-        if (mForceSetVertexSamplerStates[index] || memcmp(&samplerStateInternal, &mCurVertexSamplerStates[index], sizeof(gl::SamplerState)) != 0)
+        if (mForceSetVertexSamplerStates[index] ||
+            memcmp(&samplerState, &mCurVertexSamplerStates[index], sizeof(gl::SamplerState)) != 0)
         {
             ID3D11SamplerState *dxSamplerState = NULL;
-            error = mStateCache.getSamplerState(samplerStateInternal, &dxSamplerState);
+            error = mStateCache.getSamplerState(samplerState, &dxSamplerState);
             if (error.isError())
             {
                 return error;
@@ -976,7 +984,7 @@ gl::Error Renderer11::setSamplerState(gl::SamplerType type, int index, gl::Textu
             ASSERT(dxSamplerState != NULL);
             mDeviceContext->VSSetSamplers(index, 1, &dxSamplerState);
 
-            mCurVertexSamplerStates[index] = samplerStateInternal;
+            mCurVertexSamplerStates[index] = samplerState;
         }
 
         mForceSetVertexSamplerStates[index] = false;
@@ -1007,10 +1015,10 @@ gl::Error Renderer11::setTexture(gl::SamplerType type, int index, gl::Texture *t
         TextureStorage11 *storage11 = GetAs<TextureStorage11>(texStorage);
 
         // Make sure to add the level offset for our tiny compressed texture workaround
-        gl::SamplerState samplerState = texture->getSamplerState();
-        samplerState.baseLevel += storage11->getTopLevel();
+        gl::TextureState textureState = texture->getTextureState();
+        textureState.baseLevel += storage11->getTopLevel();
 
-        error = storage11->getSRV(samplerState, &textureSRV);
+        error = storage11->getSRV(textureState, &textureSRV);
         if (error.isError())
         {
             return error;
@@ -1044,13 +1052,14 @@ gl::Error Renderer11::setUniformBuffers(const gl::Data &data,
             continue;
         }
 
-        gl::Buffer *uniformBuffer = data.state->getIndexedUniformBuffer(binding);
-        GLintptr uniformBufferOffset = data.state->getIndexedUniformBufferOffset(binding);
-        GLsizeiptr uniformBufferSize = data.state->getIndexedUniformBufferSize(binding);
+        const OffsetBindingPointer<gl::Buffer> &uniformBuffer =
+            data.state->getIndexedUniformBuffer(binding);
+        GLintptr uniformBufferOffset = uniformBuffer.getOffset();
+        GLsizeiptr uniformBufferSize = uniformBuffer.getSize();
 
-        if (uniformBuffer)
+        if (uniformBuffer.get() != nullptr)
         {
-            Buffer11 *bufferStorage = GetImplAs<Buffer11>(uniformBuffer);
+            Buffer11 *bufferStorage = GetImplAs<Buffer11>(uniformBuffer.get());
             ID3D11Buffer *constantBuffer;
 
             if (mRenderer11DeviceCaps.supportsConstantBufferOffsets)
@@ -1104,13 +1113,14 @@ gl::Error Renderer11::setUniformBuffers(const gl::Data &data,
             continue;
         }
 
-        gl::Buffer *uniformBuffer = data.state->getIndexedUniformBuffer(binding);
-        GLintptr uniformBufferOffset = data.state->getIndexedUniformBufferOffset(binding);
-        GLsizeiptr uniformBufferSize = data.state->getIndexedUniformBufferSize(binding);
+        const OffsetBindingPointer<gl::Buffer> &uniformBuffer =
+            data.state->getIndexedUniformBuffer(binding);
+        GLintptr uniformBufferOffset = uniformBuffer.getOffset();
+        GLsizeiptr uniformBufferSize = uniformBuffer.getSize();
 
-        if (uniformBuffer)
+        if (uniformBuffer.get() != nullptr)
         {
-            Buffer11 *bufferStorage = GetImplAs<Buffer11>(uniformBuffer);
+            Buffer11 *bufferStorage = GetImplAs<Buffer11>(uniformBuffer.get());
             ID3D11Buffer *constantBuffer;
 
             if (mRenderer11DeviceCaps.supportsConstantBufferOffsets)
@@ -2179,7 +2189,8 @@ gl::Error Renderer11::applyShaders(gl::Program *program,
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vector<gl::LinkedUniform*> &uniformArray)
+gl::Error Renderer11::applyUniforms(const ProgramD3D &programD3D,
+                                    const std::vector<D3DUniform *> &uniformArray)
 {
     unsigned int totalRegisterCountVS = 0;
     unsigned int totalRegisterCountPS = 0;
@@ -2187,26 +2198,25 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
     bool vertexUniformsDirty = false;
     bool pixelUniformsDirty = false;
 
-    for (size_t uniformIndex = 0; uniformIndex < uniformArray.size(); uniformIndex++)
+    for (const D3DUniform *uniform : uniformArray)
     {
-        const gl::LinkedUniform &uniform = *uniformArray[uniformIndex];
-
-        if (uniform.isReferencedByVertexShader() && !uniform.isSampler())
+        if (uniform->isReferencedByVertexShader() && !uniform->isSampler())
         {
-            totalRegisterCountVS += uniform.registerCount;
-            vertexUniformsDirty = (vertexUniformsDirty || uniform.dirty);
+            totalRegisterCountVS += uniform->registerCount;
+            vertexUniformsDirty = (vertexUniformsDirty || uniform->dirty);
         }
 
-        if (uniform.isReferencedByFragmentShader() && !uniform.isSampler())
+        if (uniform->isReferencedByFragmentShader() && !uniform->isSampler())
         {
-            totalRegisterCountPS += uniform.registerCount;
-            pixelUniformsDirty = (pixelUniformsDirty || uniform.dirty);
+            totalRegisterCountPS += uniform->registerCount;
+            pixelUniformsDirty = (pixelUniformsDirty || uniform->dirty);
         }
     }
 
-    const ProgramD3D *programD3D = GetAs<ProgramD3D>(&program);
-    const UniformStorage11 *vertexUniformStorage = GetAs<UniformStorage11>(&programD3D->getVertexUniformStorage());
-    const UniformStorage11 *fragmentUniformStorage = GetAs<UniformStorage11>(&programD3D->getFragmentUniformStorage());
+    const UniformStorage11 *vertexUniformStorage =
+        GetAs<UniformStorage11>(&programD3D.getVertexUniformStorage());
+    const UniformStorage11 *fragmentUniformStorage =
+        GetAs<UniformStorage11>(&programD3D.getFragmentUniformStorage());
     ASSERT(vertexUniformStorage);
     ASSERT(fragmentUniformStorage);
 
@@ -2234,26 +2244,26 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
         mapPS = (float(*)[4])map.pData;
     }
 
-    for (size_t uniformIndex = 0; uniformIndex < uniformArray.size(); uniformIndex++)
+    for (const D3DUniform *uniform : uniformArray)
     {
-        gl::LinkedUniform *uniform = uniformArray[uniformIndex];
+        if (uniform->isSampler())
+            continue;
 
-        if (!uniform->isSampler())
+        unsigned int componentCount = (4 - uniform->registerElement);
+
+        // we assume that uniforms from structs are arranged in struct order in our uniforms list.
+        // otherwise we would overwrite previously written regions of memory.
+
+        if (uniform->isReferencedByVertexShader() && mapVS)
         {
-            unsigned int componentCount = (4 - uniform->registerElement);
+            memcpy(&mapVS[uniform->vsRegisterIndex][uniform->registerElement], uniform->data,
+                   uniform->registerCount * sizeof(float) * componentCount);
+        }
 
-            // we assume that uniforms from structs are arranged in struct order in our uniforms list. otherwise we would
-            // overwrite previously written regions of memory.
-
-            if (uniform->isReferencedByVertexShader() && mapVS)
-            {
-                memcpy(&mapVS[uniform->vsRegisterIndex][uniform->registerElement], uniform->data, uniform->registerCount * sizeof(float) * componentCount);
-            }
-
-            if (uniform->isReferencedByFragmentShader() && mapPS)
-            {
-                memcpy(&mapPS[uniform->psRegisterIndex][uniform->registerElement], uniform->data, uniform->registerCount * sizeof(float) * componentCount);
-            }
+        if (uniform->isReferencedByFragmentShader() && mapPS)
+        {
+            memcpy(&mapPS[uniform->psRegisterIndex][uniform->registerElement], uniform->data,
+                   uniform->registerCount * sizeof(float) * componentCount);
         }
     }
 
@@ -2339,7 +2349,7 @@ gl::Error Renderer11::applyUniforms(const ProgramImpl &program, const std::vecto
     }
 
     // GSSetConstantBuffers triggers device removal on 9_3, so we should only call it if necessary
-    if (programD3D->usesGeometryShader())
+    if (programD3D.usesGeometryShader())
     {
         // needed for the point sprite geometry shader
         if (mCurrentGeometryConstantBuffer != mDriverConstantBufferPS)
@@ -2598,12 +2608,14 @@ DeviceIdentifier Renderer11::getAdapterIdentifier() const
 
 unsigned int Renderer11::getReservedVertexUniformVectors() const
 {
-    return 0;   // Driver uniforms are stored in a separate constant buffer
+    // Driver uniforms are stored in a separate constant buffer
+    return d3d11_gl::GetReservedVertexUniformVectors(mRenderer11DeviceCaps.featureLevel);
 }
 
 unsigned int Renderer11::getReservedFragmentUniformVectors() const
 {
-    return 0;   // Driver uniforms are stored in a separate constant buffer
+    // Driver uniforms are stored in a separate constant buffer
+    return d3d11_gl::GetReservedFragmentUniformVectors(mRenderer11DeviceCaps.featureLevel);
 }
 
 unsigned int Renderer11::getReservedVertexUniformBuffers() const
@@ -2978,7 +2990,7 @@ void Renderer11::setOneTimeRenderTarget(ID3D11RenderTargetView *renderTargetView
 
 gl::Error Renderer11::createRenderTarget(int width, int height, GLenum format, GLsizei samples, RenderTargetD3D **outRT)
 {
-    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(format, mRenderer11DeviceCaps, true);
+    const d3d11::TextureFormat &formatInfo = d3d11::GetTextureFormatInfo(format, mRenderer11DeviceCaps);
 
     const gl::TextureCaps &textureCaps = getRendererTextureCaps().get(format);
     GLuint supportedSamples = textureCaps.getNearestSamples(samples);
@@ -3110,19 +3122,36 @@ gl::Error Renderer11::createRenderTarget(int width, int height, GLenum format, G
     return gl::Error(GL_NO_ERROR);
 }
 
+gl::Error Renderer11::createRenderTargetCopy(RenderTargetD3D *source, RenderTargetD3D **outRT)
+{
+    ASSERT(source != nullptr);
+
+    RenderTargetD3D *newRT = nullptr;
+    gl::Error error = createRenderTarget(source->getWidth(), source->getHeight(),
+                                         source->getInternalFormat(), source->getSamples(), &newRT);
+    if (error.isError())
+    {
+        return error;
+    }
+
+    RenderTarget11 *source11 = GetAs<RenderTarget11>(source);
+    RenderTarget11 *dest11   = GetAs<RenderTarget11>(newRT);
+
+    mDeviceContext->CopySubresourceRegion(dest11->getTexture(), dest11->getSubresourceIndex(), 0, 0,
+                                          0, source11->getTexture(),
+                                          source11->getSubresourceIndex(), nullptr);
+    *outRT = newRT;
+    return gl::Error(GL_NO_ERROR);
+}
+
 FramebufferImpl *Renderer11::createFramebuffer(const gl::Framebuffer::Data &data)
 {
     return new Framebuffer11(data, this);
 }
 
-CompilerImpl *Renderer11::createCompiler(const gl::Data &data)
+ShaderImpl *Renderer11::createShader(const gl::Shader::Data &data)
 {
-    return new CompilerD3D(data, SH_HLSL11_OUTPUT);
-}
-
-ShaderImpl *Renderer11::createShader(GLenum type)
-{
-    return new ShaderD3D(type, this);
+    return new ShaderD3D(data);
 }
 
 ProgramImpl *Renderer11::createProgram(const gl::Program::Data &data)
@@ -3360,7 +3389,7 @@ bool Renderer11::supportsFastCopyBufferToTexture(GLenum internalFormat) const
     ASSERT(getRendererExtensions().pixelBufferObject);
 
     const gl::InternalFormat &internalFormatInfo = gl::GetInternalFormatInfo(internalFormat);
-    const d3d11::TextureFormat &d3d11FormatInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, true);
+    const d3d11::TextureFormat &d3d11FormatInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps);
     const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(d3d11FormatInfo.texFormat);
 
     // sRGB formats do not work with D3D11 buffer SRVs
@@ -3409,7 +3438,8 @@ gl::Error Renderer11::generateMipmap(ImageD3D *dest, ImageD3D *src)
     return Image11::generateMipmap(dest11, src11);
 }
 
-gl::Error Renderer11::generateMipmapsUsingD3D(TextureStorage *storage, const gl::SamplerState &samplerState)
+gl::Error Renderer11::generateMipmapsUsingD3D(TextureStorage *storage,
+                                              const gl::TextureState &textureState)
 {
     TextureStorage11 *storage11 = GetAs<TextureStorage11>(storage);
 
@@ -3417,7 +3447,7 @@ gl::Error Renderer11::generateMipmapsUsingD3D(TextureStorage *storage, const gl:
     ASSERT(storage11->supportsNativeMipmapFunction());
 
     ID3D11ShaderResourceView *srv;
-    gl::Error error = storage11->getSRVLevels(samplerState.baseLevel, samplerState.maxLevel, &srv);
+    gl::Error error = storage11->getSRVLevels(textureState.baseLevel, textureState.maxLevel, &srv);
     if (error.isError())
     {
         return error;
@@ -3432,6 +3462,11 @@ TextureStorage *Renderer11::createTextureStorage2D(SwapChainD3D *swapChain)
 {
     SwapChain11 *swapChain11 = GetAs<SwapChain11>(swapChain);
     return new TextureStorage11_2D(this, swapChain11);
+}
+
+TextureStorage *Renderer11::createTextureStorageEGLImage(EGLImageD3D *eglImage)
+{
+    return new TextureStorage11_EGLImage(this, eglImage);
 }
 
 TextureStorage *Renderer11::createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly)
@@ -3761,7 +3796,7 @@ gl::Error Renderer11::blitRenderbufferRect(const gl::Rectangle &readRect, const 
             }
             readTexture = readTexture2D;
 
-            const d3d11::TextureFormat &readTextureInfo = d3d11::GetTextureFormatInfo(readRenderTarget11->getInternalFormat(), getRenderer11DeviceCaps(), true);
+            const d3d11::TextureFormat &readTextureInfo = d3d11::GetTextureFormatInfo(readRenderTarget11->getInternalFormat(), getRenderer11DeviceCaps());
 
             D3D11_SHADER_RESOURCE_VIEW_DESC readSRVDesc;
             readSRVDesc.Format = readTextureInfo.srvFormat;
@@ -4108,8 +4143,8 @@ bool Renderer11::usesAlternateRenderableFormat(GLenum internalFormat)
     // For example, if D3D supports sampling from DXGI_FORMAT_B4G4R4A4_UNORM in a shader but not
     // rendering to it, then we might use DXGI's B4G4R4A4 format for non-renderable GL_RGBA4 textures
     // and use DXGI's R8G8B8A8 format for renderable GL_RGBA4 textures.
-    const d3d11::TextureFormat nonRenderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, false);
-    const d3d11::TextureFormat renderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps, true);
+    const d3d11::TextureFormat nonRenderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps);
+    const d3d11::TextureFormat renderableInfo = d3d11::GetTextureFormatInfo(internalFormat, mRenderer11DeviceCaps);
 
     return (renderableInfo.texFormat != nonRenderableInfo.texFormat);
 }

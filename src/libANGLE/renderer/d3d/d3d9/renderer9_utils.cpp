@@ -274,6 +274,16 @@ D3DMULTISAMPLE_TYPE GetMultisampleType(GLuint samples)
 namespace d3d9_gl
 {
 
+unsigned int GetReservedVertexUniformVectors()
+{
+    return 4; // dx_ViewAdjust, dx_DepthRange, dx_ViewCoords and dx_ViewScale
+}
+
+unsigned int GetReservedFragmentUniformVectors()
+{
+    return 4; // dx_ViewAdjust, dx_DepthRange, dx_ViewCoords and dx_ViewScale
+}
+
 GLsizei GetSamplesCount(D3DMULTISAMPLE_TYPE type)
 {
     return (type != D3DMULTISAMPLE_NONMASKABLE) ? type : 0;
@@ -435,9 +445,9 @@ void GenerateCaps(IDirect3D9 *d3d9,
     // Vertex shader limits
     caps->maxVertexAttributes = 16;
 
-    const size_t reservedVertexUniformVectors = 4; // dx_ViewAdjust, dx_DepthRange, dx_ViewCoords and dx_ViewScale
     const size_t MAX_VERTEX_CONSTANT_VECTORS_D3D9 = 256;
-    caps->maxVertexUniformVectors = MAX_VERTEX_CONSTANT_VECTORS_D3D9 - reservedVertexUniformVectors;
+    caps->maxVertexUniformVectors =
+        MAX_VERTEX_CONSTANT_VECTORS_D3D9 - GetReservedVertexUniformVectors();
     caps->maxVertexUniformComponents = caps->maxVertexUniformVectors * 4;
 
     caps->maxVertexUniformBlocks = 0;
@@ -463,12 +473,12 @@ void GenerateCaps(IDirect3D9 *d3d9,
     }
 
     // Fragment shader limits
-    const size_t reservedPixelUniformVectors = 4; // dx_ViewAdjust, dx_DepthRange, dx_ViewCoords and dx_ViewScale
-
     const size_t MAX_PIXEL_CONSTANT_VECTORS_SM3 = 224;
     const size_t MAX_PIXEL_CONSTANT_VECTORS_SM2 = 32;
-    caps->maxFragmentUniformVectors = ((deviceCaps.PixelShaderVersion >= D3DPS_VERSION(3, 0)) ? MAX_PIXEL_CONSTANT_VECTORS_SM3
-                                                                                              : MAX_PIXEL_CONSTANT_VECTORS_SM2) - reservedPixelUniformVectors;
+    caps->maxFragmentUniformVectors =
+        ((deviceCaps.PixelShaderVersion >= D3DPS_VERSION(3, 0)) ? MAX_PIXEL_CONSTANT_VECTORS_SM3
+                                                                : MAX_PIXEL_CONSTANT_VECTORS_SM2) -
+        GetReservedFragmentUniformVectors();
     caps->maxFragmentUniformComponents = caps->maxFragmentUniformVectors * 4;
     caps->maxFragmentUniformBlocks = 0;
     caps->maxFragmentInputComponents = caps->maxVertexOutputComponents;
@@ -563,6 +573,7 @@ void GenerateCaps(IDirect3D9 *d3d9,
     extensions->discardFramebuffer = false; // It would be valid to set this to true, since glDiscardFramebufferEXT is just a hint
     extensions->colorBufferFloat = false;
     extensions->debugMarker = true;
+    extensions->eglImage               = true;
 
     // D3D9 has no concept of separate masks and refs for front and back faces in the depth stencil
     // state.

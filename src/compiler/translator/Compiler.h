@@ -101,6 +101,8 @@ class TCompiler : public TShHandleBase
     ShShaderOutput getOutputType() const { return outputType; }
     const std::string &getBuiltInResourcesString() const { return builtInResourcesString; }
 
+    bool shouldRunLoopAndIndexingValidation(int compileOptions) const;
+
     // Get the resources set by InitBuiltInSymbolTable
     const ShBuiltInResources& getResources() const;
 
@@ -152,6 +154,7 @@ class TCompiler : public TShHandleBase
     const char *getSourcePath() const;
     const TPragma& getPragma() const { return mPragma; }
     void writePragma();
+    unsigned int *getTemporaryIndex() { return &mTemporaryIndex; }
 
     const ArrayBoundsClamper& getArrayBoundsClamper() const;
     ShArrayIndexClampingStrategy getArrayIndexClampingStrategy() const;
@@ -228,6 +231,8 @@ class TCompiler : public TShHandleBase
     NameMap nameMap;
 
     TPragma mPragma;
+
+    unsigned int mTemporaryIndex;
 };
 
 //

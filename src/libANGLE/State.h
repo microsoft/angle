@@ -203,10 +203,7 @@ class State : angle::NonCopyable
     // GL_UNIFORM_BUFFER - Both indexed and generic targets
     void setGenericUniformBufferBinding(Buffer *buffer);
     void setIndexedUniformBufferBinding(GLuint index, Buffer *buffer, GLintptr offset, GLsizeiptr size);
-    GLuint getIndexedUniformBufferId(GLuint index) const;
-    Buffer *getIndexedUniformBuffer(GLuint index) const;
-    GLintptr getIndexedUniformBufferOffset(GLuint index) const;
-    GLsizeiptr getIndexedUniformBufferSize(GLuint index) const;
+    const OffsetBindingPointer<Buffer> &getIndexedUniformBuffer(size_t index) const;
 
     // GL_COPY_[READ/WRITE]_BUFFER
     void setCopyReadBufferBinding(Buffer *buffer);
@@ -284,7 +281,6 @@ class State : angle::NonCopyable
         DIRTY_BIT_FRONT_FACE,
         DIRTY_BIT_POLYGON_OFFSET_FILL_ENABLED,
         DIRTY_BIT_POLYGON_OFFSET,
-        DIRTY_BIT_MULTISAMPLE_ENABLED,
         DIRTY_BIT_RASTERIZER_DISCARD_ENABLED,
         DIRTY_BIT_LINE_WIDTH,
         DIRTY_BIT_PRIMITIVE_RESTART_ENABLED,
@@ -323,6 +319,7 @@ class State : angle::NonCopyable
     const DirtyBits &unpackStateBitMask() const { return mUnpackStateBitMask; }
     const DirtyBits &packStateBitMask() const { return mPackStateBitMask; }
     const DirtyBits &clearStateBitMask() const { return mClearStateBitMask; }
+    const DirtyBits &blitStateBitMask() const { return mBlitStateBitMask; }
 
   private:
     // Cached values from Context's caps
@@ -397,6 +394,7 @@ class State : angle::NonCopyable
     DirtyBits mUnpackStateBitMask;
     DirtyBits mPackStateBitMask;
     DirtyBits mClearStateBitMask;
+    DirtyBits mBlitStateBitMask;
 };
 
 }

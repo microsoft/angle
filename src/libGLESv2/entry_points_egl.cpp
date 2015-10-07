@@ -11,7 +11,6 @@
 #include "libGLESv2/entry_points_gles_2_0.h"
 #include "libGLESv2/entry_points_gles_2_0_ext.h"
 #include "libGLESv2/entry_points_gles_3_0.h"
-#include "libGLESv2/entry_points_gles_3_0_ext.h"
 #include "libGLESv2/global_state.h"
 
 #include "libANGLE/Context.h"
@@ -821,7 +820,7 @@ EGLBoolean EGLAPIENTRY BindTexImage(EGLDisplay dpy, EGLSurface surface, EGLint b
         gl::Texture *textureObject = context->getTargetTexture(GL_TEXTURE_2D);
         ASSERT(textureObject != NULL);
 
-        if (textureObject->isImmutable())
+        if (textureObject->getImmutableFormat())
         {
             SetGlobalError(Error(EGL_BAD_MATCH));
             return EGL_FALSE;

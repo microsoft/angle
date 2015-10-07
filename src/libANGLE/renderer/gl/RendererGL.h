@@ -40,14 +40,14 @@ class RendererGL : public Renderer
                            GLsizei count,
                            GLenum type,
                            const GLvoid *indices,
-                           const gl::RangeUI &indexRange) override;
+                           const gl::IndexRange &indexRange) override;
     gl::Error drawElementsInstanced(const gl::Data &data,
                                     GLenum mode,
                                     GLsizei count,
                                     GLenum type,
                                     const GLvoid *indices,
                                     GLsizei instances,
-                                    const gl::RangeUI &indexRange) override;
+                                    const gl::IndexRange &indexRange) override;
     gl::Error drawRangeElements(const gl::Data &data,
                                 GLenum mode,
                                 GLuint start,
@@ -55,11 +55,11 @@ class RendererGL : public Renderer
                                 GLsizei count,
                                 GLenum type,
                                 const GLvoid *indices,
-                                const gl::RangeUI &indexRange) override;
+                                const gl::IndexRange &indexRange) override;
 
     // Shader creation
-    CompilerImpl *createCompiler(const gl::Data &data) override;
-    ShaderImpl *createShader(GLenum type) override;
+    CompilerImpl *createCompiler() override;
+    ShaderImpl *createShader(const gl::Shader::Data &data) override;
     ProgramImpl *createProgram(const gl::Program::Data &data) override;
 
     // Framebuffer creation
@@ -85,6 +85,9 @@ class RendererGL : public Renderer
     // Transform Feedback creation
     TransformFeedbackImpl *createTransformFeedback() override;
 
+    // Sampler object creation
+    SamplerImpl *createSampler() override;
+
     // EXT_debug_marker
     void insertEventMarker(GLsizei length, const char *marker) override;
     void pushGroupMarker(GLsizei length, const char *marker) override;
@@ -105,6 +108,7 @@ class RendererGL : public Renderer
     const gl::Version &getMaxSupportedESVersion() const;
     const FunctionsGL *getFunctions() const { return mFunctions; }
     StateManagerGL *getStateManager() const { return mStateManager; }
+    const WorkaroundsGL &getWorkarounds() const { return mWorkarounds; }
 
   private:
     void generateCaps(gl::Caps *outCaps, gl::TextureCapsMap* outTextureCaps,
@@ -119,6 +123,8 @@ class RendererGL : public Renderer
     BlitGL *mBlitter;
 
     WorkaroundsGL mWorkarounds;
+
+    bool mHasDebugOutput;
 
     // For performance debugging
     bool mSkipDrawCalls;

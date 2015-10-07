@@ -26,6 +26,8 @@ struct InterfaceBlock;
 
 struct COMPILER_EXPORT BlockMemberInfo
 {
+    BlockMemberInfo() : offset(-1), arrayStride(-1), matrixStride(-1), isRowMajorMatrix(false) {}
+
     BlockMemberInfo(int offset, int arrayStride, int matrixStride, bool isRowMajorMatrix)
         : offset(offset),
           arrayStride(arrayStride),
@@ -48,6 +50,7 @@ class COMPILER_EXPORT BlockLayoutEncoder
 {
   public:
     BlockLayoutEncoder();
+    virtual ~BlockLayoutEncoder() {}
 
     BlockMemberInfo encodeType(GLenum type, unsigned int arraySize, bool isRowMajorMatrix);
 

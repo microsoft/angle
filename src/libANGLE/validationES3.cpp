@@ -363,7 +363,7 @@ bool ValidateES3TexImageParameters(Context *context, GLenum target, GLint level,
       case GL_TEXTURE_2D_ARRAY:
         if (static_cast<GLuint>(width) > (caps.max2DTextureSize >> level) ||
             static_cast<GLuint>(height) > (caps.max2DTextureSize >> level) ||
-            static_cast<GLuint>(depth) > (caps.maxArrayTextureLayers >> level))
+            static_cast<GLuint>(depth) > caps.maxArrayTextureLayers)
         {
             context->recordError(Error(GL_INVALID_VALUE));
             return false;
@@ -382,7 +382,7 @@ bool ValidateES3TexImageParameters(Context *context, GLenum target, GLint level,
         return false;
     }
 
-    if (texture->isImmutable() && !isSubImage)
+    if (texture->getImmutableFormat() && !isSubImage)
     {
         context->recordError(Error(GL_INVALID_OPERATION));
         return false;
@@ -393,15 +393,16 @@ bool ValidateES3TexImageParameters(Context *context, GLenum target, GLint level,
     const gl::InternalFormat &actualFormatInfo = gl::GetInternalFormatInfo(actualInternalFormat);
     if (isCompressed)
     {
-        if (!ValidCompressedImageSize(context, actualInternalFormat, width, height))
+        if (!actualFormatInfo.compressed)
         {
-            context->recordError(Error(GL_INVALID_OPERATION));
+            context->recordError(Error(
+                GL_INVALID_ENUM, "internalformat is not a supported compressed internal format."));
             return false;
         }
 
-        if (!actualFormatInfo.compressed)
+        if (!ValidCompressedImageSize(context, actualInternalFormat, width, height))
         {
-            context->recordError(Error(GL_INVALID_ENUM));
+            context->recordError(Error(GL_INVALID_OPERATION));
             return false;
         }
 
@@ -866,7 +867,13 @@ bool ValidateES3TexStorageParameters(Context *context, GLenum target, GLsizei le
         return false;
     }
 
-    if (levels > gl::log2(std::max(std::max(width, height), depth)) + 1)
+    GLsizei maxDim = std::max(width, height);
+    if (target != GL_TEXTURE_2D_ARRAY)
+    {
+        maxDim = std::max(maxDim, depth);
+    }
+
+    if (levels > gl::log2(maxDim) + 1)
     {
         context->recordError(Error(GL_INVALID_OPERATION));
         return false;
@@ -939,7 +946,7 @@ bool ValidateES3TexStorageParameters(Context *context, GLenum target, GLsizei le
         return false;
     }
 
-    if (texture->isImmutable())
+    if (texture->getImmutableFormat())
     {
         context->recordError(Error(GL_INVALID_OPERATION));
         return false;

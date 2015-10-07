@@ -69,14 +69,29 @@ inline int clampToInt(unsigned int x)
 template <typename DestT, typename SrcT>
 inline DestT clampCast(SrcT value)
 {
-    // This assumes SrcT can properly represent DestT::min/max
-    // Unfortunately we can't use META_ASSERT without C++11 constexpr support
-    ASSERT(static_cast<DestT>(static_cast<SrcT>(std::numeric_limits<DestT>::min())) == std::numeric_limits<DestT>::min());
-    ASSERT(static_cast<DestT>(static_cast<SrcT>(std::numeric_limits<DestT>::max())) == std::numeric_limits<DestT>::max());
+    static const DestT destLo = std::numeric_limits<DestT>::min();
+    static const DestT destHi = std::numeric_limits<DestT>::max();
+    static const SrcT srcLo = static_cast<SrcT>(destLo);
+    static const SrcT srcHi = static_cast<SrcT>(destHi);
 
-    SrcT lo = static_cast<SrcT>(std::numeric_limits<DestT>::min());
-    SrcT hi = static_cast<SrcT>(std::numeric_limits<DestT>::max());
-    return static_cast<DestT>(value > lo ? (value > hi ? hi : value) : lo);
+    // When value is outside of or equal to the limits for DestT we use the DestT limit directly.
+    // This avoids undefined behaviors due to loss of precision when converting from floats to
+    // integers:
+    //    destHi for ints is 2147483647 but the closest float number is around 2147483648, so when
+    //  doing a conversion from float to int we run into an UB because the float is outside of the
+    //  range representable by the int.
+    if (value <= srcLo)
+    {
+        return destLo;
+    }
+    else if (value >= srcHi)
+    {
+        return destHi;
+    }
+    else
+    {
+        return static_cast<DestT>(value);
+    }
 }
 
 template<typename T, typename MIN, typename MAX>
@@ -151,7 +166,7 @@ destType bitCast(const sourceType &source)
 
 inline unsigned short float32ToFloat16(float fp32)
 {
-    unsigned int fp32i = (unsigned int&)fp32;
+    unsigned int fp32i = bitCast<unsigned int>(fp32);
     unsigned int sign = (fp32i & 0x80000000) >> 16;
     unsigned int abs = fp32i & 0x7FFFFFFF;
 
@@ -540,6 +555,26 @@ struct Range
 
 typedef Range<int> RangeI;
 typedef Range<unsigned int> RangeUI;
+
+struct IndexRange
+{
+    IndexRange() : IndexRange(0, 0, 0) {}
+    IndexRange(size_t start_, size_t end_, size_t vertexIndexCount_)
+        : start(start_), end(end_), vertexIndexCount(vertexIndexCount_)
+    {
+        ASSERT(start <= end);
+    }
+
+    // Number of vertices in the range.
+    size_t vertexCount() const { return (end - start) + 1; }
+
+    // Inclusive range of indices that are not primitive restart
+    size_t start;
+    size_t end;
+
+    // Number of non-primitive restart indices
+    size_t vertexIndexCount;
+};
 
 // First, both normalized floating-point values are converted into 16-bit integer values.
 // Then, the results are packed into the returned 32-bit unsigned integer.
