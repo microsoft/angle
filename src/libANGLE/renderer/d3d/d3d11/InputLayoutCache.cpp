@@ -456,10 +456,7 @@ gl::Error InputLayoutCache::applyVertexBuffers(const std::vector<TranslatedAttri
     // PointSprite quad.
     // An index buffer also needs to be created and applied because rendering instanced
     // data on D3D11 FL9_3 requires DrawIndexedInstanced() to be used.
-    // Shaders that contain gl_PointSize and used without the GL_POINTS rendering mode
-    // require a vertex buffer because some drivers cannot handle missing vertex data
-    // and will TDR the system.
-    if (programUsesInstancedPointSprites)
+    if (instancedPointSpritesActive)
     {
         HRESULT result = S_OK;
         const UINT pointSpriteVertexStride = sizeof(float) * 5;
@@ -494,9 +491,7 @@ gl::Error InputLayoutCache::applyVertexBuffers(const std::vector<TranslatedAttri
         }
 
         mCurrentBuffers[nextAvailableIndex] = mPointSpriteVertexBuffer;
-        // Set the stride to 0 if GL_POINTS mode is not being used to instruct the driver
-        // to avoid indexing into the vertex buffer.
-        mCurrentVertexStrides[nextAvailableIndex] = instancedPointSpritesActive ? pointSpriteVertexStride : 0;
+        mCurrentVertexStrides[nextAvailableIndex] = pointSpriteVertexStride;
         mCurrentVertexOffsets[nextAvailableIndex] = 0;
 
         if (!mPointSpriteIndexBuffer)
@@ -524,14 +519,11 @@ gl::Error InputLayoutCache::applyVertexBuffers(const std::vector<TranslatedAttri
             }
         }
 
-        if (instancedPointSpritesActive)
-        {
-            // The index buffer is applied here because Instanced PointSprite emulation uses
-            // the a non-indexed rendering path in ANGLE (DrawArrays).  This means that applyIndexBuffer()
-            // on the renderer will not be called and setting this buffer here ensures that the rendering
-            // path will contain the correct index buffers.
-            mDeviceContext->IASetIndexBuffer(mPointSpriteIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-        }
+        // The index buffer is applied here because Instanced PointSprite emulation uses
+        // the a non-indexed rendering path in ANGLE (DrawArrays).  This means that applyIndexBuffer()
+        // on the renderer will not be called and setting this buffer here ensures that the rendering
+        // path will contain the correct index buffers.
+        mDeviceContext->IASetIndexBuffer(mPointSpriteIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
     }
 
     if (moveFirstIndexedIntoSlotZero)
