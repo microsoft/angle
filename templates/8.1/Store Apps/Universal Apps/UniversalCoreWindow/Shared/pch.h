@@ -4,6 +4,9 @@
 #include <memory>
 #include <wrl.h>
 
+// Enable function definitions in the GL headers below
+#define GL_GLEXT_PROTOTYPES
+
 // OpenGL ES includes
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
