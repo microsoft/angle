@@ -2282,7 +2282,8 @@ Program::VectorAndSamplerCount Program::flattenUniform(const sh::ShaderVariable 
     }
 
     unsigned int elementCount          = uniform.elementCount();
-    vectorAndSamplerCount.vectorCount  = (VariableRegisterCount(uniform.type) * elementCount);
+    vectorAndSamplerCount.vectorCount =
+        (isSampler ? 0 : (VariableRegisterCount(uniform.type) * elementCount));
     vectorAndSamplerCount.samplerCount = (isSampler ? elementCount : 0);
 
     return vectorAndSamplerCount;
