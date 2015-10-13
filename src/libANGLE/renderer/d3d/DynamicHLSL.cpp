@@ -776,8 +776,6 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data,
     bool usesPointCoord = fragmentShader->mUsesPointCoord;
     bool usesPointSize = vertexShader->mUsesPointSize;
     bool useInstancedPointSpriteEmulation = usesPointSize && mRenderer->getWorkarounds().useInstancedPointSpriteEmulation;
-    bool insertDummyPointCoordValue = !usesPointSize && usesPointCoord && mRenderer->getWorkarounds().useInstancedPointSpriteEmulation;
-    bool addPointCoord = (useInstancedPointSpriteEmulation && usesPointCoord) || insertDummyPointCoordValue;
 
     // Validation done in the compiler
     ASSERT(!fragmentShader->mUsesFragColor || !fragmentShader->mUsesFragData);
@@ -818,7 +816,7 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data,
     // The Geometry Shader point sprite implementation needs gl_PointSize to be in VS_OUTPUT and GS_INPUT.
     // Instanced point sprites doesn't need gl_PointSize in VS_OUTPUT.
     const SemanticInfo &vertexSemantics = getSemanticInfo(registers, outputPositionFromVS,
-                                                          usesFragCoord, addPointCoord,
+                                                          usesFragCoord, (useInstancedPointSpriteEmulation && usesPointCoord),
                                                           (!useInstancedPointSpriteEmulation && usesPointSize), false);
 
     storeUserLinkedVaryings(packedVaryings, usesPointSize, linkedVaryings);
@@ -976,15 +974,6 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data,
             vertexHLSL += "\n"
                           "    output.gl_PointCoord = input.spriteTexCoord;\n";
         }
-    }
-
-    // Renderers that enable instanced pointsprite emulation require the vertex shader output member gl_PointCoord
-    // to be set to a default value if used without gl_PointSize. 0.5,0.5 is the same default value used in the
-    // generated pixel shader.
-    if (insertDummyPointCoordValue)
-    {
-        vertexHLSL += "\n"
-                      "    output.gl_PointCoord = float2(0.5, 0.5);\n";
     }
 
     vertexHLSL += "\n"
