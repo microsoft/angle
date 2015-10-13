@@ -102,6 +102,7 @@
       <OptimizeReferences>false</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -144,6 +145,7 @@
       <OptimizeReferences>false</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineARM</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -186,6 +188,7 @@
       <OptimizeReferences>false</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -227,6 +230,7 @@
       <OptimizeReferences>false</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -268,6 +272,7 @@
       <OptimizeReferences>false</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineARM</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -309,6 +314,7 @@
       <OptimizeReferences>false</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
