@@ -35,7 +35,6 @@ class Clear11 : angle::NonCopyable
   private:
     struct MaskedRenderTarget
     {
-        MaskedRenderTarget() : renderTarget(NULL){}
         bool colorMask[4];
         RenderTarget11 *renderTarget;
     };
