@@ -347,6 +347,7 @@
     <ClInclude Include="..\..\..\src\compiler\translator\DirectiveHandler.h"/>
     <ClInclude Include="..\..\..\src\compiler\translator\EmulatePrecision.h"/>
     <ClInclude Include="..\..\..\src\compiler\translator\ExtensionBehavior.h"/>
+    <ClInclude Include="..\..\..\src\compiler\translator\ExtensionGLSL.h"/>
     <ClInclude Include="..\..\..\src\compiler\translator\FlagStd140Structs.h"/>
     <ClInclude Include="..\..\..\src\compiler\translator\ForLoopUnroll.h"/>
     <ClInclude Include="..\..\..\src\compiler\translator\HashNames.h"/>
@@ -426,6 +427,7 @@
     <ClCompile Include="..\..\..\src\compiler\translator\Diagnostics.cpp"/>
     <ClCompile Include="..\..\..\src\compiler\translator\DirectiveHandler.cpp"/>
     <ClCompile Include="..\..\..\src\compiler\translator\EmulatePrecision.cpp"/>
+    <ClCompile Include="..\..\..\src\compiler\translator\ExtensionGLSL.cpp"/>
     <ClCompile Include="..\..\..\src\compiler\translator\FlagStd140Structs.cpp"/>
     <ClCompile Include="..\..\..\src\compiler\translator\ForLoopUnroll.cpp"/>
     <ClCompile Include="..\..\..\src\compiler\translator\InfoSink.cpp"/>
@@ -470,7 +472,6 @@
     <ClCompile Include="..\..\..\src\compiler\translator\glslang_lex.cpp"/>
     <ClCompile Include="..\..\..\src\compiler\translator\glslang_tab.cpp"/>
     <ClCompile Include="..\..\..\src\compiler\translator\intermOut.cpp"/>
-    <ClCompile Include="..\..\..\src\compiler\translator\parseConst.cpp"/>
     <ClCompile Include="..\..\..\src\compiler\translator\timing\RestrictFragmentShaderTiming.cpp"/>
     <ClCompile Include="..\..\..\src\compiler\translator\timing\RestrictVertexShaderTiming.cpp"/>
     <ClCompile Include="..\..\..\src\compiler\translator\util.cpp"/>
