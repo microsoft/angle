@@ -26,9 +26,8 @@ Set the following environment variables as needed:
 Download the ANGLE source by running the following commands:
 
 ```
-mkdir angle
-cd angle
-gclient config --name . --unmanaged https://chromium.googlesource.com/angle/angle.git
+git clone https://chromium.googlesource.com/angle/angle
+python angle/scripts/bootstrap.py
 gclient sync
 git checkout master
 ```

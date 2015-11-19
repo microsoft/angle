@@ -74,6 +74,8 @@ void GenerateInitialTextureData(GLint internalFormat, const Renderer11DeviceCaps
                                 GLuint mipLevels, std::vector<D3D11_SUBRESOURCE_DATA> *outSubresourceData,
                                 std::vector< std::vector<BYTE> > *outData);
 
+UINT GetPrimitiveRestartIndex();
+
 struct PositionTexCoordVertex
 {
     float x, y;

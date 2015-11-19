@@ -137,6 +137,7 @@ class Shader : angle::NonCopyable
     ResourceManager *mResourceManager;
 };
 
+bool CompareShaderVar(const sh::ShaderVariable &x, const sh::ShaderVariable &y);
 }
 
 #endif   // LIBANGLE_SHADER_H_
