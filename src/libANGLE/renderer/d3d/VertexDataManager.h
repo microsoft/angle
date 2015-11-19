@@ -82,6 +82,9 @@ class VertexDataManager : angle::NonCopyable
                                     GLsizei count,
                                     GLsizei instances) const;
 
+    void invalidateMatchingStaticData(const gl::VertexAttribute &attrib,
+                                      const gl::VertexAttribCurrentValueData &currentValue) const;
+
     gl::Error storeAttribute(TranslatedAttribute *translated,
                              GLint start,
                              GLsizei count,

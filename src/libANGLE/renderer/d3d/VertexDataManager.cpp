@@ -88,8 +88,7 @@ void VertexDataManager::hintUnmapAllResources(const std::vector<gl::VertexAttrib
     {
         gl::Buffer *buffer = translated->attribute->buffer.get();
         BufferD3D *storage = buffer ? GetImplAs<BufferD3D>(buffer) : nullptr;
-        StaticVertexBufferInterface *staticBuffer =
-            storage ? storage->getStaticVertexBuffer(*translated->attribute) : nullptr;
+        StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBuffer() : nullptr;
 
         if (staticBuffer)
         {
@@ -146,6 +145,11 @@ gl::Error VertexDataManager::prepareVertexData(const gl::State &state,
             if (vertexAttributes[attribIndex].enabled)
             {
                 mActiveEnabledAttributes.push_back(translated);
+
+                // Also invalidate static buffers that don't contain matching attributes
+                invalidateMatchingStaticData(
+                    vertexAttributes[attribIndex],
+                    state.getVertexAttribCurrentValue(static_cast<unsigned int>(attribIndex)));
             }
             else
             {
@@ -193,22 +197,6 @@ gl::Error VertexDataManager::prepareVertexData(const gl::State &state,
         }
     }
 
-    // Commit all the static vertex buffers. This fixes them in size/contents, and forces ANGLE
-    // to use a new static buffer (or recreate the static buffers) next time
-    for (size_t attribIndex = 0; attribIndex < vertexAttributes.size(); ++attribIndex)
-    {
-        const gl::VertexAttribute &attrib = vertexAttributes[attribIndex];
-        gl::Buffer *buffer                = attrib.buffer.get();
-        BufferD3D *storage = buffer ? GetImplAs<BufferD3D>(buffer) : nullptr;
-        StaticVertexBufferInterface *staticBuffer =
-            storage ? storage->getStaticVertexBuffer(attrib) : nullptr;
-
-        if (staticBuffer)
-        {
-            staticBuffer->commit();
-        }
-    }
-
     // Hint to unmap all the resources
     hintUnmapAllResources(vertexAttributes);
 
@@ -227,6 +215,26 @@ gl::Error VertexDataManager::prepareVertexData(const gl::State &state,
     return gl::Error(GL_NO_ERROR);
 }
 
+void VertexDataManager::invalidateMatchingStaticData(const gl::VertexAttribute &attrib,
+                                                     const gl::VertexAttribCurrentValueData &currentValue) const
+{
+    gl::Buffer *buffer = attrib.buffer.get();
+
+    if (buffer)
+    {
+        BufferD3D *bufferImpl = GetImplAs<BufferD3D>(buffer);
+        StaticVertexBufferInterface *staticBuffer = bufferImpl->getStaticVertexBuffer();
+
+        if (staticBuffer &&
+            staticBuffer->getBufferSize() > 0 &&
+            !staticBuffer->lookupAttribute(attrib, NULL) &&
+            !staticBuffer->directStoragePossible(attrib, currentValue.Type))
+        {
+            bufferImpl->invalidateStaticData();
+        }
+    }
+}
+
 gl::Error VertexDataManager::reserveSpaceForAttrib(const TranslatedAttribute &translatedAttrib,
                                                    GLsizei count,
                                                    GLsizei instances) const
@@ -234,8 +242,7 @@ gl::Error VertexDataManager::reserveSpaceForAttrib(const TranslatedAttribute &tr
     const gl::VertexAttribute &attrib = *translatedAttrib.attribute;
     gl::Buffer *buffer = attrib.buffer.get();
     BufferD3D *bufferImpl = buffer ? GetImplAs<BufferD3D>(buffer) : NULL;
-    StaticVertexBufferInterface *staticBuffer =
-        bufferImpl ? bufferImpl->getStaticVertexBuffer(attrib) : NULL;
+    StaticVertexBufferInterface *staticBuffer = bufferImpl ? bufferImpl->getStaticVertexBuffer() : NULL;
     VertexBufferInterface *vertexBuffer = staticBuffer ? staticBuffer : static_cast<VertexBufferInterface*>(mStreamingBuffer);
 
     if (!vertexBuffer->directStoragePossible(attrib, translatedAttrib.currentValueType))
@@ -284,8 +291,7 @@ gl::Error VertexDataManager::storeAttribute(TranslatedAttribute *translated,
     ASSERT(attrib.enabled);
 
     BufferD3D *storage = buffer ? GetImplAs<BufferD3D>(buffer) : NULL;
-    StaticVertexBufferInterface *staticBuffer =
-        storage ? storage->getStaticVertexBuffer(attrib) : NULL;
+    StaticVertexBufferInterface *staticBuffer = storage ? storage->getStaticVertexBuffer() : NULL;
     VertexBufferInterface *vertexBuffer = staticBuffer ? staticBuffer : static_cast<VertexBufferInterface*>(mStreamingBuffer);
     bool directStorage = vertexBuffer->directStoragePossible(attrib, translated->currentValueType);
 
