@@ -12,8 +12,11 @@
 #define ANGLE_ENABLE_D3D11
 #endif
 
-#include "test_utils/ANGLETest.h"
+#include <d3d11.h>
+
 #include "com_utils.h"
+#include "test_utils/ANGLETest.h"
+#include "OSWindow.h"
 
 using namespace angle;
 
@@ -26,7 +29,12 @@ class EGLDeviceCreationTest : public testing::Test
           mD3D11CreateDevice(nullptr),
           mDevice(nullptr),
           mDeviceContext(nullptr),
-          mDeviceCreationD3D11ExtAvailable(false)
+          mDeviceCreationD3D11ExtAvailable(false),
+          mOSWindow(nullptr),
+          mDisplay(EGL_NO_DISPLAY),
+          mSurface(EGL_NO_SURFACE),
+          mContext(EGL_NO_CONTEXT),
+          mConfig(0)
     {
     }
 
@@ -64,11 +72,36 @@ class EGLDeviceCreationTest : public testing::Test
     {
         SafeRelease(mDevice);
         SafeRelease(mDeviceContext);
+
+        if (mOSWindow != nullptr)
+        {
+            delete mOSWindow;
+            mOSWindow = nullptr;
+        }
+
+        if (mSurface != EGL_NO_SURFACE)
+        {
+            eglDestroySurface(mDisplay, mSurface);
+            mSurface = EGL_NO_SURFACE;
+        }
+
+        if (mContext != EGL_NO_CONTEXT)
+        {
+            eglDestroyContext(mDisplay, mContext);
+            mContext = EGL_NO_CONTEXT;
+        }
+
+        if (mDisplay != EGL_NO_DISPLAY)
+        {
+            eglTerminate(mDisplay);
+            mDisplay = EGL_NO_DISPLAY;
+        }
     }
 
     bool CreateD3D11Device()
     {
         ASSERT(mD3D11Available);
+        ASSERT(mDevice == nullptr);  // The device shouldn't be created twice
 
         HRESULT hr =
             mD3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, 0, nullptr, 0,
@@ -76,11 +109,83 @@ class EGLDeviceCreationTest : public testing::Test
 
         if (FAILED(hr) || mFeatureLevel < D3D_FEATURE_LEVEL_9_3)
         {
-            std::cout << "Could not create D3D11 device, skipping test" << std::endl;
+            std::cout << "Could not create D3D11 device" << std::endl;
             return false;
         }
 
         return true;
+    }
+
+    bool CreateD3D11FL9_3Device()
+    {
+        ASSERT(mD3D11Available);
+        ASSERT(mDevice == nullptr);
+
+        D3D_FEATURE_LEVEL fl93 = D3D_FEATURE_LEVEL_9_3;
+
+        HRESULT hr =
+            mD3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, 0, &fl93, 1, D3D11_SDK_VERSION,
+                               &mDevice, &mFeatureLevel, &mDeviceContext);
+
+        if (FAILED(hr))
+        {
+            std::cout << "Could not create D3D11 device" << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+
+    void CreateWindowSurface()
+    {
+        EGLint majorVersion, minorVersion;
+        ASSERT_EQ(eglInitialize(mDisplay, &majorVersion, &minorVersion), EGL_TRUE);
+
+        eglBindAPI(EGL_OPENGL_ES_API);
+        ASSERT_EQ(eglGetError(), EGL_SUCCESS);
+
+        // Choose a config
+        const EGLint configAttributes[] = {EGL_NONE};
+        EGLint configCount = 0;
+        ASSERT_EQ(eglChooseConfig(mDisplay, configAttributes, &mConfig, 1, &configCount), EGL_TRUE);
+
+        // Create an OS Window
+        mOSWindow = CreateOSWindow();
+        mOSWindow->initialize("EGLSurfaceTest", 64, 64);
+
+        // Create window surface
+        mSurface = eglCreateWindowSurface(mDisplay, mConfig, mOSWindow->getNativeWindow(), nullptr);
+        ASSERT_EQ(eglGetError(), EGL_SUCCESS);
+
+        // Create EGL context
+        EGLint contextAttibutes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+        mContext = eglCreateContext(mDisplay, mConfig, nullptr, contextAttibutes);
+        ASSERT_EQ(eglGetError(), EGL_SUCCESS);
+
+        // Make the surface current
+        eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
+        ASSERT_EQ(eglGetError(), EGL_SUCCESS);
+    }
+
+    // This triggers a D3D device lost on current Windows systems
+    // This behavior could potentially change in the future
+    bool trigger9_3DeviceLost()
+    {
+        ID3D11Buffer *gsBuffer       = nullptr;
+        D3D11_BUFFER_DESC bufferDesc = {0};
+        bufferDesc.ByteWidth         = 64;
+        bufferDesc.Usage             = D3D11_USAGE_DEFAULT;
+        bufferDesc.BindFlags         = D3D11_BIND_CONSTANT_BUFFER;
+
+        HRESULT result = mDevice->CreateBuffer(&bufferDesc, nullptr, &gsBuffer);
+        ASSERT(SUCCEEDED(result));
+
+        mDeviceContext->GSSetConstantBuffers(0, 1, &gsBuffer);
+        SafeRelease(gsBuffer);
+        gsBuffer = nullptr;
+
+        result = mDevice->GetDeviceRemovedReason();
+        return !!FAILED(result);
     }
 
     bool mD3D11Available;
@@ -92,6 +197,13 @@ class EGLDeviceCreationTest : public testing::Test
     D3D_FEATURE_LEVEL mFeatureLevel;
 
     bool mDeviceCreationD3D11ExtAvailable;
+
+    OSWindow *mOSWindow;
+
+    EGLDisplay mDisplay;
+    EGLSurface mSurface;
+    EGLContext mContext;
+    EGLConfig mConfig;
 };
 
 // Test that creating a EGLDeviceEXT from D3D11 device works, and it can be queried to retrieve
@@ -147,6 +259,126 @@ TEST_F(EGLDeviceCreationTest, BasicD3D11DeviceViaFuncPointer)
     ASSERT_EQ(mFeatureLevel, queriedDevice->GetFeatureLevel());
 
     releaseDeviceANGLE(eglDevice);
+}
+
+// Test that creating a EGLDeviceEXT from D3D11 device works, and can be used for rendering
+TEST_F(EGLDeviceCreationTest, RenderingUsingD3D11Device)
+{
+    if (!mD3D11Available || !CreateD3D11Device())
+    {
+        std::cout << "D3D11 not available, skipping test" << std::endl;
+        return;
+    }
+
+    EGLDeviceEXT eglDevice = eglCreateDeviceANGLE(EGL_D3D11_DEVICE_ANGLE, reinterpret_cast<void *>(mDevice), nullptr);
+    ASSERT_EQ(eglGetError(), EGL_SUCCESS);
+
+    // Create an EGLDisplay using the EGLDevice
+    mDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevice, nullptr);
+    ASSERT_TRUE(mDisplay != EGL_NO_DISPLAY);
+
+    // Create a surface using the display
+    CreateWindowSurface();
+
+    // Perform some very basic rendering
+    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    EXPECT_PIXEL_EQ(32, 32, 255, 0, 255, 255);
+
+    // Note that we must call TearDown() before we release the EGL device, since the display
+    // depends on the device
+    TearDown();
+
+    eglReleaseDeviceANGLE(eglDevice);
+}
+
+// Test that ANGLE doesn't try to recreate a D3D11 device if the inputted one is lost
+TEST_F(EGLDeviceCreationTest, D3D11DeviceRecovery)
+{
+    // Force Feature Level 9_3 so we can easily trigger a device lost later
+    if (!mD3D11Available || !CreateD3D11FL9_3Device())
+    {
+        std::cout << "D3D11 not available, skipping test" << std::endl;
+        return;
+    }
+
+    EGLDeviceEXT eglDevice = eglCreateDeviceANGLE(EGL_D3D11_DEVICE_ANGLE, reinterpret_cast<void *>(mDevice), nullptr);
+    ASSERT_EQ(eglGetError(), EGL_SUCCESS);
+
+    // Create an EGLDisplay using the EGLDevice
+    mDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevice, nullptr);
+    ASSERT_TRUE(mDisplay != EGL_NO_DISPLAY);
+
+    // Create a surface using the display
+    CreateWindowSurface();
+
+    // Perform some very basic rendering
+    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    EXPECT_PIXEL_EQ(32, 32, 255, 0, 255, 255);
+    EXPECT_GL_NO_ERROR();
+
+    // ANGLE's SwapChain11::initPassThroughResources doesn't handle device lost before
+    // eglSwapBuffers, so we must call eglSwapBuffers before we lose the device.
+    ASSERT_EQ(eglSwapBuffers(mDisplay, mSurface), EGL_TRUE);
+
+    // Trigger a lost device
+    ASSERT_EQ(trigger9_3DeviceLost(), true);
+
+    // Destroy the old EGL Window Surface
+    if (mSurface != EGL_NO_SURFACE)
+    {
+        eglDestroySurface(mDisplay, mSurface);
+        mSurface = EGL_NO_SURFACE;
+    }
+
+    // Try to create a new window surface. In certain configurations this will recreate the D3D11 device.
+    // We want to test that it doesn't recreate the D3D11 device when EGLDeviceEXT is used.
+    // The window surface creation should fail if a new D3D11 device isn't created.
+    mSurface = eglCreateWindowSurface(mDisplay, mConfig, mOSWindow->getNativeWindow(), nullptr);
+    ASSERT_EQ(mSurface, EGL_NO_SURFACE);
+    ASSERT_NE(eglGetError(), EGL_SUCCESS);
+
+    // Get the D3D11 device out of the EGLDisplay again. It should be the same one as above.
+    EGLAttrib device       = 0;
+    EGLAttrib newEglDevice = 0;
+    EXPECT_EQ(EGL_TRUE, eglQueryDisplayAttribEXT(mDisplay, EGL_DEVICE_EXT, &newEglDevice));
+    EXPECT_EQ(EGL_TRUE, eglQueryDeviceAttribEXT(reinterpret_cast<EGLDeviceEXT>(newEglDevice),
+                                                EGL_D3D11_DEVICE_ANGLE, &device));
+    ID3D11Device *newDevice = reinterpret_cast<ID3D11Device *>(device);
+
+    ASSERT_EQ(reinterpret_cast<EGLDeviceEXT>(newEglDevice), eglDevice);
+    ASSERT_EQ(newDevice, mDevice);
+
+    // Note that we must call TearDown() before we release the EGL device, since the display
+    // depends on the device
+    TearDown();
+
+    eglReleaseDeviceANGLE(eglDevice);
+}
+
+// Test that calling eglGetPlatformDisplayEXT with the same device returns the same display
+TEST_F(EGLDeviceCreationTest, getPlatformDisplayTwice)
+{
+    if (!mD3D11Available || !CreateD3D11Device())
+    {
+        std::cout << "D3D11 not available, skipping test" << std::endl;
+        return;
+    }
+
+    EGLDeviceEXT eglDevice = eglCreateDeviceANGLE(EGL_D3D11_DEVICE_ANGLE, reinterpret_cast<void *>(mDevice), nullptr);
+    ASSERT_EQ(eglGetError(), EGL_SUCCESS);
+
+    // Create an EGLDisplay using the EGLDevice
+    EGLDisplay display1 = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevice, nullptr);
+    ASSERT_TRUE(display1 != EGL_NO_DISPLAY);
+
+    EGLDisplay display2 = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevice, nullptr);
+    ASSERT_TRUE(display2 != EGL_NO_DISPLAY);
+
+    EXPECT_EQ(display1, display2);
+
+    eglReleaseDeviceANGLE(eglDevice);
 }
 
 // Test that creating a EGLDeviceEXT from an invalid D3D11 device fails
@@ -329,6 +561,22 @@ TEST_P(EGLDeviceQueryTest, QueryDeviceBadAttribute)
         EXPECT_EQ(EGL_FALSE, mQueryDeviceAttribEXT(reinterpret_cast<EGLDeviceEXT>(angleDevice),
                                                    EGL_D3D11_DEVICE_ANGLE, &device));
     }
+}
+
+// Ensure that:
+//    - calling getPlatformDisplayEXT using ANGLE_Platform with some parameters
+//    - extracting the EGLDeviceEXT from the EGLDisplay
+//    - calling getPlatformDisplayEXT with this EGLDeviceEXT
+// results in the same EGLDisplay being returned from getPlatformDisplayEXT both times
+TEST_P(EGLDeviceQueryTest, getPlatformDisplayDeviceReuse)
+{
+    EGLAttrib eglDevice = 0;
+    EXPECT_EQ(EGL_TRUE,
+              eglQueryDisplayAttribEXT(getEGLWindow()->getDisplay(), EGL_DEVICE_EXT, &eglDevice));
+
+    EGLDisplay display2 = eglGetPlatformDisplayEXT(
+        EGL_PLATFORM_DEVICE_EXT, reinterpret_cast<EGLDeviceEXT>(eglDevice), nullptr);
+    EXPECT_EQ(getEGLWindow()->getDisplay(), display2);
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these

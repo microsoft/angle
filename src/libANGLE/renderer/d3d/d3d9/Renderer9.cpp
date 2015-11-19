@@ -133,6 +133,8 @@ Renderer9::Renderer9(egl::Display *display)
     mAppliedProgramSerial = 0;
 
     initializeDebugAnnotator();
+
+    mEGLDevice = nullptr;
 }
 
 Renderer9::~Renderer9()
@@ -155,6 +157,7 @@ void Renderer9::release()
 
     releaseDeviceResources();
 
+    SafeDelete(mEGLDevice);
     SafeRelease(mDevice);
     SafeRelease(mDeviceEx);
     SafeRelease(mD3d9);
@@ -3057,20 +3060,24 @@ gl::Error Renderer9::clearTextures(gl::SamplerType samplerType, size_t rangeStar
     return gl::Error(GL_NO_ERROR);
 }
 
-egl::Error Renderer9::createEGLDevice(DeviceD3D **outDevice)
-{
-    ASSERT(mDevice != nullptr);
-    DeviceD3D *device = new DeviceD3D();
-    egl::Error error =
-        device->initialize(reinterpret_cast<void *>(mDevice), EGL_D3D9_DEVICE_ANGLE, EGL_FALSE);
 
-    if (error.isError())
+egl::Error Renderer9::getEGLDevice(DeviceImpl **device)
+{
+    if (mEGLDevice == nullptr)
     {
-        SafeDelete(device);
-        return error;
+        ASSERT(mDevice != nullptr);
+        mEGLDevice = new DeviceD3D();
+        egl::Error error =
+            mEGLDevice->initialize(reinterpret_cast<void *>(mDevice), EGL_D3D9_DEVICE_ANGLE, EGL_FALSE);
+
+        if (error.isError())
+        {
+            SafeDelete(mEGLDevice);
+            return error;
+        }
     }
 
-    *outDevice = device;
+    *device = static_cast<DeviceImpl *>(mEGLDevice);
     return egl::Error(EGL_SUCCESS);
 }
 

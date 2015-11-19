@@ -41,7 +41,7 @@ EGLDisplay EGLAPIENTRY GetDisplay(EGLNativeDisplayType display_id)
 {
     EVENT("(EGLNativeDisplayType display_id = 0x%0.8p)", display_id);
 
-    return Display::getDisplay(display_id, AttributeMap());
+    return Display::getDisplay(EGL_PLATFORM_ANGLE_ANGLE, display_id, AttributeMap());
 }
 
 EGLBoolean EGLAPIENTRY Initialize(EGLDisplay dpy, EGLint *major, EGLint *minor)
