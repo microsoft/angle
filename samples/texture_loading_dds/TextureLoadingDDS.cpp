@@ -15,7 +15,7 @@
 
 #include "SampleApplication.h"
 #include "shader_utils.h"
-#include "path_utils.h"
+#include "system_utils.h"
 #include "DDSTextureLoader.h"
 
 class TextureLoadingDDSSample : public SampleApplication
@@ -65,7 +65,7 @@ class TextureLoadingDDSSample : public SampleApplication
         mSamplerLoc = glGetUniformLocation(mProgram, "s_texture");
 
         // Load the texture
-        std::string path = GetExecutableDirectory() + "\\bc3compressed.dds";
+        std::string path = angle::GetExecutableDirectory() + "\\bc3compressed.dds";
         std::wstring widePath;
         widePath.assign(path.begin(), path.end());
         if (FAILED(DirectX::CreateDDSTextureFromFile(widePath.c_str(), &mTexture)))

@@ -15,7 +15,7 @@
 
 #include "SampleApplication.h"
 #include "shader_utils.h"
-#include "path_utils.h"
+#include "system_utils.h"
 #include "WICTextureLoader.h"
 
 class TextureLoadingWICSample : public SampleApplication
@@ -64,7 +64,7 @@ class TextureLoadingWICSample : public SampleApplication
         // Get the sampler location
         mSamplerLoc = glGetUniformLocation(mProgram, "s_texture");
 
-        std::string path = GetExecutableDirectory();
+        std::string path = angle::GetExecutableDirectory();
         std::wstring widePath;
         widePath.assign(path.begin(), path.end());
 
