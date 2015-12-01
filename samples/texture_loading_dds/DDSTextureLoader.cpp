@@ -1205,16 +1205,16 @@ static HRESULT CreateOpenGLResources( _In_ uint32_t resDim,
                     for (size_t mip = 0; mip < mipCount; mip++)
                     {
                         // Set texture target based on if we are building a texture 2d or a cubemap texture
-                        textureTarget = isCubeMap ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + texArrayIndex : GL_TEXTURE_2D;
+                        textureTarget = isCubeMap ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(texArrayIndex) : GL_TEXTURE_2D;
 
                         if (IsCompressed(format))
                         {
-                            glCompressedTexImage2D(textureTarget, mip, glTextureFormat, static_cast<GLsizei>(w), static_cast<GLsizei>(h), 0,
+                            glCompressedTexImage2D(textureTarget, static_cast<GLint>(mip), glTextureFormat, static_cast<GLsizei>(w), static_cast<GLsizei>(h), 0,
                                 initData[dataIndex].SysMemSlicePitch, initData[dataIndex].pSysMem);
                         }
                         else
                         {
-                            glTexImage2D(textureTarget, mip, glTextureFormat, static_cast<GLsizei>(w), static_cast<GLsizei>(h), 0,
+                            glTexImage2D(textureTarget, static_cast<GLint>(mip), glTextureFormat, static_cast<GLsizei>(w), static_cast<GLsizei>(h), 0,
                                 glTextureFormat, glTextureType, initData[dataIndex].pSysMem);
                         }
 
