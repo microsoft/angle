@@ -558,19 +558,19 @@ Renderer11::Renderer11(egl::Display *display)
         switch (requestedDeviceType)
         {
             case EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_HARDWARE;
+                mRequestedDriverType = D3D_DRIVER_TYPE_HARDWARE;
                 break;
 
             case EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_WARP;
+                mRequestedDriverType = D3D_DRIVER_TYPE_WARP;
                 break;
 
             case EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_REFERENCE;
+                mRequestedDriverType = D3D_DRIVER_TYPE_REFERENCE;
                 break;
 
             case EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_NULL;
+                mRequestedDriverType = D3D_DRIVER_TYPE_NULL;
                 break;
 
             default:
@@ -587,6 +587,10 @@ Renderer11::Renderer11(egl::Display *display)
         mCreatedWithDeviceEXT = true;
 
         mUseDirectRendering = false;
+		
+        // Also set EGL_PLATFORM_ANGLE_ANGLE variables, in case they're used elsewhere in ANGLE
+        // mAvailableFeatureLevels defaults to empty
+        mRequestedDriverType = static_cast<D3D_DRIVER_TYPE>(0);
     }
 
     initializeDebugAnnotator();
@@ -793,10 +797,11 @@ egl::Error Renderer11::initializeD3DDevice()
 #ifdef _DEBUG
         {
             TRACE_EVENT0("gpu.angle", "D3D11CreateDevice (Debug)");
-            result = D3D11CreateDevice(
-                NULL, mDriverType, NULL, D3D11_CREATE_DEVICE_DEBUG, mAvailableFeatureLevels.data(),
-                static_cast<unsigned int>(mAvailableFeatureLevels.size()), D3D11_SDK_VERSION,
-                &mDevice, &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
+            result = D3D11CreateDevice(nullptr, mRequestedDriverType, nullptr,
+                                       D3D11_CREATE_DEVICE_DEBUG, mAvailableFeatureLevels.data(),
+                                       static_cast<unsigned int>(mAvailableFeatureLevels.size()),
+                                       D3D11_SDK_VERSION, &mDevice,
+                                       &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
         }
 
         if (!mDevice || FAILED(result))
@@ -810,10 +815,10 @@ egl::Error Renderer11::initializeD3DDevice()
             SCOPED_ANGLE_HISTOGRAM_TIMER("GPU.ANGLE.D3D11CreateDeviceMS");
             TRACE_EVENT0("gpu.angle", "D3D11CreateDevice");
 
-            result = D3D11CreateDevice(NULL, mDriverType, NULL, 0, mAvailableFeatureLevels.data(),
-                                       static_cast<unsigned int>(mAvailableFeatureLevels.size()),
-                                       D3D11_SDK_VERSION, &mDevice,
-                                       &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
+            result = D3D11CreateDevice(
+                nullptr, mRequestedDriverType, nullptr, 0, mAvailableFeatureLevels.data(),
+                static_cast<unsigned int>(mAvailableFeatureLevels.size()), D3D11_SDK_VERSION,
+                &mDevice, &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
 
             // Cleanup done by destructor
             if (!mDevice || FAILED(result))
@@ -2552,7 +2557,7 @@ bool Renderer11::testDeviceResettable()
     ID3D11DeviceContext* dummyContext;
 
     HRESULT result = D3D11CreateDevice(
-        NULL, mDriverType, NULL,
+        NULL, mRequestedDriverType, NULL,
                                        #if defined(_DEBUG)
         D3D11_CREATE_DEVICE_DEBUG,
                                        #else
@@ -2703,8 +2708,14 @@ bool Renderer11::getShareHandleSupport() const
         return false;
     }
 
+    // TODO: ANGLE should prevent applications from trying share resources between
+    // hardware and WARP devices.
+    // One possible solution to this would be to allow applications to specifically
+    // request WARP or HW share handles, e.g. by replacing EGL_D3D_TEXTURE_2D_SHARE_HANDLE_ANGLE
+    // with separate values for HW and WARP.
+
     // Also disable on non-hardware drivers, since sharing doesn't work cross-driver.
-    if (mDriverType != D3D_DRIVER_TYPE_HARDWARE)
+    if (mRequestedDriverType != D3D_DRIVER_TYPE_HARDWARE || mRequestedDriverType != D3D_DRIVER_TYPE_WARP)
     {
         return false;
     }
