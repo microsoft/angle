@@ -587,7 +587,7 @@ Renderer11::Renderer11(egl::Display *display)
     }
     else if (display->getPlatform() == EGL_PLATFORM_DEVICE_EXT)
     {
-        mEGLDevice = dynamic_cast<DeviceD3D *>(display->getDevice()->getImplementation());
+        mEGLDevice = GetImplAs<DeviceD3D>(display->getDevice());
         ASSERT(mEGLDevice != nullptr);
         mDeviceEXTInputted = true;
     }
