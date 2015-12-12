@@ -160,7 +160,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
@@ -206,7 +206,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>

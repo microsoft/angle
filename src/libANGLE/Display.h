@@ -44,9 +44,7 @@ class Display final : angle::NonCopyable
     Error initialize();
     void terminate();
 
-    static egl::Display *getDisplay(EGLenum platform,
-                                    void *native_display,
-                                    const AttributeMap &attribMap);
+    static egl::Display *getDisplay(EGLNativeDisplayType displayId, const AttributeMap &attribMap);
 
     static const ClientExtensions &getClientExtensions();
     static const std::string &getClientExtensionString();
@@ -103,11 +101,9 @@ class Display final : angle::NonCopyable
 
     rx::DisplayImpl *getImplementation() { return mImplementation; }
     Device *getDevice() const;
-    EGLenum getPlatform() const { return mPlatform; }
 
   private:
-    Display(EGLenum platform, EGLNativeDisplayType displayId);
-    Display(EGLenum platform, Device *eglDevice);
+    Display(EGLNativeDisplayType displayId);
 
     void setAttributes(rx::DisplayImpl *impl, const AttributeMap &attribMap);
 
@@ -139,7 +135,6 @@ class Display final : angle::NonCopyable
     std::string mVendorString;
 
     Device *mDevice;
-    EGLenum mPlatform;
 };
 
 }

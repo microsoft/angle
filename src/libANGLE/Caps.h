@@ -467,9 +467,6 @@ struct ClientExtensions
     // EGL_EXT_platform_base
     bool platformBase;
 
-    // EGL_EXT_platform_device
-    bool platformDevice;
-
     // EGL_ANGLE_platform_angle
     bool platformANGLE;
 
@@ -478,12 +475,6 @@ struct ClientExtensions
 
     // EGL_ANGLE_platform_angle_opengl
     bool platformANGLEOpenGL;
-
-    // EGL_ANGLE_device_creation
-    bool deviceCreation;
-
-    // EGL_ANGLE_device_creation_d3d11
-    bool deviceCreationD3D11;
 
     // EGL_KHR_client_get_all_proc_addresses
     bool clientGetAllProcAddresses;

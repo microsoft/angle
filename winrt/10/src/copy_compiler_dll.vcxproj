@@ -91,12 +91,10 @@
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib</AdditionalDependencies>
       <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
-      <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
-      <OptimizeReferences>false</OptimizeReferences>
       <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -132,12 +130,10 @@
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib</AdditionalDependencies>
       <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
-      <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
-      <OptimizeReferences>false</OptimizeReferences>
       <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineARM</TargetMachine>
@@ -173,12 +169,10 @@
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib</AdditionalDependencies>
       <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
-      <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
-      <OptimizeReferences>false</OptimizeReferences>
       <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
@@ -197,28 +191,25 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
-      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
-      <Optimization>MinSpace</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
-      <AdditionalOptions>/guard:cf /cgthreads:8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
       <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
       <SubSystem>Console</SubSystem>
@@ -238,28 +229,25 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
-      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
-      <Optimization>MinSpace</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Lib>
       <TargetMachine>MachineARM</TargetMachine>
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
-      <AdditionalOptions>/guard:cf /cgthreads:8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
       <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
       <SubSystem>Console</SubSystem>
@@ -279,28 +267,25 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
-      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
-      <Optimization>MinSpace</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Lib>
       <TargetMachine>MachineX64</TargetMachine>
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
-      <AdditionalOptions>/guard:cf /cgthreads:8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
       <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
       <SubSystem>Console</SubSystem>

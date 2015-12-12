@@ -499,8 +499,6 @@ Renderer11::Renderer11(egl::Display *display)
 
     mD3d11Module = NULL;
     mDxgiModule = NULL;
-    mDeviceEXTInputted = false;
-    mEGLDevice         = nullptr;
 
     mDevice = NULL;
     mDeviceContext = NULL;
@@ -519,78 +517,67 @@ Renderer11::Renderer11(egl::Display *display)
 
     ZeroMemory(&mAdapterDescription, sizeof(mAdapterDescription));
 
-    if (mDisplay->getPlatform() == EGL_PLATFORM_ANGLE_ANGLE)
+    const auto &attributes = mDisplay->getAttributeMap();
+
+    EGLint requestedMajorVersion = attributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, EGL_DONT_CARE);
+    EGLint requestedMinorVersion = attributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE, EGL_DONT_CARE);
+
+    if (requestedMajorVersion == EGL_DONT_CARE || requestedMajorVersion >= 11)
     {
-        const auto &attributes = mDisplay->getAttributeMap();
-
-        EGLint requestedMajorVersion =
-            attributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MAJOR_ANGLE, EGL_DONT_CARE);
-        EGLint requestedMinorVersion =
-            attributes.get(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE, EGL_DONT_CARE);
-
-        if (requestedMajorVersion == EGL_DONT_CARE || requestedMajorVersion >= 11)
+        if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 0)
         {
-            if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 0)
-            {
-                mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_11_0);
-            }
+            mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_11_0);
         }
+    }
 
-        if (requestedMajorVersion == EGL_DONT_CARE || requestedMajorVersion >= 10)
+    if (requestedMajorVersion == EGL_DONT_CARE || requestedMajorVersion >= 10)
+    {
+        if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 1)
         {
-            if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 1)
-            {
-                mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_10_1);
-            }
-            if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 0)
-            {
-                mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_10_0);
-            }
+            mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_10_1);
         }
-
-        if (requestedMajorVersion == 9 && requestedMinorVersion == 3)
+        if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 0)
         {
-            mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_9_3);
+            mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_10_0);
         }
+    }
 
-        EGLint requestedDeviceType = attributes.get(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE,
-                                                    EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
-        switch (requestedDeviceType)
-        {
-            case EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_HARDWARE;
-                break;
+    if (requestedMajorVersion == 9 && requestedMinorVersion == 3)
+    {
+        mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_9_3);
+    }
 
-            case EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_WARP;
-                break;
+    EGLint requestedDeviceType = attributes.get(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE,
+                                                EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
+    switch (requestedDeviceType)
+    {
+      case EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE:
+        mDriverType = D3D_DRIVER_TYPE_HARDWARE;
+        break;
 
-            case EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_REFERENCE;
-                break;
+      case EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE:
+        mDriverType = D3D_DRIVER_TYPE_WARP;
+        break;
 
-            case EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_NULL;
-                break;
+      case EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE:
+        mDriverType = D3D_DRIVER_TYPE_REFERENCE;
+        break;
 
-            default:
-                UNREACHABLE();
-        }
+      case EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE:
+        mDriverType = D3D_DRIVER_TYPE_NULL;
+        break;
 
-        EGLBoolean defaultRenderToBackBuffer = EGL_FALSE;
+      default:
+        UNREACHABLE();
+    }
+
+    EGLBoolean defaultRenderToBackBuffer = EGL_FALSE;
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
-        defaultRenderToBackBuffer = EGL_TRUE;
+    defaultRenderToBackBuffer = EGL_TRUE;
 #endif
 
-        mRenderToBackBufferEnabled = (attributes.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, defaultRenderToBackBuffer) == EGL_TRUE);
-        mRenderToBackBufferActive = false;
-    }
-    else if (display->getPlatform() == EGL_PLATFORM_DEVICE_EXT)
-    {
-        mEGLDevice = GetImplAs<DeviceD3D>(display->getDevice());
-        ASSERT(mEGLDevice != nullptr);
-        mDeviceEXTInputted = true;
-    }
+    mRenderToBackBufferEnabled = (attributes.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, defaultRenderToBackBuffer) == EGL_TRUE);
+    mRenderToBackBufferActive = false;
 
     initializeDebugAnnotator();
 }
@@ -606,99 +593,68 @@ Renderer11::~Renderer11()
 
 egl::Error Renderer11::initialize()
 {
-    HRESULT result = S_OK;
-
-    if (!mDeviceEXTInputted)
-    {
 #if !defined(ANGLE_ENABLE_WINDOWS_STORE)
-        PFN_D3D11_CREATE_DEVICE D3D11CreateDevice = nullptr;
-        {
-            SCOPED_ANGLE_HISTOGRAM_TIMER("GPU.ANGLE.Renderer11InitializeDLLsMS");
-            TRACE_EVENT0("gpu.angle", "Renderer11::initialize (Load DLLs)");
-            mDxgiModule  = LoadLibrary(TEXT("dxgi.dll"));
-            mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
-
-            if (mD3d11Module == nullptr || mDxgiModule == nullptr)
-            {
-                return egl::Error(EGL_NOT_INITIALIZED, D3D11_INIT_MISSING_DEP,
-                                  "Could not load D3D11 or DXGI library.");
-            }
-
-            // create the D3D11 device
-            ASSERT(mDevice == nullptr);
-            D3D11CreateDevice = reinterpret_cast<PFN_D3D11_CREATE_DEVICE>(
-                GetProcAddress(mD3d11Module, "D3D11CreateDevice"));
-
-            if (D3D11CreateDevice == nullptr)
-            {
-                return egl::Error(EGL_NOT_INITIALIZED, D3D11_INIT_MISSING_DEP,
-                                  "Could not retrieve D3D11CreateDevice address.");
-            }
-        }
-#endif
-
-#ifdef _DEBUG
-        {
-            TRACE_EVENT0("gpu.angle", "D3D11CreateDevice (Debug)");
-            result = D3D11CreateDevice(
-                NULL, mDriverType, NULL, D3D11_CREATE_DEVICE_DEBUG, mAvailableFeatureLevels.data(),
-                static_cast<unsigned int>(mAvailableFeatureLevels.size()), D3D11_SDK_VERSION,
-                &mDevice, &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
-        }
-
-        if (!mDevice || FAILED(result))
-        {
-            ERR("Failed creating Debug D3D11 device - falling back to release runtime.\n");
-        }
-
-        if (!mDevice || FAILED(result))
-#endif
-        {
-            SCOPED_ANGLE_HISTOGRAM_TIMER("GPU.ANGLE.D3D11CreateDeviceMS");
-            TRACE_EVENT0("gpu.angle", "D3D11CreateDevice");
-
-            result = D3D11CreateDevice(NULL, mDriverType, NULL, 0, mAvailableFeatureLevels.data(),
-                                       static_cast<unsigned int>(mAvailableFeatureLevels.size()),
-                                       D3D11_SDK_VERSION, &mDevice,
-                                       &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
-
-            // Cleanup done by destructor
-            if (!mDevice || FAILED(result))
-            {
-                ANGLE_HISTOGRAM_SPARSE_SLOWLY("GPU.ANGLE.D3D11CreateDeviceError",
-                                              static_cast<int>(result));
-                return egl::Error(EGL_NOT_INITIALIZED, D3D11_INIT_CREATEDEVICE_ERROR,
-                                  "Could not create D3D11 device.");
-            }
-        }
-    }
-    else
+    PFN_D3D11_CREATE_DEVICE D3D11CreateDevice = nullptr;
     {
-        // We should use the inputted D3D11 device instead
-        void *device = nullptr;
-        egl::Error error = mEGLDevice->getDevice(&device);
-        if (error.isError())
-        {
-            return error;
-        }
+        SCOPED_ANGLE_HISTOGRAM_TIMER("GPU.ANGLE.Renderer11InitializeDLLsMS");
+        TRACE_EVENT0("gpu.angle", "Renderer11::initialize (Load DLLs)");
+        mDxgiModule = LoadLibrary(TEXT("dxgi.dll"));
+        mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
 
-        ID3D11Device *d3dDevice = reinterpret_cast<ID3D11Device *>(device);
-        if (FAILED(d3dDevice->GetDeviceRemovedReason()))
-        {
-            return egl::Error(EGL_NOT_INITIALIZED, "Inputted D3D11 device has been lost.");
-        }
-
-        if (d3dDevice->GetFeatureLevel() < D3D_FEATURE_LEVEL_9_3)
+        if (mD3d11Module == nullptr || mDxgiModule == nullptr)
         {
             return egl::Error(EGL_NOT_INITIALIZED,
-                              "Inputted D3D11 device must be Feature Level 9_3 or greater.");
+                              D3D11_INIT_MISSING_DEP,
+                              "Could not load D3D11 or DXGI library.");
         }
 
-        // The Renderer11 adds a ref to the inputted D3D11 device, like D3D11CreateDevice does.
-        mDevice = d3dDevice;
-        mDevice->AddRef();
-        mDevice->GetImmediateContext(&mDeviceContext);
-        mRenderer11DeviceCaps.featureLevel = mDevice->GetFeatureLevel();
+        // create the D3D11 device
+        ASSERT(mDevice == nullptr);
+        D3D11CreateDevice = reinterpret_cast<PFN_D3D11_CREATE_DEVICE>(GetProcAddress(mD3d11Module, "D3D11CreateDevice"));
+
+        if (D3D11CreateDevice == nullptr)
+        {
+            return egl::Error(EGL_NOT_INITIALIZED,
+                              D3D11_INIT_MISSING_DEP,
+                              "Could not retrieve D3D11CreateDevice address.");
+        }
+    }
+#endif
+
+    HRESULT result = S_OK;
+#ifdef _DEBUG
+    {
+        TRACE_EVENT0("gpu.angle", "D3D11CreateDevice (Debug)");
+        result = D3D11CreateDevice(
+            NULL, mDriverType, NULL, D3D11_CREATE_DEVICE_DEBUG, mAvailableFeatureLevels.data(),
+            static_cast<unsigned int>(mAvailableFeatureLevels.size()), D3D11_SDK_VERSION, &mDevice,
+            &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
+    }
+
+    if (!mDevice || FAILED(result))
+    {
+        ERR("Failed creating Debug D3D11 device - falling back to release runtime.\n");
+    }
+
+    if (!mDevice || FAILED(result))
+#endif
+    {
+        SCOPED_ANGLE_HISTOGRAM_TIMER("GPU.ANGLE.D3D11CreateDeviceMS");
+        TRACE_EVENT0("gpu.angle", "D3D11CreateDevice");
+
+        result = D3D11CreateDevice(NULL, mDriverType, NULL, 0, mAvailableFeatureLevels.data(),
+                                   static_cast<unsigned int>(mAvailableFeatureLevels.size()),
+                                   D3D11_SDK_VERSION, &mDevice,
+                                   &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
+
+        // Cleanup done by destructor
+        if (!mDevice || FAILED(result))
+        {
+            ANGLE_HISTOGRAM_SPARSE_SLOWLY("GPU.ANGLE.D3D11CreateDeviceError", static_cast<int>(result));
+            return egl::Error(EGL_NOT_INITIALIZED,
+                              D3D11_INIT_CREATEDEVICE_ERROR,
+                              "Could not create D3D11 device.");
+        }
     }
 
 #if !defined(ANGLE_ENABLE_WINDOWS_STORE)
@@ -2789,13 +2745,6 @@ void Renderer11::release()
 
     releaseDeviceResources();
 
-    if (!mDeviceEXTInputted)
-    {
-        // Only delete the device if the Renderer11 owns it
-        // Otherwise we should keep it around in case we try to reinitialize the renderer later
-        SafeDelete(mEGLDevice);
-    }
-
     SafeRelease(mDxgiFactory);
     SafeRelease(mDxgiAdapter);
 
@@ -4407,23 +4356,14 @@ gl::Error Renderer11::clearTextures(gl::SamplerType samplerType, size_t rangeSta
     return gl::Error(GL_NO_ERROR);
 }
 
-egl::Error Renderer11::getEGLDevice(DeviceImpl **device)
+egl::Error Renderer11::initializeEGLDevice(DeviceD3D **outDevice)
 {
-    if (mEGLDevice == nullptr)
+    if (*outDevice == nullptr)
     {
         ASSERT(mDevice != nullptr);
-        mEGLDevice = new DeviceD3D();
-        egl::Error error =
-            mEGLDevice->initialize(reinterpret_cast<void *>(mDevice), EGL_D3D11_DEVICE_ANGLE, EGL_FALSE);
-
-        if (error.isError())
-        {
-            SafeDelete(mEGLDevice);
-            return error;
-        }
+        *outDevice = new DeviceD3D(reinterpret_cast<void *>(mDevice), EGL_D3D11_DEVICE_ANGLE);
     }
 
-    *device = static_cast<DeviceImpl *>(mEGLDevice);
     return egl::Error(EGL_SUCCESS);
 }
 }

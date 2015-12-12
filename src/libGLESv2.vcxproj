@@ -160,7 +160,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
@@ -206,7 +206,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>

@@ -99,6 +99,7 @@
                         'ExceptionHandling': '0',
                         'EnableFunctionLevelLinking': 'true',
                         'MinimalRebuild': 'false',
+                        'RuntimeTypeInfo': 'true',
                         'WarningLevel': '4',
                     },
                     'VCLinkerTool':
@@ -141,7 +142,6 @@
                     {
                         'Optimization': '0',    # /Od
                         'BasicRuntimeChecks': '3',
-                        'RuntimeTypeInfo': 'true',
                         'conditions':
                         [
                             ['angle_build_winrt==1',
@@ -176,9 +176,7 @@
                                 'AdditionalDependencies':
                                 [
                                     'dxgi.lib',
-                                ],
-                                'EnableCOMDATFolding': '1',
-                                'OptimizeReferences': '1',
+                                ]
                             }],
                         ],
                     },
@@ -201,18 +199,11 @@
                 {
                     'VCCLCompilerTool':
                     {
-                        'RuntimeTypeInfo': 'false',
-
+                        'Optimization': '2',    # /Os
                         'conditions':
                         [
                             ['angle_build_winrt==1',
                             {
-                                # Use Chromium's settings for 'Official' builds
-                                # to optimize WinRT release builds
-                                'Optimization': '1', # /O1, minimize size
-                                'FavorSizeOrSpeed': '2', # /Os
-                                'WholeProgramOptimization': 'true',
-
                                 # Use the dynamic C runtime to match
                                 # Windows Application Store requirements
 
@@ -223,8 +214,6 @@
                                 'RuntimeLibrary': '2', # /MD (nondebug dll)
                             },
                             {
-                                'Optimization': '2', # /O2, maximize speed
-
                                 # Use the static C runtime to
                                 # match chromium and make sure
                                 # we don't depend on the dynamic
@@ -236,17 +225,6 @@
                     {
                         'GenerateDebugInformation': '<(release_symbols)',
                         'LinkIncremental': '1',
-
-                        'conditions':
-                        [
-                            ['angle_build_winrt==1',
-                            {
-                                # Use Chromium's settings for 'Official' builds
-                                # to optimize WinRT release builds
-                                'LinkTimeCodeGeneration': '1',
-                                'AdditionalOptions': ['/cgthreads:8'],
-                            }],
-                        ],
                     },
                 },
             },    # Release_Base
