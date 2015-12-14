@@ -254,8 +254,15 @@ class Renderer11 : public RendererD3D
     VertexConversionType getVertexConversionType(gl::VertexFormatType vertexFormatType) const override;
     GLenum getVertexComponentType(gl::VertexFormatType vertexFormatType) const override;
 
-    gl::Error readTextureData(ID3D11Texture2D *texture, unsigned int subResource, const gl::Rectangle &area, GLenum format,
-                              GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels);
+    gl::Error readTextureData(ID3D11Texture2D *texture,
+                              unsigned int subResource,
+                              const gl::Rectangle &area,
+                              GLenum format,
+                              GLenum type,
+                              GLuint outputPitch,
+                              const gl::PixelPackState &pack,
+                              bool invertSourceTexture,
+                              uint8_t *pixels);
 
     void setShaderResource(gl::SamplerType shaderType, UINT resourceSlot, ID3D11ShaderResourceView *srv);
 

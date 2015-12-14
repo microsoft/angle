@@ -44,6 +44,7 @@ RendererD3D::RendererD3D(egl::Display *display)
     : mDisplay(display),
       mDeviceLost(false),
       mAnnotator(nullptr),
+      mUseDirectRendering(false),
       mScratchMemoryBufferResetCounter(0),
       mWorkaroundsInitialized(false)
 {

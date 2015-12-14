@@ -472,10 +472,14 @@ gl::Error Image11::copy(const gl::Offset &destOffset, const gl::Box &sourceArea,
 
         // Currently in ANGLE, the source data may only need to be converted if the source is the current framebuffer
         // and OpenGL ES framebuffers must be 2D textures therefore we should not need to convert 3D textures between different formats.
+        // TODO: aukinros, the 'false' below is probably the cause of the copyTexImage dEQP
+        // failures.
         ASSERT(dim == D3D11_RESOURCE_DIMENSION_TEXTURE2D);
         ASSERT(sourceArea.z == 0 && sourceArea.depth == 1);
         gl::Rectangle sourceRect(sourceArea.x, sourceArea.y, sourceArea.width, sourceArea.height);
-        error = mRenderer->readTextureData(source2D, sourceSubResource, sourceRect, formatInfo.format, formatInfo.type, mappedImage.RowPitch, gl::PixelPackState(), dataOffset);
+        error = mRenderer->readTextureData(source2D, sourceSubResource, sourceRect,
+                                           formatInfo.format, formatInfo.type, mappedImage.RowPitch,
+                                           gl::PixelPackState(), false, dataOffset);
 
         unmap();
 

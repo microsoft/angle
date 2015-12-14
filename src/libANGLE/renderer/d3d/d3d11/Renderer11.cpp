@@ -576,12 +576,17 @@ Renderer11::Renderer11(egl::Display *display)
             default:
                 UNREACHABLE();
         }
+
+        mUseDirectRendering =
+            !!(attributes.get(EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING, EGL_TRUE));
     }
     else if (display->getPlatform() == EGL_PLATFORM_DEVICE_EXT)
     {
         mEGLDevice = GetImplAs<DeviceD3D>(display->getDevice());
         ASSERT(mEGLDevice != nullptr);
         mCreatedWithDeviceEXT = true;
+
+        mUseDirectRendering = false;
     }
 
     initializeDebugAnnotator();
@@ -970,14 +975,22 @@ void Renderer11::populateRenderer11DeviceCaps()
 
 egl::ConfigSet Renderer11::generateConfigs() const
 {
-    static const GLenum colorBufferFormats[] = {
+    std::vector<GLenum> colorBufferFormats = {
         // 32-bit supported formats
         GL_BGRA8_EXT, GL_RGBA8_OES,
         // 24-bit supported formats
         GL_RGB8_OES,
-        // 16-bit supported formats
-        GL_RGBA4, GL_RGB5_A1, GL_RGB565,
     };
+
+    if (!mUseDirectRendering)
+    {
+        // 16-bit supported formats
+        // These aren't valid D3D11 swapchain formats, so don't expose them as configs
+        // if direct rendering to the swapchain is active
+        colorBufferFormats.push_back(GL_RGBA4);
+        colorBufferFormats.push_back(GL_RGB5_A1);
+        colorBufferFormats.push_back(GL_RGB565);
+    }
 
     static const GLenum depthStencilBufferFormats[] =
     {
@@ -990,7 +1003,7 @@ egl::ConfigSet Renderer11::generateConfigs() const
     const gl::TextureCapsMap &rendererTextureCaps = getRendererTextureCaps();
 
     egl::ConfigSet configs;
-    for (size_t formatIndex = 0; formatIndex < ArraySize(colorBufferFormats); formatIndex++)
+    for (size_t formatIndex = 0; formatIndex < colorBufferFormats.size(); formatIndex++)
     {
         GLenum colorBufferInternalFormat = colorBufferFormats[formatIndex];
         const gl::TextureCaps &colorBufferFormatCaps = rendererTextureCaps.get(colorBufferInternalFormat);
@@ -1021,7 +1034,7 @@ egl::ConfigSet Renderer11::generateConfigs() const
                     config.configCaveat = EGL_NONE;
                     config.configID = static_cast<EGLint>(configs.size() + 1);
                     // Can only support a conformant ES2 with feature level greater than 10.0.
-                    config.conformant = (mRenderer11DeviceCaps.featureLevel >= D3D_FEATURE_LEVEL_10_0) ? (EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES3_BIT_KHR) : 0;
+                    config.conformant = (!mUseDirectRendering && mRenderer11DeviceCaps.featureLevel >= D3D_FEATURE_LEVEL_10_0) ? (EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES3_BIT_KHR) : 0;
                     config.depthSize = depthStencilBufferFormatInfo.depthBits;
                     config.level = 0;
                     config.matchNativePixmap = EGL_NONE;
@@ -1138,7 +1151,8 @@ gl::Error Renderer11::finish()
 
 SwapChainD3D *Renderer11::createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
 {
-    return new SwapChain11(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat);
+    return new SwapChain11(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat,
+                           mUseDirectRendering);
 }
 
 void *Renderer11::getD3DDevice()
@@ -1429,6 +1443,12 @@ gl::Error Renderer11::updateState(const gl::Data &data, GLenum drawMode)
     {
         return error;
     }
+
+    // Set the direct rendering state
+    bool usingDefaultFramebuffer = (mUseDirectRendering && data.state->getDrawFramebuffer()->id() == 0);
+    mStateManager.setDirectRendering(
+        usingDefaultFramebuffer,
+        usingDefaultFramebuffer ? framebufferObject->getColorbuffer(0)->getSize().height : 0);
 
     // Setting viewport state
     mStateManager.setViewport(data.caps, data.state->getViewport(), data.state->getNearPlane(),
@@ -3494,8 +3514,15 @@ RenderbufferImpl *Renderer11::createRenderbuffer()
     return renderbuffer;
 }
 
-gl::Error Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int subResource, const gl::Rectangle &area, GLenum format,
-                                      GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels)
+gl::Error Renderer11::readTextureData(ID3D11Texture2D *texture,
+                                      unsigned int subResource,
+                                      const gl::Rectangle &area,
+                                      GLenum format,
+                                      GLenum type,
+                                      GLuint outputPitch,
+                                      const gl::PixelPackState &pack,
+                                      bool invertTexture,
+                                      uint8_t *pixels)
 {
     ASSERT(area.width >= 0);
     ASSERT(area.height >= 0);
@@ -3503,14 +3530,20 @@ gl::Error Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int sub
     D3D11_TEXTURE2D_DESC textureDesc;
     texture->GetDesc(&textureDesc);
 
+    gl::Rectangle actualArea = area;
+    if (invertTexture)
+    {
+        actualArea.y = textureDesc.Height - actualArea.y - actualArea.height;
+    }
+
     // Clamp read region to the defined texture boundaries, preventing out of bounds reads
     // and reads of uninitialized data.
     gl::Rectangle safeArea;
-    safeArea.x      = gl::clamp(area.x, 0, static_cast<int>(textureDesc.Width));
-    safeArea.y      = gl::clamp(area.y, 0, static_cast<int>(textureDesc.Height));
-    safeArea.width  = gl::clamp(area.width + std::min(area.x, 0), 0,
-                                static_cast<int>(textureDesc.Width) - safeArea.x);
-    safeArea.height = gl::clamp(area.height + std::min(area.y, 0), 0,
+    safeArea.x     = gl::clamp(actualArea.x, 0, static_cast<int>(textureDesc.Width));
+    safeArea.y     = gl::clamp(actualArea.y, 0, static_cast<int>(textureDesc.Height));
+    safeArea.width = gl::clamp(actualArea.width + std::min(actualArea.x, 0), 0,
+                               static_cast<int>(textureDesc.Width) - safeArea.x);
+    safeArea.height = gl::clamp(actualArea.height + std::min(actualArea.y, 0), 0,
                                 static_cast<int>(textureDesc.Height) - safeArea.y);
 
     ASSERT(safeArea.x >= 0 && safeArea.y >= 0);
@@ -3587,10 +3620,29 @@ gl::Error Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int sub
 
     SafeRelease(srcTex);
 
-    PackPixelsParams packParams(safeArea, format, type, outputPitch, pack, 0);
+    gl::PixelPackState actualPack;
+
+    // We can't just assign pack to actualPack, because that clones the ref count on pixelBuffer!
+    actualPack.alignment = pack.alignment;
+    actualPack.pixelBuffer.set(pack.pixelBuffer.get());  // Increments pack.pixelBuffer's ref count
+    actualPack.reverseRowOrder = pack.reverseRowOrder;
+
+    if (invertTexture)
+    {
+        actualPack.reverseRowOrder = !actualPack.reverseRowOrder;
+    }
+
+    PackPixelsParams packParams(safeArea, format, type, outputPitch, actualPack, 0);
     gl::Error error = packPixels(stagingTex, packParams, pixels);
 
     SafeRelease(stagingTex);
+
+    // TODO (aukinros): Does this leak still occur?
+    // The destructor of pixelBuffer's "smart" pointer doesn't release the object when actualPack
+    // goes out of scope, leaking the object!
+    // We therefore set the "smart" pointer back to NULL. This calls release on the actual
+    // pixelBuffer used in 'pack', preventing a leak.
+    actualPack.pixelBuffer.set(NULL);
 
     return error;
 }
@@ -3742,11 +3794,85 @@ gl::Error Renderer11::blitRenderbufferRect(const gl::Rectangle &readRectIn,
     }
     else
     {
-        readTexture = readRenderTarget11->getTexture();
-        readTexture->AddRef();
+        // We can't create a SRV on a DXGI swapchain backbuffer.
+        // Therefore, if the source is a DXGI swapchain backbuffer, we need to copy
+        // its contents to another texture which we CAN create an SRV on.
+        bool mIsBackbuffer = false;
+        if (mUseDirectRendering)
+        {
+            IDXGIResource *dxgiResource = NULL;
+            HRESULT hr = readRenderTarget11->getTexture()->QueryInterface(__uuidof(IDXGIResource),
+                                                                          (void **)&dxgiResource);
+            ASSERT(SUCCEEDED(hr));
+
+            if (SUCCEEDED(hr))
+            {
+                DXGI_USAGE usage;
+                hr = dxgiResource->GetUsage(&usage);
+
+                if (SUCCEEDED(hr))
+                {
+                    SafeRelease(dxgiResource);
+                    mIsBackbuffer = ((usage & DXGI_USAGE_BACK_BUFFER) != 0);
+                }
+            }
+
+            SafeRelease(dxgiResource);
+        }
+
+        if (mIsBackbuffer)
+        {
+            // The backbuffer can't be created with SRV flags.
+            // As a result, when the app wants to blit directly from the backbuffer, we must copy
+            // the backbuffer's
+            // contents into a texture with the SRV flags set and blit from that.
+            ID3D11Texture2D *backbufferTexture =
+                d3d11::DynamicCastComObject<ID3D11Texture2D>(readRenderTarget11->getTexture());
+            ASSERT(backbufferTexture);
+
+            D3D11_TEXTURE2D_DESC readTextureDesc;
+            backbufferTexture->GetDesc(&readTextureDesc);
+            readTextureDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+
+            ID3D11Texture2D *readTexture2D = nullptr;
+            HRESULT hr = mDevice->CreateTexture2D(&readTextureDesc, NULL, &readTexture2D);
+            if (FAILED(hr))
+            {
+                SafeRelease(backbufferTexture);
+                return gl::Error(GL_OUT_OF_MEMORY,
+                                 "Failed to create temporary blitting read texture.");
+            }
+            readTexture = readTexture2D;
+
+            const d3d11::TextureFormat &readTextureInfo = d3d11::GetTextureFormatInfo(
+                readRenderTarget11->getInternalFormat(), getRenderer11DeviceCaps());
+
+            D3D11_SHADER_RESOURCE_VIEW_DESC readSRVDesc;
+            readSRVDesc.Format                    = readTextureInfo.srvFormat;
+            readSRVDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
+            readSRVDesc.Texture2D.MostDetailedMip = 0;
+            readSRVDesc.Texture2D.MipLevels       = static_cast<UINT>(-1);
+
+            hr = mDevice->CreateShaderResourceView(readTexture, &readSRVDesc, &readSRV);
+            if (FAILED(hr))
+            {
+                SafeRelease(backbufferTexture);
+                SafeRelease(readTexture);
+                return gl::Error(GL_OUT_OF_MEMORY, "Failed to create temporary blitting read SRV.");
+            }
+
+            mDeviceContext->CopyResource(readTexture2D, backbufferTexture);
+            SafeRelease(backbufferTexture);
+        }
+        else
+        {
+            readTexture = readRenderTarget11->getTexture();
+            readTexture->AddRef();
+            readSRV = readRenderTarget11->getShaderResourceView();
+            readSRV->AddRef();
+        }
+
         readSubresource = readRenderTarget11->getSubresourceIndex();
-        readSRV = readRenderTarget11->getShaderResourceView();
-        readSRV->AddRef();
     }
 
     if (!readTexture || !readSRV)

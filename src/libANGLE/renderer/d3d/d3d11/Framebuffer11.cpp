@@ -94,7 +94,25 @@ gl::Error Framebuffer11::invalidateSwizzles() const
 gl::Error Framebuffer11::clear(const gl::Data &data, const ClearParameters &clearParams)
 {
     Clear11 *clearer = mRenderer->getClearer();
-    gl::Error error = clearer->clearFramebuffer(clearParams, mData);
+    gl::Error error(GL_NO_ERROR);
+
+    // If the current framebuffer is using the default colorbuffer then we should invert
+    // the scissor rect vertically
+    const gl::FramebufferAttachment *colorAttachment = mData.getFirstColorAttachment();
+    if (mRenderer->isUsingDirectRendering() && colorAttachment != nullptr &&
+        colorAttachment->id() == 0)
+    {
+        ClearParameters modifiedParams = clearParams;
+        gl::Extents framebufferSize = colorAttachment->getSize();
+        modifiedParams.scissor.y =
+            framebufferSize.height - modifiedParams.scissor.y - modifiedParams.scissor.height;
+        error = clearer->clearFramebuffer(modifiedParams, mData);
+    }
+    else
+    {
+        error = clearer->clearFramebuffer(clearParams, mData);
+    }
+
     if (error.isError())
     {
         return error;
@@ -331,8 +349,12 @@ gl::Error Framebuffer11::readPixelsImpl(const gl::Rectangle &area,
     }
     else
     {
+        // If the framebuffer is using the default color buffer then we must invert its data
+        bool invertSourceTexture = (colorbuffer->id() == 0 && mRenderer->isUsingDirectRendering());
         error = mRenderer->readTextureData(colorBufferTexture, subresourceIndex, area, format, type,
-                                           static_cast<GLuint>(outputPitch), pack, pixels);
+                                           static_cast<GLuint>(outputPitch), pack,
+                                           invertSourceTexture, pixels);
+
         if (error.isError())
         {
             SafeRelease(colorBufferTexture);
@@ -380,8 +402,29 @@ gl::Error Framebuffer11::blit(const gl::Rectangle &sourceArea, const gl::Rectang
                 }
                 ASSERT(drawRenderTarget);
 
-                error = mRenderer->blitRenderbufferRect(sourceArea, destArea, readRenderTarget, drawRenderTarget,
-                                                        filter, scissor, blitRenderTarget, false, false);
+                bool invertColorSource =
+                    (readBuffer->id() == 0 && mRenderer->isUsingDirectRendering());
+                gl::Rectangle actualSourceArea = sourceArea;
+                if (invertColorSource)
+                {
+                    RenderTarget11 *readRenderTarget11 = GetAs<RenderTarget11>(readRenderTarget);
+                    actualSourceArea.y                 = readRenderTarget11->getHeight() - sourceArea.y;
+                    actualSourceArea.height            = -sourceArea.height;
+                }
+
+                bool invertColorDest =
+                    (drawBuffer.id() == 0 && mRenderer->isUsingDirectRendering());
+                gl::Rectangle actualDestArea = destArea;
+                if (invertColorDest)
+                {
+                    RenderTarget11 *drawRenderTarget11 = GetAs<RenderTarget11>(drawRenderTarget);
+                    actualDestArea.y                   = drawRenderTarget11->getHeight() - destArea.y;
+                    actualDestArea.height              = -destArea.height;
+                }
+
+                error = mRenderer->blitRenderbufferRect(actualSourceArea, actualDestArea,
+                                                        readRenderTarget, drawRenderTarget, filter,
+                                                        scissor, blitRenderTarget, false, false);
                 if (error.isError())
                 {
                     return error;

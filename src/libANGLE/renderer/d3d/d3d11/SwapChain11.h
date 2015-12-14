@@ -20,8 +20,12 @@ class Renderer11;
 class SwapChain11 : public SwapChainD3D
 {
   public:
-    SwapChain11(Renderer11 *renderer, NativeWindow nativeWindow, HANDLE shareHandle,
-                GLenum backBufferFormat, GLenum depthBufferFormat);
+    SwapChain11(Renderer11 *renderer,
+                NativeWindow nativeWindow,
+                HANDLE shareHandle,
+                GLenum backBufferFormat,
+                GLenum depthBufferFormat,
+                bool useDirectRendering);
     virtual ~SwapChain11();
 
     EGLint resize(EGLint backbufferWidth, EGLint backbufferHeight);
@@ -57,6 +61,7 @@ class SwapChain11 : public SwapChainD3D
     bool mAppCreatedShareHandle;
     unsigned int mSwapInterval;
     bool mPassThroughResourcesInit;
+    bool mUseDirectRendering;
 
     DXGISwapChain *mSwapChain;
     IDXGISwapChain1 *mSwapChain1;

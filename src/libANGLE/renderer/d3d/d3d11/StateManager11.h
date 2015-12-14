@@ -46,6 +46,8 @@ class StateManager11 final : angle::NonCopyable
 
     void setViewport(const gl::Caps *caps, const gl::Rectangle &viewport, float zNear, float zFar);
 
+    void setDirectRendering(bool directRenderingActive, int colorBufferHeight);
+
     void forceSetBlendState() { mBlendStateIsDirty = true; }
     void forceSetDepthStencilState() { mDepthStencilStateIsDirty = true; }
     void forceSetRasterState() { mRasterizerStateIsDirty = true; }
@@ -97,6 +99,10 @@ class StateManager11 final : angle::NonCopyable
 
     // Render target variables
     gl::Extents mViewportBounds;
+
+    // Direct rendering variables
+    bool mDirectRenderingActive;
+    int mDirectRenderingColorBufferHeight;
 
     Renderer11DeviceCaps *mRenderer11DeviceCaps;
     ID3D11DeviceContext *mDeviceContext;

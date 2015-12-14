@@ -135,6 +135,9 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
     displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE);
     displayAttributes.push_back(mPlatform.minorVersion);
 
+    displayAttributes.push_back(EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING);
+    displayAttributes.push_back(mPlatform.renderer == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE);
+
     if (mPlatform.deviceType != EGL_DONT_CARE)
     {
         displayAttributes.push_back(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE);

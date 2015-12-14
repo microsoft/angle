@@ -246,6 +246,8 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
 
     virtual egl::Error getEGLDevice(DeviceImpl **device) = 0;
 
+    const bool isUsingDirectRendering() { return mUseDirectRendering; }
+
   protected:
     virtual bool getLUID(LUID *adapterLuid) const = 0;
     virtual gl::Error applyShadersImpl(const gl::Data &data, GLenum drawMode) = 0;
@@ -265,6 +267,8 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     gl::DebugAnnotator *mAnnotator;
 
     std::vector<TranslatedAttribute> mTranslatedAttribCache;
+
+    bool mUseDirectRendering;
 
   private:
     gl::Error genericDrawArrays(const gl::Data &data,
@@ -328,6 +332,7 @@ struct dx_VertexConstants
     float depthRange[4];
     float viewAdjust[4];
     float viewCoords[4];
+    float viewScale[4];
 };
 
 struct dx_PixelConstants
@@ -335,6 +340,7 @@ struct dx_PixelConstants
     float depthRange[4];
     float viewCoords[4];
     float depthFront[4];
+    float viewScale[4];
 };
 
 }

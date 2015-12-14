@@ -515,6 +515,11 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurfacePointerANGLE (EGLDisplay dpy, EGLSu
 #define EGL_FLEXIBLE_SURFACE_COMPATIBILITY_SUPPORTED_ANGLE 0x33A6
 #endif /* EGL_ANGLE_flexible_surface_compatibility */
 
+#ifndef EGL_ANGLE_experimental_direct_rendering
+#define EGL_ANGLE_experimental_direct_rendering
+#define EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING 0x33A4
+#endif /* EGL_ANGLE_experimental_direct_rendering */
+
 #ifndef EGL_ARM_pixmap_multisample_discard
 #define EGL_ARM_pixmap_multisample_discard 1
 #define EGL_DISCARD_SAMPLES_ARM           0x3286

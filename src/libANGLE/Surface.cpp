@@ -223,7 +223,6 @@ GLsizei Surface::getAttachmentSamples(const gl::FramebufferAttachment::Target &t
 
 GLuint Surface::getId() const
 {
-    UNREACHABLE();
     return 0;
 }
 

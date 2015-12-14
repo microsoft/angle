@@ -187,10 +187,10 @@ OutputHLSL::OutputHLSL(sh::GLenum shaderType, int shaderVersion,
 
     if (mOutputType == SH_HLSL9_OUTPUT)
     {
-        // Fragment shaders need dx_DepthRange, dx_ViewCoords and dx_DepthFront.
-        // Vertex shaders need a slightly different set: dx_DepthRange, dx_ViewCoords and dx_ViewAdjust.
-        // In both cases total 3 uniform registers need to be reserved.
-        mUniformHLSL->reserveUniformRegisters(3);
+        // Fragment shaders need dx_DepthRange, dx_ViewCoords, dx_ViewScale and dx_DepthFront.
+        // Vertex shaders need dx_DepthRange, dx_ViewCoords, dx_ViewScale and dx_ViewAdjust.
+        // In both cases total 4 uniform registers need to be reserved.
+        mUniformHLSL->reserveUniformRegisters(4);
     }
 
     // Reserve registers for the default uniform block and driver constants
@@ -515,6 +515,13 @@ void OutputHLSL::header(TInfoSinkBase &out, const BuiltInFunctionEmulator *built
                 out << "    float3 dx_DepthFront : packoffset(c2);\n";
             }
 
+            if (mUsesFragCoord)
+            {
+                // dx_ViewScale is only used in the fragment shader to correct
+                // the value for glFragCoord if necessary
+                out << "    float2 dx_ViewScale : packoffset(c3);\n";
+            }
+
             out << "};\n";
         }
         else
@@ -609,11 +616,13 @@ void OutputHLSL::header(TInfoSinkBase &out, const BuiltInFunctionEmulator *built
                 out << "    float3 dx_DepthRange : packoffset(c0);\n";
             }
 
-            // dx_ViewAdjust and dx_ViewCoords will only be used in Feature Level 9 shaders.
-            // However, we declare it for all shaders (including Feature Level 10+).
-            // The bytecode is the same whether we declare it or not, since D3DCompiler removes it if it's unused.
+            // dx_ViewAdjust and dx_ViewCoords will only be used in Feature Level 9
+            // shaders. However, we declare it for all shaders (including Feature Level 10+).
+            // The bytecode is the same whether we declare it or not, since D3DCompiler removes it
+            // if it's unused.
             out << "    float4 dx_ViewAdjust : packoffset(c1);\n";
             out << "    float2 dx_ViewCoords : packoffset(c2);\n";
+            out << "    float2 dx_ViewScale  : packoffset(c3);\n";
 
             out << "};\n"
                    "\n";

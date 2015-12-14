@@ -276,12 +276,12 @@ namespace d3d9_gl
 
 unsigned int GetReservedVertexUniformVectors()
 {
-    return 3;  // dx_ViewCoords, dx_ViewAdjust and dx_DepthRange.
+    return 4;  // dx_ViewCoords, dx_ViewAdjust and dx_DepthRange and dx_ViewScale
 }
 
 unsigned int GetReservedFragmentUniformVectors()
 {
-    return 3;  // dx_ViewCoords, dx_DepthFront and dx_DepthRange.
+    return 4;  // dx_ViewCoords, dx_DepthFront and dx_DepthRange and dx_ViewScale
 }
 
 GLsizei GetSamplesCount(D3DMULTISAMPLE_TYPE type)
