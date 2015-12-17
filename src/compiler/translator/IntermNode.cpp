@@ -66,73 +66,6 @@ bool ValidateMultiplication(TOperator op, const TType &left, const TType &right)
     }
 }
 
-bool CompareStructure(const TType& leftNodeType,
-                      const TConstantUnion *rightUnionArray,
-                      const TConstantUnion *leftUnionArray);
-
-bool CompareStruct(const TType &leftNodeType,
-                   const TConstantUnion *rightUnionArray,
-                   const TConstantUnion *leftUnionArray)
-{
-    const TFieldList &fields = leftNodeType.getStruct()->fields();
-
-    size_t structSize = fields.size();
-    size_t index = 0;
-
-    for (size_t j = 0; j < structSize; j++)
-    {
-        size_t size = fields[j]->type()->getObjectSize();
-        for (size_t i = 0; i < size; i++)
-        {
-            if (fields[j]->type()->getBasicType() == EbtStruct)
-            {
-                if (!CompareStructure(*fields[j]->type(),
-                                      &rightUnionArray[index],
-                                      &leftUnionArray[index]))
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (leftUnionArray[index] != rightUnionArray[index])
-                    return false;
-                index++;
-            }
-        }
-    }
-    return true;
-}
-
-bool CompareStructure(const TType &leftNodeType,
-                      const TConstantUnion *rightUnionArray,
-                      const TConstantUnion *leftUnionArray)
-{
-    if (leftNodeType.isArray())
-    {
-        TType typeWithoutArrayness = leftNodeType;
-        typeWithoutArrayness.clearArrayness();
-
-        size_t arraySize = leftNodeType.getArraySize();
-
-        for (size_t i = 0; i < arraySize; ++i)
-        {
-            size_t offset = typeWithoutArrayness.getObjectSize() * i;
-            if (!CompareStruct(typeWithoutArrayness,
-                               &rightUnionArray[offset],
-                               &leftUnionArray[offset]))
-            {
-                return false;
-            }
-        }
-    }
-    else
-    {
-        return CompareStruct(leftNodeType, rightUnionArray, leftUnionArray);
-    }
-    return true;
-}
-
 TConstantUnion *Vectorize(const TConstantUnion &constant, size_t size)
 {
     TConstantUnion *constUnion = new TConstantUnion[size];
@@ -169,7 +102,7 @@ void UndefinedConstantFoldingError(const TSourceLoc &loc, TOperator op, TBasicTy
     }
 }
 
-float VectorLength(TConstantUnion *paramArray, size_t paramArraySize)
+float VectorLength(const TConstantUnion *paramArray, size_t paramArraySize)
 {
     float result = 0.0f;
     for (size_t i = 0; i < paramArraySize; i++)
@@ -180,7 +113,9 @@ float VectorLength(TConstantUnion *paramArray, size_t paramArraySize)
     return sqrtf(result);
 }
 
-float VectorDotProduct(TConstantUnion *paramArray1, TConstantUnion *paramArray2, size_t paramArraySize)
+float VectorDotProduct(const TConstantUnion *paramArray1,
+                       const TConstantUnion *paramArray2,
+                       size_t paramArraySize)
 {
     float result = 0.0f;
     for (size_t i = 0; i < paramArraySize; i++)
@@ -202,7 +137,9 @@ TIntermTyped *CreateFoldedNode(TConstantUnion *constArray,
     return folded;
 }
 
-angle::Matrix<float> GetMatrix(TConstantUnion *paramArray, const unsigned int &rows, const unsigned int &cols)
+angle::Matrix<float> GetMatrix(const TConstantUnion *paramArray,
+                               const unsigned int &rows,
+                               const unsigned int &cols)
 {
     std::vector<float> elements;
     for (size_t i = 0; i < rows * cols; i++)
@@ -212,7 +149,7 @@ angle::Matrix<float> GetMatrix(TConstantUnion *paramArray, const unsigned int &r
     return angle::Matrix<float>(elements, rows, cols).transpose();
 }
 
-angle::Matrix<float> GetMatrix(TConstantUnion *paramArray, const unsigned int &size)
+angle::Matrix<float> GetMatrix(const TConstantUnion *paramArray, const unsigned int &size)
 {
     std::vector<float> elements;
     for (size_t i = 0; i < size * size; i++)
@@ -416,12 +353,7 @@ TIntermTyped::TIntermTyped(const TIntermTyped &node) : TIntermNode(), mType(node
 
 TIntermConstantUnion::TIntermConstantUnion(const TIntermConstantUnion &node) : TIntermTyped(node)
 {
-    size_t arraySize   = mType.getObjectSize();
-    mUnionArrayPointer = new TConstantUnion[arraySize];
-    for (size_t i = 0u; i < arraySize; ++i)
-    {
-        mUnionArrayPointer[i] = node.mUnionArrayPointer[i];
-    }
+    mUnionArrayPointer = node.mUnionArrayPointer;
 }
 
 TIntermAggregate::TIntermAggregate(const TIntermAggregate &node)
@@ -969,8 +901,8 @@ TIntermTyped *TIntermAggregate::fold(TInfoSink &infoSink)
 //
 TConstantUnion *TIntermConstantUnion::foldBinary(TOperator op, TIntermConstantUnion *rightNode, TInfoSink &infoSink)
 {
-    TConstantUnion *leftArray = getUnionArrayPointer();
-    TConstantUnion *rightArray = rightNode->getUnionArrayPointer();
+    const TConstantUnion *leftArray  = getUnionArrayPointer();
+    const TConstantUnion *rightArray = rightNode->getUnionArrayPointer();
 
     if (!leftArray)
         return nullptr;
@@ -1270,19 +1202,12 @@ TConstantUnion *TIntermConstantUnion::foldBinary(TOperator op, TIntermConstantUn
         {
             resultArray = new TConstantUnion[1];
             bool equal = true;
-            if (getType().getBasicType() == EbtStruct)
+            for (size_t i = 0; i < objectSize; i++)
             {
-                equal = CompareStructure(getType(), rightArray, leftArray);
-            }
-            else
-            {
-                for (size_t i = 0; i < objectSize; i++)
+                if (leftArray[i] != rightArray[i])
                 {
-                    if (leftArray[i] != rightArray[i])
-                    {
-                        equal = false;
-                        break;  // break out of for loop
-                    }
+                    equal = false;
+                    break;  // break out of for loop
                 }
             }
             if (op == EOpEqual)
@@ -1317,7 +1242,7 @@ TConstantUnion *TIntermConstantUnion::foldUnaryWithDifferentReturnType(TOperator
     // Do operations where the return type has a different number of components compared to the operand type.
     //
 
-    TConstantUnion *operandArray = getUnionArrayPointer();
+    const TConstantUnion *operandArray = getUnionArrayPointer();
     if (!operandArray)
         return nullptr;
 
@@ -1530,7 +1455,7 @@ TConstantUnion *TIntermConstantUnion::foldUnaryWithSameReturnType(TOperator op, 
     // Do unary operations where the return type is the same as operand type.
     //
 
-    TConstantUnion *operandArray = getUnionArrayPointer();
+    const TConstantUnion *operandArray = getUnionArrayPointer();
     if (!operandArray)
         return nullptr;
 
@@ -2082,7 +2007,7 @@ TConstantUnion *TIntermConstantUnion::FoldAggregateBuiltIn(TIntermAggregate *agg
     TOperator op = aggregate->getOp();
     TIntermSequence *sequence = aggregate->getSequence();
     unsigned int paramsCount = static_cast<unsigned int>(sequence->size());
-    std::vector<TConstantUnion *> unionArrays(paramsCount);
+    std::vector<const TConstantUnion *> unionArrays(paramsCount);
     std::vector<size_t> objectSizes(paramsCount);
     size_t maxObjectSize = 0;
     TBasicType basicType = EbtVoid;

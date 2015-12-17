@@ -209,6 +209,16 @@ void GetUniformBlockInfo(const std::vector<VarT> &fields,
 }
 
 template <typename T>
+static inline void SetIfDirty(T *dest, const T &source, bool *dirtyFlag)
+{
+    ASSERT(dest != NULL);
+    ASSERT(dirtyFlag != NULL);
+
+    *dirtyFlag = *dirtyFlag || (memcmp(dest, &source, sizeof(T)) != 0);
+    *dest      = source;
+}
+
+template <typename T>
 bool TransposeMatrix(T *target,
                      const GLfloat *value,
                      int targetWidth,
@@ -413,8 +423,7 @@ bool ProgramD3DMetadata::usesBroadcast(const gl::Data &data) const
 
 bool ProgramD3DMetadata::usesFragDepth(const gl::Program::Data &programData) const
 {
-    // TODO(jmadill): Rename this or check if we need it for version 300
-    return (getMajorShaderVersion() < 300 && mFragmentShader->usesFragDepth());
+    return mFragmentShader->usesFragDepth();
 }
 
 bool ProgramD3DMetadata::usesPointCoord() const
@@ -1095,6 +1104,10 @@ gl::Error ProgramD3D::save(gl::BinaryOutputStream *stream)
     return gl::Error(GL_NO_ERROR);
 }
 
+void ProgramD3D::setBinaryRetrievableHint(bool /* retrievable */)
+{
+}
+
 gl::Error ProgramD3D::getPixelExecutableForFramebuffer(const gl::Framebuffer *fbo,
                                                        ShaderExecutableD3D **outExecutable)
 {
@@ -1294,20 +1307,21 @@ LinkResult ProgramD3D::compileProgramExecutables(const gl::Data &data, gl::InfoL
     }
 
     // Auto-generate the geometry shader here, if we expect to be using point rendering in D3D11.
+    ShaderExecutableD3D *pointGS = nullptr;
     if (usesGeometryShader(GL_POINTS))
     {
-        getGeometryExecutableForPrimitiveType(data, GL_POINTS, nullptr, &infoLog);
+        getGeometryExecutableForPrimitiveType(data, GL_POINTS, &pointGS, &infoLog);
     }
 
-#if ANGLE_SHADER_DEBUG_INFO == ANGLE_ENABLED
     const ShaderD3D *vertexShaderD3D = GetImplAs<ShaderD3D>(mData.getAttachedVertexShader());
-    if (usesGeometryShader() && mGeometryExecutable)
+
+    if (usesGeometryShader(GL_POINTS) && pointGS)
     {
         // Geometry shaders are currently only used internally, so there is no corresponding shader
         // object at the interface level. For now the geometry shader debug info is prepended to
         // the vertex shader.
         vertexShaderD3D->appendDebugInfo("// GEOMETRY SHADER BEGIN\n\n");
-        vertexShaderD3D->appendDebugInfo(mGeometryExecutable->getDebugInfo());
+        vertexShaderD3D->appendDebugInfo(pointGS->getDebugInfo());
         vertexShaderD3D->appendDebugInfo("\nGEOMETRY SHADER END\n\n\n");
     }
 
@@ -1322,11 +1336,9 @@ LinkResult ProgramD3D::compileProgramExecutables(const gl::Data &data, gl::InfoL
             GetImplAs<ShaderD3D>(mData.getAttachedFragmentShader());
         fragmentShaderD3D->appendDebugInfo(defaultPixelExecutable->getDebugInfo());
     }
-#endif
 
-    bool linkSuccess =
-        (defaultVertexExecutable && defaultPixelExecutable &&
-         (!usesGeometryShader(GL_POINTS) || mGeometryExecutables[gl::PRIMITIVE_POINTS]));
+    bool linkSuccess = (defaultVertexExecutable && defaultPixelExecutable &&
+                        (!usesGeometryShader(GL_POINTS) || pointGS));
     return LinkResult(linkSuccess, gl::Error(GL_NO_ERROR));
 }
 
@@ -1910,16 +1922,6 @@ void ProgramD3D::defineUniform(GLenum shaderType,
             encoder->exitAggregateType();
         }
     }
-}
-
-template <typename T>
-static inline void SetIfDirty(T *dest, const T &source, bool *dirtyFlag)
-{
-    ASSERT(dest != NULL);
-    ASSERT(dirtyFlag != NULL);
-
-    *dirtyFlag = *dirtyFlag || (memcmp(dest, &source, sizeof(T)) != 0);
-    *dest      = source;
 }
 
 template <typename T>

@@ -226,24 +226,25 @@ bool TParseContext::precisionErrorCheck(const TSourceLoc &line,
 {
     if (!mChecksPrecisionErrors)
         return false;
-    switch (type)
+    if (precision == EbpUndefined)
     {
-        case EbtFloat:
-            if (precision == EbpUndefined)
-            {
+        switch (type)
+        {
+            case EbtFloat:
                 error(line, "No precision specified for (float)", "");
                 return true;
-            }
-            break;
-        case EbtInt:
-            if (precision == EbpUndefined)
-            {
+            case EbtInt:
+            case EbtUInt:
+                UNREACHABLE();  // there's always a predeclared qualifier
                 error(line, "No precision specified (int)", "");
                 return true;
-            }
-            break;
-        default:
-            return false;
+            default:
+                if (IsSampler(type))
+                {
+                    error(line, "No precision specified (sampler)", "");
+                    return true;
+                }
+        }
     }
     return false;
 }
@@ -1216,7 +1217,7 @@ TIntermTyped *TParseContext::parseVariableIdentifier(const TSourceLoc &location,
 
     if (variable->getConstPointer())
     {
-        TConstantUnion *constArray = variable->getConstPointer();
+        const TConstantUnion *constArray = variable->getConstPointer();
         return intermediate.addConstantUnion(constArray, variable->getType(), location);
     }
     else
@@ -1353,7 +1354,7 @@ bool TParseContext::executeInitializer(const TSourceLoc &line,
                 symbolTable.find(initializer->getAsSymbolNode()->getSymbol(), 0);
             const TVariable *tVar = static_cast<const TVariable *>(symbol);
 
-            TConstantUnion *constArray = tVar->getConstPointer();
+            const TConstantUnion *constArray = tVar->getConstPointer();
             if (constArray)
             {
                 variable->shareConstPointer(constArray);
@@ -2093,6 +2094,13 @@ TFunction *TParseContext::parseFunctionDeclarator(const TSourceLoc &location, TF
 TFunction *TParseContext::addConstructorFunc(const TPublicType &publicTypeIn)
 {
     TPublicType publicType = publicTypeIn;
+    if (publicType.isStructSpecifier)
+    {
+        error(publicType.line, "constructor can't be a structure definition",
+              getBasicString(publicType.type));
+        recover();
+    }
+
     TOperator op = EOpNull;
     if (publicType.userDef)
     {
@@ -2373,7 +2381,7 @@ TIntermTyped *TParseContext::addConstMatrixNode(int index,
         index = node->getType().getCols() - 1;
     }
 
-    TConstantUnion *unionArray = node->getUnionArrayPointer();
+    const TConstantUnion *unionArray = node->getUnionArrayPointer();
     int size = node->getType().getCols();
     return intermediate.addConstantUnion(&unionArray[size * index], node->getType(), line);
 }
@@ -2401,8 +2409,8 @@ TIntermTyped *TParseContext::addConstArrayNode(int index,
         outOfRangeError(outOfRangeIndexIsError, line, "", "[", extraInfo.c_str());
         index = node->getType().getArraySize() - 1;
     }
-    size_t arrayElementSize    = arrayElementType.getObjectSize();
-    TConstantUnion *unionArray = node->getUnionArrayPointer();
+    size_t arrayElementSize          = arrayElementType.getObjectSize();
+    const TConstantUnion *unionArray = node->getUnionArrayPointer();
     return intermediate.addConstantUnion(&unionArray[arrayElementSize * index], node->getType(),
                                          line);
 }
@@ -2437,7 +2445,7 @@ TIntermTyped *TParseContext::addConstStruct(const TString &identifier,
     TIntermConstantUnion *tempConstantNode = node->getAsConstantUnion();
     if (tempConstantNode)
     {
-        TConstantUnion *constArray = tempConstantNode->getUnionArrayPointer();
+        const TConstantUnion *constArray = tempConstantNode->getUnionArrayPointer();
 
         // type will be changed in the calling function
         typedNode = intermediate.addConstantUnion(constArray + instanceSize,
@@ -2698,6 +2706,32 @@ TIntermTyped *TParseContext::addIndexExpression(TIntermTyped *baseExpression,
 
     TIntermConstantUnion *indexConstantUnion = indexExpression->getAsConstantUnion();
 
+    // TODO(oetuaho@nvidia.com): Get rid of indexConstantUnion == nullptr below once ANGLE is able
+    // to constant fold all constant expressions. Right now we don't allow indexing interface blocks
+    // or fragment outputs with expressions that ANGLE is not able to constant fold, even if the
+    // index is a constant expression.
+    if (indexExpression->getQualifier() != EvqConst || indexConstantUnion == nullptr)
+    {
+        if (baseExpression->isInterfaceBlock())
+        {
+            error(
+                location, "", "[",
+                "array indexes for interface blocks arrays must be constant integral expressions");
+            recover();
+        }
+        else if (baseExpression->getQualifier() == EvqFragmentOut)
+        {
+            error(location, "", "[",
+                  "array indexes for fragment outputs must be constant integral expressions");
+            recover();
+        }
+        else if (mShaderSpec == SH_WEBGL2_SPEC && baseExpression->getQualifier() == EvqFragData)
+        {
+            error(location, "", "[", "array index for gl_FragData must be constant zero");
+            recover();
+        }
+    }
+
     if (indexConstantUnion)
     {
         // If the index is not qualified as constant, the behavior in the spec is undefined. This
@@ -2747,22 +2781,35 @@ TIntermTyped *TParseContext::addIndexExpression(TIntermTyped *baseExpression,
 
             if (baseExpression->isArray())
             {
-                if (index >= baseExpression->getType().getArraySize())
+                if (baseExpression->getQualifier() == EvqFragData && index > 0)
+                {
+                    if (mShaderSpec == SH_WEBGL2_SPEC)
+                    {
+                        // Error has been already generated if index is not const.
+                        if (indexExpression->getQualifier() == EvqConst)
+                        {
+                            error(location, "", "[",
+                                  "array index for gl_FragData must be constant zero");
+                            recover();
+                        }
+                        safeIndex = 0;
+                    }
+                    else if (!isExtensionEnabled("GL_EXT_draw_buffers"))
+                    {
+                        outOfRangeError(outOfRangeIndexIsError, location, "", "[",
+                                        "array index for gl_FragData must be zero when "
+                                        "GL_EXT_draw_buffers is disabled");
+                        safeIndex = 0;
+                    }
+                }
+                // Only do generic out-of-range check if similar error hasn't already been reported.
+                if (safeIndex < 0 && index >= baseExpression->getType().getArraySize())
                 {
                     std::stringstream extraInfoStream;
                     extraInfoStream << "array index out of range '" << index << "'";
                     std::string extraInfo = extraInfoStream.str();
                     outOfRangeError(outOfRangeIndexIsError, location, "", "[", extraInfo.c_str());
                     safeIndex = baseExpression->getType().getArraySize() - 1;
-                }
-                else if (baseExpression->getQualifier() == EvqFragData && index > 0 &&
-                         !isExtensionEnabled("GL_EXT_draw_buffers"))
-                {
-                    outOfRangeError(
-                        outOfRangeIndexIsError, location, "", "[",
-                        "array indexes for gl_FragData must be zero when GL_EXT_draw_buffers is "
-                        "disabled");
-                    safeIndex = 0;
                 }
             }
             else if ((baseExpression->isVector() || baseExpression->isMatrix()) &&
@@ -2775,8 +2822,9 @@ TIntermTyped *TParseContext::addIndexExpression(TIntermTyped *baseExpression,
                 safeIndex = baseExpression->getType().getNominalSize() - 1;
             }
 
-            // Don't modify the data of the previous constant union, because it can point
-            // to builtins, like gl_MaxDrawBuffers. Instead use a new sanitized object.
+            // Data of constant unions can't be changed, because it may be shared with other
+            // constant unions or even builtins, like gl_MaxDrawBuffers. Instead use a new
+            // sanitized object.
             if (safeIndex != -1)
             {
                 TConstantUnion *safeConstantUnion = new TConstantUnion();
@@ -2790,20 +2838,6 @@ TIntermTyped *TParseContext::addIndexExpression(TIntermTyped *baseExpression,
     }
     else
     {
-        if (baseExpression->isInterfaceBlock())
-        {
-            error(
-                location, "", "[",
-                "array indexes for interface blocks arrays must be constant integral expressions");
-            recover();
-        }
-        else if (baseExpression->getQualifier() == EvqFragmentOut)
-        {
-            error(location, "", "[",
-                  "array indexes for fragment outputs must be constant integral expressions");
-            recover();
-        }
-
         indexedExpression =
             intermediate.addIndex(EOpIndexIndirect, baseExpression, indexExpression, location);
     }
@@ -3273,6 +3307,7 @@ TPublicType TParseContext::addStructure(const TSourceLoc &structLine,
     TPublicType publicType;
     publicType.setBasic(EbtStruct, EvqTemporary, structLine);
     publicType.userDef = structureType;
+    publicType.isStructSpecifier = true;
     exitStructDeclaration();
 
     return publicType;
@@ -3733,6 +3768,59 @@ TIntermBranch *TParseContext::addBranch(TOperator op,
     return intermediate.addBranch(op, returnValue, loc);
 }
 
+void TParseContext::checkTextureOffsetConst(TIntermAggregate *functionCall)
+{
+    ASSERT(!functionCall->isUserDefined());
+    const TString &name        = functionCall->getName();
+    TIntermNode *offset        = nullptr;
+    TIntermSequence *arguments = functionCall->getSequence();
+    if (name.compare(0, 16, "texelFetchOffset") == 0 ||
+        name.compare(0, 16, "textureLodOffset") == 0 ||
+        name.compare(0, 20, "textureProjLodOffset") == 0 ||
+        name.compare(0, 17, "textureGradOffset") == 0 ||
+        name.compare(0, 21, "textureProjGradOffset") == 0)
+    {
+        offset = arguments->back();
+    }
+    else if (name.compare(0, 13, "textureOffset") == 0 ||
+             name.compare(0, 17, "textureProjOffset") == 0)
+    {
+        // A bias parameter might follow the offset parameter.
+        ASSERT(arguments->size() >= 3);
+        offset = (*arguments)[2];
+    }
+    if (offset != nullptr)
+    {
+        TIntermConstantUnion *offsetConstantUnion = offset->getAsConstantUnion();
+        if (offset->getAsTyped()->getQualifier() != EvqConst || !offsetConstantUnion)
+        {
+            TString unmangledName = TFunction::unmangleName(name);
+            error(functionCall->getLine(), "Texture offset must be a constant expression",
+                  unmangledName.c_str());
+            recover();
+        }
+        else
+        {
+            ASSERT(offsetConstantUnion->getBasicType() == EbtInt);
+            size_t size                  = offsetConstantUnion->getType().getObjectSize();
+            const TConstantUnion *values = offsetConstantUnion->getUnionArrayPointer();
+            for (size_t i = 0u; i < size; ++i)
+            {
+                int offsetValue = values[i].getIConst();
+                if (offsetValue > mMaxProgramTexelOffset || offsetValue < mMinProgramTexelOffset)
+                {
+                    std::stringstream tokenStream;
+                    tokenStream << offsetValue;
+                    std::string token = tokenStream.str();
+                    error(offset->getLine(), "Texture offset value out of valid range",
+                          token.c_str());
+                    recover();
+                }
+            }
+        }
+    }
+}
+
 TIntermTyped *TParseContext::addFunctionCallOrMethod(TFunction *fnCall,
                                                      TIntermNode *paramNode,
                                                      TIntermNode *thisNode,
@@ -3901,7 +3989,11 @@ TIntermTyped *TParseContext::addFunctionCallOrMethod(TFunction *fnCall,
 
                 // This needs to happen after the name is set
                 if (builtIn)
+                {
                     aggregate->setBuiltInFunctionPrecision();
+
+                    checkTextureOffsetConst(aggregate);
+                }
 
                 callNode = aggregate;
 

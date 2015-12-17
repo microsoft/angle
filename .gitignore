@@ -12,7 +12,8 @@ Release_ARM/
 /**/src/tests/*.sln
 /**/src/tests/*.vcxproj
 /**/src/tests/*.vcxproj.filters
-/**/src/tests/*.vcxproj.user
+*.vcxproj.user
+*.VC.opendb
 patches-*
 *.target.mk
 ipch

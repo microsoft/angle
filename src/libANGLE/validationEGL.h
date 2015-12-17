@@ -23,6 +23,7 @@ namespace egl
 
 class AttributeMap;
 struct Config;
+class Device;
 class Display;
 class Image;
 class Surface;
@@ -52,9 +53,17 @@ Error ValidateCreateImageKHR(const Display *display,
                              const AttributeMap &attributes);
 Error ValidateDestroyImageKHR(const Display *display, const Image *image);
 
-// Other validation
-Error ValidateCompatibleConfigs(const Config *config1, const Config *config2, EGLint surfaceType);
+Error ValidateCreateDeviceANGLE(EGLint device_type,
+                                void *native_device,
+                                const EGLAttrib *attrib_list);
+Error ValidateReleaseDeviceANGLE(Device *device);
 
+// Other validation
+Error ValidateCompatibleConfigs(const Display *display,
+                                const Config *config1,
+                                const Surface *surface,
+                                const Config *config2,
+                                EGLint surfaceType);
 }
 
 #endif // LIBANGLE_VALIDATIONEGL_H_

@@ -76,14 +76,16 @@ struct Extensions
     // GL_OES_packed_depth_stencil
     // GL_OES_rgb8_rgba8
     // GL_EXT_texture_format_BGRA8888
+    // GL_EXT_color_buffer_half_float,
     // GL_OES_texture_half_float, GL_OES_texture_half_float_linear
     // GL_OES_texture_float, GL_OES_texture_float_linear
     // GL_EXT_texture_rg
-    // GL_EXT_texture_compression_dxt1, GL_ANGLE_texture_compression_dxt3, GL_ANGLE_texture_compression_dxt5
+    // GL_EXT_texture_compression_dxt1, GL_ANGLE_texture_compression_dxt3,
+    // GL_ANGLE_texture_compression_dxt5
     // GL_KHR_texture_compression_astc_hdr, GL_KHR_texture_compression_astc_ldr
     // GL_OES_compressed_ETC1_RGB8_texture
     // GL_EXT_sRGB
-    // GL_ANGLE_depth_texture
+    // GL_ANGLE_depth_texture, GL_OES_depth32
     // GL_EXT_color_buffer_float
     void setTextureExtensionSupport(const TextureCapsMap &textureCaps);
 
@@ -115,6 +117,11 @@ struct Extensions
     // GL_OES_mapbuffer and GL_EXT_map_buffer_range
     bool mapBuffer;
     bool mapBufferRange;
+
+    // GL_EXT_color_buffer_half_float
+    // Together with GL_OES_texture_half_float in a GLES 2.0 context, implies that half-float
+    // textures are renderable.
+    bool colorBufferHalfFloat;
 
     // GL_OES_texture_half_float and GL_OES_texture_half_float_linear
     // Implies that TextureCaps for GL_RGB16F, GL_RGBA16F, GL_ALPHA32F_EXT, GL_LUMINANCE32F_EXT and
@@ -157,6 +164,10 @@ struct Extensions
 
     // GL_ANGLE_depth_texture
     bool depthTextures;
+
+    // GL_OES_depth32
+    // Allows DEPTH_COMPONENT32_OES as a valid Renderbuffer format.
+    bool depth32;
 
     // GL_EXT_texture_storage
     bool textureStorage;
@@ -248,6 +259,9 @@ struct Extensions
 
     // GL_OES_vertex_array_object
     bool vertexArrayObject;
+
+    // GL_KHR_debug
+    bool debug;
 
     // ES3 Extension support
 
@@ -441,6 +455,9 @@ struct DisplayExtensions
 
     // EGL_KHR_get_all_proc_addresses
     bool getAllProcAddresses;
+
+    // EGL_ANGLE_flexible_surface_compatibility
+    bool flexibleSurfaceCompatibility;
 };
 
 struct DeviceExtensions
@@ -467,6 +484,9 @@ struct ClientExtensions
     // EGL_EXT_platform_base
     bool platformBase;
 
+    // EGL_EXT_platform_device
+    bool platformDevice;
+
     // EGL_ANGLE_platform_angle
     bool platformANGLE;
 
@@ -475,6 +495,15 @@ struct ClientExtensions
 
     // EGL_ANGLE_platform_angle_opengl
     bool platformANGLEOpenGL;
+
+    // EGL_ANGLE_device_creation
+    bool deviceCreation;
+
+    // EGL_ANGLE_device_creation_d3d11
+    bool deviceCreationD3D11;
+
+    // EGL_ANGLE_x11_visual
+    bool x11Visual;
 
     // EGL_KHR_client_get_all_proc_addresses
     bool clientGetAllProcAddresses;

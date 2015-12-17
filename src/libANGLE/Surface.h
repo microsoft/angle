@@ -70,14 +70,18 @@ class Surface final : public gl::FramebufferAttachmentObject
     EGLint isFixedSize() const;
 
     // FramebufferAttachmentObject implementation
-    GLsizei getAttachmentWidth(const gl::FramebufferAttachment::Target &/*target*/) const override { return getWidth(); }
-    GLsizei getAttachmentHeight(const gl::FramebufferAttachment::Target &/*target*/) const override { return getHeight(); }
+    gl::Extents getAttachmentSize(const gl::FramebufferAttachment::Target &target) const override;
     GLenum getAttachmentInternalFormat(const gl::FramebufferAttachment::Target &target) const override;
     GLsizei getAttachmentSamples(const gl::FramebufferAttachment::Target &target) const override;
 
     void onAttach() override {}
     void onDetach() override {}
     GLuint getId() const override;
+
+    bool flexibleSurfaceCompatibilityRequested() const
+    {
+        return mFlexibleSurfaceCompatibilityRequested;
+    }
 
   private:
     virtual ~Surface();
@@ -99,6 +103,7 @@ class Surface final : public gl::FramebufferAttachmentObject
     const egl::Config *mConfig;
 
     bool mPostSubBufferRequested;
+    bool mFlexibleSurfaceCompatibilityRequested;
 
     bool mFixedSize;
     size_t mFixedWidth;

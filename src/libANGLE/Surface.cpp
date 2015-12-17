@@ -44,6 +44,8 @@ Surface::Surface(rx::SurfaceImpl *impl,
       mSwapBehavior(impl->getSwapBehavior())
 {
     mPostSubBufferRequested = (attributes.get(EGL_POST_SUB_BUFFER_SUPPORTED_NV, EGL_FALSE) == EGL_TRUE);
+    mFlexibleSurfaceCompatibilityRequested =
+        (attributes.get(EGL_FLEXIBLE_SURFACE_COMPATIBILITY_SUPPORTED_ANGLE, EGL_FALSE) == EGL_TRUE);
 
     mFixedSize = (attributes.get(EGL_FIXED_SIZE_ANGLE, EGL_FALSE) == EGL_TRUE);
     if (mFixedSize)
@@ -185,7 +187,7 @@ Error Surface::bindTexImage(gl::Texture *texture, EGLint buffer)
 
     texture->bindTexImageFromSurface(this);
     mTexture.set(texture);
-    return mImplementation->bindTexImage(buffer);
+    return mImplementation->bindTexImage(texture, buffer);
 }
 
 Error Surface::releaseTexImage(EGLint buffer)
@@ -201,6 +203,11 @@ void Surface::releaseTexImageFromTexture()
 {
     ASSERT(mTexture.get());
     mTexture.set(nullptr);
+}
+
+gl::Extents Surface::getAttachmentSize(const gl::FramebufferAttachment::Target & /*target*/) const
+{
+    return gl::Extents(getWidth(), getHeight(), 1);
 }
 
 GLenum Surface::getAttachmentInternalFormat(const gl::FramebufferAttachment::Target &target) const
