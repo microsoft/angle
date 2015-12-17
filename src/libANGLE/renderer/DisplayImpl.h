@@ -50,8 +50,7 @@ class DisplayImpl : angle::NonCopyable
 
     virtual SurfaceImpl *createWindowSurface(const egl::Config *configuration,
                                              EGLNativeWindowType window,
-                                             const egl::AttributeMap &attribs,
-                                             bool allowRenderToBackBuffer) = 0;
+                                             const egl::AttributeMap &attribs) = 0;
     virtual SurfaceImpl *createPbufferSurface(const egl::Config *configuration,
                                               const egl::AttributeMap &attribs) = 0;
     virtual SurfaceImpl *createPbufferFromClientBuffer(const egl::Config *configuration,

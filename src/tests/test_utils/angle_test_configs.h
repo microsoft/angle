@@ -58,7 +58,6 @@ EGLPlatformParameters D3D11_FL10_1();
 EGLPlatformParameters D3D11_FL10_0();
 EGLPlatformParameters D3D11_FL9_3();
 
-EGLPlatformParameters D3D11_RTBB();
 EGLPlatformParameters D3D11_NULL();
 
 EGLPlatformParameters D3D11_WARP();
@@ -92,8 +91,6 @@ PlatformParameters ES2_D3D11_FL11_0();
 PlatformParameters ES2_D3D11_FL10_1();
 PlatformParameters ES2_D3D11_FL10_0();
 PlatformParameters ES2_D3D11_FL9_3();
-
-PlatformParameters ES2_D3D11_RTBB();
 
 PlatformParameters ES2_D3D11_WARP();
 PlatformParameters ES2_D3D11_FL11_0_WARP();

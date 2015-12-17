@@ -26,10 +26,9 @@ class SurfaceD3D : public SurfaceImpl
 {
   public:
     static SurfaceD3D *createFromWindow(RendererD3D *renderer, egl::Display *display, const egl::Config *config,
-                                        EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height, bool renderToBackBuffer);
+                                        EGLNativeWindowType window, EGLint fixedSize, EGLint width, EGLint height);
     static SurfaceD3D *createOffscreen(RendererD3D *renderer, egl::Display *display, const egl::Config *config,
-                                       EGLClientBuffer shareHandle, EGLint width, EGLint height, bool renderToBackBuffer);
-
+                                       EGLClientBuffer shareHandle, EGLint width, EGLint height);
     ~SurfaceD3D() override;
     void releaseSwapChain();
 
@@ -62,7 +61,7 @@ class SurfaceD3D : public SurfaceImpl
 
   private:
     SurfaceD3D(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLint width, EGLint height,
-               EGLint fixedSize, EGLClientBuffer shareHandle, EGLNativeWindowType window, bool renderToBackBuffer);
+               EGLint fixedSize, EGLClientBuffer shareHandle, EGLNativeWindowType window);
 
     egl::Error swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
     egl::Error resetSwapChain(int backbufferWidth, int backbufferHeight);
@@ -78,8 +77,6 @@ class SurfaceD3D : public SurfaceImpl
 
     SwapChainD3D *mSwapChain;
     bool mSwapIntervalDirty;
-
-    bool mRenderToBackBuffer;
 
     NativeWindow mNativeWindow;   // Handler for the Window that the surface is created for.
     EGLint mWidth;

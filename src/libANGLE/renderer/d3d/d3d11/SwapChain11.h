@@ -21,7 +21,7 @@ class SwapChain11 : public SwapChainD3D
 {
   public:
     SwapChain11(Renderer11 *renderer, NativeWindow nativeWindow, HANDLE shareHandle,
-                GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer);
+                GLenum backBufferFormat, GLenum depthBufferFormat);
     virtual ~SwapChain11();
 
     EGLint resize(EGLint backbufferWidth, EGLint backbufferHeight);
@@ -32,7 +32,7 @@ class SwapChain11 : public SwapChainD3D
     RenderTargetD3D *getColorRenderTarget() override { return &mColorRenderTarget; }
     RenderTargetD3D *getDepthStencilRenderTarget() override { return &mDepthStencilRenderTarget; }
 
-    virtual ID3D11Texture2D *getTargetTexture();
+    virtual ID3D11Texture2D *getOffscreenTexture();
     virtual ID3D11RenderTargetView *getRenderTarget();
     virtual ID3D11ShaderResourceView *getRenderTargetShaderResource();
 
@@ -43,8 +43,6 @@ class SwapChain11 : public SwapChainD3D
     EGLint getWidth() const { return mWidth; }
     EGLint getHeight() const { return mHeight; }
     void *getKeyedMutex() override { return mKeyedMutex; }
-
-    bool renderToBackBuffer() const { return mRenderToBackBuffer; }
 
   private:
     void release();
@@ -60,8 +58,6 @@ class SwapChain11 : public SwapChainD3D
     unsigned int mSwapInterval;
     bool mPassThroughResourcesInit;
 
-    bool mRenderToBackBuffer;
-
     DXGISwapChain *mSwapChain;
     IDXGISwapChain1 *mSwapChain1;
     IDXGIKeyedMutex *mKeyedMutex;
@@ -76,9 +72,6 @@ class SwapChain11 : public SwapChainD3D
     ID3D11Texture2D *mDepthStencilTexture;
     ID3D11DepthStencilView *mDepthStencilDSView;
     ID3D11ShaderResourceView *mDepthStencilSRView;
-
-    ID3D11Texture2D *mOffscreenTextureForReadback;
-    ID3D11ShaderResourceView *mOffscreenForReadbackSRView;
 
     ID3D11Buffer *mQuadVB;
     ID3D11SamplerState *mPassThroughSampler;

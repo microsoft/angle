@@ -384,7 +384,7 @@ Error Display::createWindowSurface(const Config *configuration, EGLNativeWindowT
                                              "EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER must be set to EGL_TRUE too.");
     }
 
-    rx::SurfaceImpl *surfaceImpl = mImplementation->createWindowSurface(configuration, window, attribs, enableRenderToBackBuffer);
+    rx::SurfaceImpl *surfaceImpl = mImplementation->createWindowSurface(configuration, window, attribs);
     ASSERT(surfaceImpl != nullptr);
 
     Error error = surfaceImpl->initialize();

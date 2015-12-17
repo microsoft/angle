@@ -22,15 +22,15 @@ namespace rx
 {
 
 SurfaceD3D *SurfaceD3D::createOffscreen(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLClientBuffer shareHandle,
-                                        EGLint width, EGLint height, bool renderToBackBuffer)
+                                        EGLint width, EGLint height)
 {
-    return new SurfaceD3D(renderer, display, config, width, height, EGL_TRUE, shareHandle, NULL, renderToBackBuffer);
+    return new SurfaceD3D(renderer, display, config, width, height, EGL_TRUE, shareHandle, NULL);
 }
 
 SurfaceD3D *SurfaceD3D::createFromWindow(RendererD3D *renderer, egl::Display *display, const egl::Config *config, EGLNativeWindowType window,
-                                         EGLint fixedSize, EGLint width, EGLint height, bool renderToBackBuffer)
+                                         EGLint fixedSize, EGLint width, EGLint height)
 {
-    return new SurfaceD3D(renderer, display, config, width, height, fixedSize, static_cast<EGLClientBuffer>(0), window, renderToBackBuffer);
+    return new SurfaceD3D(renderer, display, config, width, height, fixedSize, static_cast<EGLClientBuffer>(0), window);
 }
 
 SurfaceD3D::SurfaceD3D(RendererD3D *renderer,
@@ -40,8 +40,7 @@ SurfaceD3D::SurfaceD3D(RendererD3D *renderer,
                        EGLint height,
                        EGLint fixedSize,
                        EGLClientBuffer shareHandle,
-                       EGLNativeWindowType window,
-                       bool renderToBackBuffer)
+                       EGLNativeWindowType window)
     : SurfaceImpl(),
       mRenderer(renderer),
       mDisplay(display),
@@ -54,8 +53,7 @@ SurfaceD3D::SurfaceD3D(RendererD3D *renderer,
       mWidth(width),
       mHeight(height),
       mSwapInterval(1),
-      mShareHandle(reinterpret_cast<HANDLE *>(shareHandle)),
-      mRenderToBackBuffer(renderToBackBuffer)
+      mShareHandle(reinterpret_cast<HANDLE *>(shareHandle))
 {
 }
 
@@ -130,7 +128,7 @@ egl::Error SurfaceD3D::resetSwapChain()
         height = mHeight;
     }
 
-    mSwapChain = mRenderer->createSwapChain(mNativeWindow, mShareHandle, mRenderTargetFormat, mDepthStencilFormat, mRenderToBackBuffer);
+    mSwapChain = mRenderer->createSwapChain(mNativeWindow, mShareHandle, mRenderTargetFormat, mDepthStencilFormat);
     if (!mSwapChain)
     {
         return egl::Error(EGL_BAD_ALLOC);

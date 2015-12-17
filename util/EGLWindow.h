@@ -34,11 +34,10 @@ struct EGLPlatformParameters
     EGLint majorVersion;
     EGLint minorVersion;
     EGLint deviceType;
-    EGLBoolean useRenderToBackBuffer;
 
     EGLPlatformParameters();
     explicit EGLPlatformParameters(EGLint renderer);
-    EGLPlatformParameters(EGLint renderer, EGLint majorVersion, EGLint minorVersion, EGLint deviceType, EGLBoolean useRenderToBackBuffer);
+    EGLPlatformParameters(EGLint renderer, EGLint majorVersion, EGLint minorVersion, EGLint deviceType);
 };
 
 bool operator<(const EGLPlatformParameters &a, const EGLPlatformParameters &b);

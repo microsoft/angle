@@ -319,14 +319,12 @@ DXGI_FORMAT TextureRenderTarget11::getDXGIFormat() const
     return mDXGIFormat;
 }
 
-SurfaceRenderTarget11::SurfaceRenderTarget11(SwapChain11 *swapChain, Renderer11 *renderer, bool depth, bool renderToBackbuffer)
+SurfaceRenderTarget11::SurfaceRenderTarget11(SwapChain11 *swapChain, Renderer11 *renderer, bool depth)
     : mSwapChain(swapChain),
       mRenderer(renderer),
       mDepth(depth)
 {
     ASSERT(mSwapChain);
-
-    mRenderToBackBuffer = renderToBackbuffer;
 }
 
 SurfaceRenderTarget11::~SurfaceRenderTarget11()
@@ -361,7 +359,7 @@ GLsizei SurfaceRenderTarget11::getSamples() const
 
 ID3D11Resource *SurfaceRenderTarget11::getTexture() const
 {
-    return (mDepth ? mSwapChain->getDepthStencilTexture() : mSwapChain->getTargetTexture());
+    return (mDepth ? mSwapChain->getDepthStencilTexture() : mSwapChain->getOffscreenTexture());
 }
 
 ID3D11RenderTargetView *SurfaceRenderTarget11::getRenderTargetView() const

@@ -77,7 +77,7 @@ class EGLSurfaceTest : public testing::Test
         ASSERT_TRUE(mWindowSurface == EGL_NO_SURFACE && mContext == EGL_NO_CONTEXT);
     }
 
-    void initializeDisplay(EGLenum platformType, bool allowRenderToBackbuffer)
+    void initializeDisplay(EGLenum platformType)
     {
         PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = reinterpret_cast<PFNEGLGETPLATFORMDISPLAYEXTPROC>(eglGetProcAddress("eglGetPlatformDisplayEXT"));
         ASSERT_TRUE(eglGetPlatformDisplayEXT != nullptr);
@@ -89,12 +89,6 @@ class EGLSurfaceTest : public testing::Test
         displayAttributes.push_back(EGL_DONT_CARE);
         displayAttributes.push_back(EGL_PLATFORM_ANGLE_MAX_VERSION_MINOR_ANGLE);
         displayAttributes.push_back(EGL_DONT_CARE);
-
-        if (allowRenderToBackbuffer)
-        {
-            displayAttributes.push_back(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER);
-            displayAttributes.push_back(EGL_TRUE);
-        }
 
         if (platformType == EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE || platformType == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
         {
@@ -263,7 +257,7 @@ TEST_F(EGLSurfaceTest, MessageLoopBug)
         return;
     }
 
-    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE, false);
+    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE);
     initializeSurfaceWithDefaultConfig();
 
     runMessageLoopTest(EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -280,7 +274,7 @@ TEST_F(EGLSurfaceTest, MessageLoopBugContext)
         return;
     }
 
-    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE, false);
+    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE);
     initializeSurfaceWithDefaultConfig();
 
     runMessageLoopTest(mPbufferSurface, mSecondContext);
@@ -296,7 +290,7 @@ TEST_F(EGLSurfaceTest, MakeCurrentTwice)
     return;
 #endif
 
-    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE, false);
+    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
     initializeSurfaceWithDefaultConfig();
 
     eglMakeCurrent(mDisplay, mWindowSurface, mWindowSurface, mContext);
@@ -319,7 +313,7 @@ TEST_F(EGLSurfaceTest, ResizeD3DWindow)
         return;
     }
 
-    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE, false);
+    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE);
     initializeSurfaceWithDefaultConfig();
 
     eglSwapBuffers(mDisplay, mWindowSurface);
@@ -373,7 +367,7 @@ TEST_F(EGLSurfaceTest, CreateWithEGLConfig5650Support)
         EGL_NONE
     };
 
-    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE, false);
+    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE);
     EGLConfig config;
     if (EGLWindow::FindEGLConfig(mDisplay, configAttributes, &config) == EGL_FALSE)
     {
@@ -415,7 +409,7 @@ TEST_F(EGLSurfaceTest, CreateWithEGLConfig4444Support)
         EGL_NONE
     };
 
-    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE, false);
+    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE);
     EGLConfig config;
     if (EGLWindow::FindEGLConfig(mDisplay, configAttributes, &config) == EGL_FALSE)
     {
@@ -457,7 +451,7 @@ TEST_F(EGLSurfaceTest, CreateWithEGLConfig5551Support)
         EGL_NONE
     };
 
-    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE, false);
+    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE);
     EGLConfig config;
     if (EGLWindow::FindEGLConfig(mDisplay, configAttributes, &config) == EGL_FALSE)
     {
@@ -498,7 +492,7 @@ TEST_F(EGLSurfaceTest, CreateWithEGLConfig8880Support)
         EGL_NONE
     };
 
-    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE, false);
+    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE);
     EGLConfig config;
     if (EGLWindow::FindEGLConfig(mDisplay, configAttributes, &config) == EGL_FALSE)
     {
@@ -517,25 +511,5 @@ TEST_F(EGLSurfaceTest, CreateWithEGLConfig8880Support)
     drawWithProgram(program);
     EXPECT_GL_NO_ERROR();
     glDeleteProgram(program);
-}
-
-// Test that 16 bit configs aren't returned when render-to-backbuffer is allowed
-TEST_F(EGLSurfaceTest, CreateWithEGLConfig4444RTBBNoSupport)
-{
-    const EGLint configAttributes[] =
-    {
-        EGL_RED_SIZE, 4,
-        EGL_GREEN_SIZE, 4,
-        EGL_BLUE_SIZE, 4,
-        EGL_ALPHA_SIZE, 4,
-        EGL_DEPTH_SIZE, 0,
-        EGL_STENCIL_SIZE, 0,
-        EGL_SAMPLE_BUFFERS, 0,
-        EGL_NONE
-    };
-
-    initializeDisplay(EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE, true);
-    EGLConfig config;
-    EXPECT_EQ(EGLWindow::FindEGLConfig(mDisplay, configAttributes, &config), EGL_FALSE);
 }
 }

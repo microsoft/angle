@@ -319,8 +319,7 @@ void DisplayWGL::terminate()
 
 SurfaceImpl *DisplayWGL::createWindowSurface(const egl::Config *configuration,
                                              EGLNativeWindowType window,
-                                             const egl::AttributeMap &attribs,
-                                             bool allowRenderToBackBuffer)
+                                             const egl::AttributeMap &attribs)
 {
     return new WindowSurfaceWGL(this->getRenderer(), window, mPixelFormat, mWGLContext,
                                 mFunctionsWGL);

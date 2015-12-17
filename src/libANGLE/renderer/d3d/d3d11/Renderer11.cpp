@@ -571,14 +571,6 @@ Renderer11::Renderer11(egl::Display *display)
         UNREACHABLE();
     }
 
-    EGLBoolean defaultRenderToBackBuffer = EGL_FALSE;
-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
-    defaultRenderToBackBuffer = EGL_TRUE;
-#endif
-
-    mRenderToBackBufferEnabled = (attributes.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, defaultRenderToBackBuffer) == EGL_TRUE);
-    mRenderToBackBufferActive = false;
-
     initializeDebugAnnotator();
 }
 
@@ -919,17 +911,13 @@ void Renderer11::populateRenderer11DeviceCaps()
 
 egl::ConfigSet Renderer11::generateConfigs() const
 {
-    static const std::pair<GLenum, bool> colorBufferFormats[] =
-    {
+    static const GLenum colorBufferFormats[] = {
         // 32-bit supported formats
-        //     format | supports render-to-backbuffer |
-        { GL_BGRA8_EXT,                          true },
-        { GL_RGBA8_OES,                          true },
-
+        GL_BGRA8_EXT, GL_RGBA8_OES,
+        // 24-bit supported formats
+        GL_RGB8_OES,
         // 16-bit supported formats
-        { GL_RGBA4,                             false },
-        { GL_RGB5_A1,                           false },
-        { GL_RGB565,                            false }
+        GL_RGBA4, GL_RGB5_A1, GL_RGB565,
     };
 
     static const GLenum depthStencilBufferFormats[] =
@@ -945,74 +933,61 @@ egl::ConfigSet Renderer11::generateConfigs() const
     egl::ConfigSet configs;
     for (size_t formatIndex = 0; formatIndex < ArraySize(colorBufferFormats); formatIndex++)
     {
-        GLenum colorBufferInternalFormat = colorBufferFormats[formatIndex].first;
-        bool formatSupportsRenderToBackBuffer = colorBufferFormats[formatIndex].second;
-        if (isRenderingToBackBufferEnabled() && !formatSupportsRenderToBackBuffer)
-        {
-            // Don't return this config if it doesn't support render-to-backbuffer
-            continue;
-        }
-
+        GLenum colorBufferInternalFormat = colorBufferFormats[formatIndex];
         const gl::TextureCaps &colorBufferFormatCaps = rendererTextureCaps.get(colorBufferInternalFormat);
-        if (!colorBufferFormatCaps.renderable)
+        if (colorBufferFormatCaps.renderable)
         {
-            // Don't return this config if it isn't renderable
-            continue;
-        }
-
-        for (size_t depthStencilIndex = 0; depthStencilIndex < ArraySize(depthStencilBufferFormats); depthStencilIndex++)
-        {
-            GLenum depthStencilBufferInternalFormat = depthStencilBufferFormats[depthStencilIndex];
-            const gl::TextureCaps &depthStencilBufferFormatCaps = rendererTextureCaps.get(depthStencilBufferInternalFormat);
-            if (depthStencilBufferInternalFormat != GL_NONE && !depthStencilBufferFormatCaps.renderable)
+            for (size_t depthStencilIndex = 0; depthStencilIndex < ArraySize(depthStencilBufferFormats); depthStencilIndex++)
             {
-                // Shouldn't return this config if the depth-stencil format isn't renderable
-                continue;
+                GLenum depthStencilBufferInternalFormat = depthStencilBufferFormats[depthStencilIndex];
+                const gl::TextureCaps &depthStencilBufferFormatCaps = rendererTextureCaps.get(depthStencilBufferInternalFormat);
+                if (depthStencilBufferFormatCaps.renderable || depthStencilBufferInternalFormat == GL_NONE)
+                {
+                    const gl::InternalFormat &colorBufferFormatInfo = gl::GetInternalFormatInfo(colorBufferInternalFormat);
+                    const gl::InternalFormat &depthStencilBufferFormatInfo = gl::GetInternalFormatInfo(depthStencilBufferInternalFormat);
+
+                    egl::Config config;
+                    config.renderTargetFormat = colorBufferInternalFormat;
+                    config.depthStencilFormat = depthStencilBufferInternalFormat;
+                    config.bufferSize = colorBufferFormatInfo.pixelBytes * 8;
+                    config.redSize = colorBufferFormatInfo.redBits;
+                    config.greenSize = colorBufferFormatInfo.greenBits;
+                    config.blueSize = colorBufferFormatInfo.blueBits;
+                    config.luminanceSize = colorBufferFormatInfo.luminanceBits;
+                    config.alphaSize = colorBufferFormatInfo.alphaBits;
+                    config.alphaMaskSize = 0;
+                    config.bindToTextureRGB = (colorBufferFormatInfo.format == GL_RGB);
+                    config.bindToTextureRGBA = (colorBufferFormatInfo.format == GL_RGBA || colorBufferFormatInfo.format == GL_BGRA_EXT);
+                    config.colorBufferType = EGL_RGB_BUFFER;
+                    config.configCaveat = EGL_NONE;
+                    config.configID = static_cast<EGLint>(configs.size() + 1);
+                    // Can only support a conformant ES2 with feature level greater than 10.0.
+                    config.conformant = (mRenderer11DeviceCaps.featureLevel >= D3D_FEATURE_LEVEL_10_0) ? (EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES3_BIT_KHR) : 0;
+                    config.depthSize = depthStencilBufferFormatInfo.depthBits;
+                    config.level = 0;
+                    config.matchNativePixmap = EGL_NONE;
+                    config.maxPBufferWidth = rendererCaps.max2DTextureSize;
+                    config.maxPBufferHeight = rendererCaps.max2DTextureSize;
+                    config.maxPBufferPixels = rendererCaps.max2DTextureSize * rendererCaps.max2DTextureSize;
+                    config.maxSwapInterval = 4;
+                    config.minSwapInterval = 0;
+                    config.nativeRenderable = EGL_FALSE;
+                    config.nativeVisualID = 0;
+                    config.nativeVisualType = EGL_NONE;
+                    // Can't support ES3 at all without feature level 10.0
+                    config.renderableType = EGL_OPENGL_ES2_BIT | ((mRenderer11DeviceCaps.featureLevel >= D3D_FEATURE_LEVEL_10_0) ? EGL_OPENGL_ES3_BIT_KHR : 0);
+                    config.sampleBuffers = 0; // FIXME: enumerate multi-sampling
+                    config.samples = 0;
+                    config.stencilSize = depthStencilBufferFormatInfo.stencilBits;
+                    config.surfaceType = EGL_PBUFFER_BIT | EGL_WINDOW_BIT | EGL_SWAP_BEHAVIOR_PRESERVED_BIT;
+                    config.transparentType = EGL_NONE;
+                    config.transparentRedValue = 0;
+                    config.transparentGreenValue = 0;
+                    config.transparentBlueValue = 0;
+
+                    configs.add(config);
+                }
             }
-
-            const gl::InternalFormat &colorBufferFormatInfo = gl::GetInternalFormatInfo(colorBufferInternalFormat);
-            const gl::InternalFormat &depthStencilBufferFormatInfo = gl::GetInternalFormatInfo(depthStencilBufferInternalFormat);
-
-            egl::Config config;
-            config.renderTargetFormat = colorBufferInternalFormat;
-            config.depthStencilFormat = depthStencilBufferInternalFormat;
-            config.bufferSize = colorBufferFormatInfo.pixelBytes * 8;
-            config.redSize = colorBufferFormatInfo.redBits;
-            config.greenSize = colorBufferFormatInfo.greenBits;
-            config.blueSize = colorBufferFormatInfo.blueBits;
-            config.luminanceSize = colorBufferFormatInfo.luminanceBits;
-            config.alphaSize = colorBufferFormatInfo.alphaBits;
-            config.alphaMaskSize = 0;
-            config.bindToTextureRGB = (colorBufferFormatInfo.format == GL_RGB);
-            config.bindToTextureRGBA = (colorBufferFormatInfo.format == GL_RGBA || colorBufferFormatInfo.format == GL_BGRA_EXT);
-            config.colorBufferType = EGL_RGB_BUFFER;
-            config.configCaveat = EGL_NONE;
-            config.configID = static_cast<EGLint>(configs.size() + 1);
-            // Can only support a conformant ES2 with feature level greater than 10.0.
-            config.conformant = (mRenderer11DeviceCaps.featureLevel >= D3D_FEATURE_LEVEL_10_0) ? (EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES3_BIT_KHR) : 0;
-            config.depthSize = depthStencilBufferFormatInfo.depthBits;
-            config.level = 0;
-            config.matchNativePixmap = EGL_NONE;
-            config.maxPBufferWidth = rendererCaps.max2DTextureSize;
-            config.maxPBufferHeight = rendererCaps.max2DTextureSize;
-            config.maxPBufferPixels = rendererCaps.max2DTextureSize * rendererCaps.max2DTextureSize;
-            config.maxSwapInterval = 4;
-            config.minSwapInterval = 0;
-            config.nativeRenderable = EGL_FALSE;
-            config.nativeVisualID = 0;
-            config.nativeVisualType = EGL_NONE;
-            // Can't support ES3 at all without feature level 10.0
-            config.renderableType = EGL_OPENGL_ES2_BIT | ((mRenderer11DeviceCaps.featureLevel >= D3D_FEATURE_LEVEL_10_0) ? EGL_OPENGL_ES3_BIT_KHR : 0);
-            config.sampleBuffers = 0; // FIXME: enumerate multi-sampling
-            config.samples = 0;
-            config.stencilSize = depthStencilBufferFormatInfo.stencilBits;
-            config.surfaceType = EGL_PBUFFER_BIT | EGL_WINDOW_BIT | EGL_SWAP_BEHAVIOR_PRESERVED_BIT;
-            config.transparentType = EGL_NONE;
-            config.transparentRedValue = 0;
-            config.transparentGreenValue = 0;
-            config.transparentBlueValue = 0;
-
-            configs.add(config);
         }
     }
 
@@ -1100,9 +1075,9 @@ gl::Error Renderer11::finish()
     return gl::Error(GL_NO_ERROR);
 }
 
-SwapChainD3D *Renderer11::createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackbuffer)
+SwapChainD3D *Renderer11::createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
 {
-    return new SwapChain11(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat, renderToBackbuffer);
+    return new SwapChain11(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat);
 }
 
 void *Renderer11::getD3DDevice()
@@ -1502,18 +1477,11 @@ void Renderer11::setScissorRectangle(const gl::Rectangle &scissor, bool enabled)
     {
         if (enabled)
         {
-            gl::Rectangle actualScissor = scissor;
-
-            if (isCurrentlyRenderingToBackBuffer())
-            {
-                actualScissor.y = d3d11::InvertYAxis(static_cast<int>(mRenderTargetDesc.height), actualScissor.y, actualScissor.height);
-            }
-
             D3D11_RECT rect;
-            rect.left = std::max(0, actualScissor.x);
-            rect.top = std::max(0, actualScissor.y);
-            rect.right = actualScissor.x + std::max(0, actualScissor.width);
-            rect.bottom = actualScissor.y + std::max(0, actualScissor.height);
+            rect.left = std::max(0, scissor.x);
+            rect.top = std::max(0, scissor.y);
+            rect.right = scissor.x + std::max(0, scissor.width);
+            rect.bottom = scissor.y + std::max(0, scissor.height);
 
             mDeviceContext->RSSetScissorRects(1, &rect);
         }
@@ -1579,15 +1547,6 @@ void Renderer11::setViewport(const gl::Rectangle &viewport, float zNear, float z
         dxViewport.Height =   static_cast<float>(dxViewportHeight);
         dxViewport.MinDepth = actualZNear;
         dxViewport.MaxDepth = actualZFar;
-
-        if (isCurrentlyRenderingToBackBuffer())
-        {
-            // When rendering directly to the swapchain backbuffer, we must invert the viewport in Y-axis.
-            // This is due to the differences between the D3D and GL window origins.
-            // NOTE: We delay the inversion until right before the call to RSSetViewports, and leave dxViewportTopLeftY unchanged.
-            // This allows us to calculate viewAdjust below (for Feature Level 9_3) using the unaltered dxViewportTopLeftY value.
-            dxViewport.TopLeftY = static_cast<float>(d3d11::InvertYAxis(static_cast<int>(mRenderTargetDesc.height), dxViewportTopLeftY, dxViewportHeight));
-        }
 
         mDeviceContext->RSSetViewports(1, &dxViewport);
 
@@ -1791,38 +1750,12 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
         }
     }
 
-    bool isBackbuffer = false;
-
-    if (colorbuffers.size() > 0)
-    {
-        RenderTarget11 *renderTarget = NULL;
-        const gl::FramebufferAttachment *colorbuffer = colorbuffers[0];
-        gl::Error error = colorbuffer->getRenderTarget(&renderTarget);
-        if (error.isError())
-        {
-            return error;
-        }
-        ASSERT(renderTarget);
-
-        ID3D11Resource* res = NULL;
-        framebufferRTVs[0]->GetResource(&res);
-        ASSERT(d3d11::IsBackbuffer(res) == renderTarget->renderToBackBuffer());
-        isBackbuffer = d3d11::IsBackbuffer(res);
-        SafeRelease(res);
-    }
-
     // Apply the render target and depth stencil
     if (!mRenderTargetDescInitialized || !mDepthStencilInitialized ||
         memcmp(framebufferRTVs, mAppliedRTVs, sizeof(framebufferRTVs)) != 0 ||
-        reinterpret_cast<uintptr_t>(framebufferDSV) != mAppliedDSV ||
-        isBackbuffer)
+        reinterpret_cast<uintptr_t>(framebufferDSV) != mAppliedDSV)
     {
         mDeviceContext->OMSetRenderTargets(getRendererCaps().maxDrawBuffers, framebufferRTVs, framebufferDSV);
-
-        if (colorbuffers.size() > 0)
-        {
-            setRenderToBackBufferVariables(isBackbuffer);
-        }
 
         mRenderTargetDesc.width = renderTargetWidth;
         mRenderTargetDesc.height = renderTargetHeight;
@@ -2913,41 +2846,6 @@ std::string Renderer11::getShaderModelSuffix() const
     }
 }
 
-bool Renderer11::isRenderingToBackBufferEnabled() const
-{
-    return mRenderToBackBufferEnabled;
-}
-
-bool Renderer11::isCurrentlyRenderingToBackBuffer() const
-{
-    return mRenderToBackBufferActive;
-}
-
-void Renderer11::setRenderToBackBufferVariables(bool renderingToBackBuffer)
-{
-    mRenderToBackBufferActive = renderingToBackBuffer;
-
-    // The rasterizer state must be updated, so that it will update its culling mode.
-    mForceSetRasterState = true;
-
-    mVertexConstants.viewScale[0] = 1.0f;
-    mVertexConstants.viewScale[1] = 1.0f;
-    mVertexConstants.viewScale[2] = 1.0f;
-    mVertexConstants.viewScale[3] = 1.0f;
-
-    mPixelConstants.viewScale[0] = 1.0f;
-    mPixelConstants.viewScale[1] = 1.0f;
-    mPixelConstants.viewScale[2] = 1.0f;
-    mPixelConstants.viewScale[3] = 1.0f;
-
-    // When rendering to a texture, invert the rendering by setting these constants to -1 instead of +1.
-    if (!mRenderToBackBufferActive)
-    {
-        mVertexConstants.viewScale[1] = -1.0f;
-        mPixelConstants.viewScale[1] = -1.0f;
-    }
-}
-
 const WorkaroundsD3D &RendererD3D::getWorkarounds() const
 {
     if (!mWorkaroundsInitialized)
@@ -2996,11 +2894,6 @@ gl::Error Renderer11::copyImage2D(const gl::Framebuffer *framebuffer, const gl::
 
     gl::Box destArea(destOffset.x, destOffset.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents destSize(destRenderTarget->getWidth(), destRenderTarget->getHeight(), 1);
-
-    if (sourceRenderTarget->renderToBackBuffer())
-    {
-        sourceArea.y = d3d11::InvertYAxis(colorbuffer->getHeight(), sourceArea.y, sourceArea.height);
-    }
 
     // Use nearest filtering because source and destination are the same size for the direct
     // copy
@@ -3053,11 +2946,6 @@ gl::Error Renderer11::copyImageCube(const gl::Framebuffer *framebuffer, const gl
     gl::Box destArea(destOffset.x, destOffset.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents destSize(destRenderTarget->getWidth(), destRenderTarget->getHeight(), 1);
 
-    if (sourceRenderTarget->renderToBackBuffer())
-    {
-        sourceArea.y = d3d11::InvertYAxis(colorbuffer->getHeight(), sourceArea.y, sourceArea.height);
-    }
-
     // Use nearest filtering because source and destination are the same size for the direct
     // copy
     error = mBlit->copyTexture(source, sourceArea, sourceSize, dest, destArea, destSize, NULL, destFormat, GL_NEAREST);
@@ -3109,11 +2997,6 @@ gl::Error Renderer11::copyImage3D(const gl::Framebuffer *framebuffer, const gl::
     gl::Box destArea(destOffset.x, destOffset.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents destSize(destRenderTarget->getWidth(), destRenderTarget->getHeight(), 1);
 
-    if (sourceRenderTarget->renderToBackBuffer())
-    {
-        sourceArea.y = d3d11::InvertYAxis(colorbuffer->getHeight(), sourceArea.y, sourceArea.height);
-    }
-
     // Use nearest filtering because source and destination are the same size for the direct
     // copy
     error = mBlit->copyTexture(source, sourceArea, sourceSize, dest, destArea, destSize, NULL, destFormat, GL_NEAREST);
@@ -3164,11 +3047,6 @@ gl::Error Renderer11::copyImage2DArray(const gl::Framebuffer *framebuffer, const
 
     gl::Box destArea(destOffset.x, destOffset.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents destSize(destRenderTarget->getWidth(), destRenderTarget->getHeight(), 1);
-
-    if (sourceRenderTarget->renderToBackBuffer())
-    {
-        sourceArea.y = d3d11::InvertYAxis(colorbuffer->getHeight(), sourceArea.y, sourceArea.height);
-    }
 
     // Use nearest filtering because source and destination are the same size for the direct
     // copy
@@ -3739,21 +3617,14 @@ gl::Error Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int sub
     D3D11_TEXTURE2D_DESC textureDesc;
     texture->GetDesc(&textureDesc);
 
-    gl::Rectangle actualArea = area;
-    bool invertForRenderToBackbuffer = mRenderToBackBufferEnabled && d3d11::IsBackbuffer(texture);
-    if (invertForRenderToBackbuffer)
-    {
-        actualArea.y = d3d11::InvertYAxis(textureDesc.Height, actualArea.y, actualArea.height);
-    }
-
     // Clamp read region to the defined texture boundaries, preventing out of bounds reads
     // and reads of uninitialized data.
     gl::Rectangle safeArea;
-    safeArea.x      = gl::clamp(actualArea.x, 0, static_cast<int>(textureDesc.Width));
-    safeArea.y      = gl::clamp(actualArea.y, 0, static_cast<int>(textureDesc.Height));
-    safeArea.width  = gl::clamp(actualArea.width + std::min(actualArea.x, 0), 0,
+    safeArea.x      = gl::clamp(area.x, 0, static_cast<int>(textureDesc.Width));
+    safeArea.y      = gl::clamp(area.y, 0, static_cast<int>(textureDesc.Height));
+    safeArea.width  = gl::clamp(area.width + std::min(area.x, 0), 0,
                                 static_cast<int>(textureDesc.Width) - safeArea.x);
-    safeArea.height = gl::clamp(actualArea.height + std::min(actualArea.y, 0), 0,
+    safeArea.height = gl::clamp(area.height + std::min(area.y, 0), 0,
                                 static_cast<int>(textureDesc.Height) - safeArea.y);
 
     ASSERT(safeArea.x >= 0 && safeArea.y >= 0);
@@ -3830,26 +3701,10 @@ gl::Error Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int sub
 
     SafeRelease(srcTex);
 
-    gl::PixelPackState actualPack;
-
-    // We can't just assign pack to actualPack, because that clones the ref count on pixelBuffer!
-    actualPack.alignment = pack.alignment;
-    actualPack.pixelBuffer.set(pack.pixelBuffer.get()); // Increments pack.pixelBuffer's ref count
-    actualPack.reverseRowOrder = pack.reverseRowOrder;
-
-    if (invertForRenderToBackbuffer)
-    {
-        actualPack.reverseRowOrder = !actualPack.reverseRowOrder;
-    }
-
-    PackPixelsParams packParams(safeArea, format, type, outputPitch, actualPack, 0);
+    PackPixelsParams packParams(safeArea, format, type, outputPitch, pack, 0);
     gl::Error error = packPixels(stagingTex, packParams, pixels);
 
     SafeRelease(stagingTex);
-
-    // The destructor of pixelBuffer's "smart" pointer doesn't release the object when actualPack goes out of scope, leaking the object!
-    // We therefore set the "smart" pointer back to NULL. This calls release on the actual pixelBuffer used in 'pack', preventing a leak.
-    actualPack.pixelBuffer.set(NULL);
 
     return error;
 }
@@ -3995,55 +3850,11 @@ gl::Error Renderer11::blitRenderbufferRect(const gl::Rectangle &readRect, const 
     }
     else
     {
-        if (readRenderTarget11->renderToBackBuffer())
-        {
-            // The backbuffer can't be created with SRV flags.
-            // As a result, when the app wants to blit directly from the backbuffer, we must copy the backbuffer's
-            // contents into a texture with the SRV flags set and blit from that.
-            ID3D11Texture2D *backbufferTexture = d3d11::DynamicCastComObject<ID3D11Texture2D>(readRenderTarget11->getTexture());
-            ASSERT(backbufferTexture);
-
-            D3D11_TEXTURE2D_DESC readTextureDesc;
-            backbufferTexture->GetDesc(&readTextureDesc);
-            readTextureDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
-
-            ID3D11Texture2D *readTexture2D = nullptr;
-            HRESULT hr = mDevice->CreateTexture2D(&readTextureDesc, NULL, &readTexture2D);
-            if (FAILED(hr))
-            {
-                SafeRelease(backbufferTexture);
-                return gl::Error(GL_OUT_OF_MEMORY, "Failed to create temporary blitting read texture.");
-            }
-            readTexture = readTexture2D;
-
-            const d3d11::TextureFormat &readTextureInfo = d3d11::GetTextureFormatInfo(readRenderTarget11->getInternalFormat(), getRenderer11DeviceCaps());
-
-            D3D11_SHADER_RESOURCE_VIEW_DESC readSRVDesc;
-            readSRVDesc.Format = readTextureInfo.srvFormat;
-            readSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-            readSRVDesc.Texture2D.MostDetailedMip = 0;
-            readSRVDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
-
-            hr = mDevice->CreateShaderResourceView(readTexture, &readSRVDesc, &readSRV);
-            if (FAILED(hr))
-            {
-                SafeRelease(backbufferTexture);
-                SafeRelease(readTexture);
-                return gl::Error(GL_OUT_OF_MEMORY, "Failed to create temporary blitting read SRV.");
-            }
-
-            mDeviceContext->CopyResource(readTexture2D, backbufferTexture);
-            SafeRelease(backbufferTexture);
-        }
-        else
-        {
-            readTexture = readRenderTarget11->getTexture();
-            readTexture->AddRef();
-            readSRV = readRenderTarget11->getShaderResourceView();
-            readSRV->AddRef();
-        }
-
+        readTexture = readRenderTarget11->getTexture();
+        readTexture->AddRef();
         readSubresource = readRenderTarget11->getSubresourceIndex();
+        readSRV = readRenderTarget11->getShaderResourceView();
+        readSRV->AddRef();
     }
 
     if (!readTexture || !readSRV)

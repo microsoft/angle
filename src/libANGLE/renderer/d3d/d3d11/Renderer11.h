@@ -110,7 +110,7 @@ class Renderer11 : public RendererD3D
     gl::Error flush() override;
     gl::Error finish() override;
 
-    virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer);
+    virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
 
     virtual gl::Error generateSwizzle(gl::Texture *texture);
     virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler);
@@ -165,9 +165,6 @@ class Renderer11 : public RendererD3D
     virtual int getMajorShaderModel() const;
     int getMinorShaderModel() const override;
     std::string getShaderModelSuffix() const override;
-
-    virtual bool isRenderingToBackBufferEnabled() const;
-    virtual bool isCurrentlyRenderingToBackBuffer() const;
 
     // Pixel operations
     virtual gl::Error copyImage2D(const gl::Framebuffer *framebuffer, const gl::Rectangle &sourceRect, GLenum destFormat,
@@ -321,7 +318,6 @@ class Renderer11 : public RendererD3D
 
     ID3D11Texture2D *resolveMultisampledTexture(ID3D11Texture2D *source, unsigned int subresource);
     void unsetConflictingSRVs(gl::SamplerType shaderType, uintptr_t resource, const gl::ImageIndex &index);
-    void setRenderToBackBufferVariables(bool renderingToBackBuffer);
 
     void populateRenderer11DeviceCaps();
 
@@ -414,9 +410,6 @@ class Renderer11 : public RendererD3D
     // Currently applied rasterizer state
     bool mForceSetRasterState;
     gl::RasterizerState mCurRasterState;
-
-    bool mRenderToBackBufferEnabled;
-    bool mRenderToBackBufferActive;
 
     // Currently applied depth stencil state
     bool mForceSetDepthStencilState;

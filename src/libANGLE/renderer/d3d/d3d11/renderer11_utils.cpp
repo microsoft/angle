@@ -1251,32 +1251,6 @@ void GenerateCaps(ID3D11Device *device, ID3D11DeviceContext *deviceContext, cons
 namespace d3d11
 {
 
-bool IsBackbuffer(ID3D11Resource *resource)
-{
-    IDXGIResource* dxgiResource = NULL;
-    HRESULT hr = resource->QueryInterface(__uuidof(IDXGIResource), (void**)&dxgiResource);
-
-    if (SUCCEEDED(hr))
-    {
-        DXGI_USAGE usage;
-        hr = dxgiResource->GetUsage(&usage);
-
-        if (SUCCEEDED(hr))
-        {
-            SafeRelease(dxgiResource);
-            return ((usage & DXGI_USAGE_BACK_BUFFER) != 0);
-        }
-    }
-
-    SafeRelease(dxgiResource);
-    return false;
-}
-
-int InvertYAxis(int renderTargetHeight, int rectTop, int rectHeight)
-{
-    return renderTargetHeight - rectTop - rectHeight;
-}
-
 void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsizei *requestHeight, int *levelOffset)
 {
     const DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(format);

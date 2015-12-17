@@ -16,7 +16,6 @@ EGLPlatformParameters::EGLPlatformParameters()
     : renderer(EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE),
       majorVersion(EGL_DONT_CARE),
       minorVersion(EGL_DONT_CARE),
-      useRenderToBackBuffer(EGL_FALSE),
       deviceType(EGL_DONT_CARE)
 {
 }
@@ -25,7 +24,6 @@ EGLPlatformParameters::EGLPlatformParameters(EGLint renderer)
     : renderer(renderer),
       majorVersion(EGL_DONT_CARE),
       minorVersion(EGL_DONT_CARE),
-      useRenderToBackBuffer(EGL_FALSE),
       deviceType(EGL_DONT_CARE)
 {
     if (renderer == EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE ||
@@ -35,12 +33,11 @@ EGLPlatformParameters::EGLPlatformParameters(EGLint renderer)
     }
 }
 
-EGLPlatformParameters::EGLPlatformParameters(EGLint renderer, EGLint majorVersion, EGLint minorVersion, EGLint useWarp, EGLBoolean useRenderToBackBuffer)
+EGLPlatformParameters::EGLPlatformParameters(EGLint renderer, EGLint majorVersion, EGLint minorVersion, EGLint useWarp)
     : renderer(renderer),
       majorVersion(majorVersion),
       minorVersion(minorVersion),
-      deviceType(useWarp),
-      useRenderToBackBuffer(useRenderToBackBuffer)
+      deviceType(useWarp)
 {
 }
 
@@ -143,9 +140,6 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
         displayAttributes.push_back(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE);
         displayAttributes.push_back(mPlatform.deviceType);
     }
-
-    displayAttributes.push_back(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER);
-    displayAttributes.push_back(mPlatform.useRenderToBackBuffer);
     displayAttributes.push_back(EGL_NONE);
 
     mDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, osWindow->getNativeDisplay(), &displayAttributes[0]);
@@ -211,9 +205,6 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
         surfaceAttributes.push_back(EGL_POST_SUB_BUFFER_SUPPORTED_NV);
         surfaceAttributes.push_back(EGL_TRUE);
     }
-
-    surfaceAttributes.push_back(EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER);
-    surfaceAttributes.push_back(mPlatform.useRenderToBackBuffer);
 
     surfaceAttributes.push_back(EGL_NONE);
 

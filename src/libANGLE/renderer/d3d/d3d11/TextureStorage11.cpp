@@ -705,7 +705,7 @@ gl::Error TextureStorage11::setData(const gl::ImageIndex &index, ImageD3D *image
 
 TextureStorage11_2D::TextureStorage11_2D(Renderer11 *renderer, SwapChain11 *swapchain)
     : TextureStorage11(renderer, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 0),
-      mTexture(swapchain->getTargetTexture()),
+      mTexture(swapchain->getOffscreenTexture()),
       mLevelZeroTexture(NULL),
       mLevelZeroRenderTarget(NULL),
       mUseLevelZeroTexture(false),

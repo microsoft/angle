@@ -64,9 +64,6 @@ void GenerateCaps(ID3D11Device *device, ID3D11DeviceContext *deviceContext, cons
 
 namespace d3d11
 {
-bool IsBackbuffer(ID3D11Resource* resource);
-
-int InvertYAxis(int renderTargetHeight, int rectTop, int rectHeight);
 
 void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsizei *requestHeight, int *levelOffset);
 

@@ -20,7 +20,7 @@ class Renderer11;
 class RenderTarget11 : public RenderTargetD3D
 {
   public:
-    RenderTarget11() { mRenderToBackBuffer = false; }
+    RenderTarget11() { }
     virtual ~RenderTarget11() { }
 
     virtual ID3D11Resource *getTexture() const = 0;
@@ -31,11 +31,6 @@ class RenderTarget11 : public RenderTargetD3D
     virtual unsigned int getSubresourceIndex() const = 0;
 
     virtual DXGI_FORMAT getDXGIFormat() const = 0;
-
-    bool renderToBackBuffer() const { return mRenderToBackBuffer; };
-
-protected:
-    bool mRenderToBackBuffer;
 };
 
 class TextureRenderTarget11 : public RenderTarget11
@@ -81,7 +76,7 @@ class TextureRenderTarget11 : public RenderTarget11
 class SurfaceRenderTarget11 : public RenderTarget11
 {
   public:
-    SurfaceRenderTarget11(SwapChain11 *swapChain, Renderer11 *renderer, bool depth, bool renderToBackBuffer);
+    SurfaceRenderTarget11(SwapChain11 *swapChain, Renderer11 *renderer, bool depth);
     virtual ~SurfaceRenderTarget11();
 
     GLsizei getWidth() const override;

@@ -30,8 +30,7 @@ class DisplayWGL : public DisplayGL
     // Surface creation
     SurfaceImpl *createWindowSurface(const egl::Config *configuration,
                                      EGLNativeWindowType window,
-                                     const egl::AttributeMap &attribs,
-                                     bool allowRenderToBackBuffer) override;
+                                     const egl::AttributeMap &attribs) override;
     SurfaceImpl *createPbufferSurface(const egl::Config *configuration,
                                       const egl::AttributeMap &attribs) override;
     SurfaceImpl *createPbufferFromClientBuffer(const egl::Config *configuration,

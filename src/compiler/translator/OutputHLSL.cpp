@@ -187,16 +187,10 @@ OutputHLSL::OutputHLSL(sh::GLenum shaderType, int shaderVersion,
 
     if (mOutputType == SH_HLSL9_OUTPUT)
     {
-        if (mShaderType == GL_FRAGMENT_SHADER)
-        {
-            // Reserve registers for dx_DepthRange, dx_ViewCoords, dx_ViewScale and dx_DepthFront
-            mUniformHLSL->reserveUniformRegisters(4);
-        }
-        else
-        {
-            // Reserve registers for dx_DepthRange, dx_ViewAdjust, dx_ViewScale and dx_ViewCoords
-            mUniformHLSL->reserveUniformRegisters(4);
-        }
+        // Fragment shaders need dx_DepthRange, dx_ViewCoords and dx_DepthFront.
+        // Vertex shaders need a slightly different set: dx_DepthRange, dx_ViewCoords and dx_ViewAdjust.
+        // In both cases total 3 uniform registers need to be reserved.
+        mUniformHLSL->reserveUniformRegisters(3);
     }
 
     // Reserve registers for the default uniform block and driver constants
@@ -523,11 +517,6 @@ void OutputHLSL::header(const BuiltInFunctionEmulator *builtInFunctionEmulator)
                 out << "    float3 dx_DepthFront : packoffset(c2);\n";
             }
 
-            if (mUsesFragCoord)
-            {
-                out << "    float2 dx_ViewScale : packoffset(c3);\n";
-            }
-
             out << "};\n";
         }
         else
@@ -622,12 +611,11 @@ void OutputHLSL::header(const BuiltInFunctionEmulator *builtInFunctionEmulator)
                 out << "    float3 dx_DepthRange : packoffset(c0);\n";
             }
 
-            // dx_ViewAdjust, dx_ViewCoords and dx_ViewScale will only be used in Feature Level 9 shaders.
+            // dx_ViewAdjust and dx_ViewCoords will only be used in Feature Level 9 shaders.
             // However, we declare it for all shaders (including Feature Level 10+).
             // The bytecode is the same whether we declare it or not, since D3DCompiler removes it if it's unused.
             out << "    float4 dx_ViewAdjust : packoffset(c1);\n";
             out << "    float2 dx_ViewCoords : packoffset(c2);\n";
-            out << "    float2 dx_ViewScale  : packoffset(c3);\n";
 
             out << "};\n"
                    "\n";

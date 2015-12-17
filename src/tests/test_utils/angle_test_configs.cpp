@@ -113,11 +113,6 @@ std::ostream &operator<<(std::ostream& stream, const PlatformParameters &pp)
         break;
     }
 
-    if (pp.eglParameters.useRenderToBackBuffer)
-    {
-        stream << "_RTBB";
-    }
-
     return stream;
 }
 
@@ -135,7 +130,7 @@ EGLPlatformParameters DEFAULT_NULL()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE,
         EGL_DONT_CARE, EGL_DONT_CARE,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE);
 }
 
 EGLPlatformParameters D3D9()
@@ -143,7 +138,7 @@ EGLPlatformParameters D3D9()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE,
         EGL_DONT_CARE, EGL_DONT_CARE,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
 }
 
 EGLPlatformParameters D3D9_NULL()
@@ -151,7 +146,7 @@ EGLPlatformParameters D3D9_NULL()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE,
         EGL_DONT_CARE, EGL_DONT_CARE,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE);
 }
 
 EGLPlatformParameters D3D9_REFERENCE()
@@ -159,7 +154,7 @@ EGLPlatformParameters D3D9_REFERENCE()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE,
         EGL_DONT_CARE, EGL_DONT_CARE,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE);
 }
 
 EGLPlatformParameters D3D11()
@@ -167,7 +162,7 @@ EGLPlatformParameters D3D11()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         EGL_DONT_CARE, EGL_DONT_CARE,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL11_1()
@@ -175,7 +170,7 @@ EGLPlatformParameters D3D11_FL11_1()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         11, 1,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL11_0()
@@ -183,7 +178,7 @@ EGLPlatformParameters D3D11_FL11_0()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         11, 0,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL10_1()
@@ -191,7 +186,7 @@ EGLPlatformParameters D3D11_FL10_1()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         10, 1,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL10_0()
@@ -199,7 +194,7 @@ EGLPlatformParameters D3D11_FL10_0()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         10, 0,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL9_3()
@@ -207,15 +202,7 @@ EGLPlatformParameters D3D11_FL9_3()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         9, 3,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE, false);
-}
-
-EGLPlatformParameters D3D11_RTBB()
-{
-    return EGLPlatformParameters(
-        EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
-        EGL_DONT_CARE, EGL_DONT_CARE,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE, true);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_NULL()
@@ -223,7 +210,7 @@ EGLPlatformParameters D3D11_NULL()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         EGL_DONT_CARE, EGL_DONT_CARE,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE);
 }
 
 EGLPlatformParameters D3D11_WARP()
@@ -231,7 +218,7 @@ EGLPlatformParameters D3D11_WARP()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         EGL_DONT_CARE, EGL_DONT_CARE,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL11_1_WARP()
@@ -239,7 +226,7 @@ EGLPlatformParameters D3D11_FL11_1_WARP()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         11, 1,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL11_0_WARP()
@@ -247,7 +234,7 @@ EGLPlatformParameters D3D11_FL11_0_WARP()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         11, 0,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL10_1_WARP()
@@ -255,7 +242,7 @@ EGLPlatformParameters D3D11_FL10_1_WARP()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         10, 1,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL10_0_WARP()
@@ -263,7 +250,7 @@ EGLPlatformParameters D3D11_FL10_0_WARP()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         10, 0,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL9_3_WARP()
@@ -271,7 +258,7 @@ EGLPlatformParameters D3D11_FL9_3_WARP()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         9, 3,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE);
 }
 
 EGLPlatformParameters D3D11_REFERENCE()
@@ -279,7 +266,7 @@ EGLPlatformParameters D3D11_REFERENCE()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         EGL_DONT_CARE, EGL_DONT_CARE,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL11_1_REFERENCE()
@@ -287,7 +274,7 @@ EGLPlatformParameters D3D11_FL11_1_REFERENCE()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         11, 1,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL11_0_REFERENCE()
@@ -295,7 +282,7 @@ EGLPlatformParameters D3D11_FL11_0_REFERENCE()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         11, 0,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL10_1_REFERENCE()
@@ -303,7 +290,7 @@ EGLPlatformParameters D3D11_FL10_1_REFERENCE()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         10, 1,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL10_0_REFERENCE()
@@ -311,7 +298,7 @@ EGLPlatformParameters D3D11_FL10_0_REFERENCE()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         10, 0,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE);
 }
 
 EGLPlatformParameters D3D11_FL9_3_REFERENCE()
@@ -319,7 +306,7 @@ EGLPlatformParameters D3D11_FL9_3_REFERENCE()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE,
         9, 3,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE);
 }
 
 EGLPlatformParameters OPENGL()
@@ -333,7 +320,7 @@ EGLPlatformParameters OPENGL(EGLint major, EGLint minor)
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE,
         major, minor,
-        EGL_DONT_CARE, false);
+        EGL_DONT_CARE);
 }
 
 EGLPlatformParameters OPENGL_NULL()
@@ -341,7 +328,7 @@ EGLPlatformParameters OPENGL_NULL()
     return EGLPlatformParameters(
         EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE,
         0, 0,
-        EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE, false);
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE);
 }
 
 EGLPlatformParameters OPENGLES()
@@ -385,11 +372,6 @@ PlatformParameters ES2_D3D11_FL10_0()
 PlatformParameters ES2_D3D11_FL9_3()
 {
     return PlatformParameters(2, 0, egl_platform::D3D11_FL9_3());
-}
-
-PlatformParameters ES2_D3D11_RTBB()
-{
-    return PlatformParameters(2, 0, egl_platform::D3D11_RTBB());
 }
 
 PlatformParameters ES2_D3D11_WARP()

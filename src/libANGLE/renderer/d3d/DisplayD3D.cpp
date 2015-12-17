@@ -145,10 +145,10 @@ DisplayD3D::DisplayD3D() : mRenderer(nullptr)
 {
 }
 
+
 SurfaceImpl *DisplayD3D::createWindowSurface(const egl::Config *configuration,
                                              EGLNativeWindowType window,
-                                             const egl::AttributeMap &attribs,
-                                             bool renderToBackBuffer)
+                                             const egl::AttributeMap &attribs)
 {
     ASSERT(mRenderer != nullptr);
 
@@ -163,7 +163,7 @@ SurfaceImpl *DisplayD3D::createWindowSurface(const egl::Config *configuration,
     }
 
     return SurfaceD3D::createFromWindow(
-        mRenderer, mDisplay, configuration, window, fixedSize, width, height, renderToBackBuffer);
+        mRenderer, mDisplay, configuration, window, fixedSize, width, height);
 }
 
 SurfaceImpl *DisplayD3D::createPbufferSurface(const egl::Config *configuration,
@@ -174,7 +174,7 @@ SurfaceImpl *DisplayD3D::createPbufferSurface(const egl::Config *configuration,
     EGLint width = attribs.get(EGL_WIDTH, 0);
     EGLint height = attribs.get(EGL_HEIGHT, 0);
 
-    return SurfaceD3D::createOffscreen(mRenderer, mDisplay, configuration, nullptr, width, height, false);
+    return SurfaceD3D::createOffscreen(mRenderer, mDisplay, configuration, nullptr, width, height);
 }
 
 SurfaceImpl *DisplayD3D::createPbufferFromClientBuffer(const egl::Config *configuration,
@@ -187,7 +187,7 @@ SurfaceImpl *DisplayD3D::createPbufferFromClientBuffer(const egl::Config *config
     EGLint height = attribs.get(EGL_HEIGHT, 0);
 
     return SurfaceD3D::createOffscreen(
-        mRenderer, mDisplay, configuration, shareHandle, width, height, false);
+        mRenderer, mDisplay, configuration, shareHandle, width, height);
 }
 
 SurfaceImpl *DisplayD3D::createPixmapSurface(const egl::Config *configuration,

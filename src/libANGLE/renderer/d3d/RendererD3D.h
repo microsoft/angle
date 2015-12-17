@@ -143,7 +143,7 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     // Direct3D Specific methods
     virtual DeviceIdentifier getAdapterIdentifier() const = 0;
 
-    virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat, bool renderToBackBuffer) = 0;
+    virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;
 
     virtual gl::Error generateSwizzle(gl::Texture *texture) = 0;
     virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler) = 0;
@@ -185,8 +185,6 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     virtual unsigned int getReservedVertexUniformBuffers() const = 0;
     virtual unsigned int getReservedFragmentUniformBuffers() const = 0;
 
-    virtual bool isRenderingToBackBufferEnabled() const = 0;
-    virtual bool isCurrentlyRenderingToBackBuffer() const = 0;
     virtual int getMajorShaderModel() const = 0;
 
     const WorkaroundsD3D &getWorkarounds() const;
@@ -347,7 +345,6 @@ struct dx_VertexConstants
     float depthRange[4];
     float viewAdjust[4];
     float viewCoords[4];
-    float viewScale[4];
 };
 
 struct dx_PixelConstants
@@ -355,7 +352,6 @@ struct dx_PixelConstants
     float depthRange[4];
     float viewCoords[4];
     float depthFront[4];
-    float viewScale[4];
 };
 
 }
