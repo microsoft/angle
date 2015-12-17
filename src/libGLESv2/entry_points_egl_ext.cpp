@@ -165,11 +165,9 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
         bool deviceTypeSpecified     = false;
         bool directRenderingEnabled  = false;
 
+        bool foundRenderToBackbuffer = false;
         bool requestedAllowRenderToBackBuffer = false;
-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
-        requestedAllowRenderToBackBuffer = true;
-#endif
-		
+
         if (attrib_list)
         {
             for (const EGLint *curAttrib = attrib_list; curAttrib[0] != EGL_NONE; curAttrib += 2)
@@ -270,7 +268,10 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                         deviceType = curAttrib[1];
                     break;
 
-					case EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER:
+                    case EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER:
+                        ERR("EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER is deprecated, please use"
+                            "EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING.");
+
                         switch (curAttrib[1])
                         {
                         case EGL_FALSE:
@@ -282,9 +283,11 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                             return EGL_NO_DISPLAY;
                         }
                         
+                        foundRenderToBackbuffer = true;
                         requestedAllowRenderToBackBuffer = (curAttrib[1] == EGL_TRUE);
+                        directRenderingEnabled = (curAttrib[1] == EGL_TRUE);
                     break;
-					
+
                     default:
                         break;
                 }
@@ -306,13 +309,7 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                       "EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE."));
             return EGL_NO_DISPLAY;
         }
-
-        if (platformType != EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE && requestedAllowRenderToBackBuffer)
-        {
-            SetGlobalError(egl::Error(EGL_BAD_ATTRIBUTE));
-            return EGL_NO_DISPLAY;
-        }
-		
+	
         if (enableAutoTrimSpecified && platformType != EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
         {
             SetGlobalError(
@@ -341,8 +338,17 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
             return EGL_NO_DISPLAY;
         }
 
+        AttributeMap attribMap = AttributeMap(attrib_list);
+
+        if (foundRenderToBackbuffer)
+        {
+            // Redirect EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER to
+            // EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING for backcompat
+            attribMap.insert(EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING, requestedAllowRenderToBackBuffer);
+        }
+
         SetGlobalError(Error(EGL_SUCCESS));
-        return Display::GetDisplayFromAttribs(native_display, AttributeMap(attrib_list));
+        return Display::GetDisplayFromAttribs(native_display, attribMap);
     }
     else if (platform == EGL_PLATFORM_DEVICE_EXT)
     {

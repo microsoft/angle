@@ -577,8 +577,13 @@ Renderer11::Renderer11(egl::Display *display)
                 UNREACHABLE();
         }
 
+        EGLint defaultDirectRendering = EGL_FALSE;
+#ifdef ANGLE_ENABLE_WINDOWS_STORE
+        defaultDirectRendering = EGL_TRUE;
+#endif
+
         mUseDirectRendering =
-            !!(attributes.get(EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING, EGL_TRUE));
+            !!(attributes.get(EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING, defaultDirectRendering));
     }
     else if (display->getPlatform() == EGL_PLATFORM_DEVICE_EXT)
     {

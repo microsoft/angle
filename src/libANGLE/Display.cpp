@@ -502,22 +502,6 @@ Error Display::createWindowSurface(const Config *configuration, EGLNativeWindowT
         }
     }
 
-    EGLBoolean defaultRenderToBackBuffer = EGL_FALSE;
-#if defined(ANGLE_ENABLE_WINDOWS_STORE)
-    // For backcompat reasons, we currently enable render-to-backbuffer by default in Windows Store applications
-    // TODO: remove this when final render-to-backbuffer impl is complete
-    defaultRenderToBackBuffer = EGL_TRUE;
-#endif
-
-    bool allowRenderToBackBuffer = (mAttributeMap.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER, defaultRenderToBackBuffer) == EGL_TRUE);
-    bool enableRenderToBackBuffer = (attribs.get(EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER, defaultRenderToBackBuffer) == EGL_TRUE);
-
-    if (enableRenderToBackBuffer && !allowRenderToBackBuffer)
-    {
-        return egl::Error(EGL_BAD_ATTRIBUTE, "If EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER is set to EGL_TRUE then"
-                                             "EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER must be set to EGL_TRUE too.");
-    }
-
     rx::SurfaceImpl *surfaceImpl = mImplementation->createWindowSurface(configuration, window, attribs);
     ASSERT(surfaceImpl != nullptr);
 
