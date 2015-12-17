@@ -82,10 +82,12 @@
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib</AdditionalDependencies>
       <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <OptimizeReferences>false</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
@@ -127,10 +129,12 @@
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib;dxgi.lib</AdditionalDependencies>
       <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <OptimizeReferences>false</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineARM</TargetMachine>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
@@ -153,15 +157,17 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>MinSpace</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/ignore:4221 %(AdditionalOptions)</AdditionalOptions>
@@ -170,10 +176,11 @@
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
-      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/guard:cf /cgthreads:8 %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -197,15 +204,17 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>MinSpace</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Lib>
       <AdditionalOptions>/ignore:4221 %(AdditionalOptions)</AdditionalOptions>
@@ -214,10 +223,11 @@
     </Lib>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);uuid.lib</AdditionalDependencies>
-      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/guard:cf /cgthreads:8 %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineARM</TargetMachine>
@@ -254,7 +264,6 @@
     <ClInclude Include="..\..\..\..\include\angle_gl.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\BaseTypes.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\BuiltInFunctionEmulator.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\BuiltInFunctionEmulatorGLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\Cache.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\CallDAG.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\Common.h"/>
@@ -264,7 +273,6 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\DirectiveHandler.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\EmulatePrecision.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ExtensionBehavior.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\ExtensionGLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\FlagStd140Structs.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ForLoopUnroll.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\HashNames.h"/>
@@ -280,9 +288,6 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\MMap.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\NodeSearch.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\Operator.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\OutputESSL.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\OutputGLSL.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\OutputGLSLBase.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ParseContext.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\PoolAlloc.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\Pragma.h"/>
@@ -295,8 +300,6 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\ScalarizeVecAndMatConstructorArgs.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\SearchSymbol.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\SymbolTable.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\TranslatorESSL.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\TranslatorGLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\Types.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuitAST.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ValidateGlobalInitializer.h"/>
@@ -305,7 +308,6 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\ValidateSwitch.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\VariableInfo.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\VariablePacker.h"/>
-    <ClInclude Include="..\..\..\..\src\compiler\translator\VersionGLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\blocklayout.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\depgraph\DependencyGraph.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\depgraph\DependencyGraphBuilder.h"/>
@@ -336,7 +338,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\compiler\translator\BuiltInFunctionEmulator.cpp"/>
-    <ClCompile Include="..\..\..\..\src\compiler\translator\BuiltInFunctionEmulatorGLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\Cache.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\CallDAG.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\CodeGen.cpp"/>
@@ -344,7 +345,6 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\Diagnostics.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\DirectiveHandler.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\EmulatePrecision.cpp"/>
-    <ClCompile Include="..\..\..\..\src\compiler\translator\ExtensionGLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\FlagStd140Structs.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ForLoopUnroll.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\InfoSink.cpp"/>
@@ -357,9 +357,6 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\Intermediate.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\LoopInfo.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\Operator.cpp"/>
-    <ClCompile Include="..\..\..\..\src\compiler\translator\OutputESSL.cpp"/>
-    <ClCompile Include="..\..\..\..\src\compiler\translator\OutputGLSL.cpp"/>
-    <ClCompile Include="..\..\..\..\src\compiler\translator\OutputGLSLBase.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ParseContext.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\PoolAlloc.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\PruneEmptyDeclarations.cpp"/>
@@ -370,8 +367,6 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\ScalarizeVecAndMatConstructorArgs.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SearchSymbol.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SymbolTable.cpp"/>
-    <ClCompile Include="..\..\..\..\src\compiler\translator\TranslatorESSL.cpp"/>
-    <ClCompile Include="..\..\..\..\src\compiler\translator\TranslatorGLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\Types.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuitAST.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ValidateGlobalInitializer.cpp"/>
@@ -380,7 +375,6 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\ValidateSwitch.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\VariableInfo.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\VariablePacker.cpp"/>
-    <ClCompile Include="..\..\..\..\src\compiler\translator\VersionGLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\blocklayout.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\depgraph\DependencyGraph.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\depgraph\DependencyGraphBuilder.cpp"/>
