@@ -2719,8 +2719,7 @@ bool Renderer11::getShareHandleSupport() const
     // request WARP or HW share handles, e.g. by replacing EGL_D3D_TEXTURE_2D_SHARE_HANDLE_ANGLE
     // with separate values for HW and WARP.
 
-    // Also disable on non-hardware drivers, since sharing doesn't work cross-driver.
-    if (mRequestedDriverType != D3D_DRIVER_TYPE_HARDWARE || mRequestedDriverType != D3D_DRIVER_TYPE_WARP)
+    if (mRequestedDriverType != D3D_DRIVER_TYPE_HARDWARE && mRequestedDriverType != D3D_DRIVER_TYPE_WARP)
     {
         return false;
     }
