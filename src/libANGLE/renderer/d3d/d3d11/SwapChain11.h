@@ -69,6 +69,7 @@ class SwapChain11 : public SwapChainD3D
 
     ID3D11Texture2D *mBackBufferTexture;
     ID3D11RenderTargetView *mBackBufferRTView;
+    ID3D11ShaderResourceView *mBackBufferSRView;
 
     ID3D11Texture2D *mOffscreenTexture;
     ID3D11RenderTargetView *mOffscreenRTView;

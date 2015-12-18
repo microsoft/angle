@@ -53,6 +53,7 @@ SwapChain11::SwapChain11(Renderer11 *renderer,
 
     mBackBufferTexture = NULL;
     mBackBufferRTView = NULL;
+    mBackBufferSRView = nullptr;
 
     mOffscreenTexture = NULL;
     mOffscreenRTView = NULL;
@@ -83,6 +84,7 @@ void SwapChain11::release()
     SafeRelease(mKeyedMutex);
     SafeRelease(mBackBufferTexture);
     SafeRelease(mBackBufferRTView);
+    SafeRelease(mBackBufferSRView);
     SafeRelease(mOffscreenTexture);
     SafeRelease(mOffscreenRTView);
     SafeRelease(mOffscreenSRView);
@@ -380,10 +382,11 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
     }
 
     // Can only call resize if we have already created our swap buffer and resources
-    ASSERT(mSwapChain && mBackBufferTexture && mBackBufferRTView);
+    ASSERT(mSwapChain && mBackBufferTexture && mBackBufferRTView && mBackBufferSRView);
 
     SafeRelease(mBackBufferTexture);
     SafeRelease(mBackBufferRTView);
+    SafeRelease(mBackBufferSRView);
 
     // Resize swap chain
     DXGI_SWAP_CHAIN_DESC desc;
@@ -417,15 +420,21 @@ EGLint SwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
     if (SUCCEEDED(result))
     {
         d3d11::SetDebugName(mBackBufferTexture, "Back buffer texture");
+
         result = device->CreateRenderTargetView(mBackBufferTexture, NULL, &mBackBufferRTView);
         ASSERT(SUCCEEDED(result));
-    }
+        if (SUCCEEDED(result))
+        {
+            d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
+        }
 
-    if (SUCCEEDED(result))
-    {
-        d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
+        result = device->CreateShaderResourceView(mBackBufferTexture, NULL, &mBackBufferSRView);
+        ASSERT(SUCCEEDED(result));
+        if (SUCCEEDED(result))
+        {
+            d3d11::SetDebugName(mBackBufferSRView, "Back buffer shader resource view");
+        }
     }
-
     return resetOffscreenTexture(backbufferWidth, backbufferHeight);
 }
 
@@ -452,6 +461,7 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
     SafeRelease(mSwapChain);
     SafeRelease(mBackBufferTexture);
     SafeRelease(mBackBufferRTView);
+    SafeRelease(mBackBufferSRView);
 
     mSwapInterval = static_cast<unsigned int>(swapInterval);
     if (mSwapInterval > 4)
@@ -500,6 +510,10 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
         result = device->CreateRenderTargetView(mBackBufferTexture, NULL, &mBackBufferRTView);
         ASSERT(SUCCEEDED(result));
         d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
+
+        result = device->CreateShaderResourceView(mBackBufferTexture, nullptr, &mBackBufferSRView);
+        ASSERT(SUCCEEDED(result));
+        d3d11::SetDebugName(mBackBufferSRView, "Back buffer shader resource view");
     }
 
     return resetOffscreenTexture(backbufferWidth, backbufferHeight);
@@ -740,9 +754,15 @@ ID3D11RenderTargetView *SwapChain11::getRenderTarget()
 
 ID3D11ShaderResourceView *SwapChain11::getRenderTargetShaderResource()
 {
-    // TODO: (aukinros) find a good solution to this when mUseDirectRendering is true
-    ASSERT(!mUseDirectRendering);
-    return mOffscreenSRView;
+    if (mOffscreenTexture == nullptr)
+    {
+        ASSERT(mUseDirectRendering);
+        return mBackBufferSRView;
+    }
+    else
+    {
+        return mOffscreenSRView;
+    }
 }
 
 ID3D11DepthStencilView *SwapChain11::getDepthStencil()
