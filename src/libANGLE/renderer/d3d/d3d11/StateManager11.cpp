@@ -478,16 +478,21 @@ gl::Error StateManager11::setRasterizerState(const gl::RasterizerState &rasterSt
 
     if (mDirectRenderingActive)
     {
-        // If direct rendering is active then we need to switch front and back culling
         gl::RasterizerState modifiedRasterState = rasterState;
-        if (modifiedRasterState.cullMode == GL_FRONT)
+
+        // If direct rendering is active then we need invert the front face state.
+        // This ensures that both gl_FrontFacing is correct, and front/back culling
+        // is performed correctly.
+        if (modifiedRasterState.frontFace == GL_CCW)
         {
-            modifiedRasterState.cullMode = GL_BACK;
+            modifiedRasterState.frontFace = GL_CW;
         }
-        else if (modifiedRasterState.cullMode == GL_BACK)
+        else
         {
-            modifiedRasterState.cullMode = GL_FRONT;
+            ASSERT(modifiedRasterState.frontFace == GL_CW);
+            modifiedRasterState.frontFace = GL_CCW;
         }
+
         error = mStateCache->getRasterizerState(modifiedRasterState, mCurScissorEnabled,
                                                 &dxRasterState);
     }
