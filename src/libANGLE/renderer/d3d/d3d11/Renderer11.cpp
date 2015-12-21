@@ -2809,6 +2809,13 @@ gl::Error Renderer11::copyImage2D(const gl::Framebuffer *framebuffer, const gl::
     gl::Box sourceArea(sourceRect.x, sourceRect.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents sourceSize(sourceRenderTarget->getWidth(), sourceRenderTarget->getHeight(), 1);
 
+    bool invertSource = framebuffer->id() == 0 && mUseDirectRendering;
+    if (invertSource)
+    {
+        sourceArea.y = sourceSize.height - sourceRect.y;
+        sourceArea.height = -sourceArea.height;
+    }
+
     gl::Box destArea(destOffset.x, destOffset.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents destSize(destRenderTarget->getWidth(), destRenderTarget->getHeight(), 1);
 
@@ -2860,6 +2867,13 @@ gl::Error Renderer11::copyImageCube(const gl::Framebuffer *framebuffer, const gl
 
     gl::Box sourceArea(sourceRect.x, sourceRect.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents sourceSize(sourceRenderTarget->getWidth(), sourceRenderTarget->getHeight(), 1);
+
+    bool invertSource = framebuffer->id() == 0 && mUseDirectRendering;
+    if (invertSource)
+    {
+        sourceArea.y = sourceSize.height - sourceRect.y;
+        sourceArea.height = -sourceArea.height;
+    }
 
     gl::Box destArea(destOffset.x, destOffset.y, 0, sourceRect.width, sourceRect.height, 1);
     gl::Extents destSize(destRenderTarget->getWidth(), destRenderTarget->getHeight(), 1);
