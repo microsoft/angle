@@ -290,7 +290,7 @@ unsigned int GetReservedVertexUniformVectors(D3D_FEATURE_LEVEL featureLevel)
         case D3D_FEATURE_LEVEL_9_3:
         case D3D_FEATURE_LEVEL_9_2:
         case D3D_FEATURE_LEVEL_9_1:
-            return 3;  // dx_ViewAdjust, dx_ViewCoords and dx_ViewScale
+            return 2;  // dx_ViewAdjust and dx_ViewCoords
 
         default:
             UNREACHABLE();
@@ -311,7 +311,7 @@ unsigned int GetReservedFragmentUniformVectors(D3D_FEATURE_LEVEL featureLevel)
         case D3D_FEATURE_LEVEL_9_3:
         case D3D_FEATURE_LEVEL_9_2:
         case D3D_FEATURE_LEVEL_9_1:
-            return 3;
+            return 2;
 
         default:
             UNREACHABLE();

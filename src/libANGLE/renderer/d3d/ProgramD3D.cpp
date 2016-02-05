@@ -1261,8 +1261,7 @@ gl::Error ProgramD3D::getGeometryExecutableForPrimitiveType(const gl::Data &data
     }
 
     std::string geometryHLSL = mDynamicHLSL->generateGeometryShaderHLSL(
-        geometryShaderType, data, mData, mRenderer->isUsingDirectRendering(),
-        mGeometryShaderPreamble);
+        geometryShaderType, data, mData, mGeometryShaderPreamble);
 
     gl::InfoLog tempInfoLog;
     gl::InfoLog *currentInfoLog = infoLog ? infoLog : &tempInfoLog;
@@ -1412,8 +1411,7 @@ LinkResult ProgramD3D::link(const gl::Data &data, gl::InfoLog &infoLog)
         return LinkResult(false, gl::Error(GL_NO_ERROR));
     }
 
-    if (!mDynamicHLSL->generateShaderLinkHLSL(data, mData, metadata, varyingPacking,
-                                              mRenderer->isUsingDirectRendering(), &mPixelHLSL,
+    if (!mDynamicHLSL->generateShaderLinkHLSL(data, mData, metadata, varyingPacking, &mPixelHLSL,
                                               &mVertexHLSL))
     {
         return LinkResult(false, gl::Error(GL_NO_ERROR));

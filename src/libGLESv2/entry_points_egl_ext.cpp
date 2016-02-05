@@ -163,7 +163,6 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
         bool minorVersionSpecified   = false;
         bool enableAutoTrimSpecified = false;
         bool deviceTypeSpecified     = false;
-        bool directRenderingEnabled  = false;
 
         bool foundRenderToBackbuffer = false;
         bool requestedAllowRenderToBackBuffer = false;
@@ -231,19 +230,6 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                     }
                     enableAutoTrimSpecified = true;
                     break;
-
-                    case EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING:
-                        switch (curAttrib[1])
-                        {
-                            case EGL_TRUE:
-                            case EGL_FALSE:
-                                break;
-                            default:
-                                SetGlobalError(Error(EGL_BAD_ATTRIBUTE));
-                                return EGL_NO_DISPLAY;
-                        }
-                        directRenderingEnabled = (curAttrib[1] == EGL_TRUE);
-                        break;
 
                     case EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE:
                         switch (curAttrib[1])
@@ -315,15 +301,6 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
             SetGlobalError(
                 Error(EGL_BAD_ATTRIBUTE,
                       "EGL_PLATFORM_ANGLE_ENABLE_AUTOMATIC_TRIM_ANGLE requires a device type of "
-                      "EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE."));
-            return EGL_NO_DISPLAY;
-        }
-
-        if (directRenderingEnabled && platformType != EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
-        {
-            SetGlobalError(
-                Error(EGL_BAD_ATTRIBUTE,
-                      "EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING requires a device type of "
                       "EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE."));
             return EGL_NO_DISPLAY;
         }
