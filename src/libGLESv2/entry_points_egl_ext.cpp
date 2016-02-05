@@ -280,7 +280,7 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
 
                     case EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER:
                         ERR("EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER is deprecated, please use"
-                            "EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING.");
+                            "EGL_EXPERIMENTAL_PRESENT_PATH_ANGLE.");
 
                         switch (curAttrib[1])
                         {
@@ -295,7 +295,6 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                         
                         foundRenderToBackbuffer = true;
                         requestedAllowRenderToBackBuffer = (curAttrib[1] == EGL_TRUE);
-                        directRenderingEnabled = (curAttrib[1] == EGL_TRUE);
                     break;
 
                     default:
@@ -349,11 +348,11 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
 
         AttributeMap attribMap = AttributeMap(attrib_list);
 
-        if (foundRenderToBackbuffer)
+        if (requestedAllowRenderToBackBuffer)
         {
             // Redirect EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER to
             // EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING for backcompat
-            attribMap.insert(EGL_PLATFORM_ANGLE_EXPERIMENTAL_DIRECT_RENDERING, requestedAllowRenderToBackBuffer);
+            attribMap.insert(EGL_EXPERIMENTAL_PRESENT_PATH_ANGLE, EGL_EXPERIMENTAL_PRESENT_PATH_FAST_ANGLE);
         }
 
         SetGlobalError(Error(EGL_SUCCESS));

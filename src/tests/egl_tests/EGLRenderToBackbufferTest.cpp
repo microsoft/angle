@@ -4,6 +4,9 @@
 // found in the LICENSE file.
 //
 
+// NOTE: This test remains in ms-master to test back-compat between the old "render-to-backbuffer" flags
+// and the new EGL_experimental_present_path_angle flags which are in the master ANGLE branch.
+
 #include "test_utils/ANGLETest.h"
 
 #include <cstdint>
@@ -216,13 +219,14 @@ TEST_P(EGLRenderToBackbufferTest, AllowAndDisable)
     drawAndCheckQuad();
 }
 
-TEST_P(EGLRenderToBackbufferTest, DisallowAndEnable)
-{
-    initializeEGL(false, true, false);
-
-    // Disallowing RTBB but enabling it shouldn't work
-    ASSERT(mSurface == EGL_NO_SURFACE);
-}
+// This test is no longer applicable after "render to backbuffer" became "experimental_present_path_angle",
+//TEST_P(EGLRenderToBackbufferTest, DisallowAndEnable)
+//{
+//    initializeEGL(false, true, false);
+//
+//    // Disallowing RTBB but enabling it shouldn't work
+//    ASSERT(mSurface == EGL_NO_SURFACE);
+//}
 
 TEST_P(EGLRenderToBackbufferTest, DisallowAndDisable)
 {
