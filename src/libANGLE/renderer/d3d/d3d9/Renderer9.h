@@ -79,7 +79,13 @@ class Renderer9 : public RendererD3D
     gl::Error flush() override;
     gl::Error finish() override;
 
-    virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
+    SwapChainD3D *createSwapChain(NativeWindow nativeWindow,
+                                  HANDLE shareHandle,
+                                  GLenum backBufferFormat,
+                                  GLenum depthBufferFormat,
+                                  EGLint orientation) override;
+
+    CompilerImpl *createCompiler() override;
 
     gl::Error allocateEventQuery(IDirect3DQuery9 **outQuery);
     void freeEventQuery(IDirect3DQuery9* query);
@@ -275,12 +281,7 @@ class Renderer9 : public RendererD3D
 
     WorkaroundsD3D generateWorkarounds() const override;
 
-    gl::Error setRasterizerState(const gl::RasterizerState &rasterState);
-    gl::Error setBlendState(const gl::Framebuffer *framebuffer,
-                            const gl::BlendState &blendState,
-                            const gl::ColorF &blendColor,
-                            unsigned int sampleMask);
-    gl::Error setDepthStencilState(const gl::State &glState);
+    gl::Error setBlendDepthRasterStates(const gl::Data &glData, GLenum drawMode);
 
     void release();
 
@@ -336,40 +337,10 @@ class Renderer9 : public RendererD3D
     unsigned int mAppliedDepthStencilSerial;
     bool mDepthStencilInitialized;
     bool mRenderTargetDescInitialized;
-    unsigned int mCurStencilSize;
-    unsigned int mCurDepthSize;
-
-    struct RenderTargetDesc
-    {
-        size_t width;
-        size_t height;
-        D3DFORMAT format;
-    };
-    RenderTargetDesc mRenderTargetDesc;
 
     IDirect3DStateBlock9 *mMaskedClearSavedState;
 
     StateManager9 mStateManager;
-
-    // previously set render states
-    bool mForceSetDepthStencilState;
-    gl::DepthStencilState mCurDepthStencilState;
-    int mCurStencilRef;
-    int mCurStencilBackRef;
-    bool mCurFrontFaceCCW;
-
-    bool mForceSetRasterState;
-    gl::RasterizerState mCurRasterState;
-
-    bool mForceSetScissor;
-    gl::Rectangle mCurScissor;
-    bool mScissorEnabled;
-
-    bool mForceSetViewport;
-    gl::Rectangle mCurViewport;
-    float mCurNear;
-    float mCurFar;
-    float mCurDepthFront;
 
     // Currently applied sampler states
     struct CurSamplerState
@@ -391,10 +362,6 @@ class Renderer9 : public RendererD3D
     IDirect3DVertexShader9 *mAppliedVertexShader;
     IDirect3DPixelShader9 *mAppliedPixelShader;
     unsigned int mAppliedProgramSerial;
-
-    dx_VertexConstants mVertexConstants;
-    dx_PixelConstants mPixelConstants;
-    bool mDxUniformsDirty;
 
     // A pool of event queries that are currently unused.
     std::vector<IDirect3DQuery9*> mEventQueryPool;

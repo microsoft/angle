@@ -12,6 +12,7 @@
 #include "libANGLE/angletypes.h"
 #include "libANGLE/Data.h"
 #include "libANGLE/State.h"
+#include "libANGLE/renderer/d3d/RendererD3D.h"
 
 namespace rx
 {
@@ -26,35 +27,86 @@ class StateManager9 final : angle::NonCopyable
 
     void syncState(const gl::State &state, const gl::State::DirtyBits &dirtyBits);
 
-    gl::Error setBlendState(const gl::Framebuffer *framebuffer,
-                            const gl::BlendState &blendState,
-                            const gl::ColorF &blendColor,
-                            unsigned int sampleMask);
+    gl::Error setBlendDepthRasterStates(const gl::State &glState, unsigned int sampleMask);
+    void setScissorState(const gl::Rectangle &scissor, bool enabled);
+    void setViewportState(const gl::Caps *caps,
+                          const gl::Rectangle &viewport,
+                          float zNear,
+                          float zFar,
+                          GLenum drawMode,
+                          GLenum frontFace,
+                          bool ignoreViewport);
+
+    void setShaderConstants();
 
     void forceSetBlendState();
+    void forceSetRasterState();
+    void forceSetDepthStencilState();
+    void forceSetScissorState();
+    void forceSetViewportState();
+    void forceSetDXUniformsState();
+
+    void updateDepthSizeIfChanged(bool depthStencilInitialized, unsigned int depthSize);
+    void updateStencilSizeIfChanged(bool depthStencilInitialized, unsigned int stencilSize);
+
+    void setRenderTargetBounds(size_t width, size_t height);
+
+    int getRenderTargetWidth() const { return mRenderTargetBounds.width; }
+    int getRenderTargetHeight() const { return mRenderTargetBounds.height; }
+
     void resetDirtyBits() { mDirtyBits.reset(); }
-    VendorID getVendorId() const;
 
   private:
+    // Blend state functions
     void setBlendEnabled(bool enabled);
     void setBlendColor(const gl::BlendState &blendState, const gl::ColorF &blendColor);
-
     void setBlendFuncsEquations(const gl::BlendState &blendState);
-
     void setColorMask(const gl::Framebuffer *framebuffer,
                       bool red,
                       bool blue,
                       bool green,
                       bool alpha);
-
     void setSampleAlphaToCoverage(bool enabled);
-
     void setDither(bool dither);
-
     void setSampleMask(unsigned int sampleMask);
+
+    // Current raster state functions
+    void setCullMode(bool cullFace, GLenum cullMode, GLenum frontFace);
+    void setDepthBias(bool polygonOffsetFill,
+                      GLfloat polygonOffsetFactor,
+                      GLfloat polygonOffsetUnits);
+
+    // Depth stencil state functions
+    void setStencilOpsFront(GLenum stencilFail,
+                            GLenum stencilPassDepthFail,
+                            GLenum stencilPassDepthPass,
+                            bool frontFaceCCW);
+    void setStencilOpsBack(GLenum stencilBackFail,
+                           GLenum stencilBackPassDepthFail,
+                           GLenum stencilBackPassDepthPass,
+                           bool frontFaceCCW);
+    void setStencilBackWriteMask(GLuint stencilBackWriteMask, bool frontFaceCCW);
+    void setDepthFunc(bool depthTest, GLenum depthFunc);
+    void setStencilTestEnabled(bool enabled);
+    void setDepthMask(bool depthMask);
+    void setStencilFuncsFront(GLenum stencilFunc,
+                              GLuint stencilMask,
+                              GLint stencilRef,
+                              bool frontFaceCCW,
+                              unsigned int maxStencil);
+    void setStencilFuncsBack(GLenum stencilBackFunc,
+                             GLuint stencilBackMask,
+                             GLint stencilBackRef,
+                             bool frontFaceCCW,
+                             unsigned int maxStencil);
+    void setStencilWriteMask(GLuint stencilWriteMask, bool frontFaceCCW);
+
+    void setScissorEnabled(bool scissorEnabled);
+    void setScissorRect(const gl::Rectangle &scissor, bool enabled);
 
     enum DirtyBitType
     {
+        // Blend dirty bits
         DIRTY_BIT_BLEND_ENABLED,
         DIRTY_BIT_BLEND_COLOR,
         DIRTY_BIT_BLEND_FUNCS_EQUATIONS,
@@ -62,6 +114,28 @@ class StateManager9 final : angle::NonCopyable
         DIRTY_BIT_COLOR_MASK,
         DIRTY_BIT_DITHER,
         DIRTY_BIT_SAMPLE_MASK,
+
+        // Rasterizer dirty bits
+        DIRTY_BIT_CULL_MODE,
+        DIRTY_BIT_DEPTH_BIAS,
+
+        // Depth stencil dirty bits
+        DIRTY_BIT_STENCIL_DEPTH_MASK,
+        DIRTY_BIT_STENCIL_DEPTH_FUNC,
+        DIRTY_BIT_STENCIL_TEST_ENABLED,
+        DIRTY_BIT_STENCIL_FUNCS_FRONT,
+        DIRTY_BIT_STENCIL_FUNCS_BACK,
+        DIRTY_BIT_STENCIL_WRITEMASK_FRONT,
+        DIRTY_BIT_STENCIL_WRITEMASK_BACK,
+        DIRTY_BIT_STENCIL_OPS_FRONT,
+        DIRTY_BIT_STENCIL_OPS_BACK,
+
+        // Scissor dirty bits
+        DIRTY_BIT_SCISSOR_ENABLED,
+        DIRTY_BIT_SCISSOR_RECT,
+
+        // Viewport dirty bits
+        DIRTY_BIT_VIEWPORT,
 
         DIRTY_BIT_MAX
     };
@@ -73,6 +147,42 @@ class StateManager9 final : angle::NonCopyable
     gl::ColorF mCurBlendColor;
     unsigned int mCurSampleMask;
     DirtyBits mBlendStateDirtyBits;
+
+    // Currently applied raster state
+    gl::RasterizerState mCurRasterState;
+    unsigned int mCurDepthSize;
+    DirtyBits mRasterizerStateDirtyBits;
+
+    // Currently applied depth stencil state
+    gl::DepthStencilState mCurDepthStencilState;
+    int mCurStencilRef;
+    int mCurStencilBackRef;
+    bool mCurFrontFaceCCW;
+    unsigned int mCurStencilSize;
+    DirtyBits mDepthStencilStateDirtyBits;
+
+    // Currently applied scissor states
+    gl::Rectangle mCurScissorRect;
+    bool mCurScissorEnabled;
+    gl::Extents mRenderTargetBounds;
+    DirtyBits mScissorStateDirtyBits;
+
+    // Currently applied viewport states
+    bool mForceSetViewport;
+    gl::Rectangle mCurViewport;
+    float mCurNear;
+    float mCurFar;
+    float mCurDepthFront;
+    bool mCurIgnoreViewport;
+
+    dx_VertexConstants mVertexConstants;
+    dx_PixelConstants mPixelConstants;
+    bool mDxUniformsDirty;
+
+    // FIXME: Unsupported by D3D9
+    static const D3DRENDERSTATETYPE D3DRS_CCW_STENCILREF       = D3DRS_STENCILREF;
+    static const D3DRENDERSTATETYPE D3DRS_CCW_STENCILMASK      = D3DRS_STENCILMASK;
+    static const D3DRENDERSTATETYPE D3DRS_CCW_STENCILWRITEMASK = D3DRS_STENCILWRITEMASK;
 
     Renderer9 *mRenderer9;
     DirtyBits mDirtyBits;

@@ -124,6 +124,9 @@ Extensions::Extensions()
       occlusionQueryBoolean(false),
       fence(false),
       timerQuery(false),
+      disjointTimerQuery(false),
+      queryCounterBitsTimeElapsed(0),
+      queryCounterBitsTimestamp(0),
       robustness(false),
       blendMinMax(false),
       framebufferBlit(false),
@@ -148,6 +151,12 @@ Extensions::Extensions()
       packSubimage(false),
       vertexArrayObject(false),
       debug(false),
+      maxDebugMessageLength(0),
+      maxDebugLoggedMessages(0),
+      maxDebugGroupStackDepth(0),
+      maxLabelLength(0),
+      noError(false),
+      lossyETCDecode(false),
       colorBufferFloat(false)
 {
 }
@@ -189,6 +198,7 @@ std::vector<std::string> Extensions::getStrings() const
     InsertExtensionString("GL_EXT_occlusion_query_boolean",      occlusionQueryBoolean,     &extensionStrings);
     InsertExtensionString("GL_NV_fence",                         fence,                     &extensionStrings);
     InsertExtensionString("GL_ANGLE_timer_query",                timerQuery,                &extensionStrings);
+    InsertExtensionString("GL_EXT_disjoint_timer_query",         disjointTimerQuery,        &extensionStrings);
     InsertExtensionString("GL_EXT_robustness",                   robustness,                &extensionStrings);
     InsertExtensionString("GL_EXT_blend_minmax",                 blendMinMax,               &extensionStrings);
     InsertExtensionString("GL_ANGLE_framebuffer_blit",           framebufferBlit,           &extensionStrings);
@@ -214,6 +224,10 @@ std::vector<std::string> Extensions::getStrings() const
     InsertExtensionString("GL_EXT_color_buffer_float",           colorBufferFloat,          &extensionStrings);
     InsertExtensionString("GL_OES_vertex_array_object",          vertexArrayObject,         &extensionStrings);
     InsertExtensionString("GL_KHR_debug",                        debug,                     &extensionStrings);
+    // TODO(jmadill): Enable this when complete.
+    //InsertExtensionString("GL_KHR_no_error",                     noError,                   &extensionStrings);
+
+    InsertExtensionString("GL_ANGLE_lossy_etc_decode",           lossyETCDecode,            &extensionStrings);
     // clang-format on
 
     return extensionStrings;
@@ -312,7 +326,8 @@ static bool DetermineHalfFloatTextureFilteringSupport(const TextureCapsMap &text
     requiredFormats.push_back(GL_RGB16F);
     requiredFormats.push_back(GL_RGBA16F);
 
-    return GetFormatSupport(textureCaps, requiredFormats, true, true, false);
+    return DetermineHalfFloatTextureSupport(textureCaps) &&
+           GetFormatSupport(textureCaps, requiredFormats, true, true, false);
 }
 
 // Checks for GL_OES_texture_float support
@@ -332,7 +347,8 @@ static bool DetermineFloatTextureFilteringSupport(const TextureCapsMap &textureC
     requiredFormats.push_back(GL_RGB32F);
     requiredFormats.push_back(GL_RGBA32F);
 
-    return GetFormatSupport(textureCaps, requiredFormats, true, true, false);
+    return DetermineFloatTextureSupport(textureCaps) &&
+           GetFormatSupport(textureCaps, requiredFormats, true, true, false);
 }
 
 // Checks for GL_EXT_texture_rg support
@@ -605,6 +621,7 @@ DisplayExtensions::DisplayExtensions()
       querySurfacePointer(false),
       windowFixedSize(false),
       keyedMutex(false),
+      surfaceOrientation(false),
       postSubBuffer(false),
       createContext(false),
       deviceQuery(false),
@@ -616,7 +633,9 @@ DisplayExtensions::DisplayExtensions()
       glTexture3DImage(false),
       glRenderbufferImage(false),
       getAllProcAddresses(false),
-      flexibleSurfaceCompatibility(false)
+      flexibleSurfaceCompatibility(false),
+      directComposition(false),
+      createContextNoError(false)
 {
 }
 
@@ -632,6 +651,8 @@ std::vector<std::string> DisplayExtensions::getStrings() const
     InsertExtensionString("EGL_ANGLE_query_surface_pointer",               querySurfacePointer,            &extensionStrings);
     InsertExtensionString("EGL_ANGLE_window_fixed_size",                   windowFixedSize,                &extensionStrings);
     InsertExtensionString("EGL_ANGLE_keyed_mutex",                         keyedMutex,                     &extensionStrings);
+    InsertExtensionString("EGL_ANGLE_surface_orientation",                 surfaceOrientation,             &extensionStrings);
+    InsertExtensionString("EGL_ANGLE_direct_composition",                  directComposition,              &extensionStrings);
     InsertExtensionString("EGL_NV_post_sub_buffer",                        postSubBuffer,                  &extensionStrings);
     InsertExtensionString("EGL_KHR_create_context",                        createContext,                  &extensionStrings);
     InsertExtensionString("EGL_EXT_device_query",                          deviceQuery,                    &extensionStrings);
@@ -643,7 +664,9 @@ std::vector<std::string> DisplayExtensions::getStrings() const
     InsertExtensionString("EGL_KHR_gl_texture_3D_image",                   glTexture3DImage,               &extensionStrings);
     InsertExtensionString("EGL_KHR_gl_renderbuffer_image",                 glRenderbufferImage,            &extensionStrings);
     InsertExtensionString("EGL_KHR_get_all_proc_addresses",                getAllProcAddresses,            &extensionStrings);
-    InsertExtensionString("EGL_ANGLE_flexible_surface_compatibilty",       flexibleSurfaceCompatibility,   &extensionStrings);
+    InsertExtensionString("EGL_ANGLE_flexible_surface_compatibility",      flexibleSurfaceCompatibility,   &extensionStrings);
+    // TODO(jmadill): Enable this when complete.
+    //InsertExtensionString("KHR_create_context_no_error",                   createContextNoError,           &extensionStrings);
     // clang-format on
 
     return extensionStrings;

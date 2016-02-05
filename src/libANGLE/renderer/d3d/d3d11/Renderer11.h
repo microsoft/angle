@@ -18,6 +18,7 @@
 #include "libANGLE/renderer/d3d/RenderTargetD3D.h"
 #include "libANGLE/renderer/d3d/d3d11/DebugAnnotator11.h"
 #include "libANGLE/renderer/d3d/d3d11/InputLayoutCache.h"
+#include "libANGLE/renderer/d3d/d3d11/renderer11_utils.h"
 #include "libANGLE/renderer/d3d/d3d11/RenderStateCache.h"
 #include "libANGLE/renderer/d3d/d3d11/StateManager11.h"
 
@@ -111,7 +112,13 @@ class Renderer11 : public RendererD3D
     gl::Error flush() override;
     gl::Error finish() override;
 
-    virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat);
+    SwapChainD3D *createSwapChain(NativeWindow nativeWindow,
+                                  HANDLE shareHandle,
+                                  GLenum backBufferFormat,
+                                  GLenum depthBufferFormat,
+                                  EGLint orientation) override;
+
+    CompilerImpl *createCompiler() override;
 
     virtual gl::Error generateSwizzle(gl::Texture *texture);
     virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler);
@@ -139,6 +146,7 @@ class Renderer11 : public RendererD3D
     void applyTransformFeedbackBuffers(const gl::State &state) override;
 
     virtual void markAllStateDirty();
+    void markRenderTargetStateDirty();
 
     // lost device
     bool testDeviceLost() override;
@@ -248,14 +256,21 @@ class Renderer11 : public RendererD3D
 
     void unapplyRenderTargets();
     void setOneTimeRenderTarget(ID3D11RenderTargetView *renderTargetView);
-    gl::Error packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams &params, uint8_t *pixelsOut);
+    gl::Error packPixels(const TextureHelper11 &textureHelper,
+                         const PackPixelsParams &params,
+                         uint8_t *pixelsOut);
 
     bool getLUID(LUID *adapterLuid) const override;
     VertexConversionType getVertexConversionType(gl::VertexFormatType vertexFormatType) const override;
     GLenum getVertexComponentType(gl::VertexFormatType vertexFormatType) const override;
 
-    gl::Error readTextureData(ID3D11Texture2D *texture, unsigned int subResource, const gl::Rectangle &area, GLenum format,
-                              GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels);
+    gl::Error readFromAttachment(const gl::FramebufferAttachment &srcAttachment,
+                                 const gl::Rectangle &sourceArea,
+                                 GLenum format,
+                                 GLenum type,
+                                 GLuint outputPitch,
+                                 const gl::PixelPackState &pack,
+                                 uint8_t *pixels);
 
     void setShaderResource(gl::SamplerType shaderType, UINT resourceSlot, ID3D11ShaderResourceView *srv);
 
@@ -322,8 +337,9 @@ class Renderer11 : public RendererD3D
 
     HMODULE mD3d11Module;
     HMODULE mDxgiModule;
+    HMODULE mDCompModule;
     std::vector<D3D_FEATURE_LEVEL> mAvailableFeatureLevels;
-    D3D_DRIVER_TYPE mDriverType;
+    D3D_DRIVER_TYPE mRequestedDriverType;
     bool mCreatedWithDeviceEXT;
     DeviceD3D *mEGLDevice;
 
@@ -333,6 +349,8 @@ class Renderer11 : public RendererD3D
     void initializeDevice();
     void releaseDeviceResources();
     void release();
+
+    d3d11::ANGLED3D11DeviceType getDeviceType() const;
 
     RenderStateCache mStateCache;
 
@@ -471,6 +489,8 @@ class Renderer11 : public RendererD3D
     ID3D11Debug *mDebug;
 
     std::vector<GLuint> mScratchIndexDataBuffer;
+
+    mutable Optional<bool> mSupportsShareHandles;
 };
 
 }

@@ -25,8 +25,7 @@ namespace rx
 {
 
 Framebuffer11::Framebuffer11(const gl::Framebuffer::Data &data, Renderer11 *renderer)
-    : FramebufferD3D(data),
-      mRenderer(renderer)
+    : FramebufferD3D(data, renderer), mRenderer(renderer)
 {
     ASSERT(mRenderer != nullptr);
 }
@@ -104,32 +103,6 @@ gl::Error Framebuffer11::clear(const gl::Data &data, const ClearParameters &clea
     if (error.isError())
     {
         return error;
-    }
-
-    return gl::Error(GL_NO_ERROR);
-}
-
-static gl::Error getRenderTargetResource(const gl::FramebufferAttachment *colorbuffer, unsigned int *subresourceIndexOut,
-                                         ID3D11Texture2D **texture2DOut)
-{
-    ASSERT(colorbuffer);
-
-    RenderTarget11 *renderTarget = nullptr;
-    gl::Error error = colorbuffer->getRenderTarget(&renderTarget);
-    if (error.isError())
-    {
-        return error;
-    }
-
-    ID3D11Resource *renderTargetResource = renderTarget->getTexture();
-    ASSERT(renderTargetResource);
-
-    *subresourceIndexOut = renderTarget->getSubresourceIndex();
-    *texture2DOut = d3d11::DynamicCastComObject<ID3D11Texture2D>(renderTargetResource);
-
-    if (!(*texture2DOut))
-    {
-        return gl::Error(GL_OUT_OF_MEMORY, "Failed to query the ID3D11Texture2D from a RenderTarget");
     }
 
     return gl::Error(GL_NO_ERROR);
@@ -296,17 +269,8 @@ gl::Error Framebuffer11::readPixelsImpl(const gl::Rectangle &area,
                                         const gl::PixelPackState &pack,
                                         uint8_t *pixels) const
 {
-    ID3D11Texture2D *colorBufferTexture = nullptr;
-    unsigned int subresourceIndex = 0;
-
-    const gl::FramebufferAttachment *colorbuffer = mData.getReadAttachment();
-    ASSERT(colorbuffer);
-
-    gl::Error error = getRenderTargetResource(colorbuffer, &subresourceIndex, &colorBufferTexture);
-    if (error.isError())
-    {
-        return error;
-    }
+    const gl::FramebufferAttachment *readAttachment = mData.getReadAttachment();
+    ASSERT(readAttachment);
 
     gl::Buffer *packBuffer = pack.pixelBuffer.get();
     if (packBuffer != nullptr)
@@ -318,31 +282,28 @@ gl::Error Framebuffer11::readPixelsImpl(const gl::Rectangle &area,
                              "Unimplemented pixel store parameters in readPixelsImpl");
         }
 
+        RenderTarget11 *renderTarget = nullptr;
+        gl::Error error = readAttachment->getRenderTarget(&renderTarget);
+        if (error.isError())
+        {
+            return error;
+        }
+
+        ID3D11Resource *renderTargetResource = renderTarget->getTexture();
+        ASSERT(renderTargetResource);
+
+        unsigned int subresourceIndex = renderTarget->getSubresourceIndex();
+        TextureHelper11 textureHelper = TextureHelper11::MakeAndReference(renderTargetResource);
+
         Buffer11 *packBufferStorage = GetImplAs<Buffer11>(packBuffer);
         PackPixelsParams packParams(area, format, type, static_cast<GLuint>(outputPitch), pack,
                                     reinterpret_cast<ptrdiff_t>(pixels));
 
-        error = packBufferStorage->packPixels(colorBufferTexture, subresourceIndex, packParams);
-        if (error.isError())
-        {
-            SafeRelease(colorBufferTexture);
-            return error;
-        }
-    }
-    else
-    {
-        error = mRenderer->readTextureData(colorBufferTexture, subresourceIndex, area, format, type,
-                                           static_cast<GLuint>(outputPitch), pack, pixels);
-        if (error.isError())
-        {
-            SafeRelease(colorBufferTexture);
-            return error;
-        }
+        return packBufferStorage->packPixels(textureHelper, subresourceIndex, packParams);
     }
 
-    SafeRelease(colorBufferTexture);
-
-    return gl::Error(GL_NO_ERROR);
+    return mRenderer->readFromAttachment(*readAttachment, area, format, type,
+                                         static_cast<GLuint>(outputPitch), pack, pixels);
 }
 
 gl::Error Framebuffer11::blit(const gl::Rectangle &sourceArea, const gl::Rectangle &destArea, const gl::Rectangle *scissor,

@@ -474,6 +474,11 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurfacePointerANGLE (EGLDisplay dpy, EGLSu
 #define EGL_ANGLE_SURFACE_RENDER_TO_BACK_BUFFER 0x320C
 #endif /* EGL_ANGLE_surface_d3d_render_to_back_buffer */
 
+#ifndef EGL_ANGLE_direct_composition
+#define EGL_ANGLE_direct_composition 1
+#define EGL_DIRECT_COMPOSITION_ANGLE 0x33A5
+#endif /* EGL_ANGLE_direct_composition */
+
 #ifndef EGL_ANGLE_platform_angle
 #define EGL_ANGLE_platform_angle 1
 #define EGL_PLATFORM_ANGLE_ANGLE          0x3202
@@ -514,6 +519,14 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurfacePointerANGLE (EGLDisplay dpy, EGLSu
 #define EGL_ANGLE_flexible_surface_compatibility 1
 #define EGL_FLEXIBLE_SURFACE_COMPATIBILITY_SUPPORTED_ANGLE 0x33A6
 #endif /* EGL_ANGLE_flexible_surface_compatibility */
+
+#ifndef EGL_ANGLE_surface_orientation
+#define EGL_ANGLE_surface_orientation
+#define EGL_OPTIMAL_SURFACE_ORIENTATION_ANGLE 0x33A7
+#define EGL_SURFACE_ORIENTATION_ANGLE 0x33A8
+#define EGL_SURFACE_ORIENTATION_INVERT_X_ANGLE 0x0001
+#define EGL_SURFACE_ORIENTATION_INVERT_Y_ANGLE 0x0002
+#endif /* EGL_ANGLE_surface_orientation */
 
 #ifndef EGL_ARM_pixmap_multisample_discard
 #define EGL_ARM_pixmap_multisample_discard 1

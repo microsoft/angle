@@ -85,6 +85,8 @@ EGLWindow::EGLWindow(EGLint glesMajorVersion,
       mDepthBits(-1),
       mStencilBits(-1),
       mMultisample(false),
+      mDebug(false),
+      mNoError(false),
       mSwapInterval(-1)
 {
 }
@@ -142,7 +144,9 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
     }
     displayAttributes.push_back(EGL_NONE);
 
-    mDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, osWindow->getNativeDisplay(), &displayAttributes[0]);
+    mDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE,
+                                        reinterpret_cast<void *>(osWindow->getNativeDisplay()),
+                                        &displayAttributes[0]);
     if (mDisplay == EGL_NO_DISPLAY)
     {
         destroyGL();
@@ -224,6 +228,16 @@ bool EGLWindow::initializeGL(OSWindow *osWindow)
 
         contextAttributes.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
         contextAttributes.push_back(mClientMinorVersion);
+
+        contextAttributes.push_back(EGL_CONTEXT_OPENGL_DEBUG);
+        contextAttributes.push_back(mDebug ? EGL_TRUE : EGL_FALSE);
+
+        // TODO(jmadill): Check for the extension string.
+        // bool hasKHRCreateContextNoError = strstr(displayExtensions,
+        // "EGL_KHR_create_context_no_error") != nullptr;
+
+        contextAttributes.push_back(EGL_CONTEXT_OPENGL_NO_ERROR_KHR);
+        contextAttributes.push_back(mNoError ? EGL_TRUE : EGL_FALSE);
     }
     contextAttributes.push_back(EGL_NONE);
 

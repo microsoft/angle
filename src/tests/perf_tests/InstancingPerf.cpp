@@ -7,6 +7,7 @@
 //   Performance tests for ANGLE instanced draw calls.
 //
 
+#include <cmath>
 #include <sstream>
 
 #include "ANGLEPerfTest.h"
@@ -24,7 +25,7 @@ namespace
 float AnimationSignal(float t)
 {
     float l = t / 2.0f;
-    float f = l - floor(l);
+    float f = l - std::floor(l);
     return (f > 0.5f ? 1.0f - f : f) * 4.0f - 1.0f;
 }
 
@@ -32,6 +33,12 @@ template <typename T>
 size_t VectorSizeBytes(const std::vector<T> &vec)
 {
     return sizeof(T) * vec.size();
+}
+
+Vector3 RandomVector3(RNG *rng)
+{
+    return Vector3(rng->randomNegativeOneToOne(), rng->randomNegativeOneToOne(),
+                   rng->randomNegativeOneToOne());
 }
 
 struct InstancingPerfParams final : public RenderTestParams
@@ -83,7 +90,6 @@ class InstancingPerfBenchmark : public ANGLERenderTest,
 
     void initializeBenchmark() override;
     void destroyBenchmark() override;
-    void beginDrawBenchmark() override;
     void drawBenchmark() override;
 
   private:
@@ -93,6 +99,7 @@ class InstancingPerfBenchmark : public ANGLERenderTest,
     std::vector<Vector3> mTranslateData;
     std::vector<float> mSizeData;
     std::vector<Vector3> mColorData;
+    angle::RNG mRNG;
 };
 
 InstancingPerfBenchmark::InstancingPerfBenchmark()
@@ -105,8 +112,7 @@ void InstancingPerfBenchmark::initializeBenchmark()
 {
     const auto &params = GetParam();
 
-    ASSERT_TRUE(params.iterations > 0);
-    mDrawIterations = params.iterations;
+    ASSERT_LT(0u, params.iterations);
 
     const std::string vs =
         "attribute vec2 aPosition;\n"
@@ -133,7 +139,7 @@ void InstancingPerfBenchmark::initializeBenchmark()
         "}\n";
 
     mProgram = CompileProgram(vs, fs);
-    ASSERT_TRUE(mProgram != 0);
+    ASSERT_NE(0u, mProgram);
 
     glUseProgram(mProgram);
 
@@ -156,8 +162,7 @@ void InstancingPerfBenchmark::initializeBenchmark()
                 indexData.push_back(baseIndexData[indexIndex] + pointIndex * pointVertexStride);
             }
 
-            Vector3 randVec(RandomNegativeOneToOne(), RandomNegativeOneToOne(),
-                            RandomNegativeOneToOne());
+            Vector3 randVec = RandomVector3(&mRNG);
             for (GLuint vertexIndex = 0; vertexIndex < 4; ++vertexIndex)
             {
                 positionData.push_back(basePositionData[vertexIndex]);
@@ -182,8 +187,7 @@ void InstancingPerfBenchmark::initializeBenchmark()
 
         for (GLuint pointIndex = 0; pointIndex < mNumPoints; ++pointIndex)
         {
-            Vector3 randVec(RandomNegativeOneToOne(), RandomNegativeOneToOne(),
-                            RandomNegativeOneToOne());
+            Vector3 randVec = RandomVector3(&mRNG);
             mTranslateData.push_back(randVec);
         }
 
@@ -268,13 +272,10 @@ void InstancingPerfBenchmark::destroyBenchmark()
     }
 }
 
-void InstancingPerfBenchmark::beginDrawBenchmark()
-{
-    glClear(GL_COLOR_BUFFER_BIT);
-}
-
 void InstancingPerfBenchmark::drawBenchmark()
 {
+    glClear(GL_COLOR_BUFFER_BIT);
+
     const auto &params = GetParam();
 
     // Animatino makes the test more interesting visually, but also eats up many CPU cycles.

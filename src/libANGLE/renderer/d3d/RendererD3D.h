@@ -133,8 +133,6 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     bool isDeviceLost() const override;
     std::string getVendorString() const override;
 
-    CompilerImpl *createCompiler() override;
-
     SamplerImpl *createSampler() override;
 
     virtual int getMinorShaderModel() const = 0;
@@ -143,7 +141,11 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     // Direct3D Specific methods
     virtual DeviceIdentifier getAdapterIdentifier() const = 0;
 
-    virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat) = 0;
+    virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow,
+                                          HANDLE shareHandle,
+                                          GLenum backBufferFormat,
+                                          GLenum depthBufferFormat,
+                                          EGLint orientation) = 0;
 
     virtual gl::Error generateSwizzle(gl::Texture *texture) = 0;
     virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler) = 0;
@@ -240,6 +242,9 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     void insertEventMarker(GLsizei length, const char *marker) override;
     void pushGroupMarker(GLsizei length, const char *marker) override;
     void popGroupMarker() override;
+
+    GLint getGPUDisjoint() override;
+    GLint64 getTimestamp() override;
 
     // In D3D11, faster than calling setTexture a jillion times
     virtual gl::Error clearTextures(gl::SamplerType samplerType, size_t rangeStart, size_t rangeEnd) = 0;

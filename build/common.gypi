@@ -24,15 +24,23 @@
             '-Wextra',
             '-Wformat=2',
             '-Winit-self',
+            '-Wnon-virtual-dtor',
+            '-Wno-format-nonliteral',
+            '-Wno-unknown-pragmas',
             '-Wno-unused-function',
             '-Wno-unused-parameter',
-            '-Wno-unknown-pragmas',
             '-Wpacked',
             '-Wpointer-arith',
             '-Wundef',
             '-Wwrite-strings',
-            '-Wno-format-nonliteral',
-            '-Wnon-virtual-dtor',
+        ],
+
+        # TODO: Pull chromium's clang dep.
+        'clang%': 0,
+
+        'clang_only_warnings':
+        [
+            '-Wshorten-64-to-32',
         ],
     },
     'target_defaults':
@@ -434,6 +442,10 @@
                     ['OS != "win" and OS != "mac"',
                     {
                         'cflags': ['<@(gcc_or_clang_warnings)']
+                    }],
+                    ['clang==1',
+                    {
+                        'cflags': ['<@(clang_only_warnings)']
                     }],
                 ]
             }

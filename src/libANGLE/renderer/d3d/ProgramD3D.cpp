@@ -1114,8 +1114,7 @@ gl::Error ProgramD3D::getPixelExecutableForFramebuffer(const gl::Framebuffer *fb
     mPixelShaderOutputFormatCache.clear();
 
     const FramebufferD3D *fboD3D = GetImplAs<FramebufferD3D>(fbo);
-    const gl::AttachmentList &colorbuffers =
-        fboD3D->getColorAttachmentsForRender(mRenderer->getWorkarounds());
+    const gl::AttachmentList &colorbuffers = fboD3D->getColorAttachmentsForRender();
 
     for (size_t colorAttachment = 0; colorAttachment < colorbuffers.size(); ++colorAttachment)
     {
@@ -1242,9 +1241,8 @@ gl::Error ProgramD3D::getGeometryExecutableForPrimitiveType(const gl::Data &data
         *outExecutable = nullptr;
     }
 
-    // We only uses a geometry shader for point sprite emulation, or for fixing the provoking
-    // vertex problem. Otherwise, return a null shader.
-    if (drawMode != GL_POINTS && !mUsesFlatInterpolation)
+    // Return a null shader if the current rendering doesn't use a geometry shader
+    if (!usesGeometryShader(drawMode))
     {
         return gl::Error(GL_NO_ERROR);
     }
@@ -1553,7 +1551,7 @@ void ProgramD3D::initializeUniformStorage()
 
 gl::Error ProgramD3D::applyUniforms(GLenum drawMode)
 {
-    updateSamplerMapping();
+    ASSERT(!mDirtySamplerMapping);
 
     gl::Error error = mRenderer->applyUniforms(*this, drawMode, mD3DUniforms);
     if (error.isError())

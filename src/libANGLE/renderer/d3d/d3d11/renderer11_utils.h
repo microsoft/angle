@@ -47,7 +47,7 @@ D3D11_TEXTURE_ADDRESS_MODE ConvertTextureWrap(GLenum wrap);
 
 D3D11_QUERY ConvertQueryType(GLenum queryType);
 
-}
+}  // namespace gl_d3d11
 
 namespace d3d11_gl
 {
@@ -60,10 +60,20 @@ GLint GetMaximumClientVersion(D3D_FEATURE_LEVEL featureLevel);
 void GenerateCaps(ID3D11Device *device, ID3D11DeviceContext *deviceContext, const Renderer11DeviceCaps &renderer11DeviceCaps, gl::Caps *caps,
                   gl::TextureCapsMap *textureCapsMap, gl::Extensions *extensions, gl::Limitations *limitations);
 
-}
+}  // namespace d3d11_gl
 
 namespace d3d11
 {
+
+enum ANGLED3D11DeviceType
+{
+    ANGLE_D3D11_DEVICE_TYPE_UNKNOWN,
+    ANGLE_D3D11_DEVICE_TYPE_HARDWARE,
+    ANGLE_D3D11_DEVICE_TYPE_SOFTWARE_REF_OR_NULL,
+    ANGLE_D3D11_DEVICE_TYPE_WARP,
+};
+
+ANGLED3D11DeviceType GetDeviceType(ID3D11Device *device);
 
 void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsizei *requestHeight, int *levelOffset);
 
@@ -324,8 +334,46 @@ void SetBufferData(ID3D11DeviceContext *context, ID3D11Buffer *constantBuffer, c
 }
 
 WorkaroundsD3D GenerateWorkarounds(D3D_FEATURE_LEVEL featureLevel);
-}
+}  // namespace d3d11
 
-}
+// A helper class which wraps a 2D or 3D texture.
+class TextureHelper11 : angle::NonCopyable
+{
+  public:
+    TextureHelper11();
+    TextureHelper11(TextureHelper11 &&toCopy);
+    ~TextureHelper11();
+    TextureHelper11 &operator=(TextureHelper11 &&texture);
+
+    static TextureHelper11 MakeAndReference(ID3D11Resource *genericResource);
+    static TextureHelper11 MakeAndPossess2D(ID3D11Texture2D *texToOwn);
+    static TextureHelper11 MakeAndPossess3D(ID3D11Texture3D *texToOwn);
+
+    GLenum getTextureType() const { return mTextureType; }
+    gl::Extents getExtents() const { return mExtents; }
+    DXGI_FORMAT getFormat() const { return mFormat; }
+    int getSampleCount() const { return mSampleCount; }
+    ID3D11Texture2D *getTexture2D() const { return mTexture2D; }
+    ID3D11Texture3D *getTexture3D() const { return mTexture3D; }
+    ID3D11Resource *getResource() const;
+
+  private:
+    void reset();
+    void initDesc();
+
+    GLenum mTextureType;
+    gl::Extents mExtents;
+    DXGI_FORMAT mFormat;
+    int mSampleCount;
+    ID3D11Texture2D *mTexture2D;
+    ID3D11Texture3D *mTexture3D;
+};
+
+gl::ErrorOrResult<TextureHelper11> CreateStagingTexture(GLenum textureType,
+                                                        DXGI_FORMAT dxgiFormat,
+                                                        const gl::Extents &size,
+                                                        ID3D11Device *device);
+
+}  // namespace rx
 
 #endif // LIBANGLE_RENDERER_D3D_D3D11_RENDERER11_UTILS_H_

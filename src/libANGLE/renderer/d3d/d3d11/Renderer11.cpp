@@ -10,6 +10,7 @@
 
 #include <EGL/eglext.h>
 #include <sstream>
+#include <VersionHelpers.h>
 
 #include "common/tls.h"
 #include "common/utilities.h"
@@ -41,6 +42,7 @@
 #include "libANGLE/renderer/d3d/d3d11/Trim11.h"
 #include "libANGLE/renderer/d3d/d3d11/VertexArray11.h"
 #include "libANGLE/renderer/d3d/d3d11/VertexBuffer11.h"
+#include "libANGLE/renderer/d3d/CompilerD3D.h"
 #include "libANGLE/renderer/d3d/DeviceD3D.h"
 #include "libANGLE/renderer/d3d/FramebufferD3D.h"
 #include "libANGLE/renderer/d3d/IndexDataManager.h"
@@ -499,6 +501,7 @@ Renderer11::Renderer11(egl::Display *display)
 
     mD3d11Module = NULL;
     mDxgiModule = NULL;
+    mDCompModule          = NULL;
     mCreatedWithDeviceEXT = false;
     mEGLDevice            = nullptr;
 
@@ -558,19 +561,19 @@ Renderer11::Renderer11(egl::Display *display)
         switch (requestedDeviceType)
         {
             case EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_HARDWARE;
+                mRequestedDriverType = D3D_DRIVER_TYPE_HARDWARE;
                 break;
 
             case EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_WARP;
+                mRequestedDriverType = D3D_DRIVER_TYPE_WARP;
                 break;
 
             case EGL_PLATFORM_ANGLE_DEVICE_TYPE_REFERENCE_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_REFERENCE;
+                mRequestedDriverType = D3D_DRIVER_TYPE_REFERENCE;
                 break;
 
             case EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE:
-                mDriverType = D3D_DRIVER_TYPE_NULL;
+                mRequestedDriverType = D3D_DRIVER_TYPE_NULL;
                 break;
 
             default:
@@ -582,6 +585,10 @@ Renderer11::Renderer11(egl::Display *display)
         mEGLDevice = GetImplAs<DeviceD3D>(display->getDevice());
         ASSERT(mEGLDevice != nullptr);
         mCreatedWithDeviceEXT = true;
+
+        // Also set EGL_PLATFORM_ANGLE_ANGLE variables, in case they're used elsewhere in ANGLE
+        // mAvailableFeatureLevels defaults to empty
+        mRequestedDriverType = D3D_DRIVER_TYPE_UNKNOWN;
     }
 
     initializeDebugAnnotator();
@@ -765,6 +772,7 @@ egl::Error Renderer11::initializeD3DDevice()
             TRACE_EVENT0("gpu.angle", "Renderer11::initialize (Load DLLs)");
             mDxgiModule  = LoadLibrary(TEXT("dxgi.dll"));
             mD3d11Module = LoadLibrary(TEXT("d3d11.dll"));
+            mDCompModule = LoadLibrary(TEXT("dcomp.dll"));
 
             if (mD3d11Module == nullptr || mDxgiModule == nullptr)
             {
@@ -788,10 +796,11 @@ egl::Error Renderer11::initializeD3DDevice()
 #ifdef _DEBUG
         {
             TRACE_EVENT0("gpu.angle", "D3D11CreateDevice (Debug)");
-            result = D3D11CreateDevice(
-                NULL, mDriverType, NULL, D3D11_CREATE_DEVICE_DEBUG, mAvailableFeatureLevels.data(),
-                static_cast<unsigned int>(mAvailableFeatureLevels.size()), D3D11_SDK_VERSION,
-                &mDevice, &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
+            result = D3D11CreateDevice(nullptr, mRequestedDriverType, nullptr,
+                                       D3D11_CREATE_DEVICE_DEBUG, mAvailableFeatureLevels.data(),
+                                       static_cast<unsigned int>(mAvailableFeatureLevels.size()),
+                                       D3D11_SDK_VERSION, &mDevice,
+                                       &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
         }
 
         if (!mDevice || FAILED(result))
@@ -805,10 +814,10 @@ egl::Error Renderer11::initializeD3DDevice()
             SCOPED_ANGLE_HISTOGRAM_TIMER("GPU.ANGLE.D3D11CreateDeviceMS");
             TRACE_EVENT0("gpu.angle", "D3D11CreateDevice");
 
-            result = D3D11CreateDevice(NULL, mDriverType, NULL, 0, mAvailableFeatureLevels.data(),
-                                       static_cast<unsigned int>(mAvailableFeatureLevels.size()),
-                                       D3D11_SDK_VERSION, &mDevice,
-                                       &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
+            result = D3D11CreateDevice(
+                nullptr, mRequestedDriverType, nullptr, 0, mAvailableFeatureLevels.data(),
+                static_cast<unsigned int>(mAvailableFeatureLevels.size()), D3D11_SDK_VERSION,
+                &mDevice, &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
 
             // Cleanup done by destructor
             if (!mDevice || FAILED(result))
@@ -848,6 +857,8 @@ egl::Error Renderer11::initializeD3DDevice()
         mDevice->GetImmediateContext(&mDeviceContext);
         mRenderer11DeviceCaps.featureLevel = mDevice->GetFeatureLevel();
     }
+
+    d3d11::SetDebugName(mDeviceContext, "DeviceContext");
 
     return egl::Error(EGL_SUCCESS);
 }
@@ -989,6 +1000,8 @@ egl::ConfigSet Renderer11::generateConfigs() const
     const gl::Caps &rendererCaps = getRendererCaps();
     const gl::TextureCapsMap &rendererTextureCaps = getRendererTextureCaps();
 
+    const EGLint optimalSurfaceOrientation = EGL_SURFACE_ORIENTATION_INVERT_Y_ANGLE;
+
     egl::ConfigSet configs;
     for (size_t formatIndex = 0; formatIndex < ArraySize(colorBufferFormats); formatIndex++)
     {
@@ -1043,6 +1056,7 @@ egl::ConfigSet Renderer11::generateConfigs() const
                     config.transparentRedValue = 0;
                     config.transparentGreenValue = 0;
                     config.transparentBlueValue = 0;
+                    config.optimalOrientation    = optimalSurfaceOrientation;
 
                     configs.add(config);
                 }
@@ -1064,12 +1078,10 @@ void Renderer11::generateDisplayExtensions(egl::DisplayExtensions *outExtensions
         outExtensions->surfaceD3DTexture2DShareHandle = true;
     }
 
-#ifdef ANGLE_ENABLE_KEYEDMUTEX
     outExtensions->keyedMutex = true;
-#endif
-
     outExtensions->querySurfacePointer = true;
     outExtensions->windowFixedSize     = true;
+    outExtensions->surfaceOrientation  = true;
 
     // D3D11 does not support present with dirty rectangles until DXGI 1.2.
     outExtensions->postSubBuffer = mRenderer11DeviceCaps.supportsDXGI1_2;
@@ -1078,6 +1090,8 @@ void Renderer11::generateDisplayExtensions(egl::DisplayExtensions *outExtensions
 
     outExtensions->deviceQuery = true;
 
+    outExtensions->createContextNoError = true;
+
     outExtensions->image                 = true;
     outExtensions->imageBase             = true;
     outExtensions->glTexture2DImage      = true;
@@ -1085,6 +1099,7 @@ void Renderer11::generateDisplayExtensions(egl::DisplayExtensions *outExtensions
     outExtensions->glRenderbufferImage   = true;
 
     outExtensions->flexibleSurfaceCompatibility = true;
+    outExtensions->directComposition            = !!mDCompModule;
 }
 
 gl::Error Renderer11::flush()
@@ -1136,9 +1151,26 @@ gl::Error Renderer11::finish()
     return gl::Error(GL_NO_ERROR);
 }
 
-SwapChainD3D *Renderer11::createSwapChain(NativeWindow nativeWindow, HANDLE shareHandle, GLenum backBufferFormat, GLenum depthBufferFormat)
+SwapChainD3D *Renderer11::createSwapChain(NativeWindow nativeWindow,
+                                          HANDLE shareHandle,
+                                          GLenum backBufferFormat,
+                                          GLenum depthBufferFormat,
+                                          EGLint orientation)
 {
-    return new SwapChain11(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat);
+    return new SwapChain11(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat,
+                           orientation);
+}
+
+CompilerImpl *Renderer11::createCompiler()
+{
+    if (mRenderer11DeviceCaps.featureLevel <= D3D_FEATURE_LEVEL_9_3)
+    {
+        return new CompilerD3D(SH_HLSL_4_0_FL9_3_OUTPUT);
+    }
+    else
+    {
+        return new CompilerD3D(SH_HLSL_4_1_OUTPUT);
+    }
 }
 
 void *Renderer11::getD3DDevice()
@@ -1527,12 +1559,11 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
     // Also extract the render target dimensions and view
     unsigned int renderTargetWidth = 0;
     unsigned int renderTargetHeight = 0;
-    DXGI_FORMAT renderTargetFormat = DXGI_FORMAT_UNKNOWN;
     ID3D11RenderTargetView* framebufferRTVs[gl::IMPLEMENTATION_MAX_DRAW_BUFFERS] = {NULL};
     bool missingColorRenderTarget = true;
 
     const FramebufferD3D *framebufferD3D = GetImplAs<FramebufferD3D>(framebuffer);
-    const gl::AttachmentList &colorbuffers = framebufferD3D->getColorAttachmentsForRender(getWorkarounds());
+    const gl::AttachmentList &colorbuffers = framebufferD3D->getColorAttachmentsForRender();
 
     for (size_t colorAttachment = 0; colorAttachment < colorbuffers.size(); ++colorAttachment)
     {
@@ -1567,7 +1598,6 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
             {
                 renderTargetWidth = renderTarget->getWidth();
                 renderTargetHeight = renderTarget->getHeight();
-                renderTargetFormat = renderTarget->getDXGIFormat();
                 missingColorRenderTarget = false;
             }
 
@@ -2401,12 +2431,7 @@ void Renderer11::markAllStateDirty()
 {
     TRACE_EVENT0("gpu.angle", "Renderer11::markAllStateDirty");
 
-    for (size_t rtIndex = 0; rtIndex < ArraySize(mAppliedRTVs); rtIndex++)
-    {
-        mAppliedRTVs[rtIndex] = DirtyPointer;
-    }
-    mAppliedDSV = DirtyPointer;
-    mDepthStencilInitialized = false;
+    markRenderTargetStateDirty();
 
     // We reset the current SRV data because it might not be in sync with D3D's state
     // anymore. For example when a currently used SRV is used as an RTV, D3D silently
@@ -2470,6 +2495,16 @@ void Renderer11::markAllStateDirty()
     mCurrentPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
 }
 
+void Renderer11::markRenderTargetStateDirty()
+{
+    for (size_t rtIndex = 0; rtIndex < ArraySize(mAppliedRTVs); rtIndex++)
+    {
+        mAppliedRTVs[rtIndex] = DirtyPointer;
+    }
+    mAppliedDSV              = DirtyPointer;
+    mDepthStencilInitialized = false;
+}
+
 void Renderer11::releaseDeviceResources()
 {
     mStateCache.clear();
@@ -2531,8 +2566,9 @@ bool Renderer11::testDeviceResettable()
     D3D_FEATURE_LEVEL dummyFeatureLevel;
     ID3D11DeviceContext* dummyContext;
 
+    ASSERT(mRequestedDriverType != D3D_DRIVER_TYPE_UNKNOWN);
     HRESULT result = D3D11CreateDevice(
-        NULL, mDriverType, NULL,
+        NULL, mRequestedDriverType, NULL,
                                        #if defined(_DEBUG)
         D3D11_CREATE_DEVICE_DEBUG,
                                        #else
@@ -2592,7 +2628,15 @@ void Renderer11::release()
         mDxgiModule = NULL;
     }
 
+    if (mDCompModule)
+    {
+        FreeLibrary(mDCompModule);
+        mDCompModule = NULL;
+    }
+
     mCompiler.release();
+
+    mSupportsShareHandles.reset();
 }
 
 bool Renderer11::resetDevice()
@@ -2662,33 +2706,94 @@ unsigned int Renderer11::getReservedFragmentUniformBuffers() const
     return 2;
 }
 
+d3d11::ANGLED3D11DeviceType Renderer11::getDeviceType() const
+{
+    if (mCreatedWithDeviceEXT)
+    {
+        return d3d11::GetDeviceType(mDevice);
+    }
+
+    if ((mRequestedDriverType == D3D_DRIVER_TYPE_SOFTWARE) ||
+        (mRequestedDriverType == D3D_DRIVER_TYPE_REFERENCE) ||
+        (mRequestedDriverType == D3D_DRIVER_TYPE_NULL))
+    {
+        return d3d11::ANGLE_D3D11_DEVICE_TYPE_SOFTWARE_REF_OR_NULL;
+    }
+
+    if (mRequestedDriverType == D3D_DRIVER_TYPE_WARP)
+    {
+        return d3d11::ANGLE_D3D11_DEVICE_TYPE_WARP;
+    }
+
+    return d3d11::ANGLE_D3D11_DEVICE_TYPE_HARDWARE;
+}
+
 bool Renderer11::getShareHandleSupport() const
 {
+    if (mSupportsShareHandles.valid())
+    {
+        return mSupportsShareHandles.value();
+    }
+
     // We only currently support share handles with BGRA surfaces, because
     // chrome needs BGRA. Once chrome fixes this, we should always support them.
     if (!getRendererExtensions().textureFormatBGRA8888)
     {
+        mSupportsShareHandles = false;
         return false;
     }
 
     // PIX doesn't seem to support using share handles, so disable them.
     if (gl::DebugAnnotationsActive())
     {
+        mSupportsShareHandles = false;
         return false;
     }
 
     // Also disable share handles on Feature Level 9_3, since it doesn't support share handles on RGBA8 textures/swapchains.
     if (mRenderer11DeviceCaps.featureLevel <= D3D_FEATURE_LEVEL_9_3)
     {
+        mSupportsShareHandles = false;
         return false;
     }
 
-    // Also disable on non-hardware drivers, since sharing doesn't work cross-driver.
-    if (mDriverType != D3D_DRIVER_TYPE_HARDWARE)
+    // Find out which type of D3D11 device the Renderer11 is using
+    d3d11::ANGLED3D11DeviceType deviceType = getDeviceType();
+    if (deviceType == d3d11::ANGLE_D3D11_DEVICE_TYPE_UNKNOWN)
     {
+        mSupportsShareHandles = false;
         return false;
     }
 
+    if (deviceType == d3d11::ANGLE_D3D11_DEVICE_TYPE_SOFTWARE_REF_OR_NULL)
+    {
+        // Software/Reference/NULL devices don't support share handles
+        mSupportsShareHandles = false;
+        return false;
+    }
+
+    if (deviceType == d3d11::ANGLE_D3D11_DEVICE_TYPE_WARP)
+    {
+#ifndef ANGLE_ENABLE_WINDOWS_STORE
+        if (!IsWindows8OrGreater())
+        {
+            // WARP on Windows 7 doesn't support shared handles
+            mSupportsShareHandles = false;
+            return false;
+        }
+#endif  // ANGLE_ENABLE_WINDOWS_STORE
+
+        // WARP on Windows 8.0+ supports shared handles when shared with another WARP device
+        // TODO: allow applications to query for HARDWARE or WARP-specific share handles,
+        //       to prevent them trying to use a WARP share handle with an a HW device (or
+        //       vice-versa)
+        //       e.g. by creating EGL_D3D11_[HARDWARE/WARP]_DEVICE_SHARE_HANDLE_ANGLE
+        mSupportsShareHandles = true;
+        return true;
+    }
+
+    ASSERT(mCreatedWithDeviceEXT || mRequestedDriverType == D3D_DRIVER_TYPE_HARDWARE);
+    mSupportsShareHandles = true;
     return true;
 }
 
@@ -3494,28 +3599,45 @@ RenderbufferImpl *Renderer11::createRenderbuffer()
     return renderbuffer;
 }
 
-gl::Error Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int subResource, const gl::Rectangle &area, GLenum format,
-                                      GLenum type, GLuint outputPitch, const gl::PixelPackState &pack, uint8_t *pixels)
+gl::Error Renderer11::readFromAttachment(const gl::FramebufferAttachment &srcAttachment,
+                                         const gl::Rectangle &sourceArea,
+                                         GLenum format,
+                                         GLenum type,
+                                         GLuint outputPitch,
+                                         const gl::PixelPackState &pack,
+                                         uint8_t *pixelsOut)
 {
-    ASSERT(area.width >= 0);
-    ASSERT(area.height >= 0);
+    ASSERT(sourceArea.width >= 0);
+    ASSERT(sourceArea.height >= 0);
 
-    D3D11_TEXTURE2D_DESC textureDesc;
-    texture->GetDesc(&textureDesc);
+    RenderTargetD3D *renderTarget = nullptr;
+    gl::Error error = srcAttachment.getRenderTarget(&renderTarget);
+    if (error.isError())
+    {
+        return error;
+    }
+
+    RenderTarget11 *rt11 = GetAs<RenderTarget11>(renderTarget);
+    ASSERT(rt11->getTexture());
+
+    TextureHelper11 textureHelper = TextureHelper11::MakeAndReference(rt11->getTexture());
+    unsigned int sourceSubResource = rt11->getSubresourceIndex();
+
+    const gl::Extents &texSize = textureHelper.getExtents();
 
     // Clamp read region to the defined texture boundaries, preventing out of bounds reads
     // and reads of uninitialized data.
     gl::Rectangle safeArea;
-    safeArea.x      = gl::clamp(area.x, 0, static_cast<int>(textureDesc.Width));
-    safeArea.y      = gl::clamp(area.y, 0, static_cast<int>(textureDesc.Height));
-    safeArea.width  = gl::clamp(area.width + std::min(area.x, 0), 0,
-                                static_cast<int>(textureDesc.Width) - safeArea.x);
-    safeArea.height = gl::clamp(area.height + std::min(area.y, 0), 0,
-                                static_cast<int>(textureDesc.Height) - safeArea.y);
+    safeArea.x = gl::clamp(sourceArea.x, 0, texSize.width);
+    safeArea.y = gl::clamp(sourceArea.y, 0, texSize.height);
+    safeArea.width =
+        gl::clamp(sourceArea.width + std::min(sourceArea.x, 0), 0, texSize.width - safeArea.x);
+    safeArea.height =
+        gl::clamp(sourceArea.height + std::min(sourceArea.y, 0), 0, texSize.height - safeArea.y);
 
     ASSERT(safeArea.x >= 0 && safeArea.y >= 0);
-    ASSERT(safeArea.x + safeArea.width  <= static_cast<int>(textureDesc.Width));
-    ASSERT(safeArea.y + safeArea.height <= static_cast<int>(textureDesc.Height));
+    ASSERT(safeArea.x + safeArea.width <= texSize.width);
+    ASSERT(safeArea.y + safeArea.height <= texSize.height);
 
     if (safeArea.width == 0 || safeArea.height == 0)
     {
@@ -3523,35 +3645,29 @@ gl::Error Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int sub
         return gl::Error(GL_NO_ERROR);
     }
 
-    D3D11_TEXTURE2D_DESC stagingDesc;
-    stagingDesc.Width = safeArea.width;
-    stagingDesc.Height = safeArea.height;
-    stagingDesc.MipLevels = 1;
-    stagingDesc.ArraySize = 1;
-    stagingDesc.Format = textureDesc.Format;
-    stagingDesc.SampleDesc.Count = 1;
-    stagingDesc.SampleDesc.Quality = 0;
-    stagingDesc.Usage = D3D11_USAGE_STAGING;
-    stagingDesc.BindFlags = 0;
-    stagingDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-    stagingDesc.MiscFlags = 0;
-
-    ID3D11Texture2D* stagingTex = NULL;
-    HRESULT result = mDevice->CreateTexture2D(&stagingDesc, NULL, &stagingTex);
-    if (FAILED(result))
+    gl::Extents safeSize(safeArea.width, safeArea.height, 1);
+    auto errorOrResult = CreateStagingTexture(textureHelper.getTextureType(),
+                                              textureHelper.getFormat(), safeSize, mDevice);
+    if (errorOrResult.isError())
     {
-        return gl::Error(GL_OUT_OF_MEMORY, "Failed to create internal staging texture for ReadPixels, HRESULT: 0x%X.", result);
+        return errorOrResult.getError();
     }
 
-    ID3D11Texture2D* srcTex = NULL;
-    if (textureDesc.SampleDesc.Count > 1)
+    TextureHelper11 stagingHelper(errorOrResult.getResult());
+    TextureHelper11 resolvedTextureHelper;
+
+    // "srcTexture" usually points to the source texture.
+    // For 2D multisampled textures, it points to the multisampled resolve texture.
+    const TextureHelper11 *srcTexture = &textureHelper;
+
+    if (textureHelper.getTextureType() == GL_TEXTURE_2D && textureHelper.getSampleCount() > 1)
     {
         D3D11_TEXTURE2D_DESC resolveDesc;
-        resolveDesc.Width = textureDesc.Width;
-        resolveDesc.Height = textureDesc.Height;
+        resolveDesc.Width              = static_cast<UINT>(texSize.width);
+        resolveDesc.Height             = static_cast<UINT>(texSize.height);
         resolveDesc.MipLevels = 1;
         resolveDesc.ArraySize = 1;
-        resolveDesc.Format = textureDesc.Format;
+        resolveDesc.Format             = textureHelper.getFormat();
         resolveDesc.SampleDesc.Count = 1;
         resolveDesc.SampleDesc.Quality = 0;
         resolveDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -3559,20 +3675,22 @@ gl::Error Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int sub
         resolveDesc.CPUAccessFlags = 0;
         resolveDesc.MiscFlags = 0;
 
-        result = mDevice->CreateTexture2D(&resolveDesc, NULL, &srcTex);
+        ID3D11Texture2D *resolveTex2D = nullptr;
+        HRESULT result = mDevice->CreateTexture2D(&resolveDesc, nullptr, &resolveTex2D);
         if (FAILED(result))
         {
-            SafeRelease(stagingTex);
-            return gl::Error(GL_OUT_OF_MEMORY, "Failed to create internal resolve texture for ReadPixels, HRESULT: 0x%X.", result);
+            return gl::Error(GL_OUT_OF_MEMORY,
+                             "Renderer11::readTextureData failed to create internal resolve "
+                             "texture for ReadPixels, HRESULT: 0x%X.",
+                             result);
         }
 
-        mDeviceContext->ResolveSubresource(srcTex, 0, texture, subResource, textureDesc.Format);
-        subResource = 0;
-    }
-    else
-    {
-        srcTex = texture;
-        srcTex->AddRef();
+        mDeviceContext->ResolveSubresource(resolveTex2D, 0, textureHelper.getTexture2D(),
+                                           sourceSubResource, textureHelper.getFormat());
+        resolvedTextureHelper = TextureHelper11::MakeAndReference(resolveTex2D);
+
+        sourceSubResource = 0;
+        srcTexture        = &resolvedTextureHelper;
     }
 
     D3D11_BOX srcBox;
@@ -3580,28 +3698,30 @@ gl::Error Renderer11::readTextureData(ID3D11Texture2D *texture, unsigned int sub
     srcBox.right  = static_cast<UINT>(safeArea.x + safeArea.width);
     srcBox.top    = static_cast<UINT>(safeArea.y);
     srcBox.bottom = static_cast<UINT>(safeArea.y + safeArea.height);
-    srcBox.front  = 0;
-    srcBox.back   = 1;
 
-    mDeviceContext->CopySubresourceRegion(stagingTex, 0, 0, 0, 0, srcTex, subResource, &srcBox);
+    // Select the correct layer from a 3D attachment
+    srcBox.front = 0;
+    if (textureHelper.getTextureType() == GL_TEXTURE_3D)
+    {
+        srcBox.front = static_cast<UINT>(srcAttachment.layer());
+    }
+    srcBox.back = srcBox.front + 1;
 
-    SafeRelease(srcTex);
+    mDeviceContext->CopySubresourceRegion(stagingHelper.getResource(), 0, 0, 0, 0,
+                                          srcTexture->getResource(), sourceSubResource, &srcBox);
 
     PackPixelsParams packParams(safeArea, format, type, outputPitch, pack, 0);
-    gl::Error error = packPixels(stagingTex, packParams, pixels);
-
-    SafeRelease(stagingTex);
-
-    return error;
+    return packPixels(stagingHelper, packParams, pixelsOut);
 }
 
-gl::Error Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsParams &params, uint8_t *pixelsOut)
+gl::Error Renderer11::packPixels(const TextureHelper11 &textureHelper,
+                                 const PackPixelsParams &params,
+                                 uint8_t *pixelsOut)
 {
-    D3D11_TEXTURE2D_DESC textureDesc;
-    readTexture->GetDesc(&textureDesc);
+    ID3D11Resource *readResource = textureHelper.getResource();
 
     D3D11_MAPPED_SUBRESOURCE mapping;
-    HRESULT hr = mDeviceContext->Map(readTexture, 0, D3D11_MAP_READ, 0, &mapping);
+    HRESULT hr = mDeviceContext->Map(readResource, 0, D3D11_MAP_READ, 0, &mapping);
     if (FAILED(hr))
     {
         ASSERT(hr == E_OUTOFMEMORY);
@@ -3621,7 +3741,7 @@ gl::Error Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsP
         inputPitch = static_cast<int>(mapping.RowPitch);
     }
 
-    const d3d11::DXGIFormat &dxgiFormatInfo = d3d11::GetDXGIFormatInfo(textureDesc.Format);
+    const d3d11::DXGIFormat &dxgiFormatInfo    = d3d11::GetDXGIFormatInfo(textureHelper.getFormat());
     const gl::InternalFormat &sourceFormatInfo = gl::GetInternalFormatInfo(dxgiFormatInfo.internalFormat);
     if (sourceFormatInfo.format == params.format && sourceFormatInfo.type == params.type)
     {
@@ -3633,9 +3753,8 @@ gl::Error Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsP
     }
     else
     {
-        const d3d11::DXGIFormat &sourceDXGIFormatInfo = d3d11::GetDXGIFormatInfo(textureDesc.Format);
-        ColorCopyFunction fastCopyFunc = sourceDXGIFormatInfo.getFastCopyFunction(params.format, params.type);
-
+        ColorCopyFunction fastCopyFunc =
+            dxgiFormatInfo.getFastCopyFunction(params.format, params.type);
         GLenum sizedDestInternalFormat = gl::GetSizedInternalFormat(params.format, params.type);
         const gl::InternalFormat &destFormatInfo = gl::GetInternalFormatInfo(sizedDestInternalFormat);
 
@@ -3655,7 +3774,7 @@ gl::Error Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsP
         }
         else
         {
-            ColorReadFunction colorReadFunction = sourceDXGIFormatInfo.colorReadFunction;
+            ColorReadFunction colorReadFunction   = dxgiFormatInfo.colorReadFunction;
             ColorWriteFunction colorWriteFunction = GetColorWriteFunction(params.format, params.type);
 
             uint8_t temp[16]; // Maximum size of any Color<T> type used.
@@ -3680,7 +3799,7 @@ gl::Error Renderer11::packPixels(ID3D11Texture2D *readTexture, const PackPixelsP
         }
     }
 
-    mDeviceContext->Unmap(readTexture, 0);
+    mDeviceContext->Unmap(readResource, 0);
 
     return gl::Error(GL_NO_ERROR);
 }
