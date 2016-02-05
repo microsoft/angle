@@ -244,6 +244,9 @@
     <Filter Include="libANGLE">
       <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="libANGLE\renderer">
       <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
     </Filter>
@@ -3883,6 +3886,30 @@
     <Filter Include="libANGLE\renderer\gl\wgl">
       <UniqueIdentifier>{3DC31FCF-53CD-5334-353B-CC59386FB5BD}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl">
+      <UniqueIdentifier>{71BB4E41-219D-601E-ACE4-FEA008E71300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl\wgl">
+      <UniqueIdentifier>{3DC31FCF-53CD-5334-353B-CC59386FB5BD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE">
+      <UniqueIdentifier>{1CCF162D-4AC4-ACF2-4B07-B45A2A3C124D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer">
+      <UniqueIdentifier>{AC4EF684-2900-10EA-3D11-A6DF0901358C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl">
+      <UniqueIdentifier>{71BB4E41-219D-601E-ACE4-FEA008E71300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libANGLE\renderer\gl\wgl">
+      <UniqueIdentifier>{3DC31FCF-53CD-5334-353B-CC59386FB5BD}</UniqueIdentifier>
+    </Filter>
     <Filter Include="third_party">
       <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
     </Filter>
@@ -3946,6 +3973,12 @@
       <Filter>libANGLE</Filter>
     </ClCompile>
     <ClInclude Include="libANGLE\Data.h">
+      <Filter>libANGLE</Filter>
+    </ClInclude>
+    <ClCompile Include="libANGLE\Debug.cpp">
+      <Filter>libANGLE</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\Debug.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
     <ClCompile Include="libANGLE\Device.cpp">
@@ -4026,9 +4059,6 @@
     <ClInclude Include="libANGLE\Query.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
-    <ClCompile Include="libANGLE\RefCountObject.cpp">
-      <Filter>libANGLE</Filter>
-    </ClCompile>
     <ClInclude Include="libANGLE\RefCountObject.h">
       <Filter>libANGLE</Filter>
     </ClInclude>
@@ -5083,6 +5113,12 @@
       <Filter>libANGLE\renderer\gl\wgl</Filter>
     </ClCompile>
     <ClInclude Include="libANGLE\renderer\gl\wgl\DisplayWGL.h">
+      <Filter>libANGLE\renderer\gl\wgl</Filter>
+    </ClInclude>
+    <ClCompile Include="libANGLE\renderer\gl\wgl\DXGISwapChainWindowSurfaceWGL.cpp">
+      <Filter>libANGLE\renderer\gl\wgl</Filter>
+    </ClCompile>
+    <ClInclude Include="libANGLE\renderer\gl\wgl\DXGISwapChainWindowSurfaceWGL.h">
       <Filter>libANGLE\renderer\gl\wgl</Filter>
     </ClInclude>
     <ClCompile Include="libANGLE\renderer\gl\wgl\FunctionsWGL.cpp">

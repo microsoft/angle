@@ -261,6 +261,7 @@
     <ClInclude Include="..\..\..\..\src\libANGLE\Constants.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\Context.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\Data.h"/>
+    <ClInclude Include="..\..\..\..\src\libANGLE\Debug.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\Device.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\Display.h"/>
     <ClInclude Include="..\..\..\..\src\libANGLE\Error.h"/>
@@ -459,6 +460,7 @@
     <ClCompile Include="..\..\..\..\src\libANGLE\Config.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\Context.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\Data.cpp"/>
+    <ClCompile Include="..\..\..\..\src\libANGLE\Debug.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\Device.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\Display.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\Error.cpp"/>
@@ -472,7 +474,6 @@
     <ClCompile Include="..\..\..\..\src\libANGLE\Platform.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\Program.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\Query.cpp"/>
-    <ClCompile Include="..\..\..\..\src\libANGLE\RefCountObject.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\Renderbuffer.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\ResourceManager.cpp"/>
     <ClCompile Include="..\..\..\..\src\libANGLE\Sampler.cpp"/>

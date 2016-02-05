@@ -255,6 +255,7 @@
     <ClInclude Include="libANGLE\Constants.h"/>
     <ClInclude Include="libANGLE\Context.h"/>
     <ClInclude Include="libANGLE\Data.h"/>
+    <ClInclude Include="libANGLE\Debug.h"/>
     <ClInclude Include="libANGLE\Device.h"/>
     <ClInclude Include="libANGLE\Display.h"/>
     <ClInclude Include="libANGLE\Error.h"/>
@@ -492,6 +493,7 @@
     <ClInclude Include="libANGLE\renderer\gl\functionsgl_typedefs.h"/>
     <ClInclude Include="libANGLE\renderer\gl\renderergl_utils.h"/>
     <ClInclude Include="libANGLE\renderer\gl\wgl\DisplayWGL.h"/>
+    <ClInclude Include="libANGLE\renderer\gl\wgl\DXGISwapChainWindowSurfaceWGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\wgl\FunctionsWGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\wgl\PbufferSurfaceWGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\wgl\WindowSurfaceWGL.h"/>
@@ -508,6 +510,7 @@
     <ClCompile Include="libANGLE\Config.cpp"/>
     <ClCompile Include="libANGLE\Context.cpp"/>
     <ClCompile Include="libANGLE\Data.cpp"/>
+    <ClCompile Include="libANGLE\Debug.cpp"/>
     <ClCompile Include="libANGLE\Device.cpp"/>
     <ClCompile Include="libANGLE\Display.cpp"/>
     <ClCompile Include="libANGLE\Error.cpp"/>
@@ -521,7 +524,6 @@
     <ClCompile Include="libANGLE\Platform.cpp"/>
     <ClCompile Include="libANGLE\Program.cpp"/>
     <ClCompile Include="libANGLE\Query.cpp"/>
-    <ClCompile Include="libANGLE\RefCountObject.cpp"/>
     <ClCompile Include="libANGLE\Renderbuffer.cpp"/>
     <ClCompile Include="libANGLE\ResourceManager.cpp"/>
     <ClCompile Include="libANGLE\Sampler.cpp"/>
@@ -642,6 +644,7 @@
     <ClCompile Include="libANGLE\renderer\gl\formatutilsgl.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\renderergl_utils.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\wgl\DisplayWGL.cpp"/>
+    <ClCompile Include="libANGLE\renderer\gl\wgl\DXGISwapChainWindowSurfaceWGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\wgl\FunctionsWGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\wgl\PbufferSurfaceWGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\wgl\WindowSurfaceWGL.cpp"/>
