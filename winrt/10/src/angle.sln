@@ -1,6 +1,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle_common", "angle_common.vcxproj", "{7E3E300C-E43E-45E3-7AFE-6C728B705A32}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CC680B1E-4E12-511E-0BB1-98AC96D57E45} = {CC680B1E-4E12-511E-0BB1-98AC96D57E45}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "commit_id", "commit_id.vcxproj", "{CC680B1E-4E12-511E-0BB1-98AC96D57E45}"
 	ProjectSection(ProjectDependencies) = postProject

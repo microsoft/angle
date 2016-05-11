@@ -646,6 +646,30 @@
     <Filter Include="compiler\translator">
       <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
     </Filter>
+    <Filter Include="compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
+    </Filter>
     <Filter Include="compiler\translator\depgraph">
       <UniqueIdentifier>{233BE2B2-4E73-B3F0-20B8-25A55D8E5238}</UniqueIdentifier>
     </Filter>
@@ -810,6 +834,18 @@
     </Filter>
     <Filter Include="third_party\compiler">
       <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler">
+      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler\translator">
+      <UniqueIdentifier>{502101C2-1680-5126-1D2E-39419A1AE009}</UniqueIdentifier>
     </Filter>
     <Filter Include="compiler">
       <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
@@ -1179,6 +1215,12 @@
     <ClInclude Include="compiler\translator\ConstantUnion.h">
       <Filter>compiler\translator</Filter>
     </ClInclude>
+    <ClCompile Include="compiler\translator\DeferGlobalInitializers.cpp">
+      <Filter>compiler\translator</Filter>
+    </ClCompile>
+    <ClInclude Include="compiler\translator\DeferGlobalInitializers.h">
+      <Filter>compiler\translator</Filter>
+    </ClInclude>
     <ClCompile Include="compiler\translator\Diagnostics.cpp">
       <Filter>compiler\translator</Filter>
     </ClCompile>
@@ -1371,6 +1413,12 @@
     <ClInclude Include="compiler\translator\ValidateLimitations.h">
       <Filter>compiler\translator</Filter>
     </ClInclude>
+    <ClInclude Include="compiler\translator\ValidateMaxParameters.h">
+      <Filter>compiler\translator</Filter>
+    </ClInclude>
+    <ClCompile Include="compiler\translator\ValidateMaxParameters.cpp">
+      <Filter>compiler\translator</Filter>
+    </ClCompile>
     <ClCompile Include="compiler\translator\ValidateOutputs.cpp">
       <Filter>compiler\translator</Filter>
     </ClCompile>
@@ -1588,6 +1636,12 @@
       <Filter>compiler\translator</Filter>
     </ClCompile>
     <ClInclude Include="compiler\translator\StructureHLSL.h">
+      <Filter>compiler\translator</Filter>
+    </ClInclude>
+    <ClCompile Include="compiler\translator\TextureFunctionHLSL.cpp">
+      <Filter>compiler\translator</Filter>
+    </ClCompile>
+    <ClInclude Include="compiler\translator\TextureFunctionHLSL.h">
       <Filter>compiler\translator</Filter>
     </ClInclude>
     <ClCompile Include="compiler\translator\TranslatorHLSL.cpp">

@@ -300,8 +300,6 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
 
     bool mPresentPathFastEnabled;
 
-    bool mPresentPathFastEnabled;
-
   private:
     gl::Error genericDrawArrays(const gl::ContextState &data,
                                 GLenum mode,
@@ -361,11 +359,8 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
 
     mutable bool mWorkaroundsInitialized;
     mutable WorkaroundsD3D mWorkarounds;
-<<<<<<< HEAD
-=======
 
     bool mDisjoint;
->>>>>>> google/master
 };
 
 }

@@ -1706,18 +1706,6 @@ gl::ErrorOrResult<TextureHelper11> CreateStagingTexture(GLenum textureType,
     return TextureHelper11::MakeAndPossess3D(stagingTex, angleFormat);
 }
 
-bool UsePresentPathFast(const Renderer11 *renderer,
-                        const gl::FramebufferAttachment *framebufferAttachment)
-{
-    if (framebufferAttachment == nullptr)
-    {
-        return false;
-    }
-
-    return (framebufferAttachment->type() == GL_FRAMEBUFFER_DEFAULT &&
-            renderer->presentPathFastEnabled());
-}
-
 NotificationSet::NotificationSet()
 {
 }

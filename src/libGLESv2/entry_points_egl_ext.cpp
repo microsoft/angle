@@ -347,7 +347,7 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
             return EGL_NO_DISPLAY;
         }
 
-        AttributeMap attribMap = AttributeMap(attrib_list);
+        AttributeMap attribMap = AttributeMap::CreateFromIntArray(attrib_list);
 
         if (requestedAllowRenderToBackBuffer)
         {
@@ -358,7 +358,7 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
 
         SetGlobalError(Error(EGL_SUCCESS));
         return Display::GetDisplayFromAttribs(native_display,
-                                              AttributeMap::CreateFromIntArray(attrib_list));
+                                              attribMap);
     }
     else if (platform == EGL_PLATFORM_DEVICE_EXT)
     {

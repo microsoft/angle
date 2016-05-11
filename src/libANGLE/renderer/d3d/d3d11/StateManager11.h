@@ -150,11 +150,6 @@ class StateManager11 final : angle::NonCopyable
     bool mCurPresentPathFastEnabled;
     int mCurPresentPathFastColorBufferHeight;
 
-<<<<<<< HEAD
-    Renderer11DeviceCaps *mRenderer11DeviceCaps;
-    ID3D11DeviceContext *mDeviceContext;
-    RenderStateCache *mStateCache;
-=======
     // Current RenderTarget state
     bool mRenderTargetIsDirty;
 
@@ -201,7 +196,6 @@ class StateManager11 final : angle::NonCopyable
     // Current translations of "Current-Value" data - owned by Context, not VertexArray.
     gl::AttributesMask mDirtyCurrentValueAttribs;
     std::vector<TranslatedAttribute> mCurrentValueAttribs;
->>>>>>> google/master
 };
 
 }  // namespace rx

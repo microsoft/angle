@@ -5,6 +5,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(util)", ".", "{593E5771-A9CE-7BB4-6B2B-2AE6F616D6F6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle_common", "..\src\angle_common.vcxproj", "{7AB4B0C9-D974-3A65-ED87-61816B6917CB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6CCCC557-DFA3-68D4-31FA-1EFB0C5F37B2} = {6CCCC557-DFA3-68D4-31FA-1EFB0C5F37B2}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "angle_util", "angle_util.vcxproj", "{9767C383-B58A-AB1E-4713-CF8FC5BA2B7E}"
 	ProjectSection(ProjectDependencies) = postProject

@@ -56,7 +56,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -96,14 +96,14 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;ANGLE_STANDALONE_BUILD;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -143,14 +143,14 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;ANGLE_STANDALONE_BUILD;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -190,14 +190,14 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -237,7 +237,7 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\src;..\..\..\..\include;$(OutDir)obj\global_intermediate\angle;..\..\..\..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
       <PreprocessorDefinitions>ANGLE_TRANSLATOR_STATIC;ANGLE_ENABLE_HLSL;ANGLE_STANDALONE_BUILD;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
@@ -269,6 +269,7 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\Common.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\Compiler.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ConstantUnion.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\DeferGlobalInitializers.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\Diagnostics.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\DirectiveHandler.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\EmulatePrecision.h"/>
@@ -304,6 +305,7 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuitAST.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ValidateGlobalInitializer.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ValidateLimitations.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\ValidateMaxParameters.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ValidateOutputs.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\ValidateSwitch.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\VariableInfo.h"/>
@@ -331,6 +333,7 @@
     <ClInclude Include="..\..\..\..\src\compiler\translator\SeparateDeclarations.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\SeparateExpressionsReturningArrays.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\StructureHLSL.h"/>
+    <ClInclude Include="..\..\..\..\src\compiler\translator\TextureFunctionHLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\TranslatorHLSL.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuitToIf.h"/>
     <ClInclude Include="..\..\..\..\src\compiler\translator\UniformHLSL.h"/>
@@ -342,6 +345,7 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\CallDAG.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\CodeGen.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\Compiler.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\DeferGlobalInitializers.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\Diagnostics.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\DirectiveHandler.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\EmulatePrecision.cpp"/>
@@ -371,6 +375,7 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuitAST.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ValidateGlobalInitializer.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ValidateLimitations.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\ValidateMaxParameters.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ValidateOutputs.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\ValidateSwitch.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\VariableInfo.cpp"/>
@@ -399,6 +404,7 @@
     <ClCompile Include="..\..\..\..\src\compiler\translator\SeparateDeclarations.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\SeparateExpressionsReturningArrays.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\StructureHLSL.cpp"/>
+    <ClCompile Include="..\..\..\..\src\compiler\translator\TextureFunctionHLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\TranslatorHLSL.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\UnfoldShortCircuitToIf.cpp"/>
     <ClCompile Include="..\..\..\..\src\compiler\translator\UniformHLSL.cpp"/>

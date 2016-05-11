@@ -254,7 +254,7 @@
     <ClInclude Include="libANGLE\Config.h"/>
     <ClInclude Include="libANGLE\Constants.h"/>
     <ClInclude Include="libANGLE\Context.h"/>
-    <ClInclude Include="libANGLE\Data.h"/>
+    <ClInclude Include="libANGLE\ContextState.h"/>
     <ClInclude Include="libANGLE\Debug.h"/>
     <ClInclude Include="libANGLE\Device.h"/>
     <ClInclude Include="libANGLE\Display.h"/>
@@ -274,6 +274,7 @@
     <ClInclude Include="libANGLE\Sampler.h"/>
     <ClInclude Include="libANGLE\Shader.h"/>
     <ClInclude Include="libANGLE\State.h"/>
+    <ClInclude Include="libANGLE\Stream.h"/>
     <ClInclude Include="libANGLE\Surface.h"/>
     <ClInclude Include="libANGLE\Texture.h"/>
     <ClInclude Include="libANGLE\TransformFeedback.h"/>
@@ -288,6 +289,7 @@
     <ClInclude Include="libANGLE\queryconversions.h"/>
     <ClInclude Include="libANGLE\renderer\BufferImpl.h"/>
     <ClInclude Include="libANGLE\renderer\CompilerImpl.h"/>
+    <ClInclude Include="libANGLE\renderer\ContextImpl.h"/>
     <ClInclude Include="libANGLE\renderer\DeviceImpl.h"/>
     <ClInclude Include="libANGLE\renderer\DisplayImpl.h"/>
     <ClInclude Include="libANGLE\renderer\FenceNVImpl.h"/>
@@ -301,6 +303,7 @@
     <ClInclude Include="libANGLE\renderer\Renderer.h"/>
     <ClInclude Include="libANGLE\renderer\SamplerImpl.h"/>
     <ClInclude Include="libANGLE\renderer\ShaderImpl.h"/>
+    <ClInclude Include="libANGLE\renderer\StreamProducerImpl.h"/>
     <ClInclude Include="libANGLE\renderer\SurfaceImpl.h"/>
     <ClInclude Include="libANGLE\renderer\TextureImpl.h"/>
     <ClInclude Include="libANGLE\renderer\TransformFeedbackImpl.h"/>
@@ -343,6 +346,7 @@
     <ClInclude Include="libANGLE\renderer\d3d\IndexDataManager.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\loadimage.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\loadimage_etc.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\NativeWindowD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\ProgramD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\RenderbufferD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\RendererD3D.h"/>
@@ -361,12 +365,14 @@
     <ClInclude Include="libANGLE\renderer\d3d\WorkaroundsD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\Blit9.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\Buffer9.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d9\Context9.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\DebugAnnotator9.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\Fence9.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\formatutils9.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\Framebuffer9.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\Image9.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\IndexBuffer9.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d9\NativeWindow9.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\Query9.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\Renderer9.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d9\renderer9_utils.h"/>
@@ -388,6 +394,7 @@
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\Blit11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\Buffer11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\Clear11.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\Context11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\copyvertex.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\DebugAnnotator11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\dxgi_support_table.h"/>
@@ -397,9 +404,8 @@
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\Image11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\IndexBuffer11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\InputLayoutCache.h"/>
-    <ClInclude Include="libANGLE\renderer\d3d\d3d11\internal_format_initializer_table.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\load_functions_table.h"/>
-    <ClInclude Include="libANGLE\renderer\d3d\d3d11\NativeWindow.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\NativeWindow11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\PixelTransfer11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\Query11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\Renderer11.h"/>
@@ -460,17 +466,20 @@
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\swizzleui2dps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\swizzleui3dps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\StateManager11.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\StreamProducerNV12.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\SwapChain11.h"/>
-    <ClInclude Include="libANGLE\renderer\d3d\d3d11\swizzle_format_info.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\TextureStorage11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\Trim11.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\texture_format_table_autogen.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\texture_format_table.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\VertexArray11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\VertexBuffer11.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\win32\NativeWindow11Win32.h"/>
     <ClInclude Include="third_party\systeminfo\SystemInfo.h"/>
     <ClInclude Include="libANGLE\renderer\gl\BlitGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\BufferGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\CompilerGL.h"/>
+    <ClInclude Include="libANGLE\renderer\gl\ContextGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\DisplayGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\FenceNVGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\FenceSyncGL.h"/>
@@ -509,7 +518,7 @@
     <ClCompile Include="libANGLE\Compiler.cpp"/>
     <ClCompile Include="libANGLE\Config.cpp"/>
     <ClCompile Include="libANGLE\Context.cpp"/>
-    <ClCompile Include="libANGLE\Data.cpp"/>
+    <ClCompile Include="libANGLE\ContextState.cpp"/>
     <ClCompile Include="libANGLE\Debug.cpp"/>
     <ClCompile Include="libANGLE\Device.cpp"/>
     <ClCompile Include="libANGLE\Display.cpp"/>
@@ -529,6 +538,7 @@
     <ClCompile Include="libANGLE\Sampler.cpp"/>
     <ClCompile Include="libANGLE\Shader.cpp"/>
     <ClCompile Include="libANGLE\State.cpp"/>
+    <ClCompile Include="libANGLE\Stream.cpp"/>
     <ClCompile Include="libANGLE\Surface.cpp"/>
     <ClCompile Include="libANGLE\Texture.cpp"/>
     <ClCompile Include="libANGLE\TransformFeedback.cpp"/>
@@ -563,6 +573,7 @@
     <ClCompile Include="libANGLE\renderer\d3d\loadimage.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\loadimageSSE2.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\loadimage_etc.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\NativeWindowD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\ProgramD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\RenderbufferD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\RendererD3D.cpp"/>
@@ -583,6 +594,7 @@
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\Framebuffer9.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\Image9.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\IndexBuffer9.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d9\NativeWindow9.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\Query9.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\Renderer9.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\renderer9_utils.cpp"/>
@@ -604,7 +616,6 @@
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\Image11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\IndexBuffer11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\InputLayoutCache.cpp"/>
-    <ClCompile Include="libANGLE\renderer\d3d\d3d11\internal_format_initializer_table.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\load_functions_table_autogen.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\PixelTransfer11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\Query11.cpp"/>
@@ -614,13 +625,14 @@
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\RenderTarget11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\ShaderExecutable11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\StateManager11.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d11\StreamProducerNV12.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\SwapChain11.cpp"/>
-    <ClCompile Include="libANGLE\renderer\d3d\d3d11\swizzle_format_info_autogen.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\TextureStorage11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\Trim11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\texture_format_table_autogen.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d11\VertexArray11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\VertexBuffer11.cpp"/>
-    <ClCompile Include="libANGLE\renderer\d3d\d3d11\win32\NativeWindow.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d11\win32\NativeWindow11Win32.cpp"/>
     <ClCompile Include="third_party\systeminfo\SystemInfo.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\BlitGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\BufferGL.cpp"/>
