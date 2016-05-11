@@ -28,6 +28,7 @@
 #include "libANGLE/histogram_macros.h"
 #include "libANGLE/Image.h"
 #include "libANGLE/Surface.h"
+#include "libANGLE/Stream.h"
 #include "libANGLE/renderer/DisplayImpl.h"
 #include "libANGLE/renderer/ImageImpl.h"
 #include "third_party/trace_event/trace_event.h"
@@ -133,7 +134,8 @@ rx::DisplayImpl *CreateDisplayFromDevice(Device *eglDevice)
 rx::DisplayImpl *CreateDisplayFromAttribs(const AttributeMap &attribMap)
 {
     rx::DisplayImpl *impl = nullptr;
-    EGLint displayType = attribMap.get(EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
+    EGLAttrib displayType =
+        attribMap.get(EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE);
     switch (displayType)
     {
       case EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE:
@@ -299,6 +301,7 @@ Display::Display(EGLenum platform, EGLNativeDisplayType displayId, Device *eglDe
       mAttributeMap(),
       mConfigSet(),
       mContextSet(),
+      mStreamSet(),
       mInitialized(false),
       mCaps(),
       mDisplayExtensions(),
@@ -363,7 +366,7 @@ Error Display::initialize()
 
     if (isInitialized())
     {
-        return Error(EGL_SUCCESS);
+        return egl::Error(EGL_SUCCESS);
     }
 
     Error error = mImplementation->initialize(this);
@@ -421,7 +424,7 @@ Error Display::initialize()
 
     mInitialized = true;
 
-    return Error(EGL_SUCCESS);
+    return egl::Error(EGL_SUCCESS);
 }
 
 void Display::terminate()
@@ -436,6 +439,11 @@ void Display::terminate()
     while (!mImageSet.empty())
     {
         destroyImage(*mImageSet.begin());
+    }
+
+    while (!mStreamSet.empty())
+    {
+        destroyStream(*mStreamSet.begin());
     }
 
     while (!mImplementation->getSurfaceSet().empty())
@@ -548,7 +556,7 @@ Error Display::createWindowSurface(const Config *configuration, EGLNativeWindowT
 
     ASSERT(outSurface != nullptr);
     *outSurface = surface;
-    return Error(EGL_SUCCESS);
+    return egl::Error(EGL_SUCCESS);
 }
 
 Error Display::createPbufferSurface(const Config *configuration, const AttributeMap &attribs, Surface **outSurface)
@@ -579,7 +587,7 @@ Error Display::createPbufferSurface(const Config *configuration, const Attribute
 
     ASSERT(outSurface != nullptr);
     *outSurface = surface;
-    return Error(EGL_SUCCESS);
+    return egl::Error(EGL_SUCCESS);
 }
 
 Error Display::createPbufferFromClientBuffer(const Config *configuration, EGLClientBuffer shareHandle,
@@ -611,7 +619,7 @@ Error Display::createPbufferFromClientBuffer(const Config *configuration, EGLCli
 
     ASSERT(outSurface != nullptr);
     *outSurface = surface;
-    return Error(EGL_SUCCESS);
+    return egl::Error(EGL_SUCCESS);
 }
 
 Error Display::createPixmapSurface(const Config *configuration, NativePixmapType nativePixmap, const AttributeMap &attribs,
@@ -643,7 +651,7 @@ Error Display::createPixmapSurface(const Config *configuration, NativePixmapType
 
     ASSERT(outSurface != nullptr);
     *outSurface = surface;
-    return Error(EGL_SUCCESS);
+    return egl::Error(EGL_SUCCESS);
 }
 
 Error Display::createImage(gl::Context *context,
@@ -696,6 +704,21 @@ Error Display::createImage(gl::Context *context,
     image->addRef();
     mImageSet.insert(image);
 
+    return egl::Error(EGL_SUCCESS);
+}
+
+Error Display::createStream(const AttributeMap &attribs, Stream **outStream)
+{
+    ASSERT(isInitialized());
+
+    Stream *stream = new Stream(this, attribs);
+
+    ASSERT(stream != nullptr);
+    mStreamSet.insert(stream);
+
+    ASSERT(outStream != nullptr);
+    *outStream = stream;
+
     return Error(EGL_SUCCESS);
 }
 
@@ -721,7 +744,7 @@ Error Display::createContext(const Config *configuration, gl::Context *shareCont
 
     ASSERT(outContext != nullptr);
     *outContext = context;
-    return Error(EGL_SUCCESS);
+    return egl::Error(EGL_SUCCESS);
 }
 
 Error Display::makeCurrent(egl::Surface *drawSurface, egl::Surface *readSurface, gl::Context *context)
@@ -788,6 +811,12 @@ void Display::destroyImage(egl::Image *image)
     mImageSet.erase(iter);
 }
 
+void Display::destroyStream(egl::Stream *stream)
+{
+    mStreamSet.erase(stream);
+    SafeDelete(stream);
+}
+
 void Display::destroyContext(gl::Context *context)
 {
     mContextSet.erase(context);
@@ -852,6 +881,11 @@ bool Display::isValidSurface(Surface *surface) const
 bool Display::isValidImage(const Image *image) const
 {
     return mImageSet.find(const_cast<Image *>(image)) != mImageSet.end();
+}
+
+bool Display::isValidStream(const Stream *stream) const
+{
+    return mStreamSet.find(const_cast<Stream *>(stream)) != mStreamSet.end();
 }
 
 bool Display::hasExistingWindowSurface(EGLNativeWindowType window)

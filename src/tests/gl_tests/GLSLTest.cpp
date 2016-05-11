@@ -462,21 +462,13 @@ TEST_P(GLSLTest, NamelessScopedStructs)
 
 TEST_P(GLSLTest, ScopedStructsOrderBug)
 {
-#if defined(__APPLE__)
     // TODO(geofflang): Find out why this doesn't compile on Apple OpenGL drivers
     // (http://anglebug.com/1292)
-    if (getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
-    {
-        std::cout << "Test disabled on Apple OpenGL." << std::endl;
-        return;
-    }
-#endif
-
     // TODO(geofflang): Find out why this doesn't compile on AMD OpenGL drivers
     // (http://anglebug.com/1291)
-    if (isAMD() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
+    if (isOpenGL() && (IsOSX() || !IsNVIDIA()))
     {
-        std::cout << "Test disabled on AMD OpenGL." << std::endl;
+        std::cout << "Test disabled on this OpenGL configuration." << std::endl;
         return;
     }
 
@@ -812,7 +804,7 @@ TEST_P(GLSLTest, MaxVaryingVec4)
 #if defined(__APPLE__)
     // TODO(geofflang): Find out why this doesn't compile on Apple AND OpenGL drivers
     // (http://anglebug.com/1291)
-    if (isAMD() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
+    if (IsAMD() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
     {
         std::cout << "Test disabled on Apple AMD OpenGL." << std::endl;
         return;
@@ -837,7 +829,7 @@ TEST_P(GLSLTest, MaxMinusTwoVaryingVec4PlusTwoSpecialVariables)
 TEST_P(GLSLTest, MaxMinusTwoVaryingVec4PlusThreeSpecialVariables)
 {
     // TODO(geofflang): Figure out why this fails on OpenGL AMD (http://anglebug.com/1291)
-    if (isAMD() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
+    if (IsAMD() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
     {
         std::cout << "Test disabled on OpenGL." << std::endl;
         return;
@@ -893,7 +885,7 @@ TEST_P(GLSLTest, MaxVaryingVec3Array)
 // Disabled because of a failure in D3D9
 TEST_P(GLSLTest, MaxVaryingVec3AndOneFloat)
 {
-    if (isD3D9())
+    if (IsD3D9())
     {
         std::cout << "Test disabled on D3D9." << std::endl;
         return;
@@ -908,7 +900,7 @@ TEST_P(GLSLTest, MaxVaryingVec3AndOneFloat)
 // Disabled because of a failure in D3D9
 TEST_P(GLSLTest, MaxVaryingVec3ArrayAndOneFloatArray)
 {
-    if (isD3D9())
+    if (IsD3D9())
     {
         std::cout << "Test disabled on D3D9." << std::endl;
         return;
@@ -923,7 +915,7 @@ TEST_P(GLSLTest, MaxVaryingVec3ArrayAndOneFloatArray)
 // Disabled because of a failure in D3D9
 TEST_P(GLSLTest, TwiceMaxVaryingVec2)
 {
-    if (isD3D9())
+    if (IsD3D9())
     {
         std::cout << "Test disabled on D3D9." << std::endl;
         return;
@@ -939,7 +931,7 @@ TEST_P(GLSLTest, TwiceMaxVaryingVec2)
 #if defined(__APPLE__)
     // TODO(geofflang): Find out why this doesn't compile on Apple AND OpenGL drivers
     // (http://anglebug.com/1291)
-    if (isAMD() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
+    if (IsAMD() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
     {
         std::cout << "Test disabled on Apple AMD OpenGL." << std::endl;
         return;
@@ -955,7 +947,7 @@ TEST_P(GLSLTest, TwiceMaxVaryingVec2)
 // Disabled because of a failure in D3D9
 TEST_P(GLSLTest, MaxVaryingVec2Arrays)
 {
-    if (isD3DSM3())
+    if (IsD3DSM3())
     {
         std::cout << "Test disabled on SM3." << std::endl;
         return;
@@ -971,7 +963,7 @@ TEST_P(GLSLTest, MaxVaryingVec2Arrays)
 #if defined(__APPLE__)
     // TODO(geofflang): Find out why this doesn't compile on Apple AND OpenGL drivers
     // (http://anglebug.com/1291)
-    if (isAMD() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
+    if (IsAMD() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
     {
         std::cout << "Test disabled on Apple AMD OpenGL." << std::endl;
         return;
@@ -1064,6 +1056,19 @@ TEST_P(GLSLTest, NegativeShaderLength)
     GLint compileResult;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compileResult);
     EXPECT_NE(compileResult, 0);
+}
+
+// Check that having an invalid char after the "." doesn't cause an assert.
+TEST_P(GLSLTest, InvalidFieldFirstChar)
+{
+    GLuint shader      = glCreateShader(GL_VERTEX_SHADER);
+    const char *source = "void main() {vec4 x; x.}";
+    glShaderSource(shader, 1, &source, 0);
+    glCompileShader(shader);
+
+    GLint compileResult;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compileResult);
+    EXPECT_EQ(0, compileResult);
 }
 
 // Verify that a length array with mixed positive and negative values compiles.
@@ -1434,6 +1439,175 @@ TEST_P(GLSLTest, VerifyMaxFragmentUniformVectorsExceeded)
               << std::endl;
 
     CompileGLSLWithUniformsAndSamplers(0, maxUniforms + 1, 0, 0, false);
+}
+
+// Test that two constructors which have vec4 and mat2 parameters get disambiguated (issue in
+// HLSL).
+TEST_P(GLSLTest_ES3, AmbiguousConstructorCall2x2)
+{
+    const std::string fragmentShaderSource =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "out vec4 my_FragColor;\n"
+        "void main()\n"
+        "{\n"
+        "    my_FragColor = vec4(0.0);\n"
+        "}";
+
+    const std::string vertexShaderSource =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "in vec4 a_vec;\n"
+        "in mat2 a_mat;\n"
+        "void main()\n"
+        "{\n"
+        "    gl_Position = vec4(a_vec) + vec4(a_mat);\n"
+        "}";
+
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
+    EXPECT_NE(0u, program);
+}
+
+// Test that two constructors which have mat2x3 and mat3x2 parameters get disambiguated.
+// This was suspected to be an issue in HLSL, but HLSL seems to be able to natively choose between
+// the function signatures in this case.
+TEST_P(GLSLTest_ES3, AmbiguousConstructorCall2x3)
+{
+    const std::string fragmentShaderSource =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "out vec4 my_FragColor;\n"
+        "void main()\n"
+        "{\n"
+        "    my_FragColor = vec4(0.0);\n"
+        "}";
+
+    const std::string vertexShaderSource =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "in mat3x2 a_matA;\n"
+        "in mat2x3 a_matB;\n"
+        "void main()\n"
+        "{\n"
+        "    gl_Position = vec4(a_matA) + vec4(a_matB);\n"
+        "}";
+
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
+    EXPECT_NE(0u, program);
+}
+
+// Test that two functions which have vec4 and mat2 parameters get disambiguated (issue in HLSL).
+TEST_P(GLSLTest_ES3, AmbiguousFunctionCall2x2)
+{
+    const std::string fragmentShaderSource =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "out vec4 my_FragColor;\n"
+        "void main()\n"
+        "{\n"
+        "    my_FragColor = vec4(0.0);\n"
+        "}";
+
+    const std::string vertexShaderSource =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "in vec4 a_vec;\n"
+        "in mat2 a_mat;\n"
+        "vec4 foo(vec4 a)\n"
+        "{\n"
+        "    return a;\n"
+        "}\n"
+        "vec4 foo(mat2 a)\n"
+        "{\n"
+        "    return vec4(a[0][0]);\n"
+        "}\n"
+        "void main()\n"
+        "{\n"
+        "    gl_Position = foo(a_vec) + foo(a_mat);\n"
+        "}";
+
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
+    EXPECT_NE(0u, program);
+}
+
+// Test that an user-defined function with a large number of float4 parameters doesn't fail due to
+// the function name being too long.
+TEST_P(GLSLTest_ES3, LargeNumberOfFloat4Parameters)
+{
+    const std::string fragmentShaderSource =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "out vec4 my_FragColor;\n"
+        "void main()\n"
+        "{\n"
+        "    my_FragColor = vec4(0.0);\n"
+        "}";
+
+    std::stringstream vertexShaderStream;
+    const unsigned int paramCount = 1024u;
+
+    vertexShaderStream << "#version 300 es\n"
+                          "precision highp float;\n"
+                          "in vec4 a_vec;\n"
+                          "vec4 lotsOfVec4Parameters(";
+    for (unsigned int i = 0; i < paramCount; ++i)
+    {
+        vertexShaderStream << "vec4 a" << i << ", ";
+    }
+    vertexShaderStream << "vec4 aLast)\n"
+                          "{\n"
+                          "    return ";
+    for (unsigned int i = 0; i < paramCount; ++i)
+    {
+        vertexShaderStream << "a" << i << " + ";
+    }
+    vertexShaderStream << "aLast;\n"
+                          "}\n"
+                          "void main()\n"
+                          "{\n"
+                          "    gl_Position = lotsOfVec4Parameters(";
+    for (unsigned int i = 0; i < paramCount; ++i)
+    {
+        vertexShaderStream << "a_vec, ";
+    }
+    vertexShaderStream << "a_vec);\n"
+                          "}";
+
+    GLuint program = CompileProgram(vertexShaderStream.str(), fragmentShaderSource);
+    EXPECT_NE(0u, program);
+}
+
+// This test was written specifically to stress DeferGlobalInitializers AST transformation.
+// Test a shader where a global constant array is initialized with an expression containing array
+// indexing. This initializer is tricky to constant fold, so if it's not constant folded it needs to
+// be handled in a way that doesn't generate statements in the global scope in HLSL output.
+// Also includes multiple array initializers in one declaration, where only the second one has
+// array indexing. This makes sure that the qualifier for the declaration is set correctly if
+// transformations are applied to the declaration also in the case of ESSL output.
+TEST_P(GLSLTest_ES3, InitGlobalArrayWithArrayIndexing)
+{
+    const std::string vertexShaderSource =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "in vec4 a_vec;\n"
+        "void main()\n"
+        "{\n"
+        "    gl_Position = vec4(a_vec);\n"
+        "}";
+
+    const std::string fragmentShaderSource =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "out vec4 my_FragColor;\n"
+        "const highp float f[2] = float[2](0.1, 0.2);\n"
+        "const highp float[2] g = float[2](0.3, 0.4), h = float[2](0.5, f[1]);\n"
+        "void main()\n"
+        "{\n"
+        "    my_FragColor = vec4(h[1]);\n"
+        "}";
+
+    GLuint program = CompileProgram(vertexShaderSource, fragmentShaderSource);
+    EXPECT_NE(0u, program);
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.

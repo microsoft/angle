@@ -44,35 +44,6 @@ State::State()
       mActiveSampler(0),
       mPrimitiveRestart(false)
 {
-    // Initialize dirty bit masks
-    // TODO(jmadill): additional ES3 state
-    mUnpackStateBitMask.set(DIRTY_BIT_UNPACK_ALIGNMENT);
-    mUnpackStateBitMask.set(DIRTY_BIT_UNPACK_ROW_LENGTH);
-    mUnpackStateBitMask.set(DIRTY_BIT_UNPACK_IMAGE_HEIGHT);
-    mUnpackStateBitMask.set(DIRTY_BIT_UNPACK_SKIP_IMAGES);
-    mUnpackStateBitMask.set(DIRTY_BIT_UNPACK_SKIP_ROWS);
-    mUnpackStateBitMask.set(DIRTY_BIT_UNPACK_SKIP_PIXELS);
-
-    mPackStateBitMask.set(DIRTY_BIT_PACK_ALIGNMENT);
-    mPackStateBitMask.set(DIRTY_BIT_PACK_REVERSE_ROW_ORDER);
-    mPackStateBitMask.set(DIRTY_BIT_PACK_ROW_LENGTH);
-    mPackStateBitMask.set(DIRTY_BIT_PACK_SKIP_ROWS);
-    mPackStateBitMask.set(DIRTY_BIT_PACK_SKIP_PIXELS);
-
-    mClearStateBitMask.set(DIRTY_BIT_RASTERIZER_DISCARD_ENABLED);
-    mClearStateBitMask.set(DIRTY_BIT_SCISSOR_TEST_ENABLED);
-    mClearStateBitMask.set(DIRTY_BIT_SCISSOR);
-    mClearStateBitMask.set(DIRTY_BIT_VIEWPORT);
-    mClearStateBitMask.set(DIRTY_BIT_CLEAR_COLOR);
-    mClearStateBitMask.set(DIRTY_BIT_CLEAR_DEPTH);
-    mClearStateBitMask.set(DIRTY_BIT_CLEAR_STENCIL);
-    mClearStateBitMask.set(DIRTY_BIT_COLOR_MASK);
-    mClearStateBitMask.set(DIRTY_BIT_DEPTH_MASK);
-    mClearStateBitMask.set(DIRTY_BIT_STENCIL_WRITEMASK_FRONT);
-    mClearStateBitMask.set(DIRTY_BIT_STENCIL_WRITEMASK_BACK);
-
-    mBlitStateBitMask.set(DIRTY_BIT_SCISSOR_TEST_ENABLED);
-    mBlitStateBitMask.set(DIRTY_BIT_SCISSOR);
 }
 
 State::~State()
@@ -176,6 +147,10 @@ void State::initialize(const Caps &caps,
         // TODO: These could also be enabled via extension
         mSamplerTextures[GL_TEXTURE_2D_ARRAY].resize(caps.maxCombinedTextureImageUnits);
         mSamplerTextures[GL_TEXTURE_3D].resize(caps.maxCombinedTextureImageUnits);
+    }
+    if (extensions.eglImageExternal || extensions.eglStreamConsumerExternal)
+    {
+        mSamplerTextures[GL_TEXTURE_EXTERNAL_OES].resize(caps.maxCombinedTextureImageUnits);
     }
 
     mSamplers.resize(caps.maxCombinedTextureImageUnits);
@@ -710,10 +685,10 @@ void State::detachTexture(const TextureMap &zeroTextures, GLuint texture)
     // If a texture object is deleted, it is as if all texture units which are bound to that texture object are
     // rebound to texture object zero
 
-    for (TextureBindingMap::iterator bindingVec = mSamplerTextures.begin(); bindingVec != mSamplerTextures.end(); bindingVec++)
+    for (auto &bindingVec : mSamplerTextures)
     {
-        GLenum textureType = bindingVec->first;
-        TextureBindingVector &textureVector = bindingVec->second;
+        GLenum textureType = bindingVec.first;
+        TextureBindingVector &textureVector = bindingVec.second;
         for (size_t textureIdx = 0; textureIdx < textureVector.size(); textureIdx++)
         {
             BindingPointer<Texture> &binding = textureVector[textureIdx];
@@ -996,19 +971,23 @@ bool State::isTransformFeedbackActiveUnpaused() const
     return curTransformFeedback && curTransformFeedback->isActive() && !curTransformFeedback->isPaused();
 }
 
-void State::detachTransformFeedback(GLuint transformFeedback)
+bool State::removeTransformFeedbackBinding(GLuint transformFeedback)
 {
     if (mTransformFeedback.id() == transformFeedback)
     {
-        mTransformFeedback.set(NULL);
+        mTransformFeedback.set(nullptr);
+        return true;
     }
+
+    return false;
 }
 
-bool State::isQueryActive() const
+bool State::isQueryActive(GLenum type) const
 {
     for (auto &iter : mActiveQueries)
     {
-        if (iter.second.get() != NULL)
+        Query *query = iter.second.get();
+        if (query != nullptr && query->getType() == type)
         {
             return true;
         }
@@ -1090,11 +1069,13 @@ void State::setCopyWriteBufferBinding(Buffer *buffer)
 void State::setPixelPackBufferBinding(Buffer *buffer)
 {
     mPack.pixelBuffer.set(buffer);
+    mDirtyBits.set(DIRTY_BIT_PACK_BUFFER_BINDING);
 }
 
 void State::setPixelUnpackBufferBinding(Buffer *buffer)
 {
     mUnpack.pixelBuffer.set(buffer);
+    mDirtyBits.set(DIRTY_BIT_UNPACK_BUFFER_BINDING);
 }
 
 Buffer *State::getTargetBuffer(GLenum target) const
@@ -1419,7 +1400,7 @@ void State::getFloatv(GLenum pname, GLfloat *params)
     }
 }
 
-void State::getIntegerv(const gl::Data &data, GLenum pname, GLint *params)
+void State::getIntegerv(const ContextState &data, GLenum pname, GLint *params)
 {
     if (pname >= GL_DRAW_BUFFER0_EXT && pname <= GL_DRAW_BUFFER15_EXT)
     {
@@ -1635,6 +1616,13 @@ void State::getIntegerv(const gl::Data &data, GLenum pname, GLint *params)
       case GL_PIXEL_UNPACK_BUFFER_BINDING:
         *params = mUnpack.pixelBuffer.id();
         break;
+      case GL_READ_BUFFER:
+          *params = mReadFramebuffer->getReadBufferState();
+          break;
+      case GL_SAMPLER_BINDING:
+          ASSERT(mActiveSampler < mMaxCombinedTextureImageUnits);
+          *params = getSamplerId(static_cast<GLuint>(mActiveSampler));
+          break;
       case GL_DEBUG_LOGGED_MESSAGES:
           *params = static_cast<GLint>(mDebug.getMessageCount());
           break;

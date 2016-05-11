@@ -12,11 +12,13 @@
 
 #include <gtest/gtest.h>
 #include <algorithm>
+#include <array>
 
 #include "angle_gl.h"
 #include "angle_test_configs.h"
 #include "common/angleutils.h"
 #include "shader_utils.h"
+#include "Vector.h"
 
 #define EXPECT_GL_ERROR(err) EXPECT_EQ(static_cast<GLenum>(err), glGetError())
 #define EXPECT_GL_NO_ERROR() EXPECT_EQ(static_cast<GLenum>(GL_NO_ERROR), glGetError())
@@ -47,7 +49,15 @@ struct GLColor
     GLColor(GLubyte r, GLubyte g, GLubyte b, GLubyte a);
     GLColor(GLuint colorValue);
 
+    Vector4 toNormalizedVector() const;
+
     GLubyte R, G, B, A;
+
+    static const GLColor red;
+    static const GLColor green;
+    static const GLColor blue;
+    static const GLColor cyan;
+    static const GLColor black;
 };
 
 // Useful to cast any type to GLubyte.
@@ -62,10 +72,24 @@ bool operator==(const GLColor &a, const GLColor &b);
 std::ostream &operator<<(std::ostream &ostream, const GLColor &color);
 GLColor ReadColor(GLint x, GLint y);
 
+template <typename T>
+void FillWithRGBA(size_t pixelCount, T red, T green, T blue, T alpha, T *outArray)
+{
+    for (size_t i = 0u; i < pixelCount; ++i)
+    {
+        outArray[i * 4u]      = red;
+        outArray[i * 4u + 1u] = green;
+        outArray[i * 4u + 2u] = blue;
+        outArray[i * 4u + 3u] = alpha;
+    }
+}
+
 }  // namespace angle
 
 #define EXPECT_PIXEL_EQ(x, y, r, g, b, a) \
     EXPECT_EQ(angle::MakeGLColor(r, g, b, a), angle::ReadColor(x, y))
+
+#define EXPECT_PIXEL_ALPHA_EQ(x, y, a) EXPECT_EQ(a, angle::ReadColor(x, y).A)
 
 #define EXPECT_PIXEL_COLOR_EQ(x, y, angleColor) EXPECT_EQ(angleColor, angle::ReadColor(x, y))
 
@@ -102,13 +126,27 @@ class ANGLETest : public ::testing::TestWithParam<angle::PlatformParameters>
 
     virtual void swapBuffers();
 
-    static void drawQuad(GLuint program,
+    void setupQuadVertexBuffer(GLfloat positionAttribZ, GLfloat positionAttribXYScale);
+
+    void drawQuad(GLuint program, const std::string &positionAttribName, GLfloat positionAttribZ);
+    void drawQuad(GLuint program,
+                  const std::string &positionAttribName,
+                  GLfloat positionAttribZ,
+                  GLfloat positionAttribXYScale);
+    void drawQuad(GLuint program,
+                  const std::string &positionAttribName,
+                  GLfloat positionAttribZ,
+                  GLfloat positionAttribXYScale,
+                  bool useVertexBuffer);
+    static std::array<Vector3, 6> GetQuadVertices();
+    void drawIndexedQuad(GLuint program,
                          const std::string &positionAttribName,
                          GLfloat positionAttribZ);
-    static void drawQuad(GLuint program,
+    void drawIndexedQuad(GLuint program,
                          const std::string &positionAttribName,
                          GLfloat positionAttribZ,
                          GLfloat positionAttribXYScale);
+
     static GLuint compileShader(GLenum type, const std::string &source);
     static bool extensionEnabled(const std::string &extName);
     static bool eglClientExtensionEnabled(const std::string &extName);
@@ -132,16 +170,7 @@ class ANGLETest : public ::testing::TestWithParam<angle::PlatformParameters>
     int getWindowHeight() const;
     bool isMultisampleEnabled() const;
 
-    bool isIntel() const;
-    bool isAMD() const;
-    bool isNVidia() const;
-    // Note: FL9_3 is explicitly *not* considered D3D11.
-    bool isD3D11() const;
-    bool isD3D11_FL93() const;
-    // Is a D3D9-class renderer.
-    bool isD3D9() const;
-    // Is D3D9 or SM9_3 renderer.
-    bool isD3DSM3() const;
+    bool isOpenGL() const;
     EGLint getPlatformRenderer() const;
 
     void ignoreD3D11SDKLayersWarnings();
@@ -158,6 +187,9 @@ class ANGLETest : public ::testing::TestWithParam<angle::PlatformParameters>
 
     bool mIgnoreD3D11SDKLayersWarnings;
 
+    // Used for indexed quad rendering
+    GLuint mQuadVertexBuffer;
+
     static OSWindow *mOSWindow;
 };
 
@@ -167,5 +199,18 @@ class ANGLETestEnvironment : public testing::Environment
     virtual void SetUp();
     virtual void TearDown();
 };
+
+bool IsIntel();
+bool IsAMD();
+bool IsNVIDIA();
+// Note: FL9_3 is explicitly *not* considered D3D11.
+bool IsD3D11();
+bool IsD3D11_FL93();
+// Is a D3D9-class renderer.
+bool IsD3D9();
+// Is D3D9 or SM9_3 renderer.
+bool IsD3DSM3();
+bool IsLinux();
+bool IsOSX();
 
 #endif  // ANGLE_TESTS_ANGLE_TEST_H_

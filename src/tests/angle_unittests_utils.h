@@ -9,6 +9,7 @@
 #ifndef TESTS_ANGLE_UNITTESTS_UTILS_H_
 #define TESTS_ANGLE_UNITTESTS_UTILS_H_
 
+#include "libANGLE/renderer/ContextImpl.h"
 #include "libANGLE/renderer/ImplFactory.h"
 
 namespace rx
@@ -22,11 +23,14 @@ class NullFactory : public ImplFactory
 
     // Shader creation
     CompilerImpl *createCompiler() override { return nullptr; }
-    ShaderImpl *createShader(const gl::Shader::Data &data) override { return nullptr; }
-    ProgramImpl *createProgram(const gl::Program::Data &data) override { return nullptr; }
+    ShaderImpl *createShader(const gl::ShaderState &data) override { return nullptr; }
+    ProgramImpl *createProgram(const gl::ProgramState &data) override { return nullptr; }
 
     // Framebuffer creation
-    FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) override { return nullptr; }
+    FramebufferImpl *createFramebuffer(const gl::FramebufferState &data) override
+    {
+        return nullptr;
+    }
 
     // Texture creation
     TextureImpl *createTexture(GLenum target) override { return nullptr; }
@@ -38,7 +42,10 @@ class NullFactory : public ImplFactory
     BufferImpl *createBuffer() override { return nullptr; }
 
     // Vertex Array creation
-    VertexArrayImpl *createVertexArray(const gl::VertexArray::Data &data) override { return nullptr; }
+    VertexArrayImpl *createVertexArray(const gl::VertexArrayState &data) override
+    {
+        return nullptr;
+    }
 
     // Query and Fence creation
     QueryImpl *createQuery(GLenum type) override { return nullptr; }
@@ -52,6 +59,25 @@ class NullFactory : public ImplFactory
     SamplerImpl *createSampler() override { return nullptr; }
 };
 
+// A class with all the factory methods mocked.
+class MockFactory : public ImplFactory
+{
+  public:
+    MOCK_METHOD1(createContext, ContextImpl *(const gl::ContextState &));
+    MOCK_METHOD0(createCompiler, CompilerImpl *());
+    MOCK_METHOD1(createShader, ShaderImpl *(const gl::ShaderState &));
+    MOCK_METHOD1(createProgram, ProgramImpl *(const gl::ProgramState &));
+    MOCK_METHOD1(createFramebuffer, FramebufferImpl *(const gl::FramebufferState &));
+    MOCK_METHOD1(createTexture, TextureImpl *(GLenum target));
+    MOCK_METHOD0(createRenderbuffer, RenderbufferImpl *());
+    MOCK_METHOD0(createBuffer, BufferImpl *());
+    MOCK_METHOD1(createVertexArray, VertexArrayImpl *(const gl::VertexArrayState &));
+    MOCK_METHOD1(createQuery, QueryImpl *(GLenum type));
+    MOCK_METHOD0(createFenceNV, FenceNVImpl *());
+    MOCK_METHOD0(createFenceSync, FenceSyncImpl *());
+    MOCK_METHOD0(createTransformFeedback, TransformFeedbackImpl *());
+    MOCK_METHOD0(createSampler, SamplerImpl *());
+};
 }
 
 #endif // TESTS_ANGLE_UNITTESTS_UTILS_H_

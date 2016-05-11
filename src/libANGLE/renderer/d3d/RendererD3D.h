@@ -11,14 +11,13 @@
 
 #include "common/debug.h"
 #include "common/MemoryBuffer.h"
-#include "libANGLE/Data.h"
+#include "libANGLE/ContextState.h"
 #include "libANGLE/Device.h"
 #include "libANGLE/formatutils.h"
 #include "libANGLE/renderer/Renderer.h"
 #include "libANGLE/renderer/d3d/VertexDataManager.h"
 #include "libANGLE/renderer/d3d/formatutilsD3D.h"
 #include "libANGLE/renderer/d3d/WorkaroundsD3D.h"
-#include "libANGLE/renderer/d3d/d3d11/NativeWindow.h"
 
 //FIXME(jmadill): std::array is currently prohibited by Chromium style guide
 #include <array>
@@ -44,6 +43,7 @@ class DeviceD3D;
 class EGLImageD3D;
 class ImageD3D;
 class IndexBuffer;
+class NativeWindowD3D;
 class ProgramD3D;
 class RenderTargetD3D;
 class ShaderExecutableD3D;
@@ -88,7 +88,13 @@ class BufferFactoryD3D
     // TODO(jmadill): add VertexFormatCaps
     virtual VertexConversionType getVertexConversionType(gl::VertexFormatType vertexFormatType) const = 0;
     virtual GLenum getVertexComponentType(gl::VertexFormatType vertexFormatType) const = 0;
+    virtual gl::ErrorOrResult<unsigned int> getVertexSpaceRequired(
+        const gl::VertexAttribute &attrib,
+        GLsizei count,
+        GLsizei instances) const = 0;
 };
+
+using AttribIndexArray = std::array<int, gl::MAX_VERTEX_ATTRIBS>;
 
 class RendererD3D : public Renderer, public BufferFactoryD3D
 {
@@ -101,27 +107,30 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     virtual egl::ConfigSet generateConfigs() const = 0;
     virtual void generateDisplayExtensions(egl::DisplayExtensions *outExtensions) const = 0;
 
-    gl::Error drawArrays(const gl::Data &data, GLenum mode, GLint first, GLsizei count) override;
-    gl::Error drawArraysInstanced(const gl::Data &data,
+    gl::Error drawArrays(const gl::ContextState &data,
+                         GLenum mode,
+                         GLint first,
+                         GLsizei count) override;
+    gl::Error drawArraysInstanced(const gl::ContextState &data,
                                   GLenum mode,
                                   GLint first,
                                   GLsizei count,
                                   GLsizei instanceCount) override;
 
-    gl::Error drawElements(const gl::Data &data,
+    gl::Error drawElements(const gl::ContextState &data,
                            GLenum mode,
                            GLsizei count,
                            GLenum type,
                            const GLvoid *indices,
                            const gl::IndexRange &indexRange) override;
-    gl::Error drawElementsInstanced(const gl::Data &data,
+    gl::Error drawElementsInstanced(const gl::ContextState &data,
                                     GLenum mode,
                                     GLsizei count,
                                     GLenum type,
                                     const GLvoid *indices,
                                     GLsizei instances,
                                     const gl::IndexRange &indexRange) override;
-    gl::Error drawRangeElements(const gl::Data &data,
+    gl::Error drawRangeElements(const gl::ContextState &data,
                                 GLenum mode,
                                 GLuint start,
                                 GLuint end,
@@ -141,7 +150,12 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     // Direct3D Specific methods
     virtual DeviceIdentifier getAdapterIdentifier() const = 0;
 
-    virtual SwapChainD3D *createSwapChain(NativeWindow nativeWindow,
+    virtual bool isValidNativeWindow(EGLNativeWindowType window) const = 0;
+    virtual NativeWindowD3D *createNativeWindow(EGLNativeWindowType window,
+                                                const egl::Config *config,
+                                                const egl::AttributeMap &attribs) const = 0;
+
+    virtual SwapChainD3D *createSwapChain(NativeWindowD3D *nativeWindow,
                                           HANDLE shareHandle,
                                           GLenum backBufferFormat,
                                           GLenum depthBufferFormat,
@@ -151,28 +165,30 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     virtual gl::Error setSamplerState(gl::SamplerType type, int index, gl::Texture *texture, const gl::SamplerState &sampler) = 0;
     virtual gl::Error setTexture(gl::SamplerType type, int index, gl::Texture *texture) = 0;
 
-    virtual gl::Error setUniformBuffers(const gl::Data &data,
+    virtual gl::Error setUniformBuffers(const gl::ContextState &data,
                                         const std::vector<GLint> &vertexUniformBuffers,
                                         const std::vector<GLint> &fragmentUniformBuffers) = 0;
 
-    virtual gl::Error updateState(const gl::Data &data, GLenum drawMode) = 0;
+    virtual gl::Error updateState(const gl::ContextState &data, GLenum drawMode) = 0;
 
     virtual gl::Error applyRenderTarget(const gl::Framebuffer *frameBuffer) = 0;
     virtual gl::Error applyUniforms(const ProgramD3D &programD3D,
                                     GLenum drawMode,
                                     const std::vector<D3DUniform *> &uniformArray) = 0;
     virtual bool applyPrimitiveType(GLenum primitiveType, GLsizei elementCount, bool usesPointSize) = 0;
-    virtual gl::Error applyVertexBuffer(const gl::State &state, GLenum mode, GLint first, GLsizei count, GLsizei instances, SourceIndexData *sourceIndexInfo) = 0;
-    virtual gl::Error applyIndexBuffer(const gl::Data &data,
+    virtual gl::Error applyVertexBuffer(const gl::State &state,
+                                        GLenum mode,
+                                        GLint first,
+                                        GLsizei count,
+                                        GLsizei instances,
+                                        TranslatedIndexData *indexInfo) = 0;
+    virtual gl::Error applyIndexBuffer(const gl::ContextState &data,
                                        const GLvoid *indices,
                                        GLsizei count,
                                        GLenum mode,
                                        GLenum type,
-                                       TranslatedIndexData *indexInfo,
-                                       SourceIndexData *sourceIndexInfo) = 0;
-    virtual void applyTransformFeedbackBuffers(const gl::State& state) = 0;
-
-    virtual void markAllStateDirty() = 0;
+                                       TranslatedIndexData *indexInfo) = 0;
+    virtual gl::Error applyTransformFeedbackBuffers(const gl::State &state) = 0;
 
     virtual unsigned int getReservedVertexUniformVectors() const = 0;
     virtual unsigned int getReservedFragmentUniformVectors() const = 0;
@@ -220,6 +236,9 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
                                               const gl::TextureState &textureState) = 0;
     virtual TextureStorage *createTextureStorage2D(SwapChainD3D *swapChain) = 0;
     virtual TextureStorage *createTextureStorageEGLImage(EGLImageD3D *eglImage) = 0;
+    virtual TextureStorage *createTextureStorageExternal(
+        egl::Stream *stream,
+        const egl::Stream::GLTextureDescription &desc) = 0;
     virtual TextureStorage *createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly) = 0;
     virtual TextureStorage *createTextureStorageCube(GLenum internalformat, bool renderTarget, int size, int levels, bool hintLevelZeroOnly) = 0;
     virtual TextureStorage *createTextureStorage3D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, GLsizei depth, int levels) = 0;
@@ -243,8 +262,12 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     void pushGroupMarker(GLsizei length, const char *marker) override;
     void popGroupMarker() override;
 
+    void setGPUDisjoint();
+
     GLint getGPUDisjoint() override;
     GLint64 getTimestamp() override;
+
+    void onMakeCurrent(const gl::ContextState &data) override;
 
     // In D3D11, faster than calling setTexture a jillion times
     virtual gl::Error clearTextures(gl::SamplerType samplerType, size_t rangeStart, size_t rangeEnd) = 0;
@@ -253,17 +276,21 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
 
     bool presentPathFastEnabled() const { return mPresentPathFastEnabled; }
 
+    // Stream creation
+    virtual StreamProducerImpl *createStreamProducerD3DTextureNV12(
+        egl::Stream::ConsumerType consumerType,
+        const egl::AttributeMap &attribs) = 0;
+
   protected:
     virtual bool getLUID(LUID *adapterLuid) const = 0;
-    virtual gl::Error applyShadersImpl(const gl::Data &data, GLenum drawMode) = 0;
+    virtual gl::Error applyShadersImpl(const gl::ContextState &data, GLenum drawMode) = 0;
 
     void cleanup();
 
     virtual void createAnnotator() = 0;
 
-    static unsigned int GetBlendSampleMask(const gl::Data &data, int samples);
+    static unsigned int GetBlendSampleMask(const gl::ContextState &data, int samples);
     // dirtyPointer is a special value that will make the comparison with any valid pointer fail and force the renderer to re-apply the state.
-    static const uintptr_t DirtyPointer;
 
     egl::Display *mDisplay;
     bool mDeviceLost;
@@ -271,18 +298,18 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     void initializeDebugAnnotator();
     gl::DebugAnnotator *mAnnotator;
 
-    std::vector<TranslatedAttribute> mTranslatedAttribCache;
+    bool mPresentPathFastEnabled;
 
     bool mPresentPathFastEnabled;
 
   private:
-    gl::Error genericDrawArrays(const gl::Data &data,
+    gl::Error genericDrawArrays(const gl::ContextState &data,
                                 GLenum mode,
                                 GLint first,
                                 GLsizei count,
                                 GLsizei instances);
 
-    gl::Error genericDrawElements(const gl::Data &data,
+    gl::Error genericDrawElements(const gl::ContextState &data,
                                   GLenum mode,
                                   GLsizei count,
                                   GLenum type,
@@ -290,11 +317,12 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
                                   GLsizei instances,
                                   const gl::IndexRange &indexRange);
 
-    virtual gl::Error drawArraysImpl(const gl::Data &data,
+    virtual gl::Error drawArraysImpl(const gl::ContextState &data,
                                      GLenum mode,
+                                     GLint startVertex,
                                      GLsizei count,
                                      GLsizei instances) = 0;
-    virtual gl::Error drawElementsImpl(const gl::Data &data,
+    virtual gl::Error drawElementsImpl(const gl::ContextState &data,
                                        const TranslatedIndexData &indexInfo,
                                        GLenum mode,
                                        GLsizei count,
@@ -305,19 +333,22 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
     //FIXME(jmadill): std::array is currently prohibited by Chromium style guide
     typedef std::array<gl::Texture*, gl::IMPLEMENTATION_MAX_FRAMEBUFFER_ATTACHMENTS> FramebufferTextureArray;
 
-    gl::Error generateSwizzles(const gl::Data &data, gl::SamplerType type);
-    gl::Error generateSwizzles(const gl::Data &data);
+    gl::Error generateSwizzles(const gl::ContextState &data, gl::SamplerType type);
+    gl::Error generateSwizzles(const gl::ContextState &data);
 
-    gl::Error applyState(const gl::Data &data, GLenum drawMode);
-    gl::Error applyShaders(const gl::Data &data, GLenum drawMode);
-    gl::Error applyTextures(const gl::Data &data, gl::SamplerType shaderType,
-                            const FramebufferTextureArray &framebufferTextures, size_t framebufferTextureCount);
-    gl::Error applyTextures(const gl::Data &data);
+    gl::Error applyState(const gl::ContextState &data, GLenum drawMode);
+    gl::Error applyShaders(const gl::ContextState &data, GLenum drawMode);
+    gl::Error applyTextures(const gl::ContextState &data,
+                            gl::SamplerType shaderType,
+                            const FramebufferTextureArray &framebufferTextures,
+                            size_t framebufferTextureCount);
+    gl::Error applyTextures(const gl::ContextState &data);
 
-    bool skipDraw(const gl::Data &data, GLenum drawMode);
-    void markTransformFeedbackUsage(const gl::Data &data);
+    bool skipDraw(const gl::ContextState &data, GLenum drawMode);
+    gl::Error markTransformFeedbackUsage(const gl::ContextState &data);
 
-    size_t getBoundFramebufferTextures(const gl::Data &data, FramebufferTextureArray *outTextureArray);
+    size_t getBoundFramebufferTextures(const gl::ContextState &data,
+                                       FramebufferTextureArray *outTextureArray);
     gl::Texture *getIncompleteTexture(GLenum type);
 
     gl::DebugAnnotator *getAnnotator();
@@ -330,6 +361,11 @@ class RendererD3D : public Renderer, public BufferFactoryD3D
 
     mutable bool mWorkaroundsInitialized;
     mutable WorkaroundsD3D mWorkarounds;
+<<<<<<< HEAD
+=======
+
+    bool mDisjoint;
+>>>>>>> google/master
 };
 
 }

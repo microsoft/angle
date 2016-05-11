@@ -15,10 +15,16 @@
 #include "libANGLE/Shader.h"
 #include "libANGLE/VertexArray.h"
 
+namespace gl
+{
+struct ContextState;
+}
+
 namespace rx
 {
 class BufferImpl;
 class CompilerImpl;
+class ContextImpl;
 class FenceNVImpl;
 class FenceSyncImpl;
 class FramebufferImpl;
@@ -37,13 +43,16 @@ class ImplFactory : angle::NonCopyable
     ImplFactory() {}
     virtual ~ImplFactory() {}
 
+    // Context creation
+    virtual ContextImpl *createContext(const gl::ContextState &state) = 0;
+
     // Shader creation
     virtual CompilerImpl *createCompiler() = 0;
-    virtual ShaderImpl *createShader(const gl::Shader::Data &data) = 0;
-    virtual ProgramImpl *createProgram(const gl::Program::Data &data) = 0;
+    virtual ShaderImpl *createShader(const gl::ShaderState &data) = 0;
+    virtual ProgramImpl *createProgram(const gl::ProgramState &data) = 0;
 
     // Framebuffer creation
-    virtual FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) = 0;
+    virtual FramebufferImpl *createFramebuffer(const gl::FramebufferState &data) = 0;
 
     // Texture creation
     virtual TextureImpl *createTexture(GLenum target) = 0;
@@ -55,7 +64,7 @@ class ImplFactory : angle::NonCopyable
     virtual BufferImpl *createBuffer() = 0;
 
     // Vertex Array creation
-    virtual VertexArrayImpl *createVertexArray(const gl::VertexArray::Data &data) = 0;
+    virtual VertexArrayImpl *createVertexArray(const gl::VertexArrayState &data) = 0;
 
     // Query and Fence creation
     virtual QueryImpl *createQuery(GLenum type) = 0;

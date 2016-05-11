@@ -23,11 +23,13 @@
 #include "libANGLE/Renderbuffer.h"
 #include "libANGLE/renderer/d3d/d3d9/Blit9.h"
 #include "libANGLE/renderer/d3d/d3d9/Buffer9.h"
+#include "libANGLE/renderer/d3d/d3d9/Context9.h"
 #include "libANGLE/renderer/d3d/d3d9/Fence9.h"
 #include "libANGLE/renderer/d3d/d3d9/formatutils9.h"
 #include "libANGLE/renderer/d3d/d3d9/Framebuffer9.h"
 #include "libANGLE/renderer/d3d/d3d9/Image9.h"
 #include "libANGLE/renderer/d3d/d3d9/IndexBuffer9.h"
+#include "libANGLE/renderer/d3d/d3d9/NativeWindow9.h"
 #include "libANGLE/renderer/d3d/d3d9/Query9.h"
 #include "libANGLE/renderer/d3d/d3d9/renderer9_utils.h"
 #include "libANGLE/renderer/d3d/d3d9/RenderTarget9.h"
@@ -91,8 +93,8 @@ Renderer9::Renderer9(egl::Display *display) : RendererD3D(display), mStateManage
     mAdapter = D3DADAPTER_DEFAULT;
 
     const egl::AttributeMap &attributes = display->getAttributeMap();
-    EGLint requestedDeviceType = attributes.get(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE,
-                                                EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE);
+    EGLint requestedDeviceType = static_cast<EGLint>(attributes.get(
+        EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE));
     switch (requestedDeviceType)
     {
       case EGL_PLATFORM_ANGLE_DEVICE_TYPE_HARDWARE_ANGLE:
@@ -153,6 +155,8 @@ Renderer9::~Renderer9()
 void Renderer9::release()
 {
     RendererD3D::cleanup();
+
+    mTranslatedAttribCache.clear();
 
     releaseDeviceResources();
 
@@ -364,8 +368,9 @@ void Renderer9::initializeDevice()
     mVertexDataManager = new VertexDataManager(this);
     mIndexDataManager = new IndexDataManager(this, getRendererClass());
 
-    // TODO(jmadill): use context caps, and place in common D3D location
     mTranslatedAttribCache.resize(getRendererCaps().maxVertexAttributes);
+
+    mStateManager.initialize();
 }
 
 D3DPRESENT_PARAMETERS Renderer9::getDefaultPresentParameters()
@@ -654,14 +659,31 @@ gl::Error Renderer9::finish()
     return gl::Error(GL_NO_ERROR);
 }
 
-SwapChainD3D *Renderer9::createSwapChain(NativeWindow nativeWindow,
+bool Renderer9::isValidNativeWindow(EGLNativeWindowType window) const
+{
+    return NativeWindow9::IsValidNativeWindow(window);
+}
+
+NativeWindowD3D *Renderer9::createNativeWindow(EGLNativeWindowType window,
+                                               const egl::Config *,
+                                               const egl::AttributeMap &) const
+{
+    return new NativeWindow9(window);
+}
+
+SwapChainD3D *Renderer9::createSwapChain(NativeWindowD3D *nativeWindow,
                                          HANDLE shareHandle,
                                          GLenum backBufferFormat,
                                          GLenum depthBufferFormat,
                                          EGLint orientation)
 {
-    return new SwapChain9(this, nativeWindow, shareHandle, backBufferFormat, depthBufferFormat,
-                          orientation);
+    return new SwapChain9(this, GetAs<NativeWindow9>(nativeWindow), shareHandle, backBufferFormat,
+                          depthBufferFormat, orientation);
+}
+
+ContextImpl *Renderer9::createContext(const gl::ContextState &state)
+{
+    return new Context9(state);
 }
 
 CompilerImpl *Renderer9::createCompiler()
@@ -743,7 +765,7 @@ BufferImpl *Renderer9::createBuffer()
     return new Buffer9(this);
 }
 
-VertexArrayImpl *Renderer9::createVertexArray(const gl::VertexArray::Data &data)
+VertexArrayImpl *Renderer9::createVertexArray(const gl::VertexArrayState &data)
 {
     return new VertexArray9(data);
 }
@@ -768,6 +790,15 @@ FenceSyncImpl *Renderer9::createFenceSync()
 TransformFeedbackImpl* Renderer9::createTransformFeedback()
 {
     return new TransformFeedbackD3D();
+}
+
+StreamProducerImpl *Renderer9::createStreamProducerD3DTextureNV12(
+    egl::Stream::ConsumerType consumerType,
+    const egl::AttributeMap &attribs)
+{
+    // Streams are not supported under D3D9
+    UNREACHABLE();
+    return nullptr;
 }
 
 bool Renderer9::supportsFastCopyBufferToTexture(GLenum internalFormat) const
@@ -891,9 +922,9 @@ gl::Error Renderer9::setTexture(gl::SamplerType type, int index, gl::Texture *te
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Renderer9::setUniformBuffers(const gl::Data &/*data*/,
-                                       const std::vector<GLint> &/*vertexUniformBuffers*/,
-                                       const std::vector<GLint> &/*fragmentUniformBuffers*/)
+gl::Error Renderer9::setUniformBuffers(const gl::ContextState & /*data*/,
+                                       const std::vector<GLint> & /*vertexUniformBuffers*/,
+                                       const std::vector<GLint> & /*fragmentUniformBuffers*/)
 {
     // No effect in ES2/D3D9
     return gl::Error(GL_NO_ERROR);
@@ -904,7 +935,7 @@ void Renderer9::syncState(const gl::State &state, const gl::State::DirtyBits &bi
     mStateManager.syncState(state, bitmask);
 }
 
-gl::Error Renderer9::updateState(const gl::Data &data, GLenum drawMode)
+gl::Error Renderer9::updateState(const gl::ContextState &data, GLenum drawMode)
 {
     // Applies the render target surface, depth stencil surface, viewport rectangle and
     // scissor rectangle to the renderer
@@ -918,9 +949,8 @@ gl::Error Renderer9::updateState(const gl::Data &data, GLenum drawMode)
     }
 
     // Setting viewport state
-    setViewport(data.caps, data.state->getViewport(), data.state->getNearPlane(),
-                data.state->getFarPlane(), drawMode, data.state->getRasterizerState().frontFace,
-                false);
+    setViewport(data.state->getViewport(), data.state->getNearPlane(), data.state->getFarPlane(),
+                drawMode, data.state->getRasterizerState().frontFace, false);
 
     // Setting scissors state
     setScissorRectangle(data.state->getScissor(), data.state->isScissorTestEnabled());
@@ -949,7 +979,7 @@ void Renderer9::setScissorRectangle(const gl::Rectangle &scissor, bool enabled)
     mStateManager.setScissorState(scissor, enabled);
 }
 
-gl::Error Renderer9::setBlendDepthRasterStates(const gl::Data &glData, GLenum drawMode)
+gl::Error Renderer9::setBlendDepthRasterStates(const gl::ContextState &glData, GLenum drawMode)
 {
     int samples                    = glData.state->getDrawFramebuffer()->getSamples(glData);
     gl::RasterizerState rasterizer = glData.state->getRasterizerState();
@@ -960,16 +990,14 @@ gl::Error Renderer9::setBlendDepthRasterStates(const gl::Data &glData, GLenum dr
     return mStateManager.setBlendDepthRasterStates(*glData.state, mask);
 }
 
-void Renderer9::setViewport(const gl::Caps *caps,
-                            const gl::Rectangle &viewport,
+void Renderer9::setViewport(const gl::Rectangle &viewport,
                             float zNear,
                             float zFar,
                             GLenum drawMode,
                             GLenum frontFace,
                             bool ignoreViewport)
 {
-    mStateManager.setViewportState(caps, viewport, zNear, zFar, drawMode, frontFace,
-                                   ignoreViewport);
+    mStateManager.setViewportState(viewport, zNear, zFar, drawMode, frontFace, ignoreViewport);
 }
 
 bool Renderer9::applyPrimitiveType(GLenum mode, GLsizei count, bool usesPointSize)
@@ -1171,7 +1199,12 @@ gl::Error Renderer9::applyRenderTarget(const gl::Framebuffer *framebuffer)
     return applyRenderTarget(framebuffer->getColorbuffer(0), framebuffer->getDepthOrStencilbuffer());
 }
 
-gl::Error Renderer9::applyVertexBuffer(const gl::State &state, GLenum mode, GLint first, GLsizei count, GLsizei instances, SourceIndexData * /*sourceInfo*/)
+gl::Error Renderer9::applyVertexBuffer(const gl::State &state,
+                                       GLenum mode,
+                                       GLint first,
+                                       GLsizei count,
+                                       GLsizei instances,
+                                       TranslatedIndexData * /*indexInfo*/)
 {
     gl::Error error = mVertexDataManager->prepareVertexData(state, first, count, &mTranslatedAttribCache, instances);
     if (error.isError())
@@ -1179,22 +1212,22 @@ gl::Error Renderer9::applyVertexBuffer(const gl::State &state, GLenum mode, GLin
         return error;
     }
 
-    return mVertexDeclarationCache.applyDeclaration(mDevice, mTranslatedAttribCache, state.getProgram(), instances, &mRepeatDraw);
+    return mVertexDeclarationCache.applyDeclaration(
+        mDevice, mTranslatedAttribCache, state.getProgram(), first, instances, &mRepeatDraw);
 }
 
 // Applies the indices and element array bindings to the Direct3D 9 device
-gl::Error Renderer9::applyIndexBuffer(const gl::Data &data,
+gl::Error Renderer9::applyIndexBuffer(const gl::ContextState &data,
                                       const GLvoid *indices,
                                       GLsizei count,
                                       GLenum mode,
                                       GLenum type,
-                                      TranslatedIndexData *indexInfo,
-                                      SourceIndexData *sourceIndexInfo)
+                                      TranslatedIndexData *indexInfo)
 {
     gl::VertexArray *vao           = data.state->getVertexArray();
     gl::Buffer *elementArrayBuffer = vao->getElementArrayBuffer().get();
     gl::Error error = mIndexDataManager->prepareIndexData(type, count, elementArrayBuffer, indices,
-                                                          indexInfo, sourceIndexInfo, false);
+                                                          indexInfo, false);
     if (error.isError())
     {
         return error;
@@ -1214,13 +1247,15 @@ gl::Error Renderer9::applyIndexBuffer(const gl::Data &data,
     return gl::Error(GL_NO_ERROR);
 }
 
-void Renderer9::applyTransformFeedbackBuffers(const gl::State& state)
+gl::Error Renderer9::applyTransformFeedbackBuffers(const gl::State &state)
 {
     ASSERT(!state.isTransformFeedbackActiveUnpaused());
+    return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Renderer9::drawArraysImpl(const gl::Data &data,
+gl::Error Renderer9::drawArraysImpl(const gl::ContextState &data,
                                     GLenum mode,
+                                    GLint startVertex,
                                     GLsizei count,
                                     GLsizei instances)
 {
@@ -1263,7 +1298,7 @@ gl::Error Renderer9::drawArraysImpl(const gl::Data &data,
     }
 }
 
-gl::Error Renderer9::drawElementsImpl(const gl::Data &data,
+gl::Error Renderer9::drawElementsImpl(const gl::ContextState &data,
                                       const TranslatedIndexData &indexInfo,
                                       GLenum mode,
                                       GLsizei count,
@@ -1600,7 +1635,7 @@ gl::Error Renderer9::getCountingIB(size_t count, StaticIndexBufferInterface **ou
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error Renderer9::applyShadersImpl(const gl::Data &data, GLenum /*drawMode*/)
+gl::Error Renderer9::applyShadersImpl(const gl::ContextState &data, GLenum /*drawMode*/)
 {
     ProgramD3D *programD3D  = GetImplAs<ProgramD3D>(data.state->getProgram());
     const auto &inputLayout = programD3D->getCachedInputLayout();
@@ -2007,14 +2042,14 @@ void Renderer9::markAllStateDirty()
     for (unsigned int i = 0; i < mCurVertexTextures.size(); i++)
     {
         mCurVertexSamplerStates[i].forceSet = true;
-        mCurVertexTextures[i] = DirtyPointer;
+        mCurVertexTextures[i]               = angle::DirtyPointer;
     }
 
     ASSERT(mCurPixelSamplerStates.size() == mCurPixelTextures.size());
     for (unsigned int i = 0; i < mCurPixelSamplerStates.size(); i++)
     {
         mCurPixelSamplerStates[i].forceSet = true;
-        mCurPixelTextures[i] = DirtyPointer;
+        mCurPixelTextures[i]               = angle::DirtyPointer;
     }
 
     mAppliedIBSerial = 0;
@@ -2442,17 +2477,17 @@ gl::Error Renderer9::createRenderTargetCopy(RenderTargetD3D *source, RenderTarge
     return gl::Error(GL_NO_ERROR);
 }
 
-FramebufferImpl *Renderer9::createFramebuffer(const gl::Framebuffer::Data &data)
+FramebufferImpl *Renderer9::createFramebuffer(const gl::FramebufferState &data)
 {
     return new Framebuffer9(data, this);
 }
 
-ShaderImpl *Renderer9::createShader(const gl::Shader::Data &data)
+ShaderImpl *Renderer9::createShader(const gl::ShaderState &data)
 {
     return new ShaderD3D(data);
 }
 
-ProgramImpl *Renderer9::createProgram(const gl::Program::Data &data)
+ProgramImpl *Renderer9::createProgram(const gl::ProgramState &data)
 {
     return new ProgramD3D(data, this);
 }
@@ -2680,6 +2715,14 @@ TextureStorage *Renderer9::createTextureStorageEGLImage(EGLImageD3D *eglImage)
     return new TextureStorage9_EGLImage(this, eglImage);
 }
 
+TextureStorage *Renderer9::createTextureStorageExternal(
+    egl::Stream *stream,
+    const egl::Stream::GLTextureDescription &desc)
+{
+    UNIMPLEMENTED();
+    return nullptr;
+}
+
 TextureStorage *Renderer9::createTextureStorage2D(GLenum internalformat, bool renderTarget, GLsizei width, GLsizei height, int levels, bool hintLevelZeroOnly)
 {
     return new TextureStorage9_2D(this, internalformat, renderTarget, width, height, levels);
@@ -2746,6 +2789,38 @@ VertexConversionType Renderer9::getVertexConversionType(gl::VertexFormatType ver
 GLenum Renderer9::getVertexComponentType(gl::VertexFormatType vertexFormatType) const
 {
     return d3d9::GetVertexFormatInfo(getCapsDeclTypes(), vertexFormatType).componentType;
+}
+
+gl::ErrorOrResult<unsigned int> Renderer9::getVertexSpaceRequired(const gl::VertexAttribute &attrib,
+                                                                  GLsizei count,
+                                                                  GLsizei instances) const
+{
+    gl::VertexFormatType vertexFormatType = gl::GetVertexFormatType(attrib, GL_FLOAT);
+    const d3d9::VertexFormat &d3d9VertexInfo =
+        d3d9::GetVertexFormatInfo(getCapsDeclTypes(), vertexFormatType);
+
+    if (!attrib.enabled)
+    {
+        return 16u;
+    }
+
+    unsigned int elementCount = 0;
+    if (instances == 0 || attrib.divisor == 0)
+    {
+        elementCount = static_cast<unsigned int>(count);
+    }
+    else
+    {
+        // Round up to divisor, if possible
+        elementCount = UnsignedCeilDivide(static_cast<unsigned int>(instances), attrib.divisor);
+    }
+
+    if (d3d9VertexInfo.outputElementSize > std::numeric_limits<unsigned int>::max() / elementCount)
+    {
+        return gl::Error(GL_OUT_OF_MEMORY, "New vertex buffer size would result in an overflow.");
+    }
+
+    return static_cast<unsigned int>(d3d9VertexInfo.outputElementSize) * elementCount;
 }
 
 void Renderer9::generateCaps(gl::Caps *outCaps,

@@ -178,7 +178,8 @@ void ShInitBuiltInResources(ShBuiltInResources* resources)
     resources->ArrayIndexClampingStrategy = SH_CLAMP_WITH_CLAMP_INTRINSIC;
 
     resources->MaxExpressionComplexity = 256;
-    resources->MaxCallStackDepth = 256;
+    resources->MaxCallStackDepth       = 256;
+    resources->MaxFunctionParameters   = 1024;
 }
 
 //
@@ -362,23 +363,15 @@ bool ShGetInterfaceBlockRegister(const ShHandle handle,
 #endif // ANGLE_ENABLE_HLSL
 }
 
-bool ShGetUniformRegister(const ShHandle handle,
-                          const std::string &uniformName,
-                          unsigned int *indexOut)
+const std::map<std::string, unsigned int> *ShGetUniformRegisterMap(const ShHandle handle)
 {
 #ifdef ANGLE_ENABLE_HLSL
-    ASSERT(indexOut);
     TranslatorHLSL *translator = GetTranslatorHLSLFromHandle(handle);
     ASSERT(translator);
 
-    if (!translator->hasUniform(uniformName))
-    {
-        return false;
-    }
-
-    *indexOut = translator->getUniformRegister(uniformName);
-    return true;
+    return translator->getUniformRegisterMap();
 #else
-    return false;
-#endif // ANGLE_ENABLE_HLSL
+    static std::map<std::string, unsigned int> map;
+    return &map;
+#endif  // ANGLE_ENABLE_HLSL
 }

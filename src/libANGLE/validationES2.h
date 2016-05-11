@@ -16,6 +16,7 @@ namespace gl
 {
 class Context;
 class ValidationContext;
+class Texture;
 
 bool ValidateES2TexImageParameters(Context *context, GLenum target, GLint level, GLenum internalformat, bool isCompressed, bool isSubImage,
                                    GLint xoffset, GLint yoffset, GLsizei width, GLsizei height,
@@ -128,6 +129,64 @@ bool ValidateBlitFramebufferANGLE(Context *context,
                                   GLenum filter);
 
 bool ValidateClear(ValidationContext *context, GLbitfield mask);
+bool ValidateTexImage2D(Context *context,
+                        GLenum target,
+                        GLint level,
+                        GLint internalformat,
+                        GLsizei width,
+                        GLsizei height,
+                        GLint border,
+                        GLenum format,
+                        GLenum type,
+                        const GLvoid *pixels);
+bool ValidateTexSubImage2D(Context *context,
+                           GLenum target,
+                           GLint level,
+                           GLint xoffset,
+                           GLint yoffset,
+                           GLsizei width,
+                           GLsizei height,
+                           GLenum format,
+                           GLenum type,
+                           const GLvoid *pixels);
+bool ValidateCompressedTexImage2D(Context *context,
+                                  GLenum target,
+                                  GLint level,
+                                  GLenum internalformat,
+                                  GLsizei width,
+                                  GLsizei height,
+                                  GLint border,
+                                  GLsizei imageSize,
+                                  const GLvoid *data);
+bool ValidateCompressedTexSubImage2D(Context *context,
+                                     GLenum target,
+                                     GLint level,
+                                     GLint xoffset,
+                                     GLint yoffset,
+                                     GLsizei width,
+                                     GLsizei height,
+                                     GLenum format,
+                                     GLsizei imageSize,
+                                     const GLvoid *data);
+bool ValidateBindTexture(Context *context, GLenum target, GLuint texture);
+
+bool ValidateGetBufferPointervOES(Context *context, GLenum target, GLenum pname, void **params);
+bool ValidateMapBufferOES(Context *context, GLenum target, GLenum access);
+bool ValidateUnmapBufferOES(Context *context, GLenum target);
+bool ValidateMapBufferRangeEXT(Context *context,
+                               GLenum target,
+                               GLintptr offset,
+                               GLsizeiptr length,
+                               GLbitfield access);
+bool ValidateFlushMappedBufferRangeEXT(Context *context,
+                                       GLenum target,
+                                       GLintptr offset,
+                                       GLsizeiptr length);
+
+bool ValidateBindUniformLocationCHROMIUM(Context *context,
+                                         GLuint program,
+                                         GLint location,
+                                         const GLchar *name);
 
 }  // namespace gl
 

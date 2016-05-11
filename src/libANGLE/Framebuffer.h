@@ -21,6 +21,7 @@
 
 namespace rx
 {
+class ContextImpl;
 class ImplFactory;
 class FramebufferImpl;
 class RenderbufferImpl;
@@ -35,56 +36,59 @@ class Surface;
 namespace gl
 {
 class Context;
+class Framebuffer;
 class Renderbuffer;
 class State;
 class Texture;
 class TextureCapsMap;
 struct Caps;
-struct Data;
+struct ContextState;
 struct Extensions;
 struct ImageIndex;
 struct Rectangle;
 
+class FramebufferState final : angle::NonCopyable
+{
+  public:
+    FramebufferState();
+    explicit FramebufferState(const Caps &caps);
+    ~FramebufferState();
+
+    const std::string &getLabel();
+
+    const FramebufferAttachment *getReadAttachment() const;
+    const FramebufferAttachment *getFirstColorAttachment() const;
+    const FramebufferAttachment *getDepthOrStencilAttachment() const;
+    const FramebufferAttachment *getColorAttachment(size_t colorAttachment) const;
+    const FramebufferAttachment *getDepthAttachment() const;
+    const FramebufferAttachment *getStencilAttachment() const;
+    const FramebufferAttachment *getDepthStencilAttachment() const;
+
+    const std::vector<GLenum> &getDrawBufferStates() const { return mDrawBufferStates; }
+    GLenum getReadBufferState() const { return mReadBufferState; }
+    const std::vector<FramebufferAttachment> &getColorAttachments() const
+    {
+        return mColorAttachments;
+    }
+
+    bool attachmentsHaveSameDimensions() const;
+
+  private:
+    friend class Framebuffer;
+
+    std::string mLabel;
+
+    std::vector<FramebufferAttachment> mColorAttachments;
+    FramebufferAttachment mDepthAttachment;
+    FramebufferAttachment mStencilAttachment;
+
+    std::vector<GLenum> mDrawBufferStates;
+    GLenum mReadBufferState;
+};
+
 class Framebuffer final : public LabeledObject
 {
   public:
-
-    class Data final : angle::NonCopyable
-    {
-      public:
-        explicit Data();
-        explicit Data(const Caps &caps);
-        ~Data();
-
-        const std::string &getLabel();
-
-        const FramebufferAttachment *getReadAttachment() const;
-        const FramebufferAttachment *getFirstColorAttachment() const;
-        const FramebufferAttachment *getDepthOrStencilAttachment() const;
-        const FramebufferAttachment *getColorAttachment(size_t colorAttachment) const;
-        const FramebufferAttachment *getDepthAttachment() const;
-        const FramebufferAttachment *getStencilAttachment() const;
-        const FramebufferAttachment *getDepthStencilAttachment() const;
-
-        const std::vector<GLenum> &getDrawBufferStates() const { return mDrawBufferStates; }
-        GLenum getReadBufferState() const { return mReadBufferState; }
-        const std::vector<FramebufferAttachment> &getColorAttachments() const { return mColorAttachments; }
-
-        bool attachmentsHaveSameDimensions() const;
-
-      private:
-        friend class Framebuffer;
-
-        std::string mLabel;
-
-        std::vector<FramebufferAttachment> mColorAttachments;
-        FramebufferAttachment mDepthAttachment;
-        FramebufferAttachment mStencilAttachment;
-
-        std::vector<GLenum> mDrawBufferStates;
-        GLenum mReadBufferState;
-    };
-
     Framebuffer(const Caps &caps, rx::ImplFactory *factory, GLuint id);
     Framebuffer(rx::SurfaceImpl *surface);
     virtual ~Framebuffer();
@@ -119,6 +123,7 @@ class Framebuffer final : public LabeledObject
 
     size_t getDrawbufferStateCount() const;
     GLenum getDrawBufferState(size_t drawBuffer) const;
+    const std::vector<GLenum> &getDrawBufferStates() const;
     void setDrawBuffers(size_t count, const GLenum *buffers);
     const FramebufferAttachment *getDrawBuffer(size_t drawBuffer) const;
     bool hasEnabledDrawBuffer() const;
@@ -129,27 +134,30 @@ class Framebuffer final : public LabeledObject
     size_t getNumColorBuffers() const;
     bool hasDepth() const;
     bool hasStencil() const;
-    int getSamples(const gl::Data &data) const;
+    int getSamples(const ContextState &data) const;
     bool usingExtendedDrawBuffers() const;
 
-    GLenum checkStatus(const gl::Data &data) const;
+    GLenum checkStatus(const ContextState &data) const;
     bool hasValidDepthStencil() const;
 
     Error discard(size_t count, const GLenum *attachments);
     Error invalidate(size_t count, const GLenum *attachments);
     Error invalidateSub(size_t count, const GLenum *attachments, const gl::Rectangle &area);
 
-    Error clear(const gl::Data &data, GLbitfield mask);
-    Error clearBufferfv(const gl::Data &data,
+    Error clear(rx::ContextImpl *context, GLbitfield mask);
+    Error clearBufferfv(rx::ContextImpl *context,
                         GLenum buffer,
                         GLint drawbuffer,
                         const GLfloat *values);
-    Error clearBufferuiv(const gl::Data &data,
+    Error clearBufferuiv(rx::ContextImpl *context,
                          GLenum buffer,
                          GLint drawbuffer,
                          const GLuint *values);
-    Error clearBufferiv(const gl::Data &data, GLenum buffer, GLint drawbuffer, const GLint *values);
-    Error clearBufferfi(const gl::Data &data,
+    Error clearBufferiv(rx::ContextImpl *context,
+                        GLenum buffer,
+                        GLint drawbuffer,
+                        const GLint *values);
+    Error clearBufferfi(rx::ContextImpl *context,
                         GLenum buffer,
                         GLint drawbuffer,
                         GLfloat depth,
@@ -157,18 +165,17 @@ class Framebuffer final : public LabeledObject
 
     GLenum getImplementationColorReadFormat() const;
     GLenum getImplementationColorReadType() const;
-    Error readPixels(const gl::State &state,
+    Error readPixels(rx::ContextImpl *context,
                      const gl::Rectangle &area,
                      GLenum format,
                      GLenum type,
                      GLvoid *pixels) const;
 
-    Error blit(const State &state,
+    Error blit(rx::ContextImpl *context,
                const Rectangle &sourceArea,
                const Rectangle &destArea,
                GLbitfield mask,
-               GLenum filter,
-               const Framebuffer *sourceFramebuffer);
+               GLenum filter);
 
     enum DirtyBitType
     {
@@ -191,7 +198,7 @@ class Framebuffer final : public LabeledObject
   protected:
     void detachResourceById(GLenum resourceType, GLuint resourceId);
 
-    Data mData;
+    FramebufferState mState;
     rx::FramebufferImpl *mImpl;
     GLuint mId;
 

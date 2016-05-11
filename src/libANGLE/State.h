@@ -29,9 +29,8 @@ class Query;
 class VertexArray;
 class Context;
 struct Caps;
-struct Data;
 
-typedef std::map< GLenum, BindingPointer<Texture> > TextureMap;
+typedef std::map<GLenum, BindingPointer<Texture>> TextureMap;
 
 class State : angle::NonCopyable
 {
@@ -192,10 +191,10 @@ class State : angle::NonCopyable
     void setTransformFeedbackBinding(TransformFeedback *transformFeedback);
     TransformFeedback *getCurrentTransformFeedback() const;
     bool isTransformFeedbackActiveUnpaused() const;
-    void detachTransformFeedback(GLuint transformFeedback);
+    bool removeTransformFeedbackBinding(GLuint transformFeedback);
 
     // Query binding manipulation
-    bool isQueryActive() const;
+    bool isQueryActive(GLenum type) const;
     bool isQueryActive(Query *query) const;
     void setActiveQuery(GLenum target, Query *query);
     GLuint getActiveQueryId(GLenum target) const;
@@ -272,7 +271,7 @@ class State : angle::NonCopyable
     // State query functions
     void getBooleanv(GLenum pname, GLboolean *params);
     void getFloatv(GLenum pname, GLfloat *params);
-    void getIntegerv(const gl::Data &data, GLenum pname, GLint *params);
+    void getIntegerv(const ContextState &data, GLenum pname, GLint *params);
     void getPointerv(GLenum pname, void **params) const;
     bool getIndexedIntegerv(GLenum target, GLuint index, GLint *data);
     bool getIndexedInteger64v(GLenum target, GLuint index, GLint64 *data);
@@ -320,11 +319,13 @@ class State : angle::NonCopyable
         DIRTY_BIT_UNPACK_SKIP_IMAGES,
         DIRTY_BIT_UNPACK_SKIP_ROWS,
         DIRTY_BIT_UNPACK_SKIP_PIXELS,
+        DIRTY_BIT_UNPACK_BUFFER_BINDING,
         DIRTY_BIT_PACK_ALIGNMENT,
         DIRTY_BIT_PACK_REVERSE_ROW_ORDER,
         DIRTY_BIT_PACK_ROW_LENGTH,
         DIRTY_BIT_PACK_SKIP_ROWS,
         DIRTY_BIT_PACK_SKIP_PIXELS,
+        DIRTY_BIT_PACK_BUFFER_BINDING,
         DIRTY_BIT_DITHER_ENABLED,
         DIRTY_BIT_GENERATE_MIPMAP_HINT,
         DIRTY_BIT_SHADER_DERIVATIVE_HINT,
@@ -363,12 +364,6 @@ class State : angle::NonCopyable
     void syncDirtyObjects(const DirtyObjects &bitset);
     void syncDirtyObject(GLenum target);
     void setObjectDirty(GLenum target);
-
-    // Dirty bit masks
-    const DirtyBits &unpackStateBitMask() const { return mUnpackStateBitMask; }
-    const DirtyBits &packStateBitMask() const { return mPackStateBitMask; }
-    const DirtyBits &clearStateBitMask() const { return mClearStateBitMask; }
-    const DirtyBits &blitStateBitMask() const { return mBlitStateBitMask; }
 
   private:
     // Cached values from Context's caps
@@ -415,18 +410,18 @@ class State : angle::NonCopyable
     // Texture and sampler bindings
     size_t mActiveSampler;   // Active texture unit selector - GL_TEXTURE0
 
-    typedef std::vector< BindingPointer<Texture> > TextureBindingVector;
+    typedef std::vector<BindingPointer<Texture>> TextureBindingVector;
     typedef std::map<GLenum, TextureBindingVector> TextureBindingMap;
     TextureBindingMap mSamplerTextures;
 
-    typedef std::vector< BindingPointer<Sampler> > SamplerBindingVector;
+    typedef std::vector<BindingPointer<Sampler>> SamplerBindingVector;
     SamplerBindingVector mSamplers;
 
-    typedef std::map< GLenum, BindingPointer<Query> > ActiveQueryMap;
+    typedef std::map<GLenum, BindingPointer<Query>> ActiveQueryMap;
     ActiveQueryMap mActiveQueries;
 
     BindingPointer<Buffer> mGenericUniformBuffer;
-    typedef std::vector< OffsetBindingPointer<Buffer> > BufferVector;
+    typedef std::vector<OffsetBindingPointer<Buffer>> BufferVector;
     BufferVector mUniformBuffers;
 
     BindingPointer<TransformFeedback> mTransformFeedback;
@@ -442,15 +437,10 @@ class State : angle::NonCopyable
     Debug mDebug;
 
     DirtyBits mDirtyBits;
-    DirtyBits mUnpackStateBitMask;
-    DirtyBits mPackStateBitMask;
-    DirtyBits mClearStateBitMask;
-    DirtyBits mBlitStateBitMask;
-
     DirtyObjects mDirtyObjects;
 };
 
-}
+}  // namespace gl
 
 #endif // LIBANGLE_STATE_H_
 

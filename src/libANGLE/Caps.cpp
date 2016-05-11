@@ -147,6 +147,7 @@ Extensions::Extensions()
       eglImage(false),
       eglImageExternal(false),
       eglImageExternalEssl3(false),
+      eglStreamConsumerExternal(false),
       unpackSubimage(false),
       packSubimage(false),
       vertexArrayObject(false),
@@ -157,6 +158,7 @@ Extensions::Extensions()
       maxLabelLength(0),
       noError(false),
       lossyETCDecode(false),
+      bindUniformLocation(false),
       colorBufferFloat(false)
 {
 }
@@ -219,6 +221,7 @@ std::vector<std::string> Extensions::getStrings() const
     InsertExtensionString("GL_OES_EGL_image",                    eglImage,                  &extensionStrings);
     InsertExtensionString("GL_OES_EGL_image_external",           eglImageExternal,          &extensionStrings);
     InsertExtensionString("GL_OES_EGL_image_external_essl3",     eglImageExternalEssl3,     &extensionStrings);
+    InsertExtensionString("GL_NV_EGL_stream_consumer_external",  eglStreamConsumerExternal, &extensionStrings);
     InsertExtensionString("GL_EXT_unpack_subimage",              unpackSubimage,            &extensionStrings);
     InsertExtensionString("GL_NV_pack_subimage",                 packSubimage,              &extensionStrings);
     InsertExtensionString("GL_EXT_color_buffer_float",           colorBufferFloat,          &extensionStrings);
@@ -228,6 +231,7 @@ std::vector<std::string> Extensions::getStrings() const
     //InsertExtensionString("GL_KHR_no_error",                     noError,                   &extensionStrings);
 
     InsertExtensionString("GL_ANGLE_lossy_etc_decode",           lossyETCDecode,            &extensionStrings);
+    InsertExtensionString("GL_CHROMIUM_bind_uniform_location",   bindUniformLocation,       &extensionStrings);
     // clang-format on
 
     return extensionStrings;
@@ -635,7 +639,11 @@ DisplayExtensions::DisplayExtensions()
       getAllProcAddresses(false),
       flexibleSurfaceCompatibility(false),
       directComposition(false),
-      createContextNoError(false)
+      createContextNoError(false),
+      stream(false),
+      streamConsumerGLTexture(false),
+      streamConsumerGLTextureYUV(false),
+      streamProducerD3DTextureNV12(false)
 {
 }
 
@@ -664,7 +672,11 @@ std::vector<std::string> DisplayExtensions::getStrings() const
     InsertExtensionString("EGL_KHR_gl_texture_3D_image",                   glTexture3DImage,               &extensionStrings);
     InsertExtensionString("EGL_KHR_gl_renderbuffer_image",                 glRenderbufferImage,            &extensionStrings);
     InsertExtensionString("EGL_KHR_get_all_proc_addresses",                getAllProcAddresses,            &extensionStrings);
+    InsertExtensionString("EGL_KHR_stream",                                stream,                         &extensionStrings);
+    InsertExtensionString("EGL_KHR_stream_consumer_gltexture",             streamConsumerGLTexture,        &extensionStrings);
+    InsertExtensionString("EGL_NV_stream_consumer_gltexture_yuv",          streamConsumerGLTextureYUV,     &extensionStrings);
     InsertExtensionString("EGL_ANGLE_flexible_surface_compatibility",      flexibleSurfaceCompatibility,   &extensionStrings);
+    InsertExtensionString("EGL_ANGLE_stream_producer_d3d_texture_nv12",    streamProducerD3DTextureNV12,   &extensionStrings);
     // TODO(jmadill): Enable this when complete.
     //InsertExtensionString("KHR_create_context_no_error",                   createContextNoError,           &extensionStrings);
     // clang-format on

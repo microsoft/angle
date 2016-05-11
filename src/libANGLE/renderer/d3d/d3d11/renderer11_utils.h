@@ -10,12 +10,15 @@
 #ifndef LIBANGLE_RENDERER_D3D_D3D11_RENDERER11_UTILS_H_
 #define LIBANGLE_RENDERER_D3D_D3D11_RENDERER11_UTILS_H_
 
+#include <array>
+#include <functional>
+#include <vector>
+
 #include "libANGLE/angletypes.h"
 #include "libANGLE/Caps.h"
 #include "libANGLE/Error.h"
+#include "libANGLE/renderer/d3d/d3d11/texture_format_table.h"
 #include "libANGLE/renderer/d3d/RendererD3D.h"
-
-#include <vector>
 
 namespace gl
 {
@@ -28,6 +31,9 @@ class Renderer11;
 class RenderTarget11;
 struct WorkaroundsD3D;
 struct Renderer11DeviceCaps;
+
+using RenderTargetArray = std::array<RenderTarget11 *, gl::IMPLEMENTATION_MAX_DRAW_BUFFERS>;
+using RTVArray          = std::array<ID3D11RenderTargetView *, gl::IMPLEMENTATION_MAX_DRAW_BUFFERS>;
 
 namespace gl_d3d11
 {
@@ -78,9 +84,14 @@ ANGLED3D11DeviceType GetDeviceType(ID3D11Device *device);
 
 void MakeValidSize(bool isImage, DXGI_FORMAT format, GLsizei *requestWidth, GLsizei *requestHeight, int *levelOffset);
 
-void GenerateInitialTextureData(GLint internalFormat, const Renderer11DeviceCaps &renderer11DeviceCaps, GLuint width, GLuint height, GLuint depth,
-                                GLuint mipLevels, std::vector<D3D11_SUBRESOURCE_DATA> *outSubresourceData,
-                                std::vector< std::vector<BYTE> > *outData);
+void GenerateInitialTextureData(GLint internalFormat,
+                                const Renderer11DeviceCaps &renderer11DeviceCaps,
+                                GLuint width,
+                                GLuint height,
+                                GLuint depth,
+                                GLuint mipLevels,
+                                std::vector<D3D11_SUBRESOURCE_DATA> *outSubresourceData,
+                                std::vector<std::vector<BYTE>> *outData);
 
 UINT GetPrimitiveRestartIndex();
 
@@ -335,6 +346,16 @@ void SetBufferData(ID3D11DeviceContext *context, ID3D11Buffer *constantBuffer, c
 }
 
 WorkaroundsD3D GenerateWorkarounds(D3D_FEATURE_LEVEL featureLevel);
+
+enum ReservedConstantBufferSlot
+{
+    RESERVED_CONSTANT_BUFFER_SLOT_DEFAULT_UNIFORM_BLOCK = 0,
+    RESERVED_CONSTANT_BUFFER_SLOT_DRIVER                = 1,
+
+    RESERVED_CONSTANT_BUFFER_SLOT_COUNT = 2
+};
+
+void InitConstantBufferDesc(D3D11_BUFFER_DESC *constantBufferDescription, size_t byteWidth);
 }  // namespace d3d11
 
 // A helper class which wraps a 2D or 3D texture.
@@ -346,13 +367,17 @@ class TextureHelper11 : angle::NonCopyable
     ~TextureHelper11();
     TextureHelper11 &operator=(TextureHelper11 &&texture);
 
-    static TextureHelper11 MakeAndReference(ID3D11Resource *genericResource);
-    static TextureHelper11 MakeAndPossess2D(ID3D11Texture2D *texToOwn);
-    static TextureHelper11 MakeAndPossess3D(ID3D11Texture3D *texToOwn);
+    static TextureHelper11 MakeAndReference(ID3D11Resource *genericResource,
+                                            d3d11::ANGLEFormat angleFormat);
+    static TextureHelper11 MakeAndPossess2D(ID3D11Texture2D *texToOwn,
+                                            d3d11::ANGLEFormat angleFormat);
+    static TextureHelper11 MakeAndPossess3D(ID3D11Texture3D *texToOwn,
+                                            d3d11::ANGLEFormat angleFormat);
 
     GLenum getTextureType() const { return mTextureType; }
     gl::Extents getExtents() const { return mExtents; }
     DXGI_FORMAT getFormat() const { return mFormat; }
+    d3d11::ANGLEFormat getANGLEFormat() const { return mANGLEFormat; }
     int getSampleCount() const { return mSampleCount; }
     ID3D11Texture2D *getTexture2D() const { return mTexture2D; }
     ID3D11Texture3D *getTexture3D() const { return mTexture3D; }
@@ -365,6 +390,7 @@ class TextureHelper11 : angle::NonCopyable
     GLenum mTextureType;
     gl::Extents mExtents;
     DXGI_FORMAT mFormat;
+    d3d11::ANGLEFormat mANGLEFormat;
     int mSampleCount;
     ID3D11Texture2D *mTexture2D;
     ID3D11Texture3D *mTexture3D;
@@ -372,10 +398,28 @@ class TextureHelper11 : angle::NonCopyable
 
 gl::ErrorOrResult<TextureHelper11> CreateStagingTexture(GLenum textureType,
                                                         DXGI_FORMAT dxgiFormat,
+                                                        d3d11::ANGLEFormat angleFormat,
                                                         const gl::Extents &size,
                                                         ID3D11Device *device);
 
 bool UsePresentPathFast(const Renderer11 *renderer, const gl::FramebufferAttachment *colorbuffer);
+
+using NotificationCallback = std::function<void()>;
+
+class NotificationSet final : angle::NonCopyable
+{
+  public:
+    NotificationSet();
+    ~NotificationSet();
+
+    void add(const NotificationCallback *callback);
+    void remove(const NotificationCallback *callback);
+    void signal() const;
+    void clear();
+
+  private:
+    std::set<const NotificationCallback *> mCallbacks;
+};
 
 }  // namespace rx
 

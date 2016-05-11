@@ -151,6 +151,8 @@ class EGLPresentPathD3D11 : public testing::TestWithParam<PlatformParameters>
 
     void TearDown() override
     {
+        SafeRelease(mOffscreenSurfaceD3D11Texture);
+
         if (mDisplay != EGL_NO_DISPLAY)
         {
             eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -173,8 +175,6 @@ class EGLPresentPathD3D11 : public testing::TestWithParam<PlatformParameters>
 
         mOSWindow->destroy();
         SafeDelete(mOSWindow);
-
-        SafeRelease(mOffscreenSurfaceD3D11Texture);
     }
 
     void drawQuadUsingGL()
@@ -278,8 +278,8 @@ class EGLPresentPathD3D11 : public testing::TestWithParam<PlatformParameters>
 
         D3D11_MAPPED_SUBRESOURCE mappedSubresource;
         context->Map(cpuTexture, 0, D3D11_MAP_READ, 0, &mappedSubresource);
-        ASSERT_EQ(mWindowWidth * 4, mappedSubresource.RowPitch);
-        ASSERT_EQ(mWindowWidth * mWindowWidth * 4, mappedSubresource.DepthPitch);
+        ASSERT_EQ(static_cast<UINT>(mWindowWidth * 4), mappedSubresource.RowPitch);
+        ASSERT_EQ(static_cast<UINT>(mWindowWidth * mWindowWidth * 4), mappedSubresource.DepthPitch);
 
         angle::GLColor *byteData = reinterpret_cast<angle::GLColor *>(mappedSubresource.pData);
 

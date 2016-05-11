@@ -19,11 +19,15 @@ base_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 
 # You might have to re-order these to find the specific version you want.
 perftests_paths = [
+    os.path.join('out', 'Release_x64'),
     os.path.join('out', 'Release'),
     os.path.join('build', 'Release_x64'),
     os.path.join('build', 'Release_Win32')
 ]
 metric = 'score'
+
+# TODO(jmadill): Linux binaries
+binary_name = 'angle_perftests.exe'
 
 scores = []
 
@@ -62,13 +66,19 @@ def truncated_mean(data, n):
 def truncated_stddev(data, n):
     return pstdev(truncated_list(data, n))
 
-perftests_path = ""
+# Find most recent binary
+newest_binary = None
+newest_mtime = None
 
-# TODO(jmadill): Linux binaries
 for path in perftests_paths:
-    perftests_path = os.path.join(base_path, path, 'angle_perftests.exe')
-    if os.path.exists(perftests_path):
-        break
+    binary_path = os.path.join(base_path, path, binary_name)
+    binary_mtime = os.path.getmtime(binary_path)
+    if os.path.exists(binary_path):
+        if (newest_binary is None) or (binary_mtime > newest_mtime):
+            newest_binary = binary_path
+            newest_mtime = binary_mtime
+
+perftests_path = newest_binary
 
 if not os.path.exists(perftests_path):
     print("Cannot find angle_perftests.exe!")

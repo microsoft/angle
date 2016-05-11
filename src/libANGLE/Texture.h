@@ -20,19 +20,25 @@
 #include "libANGLE/Error.h"
 #include "libANGLE/FramebufferAttachment.h"
 #include "libANGLE/Image.h"
+#include "libANGLE/Stream.h"
 #include "libANGLE/angletypes.h"
-#include "libANGLE/renderer/TextureImpl.h"
 
 namespace egl
 {
 class Surface;
+class Stream;
+}
+
+namespace rx
+{
+class ImplFactory;
+class TextureImpl;
 }
 
 namespace gl
 {
-class Context;
+struct ContextState;
 class Framebuffer;
-struct Data;
 
 bool IsMipmapFiltered(const SamplerState &samplerState);
 
@@ -41,7 +47,7 @@ class Texture final : public egl::ImageSibling,
                       public LabeledObject
 {
   public:
-    Texture(rx::TextureImpl *impl, GLuint id, GLenum target);
+    Texture(rx::ImplFactory *factory, GLuint id, GLenum target);
     ~Texture() override;
 
     void setLabel(const std::string &label) override;
@@ -95,6 +101,8 @@ class Texture final : public egl::ImageSibling,
 
     void setBaseLevel(GLuint baseLevel);
     GLuint getBaseLevel() const;
+    // Returns base level after clamping required for immutable textures.
+    GLuint getEffectiveBaseLevel() const;
 
     void setMaxLevel(GLuint maxLevel);
     GLuint getMaxLevel() const;
@@ -113,12 +121,12 @@ class Texture final : public egl::ImageSibling,
     size_t getDepth(GLenum target, size_t level) const;
     GLenum getInternalFormat(GLenum target, size_t level) const;
 
-    bool isSamplerComplete(const SamplerState &samplerState, const Data &data) const;
+    bool isSamplerComplete(const SamplerState &samplerState, const ContextState &data) const;
     bool isMipmapComplete() const;
     bool isCubeComplete() const;
     size_t getMipCompleteLevels() const;
 
-    Error setImage(Context *context,
+    Error setImage(const PixelUnpackState &unpackState,
                    GLenum target,
                    size_t level,
                    GLenum internalFormat,
@@ -126,7 +134,7 @@ class Texture final : public egl::ImageSibling,
                    GLenum format,
                    GLenum type,
                    const uint8_t *pixels);
-    Error setSubImage(Context *context,
+    Error setSubImage(const PixelUnpackState &unpackState,
                       GLenum target,
                       size_t level,
                       const Box &area,
@@ -134,14 +142,14 @@ class Texture final : public egl::ImageSibling,
                       GLenum type,
                       const uint8_t *pixels);
 
-    Error setCompressedImage(Context *context,
+    Error setCompressedImage(const PixelUnpackState &unpackState,
                              GLenum target,
                              size_t level,
                              GLenum internalFormat,
                              const Extents &size,
                              size_t imageSize,
                              const uint8_t *pixels);
-    Error setCompressedSubImage(Context *context,
+    Error setCompressedSubImage(const PixelUnpackState &unpackState,
                                 GLenum target,
                                 size_t level,
                                 const Box &area,
@@ -167,6 +175,7 @@ class Texture final : public egl::ImageSibling,
     Error generateMipmaps();
 
     egl::Surface *getBoundSurface() const;
+    egl::Stream *getBoundStream() const;
 
     rx::TextureImpl *getImplementation() { return mTexture; }
     const rx::TextureImpl *getImplementation() const { return mTexture; }
@@ -181,18 +190,26 @@ class Texture final : public egl::ImageSibling,
     GLuint getId() const override;
 
   private:
-    rx::FramebufferAttachmentObjectImpl *getAttachmentImpl() const override { return mTexture; }
+    rx::FramebufferAttachmentObjectImpl *getAttachmentImpl() const override;
 
     // ANGLE-only method, used internally
     friend class egl::Surface;
     void bindTexImageFromSurface(egl::Surface *surface);
     void releaseTexImageFromSurface();
 
+    // ANGLE-only methods, used internally
+    friend class egl::Stream;
+    void bindStream(egl::Stream *stream);
+    void releaseStream();
+    void acquireImageFromStream(const egl::Stream::GLTextureDescription &desc);
+    void releaseImageFromStream();
+
     rx::TextureImpl *mTexture;
 
     std::string mLabel;
 
     TextureState mTextureState;
+    GLuint mEffectiveBaseLevel;
 
     GLenum mTarget;
 
@@ -207,7 +224,8 @@ class Texture final : public egl::ImageSibling,
 
     GLenum getBaseImageTarget() const;
 
-    bool computeSamplerCompleteness(const SamplerState &samplerState, const Data &data) const;
+    bool computeSamplerCompleteness(const SamplerState &samplerState,
+                                    const ContextState &data) const;
     bool computeMipmapCompleteness() const;
     bool computeLevelCompleteness(GLenum target, size_t level) const;
 
@@ -217,6 +235,8 @@ class Texture final : public egl::ImageSibling,
     void clearImageDesc(GLenum target, size_t level);
     void clearImageDescs();
     void releaseTexImageInternal();
+
+    void updateEffectiveBaseLevel();
 
     std::vector<ImageDesc> mImageDescs;
 
@@ -239,6 +259,7 @@ class Texture final : public egl::ImageSibling,
     mutable SamplerCompletenessCache mCompletenessCache;
 
     egl::Surface *mBoundSurface;
+    egl::Stream *mBoundStream;
 };
 
 }

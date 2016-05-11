@@ -10,7 +10,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "libANGLE/Data.h"
+#include "libANGLE/ContextState.h"
 #include "libANGLE/renderer/FramebufferImpl_mock.h"
 #include "libANGLE/renderer/ProgramImpl_mock.h"
 #include "libANGLE/renderer/TextureImpl_mock.h"
@@ -26,14 +26,6 @@ using testing::Return;
 namespace
 {
 
-class MockFactory : public NullFactory
-{
-  public:
-    MOCK_METHOD1(createFramebuffer, FramebufferImpl *(const gl::Framebuffer::Data &));
-    MOCK_METHOD1(createProgram, ProgramImpl *(const gl::Program::Data &));
-    MOCK_METHOD1(createVertexArray, VertexArrayImpl *(const gl::VertexArray::Data &));
-};
-
 class MockValidationContext : public ValidationContext
 {
   public:
@@ -46,7 +38,7 @@ class MockValidationContext : public ValidationContext
                           const Limitations &limitations,
                           bool skipValidation);
 
-    MOCK_METHOD1(recordError, void(const Error &));
+    MOCK_METHOD1(handleError, void(const Error &));
 };
 
 MockValidationContext::MockValidationContext(GLint clientVersion,
@@ -95,10 +87,11 @@ TEST(ValidationESTest, DrawElementsWithMaxIndexGivesError)
     state.initialize(caps, extensions, 3, false);
 
     NiceMock<MockTextureImpl> *textureImpl = new NiceMock<MockTextureImpl>();
+    EXPECT_CALL(mockFactory, createTexture(_)).WillOnce(Return(textureImpl));
     EXPECT_CALL(*textureImpl, setStorage(_, _, _, _)).WillOnce(Return(Error(GL_NO_ERROR)));
     EXPECT_CALL(*textureImpl, destructor()).Times(1).RetiresOnSaturation();
 
-    Texture *texture = new Texture(textureImpl, 0, GL_TEXTURE_2D);
+    Texture *texture = new Texture(&mockFactory, 0, GL_TEXTURE_2D);
     texture->addRef();
     texture->setStorage(GL_TEXTURE_2D, 1, GL_RGBA8, Extents(1, 1, 0));
 
@@ -117,7 +110,7 @@ TEST(ValidationESTest, DrawElementsWithMaxIndexGivesError)
 
     // Set the expectation for the validation error here.
     Error expectedError(GL_INVALID_OPERATION, g_ExceedsMaxElementErrorMessage);
-    EXPECT_CALL(testContext, recordError(expectedError)).Times(1);
+    EXPECT_CALL(testContext, handleError(expectedError)).Times(1);
 
     // Call once with maximum index, and once with an excessive index.
     GLuint indexData[] = {0, 1, static_cast<GLuint>(caps.maxElementIndex - 1),

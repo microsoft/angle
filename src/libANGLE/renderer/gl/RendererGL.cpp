@@ -12,11 +12,12 @@
 
 #include "common/debug.h"
 #include "libANGLE/AttributeMap.h"
-#include "libANGLE/Data.h"
+#include "libANGLE/ContextState.h"
 #include "libANGLE/Surface.h"
 #include "libANGLE/renderer/gl/BlitGL.h"
 #include "libANGLE/renderer/gl/BufferGL.h"
 #include "libANGLE/renderer/gl/CompilerGL.h"
+#include "libANGLE/renderer/gl/ContextGL.h"
 #include "libANGLE/renderer/gl/FenceNVGL.h"
 #include "libANGLE/renderer/gl/FenceSyncGL.h"
 #include "libANGLE/renderer/gl/FramebufferGL.h"
@@ -110,7 +111,8 @@ RendererGL::RendererGL(const FunctionsGL *functions, const egl::AttributeMap &at
     }
 #endif
 
-    EGLint deviceType = attribMap.get(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE, EGL_NONE);
+    EGLint deviceType =
+        static_cast<EGLint>(attribMap.get(EGL_PLATFORM_ANGLE_DEVICE_TYPE_ANGLE, EGL_NONE));
     if (deviceType == EGL_PLATFORM_ANGLE_DEVICE_TYPE_NULL_ANGLE)
     {
         mSkipDrawCalls = true;
@@ -150,7 +152,10 @@ gl::Error RendererGL::finish()
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error RendererGL::drawArrays(const gl::Data &data, GLenum mode, GLint first, GLsizei count)
+gl::Error RendererGL::drawArrays(const gl::ContextState &data,
+                                 GLenum mode,
+                                 GLint first,
+                                 GLsizei count)
 {
     gl::Error error = mStateManager->setDrawArraysState(data, first, count, 0);
     if (error.isError())
@@ -166,7 +171,7 @@ gl::Error RendererGL::drawArrays(const gl::Data &data, GLenum mode, GLint first,
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error RendererGL::drawArraysInstanced(const gl::Data &data,
+gl::Error RendererGL::drawArraysInstanced(const gl::ContextState &data,
                                           GLenum mode,
                                           GLint first,
                                           GLsizei count,
@@ -186,7 +191,7 @@ gl::Error RendererGL::drawArraysInstanced(const gl::Data &data,
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error RendererGL::drawElements(const gl::Data &data,
+gl::Error RendererGL::drawElements(const gl::ContextState &data,
                                    GLenum mode,
                                    GLsizei count,
                                    GLenum type,
@@ -209,7 +214,7 @@ gl::Error RendererGL::drawElements(const gl::Data &data,
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error RendererGL::drawElementsInstanced(const gl::Data &data,
+gl::Error RendererGL::drawElementsInstanced(const gl::ContextState &data,
                                             GLenum mode,
                                             GLsizei count,
                                             GLenum type,
@@ -233,7 +238,7 @@ gl::Error RendererGL::drawElementsInstanced(const gl::Data &data,
     return gl::Error(GL_NO_ERROR);
 }
 
-gl::Error RendererGL::drawRangeElements(const gl::Data &data,
+gl::Error RendererGL::drawRangeElements(const gl::ContextState &data,
                                         GLenum mode,
                                         GLuint start,
                                         GLuint end,
@@ -258,22 +263,27 @@ gl::Error RendererGL::drawRangeElements(const gl::Data &data,
     return gl::Error(GL_NO_ERROR);
 }
 
+ContextImpl *RendererGL::createContext(const gl::ContextState &state)
+{
+    return new ContextGL(state);
+}
+
 CompilerImpl *RendererGL::createCompiler()
 {
     return new CompilerGL(mFunctions);
 }
 
-ShaderImpl *RendererGL::createShader(const gl::Shader::Data &data)
+ShaderImpl *RendererGL::createShader(const gl::ShaderState &data)
 {
     return new ShaderGL(data, mFunctions, mWorkarounds);
 }
 
-ProgramImpl *RendererGL::createProgram(const gl::Program::Data &data)
+ProgramImpl *RendererGL::createProgram(const gl::ProgramState &data)
 {
-    return new ProgramGL(data, mFunctions, mStateManager);
+    return new ProgramGL(data, mFunctions, mWorkarounds, mStateManager);
 }
 
-FramebufferImpl *RendererGL::createFramebuffer(const gl::Framebuffer::Data &data)
+FramebufferImpl *RendererGL::createFramebuffer(const gl::FramebufferState &data)
 {
     return new FramebufferGL(data, mFunctions, mStateManager, mWorkarounds, false);
 }
@@ -293,7 +303,7 @@ BufferImpl *RendererGL::createBuffer()
     return new BufferGL(mFunctions, mStateManager);
 }
 
-VertexArrayImpl *RendererGL::createVertexArray(const gl::VertexArray::Data &data)
+VertexArrayImpl *RendererGL::createVertexArray(const gl::VertexArrayState &data)
 {
     return new VertexArrayGL(data, mFunctions, mStateManager);
 }
@@ -428,5 +438,11 @@ GLint64 RendererGL::getTimestamp()
     GLint64 result = 0;
     mFunctions->getInteger64v(GL_TIMESTAMP, &result);
     return result;
+}
+
+void RendererGL::onMakeCurrent(const gl::ContextState &data)
+{
+    // Queries need to be paused/resumed on context switches
+    mStateManager->onMakeCurrent(data);
 }
 }

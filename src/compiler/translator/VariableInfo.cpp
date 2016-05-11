@@ -16,18 +16,6 @@ namespace sh
 namespace
 {
 
-TString InterfaceBlockFieldName(const TInterfaceBlock &interfaceBlock, const TField &field)
-{
-    if (interfaceBlock.hasInstanceName())
-    {
-        return interfaceBlock.name() + "." + field.name();
-    }
-    else
-    {
-        return field.name();
-    }
-}
-
 BlockLayoutType GetBlockLayoutType(TLayoutBlockStorage blockStorage)
 {
     switch (blockStorage)
@@ -146,6 +134,7 @@ CollectVariables::CollectVariables(std::vector<sh::Attribute> *attribs,
       mFrontFacingAdded(false),
       mFragCoordAdded(false),
       mInstanceIDAdded(false),
+      mVertexIDAdded(false),
       mPositionAdded(false),
       mPointSizeAdded(false),
       mLastFragDataAdded(false),
@@ -325,6 +314,22 @@ void CollectVariables::visitSymbol(TIntermSymbol *symbol)
                 mInstanceIDAdded = true;
             }
             return;
+          case EvqVertexID:
+              if (!mVertexIDAdded)
+              {
+                  Attribute info;
+                  const char kName[] = "gl_VertexID";
+                  info.name          = kName;
+                  info.mappedName    = kName;
+                  info.type          = GL_INT;
+                  info.arraySize     = 0;
+                  info.precision     = GL_HIGH_INT;  // Defined by spec.
+                  info.staticUse     = true;
+                  info.location      = -1;
+                  mAttribs->push_back(info);
+                  mVertexIDAdded = true;
+              }
+              return;
           case EvqPosition:
             if (!mPositionAdded)
             {
@@ -559,16 +564,12 @@ void CollectVariables::visitVariable(const TIntermSymbol *variable,
     interfaceBlock.layout = GetBlockLayoutType(blockType->blockStorage());
 
     // Gather field information
-    const TFieldList &fieldList = blockType->fields();
-
-    for (size_t fieldIndex = 0; fieldIndex < fieldList.size(); ++fieldIndex)
+    for (const TField *field : blockType->fields())
     {
-        const TField &field = *fieldList[fieldIndex];
-        const TString &fullFieldName = InterfaceBlockFieldName(*blockType, field);
-        const TType &fieldType = *field.type();
+        const TType &fieldType = *field->type();
 
         NameHashingTraverser traverser(mHashFunction, mSymbolTable);
-        traverser.traverse(fieldType, fullFieldName, &interfaceBlock.fields);
+        traverser.traverse(fieldType, field->name(), &interfaceBlock.fields);
 
         interfaceBlock.fields.back().isRowMajorLayout = (fieldType.getLayoutQualifier().matrixPacking == EmpRowMajor);
     }

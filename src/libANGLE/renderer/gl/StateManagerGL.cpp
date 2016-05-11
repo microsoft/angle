@@ -9,7 +9,7 @@
 #include "libANGLE/renderer/gl/StateManagerGL.h"
 
 #include "common/BitSetIterator.h"
-#include "libANGLE/Data.h"
+#include "libANGLE/ContextState.h"
 #include "libANGLE/Framebuffer.h"
 #include "libANGLE/TransformFeedback.h"
 #include "libANGLE/VertexArray.h"
@@ -47,7 +47,7 @@ StateManagerGL::StateManagerGL(const FunctionsGL *functions, const gl::Caps &ren
       mTransformFeedback(0),
       mQueries(),
       mPrevDrawTransformFeedback(nullptr),
-      mPrevDrawQueries(),
+      mCurrentQueries(),
       mPrevDrawContext(0),
       mUnpackAlignment(4),
       mUnpackRowLength(0),
@@ -302,9 +302,14 @@ void StateManagerGL::useProgram(GLuint program)
 {
     if (mProgram != program)
     {
-        mProgram = program;
-        mFunctions->useProgram(mProgram);
+        forceUseProgram(program);
     }
+}
+
+void StateManagerGL::forceUseProgram(GLuint program)
+{
+    mProgram = program;
+    mFunctions->useProgram(mProgram);
 }
 
 void StateManagerGL::bindVertexArray(GLuint vao, GLuint elementArrayBuffer)
@@ -577,12 +582,17 @@ void StateManagerGL::endQuery(GLenum type, GLuint query)
     mFunctions->endQuery(type);
 }
 
-void StateManagerGL::onDeleteQueryObject(QueryGL *query)
+void StateManagerGL::onBeginQuery(QueryGL *query)
 {
-    mPrevDrawQueries.erase(query);
+    mCurrentQueries.insert(query);
 }
 
-gl::Error StateManagerGL::setDrawArraysState(const gl::Data &data,
+void StateManagerGL::onDeleteQueryObject(QueryGL *query)
+{
+    mCurrentQueries.erase(query);
+}
+
+gl::Error StateManagerGL::setDrawArraysState(const gl::ContextState &data,
                                              GLint first,
                                              GLsizei count,
                                              GLsizei instanceCount)
@@ -606,7 +616,7 @@ gl::Error StateManagerGL::setDrawArraysState(const gl::Data &data,
     return setGenericDrawState(data);
 }
 
-gl::Error StateManagerGL::setDrawElementsState(const gl::Data &data,
+gl::Error StateManagerGL::setDrawElementsState(const gl::ContextState &data,
                                                GLsizei count,
                                                GLenum type,
                                                const GLvoid *indices,
@@ -633,7 +643,7 @@ gl::Error StateManagerGL::setDrawElementsState(const gl::Data &data,
     return setGenericDrawState(data);
 }
 
-gl::Error StateManagerGL::setGenericDrawState(const gl::Data &data)
+gl::Error StateManagerGL::onMakeCurrent(const gl::ContextState &data)
 {
     const gl::State &state = *data.state;
 
@@ -645,15 +655,34 @@ gl::Error StateManagerGL::setGenericDrawState(const gl::Data &data)
             mPrevDrawTransformFeedback->syncPausedState(true);
         }
 
-        for (QueryGL *prevQuery : mPrevDrawQueries)
+        for (QueryGL *prevQuery : mCurrentQueries)
         {
             prevQuery->pause();
         }
     }
+    mCurrentQueries.clear();
     mPrevDrawTransformFeedback = nullptr;
-    mPrevDrawQueries.clear();
-
     mPrevDrawContext = data.context;
+
+    // Set the current query state
+    for (GLenum queryType : QueryTypes)
+    {
+        gl::Query *query = state.getActiveQuery(queryType);
+        if (query != nullptr)
+        {
+            QueryGL *queryGL = GetImplAs<QueryGL>(query);
+            queryGL->resume();
+
+            mCurrentQueries.insert(queryGL);
+        }
+    }
+
+    return gl::Error(GL_NO_ERROR);
+}
+
+gl::Error StateManagerGL::setGenericDrawState(const gl::ContextState &data)
+{
+    const gl::State &state = *data.state;
 
     // Sync the current program state
     const gl::Program *program = state.getProgram();
@@ -700,7 +729,8 @@ gl::Error StateManagerGL::setGenericDrawState(const gl::Data &data)
                     bindTexture(textureType, textureGL->getTextureID());
                 }
 
-                textureGL->syncState(textureUnitIndex, texture->getTextureState());
+                textureGL->syncState(textureUnitIndex, texture->getTextureState(),
+                                     texture->getEffectiveBaseLevel());
             }
             else
             {
@@ -751,19 +781,6 @@ gl::Error StateManagerGL::setGenericDrawState(const gl::Data &data)
         mPrevDrawTransformFeedback = nullptr;
     }
 
-    // Set the current query state
-    for (GLenum queryType : QueryTypes)
-    {
-        gl::Query *query = state.getActiveQuery(queryType);
-        if (query != nullptr)
-        {
-            QueryGL *queryGL = GetImplAs<QueryGL>(query);
-            queryGL->resume();
-
-            mPrevDrawQueries.insert(queryGL);
-        }
-    }
-
     return gl::Error(GL_NO_ERROR);
 }
 
@@ -780,11 +797,11 @@ void StateManagerGL::setAttributeCurrentData(size_t index,
                                             mVertexAttribCurrentValues[index].FloatValues);
                 break;
             case GL_INT:
-                mFunctions->vertexAttrib4iv(static_cast<GLuint>(index),
+                mFunctions->vertexAttribI4iv(static_cast<GLuint>(index),
                                             mVertexAttribCurrentValues[index].IntValues);
                 break;
             case GL_UNSIGNED_INT:
-                mFunctions->vertexAttrib4uiv(static_cast<GLuint>(index),
+                mFunctions->vertexAttribI4uiv(static_cast<GLuint>(index),
                                              mVertexAttribCurrentValues[index].UnsignedIntValues);
                 break;
           default: UNREACHABLE();
@@ -1444,6 +1461,10 @@ void StateManagerGL::syncState(const gl::State &state, const gl::State::DirtyBit
                 // TODO(jmadill): split this
                 setPixelUnpackState(state.getUnpackState());
                 break;
+            case gl::State::DIRTY_BIT_UNPACK_BUFFER_BINDING:
+                // TODO(jmadill): split this
+                setPixelUnpackState(state.getUnpackState());
+                break;
             case gl::State::DIRTY_BIT_PACK_ALIGNMENT:
                 // TODO(jmadill): split this
                 setPixelPackState(state.getPackState());
@@ -1461,6 +1482,10 @@ void StateManagerGL::syncState(const gl::State &state, const gl::State::DirtyBit
                 setPixelPackState(state.getPackState());
                 break;
             case gl::State::DIRTY_BIT_PACK_SKIP_PIXELS:
+                // TODO(jmadill): split this
+                setPixelPackState(state.getPackState());
+                break;
+            case gl::State::DIRTY_BIT_PACK_BUFFER_BINDING:
                 // TODO(jmadill): split this
                 setPixelPackState(state.getPackState());
                 break;

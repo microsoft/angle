@@ -3,6 +3,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
+// Framebuffer tests:
+//   Various tests related for Frambuffers.
+//
 
 #include "test_utils/ANGLETest.h"
 
@@ -38,8 +41,13 @@ class FramebufferFormatsTest : public ANGLETest
         }
     }
 
-    void testBitCounts(GLuint fbo, GLint minRedBits, GLint minGreenBits, GLint minBlueBits,
-                       GLint minAlphaBits, GLint minDepthBits, GLint minStencilBits)
+    void testBitCounts(GLuint fbo,
+                       GLint minRedBits,
+                       GLint minGreenBits,
+                       GLint minBlueBits,
+                       GLint minAlphaBits,
+                       GLint minDepthBits,
+                       GLint minStencilBits)
     {
         checkBitCount(fbo, GL_RED_BITS, minRedBits);
         checkBitCount(fbo, GL_GREEN_BITS, minGreenBits);
@@ -49,7 +57,10 @@ class FramebufferFormatsTest : public ANGLETest
         checkBitCount(fbo, GL_STENCIL_BITS, minStencilBits);
     }
 
-    void testTextureFormat(GLenum internalFormat, GLint minRedBits, GLint minGreenBits, GLint minBlueBits,
+    void testTextureFormat(GLenum internalFormat,
+                           GLint minRedBits,
+                           GLint minGreenBits,
+                           GLint minBlueBits,
                            GLint minAlphaBits)
     {
         glGenTextures(1, &mTexture);
@@ -61,10 +72,12 @@ class FramebufferFormatsTest : public ANGLETest
         testBitCounts(mFramebuffer, minRedBits, minGreenBits, minBlueBits, minAlphaBits, 0, 0);
     }
 
-    void testRenderbufferMultisampleFormat(int minESVersion, GLenum attachmentType, GLenum internalFormat)
+    void testRenderbufferMultisampleFormat(int minESVersion,
+                                           GLenum attachmentType,
+                                           GLenum internalFormat)
     {
         // TODO(geofflang): Figure out why this is broken on Intel OpenGL
-        if (isIntel() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
+        if (IsIntel() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE)
         {
             std::cout << "Test skipped on Intel OpenGL." << std::endl;
             return;
@@ -108,6 +121,16 @@ class FramebufferFormatsTest : public ANGLETest
         glRenderbufferStorageMultisampleANGLE(GL_RENDERBUFFER, 2, internalFormat, 128, 128);
         EXPECT_GL_NO_ERROR();
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentType, GL_RENDERBUFFER, mRenderbuffer);
+        EXPECT_GL_NO_ERROR();
+    }
+
+    void testZeroHeightRenderbuffer()
+    {
+        glGenRenderbuffers(1, &mRenderbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, mRenderbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, 1, 0);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER,
+                                  mRenderbuffer);
         EXPECT_GL_NO_ERROR();
     }
 
@@ -290,7 +313,20 @@ TEST_P(FramebufferFormatsTest, IncompleteCubeMap)
     ASSERT_GL_ERROR(GL_INVALID_FRAMEBUFFER_OPERATION);
 }
 
-// Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
+// Test that a renderbuffer with zero height but nonzero width is handled without crashes/asserts.
+TEST_P(FramebufferFormatsTest, ZeroHeightRenderbuffer)
+{
+    if (getClientVersion() < 3)
+    {
+        std::cout << "Test skipped due to missing ES3" << std::endl;
+        return;
+    }
+
+    testZeroHeightRenderbuffer();
+}
+
+// Use this to select which configurations (e.g. which renderer, which GLES major version) these
+// tests should be run against.
 ANGLE_INSTANTIATE_TEST(FramebufferFormatsTest,
                        ES2_D3D9(),
                        ES2_D3D11(),
@@ -300,3 +336,45 @@ ANGLE_INSTANTIATE_TEST(FramebufferFormatsTest,
                        ES3_OPENGL(),
                        ES2_OPENGLES(),
                        ES3_OPENGLES());
+
+class FramebufferInvalidateTest : public ANGLETest
+{
+  protected:
+    FramebufferInvalidateTest() : mFramebuffer(0), mRenderbuffer(0) {}
+
+    void SetUp() override
+    {
+        ANGLETest::SetUp();
+
+        glGenFramebuffers(1, &mFramebuffer);
+        glGenRenderbuffers(1, &mRenderbuffer);
+    }
+
+    void TearDown() override
+    {
+        glDeleteFramebuffers(1, &mFramebuffer);
+        glDeleteRenderbuffers(1, &mRenderbuffer);
+        ANGLETest::TearDown();
+    }
+
+    GLuint mFramebuffer;
+    GLuint mRenderbuffer;
+};
+
+// Covers invalidating an incomplete framebuffer. This should be a no-op, but should not error.
+TEST_P(FramebufferInvalidateTest, Incomplete)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, mFramebuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, mRenderbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mRenderbuffer);
+    EXPECT_GLENUM_EQ(GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT,
+                     glCheckFramebufferStatus(GL_FRAMEBUFFER));
+
+    std::vector<GLenum> attachments;
+    attachments.push_back(GL_COLOR_ATTACHMENT0);
+
+    glInvalidateFramebuffer(GL_FRAMEBUFFER, 1, attachments.data());
+    EXPECT_GL_NO_ERROR();
+}
+
+ANGLE_INSTANTIATE_TEST(FramebufferInvalidateTest, ES3_D3D11(), ES3_OPENGL(), ES3_OPENGLES());

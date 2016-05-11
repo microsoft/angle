@@ -28,27 +28,30 @@ class RendererGL : public Renderer
     gl::Error flush() override;
     gl::Error finish() override;
 
-    gl::Error drawArrays(const gl::Data &data, GLenum mode, GLint first, GLsizei count) override;
-    gl::Error drawArraysInstanced(const gl::Data &data,
+    gl::Error drawArrays(const gl::ContextState &data,
+                         GLenum mode,
+                         GLint first,
+                         GLsizei count) override;
+    gl::Error drawArraysInstanced(const gl::ContextState &data,
                                   GLenum mode,
                                   GLint first,
                                   GLsizei count,
                                   GLsizei instanceCount) override;
 
-    gl::Error drawElements(const gl::Data &data,
+    gl::Error drawElements(const gl::ContextState &data,
                            GLenum mode,
                            GLsizei count,
                            GLenum type,
                            const GLvoid *indices,
                            const gl::IndexRange &indexRange) override;
-    gl::Error drawElementsInstanced(const gl::Data &data,
+    gl::Error drawElementsInstanced(const gl::ContextState &data,
                                     GLenum mode,
                                     GLsizei count,
                                     GLenum type,
                                     const GLvoid *indices,
                                     GLsizei instances,
                                     const gl::IndexRange &indexRange) override;
-    gl::Error drawRangeElements(const gl::Data &data,
+    gl::Error drawRangeElements(const gl::ContextState &data,
                                 GLenum mode,
                                 GLuint start,
                                 GLuint end,
@@ -57,13 +60,15 @@ class RendererGL : public Renderer
                                 const GLvoid *indices,
                                 const gl::IndexRange &indexRange) override;
 
+    ContextImpl *createContext(const gl::ContextState &state) override;
+
     // Shader creation
     CompilerImpl *createCompiler() override;
-    ShaderImpl *createShader(const gl::Shader::Data &data) override;
-    ProgramImpl *createProgram(const gl::Program::Data &data) override;
+    ShaderImpl *createShader(const gl::ShaderState &data) override;
+    ProgramImpl *createProgram(const gl::ProgramState &data) override;
 
     // Framebuffer creation
-    FramebufferImpl *createFramebuffer(const gl::Framebuffer::Data &data) override;
+    FramebufferImpl *createFramebuffer(const gl::FramebufferState &data) override;
 
     // Texture creation
     TextureImpl *createTexture(GLenum target) override;
@@ -75,7 +80,7 @@ class RendererGL : public Renderer
     BufferImpl *createBuffer() override;
 
     // Vertex Array creation
-    VertexArrayImpl *createVertexArray(const gl::VertexArray::Data &data) override;
+    VertexArrayImpl *createVertexArray(const gl::VertexArrayState &data) override;
 
     // Query and Fence creation
     QueryImpl *createQuery(GLenum type) override;
@@ -106,6 +111,8 @@ class RendererGL : public Renderer
 
     GLint getGPUDisjoint() override;
     GLint64 getTimestamp() override;
+
+    void onMakeCurrent(const gl::ContextState &data) override;
 
     const gl::Version &getMaxSupportedESVersion() const;
     const FunctionsGL *getFunctions() const { return mFunctions; }

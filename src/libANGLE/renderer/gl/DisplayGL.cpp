@@ -63,6 +63,14 @@ gl::Context *DisplayGL::createContext(const egl::Config *config,
     return new gl::Context(config, shareContext, mRenderer, attribs);
 }
 
+StreamProducerImpl *DisplayGL::createStreamProducerD3DTextureNV12(
+    egl::Stream::ConsumerType consumerType,
+    const egl::AttributeMap &attribs)
+{
+    UNIMPLEMENTED();
+    return nullptr;
+}
+
 egl::Error DisplayGL::makeCurrent(egl::Surface *drawSurface, egl::Surface *readSurface, gl::Context *context)
 {
     if (!drawSurface)

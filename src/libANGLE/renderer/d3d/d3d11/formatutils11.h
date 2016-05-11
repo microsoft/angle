@@ -31,10 +31,6 @@ struct DXGIFormat
 {
     DXGIFormat();
 
-    GLuint pixelBytes;
-    GLuint blockWidth;
-    GLuint blockHeight;
-
     GLuint redBits;
     GLuint greenBits;
     GLuint blueBits;
@@ -42,15 +38,9 @@ struct DXGIFormat
     GLuint sharedBits;
 
     GLuint depthBits;
-    GLuint depthOffset;
     GLuint stencilBits;
-    GLuint stencilOffset;
 
-    GLenum internalFormat;
     GLenum componentType;
-
-    MipGenerationFunction mipGenerationFunction;
-    ColorReadFunction colorReadFunction;
 
     FastCopyFunctionMap fastCopyFunctions;
 
@@ -58,7 +48,22 @@ struct DXGIFormat
 
     ColorCopyFunction getFastCopyFunction(GLenum format, GLenum type) const;
 };
+
+// This structure is problematic because a resource is associated with multiple DXGI formats.
+// For example, a texture might be stored as DXGI_FORMAT_R16_TYPELESS but store integer components,
+// which are accessed through an DXGI_FORMAT_R16_SINT view. It's easy to write code which queries
+// information about the wrong format. Therefore, use of this should be avoided where possible.
 const DXGIFormat &GetDXGIFormatInfo(DXGI_FORMAT format);
+
+struct DXGIFormatSize
+{
+    DXGIFormatSize(GLuint pixelBits, GLuint blockWidth, GLuint blockHeight);
+
+    GLuint pixelBytes;
+    GLuint blockWidth;
+    GLuint blockHeight;
+};
+const DXGIFormatSize &GetDXGIFormatSizeInfo(DXGI_FORMAT format);
 
 struct VertexFormat
 {

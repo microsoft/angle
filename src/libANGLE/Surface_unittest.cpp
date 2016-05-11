@@ -9,7 +9,7 @@
 #include "libANGLE/angletypes.h"
 #include "libANGLE/AttributeMap.h"
 #include "libANGLE/Config.h"
-#include "libANGLE/Data.h"
+#include "libANGLE/ContextState.h"
 #include "libANGLE/State.h"
 #include "libANGLE/Surface.h"
 #include "libANGLE/renderer/FramebufferImpl_mock.h"
@@ -26,8 +26,7 @@ class MockSurfaceImpl : public rx::SurfaceImpl
     virtual ~MockSurfaceImpl() { destroy(); }
 
     MOCK_METHOD0(initialize, egl::Error());
-    MOCK_METHOD1(createDefaultFramebuffer,
-                 rx::FramebufferImpl *(const gl::Framebuffer::Data &data));
+    MOCK_METHOD1(createDefaultFramebuffer, rx::FramebufferImpl *(const gl::FramebufferState &data));
     MOCK_METHOD0(swap, egl::Error());
     MOCK_METHOD4(postSubBuffer, egl::Error(EGLint, EGLint, EGLint, EGLint));
     MOCK_METHOD2(querySurfacePointerANGLE, egl::Error(EGLint, void**));

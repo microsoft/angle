@@ -77,6 +77,10 @@ class TextureGL : public TextureImpl
 
     gl::Error setStorage(GLenum target, size_t levels, GLenum internalFormat, const gl::Extents &size) override;
 
+    gl::Error setImageExternal(GLenum target,
+                               egl::Stream *stream,
+                               const egl::Stream::GLTextureDescription &desc) override;
+
     gl::Error generateMipmaps(const gl::TextureState &textureState) override;
 
     void bindTexImage(egl::Surface *surface) override;
@@ -84,7 +88,9 @@ class TextureGL : public TextureImpl
 
     gl::Error setEGLImageTarget(GLenum target, egl::Image *image) override;
 
-    void syncState(size_t textureUnit, const gl::TextureState &textureState) const;
+    void syncState(size_t textureUnit,
+                   const gl::TextureState &textureState,
+                   const GLuint effectiveBaseLevel) const;
     GLuint getTextureID() const;
 
     gl::Error getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,
@@ -92,6 +98,8 @@ class TextureGL : public TextureImpl
     {
         return gl::Error(GL_OUT_OF_MEMORY, "Not supported on OpenGL");
     }
+
+    void setBaseLevel(GLuint) override {}
 
   private:
     GLenum mTextureType;

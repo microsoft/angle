@@ -15,6 +15,20 @@
 namespace angle
 {
 
+const GLColor GLColor::red   = GLColor(255u, 0u, 0u, 255u);
+const GLColor GLColor::green = GLColor(0u, 255u, 0u, 255u);
+const GLColor GLColor::blue  = GLColor(0u, 0u, 255u, 255u);
+const GLColor GLColor::cyan  = GLColor(0u, 255u, 255u, 255u);
+const GLColor GLColor::black = GLColor(0u, 0u, 0u, 255u);
+
+namespace
+{
+float ColorNorm(GLubyte channelValue)
+{
+    return static_cast<float>(channelValue) / 255.0f;
+}
+}  // anonymous namespace
+
 GLColor::GLColor() : R(0), G(0), B(0), A(0)
 {
 }
@@ -26,6 +40,11 @@ GLColor::GLColor(GLubyte r, GLubyte g, GLubyte b, GLubyte a) : R(r), G(g), B(b),
 GLColor::GLColor(GLuint colorValue) : R(0), G(0), B(0), A(0)
 {
     memcpy(&R, &colorValue, sizeof(GLuint));
+}
+
+Vector4 GLColor::toNormalizedVector() const
+{
+    return Vector4(ColorNorm(R), ColorNorm(G), ColorNorm(B), ColorNorm(A));
 }
 
 GLColor ReadColor(GLint x, GLint y)
@@ -52,7 +71,11 @@ std::ostream &operator<<(std::ostream &ostream, const GLColor &color)
 }  // namespace angle
 
 ANGLETest::ANGLETest()
-    : mEGLWindow(nullptr), mWidth(16), mHeight(16), mIgnoreD3D11SDKLayersWarnings(false)
+    : mEGLWindow(nullptr),
+      mWidth(16),
+      mHeight(16),
+      mIgnoreD3D11SDKLayersWarnings(false),
+      mQuadVertexBuffer(0)
 {
     mEGLWindow =
         new EGLWindow(GetParam().majorVersion, GetParam().minorVersion, GetParam().eglParameters);
@@ -60,6 +83,10 @@ ANGLETest::ANGLETest()
 
 ANGLETest::~ANGLETest()
 {
+    if (mQuadVertexBuffer)
+    {
+        glDeleteBuffers(1, &mQuadVertexBuffer);
+    }
     SafeDelete(mEGLWindow);
 }
 
@@ -133,6 +160,39 @@ void ANGLETest::swapBuffers()
     }
 }
 
+// static
+std::array<Vector3, 6> ANGLETest::GetQuadVertices()
+{
+    std::array<Vector3, 6> vertices;
+    vertices[0] = Vector3(-1.0f, 1.0f, 0.5f);
+    vertices[1] = Vector3(-1.0f, -1.0f, 0.5f);
+    vertices[2] = Vector3(1.0f, -1.0f, 0.5f);
+    vertices[3] = Vector3(-1.0f, 1.0f, 0.5f);
+    vertices[4] = Vector3(1.0f, -1.0f, 0.5f);
+    vertices[5] = Vector3(1.0f, 1.0f, 0.5f);
+    return vertices;
+}
+
+void ANGLETest::setupQuadVertexBuffer(GLfloat positionAttribZ, GLfloat positionAttribXYScale)
+{
+    if (mQuadVertexBuffer == 0)
+    {
+        glGenBuffers(1, &mQuadVertexBuffer);
+    }
+
+    auto quadVertices = GetQuadVertices();
+    for (Vector3 &vertex : quadVertices)
+    {
+        vertex.x *= positionAttribXYScale;
+        vertex.y *= positionAttribXYScale;
+        vertex.z = positionAttribZ;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, mQuadVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 6, quadVertices.data(), GL_STATIC_DRAW);
+}
+
+// static
 void ANGLETest::drawQuad(GLuint program,
                          const std::string &positionAttribName,
                          GLfloat positionAttribZ)
@@ -140,26 +200,48 @@ void ANGLETest::drawQuad(GLuint program,
     drawQuad(program, positionAttribName, positionAttribZ, 1.0f);
 }
 
+// static
 void ANGLETest::drawQuad(GLuint program,
                          const std::string &positionAttribName,
                          GLfloat positionAttribZ,
                          GLfloat positionAttribXYScale)
 {
+    drawQuad(program, positionAttribName, positionAttribZ, positionAttribXYScale, false);
+}
+
+void ANGLETest::drawQuad(GLuint program,
+                         const std::string &positionAttribName,
+                         GLfloat positionAttribZ,
+                         GLfloat positionAttribXYScale,
+                         bool useVertexBuffer)
+{
+    GLint previousProgram = 0;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &previousProgram);
+    if (previousProgram != static_cast<GLint>(program))
+    {
+        glUseProgram(program);
+    }
+
     GLint positionLocation = glGetAttribLocation(program, positionAttribName.c_str());
 
-    glUseProgram(program);
+    if (useVertexBuffer)
+    {
+        setupQuadVertexBuffer(positionAttribZ, positionAttribXYScale);
+        glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+    else
+    {
+        auto quadVertices = GetQuadVertices();
+        for (Vector3 &vertex : quadVertices)
+        {
+            vertex.x *= positionAttribXYScale;
+            vertex.y *= positionAttribXYScale;
+            vertex.z = positionAttribZ;
+        }
 
-    const GLfloat vertices[] = {
-        -1.0f * positionAttribXYScale,  1.0f * positionAttribXYScale, positionAttribZ,
-        -1.0f * positionAttribXYScale, -1.0f * positionAttribXYScale, positionAttribZ,
-         1.0f * positionAttribXYScale, -1.0f * positionAttribXYScale, positionAttribZ,
-
-        -1.0f * positionAttribXYScale,  1.0f * positionAttribXYScale, positionAttribZ,
-         1.0f * positionAttribXYScale, -1.0f * positionAttribXYScale, positionAttribZ,
-         1.0f * positionAttribXYScale,  1.0f * positionAttribXYScale, positionAttribZ,
-    };
-
-    glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+        glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, 0, quadVertices.data());
+    }
     glEnableVertexAttribArray(positionLocation);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -167,7 +249,55 @@ void ANGLETest::drawQuad(GLuint program,
     glDisableVertexAttribArray(positionLocation);
     glVertexAttribPointer(positionLocation, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
-    glUseProgram(0);
+    if (previousProgram != static_cast<GLint>(program))
+    {
+        glUseProgram(previousProgram);
+    }
+}
+
+void ANGLETest::drawIndexedQuad(GLuint program,
+                                const std::string &positionAttribName,
+                                GLfloat positionAttribZ)
+{
+    drawIndexedQuad(program, positionAttribName, positionAttribZ, 1.0f);
+}
+
+void ANGLETest::drawIndexedQuad(GLuint program,
+                                const std::string &positionAttribName,
+                                GLfloat positionAttribZ,
+                                GLfloat positionAttribXYScale)
+{
+    GLint positionLocation = glGetAttribLocation(program, positionAttribName.c_str());
+
+    GLint activeProgram = 0;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &activeProgram);
+    if (static_cast<GLuint>(activeProgram) != program)
+    {
+        glUseProgram(program);
+    }
+
+    GLuint prevBinding = 0;
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, reinterpret_cast<GLint *>(&prevBinding));
+
+    setupQuadVertexBuffer(positionAttribZ, positionAttribXYScale);
+
+    glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(positionLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, prevBinding);
+
+    const GLushort indices[] = {
+        0, 1, 2, 0, 2, 3,
+    };
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
+
+    glDisableVertexAttribArray(positionLocation);
+    glVertexAttribPointer(positionLocation, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+
+    if (static_cast<GLuint>(activeProgram) != program)
+    {
+        glUseProgram(static_cast<GLuint>(activeProgram));
+    }
 }
 
 GLuint ANGLETest::compileShader(GLenum type, const std::string &source)
@@ -420,47 +550,69 @@ void ANGLETest::SetWindowVisible(bool isVisible)
     mOSWindow->setVisible(isVisible);
 }
 
-bool ANGLETest::isIntel() const
+bool IsIntel()
 {
     std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
     return (rendererString.find("Intel") != std::string::npos);
 }
 
-bool ANGLETest::isAMD() const
+bool IsAMD()
 {
     std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
     return (rendererString.find("AMD") != std::string::npos) ||
            (rendererString.find("ATI") != std::string::npos);
 }
 
-bool ANGLETest::isNVidia() const
+bool IsNVIDIA()
 {
     std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
     return (rendererString.find("NVIDIA") != std::string::npos);
 }
 
-bool ANGLETest::isD3D11() const
+bool IsD3D11()
 {
     std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
     return (rendererString.find("Direct3D11 vs_5_0") != std::string::npos);
 }
 
-bool ANGLETest::isD3D11_FL93() const
+bool IsD3D11_FL93()
 {
     std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
     return (rendererString.find("Direct3D11 vs_4_0_") != std::string::npos);
 }
 
-bool ANGLETest::isD3D9() const
+bool IsD3D9()
 {
     std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
     return (rendererString.find("Direct3D9") != std::string::npos);
 }
 
-bool ANGLETest::isD3DSM3() const
+bool IsD3DSM3()
 {
-    std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
-    return isD3D9() || isD3D11_FL93();
+    return IsD3D9() || IsD3D11_FL93();
+}
+
+bool IsLinux()
+{
+#if defined(ANGLE_PLATFORM_LINUX)
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool IsOSX()
+{
+#if defined(ANGLE_PLATFORM_APPLE)
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool ANGLETest::isOpenGL() const
+{
+    return getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE;
 }
 
 EGLint ANGLETest::getPlatformRenderer() const

@@ -15,10 +15,13 @@
     {
         'angle_end2end_tests_sources':
         [
+            '<(angle_path)/src/tests/gl_tests/BindUniformLocationTest.cpp',
             '<(angle_path)/src/tests/gl_tests/BlendMinMaxTest.cpp',
             '<(angle_path)/src/tests/gl_tests/BlitFramebufferANGLETest.cpp',
             '<(angle_path)/src/tests/gl_tests/BufferDataTest.cpp',
+            '<(angle_path)/src/tests/gl_tests/BuiltinVariableTest.cpp',
             '<(angle_path)/src/tests/gl_tests/ClearTest.cpp',
+            '<(angle_path)/src/tests/gl_tests/ColorMaskTest.cpp',
             '<(angle_path)/src/tests/gl_tests/CompressedTextureTest.cpp',
             '<(angle_path)/src/tests/gl_tests/CopyTexImageTest.cpp',
             '<(angle_path)/src/tests/gl_tests/CubeMapTextureTest.cpp',
@@ -30,8 +33,8 @@
             '<(angle_path)/src/tests/gl_tests/DrawElementsTest.cpp',
             '<(angle_path)/src/tests/gl_tests/ETCTextureTest.cpp',
             '<(angle_path)/src/tests/gl_tests/FenceSyncTests.cpp',
-            '<(angle_path)/src/tests/gl_tests/FramebufferFormatsTest.cpp',
             '<(angle_path)/src/tests/gl_tests/FramebufferRenderMipmapTest.cpp',
+            '<(angle_path)/src/tests/gl_tests/FramebufferTest.cpp',
             '<(angle_path)/src/tests/gl_tests/GLSLTest.cpp',
             '<(angle_path)/src/tests/gl_tests/ImageTest.cpp',
             '<(angle_path)/src/tests/gl_tests/IncompleteTextureTest.cpp',
@@ -68,6 +71,7 @@
             '<(angle_path)/src/tests/gl_tests/ViewportTest.cpp',
             '<(angle_path)/src/tests/egl_tests/EGLContextCompatibilityTest.cpp',
             '<(angle_path)/src/tests/egl_tests/EGLQueryContextTest.cpp',
+            '<(angle_path)/src/tests/egl_tests/EGLSanityCheckTest.cpp',
             '<(angle_path)/src/tests/egl_tests/EGLSurfaceTest.cpp',
             '<(angle_path)/src/tests/test_utils/ANGLETest.cpp',
             '<(angle_path)/src/tests/test_utils/ANGLETest.h',
@@ -85,8 +89,10 @@
             '<(angle_path)/src/tests/egl_tests/EGLDeviceTest.cpp',
             '<(angle_path)/src/tests/egl_tests/EGLPresentPathD3D11Test.cpp',
             '<(angle_path)/src/tests/egl_tests/EGLRenderToBackbufferTest.cpp',
+            '<(angle_path)/src/tests/egl_tests/EGLStreamTest.cpp',
             # TODO(cwallez) for Linux, requires a portable implementation of threads
             '<(angle_path)/src/tests/egl_tests/EGLThreadTest.cpp',
+            '<(angle_path)/src/tests/egl_tests/media/yuvtest.inl',
         ],
         'angle_end2end_tests_x11_sources':
         [

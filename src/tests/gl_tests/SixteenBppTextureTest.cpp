@@ -146,7 +146,7 @@ TEST_P(SixteenBppTextureTest, RGB565Validation)
     // These tests fail on certain Intel machines running an un-updated version of Win7
     // The tests pass after installing the latest updates from Windows Update.
     // TODO: reenable these tests once the bots have been updated
-    if (isIntel() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
+    if (IsIntel() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
     {
         std::cout << "Test skipped on Intel D3D11." << std::endl;
         return;
@@ -187,7 +187,7 @@ TEST_P(SixteenBppTextureTest, RGBA5551Validation)
     // These tests fail on certain Intel machines running an un-updated version of Win7
     // The tests pass after installing the latest updates from Windows Update.
     // TODO: reenable these tests once the bots have been updated
-    if (isIntel() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
+    if (IsIntel() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
     {
         std::cout << "Test skipped on Intel D3D11." << std::endl;
         return;
@@ -225,7 +225,7 @@ TEST_P(SixteenBppTextureTest, RGBA5551ClearAlpha)
     // These tests fail on certain Intel machines running an un-updated version of Win7
     // The tests pass after installing the latest updates from Windows Update.
     // TODO: reenable these tests once the bots have been updated
-    if (isIntel() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
+    if (IsIntel() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
     {
         std::cout << "Test skipped on Intel D3D11." << std::endl;
         return;
@@ -275,7 +275,7 @@ TEST_P(SixteenBppTextureTest, RGBA4444Validation)
     // These tests fail on certain Intel machines running an un-updated version of Win7
     // The tests pass after installing the latest updates from Windows Update.
     // TODO: reenable these tests once the bots have been updated
-    if (isIntel() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
+    if (IsIntel() && getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_D3D11_ANGLE)
     {
         std::cout << "Test skipped on Intel D3D11." << std::endl;
         return;
