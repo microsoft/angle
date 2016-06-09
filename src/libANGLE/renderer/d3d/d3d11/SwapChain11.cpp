@@ -547,22 +547,28 @@ EGLint SwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swap
             }
         }
 
-        if (mRenderer->getRenderer11DeviceCaps().supportsDXGI1_2)
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        // On Windows Holographic, the swap chain can temporarily be null until the HolographicSpace is initialized and the app is provided with a HolographicCamera.
+        if (mSwapChain != nullptr)
+#endif
         {
-            mSwapChain1 = d3d11::DynamicCastComObject<IDXGISwapChain1>(mSwapChain);
+            if (mRenderer->getRenderer11DeviceCaps().supportsDXGI1_2)
+            {
+                mSwapChain1 = d3d11::DynamicCastComObject<IDXGISwapChain1>(mSwapChain);
+            }
+
+            result = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&mBackBufferTexture);
+            ASSERT(SUCCEEDED(result));
+            d3d11::SetDebugName(mBackBufferTexture, "Back buffer texture");
+
+            result = device->CreateRenderTargetView(mBackBufferTexture, NULL, &mBackBufferRTView);
+            ASSERT(SUCCEEDED(result));
+            d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
+
+            result = device->CreateShaderResourceView(mBackBufferTexture, nullptr, &mBackBufferSRView);
+            ASSERT(SUCCEEDED(result));
+            d3d11::SetDebugName(mBackBufferSRView, "Back buffer shader resource view");
         }
-
-        result = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&mBackBufferTexture);
-        ASSERT(SUCCEEDED(result));
-        d3d11::SetDebugName(mBackBufferTexture, "Back buffer texture");
-
-        result = device->CreateRenderTargetView(mBackBufferTexture, NULL, &mBackBufferRTView);
-        ASSERT(SUCCEEDED(result));
-        d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
-
-        result = device->CreateShaderResourceView(mBackBufferTexture, nullptr, &mBackBufferSRView);
-        ASSERT(SUCCEEDED(result));
-        d3d11::SetDebugName(mBackBufferSRView, "Back buffer shader resource view");
     }
 
     mFirstSwap = true;

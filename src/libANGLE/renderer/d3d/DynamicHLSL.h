@@ -67,7 +67,11 @@ class DynamicHLSL : angle::NonCopyable
                                 const ProgramD3DMetadata &programMetadata,
                                 const VaryingPacking &varyingPacking,
                                 std::string *pixelHLSL,
-                                std::string *vertexHLSL) const;
+                                std::string *vertexHLSL
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+                                , bool setRenderTargetArrayIndex = false
+#endif
+                                ) const;
 
     std::string generateGeometryShaderPreamble(const VaryingPacking &varyingPacking) const;
 
@@ -87,7 +91,11 @@ class DynamicHLSL : angle::NonCopyable
 
     void generateVaryingLinkHLSL(ShaderType shaderType,
                                  const VaryingPacking &varyingPacking,
-                                 std::stringstream &linkStream) const;
+                                 std::stringstream &linkStream
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+                                 , bool setRenderTargetArrayIndex = false
+#endif
+                                 ) const;
     void generateVaryingHLSL(const VaryingPacking &varyingPacking,
                              std::stringstream &hlslStream) const;
 

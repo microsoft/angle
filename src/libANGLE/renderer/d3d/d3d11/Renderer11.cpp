@@ -533,6 +533,10 @@ Renderer11::Renderer11(egl::Display *display)
 
         if (requestedMajorVersion == EGL_DONT_CARE || requestedMajorVersion >= 11)
         {
+            if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 1)
+            {
+                mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_11_1);
+            }
             if (requestedMinorVersion == EGL_DONT_CARE || requestedMinorVersion >= 0)
             {
                 mAvailableFeatureLevels.push_back(D3D_FEATURE_LEVEL_11_0);
@@ -800,12 +804,18 @@ egl::Error Renderer11::initializeD3DDevice()
 
 #ifdef _DEBUG
         {
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+            UINT creationFlags = D3D11_CREATE_DEVICE_DEBUG | D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+#else
+            UINT creationFlags = D3D11_CREATE_DEVICE_DEBUG;
+#endif
             TRACE_EVENT0("gpu.angle", "D3D11CreateDevice (Debug)");
-            result = D3D11CreateDevice(nullptr, mRequestedDriverType, nullptr,
-                                       D3D11_CREATE_DEVICE_DEBUG, mAvailableFeatureLevels.data(),
-                                       static_cast<unsigned int>(mAvailableFeatureLevels.size()),
-                                       D3D11_SDK_VERSION, &mDevice,
-                                       &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
+            result = D3D11CreateDevice(
+                nullptr, mRequestedDriverType, nullptr,
+                creationFlags, mAvailableFeatureLevels.data(),
+                static_cast<unsigned int>(mAvailableFeatureLevels.size()),
+                D3D11_SDK_VERSION, &mDevice,
+                &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
         }
 
         if (!mDevice || FAILED(result))
@@ -819,11 +829,18 @@ egl::Error Renderer11::initializeD3DDevice()
             SCOPED_ANGLE_HISTOGRAM_TIMER("GPU.ANGLE.D3D11CreateDeviceMS");
             TRACE_EVENT0("gpu.angle", "D3D11CreateDevice");
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+            UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+#else
+            UINT creationFlags = 0;
+#endif
             result = D3D11CreateDevice(
-                nullptr, mRequestedDriverType, nullptr, 0, mAvailableFeatureLevels.data(),
-                static_cast<unsigned int>(mAvailableFeatureLevels.size()), D3D11_SDK_VERSION,
-                &mDevice, &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
-
+                nullptr, mRequestedDriverType, nullptr,
+                creationFlags, mAvailableFeatureLevels.data(),
+                static_cast<unsigned int>(mAvailableFeatureLevels.size()),
+                D3D11_SDK_VERSION, &mDevice,
+                &(mRenderer11DeviceCaps.featureLevel), &mDeviceContext);
+            
             // Cleanup done by destructor
             if (!mDevice || FAILED(result))
             {
@@ -1506,8 +1523,19 @@ gl::Error Renderer11::updateState(const gl::Data &data, GLenum drawMode)
                                     framebufferObject->getFirstColorbuffer());
 
     // Setting viewport state
-    mStateManager.setViewport(data.caps, data.state->getViewport(), data.state->getNearPlane(),
-                              data.state->getFarPlane());
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (mViewportOverride)
+    {
+        // Windows Holographic sets a viewport to match the holographic camera.
+        // TODO: can this be set by the HolographicSwapChain11 at draw call time?
+        mStateManager.setViewport(data.caps, mViewport, mZNear, mZFar);
+    }
+    else
+#endif
+    {
+        mStateManager.setViewport(data.caps, data.state->getViewport(), data.state->getNearPlane(),
+            data.state->getFarPlane());
+    }
 
     // Setting scissor state
     mStateManager.setScissorRectangle(data.state->getScissor(), data.state->isScissorTestEnabled());
@@ -1634,8 +1662,43 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
             }
             ASSERT(renderTarget);
 
-            framebufferRTVs[colorAttachment] = renderTarget->getRenderTargetView();
-            ASSERT(framebufferRTVs[colorAttachment]);
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+            if (renderTarget->isHolographic())
+            {
+                // TODO: if this can be set at draw call time by the HolographicRenderTarget11, this modification can go away
+                SurfaceRenderTarget11* renderTarget11 = reinterpret_cast<SurfaceRenderTarget11*>(renderTarget);
+                auto holographicSwapChain11 = renderTarget11->getHolographicSwapChain11();
+
+                auto const& d3dViewport = holographicSwapChain11->getViewport();
+                auto const& nearZ = holographicSwapChain11->getNearPlane();
+                auto const& farZ = holographicSwapChain11->getFarPlane();
+
+                mViewportOverride = true;
+                mViewport = gl::Rectangle(
+                    static_cast<int>(d3dViewport.TopLeftX),
+                    static_cast<int>(d3dViewport.TopLeftY),
+                    static_cast<int>(d3dViewport.Width),
+                    static_cast<int>(d3dViewport.Height)
+                );
+                mZNear = static_cast<float>(nearZ);
+                mZFar = static_cast<float>(farZ);
+            }
+            else
+            {
+                mViewportOverride = false;
+            }
+
+            if (renderTarget->getRenderTargetView() == nullptr)
+            {
+                // Holographic render target is not yet ready.
+                return gl::Error(GL_INVALID_INDEX, "Failed to find a valid index into a holographic camera, HRESULT: 0x%X", E_FAIL);
+            }
+            else
+#endif
+            {
+                framebufferRTVs[colorAttachment] = renderTarget->getRenderTargetView();
+                ASSERT(framebufferRTVs[colorAttachment]);
+            }
 
             if (missingColorRenderTarget)
             {
@@ -2214,7 +2277,17 @@ gl::Error Renderer11::applyShadersImpl(const gl::Data &data, GLenum drawMode)
     const auto &inputLayout = programD3D->getCachedInputLayout();
 
     ShaderExecutableD3D *vertexExe = NULL;
-    gl::Error error = programD3D->getVertexExecutableForInputLayout(inputLayout, &vertexExe, nullptr);
+    gl::Error error = gl::Error(0);
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (programD3D->getSupportsVprtShaders())
+    {
+         error = programD3D->getVertexExecutableForInputLayout(inputLayout, &vertexExe, nullptr, true);
+    }
+    else
+#endif
+    {
+        error = programD3D->getVertexExecutableForInputLayout(inputLayout, &vertexExe, nullptr);
+    }
     if (error.isError())
     {
         return error;
@@ -2844,6 +2917,7 @@ int Renderer11::getMajorShaderModel() const
 {
     switch (mRenderer11DeviceCaps.featureLevel)
     {
+      case D3D_FEATURE_LEVEL_11_1: return D3D11_SHADER_MAJOR_VERSION;   // 5
       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MAJOR_VERSION;   // 5
       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MAJOR_VERSION; // 4
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MAJOR_VERSION;   // 4
@@ -2856,6 +2930,7 @@ int Renderer11::getMinorShaderModel() const
 {
     switch (mRenderer11DeviceCaps.featureLevel)
     {
+      case D3D_FEATURE_LEVEL_11_1: return D3D11_SHADER_MINOR_VERSION;   // 0
       case D3D_FEATURE_LEVEL_11_0: return D3D11_SHADER_MINOR_VERSION;   // 0
       case D3D_FEATURE_LEVEL_10_1: return D3D10_1_SHADER_MINOR_VERSION; // 1
       case D3D_FEATURE_LEVEL_10_0: return D3D10_SHADER_MINOR_VERSION;   // 0
@@ -2868,6 +2943,7 @@ std::string Renderer11::getShaderModelSuffix() const
 {
     switch (mRenderer11DeviceCaps.featureLevel)
     {
+      case D3D_FEATURE_LEVEL_11_1: return "";
       case D3D_FEATURE_LEVEL_11_0: return "";
       case D3D_FEATURE_LEVEL_10_1: return "";
       case D3D_FEATURE_LEVEL_10_0: return "";
@@ -3317,7 +3393,10 @@ gl::Error Renderer11::loadExecutable(const void *function,
             ID3D11GeometryShader *streamOutShader = NULL;
 
             HRESULT result = mDevice->CreateVertexShader(function, length, NULL, &vertexShader);
+#ifndef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+            // Windows Holographic optional feature shader will always fail on machines that don't support the feature.
             ASSERT(SUCCEEDED(result));
+#endif
             if (FAILED(result))
             {
                 return gl::Error(GL_OUT_OF_MEMORY, "Failed to create vertex shader, result: 0x%X.", result);

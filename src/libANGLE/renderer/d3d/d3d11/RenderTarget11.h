@@ -14,6 +14,7 @@
 
 namespace rx
 {
+class HolographicSwapChain11;
 class SwapChain11;
 class Renderer11;
 
@@ -27,6 +28,10 @@ class RenderTarget11 : public RenderTargetD3D
     virtual ID3D11RenderTargetView *getRenderTargetView() const = 0;
     virtual ID3D11DepthStencilView *getDepthStencilView() const = 0;
     virtual ID3D11ShaderResourceView *getShaderResourceView() const = 0;
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    virtual bool isHolographic() const = 0;
+#endif
 
     virtual unsigned int getSubresourceIndex() const = 0;
 
@@ -58,6 +63,10 @@ class TextureRenderTarget11 : public RenderTarget11
 
     DXGI_FORMAT getDXGIFormat() const override;
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    bool isHolographic() const override { return false; };
+#endif
+
   private:
     GLsizei mWidth;
     GLsizei mHeight;
@@ -77,6 +86,9 @@ class SurfaceRenderTarget11 : public RenderTarget11
 {
   public:
     SurfaceRenderTarget11(SwapChain11 *swapChain, Renderer11 *renderer, bool depth);
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    SurfaceRenderTarget11(HolographicSwapChain11 *holographicSwapChain, Renderer11 *renderer, bool depth);
+#endif
     virtual ~SurfaceRenderTarget11();
 
     GLsizei getWidth() const override;
@@ -94,10 +106,19 @@ class SurfaceRenderTarget11 : public RenderTarget11
 
     DXGI_FORMAT getDXGIFormat() const override;
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    bool isHolographic() const override { return mIsHolographic; };
+    HolographicSwapChain11* getHolographicSwapChain11() { return mHolographicSwapChain; };
+#endif
+
   private:
     SwapChain11 *mSwapChain;
     Renderer11 *mRenderer;
     bool mDepth;
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    HolographicSwapChain11 *mHolographicSwapChain;
+    bool mIsHolographic;
+#endif
 };
 
 }

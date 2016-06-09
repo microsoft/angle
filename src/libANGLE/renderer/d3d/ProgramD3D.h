@@ -164,7 +164,12 @@ class ProgramD3D : public ProgramImpl
                                                 gl::InfoLog *infoLog);
     gl::Error getVertexExecutableForInputLayout(const gl::InputLayout &inputLayout,
                                                 ShaderExecutableD3D **outExectuable,
-                                                gl::InfoLog *infoLog);
+                                                gl::InfoLog *infoLog
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+                                                , bool useEnhancedPath = false
+#endif
+                                                );
+    bool getSupportsVprtShaders() { return mSupportsVprtVertexShader; };
     gl::Error getGeometryExecutableForPrimitiveType(const gl::Data &data,
                                                     GLenum drawMode,
                                                     ShaderExecutableD3D **outExecutable,
@@ -354,11 +359,16 @@ class ProgramD3D : public ProgramImpl
     DynamicHLSL *mDynamicHLSL;
 
     std::vector<VertexExecutable *> mVertexExecutables;
+    std::vector<VertexExecutable *> mEnhancedVertexExecutables;
     std::vector<PixelExecutable *> mPixelExecutables;
     std::vector<ShaderExecutableD3D *> mGeometryExecutables;
 
     std::string mVertexHLSL;
     D3DCompilerWorkarounds mVertexWorkarounds;
+
+    std::string mEnhancedVertexHLSL;
+    std::string mEnhancedPixelHLSL;
+    D3DCompilerWorkarounds mEnhancedVertexWorkarounds;
 
     std::string mPixelHLSL;
     D3DCompilerWorkarounds mPixelWorkarounds;
@@ -404,6 +414,10 @@ class ProgramD3D : public ProgramImpl
 
     static unsigned int issueSerial();
     static unsigned int mCurrentSerial;
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    bool mSupportsVprtVertexShader;
+#endif
 };
 }
 

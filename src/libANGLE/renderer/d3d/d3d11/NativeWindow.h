@@ -62,6 +62,10 @@ class NativeWindow
     bool initialize();
     bool getClientRect(LPRECT rect);
     bool isIconic();
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    bool isHolographic();
+    InspectableNativeWindow* GetImpl();
+#endif
     static bool isValidNativeWindow(EGLNativeWindowType window);
 
     HRESULT createSwapChain(ID3D11Device* device, DXGIFactory* factory,
@@ -83,7 +87,9 @@ class NativeWindow
 #if defined(ANGLE_ENABLE_WINDOWS_STORE)
     std::shared_ptr<InspectableNativeWindow> mImpl;
 #endif
-
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    bool mIsHolographic;
+#endif
 };
 
 }

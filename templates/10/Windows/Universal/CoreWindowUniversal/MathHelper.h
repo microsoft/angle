@@ -24,7 +24,19 @@ struct Matrix4
     float m[4][4];
 };
 
-inline static Matrix4 SimpleModelMatrix(float radians)
+struct Vec3
+{
+    Vec3(float _x, float _y, float _z)
+    {
+        x = _x;
+        y = _y;
+        z = _z;
+    }
+
+    float x, y, z;
+};
+
+inline static Matrix4 SimpleModelMatrix(float radians, Vec3 position)
 {
     float cosine = cosf(radians);
     float sine = sinf(radians);
@@ -32,21 +44,21 @@ inline static Matrix4 SimpleModelMatrix(float radians)
     return Matrix4(cosine, 0.0f,  -sine, 0.0f,
                      0.0f, 1.0f,   0.0f, 0.0f,
                      sine, 0.0f, cosine, 0.0f,
-                     0.0f, 0.0f,   0.0f, 1.0f);
+                   position.x, position.y, position.z, 1.0f);
 }
 
 inline static Matrix4 SimpleViewMatrix()
 {
-    // Camera is at 60 degrees to the ground, in the YZ plane.
+    // Camera is at the origin, looking in the -Z direction.
     // Camera Look-At is hardcoded to (0, 0, 0).
     // Camera Up is hardcoded to (0, 1, 0).
     const float sqrt3over2 = 0.86603f;
-    const float cameraDistance = 5.0f;
+    const float cameraDistance = 0.0f;
 
-    return Matrix4(1.0f,       0.0f,            0.0f, 0.0f,
-                   0.0f, sqrt3over2,            0.5f, 0.0f,
-                   0.0f,      -0.5f,      sqrt3over2, 0.0f,
-                   0.0f,       0.0f, -cameraDistance, 1.0f);
+    return Matrix4(1.0f,       0.0f,       0.0f, 0.0f,
+                   0.0f, sqrt3over2,       0.0f, 0.0f,
+                   0.0f,       0.0f, sqrt3over2, 0.0f,
+                   0.0f,       0.0f,      -1.0f, 1.0f);
 }
 
 inline static Matrix4 SimpleProjectionMatrix(float aspectRatio)

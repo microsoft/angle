@@ -29,7 +29,9 @@ namespace $safeprojectname$
         void OnVisibilityChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::VisibilityChangedEventArgs^ args);
         void OnWindowClosed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::CoreWindowEventArgs^ args);
 
+        void InitializeEGL(Windows::Graphics::Holographic::HolographicSpace^ holographicSpace);
         void InitializeEGL(Windows::UI::Core::CoreWindow^ window);
+        void App::InitializeEGLInner(Platform::Object^ windowBasis);
         void CleanupEGL();
 
         bool mWindowClosed;
@@ -40,6 +42,12 @@ namespace $safeprojectname$
         EGLSurface mEglSurface;
 
         std::unique_ptr<SimpleRenderer> mCubeRenderer;
+
+        // The holographic space the app will use for rendering.
+        Windows::Graphics::Holographic::HolographicSpace^ mHolographicSpace = nullptr;
+
+        // The world coordinate system. In this example, a reference frame placed in the environment.
+        Windows::Perception::Spatial::SpatialStationaryFrameOfReference^ mStationaryReferenceFrame = nullptr;
     };
 
 }

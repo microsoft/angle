@@ -8,6 +8,9 @@
 
 #include "libANGLE/renderer/d3d/d3d11/winrt/CoreWindowNativeWindow.h"
 #include "libANGLE/renderer/d3d/d3d11/winrt/SwapChainPanelNativeWindow.h"
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+#include "libANGLE/renderer/d3d/d3d11/winrt/HolographicNativeWindow.h"
+#endif
 
 namespace rx
 {
@@ -17,6 +20,9 @@ NativeWindow::NativeWindow(EGLNativeWindowType window,
 {
     mWindow = window;
     mConfig = config;
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    mIsHolographic = false;
+#endif
 }
 
 NativeWindow::~NativeWindow()
@@ -26,6 +32,11 @@ NativeWindow::~NativeWindow()
 void NativeWindow::commitChange()
 {
 }
+
+InspectableNativeWindow* NativeWindow::GetImpl() 
+{ 
+    return mImpl.get();
+};
 
 bool NativeWindow::initialize()
 {
@@ -46,6 +57,9 @@ bool NativeWindow::initialize()
 
     ComPtr<ABI::Windows::UI::Core::ICoreWindow> coreWindow;
     ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> swapChainPanel;
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> holographicSpace;
+#endif
     if (IsCoreWindow(mWindow, &coreWindow))
     {
         mImpl = std::make_shared<CoreWindowNativeWindow>();
@@ -62,6 +76,17 @@ bool NativeWindow::initialize()
             return mImpl->initialize(mWindow, propertySet.Get());
         }
     }
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    else if (IsHolographicSpace(mWindow, &holographicSpace))
+    {
+        mIsHolographic = true;
+        mImpl = std::make_shared<HolographicNativeWindow>();
+        if (mImpl)
+        {
+            return mImpl->initialize(mWindow, propertySet.Get());
+        }
+    }
+#endif
     else
     {
         ERR("Invalid IInspectable EGLNativeWindowType detected. Valid IInspectables include ICoreWindow, ISwapChainPanel and IPropertySet");
@@ -84,6 +109,13 @@ bool NativeWindow::isIconic()
 {
     return false;
 }
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+bool NativeWindow::isHolographic()
+{
+    return mIsHolographic;
+}
+#endif
 
 bool NativeWindow::isValidNativeWindow(EGLNativeWindowType window)
 {
@@ -143,6 +175,29 @@ bool IsSwapChainPanel(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Xaml:
 
     return false;
 }
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+bool IsHolographicSpace(EGLNativeWindowType window, ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> *holographicSpace)
+{
+    if (!window)
+    {
+        return false;
+    }
+
+    ComPtr<IInspectable> space = window;
+    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> holoSpace;
+    if (SUCCEEDED(space.As(&holoSpace)))
+    {
+        if (holographicSpace != nullptr)
+        {
+            *holographicSpace = holoSpace.Detach();
+        }
+        return true;
+    }
+
+    return false;
+}
+#endif
 
 bool IsEGLConfiguredPropertySet(EGLNativeWindowType window, ABI::Windows::Foundation::Collections::IPropertySet **propertySet, IInspectable **eglNativeWindow)
 {

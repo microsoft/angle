@@ -13,6 +13,8 @@ using namespace Windows::UI::Input;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::Graphics::Display;
+using namespace Windows::Graphics::Holographic;
+using namespace Windows::Perception::Spatial;
 using namespace Microsoft::WRL;
 using namespace Platform;
 
@@ -75,8 +77,28 @@ void App::SetWindow(CoreWindow^ window)
     window->Closed += 
         ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &App::OnWindowClosed);
 
-    // The CoreWindow has been created, so EGL can be initialized.
-    InitializeEGL(window);
+    try
+    {
+        // Create a holographic space for the core window for the current view.
+        mHolographicSpace = HolographicSpace::CreateForCoreWindow(window);
+
+        // Get the default SpatialLocator.
+        SpatialLocator^ mLocator = SpatialLocator::GetDefault();
+
+        // Create a stationary frame of reference.
+        mStationaryReferenceFrame = mLocator->CreateStationaryFrameOfReferenceAtCurrentLocation();
+
+        // The HolographicSpace has been created, so EGL can be initialized in holographic mode.
+        InitializeEGL(mHolographicSpace);
+    }
+    catch (Platform::Exception^ ex)
+    {
+        if (ex->HResult == HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED))
+        {
+            // Device does not support holographic spaces. Initialize EGL to use the CoreWindow instead.
+            InitializeEGL(window);
+        }
+    }
 }
 
 // Initializes scene resources
@@ -89,7 +111,14 @@ void App::RecreateRenderer()
 {
     if (!mCubeRenderer)
     {
-        mCubeRenderer.reset(new SimpleRenderer());
+        if (mHolographicSpace != nullptr)
+        {
+            mCubeRenderer.reset(new SimpleRenderer(true));
+        }
+        else
+        {
+            mCubeRenderer.reset(new SimpleRenderer(false));
+        }
     }
 }
 
@@ -118,7 +147,16 @@ void App::Run()
                 mCubeRenderer.reset(nullptr);
                 CleanupEGL();
 
-                InitializeEGL(CoreWindow::GetForCurrentThread());
+                
+                if (mHolographicSpace != nullptr)
+                {
+                    InitializeEGL(mHolographicSpace);
+                }
+                else
+                {
+                    InitializeEGL(CoreWindow::GetForCurrentThread());
+                }
+
                 RecreateRenderer();
             }
         }
@@ -155,7 +193,17 @@ void App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
     mWindowClosed = true;
 }
 
-void App::InitializeEGL(CoreWindow^ window)
+void App::InitializeEGL(Windows::UI::Core::CoreWindow^ window)
+{
+    App::InitializeEGLInner(window);
+}
+
+void App::InitializeEGL(Windows::Graphics::Holographic::HolographicSpace^ holographicSpace)
+{
+    App::InitializeEGLInner(holographicSpace);
+}
+
+void App::InitializeEGLInner(Platform::Object^ windowBasis)
 {
     const EGLint configAttributes[] = 
     {
@@ -283,6 +331,11 @@ void App::InitializeEGL(CoreWindow^ window)
     // Create a PropertySet and initialize with the EGLNativeWindowType.
     PropertySet^ surfaceCreationProperties = ref new PropertySet();
     surfaceCreationProperties->Insert(ref new String(EGLNativeWindowTypeProperty), window);
+    surfaceCreationProperties->Insert(ref new String(EGLNativeWindowTypeProperty), windowBasis);
+    if (mStationaryReferenceFrame != nullptr)
+    {
+        surfaceCreationProperties->Insert(ref new String(EGLBaseCoordinateSystemProperty), mStationaryReferenceFrame);
+    }
 
     // You can configure the surface to render at a lower resolution and be scaled up to
     // the full window size. This scaling is often free on mobile hardware.

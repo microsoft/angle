@@ -13,6 +13,9 @@
 #include "libANGLE/renderer/d3d/RendererD3D.h"
 #include "libANGLE/renderer/d3d/RenderTargetD3D.h"
 #include "libANGLE/renderer/d3d/SwapChainD3D.h"
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+#include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
+#endif
 
 #include <tchar.h>
 #include <EGL/eglext.h>
@@ -89,10 +92,26 @@ egl::Error SurfaceD3D::initialize()
         }
     }
 
-    egl::Error error = resetSwapChain();
-    if (error.isError())
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (mNativeWindow.isHolographic())
     {
-        return error;
+        // The Windows Holographic code path waits to create the swap chain, but it does need access to the D3D device at this point.
+        // TODO: setd3ddevice on mNativeWindow, have it pass through
+        HolographicNativeWindow* holographicNativeWindow = reinterpret_cast<HolographicNativeWindow*>(mNativeWindow.GetImpl());
+        Renderer11* renderer11 = reinterpret_cast<Renderer11*>(mRenderer);
+        holographicNativeWindow->setRenderer11(renderer11);
+
+        ComPtr<ID3D11Device> device = reinterpret_cast<ID3D11Device*>(renderer11->getD3DDevice());
+        holographicNativeWindow->setD3DDevice(device.Get());
+    }
+    else
+#endif
+    {
+        egl::Error error = resetSwapChain();
+        if (error.isError())
+        {
+            return error;
+        }
     }
 
     return egl::Error(EGL_SUCCESS);
@@ -141,7 +160,7 @@ egl::Error SurfaceD3D::resetSwapChain()
     }
 
     mSwapChain = mRenderer->createSwapChain(mNativeWindow, mShareHandle, mRenderTargetFormat,
-                                            mDepthStencilFormat, mOrientation);
+        mDepthStencilFormat, mOrientation);
     if (!mSwapChain)
     {
         return egl::Error(EGL_BAD_ALLOC);
@@ -182,11 +201,16 @@ egl::Error SurfaceD3D::resizeSwapChain(int backbufferWidth, int backbufferHeight
 
 egl::Error SurfaceD3D::resetSwapChain(int backbufferWidth, int backbufferHeight)
 {
-    ASSERT(backbufferWidth >= 0 && backbufferHeight >= 0);
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (!mNativeWindow.isHolographic())
+#endif
+    {
+        ASSERT(backbufferWidth >= 0 && backbufferHeight >= 0);
+    }
     ASSERT(mSwapChain);
 
     EGLint status = mSwapChain->reset(std::max(1, backbufferWidth), std::max(1, backbufferHeight), mSwapInterval);
-
+    
     if (status == EGL_CONTEXT_LOST)
     {
         mRenderer->notifyDeviceLost();
@@ -197,8 +221,20 @@ egl::Error SurfaceD3D::resetSwapChain(int backbufferWidth, int backbufferHeight)
         return egl::Error(status);
     }
 
-    mWidth = backbufferWidth;
-    mHeight = backbufferHeight;
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (mNativeWindow.isHolographic())
+    {
+        HolographicSwapChain11* holographicSwapChain = reinterpret_cast<HolographicSwapChain11*>(mSwapChain);
+        mWidth = holographicSwapChain->getWidth();
+        mHeight = holographicSwapChain->getHeight();        
+    }
+    else
+#endif
+    {
+        mWidth = backbufferWidth;
+        mHeight = backbufferHeight;
+    }
+
     mSwapIntervalDirty = false;
 
     return egl::Error(EGL_SUCCESS);
@@ -223,7 +259,25 @@ egl::Error SurfaceD3D::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 
     if (width != 0 && height != 0)
     {
-        EGLint status = mSwapChain->swapRect(x, y, width, height);
+        EGLint status = EGL_SUCCESS;
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        if (mNativeWindow.isHolographic())
+        {
+            // TODO: for swap chains based on holographic native windows, it will need to handle scenarios where the camera is removed
+            HolographicNativeWindow* holographicNativeWindow = reinterpret_cast<HolographicNativeWindow*>(mNativeWindow.GetImpl());
+            auto frame = holographicNativeWindow->GetHolographicFrame();
+            if (frame != nullptr)
+            {
+                HolographicSwapChain11* holographicSwapChain = reinterpret_cast<HolographicSwapChain11*>(mSwapChain);
+                status = holographicSwapChain->swapRect(frame);
+            }
+        }
+        else
+#endif
+        {
+            status = mSwapChain->swapRect(x, y, width, height);
+        }
 
         if (status == EGL_CONTEXT_LOST)
         {
@@ -246,8 +300,12 @@ bool SurfaceD3D::checkForOutOfDateSwapChain()
     RECT client;
     int clientWidth = getWidth();
     int clientHeight = getHeight();
-    bool sizeDirty = false;
+    bool sizeDirty = false;    
+#ifndef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
     if (!mFixedSize && !mNativeWindow.isIconic())
+#else
+    if (!mFixedSize && !mNativeWindow.isIconic() && !mNativeWindow.isHolographic())
+#endif
     {
         // The window is automatically resized to 150x22 when it's minimized, but the swapchain shouldn't be resized
         // because that's not a useful size to render to.
@@ -342,15 +400,48 @@ egl::Error SurfaceD3D::querySurfacePointerANGLE(EGLint attribute, void **value)
 gl::Error SurfaceD3D::getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,
                                                 FramebufferAttachmentRenderTarget **rtOut)
 {
-    if (target.binding() == GL_BACK)
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    // In holographic mode, the swap chain is provided by the system via a HolographicCamera.
+    HRESULT hr = S_OK;
+        
+    // Create/upkeep the holographic swap chain
+    if (mNativeWindow.isHolographic())
     {
-        *rtOut = mSwapChain->getColorRenderTarget();
+        if (mSwapChain == nullptr)
+        {
+            HolographicNativeWindow* holographicNativeWindow = reinterpret_cast<HolographicNativeWindow*>(mNativeWindow.GetImpl());
+
+            // TODO: be able to use multiple HolographicCameras
+            HolographicSwapChain11* swapChain = nullptr;
+            hr = holographicNativeWindow->GetHolographicSwapChain(0, &swapChain);
+            if (SUCCEEDED(hr))
+            {
+                mSwapChain = swapChain;
+            }
+        }
+        
+        resetSwapChain(0, 0);
     }
+
+    if (mSwapChain != nullptr)
+#endif
+    {
+        if (target.binding() == GL_BACK)
+        {
+            *rtOut = mSwapChain->getColorRenderTarget();
+        }
+        else
+        {
+            *rtOut = mSwapChain->getDepthStencilRenderTarget();
+        }
+        return gl::Error(GL_NO_ERROR);
+    }
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
     else
     {
-        *rtOut = mSwapChain->getDepthStencilRenderTarget();
+        return gl::Error(GL_INVALID_INDEX, "Failed to find a valid index into a holographic camera, HRESULT: 0x%X", hr);
     }
-    return gl::Error(GL_NO_ERROR);
+#endif
 }
 
 }

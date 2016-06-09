@@ -323,9 +323,23 @@ SurfaceRenderTarget11::SurfaceRenderTarget11(SwapChain11 *swapChain, Renderer11 
     : mSwapChain(swapChain),
       mRenderer(renderer),
       mDepth(depth)
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+      , mIsHolographic(false)
+#endif
 {
     ASSERT(mSwapChain);
 }
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+SurfaceRenderTarget11::SurfaceRenderTarget11(HolographicSwapChain11 *holographicSwapChain, Renderer11 *renderer, bool depth)
+    : mHolographicSwapChain(holographicSwapChain),
+      mRenderer(renderer),
+      mDepth(depth),
+      mIsHolographic(true)
+{
+    ASSERT(holographicSwapChain);
+}
+#endif
 
 SurfaceRenderTarget11::~SurfaceRenderTarget11()
 {
@@ -333,12 +347,30 @@ SurfaceRenderTarget11::~SurfaceRenderTarget11()
 
 GLsizei SurfaceRenderTarget11::getWidth() const
 {
-    return mSwapChain->getWidth();
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (mIsHolographic)
+    {
+        return mHolographicSwapChain->getWidth();
+    }
+    else
+#endif
+    {
+        return mSwapChain->getWidth();
+    }
 }
 
 GLsizei SurfaceRenderTarget11::getHeight() const
 {
-    return mSwapChain->getHeight();
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (mIsHolographic)
+    {
+        return mHolographicSwapChain->getHeight();
+    }
+    else
+#endif
+    {
+        return mSwapChain->getHeight();
+    }
 }
 
 GLsizei SurfaceRenderTarget11::getDepth() const
@@ -348,7 +380,16 @@ GLsizei SurfaceRenderTarget11::getDepth() const
 
 GLenum SurfaceRenderTarget11::getInternalFormat() const
 {
-    return (mDepth ? mSwapChain->GetDepthBufferInternalFormat() : mSwapChain->GetRenderTargetInternalFormat());
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (mIsHolographic)
+    {
+        return (mDepth ? mHolographicSwapChain->GetDepthBufferInternalFormat() : mHolographicSwapChain->GetRenderTargetInternalFormat());
+    }
+    else
+#endif
+    {
+        return (mDepth ? mSwapChain->GetDepthBufferInternalFormat() : mSwapChain->GetRenderTargetInternalFormat());
+    }
 }
 
 GLsizei SurfaceRenderTarget11::getSamples() const
@@ -359,22 +400,58 @@ GLsizei SurfaceRenderTarget11::getSamples() const
 
 ID3D11Resource *SurfaceRenderTarget11::getTexture() const
 {
-    return (mDepth ? mSwapChain->getDepthStencilTexture() : mSwapChain->getOffscreenTexture());
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (mIsHolographic)
+    {
+        return (mDepth ? mHolographicSwapChain->getDepthStencilTexture() : mHolographicSwapChain->getRenderTargetTexture());
+    }
+    else
+#endif
+    {
+        return (mDepth ? mSwapChain->getDepthStencilTexture() : mSwapChain->getOffscreenTexture());
+    }
 }
 
 ID3D11RenderTargetView *SurfaceRenderTarget11::getRenderTargetView() const
 {
-    return (mDepth ? NULL : mSwapChain->getRenderTarget());
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (mIsHolographic)
+    {
+        return (mDepth ? NULL : mHolographicSwapChain->getRenderTarget());
+    }
+    else
+#endif
+    {
+        return (mDepth ? NULL : mSwapChain->getRenderTarget());
+    }
 }
 
 ID3D11DepthStencilView *SurfaceRenderTarget11::getDepthStencilView() const
 {
-    return (mDepth ? mSwapChain->getDepthStencil() : NULL);
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (mIsHolographic)
+    {
+        return (mDepth ? mHolographicSwapChain->getDepthStencil() : NULL);
+    }
+    else
+#endif
+    {
+        return (mDepth ? mSwapChain->getDepthStencil() : NULL);
+    }
 }
 
 ID3D11ShaderResourceView *SurfaceRenderTarget11::getShaderResourceView() const
 {
-    return (mDepth ? mSwapChain->getDepthStencilShaderResource() : mSwapChain->getRenderTargetShaderResource());
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (mIsHolographic)
+    {
+        return (mDepth ? mHolographicSwapChain->getDepthStencilShaderResource() : mHolographicSwapChain->getRenderTargetShaderResource());
+    }
+    else
+#endif
+    {
+        return (mDepth ? mSwapChain->getDepthStencilShaderResource() : mSwapChain->getRenderTargetShaderResource());
+    }
 }
 
 unsigned int SurfaceRenderTarget11::getSubresourceIndex() const

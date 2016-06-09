@@ -23,6 +23,16 @@
 const wchar_t EGLNativeWindowTypeProperty[] = L"EGLNativeWindowTypeProperty";
 
 //
+// Property: EGLBaseCoordinateSystemProperty
+// Type: IInspectable
+// Description: Set this property to specify the Windows Holographic spatial reference
+//              frame that is to be used for rendering holographic frames.
+//              If the EGLNativeWindowTypeProperty property contains an IHolographicSpace 
+//              and this property is missing, surface creation will fail.
+//
+const wchar_t EGLBaseCoordinateSystemProperty [] = L"EGLBaseCoordinateSystemProperty";
+
+//
 // Property: EGLRenderSurfaceSizeProperty
 // Type: Size
 // Description: Set this property to specify a preferred size in pixels of the render surface.

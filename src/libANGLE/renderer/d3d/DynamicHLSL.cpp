@@ -276,7 +276,7 @@ std::string DynamicHLSL::generateVertexShaderForInputLayout(
             }
 
             initStream << ";\n";
-
+            
             inputIndex += VariableRowCount(TransposeMatrixType(shaderAttribute.type));
         }
     }
@@ -363,7 +363,11 @@ std::string DynamicHLSL::generatePixelShaderForOutputSignature(
 
 void DynamicHLSL::generateVaryingLinkHLSL(ShaderType shaderType,
                                           const VaryingPacking &varyingPacking,
-                                          std::stringstream &linkStream) const
+                                          std::stringstream &linkStream
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+                                          , bool setRenderTargetArrayIndex
+#endif
+                                          ) const
 {
     const auto &builtins = varyingPacking.builtins(shaderType);
     ASSERT(builtins.dxPosition.enabled);
@@ -394,6 +398,14 @@ void DynamicHLSL::generateVaryingLinkHLSL(ShaderType shaderType,
     // same register.
     generateVaryingHLSL(varyingPacking, linkStream);
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    // Do this last, because the pixel shader will not use it.
+    if (setRenderTargetArrayIndex)
+    {
+        linkStream << "    uint dx_RenderTargetArrayIndex : SV_RenderTargetArrayIndex;\n";
+    }
+#endif
+
     linkStream << "};\n";
 }
 
@@ -402,7 +414,11 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data,
                                          const ProgramD3DMetadata &programMetadata,
                                          const VaryingPacking &varyingPacking,
                                          std::string *pixelHLSL,
-                                         std::string *vertexHLSL) const
+                                         std::string *vertexHLSL
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+                                         , bool setRenderTargetArrayIndex
+#endif
+                                         ) const
 {
     ASSERT(pixelHLSL->empty() && vertexHLSL->empty());
 
@@ -440,7 +456,7 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data,
 
     // Write the HLSL input/output declarations
     vertexStream << "struct VS_OUTPUT\n";
-    generateVaryingLinkHLSL(SHADER_VERTEX, varyingPacking, vertexStream);
+    generateVaryingLinkHLSL(SHADER_VERTEX, varyingPacking, vertexStream, setRenderTargetArrayIndex);
     vertexStream << "\n"
                  << "VS_OUTPUT main(VS_INPUT input)\n"
                  << "{\n"
@@ -544,6 +560,13 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data,
         }
 
         vertexStream << ";\n";
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        if (setRenderTargetArrayIndex && (varying.name == "vRenderTargetArrayIndex"))
+        {
+            vertexStream << "output.dx_RenderTargetArrayIndex = " + decorateVariable(varying.name) + ";\n";
+        }
+#endif
     }
 
     // Instanced PointSprite emulation requires additional entries to calculate
@@ -796,7 +819,7 @@ std::string DynamicHLSL::generateGeometryShaderPreamble(const VaryingPacking &va
     generateVaryingLinkHLSL(SHADER_VERTEX, varyingPacking, preambleStream);
     preambleStream << "\n"
                    << "struct GS_OUTPUT\n";
-    generateVaryingLinkHLSL(SHADER_GEOMETRY, varyingPacking, preambleStream);
+    generateVaryingLinkHLSL(SHADER_GEOMETRY, varyingPacking, preambleStream, true);
     preambleStream
         << "\n"
         << "void copyVertex(inout GS_OUTPUT output, GS_INPUT input, GS_INPUT flatinput)\n"
@@ -816,6 +839,14 @@ std::string DynamicHLSL::generateGeometryShaderPreamble(const VaryingPacking &va
             preambleStream << "flat";
         }
         preambleStream << "input.v" << varyingRegister.semanticIndex << "; \n";
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        if (varyingRegister.packedVarying->varying->name == "vRenderTargetArrayIndex")
+        {
+            preambleStream << "    output.dx_RenderTargetArrayIndex = ";
+            preambleStream << "input.v" << varyingRegister.semanticIndex << "; \n"; 
+        }
+#endif
     }
 
     if (builtins.glFragCoord.enabled)

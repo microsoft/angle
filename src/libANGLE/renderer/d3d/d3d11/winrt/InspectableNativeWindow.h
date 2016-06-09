@@ -18,6 +18,9 @@
 
 #include <windows.ui.xaml.h>
 #include <windows.ui.xaml.media.dxinterop.h>
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+#include <windows.graphics.holographic.h>
+#endif
 
 using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Wrappers;
@@ -111,6 +114,9 @@ class InspectableNativeWindow
 bool IsValidEGLNativeWindowType(EGLNativeWindowType window);
 bool IsCoreWindow(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Core::ICoreWindow> *coreWindow = nullptr);
 bool IsSwapChainPanel(EGLNativeWindowType window, ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> *swapChainPanel = nullptr);
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+bool IsHolographicSpace(EGLNativeWindowType window, ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> *holographicSpace = nullptr);
+#endif
 bool IsEGLConfiguredPropertySet(EGLNativeWindowType window, ABI::Windows::Foundation::Collections::IPropertySet **propertySet = nullptr, IInspectable **inspectable = nullptr);
 
 HRESULT GetOptionalPropertyValue(const ComPtr<ABI::Windows::Foundation::Collections::IMap<HSTRING, IInspectable*>> &propertyMap,

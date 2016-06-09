@@ -22,6 +22,12 @@
 #include "libANGLE/renderer/d3d/d3d11/RenderStateCache.h"
 #include "libANGLE/renderer/d3d/d3d11/StateManager11.h"
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+#include "libANGLE/renderer/d3d/d3d11/winrt/HolographicNativeWindow.h"
+#include <windows.graphics.directx.direct3d11.h>
+#include <windows.graphics.holographic.h>
+#endif
+
 namespace gl
 {
 class FramebufferAttachment;
@@ -117,6 +123,12 @@ class Renderer11 : public RendererD3D
                                   GLenum backBufferFormat,
                                   GLenum depthBufferFormat,
                                   EGLint orientation) override;
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    SwapChainD3D *createHolographicSwapChain(HolographicNativeWindow nativeWindow,
+        ABI::Windows::Graphics::Holographic::IHolographicCamera* pHolographicCamera,
+        HANDLE shareHandle);
+#endif
 
     CompilerImpl *createCompiler() override;
 
@@ -491,6 +503,13 @@ class Renderer11 : public RendererD3D
     std::vector<GLuint> mScratchIndexDataBuffer;
 
     mutable Optional<bool> mSupportsShareHandles;
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    bool mViewportOverride = false;
+    gl::Rectangle mViewport;
+    float mZNear;
+    float mZFar;
+#endif
 };
 
 }

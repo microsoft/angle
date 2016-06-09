@@ -51,6 +51,9 @@
 #       define ANGLE_ENABLE_WINDOWS_STORE 1
 #   endif
 
+// Uncomment this to enable the Windows Holographic code path.
+//#   define ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+
 #   if defined(ANGLE_ENABLE_D3D9)
 #       include <d3d9.h>
 #       include <d3dcompiler.h>
@@ -59,14 +62,22 @@
 #   if defined(ANGLE_ENABLE_D3D11)
 #       include <d3d10_1.h>
 #       include <d3d11.h>
-#       include <d3d11_1.h>
+#       if defined(ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC)
+#           include <d3d11_4.h>
+#       else
+#           include <d3d11_1.h>
+#       endif
 #       include <dxgi.h>
 #       include <dxgi1_2.h>
 #       include <d3dcompiler.h>
 #   endif
 
 #   if defined(ANGLE_ENABLE_WINDOWS_STORE)
-#       include <dxgi1_3.h>
+#       if defined(ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC)
+#           include <dxgi1_4.h>
+#       else
+#           include <dxgi1_3.h>
+#       endif
 #       if defined(_DEBUG)
 #           include <DXProgrammableCapture.h>
 #           include <dxgidebug.h>

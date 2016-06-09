@@ -22,6 +22,9 @@
 #include "libANGLE/renderer/d3d/ShaderExecutableD3D.h"
 #include "libANGLE/renderer/d3d/VaryingPacking.h"
 #include "libANGLE/renderer/d3d/VertexDataManager.h"
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+#include "libAngle/renderer/d3d/d3d11/winrt/HolographicSwapChain11.h"
+#endif
 
 namespace rx
 {
@@ -122,6 +125,14 @@ std::vector<PackedVarying> MergeVaryings(const gl::Shader &vertexShader,
         {
             continue;
         }
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        if (output.name == "vRenderTargetArrayIndex")
+        {
+            packedVaryings.push_back(PackedVarying(output, output.interpolation));
+            continue;
+        }
+#endif
 
         for (const sh::Varying &input : fragmentShader.getVaryings())
         {
@@ -1190,22 +1201,28 @@ gl::Error ProgramD3D::getPixelExecutableForOutputLayout(const std::vector<GLenum
 
 gl::Error ProgramD3D::getVertexExecutableForInputLayout(const gl::InputLayout &inputLayout,
                                                         ShaderExecutableD3D **outExectuable,
-                                                        gl::InfoLog *infoLog)
+                                                        gl::InfoLog *infoLog
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+                                                        , bool useEnhancedPath
+#endif
+                                                        )
 {
     VertexExecutable::getSignature(mRenderer, inputLayout, &mCachedVertexSignature);
 
-    for (size_t executableIndex = 0; executableIndex < mVertexExecutables.size(); executableIndex++)
+    std::vector<VertexExecutable *>& executablesList = useEnhancedPath ? mEnhancedVertexExecutables : mVertexExecutables;
+
+    for (size_t executableIndex = 0; executableIndex < executablesList.size(); executableIndex++)
     {
-        if (mVertexExecutables[executableIndex]->matchesSignature(mCachedVertexSignature))
+        if (executablesList[executableIndex]->matchesSignature(mCachedVertexSignature))
         {
-            *outExectuable = mVertexExecutables[executableIndex]->shaderExecutable();
+            *outExectuable = executablesList[executableIndex]->shaderExecutable();
             return gl::Error(GL_NO_ERROR);
         }
     }
 
     // Generate new dynamic layout with attribute conversions
     std::string finalVertexHLSL = mDynamicHLSL->generateVertexShaderForInputLayout(
-        mVertexHLSL, inputLayout, mData.getAttributes());
+        useEnhancedPath ? mEnhancedVertexHLSL : mVertexHLSL, inputLayout, mData.getAttributes());
 
     // Generate new vertex executable
     ShaderExecutableD3D *vertexExecutable = NULL;
@@ -1224,7 +1241,7 @@ gl::Error ProgramD3D::getVertexExecutableForInputLayout(const gl::InputLayout &i
 
     if (vertexExecutable)
     {
-        mVertexExecutables.push_back(
+        executablesList.push_back(
             new VertexExecutable(inputLayout, mCachedVertexSignature, vertexExecutable));
     }
     else if (!infoLog)
@@ -1239,20 +1256,27 @@ gl::Error ProgramD3D::getVertexExecutableForInputLayout(const gl::InputLayout &i
 }
 
 gl::Error ProgramD3D::getGeometryExecutableForPrimitiveType(const gl::Data &data,
-                                                            GLenum drawMode,
-                                                            ShaderExecutableD3D **outExecutable,
-                                                            gl::InfoLog *infoLog)
+    GLenum drawMode,
+    ShaderExecutableD3D **outExecutable,
+    gl::InfoLog *infoLog)
 {
     if (outExecutable)
     {
         *outExecutable = nullptr;
     }
 
-    // Return a null shader if the current rendering doesn't use a geometry shader
-    if (!usesGeometryShader(drawMode))
+#ifndef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
     {
-        return gl::Error(GL_NO_ERROR);
+        // rendering holographically using instancing
+        // uses a pass-through geometry shader
+
+        // Return a null shader if the current rendering doesn't use a geometry shader
+        if (!usesGeometryShader(drawMode))
+        {
+            return gl::Error(GL_NO_ERROR);
+        }
     }
+#endif  
 
     gl::PrimitiveType geometryShaderType = GetGeometryShaderTypeFromDrawMode(drawMode);
 
@@ -1303,6 +1327,20 @@ LinkResult ProgramD3D::compileProgramExecutables(const gl::Data &data, gl::InfoL
         return LinkResult(false, error);
     }
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    ShaderExecutableD3D *enhancedVertexExecutable = NULL;
+    gl::Error optionalFeatureError =
+        getVertexExecutableForInputLayout(defaultInputLayout, &enhancedVertexExecutable, &infoLog, true);
+    if (optionalFeatureError.isError())
+    {
+        mSupportsVprtVertexShader = false;
+    }
+    else if (enhancedVertexExecutable != nullptr)
+    {
+        mSupportsVprtVertexShader = true;
+    }
+#endif
+
     std::vector<GLenum> defaultPixelOutput      = GetDefaultOutputLayoutFromShader(getPixelShaderKey());
     ShaderExecutableD3D *defaultPixelExecutable = NULL;
     error =
@@ -1331,10 +1369,33 @@ LinkResult ProgramD3D::compileProgramExecutables(const gl::Data &data, gl::InfoL
         vertexShaderD3D->appendDebugInfo("\nGEOMETRY SHADER END\n\n\n");
     }
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    {
+        // rendering holographically using instancing
+        // TODO: create a shader EXE for each type of GL_geometry, pick one depending on the state at draw time
+        getGeometryExecutableForPrimitiveType(data, GL_TRIANGLES, &pointGS, &infoLog);
+        ASSERT(pointGS);
+
+        // Geometry shaders are currently only used internally, so there is no corresponding shader
+        // object at the interface level. For now the geometry shader debug info is prepended to
+        // the vertex shader.
+        vertexShaderD3D->appendDebugInfo("// GEOMETRY SHADER BEGIN\n\n");
+        vertexShaderD3D->appendDebugInfo(pointGS->getDebugInfo());
+        vertexShaderD3D->appendDebugInfo("\nGEOMETRY SHADER END\n\n\n");
+    }
+#endif
+
     if (defaultVertexExecutable)
     {
         vertexShaderD3D->appendDebugInfo(defaultVertexExecutable->getDebugInfo());
     }
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (enhancedVertexExecutable)
+    {
+        vertexShaderD3D->appendDebugInfo(enhancedVertexExecutable->getDebugInfo());
+    }
+#endif
 
     if (defaultPixelExecutable)
     {
@@ -1343,8 +1404,11 @@ LinkResult ProgramD3D::compileProgramExecutables(const gl::Data &data, gl::InfoL
         fragmentShaderD3D->appendDebugInfo(defaultPixelExecutable->getDebugInfo());
     }
 
-    bool linkSuccess = (defaultVertexExecutable && defaultPixelExecutable &&
-                        (!usesGeometryShader(GL_POINTS) || pointGS));
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    bool linkSuccess = (defaultVertexExecutable && defaultPixelExecutable && pointGS);
+#else
+    bool linkSuccess = (defaultVertexExecutable && defaultPixelExecutable && (!usesGeometryShader(GL_POINTS) || pointGS));
+#endif
     return LinkResult(linkSuccess, gl::Error(GL_NO_ERROR));
 }
 
@@ -1423,6 +1487,14 @@ LinkResult ProgramD3D::link(const gl::Data &data, gl::InfoLog &infoLog)
     {
         return LinkResult(false, gl::Error(GL_NO_ERROR));
     }
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (!mDynamicHLSL->generateShaderLinkHLSL(data, mData, metadata, varyingPacking, &mEnhancedPixelHLSL,
+                                              &mEnhancedVertexHLSL, true))
+    {
+        return LinkResult(false, gl::Error(GL_NO_ERROR));
+    }
+#endif
 
     mUsesPointSize = vertexShaderD3D->usesPointSize();
     mDynamicHLSL->getPixelShaderOutputKey(data, mData, metadata, &mPixelShaderKey);
