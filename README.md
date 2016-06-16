@@ -11,12 +11,12 @@ the use of ANGLE by Windows Store app developers. It contains:
 - Recent changes made by Microsoft that have not yet been merged back to ANGLE master 
   _(our goal is to eventually merge everything, but if you want the latest and greatest 
   Windows Store features, you will find them here first)_
-- [Documentation](https://github.com/MSOpenTech/angle/wiki) and 
-  [project templates](https://github.com/MSOpenTech/angle/tree/ms-master/templates) 
+- [Documentation](https://github.com/microsoft/angle/wiki) and 
+  [project templates](https://github.com/Microsoft/angle/tree/ms-master/templates) 
   focused on Windows Store app development
 - Sample code and utilities such as 
-  [DDS](https://github.com/MSOpenTech/angle/wiki/Loading-textures-from-dds-files) and 
-  [WIC](https://github.com/MSOpenTech/angle/wiki/Loading-textures-from-image-files) 
+  [DDS](https://github.com/Microsoft/angle/wiki/Loading-textures-from-dds-files) and 
+  [WIC](https://github.com/Microsoft/angle/wiki/Loading-textures-from-image-files) 
   texture loaders
 - This branch is the source for building the ANGLE binaries that we publish on 
   [NuGet](https://www.nuget.org/packages/ANGLE.WindowsStore)
@@ -52,7 +52,7 @@ the hardware supports:
 9_3
 </td>
 <td>Windows Phones</td>
-<td>OpenGL ES 2.0 (except <a href=https://github.com/MSOpenTech/angle/wiki/Known-Issues>minor corner cases</a>)</td>
+<td>OpenGL ES 2.0 (except <a href=https://github.com/Microsoft/angle/wiki/Known-Issues>minor corner cases</a>)</td>
 </tr>
 <tr>
 <td>
@@ -75,7 +75,7 @@ Getting ANGLE
 =====
 
 There are two ways to get ANGLE for Windows Store applications:
-  1. Download compiled ANGLE binaries as a [NuGet package](http://github.com/MSOpenTech/angle/wiki/How-To-Use-the-ANGLE-NuGet-Package)
+  1. Download compiled ANGLE binaries as a [NuGet package](http://github.com/Microsoft/angle/wiki/How-To-Use-the-ANGLE-NuGet-Package)
   2. Download and compile the ANGLE source code from this GitHub repository
 
 Easy-to-use Visual Studio app templates are currently available for option 2 above. See the 'Quick Start' section below for more details.
@@ -97,7 +97,7 @@ Clasic Windows (Desktop) Development:
 More Info
 =====
 
-For detailed information about ANGLE, please visit our wiki (found [here](https://github.com/MSOpenTech/angle/wiki)). Our wiki 
+For detailed information about ANGLE, please visit our wiki (found [here](https://github.com/Microsoft/angle/wiki)). Our wiki 
 contains lots of useful information about ANGLE, including:
 
 - Guides to help you get started with ANGLE in Windows apps
@@ -110,7 +110,7 @@ For a broad overview of ANGLE and how it works, please take a look at our [//BUI
 Quick Start (compiling from source)
 =====
 1. Clone or download ANGLE from our GitHub repository
-2. Install our easy-to-use Visual Studio templates by running install.bat in the /templates/ directory of your copy of ANGLE, or follow [these manual steps](https://github.com/MSOpenTech/angle/wiki/Installing-Templates).
+2. Install our easy-to-use Visual Studio templates by running install.bat in the /templates/ directory of your copy of ANGLE, or follow [these manual steps](https://github.com/Microsoft/angle/wiki/Installing-Templates).
 3. Open the appropriate ANGLE Visual Studio solution for your project, and build all flavors of it
 4. In Visual Studio go "File -> New -> Project", create a new ANGLE application, and hit F5 to run it!
 
@@ -128,10 +128,10 @@ The Visual Studio solution for Windows desktop applications is located here:
 
 Useful Links
 =====
-- [Recent breaking changes](https://github.com/MSOpenTech/angle/wiki/breaking-changes)
-- [Known issues with ANGLE](https://github.com/MSOpenTech/angle/wiki/known-issues)
+- [Recent breaking changes](https://github.com/Microsoft/angle/wiki/breaking-changes)
+- [Known issues with ANGLE](https://github.com/Microsoft/angle/wiki/known-issues)
 - [Master ANGLE project info](https://code.google.com/p/angleproject/)
-- [Deprecated ANGLE Windows 8.0 branch](https://github.com/MSOpenTech/angle-win8.0)
+- [Deprecated ANGLE Windows 8.0 branch](https://github.com/Microsoft/angle-win8.0)
 
 Feedback
 =====

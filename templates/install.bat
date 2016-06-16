@@ -22,7 +22,7 @@ echo    Setting AngleRootPath to "%~dp0.."
 setx AngleRootPath "%~dp0.." > nul
 IF %ERRORLEVEL% NEQ 0 ( 
     echo    ERROR: Unable to set AngleRootPath system environment variable; aborting.
-    echo    See www.github.com/msopentech/angle/wiki/installing-templates for manual installation steps.
+    echo    See www.github.com/Microsoft/angle/wiki/installing-templates for manual installation steps.
     GOTO END
 ) else (
     echo    Successfully set AngleRootPath system environment variable.
@@ -55,7 +55,7 @@ REM Install new templates
 XCOPY "%~dp08.1" "%userprofile%\Documents\Visual Studio 2013\Templates\ProjectTemplates" /s /d /y > nul
 IF %ERRORLEVEL% NEQ 0 ( 
     echo    Failed to install templates for Visual Studio 2013.
-    echo    See www.github.com/msopentech/angle/wiki/installing-templates for manual installation steps.
+    echo    See www.github.com/Microsoft/angle/wiki/installing-templates for manual installation steps.
 ) ELSE (
     echo    Successfully installed latest Visual Studio 2013 templates.
 )
@@ -96,7 +96,7 @@ echo    Removing old VS2015 XamlUniversal template
 XCOPY "%~dp010" "%userprofile%\Documents\Visual Studio 2015\Templates\ProjectTemplates" /s /d /y > nul
 IF %ERRORLEVEL% NEQ 0 ( 
     echo    Failed to install templates for Visual Studio 2015.
-    echo    See www.github.com/msopentech/angle/wiki/installing-templates for manual installation steps.
+    echo    See www.github.com/Microsoft/angle/wiki/installing-templates for manual installation steps.
 ) ELSE (
     echo    Successfully installed latest Visual Studio 2015 templates.
 )
