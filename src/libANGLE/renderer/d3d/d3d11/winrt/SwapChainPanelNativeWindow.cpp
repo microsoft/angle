@@ -176,7 +176,7 @@ bool SwapChainPanelNativeWindow::initialize(EGLNativeWindowType window, IPropert
             if (SUCCEEDED(result))
             {
                 // Update the client rect to account for any swapchain scale factor
-				mClientRect = clientRect(swapChainPanelSize);
+                mClientRect = clientRect(swapChainPanelSize);
             }
         }
     }
@@ -340,7 +340,7 @@ HRESULT SwapChainPanelNativeWindow::scaleSwapChain(const Size &windowSize, const
 HRESULT GetSwapChainPanelSize(
     const ComPtr<ABI::Windows::UI::Xaml::Controls::ISwapChainPanel> &swapChainPanel,
     const ComPtr<ICoreDispatcher> &dispatcher,
-	Size *windowSize)
+    Size *windowSize)
 {
     ComPtr<IUIElement> uiElement;
     HRESULT result = swapChainPanel.As(&uiElement);
