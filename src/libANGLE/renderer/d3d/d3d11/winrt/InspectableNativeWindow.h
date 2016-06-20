@@ -99,7 +99,7 @@ class InspectableNativeWindow
 
   protected:
     virtual HRESULT scaleSwapChain(const Size &windowSize, const RECT &clientRect) = 0;
-	RECT clientRect(const Size& size);
+    RECT clientRect(const Size& size);
 
     bool mSupportsSwapChainResize; // Support for IDXGISwapChain::ResizeBuffers method
     bool mSwapChainSizeSpecified;  // If an EGLRenderSurfaceSizeProperty was specified
