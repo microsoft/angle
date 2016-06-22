@@ -132,6 +132,10 @@ Useful Links
 - [Known issues with ANGLE](https://github.com/Microsoft/angle/wiki/known-issues)
 - [Master ANGLE project info](https://code.google.com/p/angleproject/)
 - [Deprecated ANGLE Windows 8.0 branch](https://github.com/Microsoft/angle-win8.0)
+- [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). 
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) 
+or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional 
+questions or comments.
 
 Feedback
 =====
