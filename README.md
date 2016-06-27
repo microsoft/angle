@@ -1,144 +1,106 @@
-ANGLE -- Microsoft Windows Store branch
-=====
-ANGLE allows Windows users to seamlessly run OpenGL ES content by efficiently translating 
-OpenGL ES API into DirectX 11 API calls.
-
-The ms-master branch in this repository is maintained by Microsoft to support 
-the use of ANGLE by Windows Store app developers. It contains:
-
-- A copy of ANGLE that is regularly updated from the ANGLE 
-  [master branch](https://code.google.com/p/angleproject)
-- Recent changes made by Microsoft that have not yet been merged back to ANGLE master 
-  _(our goal is to eventually merge everything, but if you want the latest and greatest 
-  Windows Store features, you will find them here first)_
-- [Documentation](https://github.com/MSOpenTech/angle/wiki) and 
-  [project templates](https://github.com/MSOpenTech/angle/tree/ms-master/templates) 
-  focused on Windows Store app development
-- Sample code and utilities such as 
-  [DDS](https://github.com/MSOpenTech/angle/wiki/Loading-textures-from-dds-files) and 
-  [WIC](https://github.com/MSOpenTech/angle/wiki/Loading-textures-from-image-files) 
-  texture loaders
-- This branch is the source for building the ANGLE binaries that we publish on 
-  [NuGet](https://www.nuget.org/packages/ANGLE.WindowsStore)
-
-ANGLE fully supports these C++ app types:
-- Universal Windows apps (Windows 10)
-- Windows 8.1 and Windows Phone 8.1 apps
-- Windows desktop applications
-
-ANGLE supports different versions of OpenGL ES depending on the capabilities of the underlying hardware. 
-In particular, the supported version depends on which 
-[D3D Feature Levels](https://msdn.microsoft.com/en-us/library/windows/desktop/ff476876%28v=vs.85%29.aspx) 
-the hardware supports:
-
-<table>
-<tr>
-<th>Hardware<br>Feature Levels</th>
-<th>Example devices</th>
-<th>What does ANGLE support?</th>
-</tr>
-<tr>
-<td>
-11_1<br>
-11_0<br>
-10_1<br>
-10_0<br>
-</td>
-<td>Modern Desktop PCs<br>Surface Pros</td>
-<td>OpenGL ES 2.0<br> Parts of OpenGL ES 3.0</td>
-</tr>
-<tr>
-<td>
-9_3
-</td>
-<td>Windows Phones</td>
-<td>OpenGL ES 2.0 (except <a href=https://github.com/MSOpenTech/angle/wiki/Known-Issues>minor corner cases</a>)</td>
-</tr>
-<tr>
-<td>
-9_2<br>
-9_1
-</td>
-<td>Surface RT</td>
-<td>OpenGL ES 2.0 (via software emulation)</td>
-</tr>
-<tr>
-<td>
-None
-</td>
-<td>Raspberry Pi 2</td>
-<td>OpenGL ES 2.0 (via software emulation)</td>
-</tr>
-</table>
-
-Getting ANGLE
+ANGLE -- ms-holographic-experimental
 =====
 
-There are two ways to get ANGLE for Windows Store applications:
-  1. Download compiled ANGLE binaries as a [NuGet package](http://github.com/MSOpenTech/angle/wiki/How-To-Use-the-ANGLE-NuGet-Package)
-  2. Download and compile the ANGLE source code from this GitHub repository
+This experimental branch has changes that allow you to run an ANGLE app on HoloLens, or anything
+that supports Windows Holographic - such as the Microsoft HoloLens Emulator.
 
-Easy-to-use Visual Studio app templates are currently available for option 2 above. See the 'Quick Start' section below for more details.
+In this branch, ANGLE has been updated to recognize a holographic space and a spatial coordinate 
+system. These are passed in by the app when ANGLE is initialized; the holographic space replaces
+the native CoreWindow in the surface creation properties, and the spatial coordinate system is
+also provided as a surface creation property. This coordinate system will be used to create stereo
+view and projection matrices that are provided to the shader pipeline by ANGLE.
 
-Requirements
-=====
+Support for one holographic camera is included. The ANGLE app can draw in stereo using the 
+optimized instanced rendering technique that is supported by Microsoft HoloLens. The additional 
+optimization to set the render target array index without using a geometry shader is detected and
+enabled when running on applicable hardware.
 
-Windows 10 Development:
-* [Visual Studio 2015 Community or higher](https://www.visualstudio.com/downloads/visual-studio-2015-downloads-vs.aspx)
-* Windows 10 for local Windows development
+To see the changes you will need to make to your app, take a look at the updated app template. 
+Instructions for installing it are provided later in this document.
 
-Windows 8.1 and/or Windows Phone 8.1 Development:
-* Visual Studio Community 2013 (Update 4), or higher/later.
-* Windows 8.1 for local Windows development.
 
-Clasic Windows (Desktop) Development:
-* Visual Studio 2015 Community or higher.
+## Remarks
 
-More Info
-=====
+This branch contains code that is a work-in-progress; it is not fully tested. You may encounter 
+issues while using it.
 
-For detailed information about ANGLE, please visit our wiki (found [here](https://github.com/MSOpenTech/angle/wiki)). Our wiki 
-contains lots of useful information about ANGLE, including:
+**Note** This branch requires Visual Studio 2015 Update 2 to build, and a Windows Holographic 
+device to execute. Windows Holographic devices include the Microsoft HoloLens and the Microsoft 
+HoloLens Emulator.
 
-- Guides to help you get started with ANGLE in Windows apps
-- Tips and tricks to get good performance out of ANGLE
-- Sample code and documentation
-- And more!
+To obtain information about Windows 10 development, go to the [Windows Dev Center]
+(http://go.microsoft.com/fwlink/?LinkID=532421).
 
-For a broad overview of ANGLE and how it works, please take a look at our [//BUILD/ 2015 presentation](http://channel9.msdn.com/Events/Build/2015/3-686).
+To obtain information about the tools used for Windows Holographic development, including
+Microsoft Visual Studio 2015 Update 2 and the Microsoft HoloLens Emulator, go to
+[Install the tools](https://developer.microsoft.com/windows/holographic/install_the_tools).
 
-Quick Start (compiling from source)
-=====
-1. Clone or download ANGLE from our GitHub repository
-2. Install our easy-to-use Visual Studio templates by running install.bat in the /templates/ directory of your copy of ANGLE, or follow [these manual steps](https://github.com/MSOpenTech/angle/wiki/Installing-Templates).
-3. Open the appropriate ANGLE Visual Studio solution for your project, and build all flavors of it
-4. In Visual Studio go "File -> New -> Project", create a new ANGLE application, and hit F5 to run it!
+## System requirements
 
-The Windows 10 Visual Studio solution for ANGLE is located here:
-* /winrt/10/src/angle.sln
+**Client:** Windows 10 Holographic
 
-The Windows 8.1 Visual Studio solutions for ANGLE are located here:
+**Phone:** Not supported
 
-* /winrt/8.1/windows/src/angle.sln
-* /winrt/8.1/windowsphone/src/angle.sln
+## Build ANGLE with Windows Holographic experimental support included
 
-The Visual Studio solution for Windows desktop applications is located here:
+1. Clone the experimental branch: [https://github.com/Microsoft/angle/tree/ms-holographic-experimental]
+   (https://github.com/Microsoft/angle/tree/ms-holographic-experimental).
+2. Start Microsoft Visual Studio 2015 Update 2 and select **File** \> **Open** \> **Project/Solution**.
+3. Starting in the folder where you cloned the branch, go to winrt\10\src\ and open angle.sln.
+4. Set your target platform to Win32, and set Debug or Release as desired.
+5. Right-click on the libAngle project and select **Build**.
 
-* /src/angle.sln
+## Build the ANGLE UWP app template with Windows Holographic experimental support included
 
-Useful Links
-=====
-- [Recent breaking changes](https://github.com/MSOpenTech/angle/wiki/breaking-changes)
-- [Known issues with ANGLE](https://github.com/MSOpenTech/angle/wiki/known-issues)
-- [Master ANGLE project info](https://code.google.com/p/angleproject/)
-- [Deprecated ANGLE Windows 8.0 branch](https://github.com/MSOpenTech/angle-win8.0)
+1. Open an Explorer window and go to the folder where you cloned the experimental branch.
+2. Navigate to templates\ and run install.bat.
+3. Start Microsoft Visual Studio 2015 Update 2 and select **File** \> **New ** \> **Project**.
+4. Under **Templates** \> **Visual C\+\+** \> **Windows** \> **Universal**, select 
+   **App for OpenGL ES (Windows Universal)**.
+5. Name your app, select a folder, and click **OK**.
+6. Set your target platform to x86, and set Debug or Release as desired.
+7. Right-click on your app project and select **Build**.
 
-Feedback
-=====
-If you have feedback about this branch then we would love to hear it. Please 
-create an issue on this GitHub page, or contact the Microsoft contributors directly.
+**Note:** You may now begin development, or proceed to build and run the sample content.
 
-Microsoft Contributors
-=====
-- Cooper Partin (coopp-at-microsoft-dot-com)
-- Austin Kinross (aukinros-at-microsoft-dot-com)
+## Run the sample
+
+The next steps depend on whether you just want to deploy the app, or you want to both deploy and
+run it.
+
+### Deploying to the Microsoft HoloLens emulator
+
+- Click the debug target drop-down, and select **Microsoft HoloLens Emulator**.
+- Select **Build** \> **Deploy** Solution.
+
+### Deploying to a Microsoft HoloLens
+
+- Developer unlock your Microsoft HoloLens. For instructions, go to [Enable your device for development]
+  (https://msdn.microsoft.com/windows/uwp/get-started/enable-your-device-for-development#enable-your-windows-10-devices).
+- Find the IP address of your Microsoft HoloLens. The IP address can be found in **Settings**
+  \> **Network & Internet** \> **Wi-Fi** \> **Advanced options**. Or, you can ask Cortana for this
+  information by saying: "Hey Cortana, what's my IP address?"
+- Right-click on your project in Visual Studio, and then select **Properties**.
+- In the Debugging pane, click the drop-down and select **Remote Machine**.
+- Enter the IP address of your Microsoft HoloLens into the field labelled **Machine Name**.
+- Click **OK**.
+- Select **Build** \> **Deploy** Solution.
+
+### Pairing your developer-unlocked Microsoft HoloLens with Visual Studio
+
+The first time you deploy from your development PC to your developer-unlocked Microsoft HoloLens,
+you will need to use a PIN to pair your PC with the Microsoft HoloLens.
+- When you select **Build** \> **Deploy Solution**, a dialog box will appear for Visual Studio to
+  accept the PIN.
+- On your Microsoft HoloLens, go to **Settings** \> **Update** \> **For developers**, and click on
+  **Pair**.
+- Type the PIN displayed by your Microsoft HoloLens into the Visual Studio dialog box and click
+  **OK**.
+- On your Microsoft HoloLens, select **Done** to accept the pairing.
+- The solution will then start to deploy.
+
+### Deploying and running the sample
+
+- To debug the sample and then run it, follow the steps listed above to connect your
+  developer-unlocked Microsoft HoloLens, then press F5 or select **Debug** \> **Start Debugging**.
+  To run the sample without debugging, press Ctrl+F5 or select **Debug** \> **Start Without Debugging**.
