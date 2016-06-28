@@ -37,9 +37,7 @@ Microsoft Visual Studio 2015 Update 2 and the Microsoft HoloLens Emulator, go to
 
 ## System requirements
 
-**Client:** Windows 10 Holographic
-
-**Phone:** Not supported
+**For holographic apps:** Windows 10 Holographic
 
 ## Build ANGLE with Windows Holographic experimental support included
 
