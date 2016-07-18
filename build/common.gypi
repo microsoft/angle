@@ -101,7 +101,8 @@
                         # Control Flow Guard is enabled using the /d2guard4
                         # compiler setting in combination with the /guard:cf
                         # linker setting.
-                        'AdditionalOptions': ['/MP', '/d2guard4'],
+                        # Use '/Wv:18' to avoid WRL compilation issues with VS Update 3
+                        'AdditionalOptions': ['/MP', '/d2guard4', '/Wv:18'],
                         'BufferSecurityCheck': 'true',
                         'DebugInformationFormat': '3',
                         'ExceptionHandling': '0',
@@ -221,6 +222,12 @@
                                 'FavorSizeOrSpeed': '2', # /Os
                                 'WholeProgramOptimization': 'true',
 
+                                # /Gw -- Enable linker optimizations (REF and ICF) to work on
+                                # unreferenced and identical Data COMDATs
+                                # /Zc:threadSafeInit- -- disable thread-safe local static initialization.
+                                # Without this switch, VS2015 Update 3 Angle binaries crash.
+                                'AdditionalOptions': ['/Gw', '/Zc:threadSafeInit-'],
+                                
                                 # Use the dynamic C runtime to match
                                 # Windows Application Store requirements
 
