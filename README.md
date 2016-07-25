@@ -1,8 +1,9 @@
 ANGLE -- ms-holographic-experimental
 =====
 
-This experimental branch has changes that allow you to run an ANGLE app on HoloLens, or anything
-that supports Windows Holographic - such as the Microsoft HoloLens Emulator.
+This experimental branch has changes that allow you to use ANGLE to run OpenGL ES code on 
+HoloLens, or on any other device that supports Windows Holographic - such as the Microsoft HoloLens
+Emulator.
 
 In this branch, ANGLE has been updated to recognize a holographic space and a spatial coordinate 
 system. These are passed in by the app when ANGLE is initialized; the holographic space replaces
