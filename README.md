@@ -42,12 +42,18 @@ Microsoft Visual Studio 2015 Update 2 and the Microsoft HoloLens Emulator, go to
 
 ## Build ANGLE with Windows Holographic experimental support included
 
-1. Clone the experimental branch: [https://github.com/Microsoft/angle/tree/ms-holographic-experimental]
-   (https://github.com/Microsoft/angle/tree/ms-holographic-experimental).
-2. Start Microsoft Visual Studio 2015 Update 2 and select **File** \> **Open** \> **Project/Solution**.
-3. Starting in the folder where you cloned the branch, go to winrt\10\src\ and open angle.sln.
-4. Set your target platform to Win32, and set Debug or Release as desired.
-5. Right-click on the libAngle project and select **Build**.
+1. Clone the repo: ```git clone [https://github.com/Microsoft/angle.git](https://github.com/Microsoft/angle.git) angle```
+2. Checkout the experimental branch:
+
+```
+    cd angle
+    git checkout ms-holographic-experimental
+```
+
+3. Start Microsoft Visual Studio 2015 Update 2 and select **File** \> **Open** \> **Project/Solution**.
+4. Starting in the folder where you cloned the branch, go to winrt\10\src\ and open angle.sln.
+5. Set your target platform to Win32, and set Debug or Release as desired.
+6. Right-click on the libAngle project and select **Build**.
 
 ## Build the ANGLE UWP app template with Windows Holographic experimental support included
 
