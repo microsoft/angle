@@ -28,6 +28,7 @@ namespace $safeprojectname$
         GLuint mVertexPositionBuffer;
         GLuint mVertexColorBuffer;
         GLuint mIndexBuffer;
+	GLuint mRenderTargetArrayIndices;
 
         int mDrawCount;
         bool mIsHolographic;

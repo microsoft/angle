@@ -94,8 +94,8 @@ GLuint CompileProgram(const std::string &vsSource, const std::string &fsSource)
 }
 
 SimpleRenderer::SimpleRenderer(bool isHolographic) :
-    mWindowWidth(0),
-    mWindowHeight(0),
+    mWindowWidth(1268),
+    mWindowHeight(720),
     mDrawCount(0)
 {
     // Vertex Shader source
@@ -223,6 +223,11 @@ SimpleRenderer::SimpleRenderer(bool isHolographic) :
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+    float renderTargetArrayIndices[] = { 0.f, 1.f };
+    glGenBuffers(1, &mRenderTargetArrayIndices);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRenderTargetArrayIndices);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(renderTargetArrayIndices), renderTargetArrayIndices, GL_STATIC_DRAW);
+
     mIsHolographic = isHolographic;
 }
 
@@ -283,9 +288,8 @@ void SimpleRenderer::Draw()
     if (mIsHolographic)
     {
         // Load the render target array indices into an array.
-        float renderTargetArrayIndices [] = { 0.f, 1.f };
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glVertexAttribPointer(mRtvIndexAttribLocation, 1, GL_FLOAT, GL_FALSE, 0, renderTargetArrayIndices);
+        glBindBuffer(GL_ARRAY_BUFFER, mRenderTargetArrayIndices);
+        glVertexAttribPointer(mRtvIndexAttribLocation, 1, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(mRtvIndexAttribLocation);
 
         // Enable instancing.
@@ -316,8 +320,8 @@ void SimpleRenderer::UpdateWindowSize(GLsizei width, GLsizei height)
     if (!mIsHolographic)
     {
         glViewport(0, 0, width, height);
-    }
 
-    mWindowWidth = width;
-    mWindowHeight = height;
+        mWindowWidth = width;
+        mWindowHeight = height;
+    }
 }
