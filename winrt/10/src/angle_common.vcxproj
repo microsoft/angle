@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -35,24 +35,24 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <AppContainerApplication>true</AppContainerApplication>
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
-    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.10240.0</WindowsTargetPlatformMinVersion>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.10586.0</WindowsTargetPlatformMinVersion>
     <ApplicationType>Windows Store</ApplicationType>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Label="Locals">
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
-  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
-  <ImportGroup Label="ExtensionSettings"/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="PropertySheets">
-    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros"/>
+  <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\..\..\third_party\cygwin\bin\;$(MSBuildProjectDirectory)\..\..\..\third_party\python_26\</ExecutablePath>
     <OutDir>$(SolutionDir)$(Configuration)_$(Platform)\</OutDir>
@@ -84,7 +84,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
@@ -127,7 +127,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
@@ -170,7 +170,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
@@ -213,7 +213,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Lib>
@@ -256,7 +256,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Lib>
@@ -299,7 +299,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Lib>
@@ -325,33 +325,33 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="..\..\..\src\angle.gyp"/>
+    <None Include="..\..\..\src\angle.gyp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\common\BitSetIterator.h"/>
-    <ClInclude Include="..\..\..\src\common\MemoryBuffer.h"/>
-    <ClInclude Include="..\..\..\src\common\Optional.h"/>
-    <ClInclude Include="..\..\..\src\common\angleutils.h"/>
-    <ClInclude Include="..\..\..\src\common\debug.h"/>
-    <ClInclude Include="..\..\..\src\common\mathutil.h"/>
-    <ClInclude Include="..\..\..\src\common\matrix_utils.h"/>
-    <ClInclude Include="..\..\..\src\common\platform.h"/>
-    <ClInclude Include="..\..\..\src\common\string_utils.h"/>
-    <ClInclude Include="..\..\..\src\common\tls.h"/>
-    <ClInclude Include="..\..\..\src\common\utilities.h"/>
-    <ClInclude Include="..\..\..\src\common\version.h"/>
+    <ClInclude Include="..\..\..\src\common\BitSetIterator.h" />
+    <ClInclude Include="..\..\..\src\common\MemoryBuffer.h" />
+    <ClInclude Include="..\..\..\src\common\Optional.h" />
+    <ClInclude Include="..\..\..\src\common\angleutils.h" />
+    <ClInclude Include="..\..\..\src\common\debug.h" />
+    <ClInclude Include="..\..\..\src\common\mathutil.h" />
+    <ClInclude Include="..\..\..\src\common\matrix_utils.h" />
+    <ClInclude Include="..\..\..\src\common\platform.h" />
+    <ClInclude Include="..\..\..\src\common\string_utils.h" />
+    <ClInclude Include="..\..\..\src\common\tls.h" />
+    <ClInclude Include="..\..\..\src\common\utilities.h" />
+    <ClInclude Include="..\..\..\src\common\version.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\common\Float16ToFloat32.cpp"/>
-    <ClCompile Include="..\..\..\src\common\MemoryBuffer.cpp"/>
-    <ClCompile Include="..\..\..\src\common\angleutils.cpp"/>
-    <ClCompile Include="..\..\..\src\common\debug.cpp"/>
-    <ClCompile Include="..\..\..\src\common\mathutil.cpp"/>
-    <ClCompile Include="..\..\..\src\common\string_utils.cpp"/>
-    <ClCompile Include="..\..\..\src\common\tls.cpp"/>
-    <ClCompile Include="..\..\..\src\common\utilities.cpp"/>
+    <ClCompile Include="..\..\..\src\common\Float16ToFloat32.cpp" />
+    <ClCompile Include="..\..\..\src\common\MemoryBuffer.cpp" />
+    <ClCompile Include="..\..\..\src\common\angleutils.cpp" />
+    <ClCompile Include="..\..\..\src\common\debug.cpp" />
+    <ClCompile Include="..\..\..\src\common\mathutil.cpp" />
+    <ClCompile Include="..\..\..\src\common\string_utils.cpp" />
+    <ClCompile Include="..\..\..\src\common\tls.cpp" />
+    <ClCompile Include="..\..\..\src\common\utilities.cpp" />
   </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
-  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
-  <ImportGroup Label="ExtensionTargets"/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  <ImportGroup Label="ExtensionTargets" />
 </Project>
