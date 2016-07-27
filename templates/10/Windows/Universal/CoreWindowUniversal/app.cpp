@@ -330,7 +330,6 @@ void App::InitializeEGLInner(Platform::Object^ windowBasis)
 
     // Create a PropertySet and initialize with the EGLNativeWindowType.
     PropertySet^ surfaceCreationProperties = ref new PropertySet();
-    surfaceCreationProperties->Insert(ref new String(EGLNativeWindowTypeProperty), window);
     surfaceCreationProperties->Insert(ref new String(EGLNativeWindowTypeProperty), windowBasis);
     if (mStationaryReferenceFrame != nullptr)
     {
