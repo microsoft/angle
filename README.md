@@ -1,30 +1,14 @@
-ANGLE -- Microsoft Windows Store branch
+ANGLE -- Windows 8.1 and Windows Phone 8.1 branch
 =====
 ANGLE allows Windows users to seamlessly run OpenGL ES content by efficiently translating 
 OpenGL ES API into DirectX 11 API calls.
 
-The ms-master branch in this repository is maintained by Microsoft to support 
-the use of ANGLE by Windows Store app developers. It contains:
+The ms-win8.1 branch in this repository is maintained by Microsoft to support 
+the use of ANGLE by Windows Store (8.1) app developers and Windows Phone 8.1 app developers. 
 
-- A copy of ANGLE that is regularly updated from the ANGLE 
-  [master branch](https://code.google.com/p/angleproject)
-- Recent changes made by Microsoft that have not yet been merged back to ANGLE master 
-  _(our goal is to eventually merge everything, but if you want the latest and greatest 
-  Windows Store features, you will find them here first)_
-- [Documentation](https://github.com/microsoft/angle/wiki) and 
-  [project templates](https://github.com/Microsoft/angle/tree/ms-master/templates) 
-  focused on Windows Store app development
-- Sample code and utilities such as 
-  [DDS](https://github.com/Microsoft/angle/wiki/Loading-textures-from-dds-files) and 
-  [WIC](https://github.com/Microsoft/angle/wiki/Loading-textures-from-image-files) 
-  texture loaders
-- This branch is the source for building the ANGLE binaries that we publish on 
-  [NuGet](https://www.nuget.org/packages/ANGLE.WindowsStore)
-
-ANGLE fully supports these C++ app types:
-- Universal Windows apps (Windows 10)
-- Windows 8.1 and Windows Phone 8.1 apps
-- Windows desktop applications
+We recommend using this branch for Windows 8.1 and Windows Phone 8.1 apps. For other app types
+(such as Windows 10 UWP apps or Desktop apps), we recommend using [ms-master](https://github.com/microsoft/angle) 
+or the master ANGLE branch.
 
 ANGLE supports different versions of OpenGL ES depending on the capabilities of the underlying hardware. 
 In particular, the supported version depends on which 
@@ -45,7 +29,7 @@ the hardware supports:
 10_0<br>
 </td>
 <td>Modern Desktop PCs<br>Surface Pros</td>
-<td>OpenGL ES 2.0<br> Parts of OpenGL ES 3.0</td>
+<td>OpenGL ES 2.0<br> Most of OpenGL ES 3.0</td>
 </tr>
 <tr>
 <td>
@@ -62,13 +46,6 @@ the hardware supports:
 <td>Surface RT</td>
 <td>OpenGL ES 2.0 (via software emulation)</td>
 </tr>
-<tr>
-<td>
-None
-</td>
-<td>Raspberry Pi 2</td>
-<td>OpenGL ES 2.0 (via software emulation)</td>
-</tr>
 </table>
 
 Getting ANGLE
@@ -83,16 +60,9 @@ Easy-to-use Visual Studio app templates are currently available for option 2 abo
 Requirements
 =====
 
-Windows 10 Development:
-* [Visual Studio 2015 Community or higher](https://www.visualstudio.com/downloads/visual-studio-2015-downloads-vs.aspx)
-* Windows 10 for local Windows development
-
 Windows 8.1 and/or Windows Phone 8.1 Development:
 * Visual Studio Community 2013 (Update 4), or higher/later.
 * Windows 8.1 for local Windows development.
-
-Clasic Windows (Desktop) Development:
-* Visual Studio 2015 Community or higher.
 
 More Info
 =====
@@ -114,17 +84,10 @@ Quick Start (compiling from source)
 3. Open the appropriate ANGLE Visual Studio solution for your project, and build all flavors of it
 4. In Visual Studio go "File -> New -> Project", create a new ANGLE application, and hit F5 to run it!
 
-The Windows 10 Visual Studio solution for ANGLE is located here:
-* /winrt/10/src/angle.sln
-
 The Windows 8.1 Visual Studio solutions for ANGLE are located here:
 
 * /winrt/8.1/windows/src/angle.sln
 * /winrt/8.1/windowsphone/src/angle.sln
-
-The Visual Studio solution for Windows desktop applications is located here:
-
-* /src/angle.sln
 
 Useful Links
 =====
