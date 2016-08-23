@@ -53,32 +53,32 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_STANDALONE_BUILD;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_ENABLE_VULKAN;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Link>
       <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -88,43 +88,40 @@
       <TargetMachine>MachineX86</TargetMachine>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
-    <Midl>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_STANDALONE_BUILD;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_ENABLE_VULKAN;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_STANDALONE_BUILD;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_ENABLE_VULKAN;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX64</TargetMachine>
     </Lib>
     <Link>
       <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -134,42 +131,39 @@
       <TargetMachine>MachineX64</TargetMachine>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
-    <Midl>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_STANDALONE_BUILD;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_ENABLE_VULKAN;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_STANDALONE_BUILD;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_ENABLE_VULKAN;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <Link>
       <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -179,42 +173,39 @@
       <TargetMachine>MachineX86</TargetMachine>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
-    <Midl>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_STANDALONE_BUILD;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_ENABLE_VULKAN;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4702;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_STANDALONE_BUILD;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_ENABLE_VULKAN;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
       <TargetMachine>MachineX64</TargetMachine>
     </Lib>
     <Link>
       <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:/Program Files (x86)/Windows Kits/10/Lib/winv6.3/um/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
       <FixedBaseAddress>false</FixedBaseAddress>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -224,13 +215,10 @@
       <TargetMachine>MachineX64</TargetMachine>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
-    <Midl>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </Midl>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_STANDALONE_BUILD;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D9;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_OPENGL;ANGLE_ENABLE_VULKAN;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -238,9 +226,7 @@
     <None Include="libANGLE\Version.inl"/>
     <None Include="libANGLE\VertexAttribute.inl"/>
     <None Include="libANGLE\angletypes.inl"/>
-    <None Include="libANGLE\renderer\d3d\copyimage.inl"/>
-    <None Include="libANGLE\renderer\d3d\generatemip.inl"/>
-    <None Include="libANGLE\renderer\d3d\loadimage.inl"/>
+    <None Include="libANGLE\renderer\Format_ID_autogen.inl"/>
     <None Include="libANGLE\renderer\d3d\d3d11\copyvertex.inl"/>
     <None Include="angle.gyp"/>
   </ItemGroup>
@@ -263,9 +249,11 @@
     <ClInclude Include="libANGLE\Framebuffer.h"/>
     <ClInclude Include="libANGLE\FramebufferAttachment.h"/>
     <ClInclude Include="libANGLE\HandleAllocator.h"/>
+    <ClInclude Include="libANGLE\HandleRangeAllocator.h"/>
     <ClInclude Include="libANGLE\Image.h"/>
     <ClInclude Include="libANGLE\ImageIndex.h"/>
     <ClInclude Include="libANGLE\IndexRangeCache.h"/>
+    <ClInclude Include="libANGLE\Path.h"/>
     <ClInclude Include="libANGLE\Program.h"/>
     <ClInclude Include="libANGLE\Query.h"/>
     <ClInclude Include="libANGLE\RefCountObject.h"/>
@@ -292,15 +280,17 @@
     <ClInclude Include="libANGLE\renderer\ContextImpl.h"/>
     <ClInclude Include="libANGLE\renderer\DeviceImpl.h"/>
     <ClInclude Include="libANGLE\renderer\DisplayImpl.h"/>
+    <ClInclude Include="libANGLE\renderer\EGLImplFactory.h"/>
     <ClInclude Include="libANGLE\renderer\FenceNVImpl.h"/>
     <ClInclude Include="libANGLE\renderer\FenceSyncImpl.h"/>
+    <ClInclude Include="libANGLE\renderer\Format.h"/>
+    <ClInclude Include="libANGLE\renderer\FramebufferAttachmentObjectImpl.h"/>
     <ClInclude Include="libANGLE\renderer\FramebufferImpl.h"/>
+    <ClInclude Include="libANGLE\renderer\GLImplFactory.h"/>
     <ClInclude Include="libANGLE\renderer\ImageImpl.h"/>
-    <ClInclude Include="libANGLE\renderer\ImplFactory.h"/>
     <ClInclude Include="libANGLE\renderer\ProgramImpl.h"/>
     <ClInclude Include="libANGLE\renderer\QueryImpl.h"/>
     <ClInclude Include="libANGLE\renderer\RenderbufferImpl.h"/>
-    <ClInclude Include="libANGLE\renderer\Renderer.h"/>
     <ClInclude Include="libANGLE\renderer\SamplerImpl.h"/>
     <ClInclude Include="libANGLE\renderer\ShaderImpl.h"/>
     <ClInclude Include="libANGLE\renderer\StreamProducerImpl.h"/>
@@ -308,10 +298,13 @@
     <ClInclude Include="libANGLE\renderer\TextureImpl.h"/>
     <ClInclude Include="libANGLE\renderer\TransformFeedbackImpl.h"/>
     <ClInclude Include="libANGLE\renderer\VertexArrayImpl.h"/>
+    <ClInclude Include="libANGLE\renderer\renderer_utils.h"/>
+    <ClInclude Include="libANGLE\signal_utils.h"/>
     <ClInclude Include="libANGLE\validationEGL.h"/>
     <ClInclude Include="libANGLE\validationES.h"/>
     <ClInclude Include="libANGLE\validationES2.h"/>
     <ClInclude Include="libANGLE\validationES3.h"/>
+    <ClInclude Include="libANGLE\validationES31.h"/>
     <ClInclude Include="third_party\murmurhash\MurmurHash3.h"/>
     <ClInclude Include="..\include\angle_gl.h"/>
     <ClInclude Include="..\include\export.h"/>
@@ -331,21 +324,16 @@
     <ClInclude Include="..\include\platform\Platform.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\BufferD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\CompilerD3D.h"/>
-    <ClInclude Include="libANGLE\renderer\d3d\copyimage.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\DeviceD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\DisplayD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\DynamicHLSL.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\EGLImageD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\formatutilsD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\FramebufferD3D.h"/>
-    <ClInclude Include="libANGLE\renderer\d3d\generatemip.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\HLSLCompiler.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\ImageD3D.h"/>
-    <ClInclude Include="libANGLE\renderer\d3d\imageformats.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\IndexBuffer.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\IndexDataManager.h"/>
-    <ClInclude Include="libANGLE\renderer\d3d\loadimage.h"/>
-    <ClInclude Include="libANGLE\renderer\d3d\loadimage_etc.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\NativeWindowD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\ProgramD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\RenderbufferD3D.h"/>
@@ -358,7 +346,6 @@
     <ClInclude Include="libANGLE\renderer\d3d\SwapChainD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\TextureD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\TextureStorage.h"/>
-    <ClInclude Include="libANGLE\renderer\d3d\TransformFeedbackD3D.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\VaryingPacking.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\VertexBuffer.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\VertexDataManager.h"/>
@@ -445,12 +432,16 @@
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrg3di11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrg3dui11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgb2d11ps.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgbpremultiply2d11ps.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgbunmultiply2d11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgb2di11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgb2dui11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgb3d11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgb3di11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgb3dui11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgba2d11ps.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgbapremultiply2d11ps.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgbaunmultiply2d11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgba2di11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgba2dui11ps.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\shaders\compiled\passthroughrgba3d11ps.h"/>
@@ -469,8 +460,9 @@
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\StreamProducerNV12.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\SwapChain11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\TextureStorage11.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\TransformFeedback11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\Trim11.h"/>
-    <ClInclude Include="libANGLE\renderer\d3d\d3d11\texture_format_table_autogen.h"/>
+    <ClInclude Include="libANGLE\renderer\d3d\d3d11\texture_format_table_utils.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\texture_format_table.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\VertexArray11.h"/>
     <ClInclude Include="libANGLE\renderer\d3d\d3d11\VertexBuffer11.h"/>
@@ -485,6 +477,7 @@
     <ClInclude Include="libANGLE\renderer\gl\FenceSyncGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\FramebufferGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\FunctionsGL.h"/>
+    <ClInclude Include="libANGLE\renderer\gl\PathGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\ProgramGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\QueryGL.h"/>
     <ClInclude Include="libANGLE\renderer\gl\RenderbufferGL.h"/>
@@ -509,6 +502,25 @@
     <ClInclude Include="libANGLE\renderer\gl\wgl\functionswgl_typedefs.h"/>
     <ClInclude Include="libANGLE\renderer\gl\wgl\wgl_utils.h"/>
     <ClInclude Include="third_party\khronos\GL\wglext.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\BufferVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\CompilerVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\ContextVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\DeviceVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\DisplayVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\FenceNVVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\FenceSyncVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\FramebufferVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\ImageVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\ProgramVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\QueryVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\RenderbufferVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\RendererVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\SamplerVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\ShaderVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\SurfaceVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\TextureVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\TransformFeedbackVk.h"/>
+    <ClInclude Include="libANGLE\renderer\vulkan\VertexArrayVk.h"/>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="common\event_tracer.cpp"/>
@@ -527,9 +539,11 @@
     <ClCompile Include="libANGLE\Framebuffer.cpp"/>
     <ClCompile Include="libANGLE\FramebufferAttachment.cpp"/>
     <ClCompile Include="libANGLE\HandleAllocator.cpp"/>
+    <ClCompile Include="libANGLE\HandleRangeAllocator.cpp"/>
     <ClCompile Include="libANGLE\Image.cpp"/>
     <ClCompile Include="libANGLE\ImageIndex.cpp"/>
     <ClCompile Include="libANGLE\IndexRangeCache.cpp"/>
+    <ClCompile Include="libANGLE\Path.cpp"/>
     <ClCompile Include="libANGLE\Platform.cpp"/>
     <ClCompile Include="libANGLE\Program.cpp"/>
     <ClCompile Include="libANGLE\Query.cpp"/>
@@ -548,31 +562,32 @@
     <ClCompile Include="libANGLE\angletypes.cpp"/>
     <ClCompile Include="libANGLE\formatutils.cpp"/>
     <ClCompile Include="libANGLE\queryconversions.cpp"/>
+    <ClCompile Include="libANGLE\renderer\ContextImpl.cpp"/>
     <ClCompile Include="libANGLE\renderer\DeviceImpl.cpp"/>
     <ClCompile Include="libANGLE\renderer\DisplayImpl.cpp"/>
-    <ClCompile Include="libANGLE\renderer\Renderer.cpp"/>
+    <ClCompile Include="libANGLE\renderer\Format_autogen.cpp"/>
+    <ClCompile Include="libANGLE\renderer\Format.cpp"/>
     <ClCompile Include="libANGLE\renderer\SurfaceImpl.cpp"/>
+    <ClCompile Include="libANGLE\renderer\TextureImpl.cpp"/>
+    <ClCompile Include="libANGLE\renderer\renderer_utils.cpp"/>
+    <ClCompile Include="libANGLE\signal_utils.cpp"/>
     <ClCompile Include="libANGLE\validationEGL.cpp"/>
     <ClCompile Include="libANGLE\validationES.cpp"/>
     <ClCompile Include="libANGLE\validationES2.cpp"/>
     <ClCompile Include="libANGLE\validationES3.cpp"/>
+    <ClCompile Include="libANGLE\validationES31.cpp"/>
     <ClCompile Include="third_party\murmurhash\MurmurHash3.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\BufferD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\CompilerD3D.cpp"/>
-    <ClCompile Include="libANGLE\renderer\d3d\copyimage.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\DeviceD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\DisplayD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\DynamicHLSL.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\EGLImageD3D.cpp"/>
-    <ClCompile Include="libANGLE\renderer\d3d\formatutilsD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\FramebufferD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\HLSLCompiler.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\ImageD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\IndexBuffer.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\IndexDataManager.cpp"/>
-    <ClCompile Include="libANGLE\renderer\d3d\loadimage.cpp"/>
-    <ClCompile Include="libANGLE\renderer\d3d\loadimageSSE2.cpp"/>
-    <ClCompile Include="libANGLE\renderer\d3d\loadimage_etc.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\NativeWindowD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\ProgramD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\RenderbufferD3D.cpp"/>
@@ -582,12 +597,12 @@
     <ClCompile Include="libANGLE\renderer\d3d\ShaderExecutableD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\SurfaceD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\TextureD3D.cpp"/>
-    <ClCompile Include="libANGLE\renderer\d3d\TransformFeedbackD3D.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\VaryingPacking.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\VertexBuffer.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\VertexDataManager.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\Blit9.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\Buffer9.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d9\Context9.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\DebugAnnotator9.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\Fence9.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d9\formatutils9.cpp"/>
@@ -608,6 +623,7 @@
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\Blit11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\Buffer11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\Clear11.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d11\Context11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\DebugAnnotator11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\dxgi_support_table.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\Fence11.cpp"/>
@@ -628,8 +644,10 @@
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\StreamProducerNV12.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\SwapChain11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\TextureStorage11.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d11\TransformFeedback11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\Trim11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\texture_format_table_autogen.cpp"/>
+    <ClCompile Include="libANGLE\renderer\d3d\d3d11\texture_format_table.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\VertexArray11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\VertexBuffer11.cpp"/>
     <ClCompile Include="libANGLE\renderer\d3d\d3d11\win32\NativeWindow11Win32.cpp"/>
@@ -637,11 +655,13 @@
     <ClCompile Include="libANGLE\renderer\gl\BlitGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\BufferGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\CompilerGL.cpp"/>
+    <ClCompile Include="libANGLE\renderer\gl\ContextGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\DisplayGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\FenceNVGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\FenceSyncGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\FramebufferGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\FunctionsGL.cpp"/>
+    <ClCompile Include="libANGLE\renderer\gl\PathGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\ProgramGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\QueryGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\RenderbufferGL.cpp"/>
@@ -661,6 +681,25 @@
     <ClCompile Include="libANGLE\renderer\gl\wgl\PbufferSurfaceWGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\wgl\WindowSurfaceWGL.cpp"/>
     <ClCompile Include="libANGLE\renderer\gl\wgl\wgl_utils.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\BufferVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\CompilerVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\ContextVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\DeviceVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\DisplayVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\FenceNVVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\FenceSyncVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\FramebufferVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\ImageVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\ProgramVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\QueryVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\RenderbufferVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\RendererVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\SamplerVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\ShaderVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\SurfaceVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\TextureVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\TransformFeedbackVk.cpp"/>
+    <ClCompile Include="libANGLE\renderer\vulkan\VertexArrayVk.cpp"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="commit_id.vcxproj">

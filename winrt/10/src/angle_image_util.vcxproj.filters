@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image_util">
+      <UniqueIdentifier>{4BBB1057-0E58-1FF3-45F8-B62CB14DBFB6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\image_util\copyimage.cpp">
+      <Filter>image_util</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\src\image_util\copyimage.h">
+      <Filter>image_util</Filter>
+    </ClInclude>
+    <None Include="..\..\..\src\image_util\copyimage.inl">
+      <Filter>image_util</Filter>
+    </None>
+    <ClInclude Include="..\..\..\src\image_util\generatemip.h">
+      <Filter>image_util</Filter>
+    </ClInclude>
+    <None Include="..\..\..\src\image_util\generatemip.inl">
+      <Filter>image_util</Filter>
+    </None>
+    <ClCompile Include="..\..\..\src\image_util\imageformats.cpp">
+      <Filter>image_util</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\src\image_util\imageformats.h">
+      <Filter>image_util</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\src\image_util\loadimage.cpp">
+      <Filter>image_util</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\src\image_util\loadimage.h">
+      <Filter>image_util</Filter>
+    </ClInclude>
+    <None Include="..\..\..\src\image_util\loadimage.inl">
+      <Filter>image_util</Filter>
+    </None>
+    <ClCompile Include="..\..\..\src\image_util\loadimage_etc.cpp">
+      <Filter>image_util</Filter>
+    </ClCompile>
+    <None Include="..\..\..\src\angle.gyp"/>
+  </ItemGroup>
+</Project>
