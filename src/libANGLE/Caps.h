@@ -14,6 +14,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <array>
 
 namespace gl
 {
@@ -87,6 +88,7 @@ struct Extensions
     // GL_EXT_sRGB
     // GL_ANGLE_depth_texture, GL_OES_depth32
     // GL_EXT_color_buffer_float
+    // GL_EXT_texture_norm16
     void setTextureExtensionSupport(const TextureCapsMap &textureCaps);
 
     // ES2 Extension support
@@ -284,10 +286,30 @@ struct Extensions
     // GL_CHROMIUM_bind_uniform_location
     bool bindUniformLocation;
 
+    // GL_CHROMIUM_sync_query
+    bool syncQuery;
+
+    // GL_CHROMIUM_copy_texture
+    bool copyTexture;
+
     // ES3 Extension support
 
     // GL_EXT_color_buffer_float
     bool colorBufferFloat;
+
+    // GL_EXT_multisample_compatibility.
+    // written against ES 3.1 but can apply to earlier versions.
+    bool multisampleCompatibility;
+
+    // GL_CHROMIUM_framebuffer_mixed_samples
+    bool framebufferMixedSamples;
+
+    // GL_EXT_texture_norm16
+    // written against ES 3.1 but can apply to ES 3.0 as well.
+    bool textureNorm16;
+
+    // GL_CHROMIUM_path_rendering
+    bool pathRendering;
 };
 
 struct Limitations
@@ -332,7 +354,7 @@ struct Caps
 {
     Caps();
 
-    // Table 6.28, implementation dependent values
+    // ES 3.1 (April 29, 2015) 20.39: implementation dependent values
     GLuint64 maxElementIndex;
     GLuint max3DTextureSize;
     GLuint max2DTextureSize;
@@ -340,16 +362,29 @@ struct Caps
     GLfloat maxLODBias;
     GLuint maxCubeMapTextureSize;
     GLuint maxRenderbufferSize;
-    GLuint maxDrawBuffers;
-    GLuint maxColorAttachments;
-    GLuint maxViewportWidth;
-    GLuint maxViewportHeight;
     GLfloat minAliasedPointSize;
     GLfloat maxAliasedPointSize;
     GLfloat minAliasedLineWidth;
     GLfloat maxAliasedLineWidth;
 
-    // Table 6.29, implementation dependent values (cont.)
+    // ES 3.1 (April 29, 2015) 20.40: implementation dependent values (cont.)
+    GLuint maxDrawBuffers;
+    GLuint maxFramebufferWidth;
+    GLuint maxFramebufferHeight;
+    GLuint maxFramebufferSamples;
+    GLuint maxColorAttachments;
+    GLuint maxViewportWidth;
+    GLuint maxViewportHeight;
+    GLuint maxSampleMaskWords;
+    GLuint maxColorTextureSamples;
+    GLuint maxDepthTextureSamples;
+    GLuint maxIntegerSamples;
+    GLuint64 maxServerWaitTimeout;
+
+    // ES 3.1 (April 29, 2015) Table 20.41: Implementation dependent values (cont.)
+    GLint maxVertexAttribRelativeOffset;
+    GLint maxVertexAttribBindings;
+    GLint maxVertexAttribStride;
     GLuint maxElementsIndices;
     GLuint maxElementsVertices;
     std::vector<GLenum> compressedTextureFormats;
@@ -367,26 +402,49 @@ struct Caps
     TypePrecision fragmentHighpInt;
     TypePrecision fragmentMediumpInt;
     TypePrecision fragmentLowpInt;
-    GLuint64 maxServerWaitTimeout;
 
-    // Table 6.31, implementation dependent vertex shader limits
+    // ES 3.1 (April 29, 2015) Table 20.43: Implementation dependent Vertex shader limits
     GLuint maxVertexAttributes;
     GLuint maxVertexUniformComponents;
     GLuint maxVertexUniformVectors;
     GLuint maxVertexUniformBlocks;
     GLuint maxVertexOutputComponents;
     GLuint maxVertexTextureImageUnits;
+    GLuint maxVertexAtomicCounterBuffers;
+    GLuint maxVertexAtomicCounters;
+    GLuint maxVertexImageUniforms;
+    GLuint maxVertexShaderStorageBlocks;
 
-    // Table 6.32, implementation dependent fragment shader limits
+    // ES 3.1 (April 29, 2015) Table 20.44: Implementation dependent Fragment shader limits
     GLuint maxFragmentUniformComponents;
     GLuint maxFragmentUniformVectors;
     GLuint maxFragmentUniformBlocks;
     GLuint maxFragmentInputComponents;
     GLuint maxTextureImageUnits;
+    GLuint maxFragmentAtomicCounterBuffers;
+    GLuint maxFragmentAtomicCounters;
+    GLuint maxFragmentImageUniforms;
+    GLuint maxFragmentShaderStorageBlocks;
+    GLint minProgramTextureGatherOffset;
+    GLuint maxProgramTextureGatherOffset;
     GLint minProgramTexelOffset;
     GLint maxProgramTexelOffset;
 
-    // Table 6.33, implementation dependent aggregate shader limits
+    // ES 3.1 (April 29, 2015) Table 20.45: implementation dependent compute shader limits
+    std::array<GLuint, 3> maxComputeWorkGroupCount;
+    std::array<GLuint, 3> maxComputeWorkGroupSize;
+    GLuint maxComputeWorkGroupInvocations;
+    GLuint maxComputeUniformBlocks;
+    GLuint maxComputeTextureImageUnits;
+    GLuint maxComputeSharedMemorySize;
+    GLuint maxComputeUniformComponents;
+    GLuint maxComputeAtomicCounterBuffers;
+    GLuint maxComputeAtomicCounters;
+    GLuint maxComputeImageUniforms;
+    GLuint maxCombinedComputeUniformComponents;
+    GLuint maxComputeShaderStorageBlocks;
+
+    // ES 3.1 (April 29, 2015) Table 20.46: implementation dependent aggregate shader limits
     GLuint maxUniformBufferBindings;
     GLuint64 maxUniformBlockSize;
     GLuint uniformBufferOffsetAlignment;
@@ -396,13 +454,27 @@ struct Caps
     GLuint maxVaryingComponents;
     GLuint maxVaryingVectors;
     GLuint maxCombinedTextureImageUnits;
+    GLuint maxCombinedShaderOutputResources;
 
-    // Table 6.34, implementation dependent transform feedback limits
+    // ES 3.1 (April 29, 2015) Table 20.47: implementation dependent aggregate shader limits (cont.)
+    GLuint maxUniformLocations;
+    GLuint maxAtomicCounterBufferBindings;
+    GLuint maxAtomicCounterBufferSize;
+    GLuint maxCombinedAtomicCounterBuffers;
+    GLuint maxCombinedAtomicCounters;
+    GLuint maxImageUnits;
+    GLuint maxCombinedImageUniforms;
+    GLuint maxShaderStorageBufferBindings;
+    GLuint64 maxShaderStorageBlockSize;
+    GLuint maxCombinedShaderStorageBlocks;
+    GLuint shaderStorageBufferOffsetAlignment;
+
+    // ES 3.1 (April 29, 2015) Table 20.48: implementation dependent transform feedback limits
     GLuint maxTransformFeedbackInterleavedComponents;
     GLuint maxTransformFeedbackSeparateAttributes;
     GLuint maxTransformFeedbackSeparateComponents;
 
-    // Table 6.35, Framebuffer Dependent Values
+    // ES 3.1 (April 29, 2015) Table 20.49: Framebuffer Dependent Values
     GLuint maxSamples;
 };
 

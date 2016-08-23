@@ -15,6 +15,7 @@
 #include "common/platform.h"
 #include "libANGLE/angletypes.h"
 #include "libANGLE/formatutils.h"
+#include "libANGLE/renderer/renderer_utils.h"
 #include "libANGLE/renderer/d3d/formatutilsD3D.h"
 
 namespace rx
@@ -24,7 +25,6 @@ struct Renderer11DeviceCaps;
 namespace d3d11
 {
 
-typedef std::map<std::pair<GLenum, GLenum>, ColorCopyFunction> FastCopyFunctionMap;
 typedef bool (*NativeMipmapGenerationSupportFunction)(D3D_FEATURE_LEVEL);
 
 struct DXGIFormat
@@ -42,11 +42,7 @@ struct DXGIFormat
 
     GLenum componentType;
 
-    FastCopyFunctionMap fastCopyFunctions;
-
     NativeMipmapGenerationSupportFunction nativeMipmapSupport;
-
-    ColorCopyFunction getFastCopyFunction(GLenum format, GLenum type) const;
 };
 
 // This structure is problematic because a resource is associated with multiple DXGI formats.

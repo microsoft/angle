@@ -12,6 +12,7 @@
 #include "common/angleutils.h"
 #include "libANGLE/Error.h"
 #include "libANGLE/FramebufferAttachment.h"
+#include "libANGLE/renderer/FramebufferAttachmentObjectImpl.h"
 
 namespace gl
 {
@@ -22,6 +23,7 @@ namespace egl
 {
 class Display;
 struct Config;
+struct SurfaceState;
 }
 
 namespace rx
@@ -31,7 +33,7 @@ class FramebufferImpl;
 class SurfaceImpl : public FramebufferAttachmentObjectImpl
 {
   public:
-    SurfaceImpl();
+    SurfaceImpl(const egl::SurfaceState &surfaceState);
     virtual ~SurfaceImpl();
 
     virtual egl::Error initialize() = 0;
@@ -49,6 +51,9 @@ class SurfaceImpl : public FramebufferAttachmentObjectImpl
 
     virtual EGLint isPostSubBufferSupported() const = 0;
     virtual EGLint getSwapBehavior() const = 0;
+
+  protected:
+    const egl::SurfaceState &mState;
 };
 
 }

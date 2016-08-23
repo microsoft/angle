@@ -38,7 +38,7 @@ bool ValidateES2CopyTexImageParameters(ValidationContext *context,
 bool ValidateES2TexStorageParameters(Context *context, GLenum target, GLsizei levels, GLenum internalformat,
                                                    GLsizei width, GLsizei height);
 
-bool ValidES2ReadFormatType(Context *context, GLenum format, GLenum type);
+bool ValidES2ReadFormatType(ValidationContext *context, GLenum format, GLenum type);
 
 bool ValidateDiscardFramebufferEXT(Context *context, GLenum target, GLsizei numAttachments,
                                    const GLenum *attachments);
@@ -187,6 +187,123 @@ bool ValidateBindUniformLocationCHROMIUM(Context *context,
                                          GLuint program,
                                          GLint location,
                                          const GLchar *name);
+
+bool ValidateCoverageModulationCHROMIUM(Context *context, GLenum components);
+
+// CHROMIUM_path_rendering
+bool ValidateMatrix(Context *context, GLenum matrixMode, const GLfloat *matrix);
+bool ValidateMatrixMode(Context *context, GLenum matrixMode);
+bool ValidateGenPaths(Context *context, GLsizei range);
+bool ValidateDeletePaths(Context *context, GLuint first, GLsizei range);
+bool ValidatePathCommands(Context *context,
+                          GLuint path,
+                          GLsizei numCommands,
+                          const GLubyte *commands,
+                          GLsizei numCoords,
+                          GLenum coordType,
+                          const void *coords);
+bool ValidateSetPathParameter(Context *context, GLuint path, GLenum pname, GLfloat value);
+bool ValidateGetPathParameter(Context *context, GLuint path, GLenum pname, GLfloat *value);
+bool ValidatePathStencilFunc(Context *context, GLenum func, GLint ref, GLuint mask);
+bool ValidateStencilFillPath(Context *context, GLuint path, GLenum fillMode, GLuint mask);
+bool ValidateStencilStrokePath(Context *context, GLuint path, GLint reference, GLuint mask);
+bool ValidateCoverPath(Context *context, GLuint path, GLenum coverMode);
+bool ValidateStencilThenCoverFillPath(Context *context,
+                                      GLuint path,
+                                      GLenum fillMode,
+                                      GLuint mask,
+                                      GLenum coverMode);
+bool ValidateStencilThenCoverStrokePath(Context *context,
+                                        GLuint path,
+                                        GLint reference,
+                                        GLuint mask,
+                                        GLenum coverMode);
+bool ValidateIsPath(Context *context);
+bool ValidateCoverFillPathInstanced(Context *context,
+                                    GLsizei numPaths,
+                                    GLenum pathNameType,
+                                    const void *paths,
+                                    GLuint pathBase,
+                                    GLenum coverMode,
+                                    GLenum transformType,
+                                    const GLfloat *transformValues);
+bool ValidateCoverStrokePathInstanced(Context *context,
+                                      GLsizei numPaths,
+                                      GLenum pathNameType,
+                                      const void *paths,
+                                      GLuint pathBase,
+                                      GLenum coverMode,
+                                      GLenum transformType,
+                                      const GLfloat *transformValues);
+bool ValidateStencilFillPathInstanced(Context *context,
+                                      GLsizei numPaths,
+                                      GLenum pathNameType,
+                                      const void *paths,
+                                      GLuint pathBAse,
+                                      GLenum fillMode,
+                                      GLuint mask,
+                                      GLenum transformType,
+                                      const GLfloat *transformValues);
+bool ValidateStencilStrokePathInstanced(Context *context,
+                                        GLsizei numPaths,
+                                        GLenum pathNameType,
+                                        const void *paths,
+                                        GLuint pathBase,
+                                        GLint reference,
+                                        GLuint mask,
+                                        GLenum transformType,
+                                        const GLfloat *transformValues);
+bool ValidateStencilThenCoverFillPathInstanced(Context *context,
+                                               GLsizei numPaths,
+                                               GLenum pathNameType,
+                                               const void *paths,
+                                               GLuint pathBase,
+                                               GLenum fillMode,
+                                               GLuint mask,
+                                               GLenum coverMode,
+                                               GLenum transformType,
+                                               const GLfloat *transformValues);
+bool ValidateStencilThenCoverStrokePathInstanced(Context *context,
+                                                 GLsizei numPaths,
+                                                 GLenum pathNameType,
+                                                 const void *paths,
+                                                 GLuint pathBase,
+                                                 GLint reference,
+                                                 GLuint mask,
+                                                 GLenum coverMode,
+                                                 GLenum transformType,
+                                                 const GLfloat *transformValues);
+bool ValidateBindFragmentInputLocation(Context *context,
+                                       GLuint program,
+                                       GLint location,
+                                       const GLchar *name);
+bool ValidateProgramPathFragmentInputGen(Context *context,
+                                         GLuint program,
+                                         GLint location,
+                                         GLenum genMode,
+                                         GLint components,
+                                         const GLfloat *coeffs);
+
+bool ValidateCopyTextureCHROMIUM(Context *context,
+                                 GLuint sourceId,
+                                 GLuint destId,
+                                 GLint internalFormat,
+                                 GLenum destType,
+                                 GLboolean unpackFlipY,
+                                 GLboolean unpackPremultiplyAlpha,
+                                 GLboolean unpackUnmultiplyAlpha);
+bool ValidateCopySubTextureCHROMIUM(Context *context,
+                                    GLuint sourceId,
+                                    GLuint destId,
+                                    GLint xoffset,
+                                    GLint yoffset,
+                                    GLint x,
+                                    GLint y,
+                                    GLsizei width,
+                                    GLsizei height,
+                                    GLboolean unpackFlipY,
+                                    GLboolean unpackPremultiplyAlpha,
+                                    GLboolean unpackUnmultiplyAlpha);
 
 }  // namespace gl
 

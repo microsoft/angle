@@ -10,16 +10,27 @@
 #include "ANGLETest.h"
 #include "EGLWindow.h"
 #include "OSWindow.h"
-#include "system_utils.h"
+#include "platform/Platform.h"
 
 namespace angle
 {
 
-const GLColor GLColor::red   = GLColor(255u, 0u, 0u, 255u);
-const GLColor GLColor::green = GLColor(0u, 255u, 0u, 255u);
-const GLColor GLColor::blue  = GLColor(0u, 0u, 255u, 255u);
-const GLColor GLColor::cyan  = GLColor(0u, 255u, 255u, 255u);
-const GLColor GLColor::black = GLColor(0u, 0u, 0u, 255u);
+const GLColorRGB GLColorRGB::black(0u, 0u, 0u);
+const GLColorRGB GLColorRGB::blue(0u, 0u, 255u);
+const GLColorRGB GLColorRGB::green(0u, 255u, 0u);
+const GLColorRGB GLColorRGB::red(255u, 0u, 0u);
+const GLColorRGB GLColorRGB::yellow(255u, 255u, 0);
+
+const GLColor GLColor::black            = GLColor(0u, 0u, 0u, 255u);
+const GLColor GLColor::blue             = GLColor(0u, 0u, 255u, 255u);
+const GLColor GLColor::cyan             = GLColor(0u, 255u, 255u, 255u);
+const GLColor GLColor::green            = GLColor(0u, 255u, 0u, 255u);
+const GLColor GLColor::red              = GLColor(255u, 0u, 0u, 255u);
+const GLColor GLColor::transparentBlack = GLColor(0u, 0u, 0u, 0u);
+const GLColor GLColor::white            = GLColor(255u, 255u, 255u, 255u);
+const GLColor GLColor::yellow           = GLColor(255u, 255u, 0, 255u);
+
+const GLColor16 GLColor16::white = GLColor16(65535u, 65535u, 65535u, 65535u);
 
 namespace
 {
@@ -27,13 +38,111 @@ float ColorNorm(GLubyte channelValue)
 {
     return static_cast<float>(channelValue) / 255.0f;
 }
+
+GLubyte ColorDenorm(float colorValue)
+{
+    return static_cast<GLubyte>(colorValue * 255.0f);
+}
+
+// Use a custom ANGLE platform class to capture and report internal errors.
+class TestPlatform : public angle::Platform
+{
+  public:
+    TestPlatform() : mIgnoreMessages(false) {}
+
+    void logError(const char *errorMessage) override;
+    void logWarning(const char *warningMessage) override;
+    void logInfo(const char *infoMessage) override;
+
+    void ignoreMessages();
+    void enableMessages();
+
+  private:
+    bool mIgnoreMessages;
+};
+
+void TestPlatform::logError(const char *errorMessage)
+{
+    if (mIgnoreMessages)
+        return;
+
+    FAIL() << errorMessage;
+}
+
+void TestPlatform::logWarning(const char *warningMessage)
+{
+    if (mIgnoreMessages)
+        return;
+
+    std::cerr << "Warning: " << warningMessage << std::endl;
+}
+
+void TestPlatform::logInfo(const char *infoMessage)
+{
+    if (mIgnoreMessages)
+        return;
+
+    angle::WriteDebugMessage("%s\n", infoMessage);
+}
+
+void TestPlatform::ignoreMessages()
+{
+    mIgnoreMessages = true;
+}
+
+void TestPlatform::enableMessages()
+{
+    mIgnoreMessages = false;
+}
+
+TestPlatform g_testPlatformInstance;
+
+std::array<Vector3, 4> GetIndexedQuadVertices()
+{
+    std::array<Vector3, 4> vertices;
+    vertices[0] = Vector3(-1.0f, 1.0f, 0.5f);
+    vertices[1] = Vector3(-1.0f, -1.0f, 0.5f);
+    vertices[2] = Vector3(1.0f, -1.0f, 0.5f);
+    vertices[3] = Vector3(1.0f, 1.0f, 0.5f);
+    return vertices;
+}
+
 }  // anonymous namespace
+
+GLColorRGB::GLColorRGB() : R(0), G(0), B(0)
+{
+}
+
+GLColorRGB::GLColorRGB(GLubyte r, GLubyte g, GLubyte b) : R(r), G(g), B(b)
+{
+}
+
+GLColorRGB::GLColorRGB(const Vector3 &floatColor)
+    : R(ColorDenorm(floatColor.x)), G(ColorDenorm(floatColor.y)), B(ColorDenorm(floatColor.z))
+{
+}
 
 GLColor::GLColor() : R(0), G(0), B(0), A(0)
 {
 }
 
 GLColor::GLColor(GLubyte r, GLubyte g, GLubyte b, GLubyte a) : R(r), G(g), B(b), A(a)
+{
+}
+
+GLColor::GLColor(const Vector4 &floatColor)
+    : R(ColorDenorm(floatColor.x)),
+      G(ColorDenorm(floatColor.y)),
+      B(ColorDenorm(floatColor.z)),
+      A(ColorDenorm(floatColor.w))
+{
+}
+
+GLColor::GLColor(const GLColor16 &color16)
+    : R(static_cast<GLubyte>(color16.R)),
+      G(static_cast<GLubyte>(color16.G)),
+      B(static_cast<GLubyte>(color16.B)),
+      A(static_cast<GLubyte>(color16.A))
 {
 }
 
@@ -68,7 +177,49 @@ std::ostream &operator<<(std::ostream &ostream, const GLColor &color)
     return ostream;
 }
 
+GLColor16::GLColor16() : R(0), G(0), B(0), A(0)
+{
+}
+
+GLColor16::GLColor16(GLushort r, GLushort g, GLushort b, GLushort a) : R(r), G(g), B(b), A(a)
+{
+}
+
+GLColor16 ReadColor16(GLint x, GLint y)
+{
+    GLColor16 actual;
+    glReadPixels((x), (y), 1, 1, GL_RGBA, GL_UNSIGNED_SHORT, &actual.R);
+    EXPECT_GL_NO_ERROR();
+    return actual;
+}
+
+bool operator==(const GLColor16 &a, const GLColor16 &b)
+{
+    return a.R == b.R && a.G == b.G && a.B == b.B && a.A == b.A;
+}
+
+std::ostream &operator<<(std::ostream &ostream, const GLColor16 &color)
+{
+    ostream << "(" << static_cast<unsigned int>(color.R) << ", "
+            << static_cast<unsigned int>(color.G) << ", " << static_cast<unsigned int>(color.B)
+            << ", " << static_cast<unsigned int>(color.A) << ")";
+    return ostream;
+}
+
 }  // namespace angle
+
+// static
+std::array<Vector3, 6> ANGLETest::GetQuadVertices()
+{
+    std::array<Vector3, 6> vertices;
+    vertices[0] = Vector3(-1.0f, 1.0f, 0.5f);
+    vertices[1] = Vector3(-1.0f, -1.0f, 0.5f);
+    vertices[2] = Vector3(1.0f, -1.0f, 0.5f);
+    vertices[3] = Vector3(-1.0f, 1.0f, 0.5f);
+    vertices[4] = Vector3(1.0f, -1.0f, 0.5f);
+    vertices[5] = Vector3(1.0f, 1.0f, 0.5f);
+    return vertices;
+}
 
 ANGLETest::ANGLETest()
     : mEGLWindow(nullptr),
@@ -92,6 +243,8 @@ ANGLETest::~ANGLETest()
 
 void ANGLETest::SetUp()
 {
+    angle::g_testPlatformInstance.enableMessages();
+
     // Resize the window before creating the context so that the first make current
     // sets the viewport and scissor box to the right size.
     bool needSwap = false;
@@ -160,19 +313,6 @@ void ANGLETest::swapBuffers()
     }
 }
 
-// static
-std::array<Vector3, 6> ANGLETest::GetQuadVertices()
-{
-    std::array<Vector3, 6> vertices;
-    vertices[0] = Vector3(-1.0f, 1.0f, 0.5f);
-    vertices[1] = Vector3(-1.0f, -1.0f, 0.5f);
-    vertices[2] = Vector3(1.0f, -1.0f, 0.5f);
-    vertices[3] = Vector3(-1.0f, 1.0f, 0.5f);
-    vertices[4] = Vector3(1.0f, -1.0f, 0.5f);
-    vertices[5] = Vector3(1.0f, 1.0f, 0.5f);
-    return vertices;
-}
-
 void ANGLETest::setupQuadVertexBuffer(GLfloat positionAttribZ, GLfloat positionAttribXYScale)
 {
     if (mQuadVertexBuffer == 0)
@@ -190,6 +330,25 @@ void ANGLETest::setupQuadVertexBuffer(GLfloat positionAttribZ, GLfloat positionA
 
     glBindBuffer(GL_ARRAY_BUFFER, mQuadVertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 6, quadVertices.data(), GL_STATIC_DRAW);
+}
+
+void ANGLETest::setupIndexedQuadVertexBuffer(GLfloat positionAttribZ, GLfloat positionAttribXYScale)
+{
+    if (mQuadVertexBuffer == 0)
+    {
+        glGenBuffers(1, &mQuadVertexBuffer);
+    }
+
+    auto quadVertices = angle::GetIndexedQuadVertices();
+    for (Vector3 &vertex : quadVertices)
+    {
+        vertex.x *= positionAttribXYScale;
+        vertex.y *= positionAttribXYScale;
+        vertex.z = positionAttribZ;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, mQuadVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 4, quadVertices.data(), GL_STATIC_DRAW);
 }
 
 // static
@@ -279,7 +438,7 @@ void ANGLETest::drawIndexedQuad(GLuint program,
     GLuint prevBinding = 0;
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, reinterpret_cast<GLint *>(&prevBinding));
 
-    setupQuadVertexBuffer(positionAttribZ, positionAttribXYScale);
+    setupIndexedQuadVertexBuffer(positionAttribZ, positionAttribXYScale);
 
     glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(positionLocation);
@@ -484,9 +643,14 @@ void ANGLETest::setNoErrorEnabled(bool enabled)
     mEGLWindow->setNoErrorEnabled(enabled);
 }
 
-int ANGLETest::getClientVersion() const
+int ANGLETest::getClientMajorVersion() const
 {
     return mEGLWindow->getClientMajorVersion();
+}
+
+int ANGLETest::getClientMinorVersion() const
+{
+    return mEGLWindow->getClientMinorVersion();
 }
 
 EGLWindow *ANGLETest::getEGLWindow() const
@@ -556,6 +720,12 @@ bool IsIntel()
     return (rendererString.find("Intel") != std::string::npos);
 }
 
+bool IsAdreno()
+{
+    std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
+    return (rendererString.find("Adreno") != std::string::npos);
+}
+
 bool IsAMD()
 {
     std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
@@ -592,6 +762,32 @@ bool IsD3DSM3()
     return IsD3D9() || IsD3D11_FL93();
 }
 
+bool IsDesktopOpenGL()
+{
+    return IsOpenGL() && !IsOpenGLES();
+}
+
+bool IsOpenGLES()
+{
+    std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
+    return (rendererString.find("OpenGL ES") != std::string::npos);
+}
+
+bool IsOpenGL()
+{
+    std::string rendererString(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
+    return (rendererString.find("OpenGL") != std::string::npos);
+}
+
+bool IsAndroid()
+{
+#if defined(ANGLE_PLATFORM_ANDROID)
+    return true;
+#else
+    return false;
+#endif
+}
+
 bool IsLinux()
 {
 #if defined(ANGLE_PLATFORM_LINUX)
@@ -610,9 +806,13 @@ bool IsOSX()
 #endif
 }
 
-bool ANGLETest::isOpenGL() const
+bool IsWindows()
 {
-    return getPlatformRenderer() == EGL_PLATFORM_ANGLE_TYPE_OPENGL_ANGLE;
+#if defined(ANGLE_PLATFORM_WINDOWS)
+    return true;
+#else
+    return false;
+#endif
 }
 
 EGLint ANGLETest::getPlatformRenderer() const
@@ -631,6 +831,17 @@ OSWindow *ANGLETest::mOSWindow = NULL;
 
 void ANGLETestEnvironment::SetUp()
 {
+    mGLESLibrary.reset(angle::loadLibrary("libGLESv2"));
+    if (mGLESLibrary)
+    {
+        auto initFunc = reinterpret_cast<ANGLEPlatformInitializeFunc>(
+            mGLESLibrary->getSymbol("ANGLEPlatformInitialize"));
+        if (initFunc)
+        {
+            initFunc(&angle::g_testPlatformInstance);
+        }
+    }
+
     if (!ANGLETest::InitTestWindow())
     {
         FAIL() << "Failed to create ANGLE test window.";
@@ -640,4 +851,20 @@ void ANGLETestEnvironment::SetUp()
 void ANGLETestEnvironment::TearDown()
 {
     ANGLETest::DestroyTestWindow();
+
+    if (mGLESLibrary)
+    {
+        auto shutdownFunc = reinterpret_cast<ANGLEPlatformShutdownFunc>(
+            mGLESLibrary->getSymbol("ANGLEPlatformShutdown"));
+        if (shutdownFunc)
+        {
+            shutdownFunc();
+        }
+    }
+}
+
+void IgnoreANGLEPlatformMessages()
+{
+    // Negative tests may trigger expected errors/warnings in the ANGLE Platform.
+    angle::g_testPlatformInstance.ignoreMessages();
 }

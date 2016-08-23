@@ -345,7 +345,9 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
         DWORD currentProcessId = GetCurrentProcessId();
         DWORD windowProcessId;
         GetWindowThreadProcessId(nativeWindow, &windowProcessId);
-        mUseDXGISwapChains = (currentProcessId != windowProcessId);
+
+        // AMD drivers advertise the WGL_NV_DX_interop and WGL_NV_DX_interop2 extensions but fail
+        mUseDXGISwapChains = vendor != VENDOR_ID_AMD && (currentProcessId != windowProcessId);
     }
     else
     {
@@ -406,25 +408,27 @@ void DisplayWGL::terminate()
     ASSERT(mRegisteredD3DDevices.empty());
 }
 
-SurfaceImpl *DisplayWGL::createWindowSurface(const egl::Config *configuration,
+SurfaceImpl *DisplayWGL::createWindowSurface(const egl::SurfaceState &state,
+                                             const egl::Config *configuration,
                                              EGLNativeWindowType window,
                                              const egl::AttributeMap &attribs)
 {
     EGLint orientation = static_cast<EGLint>(attribs.get(EGL_SURFACE_ORIENTATION_ANGLE, 0));
     if (mUseDXGISwapChains)
     {
-        return new DXGISwapChainWindowSurfaceWGL(this->getRenderer(), window, mD3D11Device,
+        return new DXGISwapChainWindowSurfaceWGL(state, this->getRenderer(), window, mD3D11Device,
                                                  mD3D11DeviceHandle, mWGLContext, mDeviceContext,
                                                  mFunctionsGL, mFunctionsWGL, orientation);
     }
     else
     {
-        return new WindowSurfaceWGL(this->getRenderer(), window, mPixelFormat, mWGLContext,
+        return new WindowSurfaceWGL(state, this->getRenderer(), window, mPixelFormat, mWGLContext,
                                     mFunctionsWGL, orientation);
     }
 }
 
-SurfaceImpl *DisplayWGL::createPbufferSurface(const egl::Config *configuration,
+SurfaceImpl *DisplayWGL::createPbufferSurface(const egl::SurfaceState &state,
+                                              const egl::Config *configuration,
                                               const egl::AttributeMap &attribs)
 {
     EGLint width          = static_cast<EGLint>(attribs.get(EGL_WIDTH, 0));
@@ -433,11 +437,13 @@ SurfaceImpl *DisplayWGL::createPbufferSurface(const egl::Config *configuration,
     EGLenum textureFormat = static_cast<EGLenum>(attribs.get(EGL_TEXTURE_FORMAT, EGL_NO_TEXTURE));
     EGLenum textureTarget = static_cast<EGLenum>(attribs.get(EGL_TEXTURE_TARGET, EGL_NO_TEXTURE));
 
-    return new PbufferSurfaceWGL(this->getRenderer(), width, height, textureFormat, textureTarget,
-                                 largest, mPixelFormat, mDeviceContext, mWGLContext, mFunctionsWGL);
+    return new PbufferSurfaceWGL(state, this->getRenderer(), width, height, textureFormat,
+                                 textureTarget, largest, mPixelFormat, mDeviceContext, mWGLContext,
+                                 mFunctionsWGL);
 }
 
-SurfaceImpl *DisplayWGL::createPbufferFromClientBuffer(const egl::Config *configuration,
+SurfaceImpl *DisplayWGL::createPbufferFromClientBuffer(const egl::SurfaceState &state,
+                                                       const egl::Config *configuration,
                                                        EGLClientBuffer shareHandle,
                                                        const egl::AttributeMap &attribs)
 {
@@ -445,7 +451,8 @@ SurfaceImpl *DisplayWGL::createPbufferFromClientBuffer(const egl::Config *config
     return nullptr;
 }
 
-SurfaceImpl *DisplayWGL::createPixmapSurface(const egl::Config *configuration,
+SurfaceImpl *DisplayWGL::createPixmapSurface(const egl::SurfaceState &state,
+                                             const egl::Config *configuration,
                                              NativePixmapType nativePixmap,
                                              const egl::AttributeMap &attribs)
 {
@@ -459,7 +466,7 @@ egl::Error DisplayWGL::getDevice(DeviceImpl **device)
     return egl::Error(EGL_BAD_DISPLAY);
 }
 
-egl::ConfigSet DisplayWGL::generateConfigs() const
+egl::ConfigSet DisplayWGL::generateConfigs()
 {
     egl::ConfigSet configs;
 
@@ -532,12 +539,6 @@ egl::ConfigSet DisplayWGL::generateConfigs() const
     configs.add(config);
 
     return configs;
-}
-
-bool DisplayWGL::isDeviceLost() const
-{
-    //UNIMPLEMENTED();
-    return false;
 }
 
 bool DisplayWGL::testDeviceLost()
@@ -614,12 +615,8 @@ egl::Error DisplayWGL::initializeD3DDevice()
 
 void DisplayWGL::generateExtensions(egl::DisplayExtensions *outExtensions) const
 {
-    outExtensions->createContext = true;
-    outExtensions->createContextNoError = true;
-
     // Only enable the surface orientation  and post sub buffer for DXGI swap chain surfaces, they
-    // prefer to swap with
-    // inverted Y.
+    // prefer to swap with inverted Y.
     outExtensions->postSubBuffer      = mUseDXGISwapChains;
     outExtensions->surfaceOrientation = mUseDXGISwapChains;
 }

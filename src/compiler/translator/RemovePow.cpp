@@ -52,8 +52,6 @@ bool RemovePowTraverser::visitAggregate(Visit visit, TIntermAggregate *node)
 {
     if (IsProblematicPow(node))
     {
-        TInfoSink nullSink;
-
         TIntermTyped *x = node->getSequence()->at(0)->getAsTyped();
         TIntermTyped *y = node->getSequence()->at(1)->getAsTyped();
 
@@ -62,11 +60,9 @@ bool RemovePowTraverser::visitAggregate(Visit visit, TIntermAggregate *node)
         log->setLine(node->getLine());
         log->setType(x->getType());
 
-        TIntermBinary *mul = new TIntermBinary(EOpMul);
-        mul->setLeft(y);
-        mul->setRight(log);
+        TIntermBinary *mul = new TIntermBinary(EOpMul, y, log);
         mul->setLine(node->getLine());
-        bool valid = mul->promote(nullSink);
+        bool valid = mul->promote();
         UNUSED_ASSERTION_VARIABLE(valid);
         ASSERT(valid);
 
@@ -75,8 +71,7 @@ bool RemovePowTraverser::visitAggregate(Visit visit, TIntermAggregate *node)
         exp->setLine(node->getLine());
         exp->setType(node->getType());
 
-        NodeUpdateEntry replacePow(getParentNode(), node, exp, false);
-        mReplacements.push_back(replacePow);
+        queueReplacement(node, exp, OriginalNode::IS_DROPPED);
 
         // If the x parameter also needs to be replaced, we need to do that in another traversal,
         // since it's parent node will change in a way that's not handled correctly by updateTree().

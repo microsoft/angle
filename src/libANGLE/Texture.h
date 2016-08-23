@@ -22,6 +22,7 @@
 #include "libANGLE/Image.h"
 #include "libANGLE/Stream.h"
 #include "libANGLE/angletypes.h"
+#include "libANGLE/formatutils.h"
 
 namespace egl
 {
@@ -31,23 +32,142 @@ class Stream;
 
 namespace rx
 {
-class ImplFactory;
+class GLImplFactory;
 class TextureImpl;
+class TextureGL;
 }
 
 namespace gl
 {
-struct ContextState;
+class ContextState;
 class Framebuffer;
+class Texture;
 
 bool IsMipmapFiltered(const SamplerState &samplerState);
+
+struct ImageDesc final
+{
+    ImageDesc();
+    ImageDesc(const Extents &size, const Format &format);
+
+    ImageDesc(const ImageDesc &other) = default;
+    ImageDesc &operator=(const ImageDesc &other) = default;
+
+    Extents size;
+    Format format;
+};
+
+struct SwizzleState final
+{
+    SwizzleState();
+    SwizzleState(GLenum red, GLenum green, GLenum blue, GLenum alpha);
+    SwizzleState(const SwizzleState &other) = default;
+    SwizzleState &operator=(const SwizzleState &other) = default;
+
+    bool swizzleRequired() const;
+
+    bool operator==(const SwizzleState &other) const;
+    bool operator!=(const SwizzleState &other) const;
+
+    GLenum swizzleRed;
+    GLenum swizzleGreen;
+    GLenum swizzleBlue;
+    GLenum swizzleAlpha;
+};
+
+// State from Table 6.9 (state per texture object) in the OpenGL ES 3.0.2 spec.
+struct TextureState final : public angle::NonCopyable
+{
+    TextureState(GLenum target);
+
+    bool swizzleRequired() const;
+    GLuint getEffectiveBaseLevel() const;
+    GLuint getEffectiveMaxLevel() const;
+
+    // Returns the value called "q" in the GLES 3.0.4 spec section 3.8.10.
+    GLuint getMipmapMaxLevel() const;
+
+    // Returns true if base level changed.
+    bool setBaseLevel(GLuint baseLevel);
+    void setMaxLevel(GLuint maxLevel);
+
+    bool isCubeComplete() const;
+    bool isSamplerComplete(const SamplerState &samplerState, const ContextState &data) const;
+
+    const ImageDesc &getImageDesc(GLenum target, size_t level) const;
+
+    GLenum getTarget() const { return mTarget; }
+    const SwizzleState &getSwizzleState() const { return mSwizzleState; }
+    const SamplerState &getSamplerState() const { return mSamplerState; }
+    GLenum getUsage() const { return mUsage; }
+
+  private:
+    // Texture needs access to the ImageDesc functions.
+    friend class Texture;
+    // TODO(jmadill): Remove TextureGL from friends.
+    friend class rx::TextureGL;
+    friend bool operator==(const TextureState &a, const TextureState &b);
+
+    bool computeSamplerCompleteness(const SamplerState &samplerState,
+                                    const ContextState &data) const;
+    bool computeMipmapCompleteness() const;
+    bool computeLevelCompleteness(GLenum target, size_t level) const;
+
+    GLenum getBaseImageTarget() const;
+
+    void setImageDesc(GLenum target, size_t level, const ImageDesc &desc);
+    void setImageDescChain(GLuint baselevel,
+                           GLuint maxLevel,
+                           Extents baseSize,
+                           const Format &format);
+    void clearImageDesc(GLenum target, size_t level);
+    void clearImageDescs();
+
+    const GLenum mTarget;
+
+    SwizzleState mSwizzleState;
+
+    SamplerState mSamplerState;
+
+    GLuint mBaseLevel;
+    GLuint mMaxLevel;
+
+    bool mImmutableFormat;
+    GLuint mImmutableLevels;
+
+    // From GL_ANGLE_texture_usage
+    GLenum mUsage;
+
+    std::vector<ImageDesc> mImageDescs;
+
+    struct SamplerCompletenessCache
+    {
+        SamplerCompletenessCache();
+
+        bool cacheValid;
+
+        // All values that affect sampler completeness that are not stored within
+        // the texture itself
+        SamplerState samplerState;
+        bool filterable;
+        GLint clientVersion;
+        bool supportsNPOT;
+
+        // Result of the sampler completeness with the above parameters
+        bool samplerComplete;
+    };
+    mutable SamplerCompletenessCache mCompletenessCache;
+};
+
+bool operator==(const TextureState &a, const TextureState &b);
+bool operator!=(const TextureState &a, const TextureState &b);
 
 class Texture final : public egl::ImageSibling,
                       public FramebufferAttachmentObject,
                       public LabeledObject
 {
   public:
-    Texture(rx::ImplFactory *factory, GLuint id, GLenum target);
+    Texture(rx::GLImplFactory *factory, GLuint id, GLenum target);
     ~Texture() override;
 
     void setLabel(const std::string &label) override;
@@ -101,8 +221,6 @@ class Texture final : public egl::ImageSibling,
 
     void setBaseLevel(GLuint baseLevel);
     GLuint getBaseLevel() const;
-    // Returns base level after clamping required for immutable textures.
-    GLuint getEffectiveBaseLevel() const;
 
     void setMaxLevel(GLuint maxLevel);
     GLuint getMaxLevel() const;
@@ -119,12 +237,9 @@ class Texture final : public egl::ImageSibling,
     size_t getWidth(GLenum target, size_t level) const;
     size_t getHeight(GLenum target, size_t level) const;
     size_t getDepth(GLenum target, size_t level) const;
-    GLenum getInternalFormat(GLenum target, size_t level) const;
+    const Format &getFormat(GLenum target, size_t level) const;
 
-    bool isSamplerComplete(const SamplerState &samplerState, const ContextState &data) const;
     bool isMipmapComplete() const;
-    bool isCubeComplete() const;
-    size_t getMipCompleteLevels() const;
 
     Error setImage(const PixelUnpackState &unpackState,
                    GLenum target,
@@ -168,11 +283,24 @@ class Texture final : public egl::ImageSibling,
                        const Rectangle &sourceArea,
                        const Framebuffer *source);
 
-    Error setStorage(GLenum target, size_t levels, GLenum internalFormat, const Extents &size);
+    Error copyTexture(GLenum internalFormat,
+                      GLenum type,
+                      bool unpackFlipY,
+                      bool unpackPremultiplyAlpha,
+                      bool unpackUnmultiplyAlpha,
+                      const Texture *source);
+    Error copySubTexture(const Offset &destOffset,
+                         const Rectangle &sourceArea,
+                         bool unpackFlipY,
+                         bool unpackPremultiplyAlpha,
+                         bool unpackUnmultiplyAlpha,
+                         const Texture *source);
+
+    Error setStorage(GLenum target, GLsizei levels, GLenum internalFormat, const Extents &size);
 
     Error setEGLImageTarget(GLenum target, egl::Image *imageTarget);
 
-    Error generateMipmaps();
+    Error generateMipmap();
 
     egl::Surface *getBoundSurface() const;
     egl::Stream *getBoundStream() const;
@@ -182,7 +310,7 @@ class Texture final : public egl::ImageSibling,
 
     // FramebufferAttachmentObject implementation
     Extents getAttachmentSize(const FramebufferAttachment::Target &target) const override;
-    GLenum getAttachmentInternalFormat(const FramebufferAttachment::Target &target) const override;
+    const Format &getAttachmentFormat(const FramebufferAttachment::Target &target) const override;
     GLsizei getAttachmentSamples(const FramebufferAttachment::Target &target) const override;
 
     void onAttach() override;
@@ -204,64 +332,29 @@ class Texture final : public egl::ImageSibling,
     void acquireImageFromStream(const egl::Stream::GLTextureDescription &desc);
     void releaseImageFromStream();
 
+    TextureState mState;
     rx::TextureImpl *mTexture;
 
     std::string mLabel;
 
-    TextureState mTextureState;
-    GLuint mEffectiveBaseLevel;
-
-    GLenum mTarget;
-
-    struct ImageDesc
-    {
-        Extents size;
-        GLenum internalFormat;
-
-        ImageDesc();
-        ImageDesc(const Extents &size, GLenum internalFormat);
-    };
-
-    GLenum getBaseImageTarget() const;
-
-    bool computeSamplerCompleteness(const SamplerState &samplerState,
-                                    const ContextState &data) const;
-    bool computeMipmapCompleteness() const;
-    bool computeLevelCompleteness(GLenum target, size_t level) const;
-
-    const ImageDesc &getImageDesc(GLenum target, size_t level) const;
-    void setImageDesc(GLenum target, size_t level, const ImageDesc &desc);
-    void setImageDescChain(size_t levels, Extents baseSize, GLenum sizedInternalFormat);
-    void clearImageDesc(GLenum target, size_t level);
-    void clearImageDescs();
     void releaseTexImageInternal();
-
-    void updateEffectiveBaseLevel();
-
-    std::vector<ImageDesc> mImageDescs;
-
-    struct SamplerCompletenessCache
-    {
-        SamplerCompletenessCache();
-
-        bool cacheValid;
-
-        // All values that affect sampler completeness that are not stored within
-        // the texture itself
-        SamplerState samplerState;
-        bool filterable;
-        GLint clientVersion;
-        bool supportsNPOT;
-
-        // Result of the sampler completeness with the above parameters
-        bool samplerComplete;
-    };
-    mutable SamplerCompletenessCache mCompletenessCache;
 
     egl::Surface *mBoundSurface;
     egl::Stream *mBoundStream;
 };
 
+inline bool operator==(const TextureState &a, const TextureState &b)
+{
+    return a.mSwizzleState == b.mSwizzleState && a.mSamplerState == b.mSamplerState &&
+           a.mBaseLevel == b.mBaseLevel && a.mMaxLevel == b.mMaxLevel &&
+           a.mImmutableFormat == b.mImmutableFormat && a.mImmutableLevels == b.mImmutableLevels &&
+           a.mUsage == b.mUsage;
+}
+
+inline bool operator!=(const TextureState &a, const TextureState &b)
+{
+    return !(a == b);
+}
 }
 
 #endif   // LIBANGLE_TEXTURE_H_

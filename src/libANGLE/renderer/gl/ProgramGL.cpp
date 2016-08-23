@@ -8,12 +8,15 @@
 
 #include "libANGLE/renderer/gl/ProgramGL.h"
 
+#include "common/angleutils.h"
 #include "common/debug.h"
+#include "common/string_utils.h"
 #include "common/utilities.h"
 #include "libANGLE/renderer/gl/FunctionsGL.h"
 #include "libANGLE/renderer/gl/ShaderGL.h"
 #include "libANGLE/renderer/gl/StateManagerGL.h"
 #include "libANGLE/renderer/gl/WorkaroundsGL.h"
+#include "libANGLE/Uniform.h"
 #include "platform/Platform.h"
 
 namespace rx
@@ -22,11 +25,13 @@ namespace rx
 ProgramGL::ProgramGL(const gl::ProgramState &data,
                      const FunctionsGL *functions,
                      const WorkaroundsGL &workarounds,
-                     StateManagerGL *stateManager)
+                     StateManagerGL *stateManager,
+                     bool enablePathRendering)
     : ProgramImpl(data),
       mFunctions(functions),
       mWorkarounds(workarounds),
       mStateManager(stateManager),
+      mEnablePathRendering(enablePathRendering),
       mProgramID(0)
 {
     ASSERT(mFunctions);
@@ -229,7 +234,7 @@ void ProgramGL::setUniform4iv(GLint location, GLsizei count, const GLint *v)
 void ProgramGL::setUniform1uiv(GLint location, GLsizei count, const GLuint *v)
 {
     mStateManager->useProgram(mProgramID);
-    mFunctions->uniform1uiv(location, count, v);
+    mFunctions->uniform1uiv(uniLoc(location), count, v);
 }
 
 void ProgramGL::setUniform2uiv(GLint location, GLsizei count, const GLuint *v)
@@ -381,6 +386,26 @@ bool ProgramGL::getUniformBlockMemberInfo(const std::string &memberUniformName,
     return true;
 }
 
+void ProgramGL::setPathFragmentInputGen(const std::string &inputName,
+                                        GLenum genMode,
+                                        GLint components,
+                                        const GLfloat *coeffs)
+{
+    ASSERT(mEnablePathRendering);
+
+    for (const auto &input : mPathRenderingFragmentInputs)
+    {
+        if (input.name == inputName)
+        {
+            mFunctions->programPathFragmentInputGenNV(mProgramID, input.location, genMode,
+                                                      components, coeffs);
+            ASSERT(mFunctions->getError() == GL_NO_ERROR);
+            return;
+        }
+    }
+
+}
+
 void ProgramGL::preLink()
 {
     // Reset the program state
@@ -388,6 +413,7 @@ void ProgramGL::preLink()
     mUniformBlockRealLocationMap.clear();
     mSamplerBindings.clear();
     mUniformIndexToSamplerIndex.clear();
+    mPathRenderingFragmentInputs.clear();
 }
 
 bool ProgramGL::checkLinkStatus(gl::InfoLog &infoLog)
@@ -476,6 +502,71 @@ void ProgramGL::postLink()
         samplerBinding.textureType = gl::SamplerTypeToTextureType(linkedUniform.type);
         samplerBinding.boundTextureUnits.resize(linkedUniform.elementCount(), 0);
         mSamplerBindings.push_back(samplerBinding);
+    }
+
+    // Discover CHROMIUM_path_rendering fragment inputs if enabled.
+    if (!mEnablePathRendering)
+        return;
+
+    GLint numFragmentInputs = 0;
+    mFunctions->getProgramInterfaceiv(mProgramID, GL_FRAGMENT_INPUT_NV, GL_ACTIVE_RESOURCES,
+                                      &numFragmentInputs);
+    if (numFragmentInputs <= 0)
+        return;
+
+    GLint maxNameLength = 0;
+    mFunctions->getProgramInterfaceiv(mProgramID, GL_FRAGMENT_INPUT_NV, GL_MAX_NAME_LENGTH,
+                                      &maxNameLength);
+    ASSERT(maxNameLength);
+
+    for (GLint i = 0; i < numFragmentInputs; ++i)
+    {
+        std::string name;
+        name.resize(maxNameLength);
+
+        GLsizei nameLen = 0;
+        mFunctions->getProgramResourceName(mProgramID, GL_FRAGMENT_INPUT_NV, i, maxNameLength,
+                                           &nameLen, &name[0]);
+        name.resize(nameLen);
+
+        // Ignore built-ins
+        if (angle::BeginsWith(name, "gl_"))
+            continue;
+
+        const GLenum kQueryProperties[] = {GL_LOCATION, GL_ARRAY_SIZE};
+        GLint queryResults[ArraySize(kQueryProperties)];
+        GLsizei queryLength = 0;
+
+        mFunctions->getProgramResourceiv(
+            mProgramID, GL_FRAGMENT_INPUT_NV, i, static_cast<GLsizei>(ArraySize(kQueryProperties)),
+            kQueryProperties, static_cast<GLsizei>(ArraySize(queryResults)), &queryLength,
+            queryResults);
+
+        ASSERT(queryLength == static_cast<GLsizei>(ArraySize(kQueryProperties)));
+
+        PathRenderingFragmentInput baseElementInput;
+        baseElementInput.name     = name;
+        baseElementInput.location = queryResults[0];
+        mPathRenderingFragmentInputs.push_back(std::move(baseElementInput));
+
+        // If the input is an array it's denoted by [0] suffix on the variable
+        // name. We'll then create an entry per each array index where index > 0
+        if (angle::EndsWith(name, "[0]"))
+        {
+            // drop the suffix
+            name.resize(name.size() - 3);
+
+            const auto arraySize    = queryResults[1];
+            const auto baseLocation = queryResults[0];
+
+            for (GLint arrayIndex = 1; arrayIndex < arraySize; ++arrayIndex)
+            {
+                PathRenderingFragmentInput arrayElementInput;
+                arrayElementInput.name     = name + "[" + std::to_string(arrayIndex) + "]";
+                arrayElementInput.location = baseLocation + arrayIndex;
+                mPathRenderingFragmentInputs.push_back(std::move(arrayElementInput));
+            }
+        }
     }
 }
 

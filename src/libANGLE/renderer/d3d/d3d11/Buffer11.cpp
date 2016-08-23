@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "common/MemoryBuffer.h"
+#include "libANGLE/renderer/renderer_utils.h"
 #include "libANGLE/renderer/d3d/IndexDataManager.h"
 #include "libANGLE/renderer/d3d/VertexDataManager.h"
 #include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
@@ -38,27 +39,6 @@ enum class CopyResult
 };
 
 }  // anonymous namespace
-
-PackPixelsParams::PackPixelsParams()
-    : format(GL_NONE), type(GL_NONE), outputPitch(0), packBuffer(nullptr), offset(0)
-{
-}
-
-PackPixelsParams::PackPixelsParams(const gl::Rectangle &areaIn,
-                                   GLenum formatIn,
-                                   GLenum typeIn,
-                                   GLuint outputPitchIn,
-                                   const gl::PixelPackState &packIn,
-                                   ptrdiff_t offsetIn)
-    : area(areaIn),
-      format(formatIn),
-      type(typeIn),
-      outputPitch(outputPitchIn),
-      packBuffer(packIn.pixelBuffer.get()),
-      pack(packIn.alignment, packIn.reverseRowOrder),
-      offset(offsetIn)
-{
-}
 
 namespace gl_d3d11
 {
@@ -138,7 +118,9 @@ class Buffer11::BufferStorage : angle::NonCopyable
 class Buffer11::NativeStorage : public Buffer11::BufferStorage
 {
   public:
-    NativeStorage(Renderer11 *renderer, BufferUsage usage, const NotificationSet *onStorageChanged);
+    NativeStorage(Renderer11 *renderer,
+                  BufferUsage usage,
+                  const angle::BroadcastChannel *onStorageChanged);
     ~NativeStorage() override;
 
     bool isMappable() const override { return mUsage == BUFFER_USAGE_STAGING; }
@@ -163,7 +145,7 @@ class Buffer11::NativeStorage : public Buffer11::BufferStorage
                                unsigned int bufferSize);
 
     ID3D11Buffer *mNativeStorage;
-    const NotificationSet *mOnStorageChanged;
+    const angle::BroadcastChannel *mOnStorageChanged;
 };
 
 // A emulated indexed buffer storage represents an underlying D3D11 buffer for data
@@ -503,7 +485,7 @@ void Buffer11::updateSystemMemoryDeallocThreshold()
     {
         mSystemMemoryDeallocThreshold = 8;
     }
-    else if (IsUnsignedMultiplicationSafe(mSystemMemoryDeallocThreshold, 2u))
+    else if (mSystemMemoryDeallocThreshold < std::numeric_limits<unsigned int>::max() / 2u)
     {
         mSystemMemoryDeallocThreshold *= 2u;
     }
@@ -568,7 +550,7 @@ gl::ErrorOrResult<ID3D11Buffer *> Buffer11::getConstantBufferRange(GLintptr offs
 
     BufferStorage *bufferStorage = nullptr;
 
-    if (offset == 0)
+    if (offset == 0 || mRenderer->getRenderer11DeviceCaps().supportsConstantBufferOffsets)
     {
         ANGLE_TRY_RESULT(getBufferStorage(BUFFER_USAGE_UNIFORM), bufferStorage);
     }
@@ -686,7 +668,7 @@ Buffer11::BufferStorage *Buffer11::allocateStorage(BufferUsage usage)
         case BUFFER_USAGE_EMULATED_INDEXED_VERTEX:
             return new EmulatedIndexedStorage(mRenderer);
         case BUFFER_USAGE_VERTEX_OR_TRANSFORM_FEEDBACK:
-            return new NativeStorage(mRenderer, usage, &mDirectBufferDirtyCallbacks);
+            return new NativeStorage(mRenderer, usage, &mDirectBroadcastChannel);
         default:
             return new NativeStorage(mRenderer, usage, nullptr);
     }
@@ -842,7 +824,7 @@ void Buffer11::initializeStaticData()
     BufferD3D::initializeStaticData();
 
     // Notify when static data changes.
-    mStaticBufferDirtyCallbacks.signal();
+    mStaticBroadcastChannel.signal();
 }
 
 void Buffer11::invalidateStaticData()
@@ -850,27 +832,17 @@ void Buffer11::invalidateStaticData()
     BufferD3D::invalidateStaticData();
 
     // Notify when static data changes.
-    mStaticBufferDirtyCallbacks.signal();
+    mStaticBroadcastChannel.signal();
 }
 
-void Buffer11::addStaticBufferDirtyCallback(const NotificationCallback *callback)
+angle::BroadcastChannel *Buffer11::getStaticBroadcastChannel()
 {
-    mStaticBufferDirtyCallbacks.add(callback);
+    return &mStaticBroadcastChannel;
 }
 
-void Buffer11::removeStaticBufferDirtyCallback(const NotificationCallback *callback)
+angle::BroadcastChannel *Buffer11::getDirectBroadcastChannel()
 {
-    mStaticBufferDirtyCallbacks.remove(callback);
-}
-
-void Buffer11::addDirectBufferDirtyCallback(const NotificationCallback *callback)
-{
-    mDirectBufferDirtyCallbacks.add(callback);
-}
-
-void Buffer11::removeDirectBufferDirtyCallback(const NotificationCallback *callback)
-{
-    mDirectBufferDirtyCallbacks.remove(callback);
+    return &mDirectBroadcastChannel;
 }
 
 Buffer11::BufferStorage::BufferStorage(Renderer11 *renderer, BufferUsage usage)
@@ -894,7 +866,7 @@ gl::Error Buffer11::BufferStorage::setData(const uint8_t *data, size_t offset, s
 
 Buffer11::NativeStorage::NativeStorage(Renderer11 *renderer,
                                        BufferUsage usage,
-                                       const NotificationSet *onStorageChanged)
+                                       const angle::BroadcastChannel *onStorageChanged)
     : BufferStorage(renderer, usage), mNativeStorage(nullptr), mOnStorageChanged(onStorageChanged)
 {
 }
@@ -1070,7 +1042,7 @@ void Buffer11::NativeStorage::fillBufferDesc(D3D11_BUFFER_DESC *bufferDesc,
             bufferDesc->ByteWidth = roundUp(bufferDesc->ByteWidth, 16u);
             bufferDesc->ByteWidth =
                 std::min<UINT>(bufferDesc->ByteWidth,
-                               static_cast<UINT>(renderer->getRendererCaps().maxUniformBlockSize));
+                               static_cast<UINT>(renderer->getNativeCaps().maxUniformBlockSize));
             break;
 
         default:
@@ -1295,9 +1267,16 @@ gl::ErrorOrResult<CopyResult> Buffer11::PackStorage::copyFromStorage(BufferStora
                                                                      size_t size,
                                                                      size_t destOffset)
 {
-    // We copy through a staging buffer when drawing with a pack buffer,
-    // or for other cases where we access the pack buffer
-    UNREACHABLE();
+    ANGLE_TRY(flushQueuedPackCommand());
+
+    // We copy through a staging buffer when drawing with a pack buffer, or for other cases where we
+    // access the pack buffer
+    ASSERT(source->isMappable() && source->getUsage() == BUFFER_USAGE_STAGING);
+    uint8_t *sourceData = nullptr;
+    ANGLE_TRY(source->map(sourceOffset, size, GL_MAP_READ_BIT, &sourceData));
+    ASSERT(destOffset + size <= mMemoryBuffer.size());
+    memcpy(mMemoryBuffer.data() + destOffset, sourceData, size);
+    source->unmap();
     return CopyResult::NOT_RECREATED;
 }
 
@@ -1352,7 +1331,7 @@ gl::Error Buffer11::PackStorage::packPixels(const gl::FramebufferAttachment &rea
 
     unsigned int srcSubresource = renderTarget->getSubresourceIndex();
     TextureHelper11 srcTexture =
-        TextureHelper11::MakeAndReference(renderTargetResource, renderTarget->getANGLEFormat());
+        TextureHelper11::MakeAndReference(renderTargetResource, renderTarget->getFormatSet());
 
     mQueuedPackCommand.reset(new PackPixelsParams(params));
 
@@ -1360,10 +1339,10 @@ gl::Error Buffer11::PackStorage::packPixels(const gl::FramebufferAttachment &rea
     if (!mStagingTexture.getResource() || mStagingTexture.getFormat() != srcTexture.getFormat() ||
         mStagingTexture.getExtents() != srcTextureSize)
     {
-        ANGLE_TRY_RESULT(CreateStagingTexture(srcTexture.getTextureType(), srcTexture.getFormat(),
-                                              srcTexture.getANGLEFormat(), srcTextureSize,
-                                              mRenderer->getDevice()),
-                         mStagingTexture);
+        ANGLE_TRY_RESULT(
+            CreateStagingTexture(srcTexture.getTextureType(), srcTexture.getFormatSet(),
+                                 srcTextureSize, StagingAccess::READ, mRenderer->getDevice()),
+            mStagingTexture);
     }
 
     // ReadPixels from multisampled FBOs isn't supported in current GL

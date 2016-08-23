@@ -20,9 +20,10 @@
 #include "libANGLE/ContextState.h"
 #include "libANGLE/ResourceManager.h"
 #include "libANGLE/features.h"
-#include "libANGLE/renderer/Renderer.h"
+#include "libANGLE/renderer/GLImplFactory.h"
 #include "libANGLE/renderer/ProgramImpl.h"
 #include "libANGLE/queryconversions.h"
+#include "libANGLE/Uniform.h"
 
 namespace gl
 {
@@ -176,7 +177,7 @@ void InfoLog::getLog(GLsizei bufSize, GLsizei *length, char *infoLog) const
 }
 
 // append a santized message to the program info log.
-// The D3D compiler includes a fake file path in some of the warning or error 
+// The D3D compiler includes a fake file path in some of the warning or error
 // messages, so lets remove all occurrences of this fake file path from the log.
 void InfoLog::appendSanitized(const char *message)
 {
@@ -336,7 +337,7 @@ GLuint ProgramState::getUniformIndex(const std::string &name) const
     return GL_INVALID_INDEX;
 }
 
-Program::Program(rx::ImplFactory *factory, ResourceManager *manager, GLuint handle)
+Program::Program(rx::GLImplFactory *factory, ResourceManager *manager, GLuint handle)
     : mProgram(factory->createProgram(mState)),
       mValidated(false),
       mLinked(false),
@@ -439,6 +440,82 @@ void Program::bindUniformLocation(GLuint index, const char *name)
     mUniformBindings.bindLocation(index, ParseUniformName(name, nullptr));
 }
 
+void Program::bindFragmentInputLocation(GLint index, const char *name)
+{
+    mFragmentInputBindings.bindLocation(index, name);
+}
+
+BindingInfo Program::getFragmentInputBindingInfo(GLint index) const
+{
+    BindingInfo ret;
+    ret.type  = GL_NONE;
+    ret.valid = false;
+
+    const Shader *fragmentShader = mState.getAttachedFragmentShader();
+    ASSERT(fragmentShader);
+
+    // Find the actual fragment shader varying we're interested in
+    const std::vector<sh::Varying> &inputs = fragmentShader->getVaryings();
+
+    for (const auto &binding : mFragmentInputBindings)
+    {
+        if (binding.second != static_cast<GLuint>(index))
+            continue;
+
+        ret.valid = true;
+
+        std::string originalName = binding.first;
+        unsigned int arrayIndex  = ParseAndStripArrayIndex(&originalName);
+
+        for (const auto &in : inputs)
+        {
+            if (in.name == originalName)
+            {
+                if (in.isArray())
+                {
+                    // The client wants to bind either "name" or "name[0]".
+                    // GL ES 3.1 spec refers to active array names with language such as:
+                    // "if the string identifies the base name of an active array, where the
+                    // string would exactly match the name of the variable if the suffix "[0]"
+                    // were appended to the string".
+                    if (arrayIndex == GL_INVALID_INDEX)
+                        arrayIndex = 0;
+
+                    ret.name = in.mappedName + "[" + std::to_string(arrayIndex) + "]";
+                }
+                else
+                {
+                    ret.name = in.mappedName;
+                }
+                ret.type = in.type;
+                return ret;
+            }
+        }
+    }
+
+    return ret;
+}
+
+void Program::pathFragmentInputGen(GLint index,
+                                   GLenum genMode,
+                                   GLint components,
+                                   const GLfloat *coeffs)
+{
+    // If the location is -1 then the command is silently ignored
+    if (index == -1)
+        return;
+
+    const auto &binding = getFragmentInputBindingInfo(index);
+
+    // If the input doesn't exist then then the command is silently ignored
+    // This could happen through optimization for example, the shader translator
+    // decides that a variable is not actually being used and optimizes it away.
+    if (binding.name.empty())
+        return;
+
+    mProgram->setPathFragmentInputGen(binding.name, genMode, components, coeffs);
+}
+
 // Links the HLSL code of the vertex and pixel shader by matching up their varyings,
 // compiling them into binaries, determining the attribute mappings, and collecting
 // a list of uniforms
@@ -461,6 +538,13 @@ Error Program::link(const ContextState &data)
     }
     ASSERT(mState.mAttachedVertexShader->getType() == GL_VERTEX_SHADER);
 
+    if (mState.mAttachedFragmentShader->getShaderVersion() !=
+        mState.mAttachedVertexShader->getShaderVersion())
+    {
+        mInfoLog << "Fragment shader version does not match vertex shader version.";
+        return Error(GL_NO_ERROR);
+    }
+
     if (!linkAttributes(data, mInfoLog, mAttributeBindings, mState.mAttachedVertexShader))
     {
         return Error(GL_NO_ERROR);
@@ -471,19 +555,19 @@ Error Program::link(const ContextState &data)
         return Error(GL_NO_ERROR);
     }
 
-    if (!linkUniforms(mInfoLog, *data.caps, mUniformBindings))
+    if (!linkUniforms(mInfoLog, data.getCaps(), mUniformBindings))
     {
         return Error(GL_NO_ERROR);
     }
 
-    if (!linkUniformBlocks(mInfoLog, *data.caps))
+    if (!linkUniformBlocks(mInfoLog, data.getCaps()))
     {
         return Error(GL_NO_ERROR);
     }
 
     const auto &mergedVaryings = getMergedVaryings();
 
-    if (!linkValidateTransformFeedback(mInfoLog, mergedVaryings, *data.caps))
+    if (!linkValidateTransformFeedback(mInfoLog, mergedVaryings, data.getCaps()))
     {
         return Error(GL_NO_ERROR);
     }
@@ -757,7 +841,7 @@ Error Program::saveBinary(GLenum *binaryFormat, void *binary, GLsizei bufSize, G
     for (const auto &outputPair : mState.mOutputVariables)
     {
         stream.writeInt(outputPair.first);
-        stream.writeInt(outputPair.second.element);
+        stream.writeIntOrNegOne(outputPair.second.element);
         stream.writeInt(outputPair.second.index);
         stream.writeString(outputPair.second.name);
     }
@@ -1121,7 +1205,7 @@ GLint Program::getActiveUniformi(GLuint index, GLenum pname) const
 
 bool Program::isValidUniformLocation(GLint location) const
 {
-    ASSERT(rx::IsIntegerCastSafe<GLint>(mState.mUniformLocations.size()));
+    ASSERT(angle::IsValueInRangeForNumericType<GLint>(mState.mUniformLocations.size()));
     return (location >= 0 && static_cast<size_t>(location) < mState.mUniformLocations.size() &&
             mState.mUniformLocations[static_cast<size_t>(location)].used);
 }
@@ -1615,13 +1699,16 @@ GLenum Program::getTransformFeedbackBufferMode() const
     return mState.mTransformFeedbackBufferMode;
 }
 
-// static
 bool Program::linkVaryings(InfoLog &infoLog,
                            const Shader *vertexShader,
-                           const Shader *fragmentShader)
+                           const Shader *fragmentShader) const
 {
+    ASSERT(vertexShader->getShaderVersion() == fragmentShader->getShaderVersion());
+
     const std::vector<sh::Varying> &vertexVaryings   = vertexShader->getVaryings();
     const std::vector<sh::Varying> &fragmentVaryings = fragmentShader->getVaryings();
+
+    std::map<GLuint, std::string> staticFragmentInputLocations;
 
     for (const sh::Varying &output : fragmentVaryings)
     {
@@ -1638,7 +1725,8 @@ bool Program::linkVaryings(InfoLog &infoLog,
             if (output.name == input.name)
             {
                 ASSERT(!input.isBuiltIn());
-                if (!linkValidateVaryings(infoLog, output.name, input, output))
+                if (!linkValidateVaryings(infoLog, output.name, input, output,
+                                          vertexShader->getShaderVersion()))
                 {
                     return false;
                 }
@@ -1652,6 +1740,29 @@ bool Program::linkVaryings(InfoLog &infoLog,
         if (!matched && output.staticUse)
         {
             infoLog << "Fragment varying " << output.name << " does not match any vertex varying";
+            return false;
+        }
+
+        // Check for aliased path rendering input bindings (if any).
+        // If more than one binding refer statically to the same
+        // location the link must fail.
+
+        if (!output.staticUse)
+            continue;
+
+        const auto inputBinding = mFragmentInputBindings.getBinding(output.name);
+        if (inputBinding == -1)
+            continue;
+
+        const auto it = staticFragmentInputLocations.find(inputBinding);
+        if (it == std::end(staticFragmentInputLocations))
+        {
+            staticFragmentInputLocations.insert(std::make_pair(inputBinding, output.name));
+        }
+        else
+        {
+            infoLog << "Binding for fragment input " << output.name << " conflicts with "
+                    << it->second;
             return false;
         }
     }
@@ -1824,7 +1935,7 @@ bool Program::linkAttributes(const ContextState &data,
 {
     unsigned int usedLocations = 0;
     mState.mAttributes         = vertexShader->getActiveAttributes();
-    GLuint maxAttribs = data.caps->maxVertexAttributes;
+    GLuint maxAttribs          = data.getCaps().maxVertexAttributes;
 
     // TODO(jmadill): handle aliasing robustly
     if (mState.mAttributes.size() > maxAttribs)
@@ -1833,7 +1944,7 @@ bool Program::linkAttributes(const ContextState &data,
         return false;
     }
 
-    std::vector<sh::Attribute *> usedAttribMap(data.caps->maxVertexAttributes, nullptr);
+    std::vector<sh::Attribute *> usedAttribMap(maxAttribs, nullptr);
 
     // Link attributes that have a binding location
     for (sh::Attribute &attribute : mState.mAttributes)
@@ -2095,7 +2206,11 @@ bool Program::linkValidateUniforms(InfoLog &infoLog, const std::string &uniformN
     return true;
 }
 
-bool Program::linkValidateVaryings(InfoLog &infoLog, const std::string &varyingName, const sh::Varying &vertexVarying, const sh::Varying &fragmentVarying)
+bool Program::linkValidateVaryings(InfoLog &infoLog,
+                                   const std::string &varyingName,
+                                   const sh::Varying &vertexVarying,
+                                   const sh::Varying &fragmentVarying,
+                                   int shaderVersion)
 {
     if (!linkValidateVariablesBase(infoLog, varyingName, vertexVarying, fragmentVarying, false))
     {
@@ -2104,7 +2219,15 @@ bool Program::linkValidateVaryings(InfoLog &infoLog, const std::string &varyingN
 
     if (!sh::InterpolationTypesMatch(vertexVarying.interpolation, fragmentVarying.interpolation))
     {
-        infoLog << "Interpolation types for " << varyingName << " differ between vertex and fragment shaders";
+        infoLog << "Interpolation types for " << varyingName
+                << " differ between vertex and fragment shaders.";
+        return false;
+    }
+
+    if (shaderVersion == 100 && vertexVarying.isInvariant != fragmentVarying.isInvariant)
+    {
+        infoLog << "Invariance for " << varyingName
+                << " differs between vertex and fragment shaders.";
         return false;
     }
 

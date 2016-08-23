@@ -13,6 +13,7 @@
 
 #include <GLES2/gl2.h>
 #include <GLES3/gl3.h>
+#include <GLES3/gl31.h>
 
 namespace egl
 {
@@ -23,6 +24,7 @@ class Image;
 namespace gl
 {
 class Context;
+struct Format;
 class Program;
 class Shader;
 class ValidationContext;
@@ -70,7 +72,7 @@ bool ValidateRenderbufferStorageParametersANGLE(Context *context, GLenum target,
 bool ValidateFramebufferRenderbufferParameters(Context *context, GLenum target, GLenum attachment,
                                                GLenum renderbuffertarget, GLuint renderbuffer);
 
-bool ValidateBlitFramebufferParameters(Context *context,
+bool ValidateBlitFramebufferParameters(ValidationContext *context,
                                        GLint srcX0,
                                        GLint srcY0,
                                        GLint srcX1,
@@ -88,7 +90,7 @@ bool ValidateTexParamParameters(Context *context, GLenum target, GLenum pname, G
 
 bool ValidateSamplerObjectParameter(Context *context, GLenum pname);
 
-bool ValidateReadPixels(Context *context,
+bool ValidateReadPixels(ValidationContext *context,
                         GLint x,
                         GLint y,
                         GLsizei width,
@@ -125,7 +127,10 @@ bool ValidateUniform(Context *context, GLenum uniformType, GLint location, GLsiz
 bool ValidateUniformMatrix(Context *context, GLenum matrixType, GLint location, GLsizei count,
                            GLboolean transpose);
 
-bool ValidateStateQuery(Context *context, GLenum pname, GLenum *nativeType, unsigned int *numParams);
+bool ValidateStateQuery(ValidationContext *context,
+                        GLenum pname,
+                        GLenum *nativeType,
+                        unsigned int *numParams);
 
 bool ValidateCopyTexImageParametersBase(ValidationContext *context,
                                         GLenum target,
@@ -140,9 +145,13 @@ bool ValidateCopyTexImageParametersBase(ValidationContext *context,
                                         GLsizei width,
                                         GLsizei height,
                                         GLint border,
-                                        GLenum *textureInternalFormatOut);
+                                        Format *textureFormatOut);
 
-bool ValidateDrawArrays(Context *context, GLenum mode, GLint first, GLsizei count, GLsizei primcount);
+bool ValidateDrawArrays(ValidationContext *context,
+                        GLenum mode,
+                        GLint first,
+                        GLsizei count,
+                        GLsizei primcount);
 bool ValidateDrawArraysInstanced(Context *context, GLenum mode, GLint first, GLsizei count, GLsizei primcount);
 bool ValidateDrawArraysInstancedANGLE(Context *context, GLenum mode, GLint first, GLsizei count, GLsizei primcount);
 
@@ -247,6 +256,8 @@ bool ValidateFlushMappedBufferRangeBase(Context *context,
                                         GLenum target,
                                         GLintptr offset,
                                         GLsizeiptr length);
+
+bool ValidateGenerateMipmap(Context *context, GLenum target);
 
 bool ValidateGenBuffers(Context *context, GLint n, GLuint *buffers);
 bool ValidateDeleteBuffers(Context *context, GLint n, const GLuint *buffers);

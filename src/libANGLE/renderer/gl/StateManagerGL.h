@@ -20,7 +20,7 @@
 namespace gl
 {
 struct Caps;
-struct ContextState;
+class ContextState;
 class State;
 }
 
@@ -124,6 +124,15 @@ class StateManagerGL final : angle::NonCopyable
 
     void setFramebufferSRGBEnabled(bool enabled);
 
+    void setMultisamplingStateEnabled(bool enabled);
+    void setSampleAlphaToOneStateEnabled(bool enabled);
+
+    void setCoverageModulation(GLenum components);
+
+    void setPathRenderingModelViewMatrix(const GLfloat *m);
+    void setPathRenderingProjectionMatrix(const GLfloat *m);
+    void setPathRenderingStencilState(GLenum func, GLint ref, GLuint mask);
+
     void onDeleteQueryObject(QueryGL *query);
 
     gl::Error setDrawArraysState(const gl::ContextState &data,
@@ -137,9 +146,12 @@ class StateManagerGL final : angle::NonCopyable
                                    GLsizei instanceCount,
                                    const GLvoid **outIndices);
 
+    gl::Error pauseTransformFeedback(const gl::ContextState &data);
     gl::Error onMakeCurrent(const gl::ContextState &data);
 
     void syncState(const gl::State &state, const gl::State::DirtyBits &glDirtyBits);
+
+    GLuint getBoundBuffer(GLenum type);
 
   private:
     gl::Error setGenericDrawState(const gl::ContextState &data);
@@ -253,6 +265,17 @@ class StateManagerGL final : angle::NonCopyable
 
     bool mFramebufferSRGBEnabled;
     bool mTextureCubemapSeamlessEnabled;
+
+    bool mMultisamplingEnabled;
+    bool mSampleAlphaToOneEnabled;
+
+    GLenum mCoverageModulation;
+
+    GLfloat mPathMatrixMV[16];
+    GLfloat mPathMatrixProj[16];
+    GLenum mPathStencilFunc;
+    GLint mPathStencilRef;
+    GLuint mPathStencilMask;
 
     gl::State::DirtyBits mLocalDirtyBits;
 };

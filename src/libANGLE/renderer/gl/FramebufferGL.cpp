@@ -210,18 +210,16 @@ Error FramebufferGL::clearBufferfi(ContextImpl *context,
 
 GLenum FramebufferGL::getImplementationColorReadFormat() const
 {
-    const FramebufferAttachment *readAttachment = mState.getReadAttachment();
-    GLenum internalFormat = readAttachment->getInternalFormat();
-    const InternalFormat &internalFormatInfo    = GetInternalFormatInfo(internalFormat);
-    return internalFormatInfo.format;
+    const auto *readAttachment = mState.getReadAttachment();
+    const Format &format       = readAttachment->getFormat();
+    return format.info->format;
 }
 
 GLenum FramebufferGL::getImplementationColorReadType() const
 {
-    const FramebufferAttachment *readAttachment = mState.getReadAttachment();
-    GLenum internalFormat = readAttachment->getInternalFormat();
-    const InternalFormat &internalFormatInfo    = GetInternalFormatInfo(internalFormat);
-    return internalFormatInfo.type;
+    const auto *readAttachment = mState.getReadAttachment();
+    const Format &format       = readAttachment->getFormat();
+    return format.info->type;
 }
 
 Error FramebufferGL::readPixels(ContextImpl *context,
@@ -232,7 +230,7 @@ Error FramebufferGL::readPixels(ContextImpl *context,
 {
     // TODO: don't sync the pixel pack state here once the dirty bits contain the pixel pack buffer
     // binding
-    const PixelPackState &packState = context->getState().getPackState();
+    const PixelPackState &packState = context->getGLState().getPackState();
     mStateManager->setPixelPackState(packState);
 
     mStateManager->bindFramebuffer(GL_READ_FRAMEBUFFER, mFramebufferID);
@@ -247,7 +245,7 @@ Error FramebufferGL::blit(ContextImpl *context,
                           GLbitfield mask,
                           GLenum filter)
 {
-    const Framebuffer *sourceFramebuffer     = context->getState().getReadFramebuffer();
+    const Framebuffer *sourceFramebuffer     = context->getGLState().getReadFramebuffer();
     const FramebufferGL *sourceFramebufferGL = GetImplAs<FramebufferGL>(sourceFramebuffer);
 
     mStateManager->bindFramebuffer(GL_READ_FRAMEBUFFER, sourceFramebufferGL->getFramebufferID());

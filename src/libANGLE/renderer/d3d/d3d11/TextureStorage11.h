@@ -58,7 +58,7 @@ class TextureStorage11 : public TextureStorage
     virtual int getLevelCount() const;
     virtual UINT getSubresourceIndex(const gl::ImageIndex &index) const;
 
-    gl::Error generateSwizzles(GLenum swizzleRed, GLenum swizzleGreen, GLenum swizzleBlue, GLenum swizzleAlpha);
+    gl::Error generateSwizzles(const gl::SwizzleState &swizzleTarget);
     void invalidateSwizzleCacheLevel(int mipLevel);
     void invalidateSwizzleCache();
 
@@ -79,10 +79,10 @@ class TextureStorage11 : public TextureStorage
 
     gl::Error getSRVLevels(GLint baseLevel, GLint maxLevel, ID3D11ShaderResourceView **outSRV);
 
-    d3d11::ANGLEFormat getANGLEFormat() const;
+    const d3d11::Format &getFormatSet() const;
 
   protected:
-    TextureStorage11(Renderer11 *renderer, UINT bindFlags, UINT miscFlags);
+    TextureStorage11(Renderer11 *renderer, UINT bindFlags, UINT miscFlags, GLenum internalFormat);
     int getLevelWidth(int mipLevel) const;
     int getLevelHeight(int mipLevel) const;
     int getLevelDepth(int mipLevel) const;
@@ -94,10 +94,11 @@ class TextureStorage11 : public TextureStorage
     virtual gl::Error getSwizzleRenderTarget(int mipLevel, ID3D11RenderTargetView **outRTV) = 0;
     gl::Error getSRVLevel(int mipLevel, bool blitSRV, ID3D11ShaderResourceView **outSRV);
 
+    // The baseLevel parameter should *not* have mTopLevel applied.
     virtual gl::Error createSRV(int baseLevel, int mipLevels, DXGI_FORMAT format, ID3D11Resource *texture,
                                 ID3D11ShaderResourceView **outSRV) const = 0;
 
-    void verifySwizzleExists(GLenum swizzleRed, GLenum swizzleGreen, GLenum swizzleBlue, GLenum swizzleAlpha);
+    void verifySwizzleExists(const gl::SwizzleState &swizzleState);
 
     // Clear all cached non-swizzle SRVs and invalidate the swizzle cache.
     void clearSRVCache();
@@ -106,27 +107,12 @@ class TextureStorage11 : public TextureStorage
     int mTopLevel;
     unsigned int mMipLevels;
 
-    GLenum mInternalFormat;
-    const d3d11::ANGLEFormatSet *mTextureFormatSet;
-    const d3d11::ANGLEFormatSet *mSwizzleFormatSet;
+    const d3d11::Format &mFormatInfo;
     unsigned int mTextureWidth;
     unsigned int mTextureHeight;
     unsigned int mTextureDepth;
 
-    struct SwizzleCacheValue
-    {
-        GLenum swizzleRed;
-        GLenum swizzleGreen;
-        GLenum swizzleBlue;
-        GLenum swizzleAlpha;
-
-        SwizzleCacheValue();
-        SwizzleCacheValue(GLenum red, GLenum green, GLenum blue, GLenum alpha);
-
-        bool operator ==(const SwizzleCacheValue &other) const;
-        bool operator !=(const SwizzleCacheValue &other) const;
-    };
-    SwizzleCacheValue mSwizzleCache[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
+    gl::SwizzleState mSwizzleCache[gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS];
 
   private:
     const UINT mBindFlags;
@@ -138,11 +124,13 @@ class TextureStorage11 : public TextureStorage
 
         bool operator<(const SRVKey &rhs) const;
 
-        int baseLevel;
+        int baseLevel;  // Without mTopLevel applied.
         int mipLevels;
         bool swizzle;
     };
     typedef std::map<SRVKey, ID3D11ShaderResourceView *> SRVCache;
+
+    gl::Error getCachedOrCreateSRV(const SRVKey &key, ID3D11ShaderResourceView **outSRV);
 
     SRVCache mSrvCache;
     std::array<ID3D11ShaderResourceView *, gl::IMPLEMENTATION_MAX_TEXTURE_LEVELS> mLevelSRVs;
@@ -235,6 +223,7 @@ class TextureStorage11_External : public TextureStorage11
 
     ID3D11Texture2D *mTexture;
     int mSubresourceIndex;
+    bool mHasKeyedMutex;
 
     Image11 *mAssociatedImage;
 };
@@ -242,7 +231,9 @@ class TextureStorage11_External : public TextureStorage11
 class TextureStorage11_EGLImage final : public TextureStorage11
 {
   public:
-    TextureStorage11_EGLImage(Renderer11 *renderer, EGLImageD3D *eglImage);
+    TextureStorage11_EGLImage(Renderer11 *renderer,
+                              EGLImageD3D *eglImage,
+                              RenderTarget11 *renderTarget11);
     ~TextureStorage11_EGLImage() override;
 
     gl::Error getResource(ID3D11Resource **outResource) override;

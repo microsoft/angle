@@ -7,6 +7,9 @@
 // validationES2.cpp: Validation functions for OpenGL ES 2.0 entry point parameters
 
 #include "libANGLE/validationES2.h"
+
+#include <cstdint>
+
 #include "libANGLE/validationES.h"
 #include "libANGLE/validationES3.h"
 #include "libANGLE/Context.h"
@@ -18,6 +21,7 @@
 #include "libANGLE/Uniform.h"
 
 #include "common/mathutil.h"
+#include "common/string_utils.h"
 #include "common/utilities.h"
 
 namespace gl
@@ -47,12 +51,234 @@ bool IsPartialBlit(gl::Context *context,
         return true;
     }
 
-    if (context->getState().isScissorTestEnabled())
+    if (context->getGLState().isScissorTestEnabled())
     {
-        const Rectangle &scissor = context->getState().getScissor();
+        const Rectangle &scissor = context->getGLState().getScissor();
         return scissor.x > 0 || scissor.y > 0 || scissor.width < writeSize.width ||
                scissor.height < writeSize.height;
     }
+
+    return false;
+}
+
+template <typename T>
+bool ValidatePathInstances(gl::Context *context,
+                           GLsizei numPaths,
+                           const void *paths,
+                           GLuint pathBase)
+{
+    const auto *array = static_cast<const T *>(paths);
+
+    for (GLsizei i = 0; i < numPaths; ++i)
+    {
+        const GLuint pathName = array[i] + pathBase;
+        if (context->hasPath(pathName) && !context->hasPathData(pathName))
+        {
+            context->handleError(gl::Error(GL_INVALID_OPERATION, "No such path object."));
+            return false;
+        }
+    }
+    return true;
+}
+
+bool ValidateInstancedPathParameters(gl::Context *context,
+                                     GLsizei numPaths,
+                                     GLenum pathNameType,
+                                     const void *paths,
+                                     GLuint pathBase,
+                                     GLenum transformType,
+                                     const GLfloat *transformValues)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            gl::Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+
+    if (paths == nullptr)
+    {
+        context->handleError(gl::Error(GL_INVALID_VALUE, "No path name array."));
+        return false;
+    }
+
+    if (numPaths < 0)
+    {
+        context->handleError(gl::Error(GL_INVALID_VALUE, "Invalid (negative) numPaths."));
+        return false;
+    }
+
+    if (!angle::IsValueInRangeForNumericType<std::uint32_t>(numPaths))
+    {
+        context->handleError(gl::Error(GL_INVALID_OPERATION, "Overflow in numPaths."));
+        return false;
+    }
+
+    std::uint32_t pathNameTypeSize = 0;
+    std::uint32_t componentCount   = 0;
+
+    switch (pathNameType)
+    {
+        case GL_UNSIGNED_BYTE:
+            pathNameTypeSize = sizeof(GLubyte);
+            if (!ValidatePathInstances<GLubyte>(context, numPaths, paths, pathBase))
+                return false;
+            break;
+
+        case GL_BYTE:
+            pathNameTypeSize = sizeof(GLbyte);
+            if (!ValidatePathInstances<GLbyte>(context, numPaths, paths, pathBase))
+                return false;
+            break;
+
+        case GL_UNSIGNED_SHORT:
+            pathNameTypeSize = sizeof(GLushort);
+            if (!ValidatePathInstances<GLushort>(context, numPaths, paths, pathBase))
+                return false;
+            break;
+
+        case GL_SHORT:
+            pathNameTypeSize = sizeof(GLshort);
+            if (!ValidatePathInstances<GLshort>(context, numPaths, paths, pathBase))
+                return false;
+            break;
+
+        case GL_UNSIGNED_INT:
+            pathNameTypeSize = sizeof(GLuint);
+            if (!ValidatePathInstances<GLuint>(context, numPaths, paths, pathBase))
+                return false;
+            break;
+
+        case GL_INT:
+            pathNameTypeSize = sizeof(GLint);
+            if (!ValidatePathInstances<GLint>(context, numPaths, paths, pathBase))
+                return false;
+            break;
+
+        default:
+            context->handleError(gl::Error(GL_INVALID_ENUM, "Invalid path name type."));
+            return false;
+    }
+
+    switch (transformType)
+    {
+        case GL_NONE:
+            componentCount = 0;
+            break;
+        case GL_TRANSLATE_X_CHROMIUM:
+        case GL_TRANSLATE_Y_CHROMIUM:
+            componentCount = 1;
+            break;
+        case GL_TRANSLATE_2D_CHROMIUM:
+            componentCount = 2;
+            break;
+        case GL_TRANSLATE_3D_CHROMIUM:
+            componentCount = 3;
+            break;
+        case GL_AFFINE_2D_CHROMIUM:
+        case GL_TRANSPOSE_AFFINE_2D_CHROMIUM:
+            componentCount = 6;
+            break;
+        case GL_AFFINE_3D_CHROMIUM:
+        case GL_TRANSPOSE_AFFINE_3D_CHROMIUM:
+            componentCount = 12;
+            break;
+        default:
+            context->handleError(gl::Error(GL_INVALID_ENUM, "Invalid transformation."));
+            return false;
+    }
+    if (componentCount != 0 && transformValues == nullptr)
+    {
+        context->handleError(gl::Error(GL_INVALID_VALUE, "No transform array given."));
+        return false;
+    }
+
+    angle::CheckedNumeric<std::uint32_t> checkedSize(0);
+    checkedSize += (numPaths * pathNameTypeSize);
+    checkedSize += (numPaths * sizeof(GLfloat) * componentCount);
+    if (!checkedSize.IsValid())
+    {
+        context->handleError(gl::Error(GL_INVALID_OPERATION, "Overflow in num paths."));
+        return false;
+    }
+
+    return true;
+}
+
+bool IsValidCopyTextureFormat(Context *context, GLenum internalFormat)
+{
+    const InternalFormat &internalFormatInfo = GetInternalFormatInfo(internalFormat);
+    switch (internalFormatInfo.format)
+    {
+        case GL_ALPHA:
+        case GL_LUMINANCE:
+        case GL_LUMINANCE_ALPHA:
+        case GL_RGB:
+        case GL_RGBA:
+            return true;
+
+        case GL_RED:
+            return context->getClientMajorVersion() >= 3 || context->getExtensions().textureRG;
+
+        case GL_BGRA_EXT:
+            return context->getExtensions().textureFormatBGRA8888;
+
+        default:
+            return false;
+    }
+}
+
+bool IsValidCopyTextureDestinationFormatType(Context *context, GLint internalFormat, GLenum type)
+{
+    switch (internalFormat)
+    {
+        case GL_RGB:
+        case GL_RGBA:
+            break;
+
+        case GL_BGRA_EXT:
+            return context->getExtensions().textureFormatBGRA8888;
+
+        default:
+            return false;
+    }
+
+    switch (type)
+    {
+        case GL_UNSIGNED_BYTE:
+            break;
+
+        default:
+            return false;
+    }
+
+    return true;
+}
+
+bool IsValidCopyTextureDestinationTarget(Context *context, GLenum target)
+{
+    switch (target)
+    {
+        case GL_TEXTURE_2D:
+            return true;
+
+        // TODO(geofflang): accept GL_TEXTURE_RECTANGLE_ARB if the texture_rectangle extension is
+        // supported
+
+        default:
+            return false;
+    }
+}
+
+bool IsValidCopyTextureSourceTarget(Context *context, GLenum target)
+{
+    if (IsValidCopyTextureDestinationTarget(context, target))
+    {
+        return true;
+    }
+
+    // TODO(geofflang): accept GL_TEXTURE_EXTERNAL_OES if the texture_external extension is
+    // supported
 
     return false;
 }
@@ -132,7 +358,8 @@ bool ValidateES2TexImageParameters(Context *context, GLenum target, GLint level,
     {
         if (format != GL_NONE)
         {
-            if (gl::GetSizedInternalFormat(format, type) != texture->getInternalFormat(target, level))
+            if (gl::GetSizedInternalFormat(format, type) !=
+                texture->getFormat(target, level).asSized())
             {
                 context->handleError(Error(GL_INVALID_OPERATION));
                 return false;
@@ -165,7 +392,7 @@ bool ValidateES2TexImageParameters(Context *context, GLenum target, GLint level,
     if (isCompressed)
     {
         GLenum actualInternalFormat =
-            isSubImage ? texture->getInternalFormat(target, level) : internalformat;
+            isSubImage ? texture->getFormat(target, level).asSized() : internalformat;
         switch (actualInternalFormat)
         {
           case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
@@ -481,29 +708,28 @@ bool ValidateES2CopyTexImageParameters(ValidationContext *context,
                                        GLsizei height,
                                        GLint border)
 {
-    GLenum textureInternalFormat = GL_NONE;
-
     if (!ValidTexture2DDestinationTarget(context, target))
     {
         context->handleError(Error(GL_INVALID_ENUM, "Invalid texture target"));
         return false;
     }
 
+    Format textureFormat = Format::Invalid();
     if (!ValidateCopyTexImageParametersBase(context, target, level, internalformat, isSubImage,
-                                            xoffset, yoffset, 0, x, y, width, height, border, &textureInternalFormat))
+                                            xoffset, yoffset, 0, x, y, width, height, border,
+                                            &textureFormat))
     {
         return false;
     }
 
-    const gl::Framebuffer *framebuffer = context->getState().getReadFramebuffer();
-    GLenum colorbufferFormat = framebuffer->getReadColorbuffer()->getInternalFormat();
-    const auto &internalFormatInfo = gl::GetInternalFormatInfo(textureInternalFormat);
-    GLenum textureFormat = internalFormatInfo.format;
+    const gl::Framebuffer *framebuffer = context->getGLState().getReadFramebuffer();
+    GLenum colorbufferFormat           = framebuffer->getReadColorbuffer()->getFormat().asSized();
+    const auto &formatInfo             = *textureFormat.info;
 
     // [OpenGL ES 2.0.24] table 3.9
     if (isSubImage)
     {
-        switch (textureFormat)
+        switch (formatInfo.format)
         {
           case GL_ALPHA:
             if (colorbufferFormat != GL_ALPHA8_EXT &&
@@ -601,8 +827,7 @@ bool ValidateES2CopyTexImageParameters(ValidationContext *context,
             return false;
         }
 
-        if (internalFormatInfo.type == GL_FLOAT &&
-            !context->getExtensions().textureFloat)
+        if (formatInfo.type == GL_FLOAT && !context->getExtensions().textureFloat)
         {
             context->handleError(Error(GL_INVALID_OPERATION));
             return false;
@@ -963,7 +1188,7 @@ bool ValidateES2TexStorageParameters(Context *context, GLenum target, GLsizei le
 }
 
 // check for combinations of format and type that are valid for ReadPixels
-bool ValidES2ReadFormatType(Context *context, GLenum format, GLenum type)
+bool ValidES2ReadFormatType(ValidationContext *context, GLenum format, GLenum type)
 {
     switch (format)
     {
@@ -1022,8 +1247,9 @@ bool ValidateDiscardFramebufferEXT(Context *context, GLenum target, GLsizei numA
     switch (target)
     {
       case GL_FRAMEBUFFER:
-        defaultFramebuffer = (context->getState().getTargetFramebuffer(GL_FRAMEBUFFER)->id() == 0);
-        break;
+          defaultFramebuffer =
+              (context->getGLState().getTargetFramebuffer(GL_FRAMEBUFFER)->id() == 0);
+          break;
       default:
           context->handleError(Error(GL_INVALID_ENUM, "Invalid framebuffer target"));
         return false;
@@ -1230,7 +1456,7 @@ bool ValidateDebugMessageInsertKHR(Context *context,
         return false;
     }
 
-    if (!context->getState().getDebug().isOutputEnabled())
+    if (!context->getGLState().getDebug().isOutputEnabled())
     {
         // If the DEBUG_OUTPUT state is disabled calls to DebugMessageInsert are discarded and do
         // not generate an error.
@@ -1331,7 +1557,7 @@ bool ValidatePushDebugGroupKHR(Context *context,
         return false;
     }
 
-    size_t currentStackSize = context->getState().getDebug().getGroupStackDepth();
+    size_t currentStackSize = context->getGLState().getDebug().getGroupStackDepth();
     if (currentStackSize >= context->getExtensions().maxDebugGroupStackDepth)
     {
         context->handleError(
@@ -1351,7 +1577,7 @@ bool ValidatePopDebugGroupKHR(Context *context)
         return false;
     }
 
-    size_t currentStackSize = context->getState().getDebug().getGroupStackDepth();
+    size_t currentStackSize = context->getGLState().getDebug().getGroupStackDepth();
     if (currentStackSize <= 1)
     {
         context->handleError(Error(GL_STACK_UNDERFLOW, "Cannot pop the default debug group."));
@@ -1450,6 +1676,30 @@ static bool ValidateObjectIdentifierAndName(Context *context, GLenum identifier,
             context->handleError(Error(GL_INVALID_ENUM, "Invalid identifier."));
             return false;
     }
+}
+
+static bool ValidateLabelLength(Context *context, GLsizei length, const GLchar *label)
+{
+    size_t labelLength = 0;
+
+    if (length < 0)
+    {
+        if (label != nullptr)
+        {
+            labelLength = strlen(label);
+        }
+    }
+    else
+    {
+        labelLength = static_cast<size_t>(length);
+    }
+
+    if (labelLength > context->getExtensions().maxLabelLength)
+    {
+        context->handleError(
+            Error(GL_INVALID_VALUE, "Label length is larger than GL_MAX_LABEL_LENGTH."));
+        return false;
+    }
 
     return true;
 }
@@ -1471,11 +1721,8 @@ bool ValidateObjectLabelKHR(Context *context,
         return false;
     }
 
-    size_t labelLength = (length < 0) ? strlen(label) : length;
-    if (labelLength > context->getExtensions().maxLabelLength)
+    if (!ValidateLabelLength(context, length, label))
     {
-        context->handleError(
-            Error(GL_INVALID_VALUE, "Label length is larger than GL_MAX_LABEL_LENGTH."));
         return false;
     }
 
@@ -1506,8 +1753,7 @@ bool ValidateGetObjectLabelKHR(Context *context,
         return false;
     }
 
-    // Can no-op if bufSize is zero.
-    return bufSize > 0;
+    return true;
 }
 
 static bool ValidateObjectPtrName(Context *context, const void *ptr)
@@ -1537,11 +1783,8 @@ bool ValidateObjectPtrLabelKHR(Context *context,
         return false;
     }
 
-    size_t labelLength = (length < 0) ? strlen(label) : length;
-    if (labelLength > context->getExtensions().maxLabelLength)
+    if (!ValidateLabelLength(context, length, label))
     {
-        context->handleError(
-            Error(GL_INVALID_VALUE, "Label length is larger than GL_MAX_LABEL_LENGTH."));
         return false;
     }
 
@@ -1571,8 +1814,7 @@ bool ValidateGetObjectPtrLabelKHR(Context *context,
         return false;
     }
 
-    // Can no-op if bufSize is zero.
-    return bufSize > 0;
+    return true;
 }
 
 bool ValidateGetPointervKHR(Context *context, GLenum pname, void **params)
@@ -1631,8 +1873,8 @@ bool ValidateBlitFramebufferANGLE(Context *context,
         return false;
     }
 
-    const Framebuffer *readFramebuffer = context->getState().getReadFramebuffer();
-    const Framebuffer *drawFramebuffer = context->getState().getDrawFramebuffer();
+    Framebuffer *readFramebuffer = context->getGLState().getReadFramebuffer();
+    Framebuffer *drawFramebuffer = context->getGLState().getDrawFramebuffer();
 
     if (mask & GL_COLOR_BUFFER_BIT)
     {
@@ -1667,7 +1909,8 @@ bool ValidateBlitFramebufferANGLE(Context *context,
                     }
 
                     // Return an error if the destination formats do not match
-                    if (attachment->getInternalFormat() != readColorAttachment->getInternalFormat())
+                    if (!Format::SameSized(attachment->getFormat(),
+                                           readColorAttachment->getFormat()))
                     {
                         context->handleError(Error(GL_INVALID_OPERATION));
                         return false;
@@ -1675,9 +1918,7 @@ bool ValidateBlitFramebufferANGLE(Context *context,
                 }
             }
 
-            int readSamples = readFramebuffer->getSamples(context->getData());
-
-            if (readSamples != 0 &&
+            if (readFramebuffer->getSamples(context->getContextState()) != 0 &&
                 IsPartialBlit(context, readColorAttachment, drawColorAttachment, srcX0, srcY0,
                               srcX1, srcY1, dstX0, dstY0, dstX1, dstY1))
             {
@@ -1726,10 +1967,8 @@ bool ValidateBlitFramebufferANGLE(Context *context,
 
 bool ValidateClear(ValidationContext *context, GLbitfield mask)
 {
-    const Framebuffer *framebufferObject = context->getState().getDrawFramebuffer();
-    ASSERT(framebufferObject);
-
-    if (framebufferObject->checkStatus(context->getData()) != GL_FRAMEBUFFER_COMPLETE)
+    auto fbo = context->getGLState().getDrawFramebuffer();
+    if (fbo->checkStatus(context->getContextState()) != GL_FRAMEBUFFER_COMPLETE)
     {
         context->handleError(Error(GL_INVALID_FRAMEBUFFER_OPERATION));
         return false;
@@ -1766,13 +2005,13 @@ bool ValidateTexImage2D(Context *context,
                         GLenum type,
                         const GLvoid *pixels)
 {
-    if (context->getClientVersion() < 3)
+    if (context->getClientMajorVersion() < 3)
     {
         return ValidateES2TexImageParameters(context, target, level, internalformat, false, false,
                                              0, 0, width, height, border, format, type, pixels);
     }
 
-    ASSERT(context->getClientVersion() >= 3);
+    ASSERT(context->getClientMajorVersion() >= 3);
     return ValidateES3TexImage2DParameters(context, target, level, internalformat, false, false, 0,
                                            0, 0, width, height, 1, border, format, type, pixels);
 }
@@ -1789,13 +2028,13 @@ bool ValidateTexSubImage2D(Context *context,
                            const GLvoid *pixels)
 {
 
-    if (context->getClientVersion() < 3)
+    if (context->getClientMajorVersion() < 3)
     {
         return ValidateES2TexImageParameters(context, target, level, GL_NONE, false, true, xoffset,
                                              yoffset, width, height, 0, format, type, pixels);
     }
 
-    ASSERT(context->getClientVersion() >= 3);
+    ASSERT(context->getClientMajorVersion() >= 3);
     return ValidateES3TexImage2DParameters(context, target, level, GL_NONE, false, true, xoffset,
                                            yoffset, 0, width, height, 1, 0, format, type, pixels);
 }
@@ -1810,7 +2049,7 @@ bool ValidateCompressedTexImage2D(Context *context,
                                   GLsizei imageSize,
                                   const GLvoid *data)
 {
-    if (context->getClientVersion() < 3)
+    if (context->getClientMajorVersion() < 3)
     {
         if (!ValidateES2TexImageParameters(context, target, level, internalformat, true, false, 0,
                                            0, width, height, border, GL_NONE, GL_NONE, data))
@@ -1820,7 +2059,7 @@ bool ValidateCompressedTexImage2D(Context *context,
     }
     else
     {
-        ASSERT(context->getClientVersion() >= 3);
+        ASSERT(context->getClientMajorVersion() >= 3);
         if (!ValidateES3TexImage2DParameters(context, target, level, internalformat, true, false, 0,
                                              0, 0, width, height, 1, border, GL_NONE, GL_NONE,
                                              data))
@@ -1830,9 +2069,15 @@ bool ValidateCompressedTexImage2D(Context *context,
     }
 
     const InternalFormat &formatInfo = GetInternalFormatInfo(internalformat);
-    if (imageSize < 0 ||
-        static_cast<GLuint>(imageSize) !=
-            formatInfo.computeBlockSize(GL_UNSIGNED_BYTE, width, height))
+    auto blockSizeOrErr =
+        formatInfo.computeCompressedImageSize(GL_UNSIGNED_BYTE, gl::Extents(width, height, 1));
+    if (blockSizeOrErr.isError())
+    {
+        context->handleError(blockSizeOrErr.getError());
+        return false;
+    }
+
+    if (imageSize < 0 || static_cast<GLuint>(imageSize) != blockSizeOrErr.getResult())
     {
         context->handleError(Error(GL_INVALID_VALUE));
         return false;
@@ -1852,7 +2097,7 @@ bool ValidateCompressedTexSubImage2D(Context *context,
                                      GLsizei imageSize,
                                      const GLvoid *data)
 {
-    if (context->getClientVersion() < 3)
+    if (context->getClientMajorVersion() < 3)
     {
         if (!ValidateES2TexImageParameters(context, target, level, GL_NONE, true, true, xoffset,
                                            yoffset, width, height, 0, GL_NONE, GL_NONE, data))
@@ -1862,7 +2107,7 @@ bool ValidateCompressedTexSubImage2D(Context *context,
     }
     else
     {
-        ASSERT(context->getClientVersion() >= 3);
+        ASSERT(context->getClientMajorVersion() >= 3);
         if (!ValidateES3TexImage2DParameters(context, target, level, GL_NONE, true, true, xoffset,
                                              yoffset, 0, width, height, 1, 0, GL_NONE, GL_NONE,
                                              data))
@@ -1872,9 +2117,15 @@ bool ValidateCompressedTexSubImage2D(Context *context,
     }
 
     const InternalFormat &formatInfo = GetInternalFormatInfo(format);
-    if (imageSize < 0 ||
-        static_cast<GLuint>(imageSize) !=
-            formatInfo.computeBlockSize(GL_UNSIGNED_BYTE, width, height))
+    auto blockSizeOrErr =
+        formatInfo.computeCompressedImageSize(GL_UNSIGNED_BYTE, gl::Extents(width, height, 1));
+    if (blockSizeOrErr.isError())
+    {
+        context->handleError(blockSizeOrErr.getError());
+        return false;
+    }
+
+    if (imageSize < 0 || static_cast<GLuint>(imageSize) != blockSizeOrErr.getResult())
     {
         context->handleError(Error(GL_INVALID_VALUE));
         return false;
@@ -1908,7 +2159,7 @@ bool ValidateMapBufferOES(Context *context, GLenum target, GLenum access)
         return false;
     }
 
-    Buffer *buffer = context->getState().getTargetBuffer(target);
+    Buffer *buffer = context->getGLState().getTargetBuffer(target);
 
     if (buffer == nullptr)
     {
@@ -1990,14 +2241,15 @@ bool ValidateBindTexture(Context *context, GLenum target, GLuint texture)
 
         case GL_TEXTURE_3D:
         case GL_TEXTURE_2D_ARRAY:
-            if (context->getClientVersion() < 3)
+            if (context->getClientMajorVersion() < 3)
             {
                 context->handleError(Error(GL_INVALID_ENUM, "GLES 3.0 disabled"));
                 return false;
             }
             break;
         case GL_TEXTURE_EXTERNAL_OES:
-            if (!context->getExtensions().eglStreamConsumerExternal)
+            if (!context->getExtensions().eglImageExternal &&
+                !context->getExtensions().eglStreamConsumerExternal)
             {
                 context->handleError(
                     Error(GL_INVALID_ENUM, "External texture extension not enabled"));
@@ -2050,6 +2302,1007 @@ bool ValidateBindUniformLocationCHROMIUM(Context *context,
     {
         context->handleError(
             Error(GL_INVALID_OPERATION, "Name cannot start with the reserved \"gl_\" prefix."));
+        return false;
+    }
+
+    return true;
+}
+
+bool ValidateCoverageModulationCHROMIUM(Context *context, GLenum components)
+{
+    if (!context->getExtensions().framebufferMixedSamples)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_framebuffer_mixed_samples is not available."));
+        return false;
+    }
+    switch (components)
+    {
+        case GL_RGB:
+        case GL_RGBA:
+        case GL_ALPHA:
+        case GL_NONE:
+            break;
+        default:
+            context->handleError(
+                Error(GL_INVALID_ENUM,
+                      "GLenum components is not one of GL_RGB, GL_RGBA, GL_ALPHA or GL_NONE."));
+            return false;
+    }
+
+    return true;
+}
+
+// CHROMIUM_path_rendering
+
+bool ValidateMatrix(Context *context, GLenum matrixMode, const GLfloat *matrix)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+    if (matrixMode != GL_PATH_MODELVIEW_CHROMIUM && matrixMode != GL_PATH_PROJECTION_CHROMIUM)
+    {
+        context->handleError(Error(GL_INVALID_ENUM, "Invalid matrix mode."));
+        return false;
+    }
+    if (matrix == nullptr)
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "Invalid matrix."));
+        return false;
+    }
+    return true;
+}
+
+bool ValidateMatrixMode(Context *context, GLenum matrixMode)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+    if (matrixMode != GL_PATH_MODELVIEW_CHROMIUM && matrixMode != GL_PATH_PROJECTION_CHROMIUM)
+    {
+        context->handleError(Error(GL_INVALID_ENUM, "Invalid matrix mode."));
+        return false;
+    }
+    return true;
+}
+
+bool ValidateGenPaths(Context *context, GLsizei range)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+
+    // range = 0 is undefined in NV_path_rendering.
+    // we add stricter semantic check here and require a non zero positive range.
+    if (range <= 0)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Invalid range."));
+        return false;
+    }
+
+    if (!angle::IsValueInRangeForNumericType<std::uint32_t>(range))
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "Range overflow."));
+        return false;
+    }
+
+    return true;
+}
+
+bool ValidateDeletePaths(Context *context, GLuint path, GLsizei range)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+
+    // range = 0 is undefined in NV_path_rendering.
+    // we add stricter semantic check here and require a non zero positive range.
+    if (range <= 0)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Invalid range."));
+        return false;
+    }
+
+    angle::CheckedNumeric<std::uint32_t> checkedRange(path);
+    checkedRange += range;
+
+    if (!angle::IsValueInRangeForNumericType<std::uint32_t>(range) || !checkedRange.IsValid())
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "Range overflow."));
+        return false;
+    }
+    return true;
+}
+
+bool ValidatePathCommands(Context *context,
+                          GLuint path,
+                          GLsizei numCommands,
+                          const GLubyte *commands,
+                          GLsizei numCoords,
+                          GLenum coordType,
+                          const void *coords)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+    if (!context->hasPath(path))
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "No such path object."));
+        return false;
+    }
+
+    if (numCommands < 0)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Invalid number of commands."));
+        return false;
+    }
+    else if (numCommands > 0)
+    {
+        if (!commands)
+        {
+            context->handleError(Error(GL_INVALID_VALUE, "No commands array given."));
+            return false;
+        }
+    }
+
+    if (numCoords < 0)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Invalid number of coordinates."));
+        return false;
+    }
+    else if (numCoords > 0)
+    {
+        if (!coords)
+        {
+            context->handleError(Error(GL_INVALID_VALUE, "No coordinate array given."));
+            return false;
+        }
+    }
+
+    std::uint32_t coordTypeSize = 0;
+    switch (coordType)
+    {
+        case GL_BYTE:
+            coordTypeSize = sizeof(GLbyte);
+            break;
+
+        case GL_UNSIGNED_BYTE:
+            coordTypeSize = sizeof(GLubyte);
+            break;
+
+        case GL_SHORT:
+            coordTypeSize = sizeof(GLshort);
+            break;
+
+        case GL_UNSIGNED_SHORT:
+            coordTypeSize = sizeof(GLushort);
+            break;
+
+        case GL_FLOAT:
+            coordTypeSize = sizeof(GLfloat);
+            break;
+
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid coordinate type."));
+            return false;
+    }
+
+    angle::CheckedNumeric<std::uint32_t> checkedSize(numCommands);
+    checkedSize += (coordTypeSize * numCoords);
+    if (!checkedSize.IsValid())
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "Coord size overflow."));
+        return false;
+    }
+
+    // early return skips command data validation when it doesn't exist.
+    if (!commands)
+        return true;
+
+    GLsizei expectedNumCoords = 0;
+    for (GLsizei i = 0; i < numCommands; ++i)
+    {
+        switch (commands[i])
+        {
+            case GL_CLOSE_PATH_CHROMIUM:  // no coordinates.
+                break;
+            case GL_MOVE_TO_CHROMIUM:
+            case GL_LINE_TO_CHROMIUM:
+                expectedNumCoords += 2;
+                break;
+            case GL_QUADRATIC_CURVE_TO_CHROMIUM:
+                expectedNumCoords += 4;
+                break;
+            case GL_CUBIC_CURVE_TO_CHROMIUM:
+                expectedNumCoords += 6;
+                break;
+            case GL_CONIC_CURVE_TO_CHROMIUM:
+                expectedNumCoords += 5;
+                break;
+            default:
+                context->handleError(Error(GL_INVALID_ENUM, "Invalid command."));
+                return false;
+        }
+    }
+    if (expectedNumCoords != numCoords)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Invalid number of coordinates."));
+        return false;
+    }
+
+    return true;
+}
+
+bool ValidateSetPathParameter(Context *context, GLuint path, GLenum pname, GLfloat value)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+    if (!context->hasPath(path))
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "No such path object."));
+        return false;
+    }
+
+    switch (pname)
+    {
+        case GL_PATH_STROKE_WIDTH_CHROMIUM:
+            if (value < 0.0f)
+            {
+                context->handleError(Error(GL_INVALID_VALUE, "Invalid stroke width."));
+                return false;
+            }
+            break;
+        case GL_PATH_END_CAPS_CHROMIUM:
+            switch (static_cast<GLenum>(value))
+            {
+                case GL_FLAT_CHROMIUM:
+                case GL_SQUARE_CHROMIUM:
+                case GL_ROUND_CHROMIUM:
+                    break;
+                default:
+                    context->handleError(Error(GL_INVALID_ENUM, "Invalid end caps."));
+                    return false;
+            }
+            break;
+        case GL_PATH_JOIN_STYLE_CHROMIUM:
+            switch (static_cast<GLenum>(value))
+            {
+                case GL_MITER_REVERT_CHROMIUM:
+                case GL_BEVEL_CHROMIUM:
+                case GL_ROUND_CHROMIUM:
+                    break;
+                default:
+                    context->handleError(Error(GL_INVALID_ENUM, "Invalid join style."));
+                    return false;
+            }
+        case GL_PATH_MITER_LIMIT_CHROMIUM:
+            if (value < 0.0f)
+            {
+                context->handleError(Error(GL_INVALID_VALUE, "Invalid miter limit."));
+                return false;
+            }
+            break;
+
+        case GL_PATH_STROKE_BOUND_CHROMIUM:
+            // no errors, only clamping.
+            break;
+
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid path parameter."));
+            return false;
+    }
+    return true;
+}
+
+bool ValidateGetPathParameter(Context *context, GLuint path, GLenum pname, GLfloat *value)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+
+    if (!context->hasPath(path))
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "No such path object."));
+        return false;
+    }
+    if (!value)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "No value array."));
+        return false;
+    }
+
+    switch (pname)
+    {
+        case GL_PATH_STROKE_WIDTH_CHROMIUM:
+        case GL_PATH_END_CAPS_CHROMIUM:
+        case GL_PATH_JOIN_STYLE_CHROMIUM:
+        case GL_PATH_MITER_LIMIT_CHROMIUM:
+        case GL_PATH_STROKE_BOUND_CHROMIUM:
+            break;
+
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid path parameter."));
+            return false;
+    }
+
+    return true;
+}
+
+bool ValidatePathStencilFunc(Context *context, GLenum func, GLint ref, GLuint mask)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+
+    switch (func)
+    {
+        case GL_NEVER:
+        case GL_ALWAYS:
+        case GL_LESS:
+        case GL_LEQUAL:
+        case GL_EQUAL:
+        case GL_GEQUAL:
+        case GL_GREATER:
+        case GL_NOTEQUAL:
+            break;
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid stencil function."));
+            return false;
+    }
+
+    return true;
+}
+
+// Note that the spec specifies that for the path drawing commands
+// if the path object is not an existing path object the command
+// does nothing and no error is generated.
+// However if the path object exists but has not been specified any
+// commands then an error is generated.
+
+bool ValidateStencilFillPath(Context *context, GLuint path, GLenum fillMode, GLuint mask)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+    if (context->hasPath(path) && !context->hasPathData(path))
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "No such path object."));
+        return false;
+    }
+
+    switch (fillMode)
+    {
+        case GL_COUNT_UP_CHROMIUM:
+        case GL_COUNT_DOWN_CHROMIUM:
+            break;
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid fill mode."));
+            return false;
+    }
+
+    if (!isPow2(mask + 1))
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Invalid stencil bit mask."));
+        return false;
+    }
+
+    return true;
+}
+
+bool ValidateStencilStrokePath(Context *context, GLuint path, GLint reference, GLuint mask)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+    if (context->hasPath(path) && !context->hasPathData(path))
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "No such path or path has no data."));
+        return false;
+    }
+
+    return true;
+}
+
+bool ValidateCoverPath(Context *context, GLuint path, GLenum coverMode)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+    if (context->hasPath(path) && !context->hasPathData(path))
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "No such path object."));
+        return false;
+    }
+
+    switch (coverMode)
+    {
+        case GL_CONVEX_HULL_CHROMIUM:
+        case GL_BOUNDING_BOX_CHROMIUM:
+            break;
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid cover mode."));
+            return false;
+    }
+    return true;
+}
+
+bool ValidateStencilThenCoverFillPath(Context *context,
+                                      GLuint path,
+                                      GLenum fillMode,
+                                      GLuint mask,
+                                      GLenum coverMode)
+{
+    return ValidateStencilFillPath(context, path, fillMode, mask) &&
+           ValidateCoverPath(context, path, coverMode);
+}
+
+bool ValidateStencilThenCoverStrokePath(Context *context,
+                                        GLuint path,
+                                        GLint reference,
+                                        GLuint mask,
+                                        GLenum coverMode)
+{
+    return ValidateStencilStrokePath(context, path, reference, mask) &&
+           ValidateCoverPath(context, path, coverMode);
+}
+
+bool ValidateIsPath(Context *context)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+    return true;
+}
+
+bool ValidateCoverFillPathInstanced(Context *context,
+                                    GLsizei numPaths,
+                                    GLenum pathNameType,
+                                    const void *paths,
+                                    GLuint pathBase,
+                                    GLenum coverMode,
+                                    GLenum transformType,
+                                    const GLfloat *transformValues)
+{
+    if (!ValidateInstancedPathParameters(context, numPaths, pathNameType, paths, pathBase,
+                                         transformType, transformValues))
+        return false;
+
+    switch (coverMode)
+    {
+        case GL_CONVEX_HULL_CHROMIUM:
+        case GL_BOUNDING_BOX_CHROMIUM:
+        case GL_BOUNDING_BOX_OF_BOUNDING_BOXES_CHROMIUM:
+            break;
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid cover mode."));
+            return false;
+    }
+
+    return true;
+}
+
+bool ValidateCoverStrokePathInstanced(Context *context,
+                                      GLsizei numPaths,
+                                      GLenum pathNameType,
+                                      const void *paths,
+                                      GLuint pathBase,
+                                      GLenum coverMode,
+                                      GLenum transformType,
+                                      const GLfloat *transformValues)
+{
+    if (!ValidateInstancedPathParameters(context, numPaths, pathNameType, paths, pathBase,
+                                         transformType, transformValues))
+        return false;
+
+    switch (coverMode)
+    {
+        case GL_CONVEX_HULL_CHROMIUM:
+        case GL_BOUNDING_BOX_CHROMIUM:
+        case GL_BOUNDING_BOX_OF_BOUNDING_BOXES_CHROMIUM:
+            break;
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid cover mode."));
+            return false;
+    }
+
+    return true;
+}
+
+bool ValidateStencilFillPathInstanced(Context *context,
+                                      GLsizei numPaths,
+                                      GLenum pathNameType,
+                                      const void *paths,
+                                      GLuint pathBase,
+                                      GLenum fillMode,
+                                      GLuint mask,
+                                      GLenum transformType,
+                                      const GLfloat *transformValues)
+{
+
+    if (!ValidateInstancedPathParameters(context, numPaths, pathNameType, paths, pathBase,
+                                         transformType, transformValues))
+        return false;
+
+    switch (fillMode)
+    {
+        case GL_COUNT_UP_CHROMIUM:
+        case GL_COUNT_DOWN_CHROMIUM:
+            break;
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid fill mode."));
+            return false;
+    }
+    if (!isPow2(mask + 1))
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Invalid stencil bit mask."));
+        return false;
+    }
+    return true;
+}
+
+bool ValidateStencilStrokePathInstanced(Context *context,
+                                        GLsizei numPaths,
+                                        GLenum pathNameType,
+                                        const void *paths,
+                                        GLuint pathBase,
+                                        GLint reference,
+                                        GLuint mask,
+                                        GLenum transformType,
+                                        const GLfloat *transformValues)
+{
+    if (!ValidateInstancedPathParameters(context, numPaths, pathNameType, paths, pathBase,
+                                         transformType, transformValues))
+        return false;
+
+    // no more validation here.
+
+    return true;
+}
+
+bool ValidateStencilThenCoverFillPathInstanced(Context *context,
+                                               GLsizei numPaths,
+                                               GLenum pathNameType,
+                                               const void *paths,
+                                               GLuint pathBase,
+                                               GLenum fillMode,
+                                               GLuint mask,
+                                               GLenum coverMode,
+                                               GLenum transformType,
+                                               const GLfloat *transformValues)
+{
+    if (!ValidateInstancedPathParameters(context, numPaths, pathNameType, paths, pathBase,
+                                         transformType, transformValues))
+        return false;
+
+    switch (coverMode)
+    {
+        case GL_CONVEX_HULL_CHROMIUM:
+        case GL_BOUNDING_BOX_CHROMIUM:
+        case GL_BOUNDING_BOX_OF_BOUNDING_BOXES_CHROMIUM:
+            break;
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid cover mode."));
+            return false;
+    }
+
+    switch (fillMode)
+    {
+        case GL_COUNT_UP_CHROMIUM:
+        case GL_COUNT_DOWN_CHROMIUM:
+            break;
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid fill mode."));
+            return false;
+    }
+    if (!isPow2(mask + 1))
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Invalid stencil bit mask."));
+        return false;
+    }
+
+    return true;
+}
+
+bool ValidateStencilThenCoverStrokePathInstanced(Context *context,
+                                                 GLsizei numPaths,
+                                                 GLenum pathNameType,
+                                                 const void *paths,
+                                                 GLuint pathBase,
+                                                 GLint reference,
+                                                 GLuint mask,
+                                                 GLenum coverMode,
+                                                 GLenum transformType,
+                                                 const GLfloat *transformValues)
+{
+    if (!ValidateInstancedPathParameters(context, numPaths, pathNameType, paths, pathBase,
+                                         transformType, transformValues))
+        return false;
+
+    switch (coverMode)
+    {
+        case GL_CONVEX_HULL_CHROMIUM:
+        case GL_BOUNDING_BOX_CHROMIUM:
+        case GL_BOUNDING_BOX_OF_BOUNDING_BOXES_CHROMIUM:
+            break;
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid cover mode."));
+            return false;
+    }
+
+    return true;
+}
+
+bool ValidateBindFragmentInputLocation(Context *context,
+                                       GLuint program,
+                                       GLint location,
+                                       const GLchar *name)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+
+    const GLint MaxLocation = context->getCaps().maxVaryingVectors * 4;
+    if (location >= MaxLocation)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Location exceeds max varying."));
+        return false;
+    }
+
+    const auto *programObject = context->getProgram(program);
+    if (!programObject)
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "No such program."));
+        return false;
+    }
+
+    if (!name)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "No name given."));
+        return false;
+    }
+
+    if (angle::BeginsWith(name, "gl_"))
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "Cannot bind a built-in variable."));
+        return false;
+    }
+
+    return true;
+}
+
+bool ValidateProgramPathFragmentInputGen(Context *context,
+                                         GLuint program,
+                                         GLint location,
+                                         GLenum genMode,
+                                         GLint components,
+                                         const GLfloat *coeffs)
+{
+    if (!context->getExtensions().pathRendering)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_path_rendering is not available."));
+        return false;
+    }
+
+    const auto *programObject = context->getProgram(program);
+    if (!programObject || programObject->isFlaggedForDeletion())
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "No such program."));
+        return false;
+    }
+
+    if (!programObject->isLinked())
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "Program is not linked."));
+        return false;
+    }
+
+    switch (genMode)
+    {
+        case GL_NONE:
+            if (components != 0)
+            {
+                context->handleError(Error(GL_INVALID_VALUE, "Invalid components."));
+                return false;
+            }
+            break;
+
+        case GL_OBJECT_LINEAR_CHROMIUM:
+        case GL_EYE_LINEAR_CHROMIUM:
+        case GL_CONSTANT_CHROMIUM:
+            if (components < 1 || components > 4)
+            {
+                context->handleError(Error(GL_INVALID_VALUE, "Invalid components."));
+                return false;
+            }
+            if (!coeffs)
+            {
+                context->handleError(Error(GL_INVALID_VALUE, "No coefficients array given."));
+                return false;
+            }
+            break;
+
+        default:
+            context->handleError(Error(GL_INVALID_ENUM, "Invalid gen mode."));
+            return false;
+    }
+
+    // If the location is -1 then the command is silently ignored
+    // and no further validation is needed.
+    if (location == -1)
+        return true;
+
+    const auto &binding = programObject->getFragmentInputBindingInfo(location);
+
+    if (!binding.valid)
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "No such binding."));
+        return false;
+    }
+
+    if (binding.type != GL_NONE)
+    {
+        GLint expectedComponents = 0;
+        switch (binding.type)
+        {
+            case GL_FLOAT:
+                expectedComponents = 1;
+                break;
+            case GL_FLOAT_VEC2:
+                expectedComponents = 2;
+                break;
+            case GL_FLOAT_VEC3:
+                expectedComponents = 3;
+                break;
+            case GL_FLOAT_VEC4:
+                expectedComponents = 4;
+                break;
+            default:
+                context->handleError(Error(GL_INVALID_OPERATION,
+                    "Fragment input type is not a floating point scalar or vector."));
+                return false;
+        }
+        if (expectedComponents != components && genMode != GL_NONE)
+        {
+            context->handleError(Error(GL_INVALID_OPERATION, "Unexpected number of components"));
+            return false;
+        }
+    }
+    return true;
+}
+
+bool ValidateCopyTextureCHROMIUM(Context *context,
+                                 GLuint sourceId,
+                                 GLuint destId,
+                                 GLint internalFormat,
+                                 GLenum destType,
+                                 GLboolean unpackFlipY,
+                                 GLboolean unpackPremultiplyAlpha,
+                                 GLboolean unpackUnmultiplyAlpha)
+{
+    if (!context->getExtensions().copyTexture)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_copy_texture extension not available."));
+        return false;
+    }
+
+    const gl::Texture *source = context->getTexture(sourceId);
+    if (source == nullptr)
+    {
+        context->handleError(
+            Error(GL_INVALID_VALUE, "Source texture is not a valid texture object."));
+        return false;
+    }
+
+    if (!IsValidCopyTextureSourceTarget(context, source->getTarget()))
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Source texture a valid texture type."));
+        return false;
+    }
+
+    GLenum sourceTarget = source->getTarget();
+    ASSERT(sourceTarget != GL_TEXTURE_CUBE_MAP);
+    if (source->getWidth(sourceTarget, 0) == 0 || source->getHeight(sourceTarget, 0) == 0)
+    {
+        context->handleError(
+            Error(GL_INVALID_VALUE, "Level 0 of the source texture must be defined."));
+        return false;
+    }
+
+    const gl::Format &sourceFormat = source->getFormat(sourceTarget, 0);
+    if (!IsValidCopyTextureFormat(context, sourceFormat.format))
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "Source texture internal format is invalid."));
+        return false;
+    }
+
+    const gl::Texture *dest = context->getTexture(destId);
+    if (dest == nullptr)
+    {
+        context->handleError(
+            Error(GL_INVALID_VALUE, "Destination texture is not a valid texture object."));
+        return false;
+    }
+
+    if (!IsValidCopyTextureDestinationTarget(context, dest->getTarget()))
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Destination texture a valid texture type."));
+        return false;
+    }
+
+    if (!IsValidCopyTextureDestinationFormatType(context, internalFormat, destType))
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION,
+                  "Destination internal format and type combination is not valid."));
+        return false;
+    }
+
+    if (dest->getImmutableFormat())
+    {
+        context->handleError(Error(GL_INVALID_OPERATION, "Destination texture is immutable."));
+        return false;
+    }
+
+    return true;
+}
+
+bool ValidateCopySubTextureCHROMIUM(Context *context,
+                                    GLuint sourceId,
+                                    GLuint destId,
+                                    GLint xoffset,
+                                    GLint yoffset,
+                                    GLint x,
+                                    GLint y,
+                                    GLsizei width,
+                                    GLsizei height,
+                                    GLboolean unpackFlipY,
+                                    GLboolean unpackPremultiplyAlpha,
+                                    GLboolean unpackUnmultiplyAlpha)
+{
+    if (!context->getExtensions().copyTexture)
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "GL_CHROMIUM_copy_texture extension not available."));
+        return false;
+    }
+
+    const gl::Texture *source = context->getTexture(sourceId);
+    if (source == nullptr)
+    {
+        context->handleError(
+            Error(GL_INVALID_VALUE, "Source texture is not a valid texture object."));
+        return false;
+    }
+
+    if (!IsValidCopyTextureSourceTarget(context, source->getTarget()))
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Source texture a valid texture type."));
+        return false;
+    }
+
+    GLenum sourceTarget = source->getTarget();
+    ASSERT(sourceTarget != GL_TEXTURE_CUBE_MAP);
+    if (source->getWidth(sourceTarget, 0) == 0 || source->getHeight(sourceTarget, 0) == 0)
+    {
+        context->handleError(
+            Error(GL_INVALID_VALUE, "Level 0 of the source texture must be defined."));
+        return false;
+    }
+
+    if (x < 0 || y < 0)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "x and y cannot be negative."));
+        return false;
+    }
+
+    if (width < 0 || height < 0)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "width and height cannot be negative."));
+        return false;
+    }
+
+    if (static_cast<size_t>(x + width) > source->getWidth(sourceTarget, 0) ||
+        static_cast<size_t>(y + height) > source->getHeight(sourceTarget, 0))
+    {
+        context->handleError(
+            Error(GL_INVALID_VALUE, "Source texture not large enough to copy from."));
+        return false;
+    }
+
+    const gl::Format &sourceFormat = source->getFormat(sourceTarget, 0);
+    if (!IsValidCopyTextureFormat(context, sourceFormat.format))
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION, "Source texture internal format is invalid."));
+        return false;
+    }
+
+    const gl::Texture *dest = context->getTexture(destId);
+    if (dest == nullptr)
+    {
+        context->handleError(
+            Error(GL_INVALID_VALUE, "Destination texture is not a valid texture object."));
+        return false;
+    }
+
+    if (!IsValidCopyTextureDestinationTarget(context, dest->getTarget()))
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "Destination texture a valid texture type."));
+        return false;
+    }
+
+    GLenum destTarget = dest->getTarget();
+    ASSERT(destTarget != GL_TEXTURE_CUBE_MAP);
+    if (dest->getWidth(sourceTarget, 0) == 0 || dest->getHeight(sourceTarget, 0) == 0)
+    {
+        context->handleError(
+            Error(GL_INVALID_VALUE, "Level 0 of the destination texture must be defined."));
+        return false;
+    }
+
+    const gl::Format &destFormat = dest->getFormat(destTarget, 0);
+    if (!IsValidCopyTextureDestinationFormatType(context, destFormat.format, destFormat.type))
+    {
+        context->handleError(
+            Error(GL_INVALID_OPERATION,
+                  "Destination internal format and type combination is not valid."));
+        return false;
+    }
+
+    if (xoffset < 0 || yoffset < 0)
+    {
+        context->handleError(Error(GL_INVALID_VALUE, "xoffset and yoffset cannot be negative."));
+        return false;
+    }
+
+    if (static_cast<size_t>(xoffset + width) > dest->getWidth(destTarget, 0) ||
+        static_cast<size_t>(yoffset + height) > dest->getHeight(destTarget, 0))
+    {
+        context->handleError(
+            Error(GL_INVALID_VALUE, "Destination texture not large enough to copy to."));
         return false;
     }
 

@@ -11,7 +11,7 @@
 #include "common/debug.h"
 #include "libANGLE/ContextState.h"
 #include "libANGLE/renderer/CompilerImpl.h"
-#include "libANGLE/renderer/ImplFactory.h"
+#include "libANGLE/renderer/GLImplFactory.h"
 
 namespace gl
 {
@@ -23,20 +23,36 @@ namespace
 // ShFinalize.
 size_t activeCompilerHandles = 0;
 
+ShShaderSpec SelectShaderSpec(GLint majorVersion, GLint minorVersion)
+{
+    if (majorVersion >= 3)
+    {
+        if (minorVersion == 1)
+        {
+            return SH_GLES3_1_SPEC;
+        }
+        else
+        {
+            return SH_GLES3_SPEC;
+        }
+    }
+    return SH_GLES2_SPEC;
+}
+
 }  // anonymous namespace
 
-Compiler::Compiler(rx::ImplFactory *implFactory, const ContextState &data)
+Compiler::Compiler(rx::GLImplFactory *implFactory, const ContextState &state)
     : mImplementation(implFactory->createCompiler()),
-      mSpec(data.clientVersion > 2 ? SH_GLES3_SPEC : SH_GLES2_SPEC),
+      mSpec(SelectShaderSpec(state.getClientMajorVersion(), state.getClientMinorVersion())),
       mOutputType(mImplementation->getTranslatorOutputType()),
       mResources(),
       mFragmentCompiler(nullptr),
       mVertexCompiler(nullptr)
 {
-    ASSERT(data.clientVersion == 2 || data.clientVersion == 3);
+    ASSERT(state.getClientMajorVersion() == 2 || state.getClientMajorVersion() == 3);
 
-    const gl::Caps &caps             = *data.caps;
-    const gl::Extensions &extensions = *data.extensions;
+    const gl::Caps &caps             = state.getCaps();
+    const gl::Extensions &extensions = state.getExtensions();
 
     ShInitBuiltInResources(&mResources);
     mResources.MaxVertexAttribs             = caps.maxVertexAttributes;
@@ -50,8 +66,8 @@ Compiler::Compiler(rx::ImplFactory *implFactory, const ContextState &data)
     mResources.OES_standard_derivatives     = extensions.standardDerivatives;
     mResources.EXT_draw_buffers             = extensions.drawBuffers;
     mResources.EXT_shader_texture_lod       = extensions.shaderTextureLOD;
-    // TODO: disabled until the extension is actually supported.
-    mResources.OES_EGL_image_external = 0;
+    mResources.OES_EGL_image_external          = extensions.eglImageExternal;
+    mResources.OES_EGL_image_external_essl3    = extensions.eglImageExternalEssl3;
     mResources.NV_EGL_stream_consumer_external = extensions.eglStreamConsumerExternal;
     // TODO: use shader precision caps to determine if high precision is supported?
     mResources.FragmentPrecisionHigh = 1;
@@ -62,6 +78,35 @@ Compiler::Compiler(rx::ImplFactory *implFactory, const ContextState &data)
     mResources.MaxFragmentInputVectors = caps.maxFragmentInputComponents / 4;
     mResources.MinProgramTexelOffset   = caps.minProgramTexelOffset;
     mResources.MaxProgramTexelOffset   = caps.maxProgramTexelOffset;
+
+    // GLSL ES 3.1 compute shader constants
+    mResources.MaxImageUnits                    = caps.maxImageUnits;
+    mResources.MaxVertexImageUniforms           = caps.maxVertexImageUniforms;
+    mResources.MaxFragmentImageUniforms         = caps.maxFragmentImageUniforms;
+    mResources.MaxComputeImageUniforms          = caps.maxComputeImageUniforms;
+    mResources.MaxCombinedImageUniforms         = caps.maxCombinedImageUniforms;
+    mResources.MaxCombinedShaderOutputResources = caps.maxCombinedShaderOutputResources;
+
+    for (size_t index = 0u; index < 3u; ++index)
+    {
+        mResources.MaxComputeWorkGroupCount[index] = caps.maxComputeWorkGroupCount[index];
+        mResources.MaxComputeWorkGroupSize[index]  = caps.maxComputeWorkGroupSize[index];
+    }
+
+    mResources.MaxComputeUniformComponents = caps.maxComputeUniformComponents;
+    mResources.MaxComputeTextureImageUnits = caps.maxComputeTextureImageUnits;
+
+    mResources.MaxComputeAtomicCounters       = caps.maxComputeAtomicCounters;
+    mResources.MaxComputeAtomicCounterBuffers = caps.maxComputeAtomicCounterBuffers;
+
+    mResources.MaxVertexAtomicCounters         = caps.maxVertexAtomicCounters;
+    mResources.MaxFragmentAtomicCounters       = caps.maxFragmentAtomicCounters;
+    mResources.MaxCombinedAtomicCounters       = caps.maxCombinedAtomicCounters;
+    mResources.MaxAtomicCounterBindings        = caps.maxAtomicCounterBufferBindings;
+    mResources.MaxVertexAtomicCounterBuffers   = caps.maxVertexAtomicCounterBuffers;
+    mResources.MaxFragmentAtomicCounterBuffers = caps.maxFragmentAtomicCounterBuffers;
+    mResources.MaxCombinedAtomicCounterBuffers = caps.maxCombinedAtomicCounterBuffers;
+    mResources.MaxAtomicCounterBufferSize      = caps.maxAtomicCounterBufferSize;
 }
 
 Compiler::~Compiler()

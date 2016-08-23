@@ -7,12 +7,9 @@
     {
         'component%': 'static_library',
         'use_libpci%': 1,
-        'windows_sdk_path%': 'C:/Program Files (x86)/Windows Kits/8.1',
-        # build/gyp_angle sets this to 1.
-        'angle_standalone%': '0',
+        'windows_sdk_path%': 'C:/Program Files (x86)/Windows Kits/10',
 
         'angle_build_winrt%': '0',
-        'angle_build_winphone%': '0',
 
         # This works like the Ozone GBM platform in Chrome:
         # - Generic Buffer Manager (gbm) to allocate buffers
@@ -34,15 +31,15 @@
         # root of the OSX SDK for Chromium builds, the system root for standalone builds
         'SDKROOT%': "",
     },
+    'defines':
+    [
+        'ANGLE_STANDALONE_BUILD',
+    ],
     'msvs_disabled_warnings':
     [
         4100, # Unreferenced formal parameter. Not interesting.
         4127, # conditional expression is constant. Too noisy to be useful.
-
-        # TODO: 4702 doesn't fire on xtree in VS2015 (CTP6). We can remove C4702 after moving to VS2015.
-        4702, # Unreachable code. Should only fire on system header xtree.
-
-        4718, # Recursive call has no side effects. Fires on xtree too.
+        4718, # Recursive call has no side effects. Fires on xtree system header.
     ],
     'conditions':
     [
@@ -56,23 +53,6 @@
             'msvs_disabled_warnings':
             [
                 4251, # STL objects do not have DLL interface, needed by ShaderVars.h
-            ],
-        }],
-        # Normally the WinRT project should rely on the default SDK header include paths
-        # However, the WinPhone projects also need the Windows SDK path for DXProgrammableCapture.h
-        ['angle_build_winrt==0 or angle_build_winphone==1',
-        {
-            'msvs_system_include_dirs':
-            [
-                '<(windows_sdk_path)/Include/shared',
-                '<(windows_sdk_path)/Include/um',
-            ],
-        }],
-        ['angle_standalone==1',
-        {
-            'defines':
-            [
-                'ANGLE_STANDALONE_BUILD',
             ],
         }],
     ],

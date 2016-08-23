@@ -11,6 +11,7 @@
 #include "common/BitSetIterator.h"
 #include "common/utilities.h"
 #include "libANGLE/Query.h"
+#include "libANGLE/VertexArray.h"
 #include "libANGLE/renderer/d3d/d3d11/Framebuffer11.h"
 #include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
 #include "libANGLE/renderer/d3d/d3d11/RenderTarget11.h"
@@ -23,15 +24,16 @@ namespace
 bool ImageIndexConflictsWithSRV(const gl::ImageIndex &index, D3D11_SHADER_RESOURCE_VIEW_DESC desc)
 {
     unsigned mipLevel   = index.mipIndex;
-    unsigned layerIndex = index.layerIndex;
+    GLint layerIndex    = index.layerIndex;
     GLenum type         = index.type;
 
     switch (desc.ViewDimension)
     {
         case D3D11_SRV_DIMENSION_TEXTURE2D:
         {
-            unsigned maxSrvMip = desc.Texture2D.MipLevels + desc.Texture2D.MostDetailedMip;
-            maxSrvMip          = (desc.Texture2D.MipLevels == -1) ? INT_MAX : maxSrvMip;
+            bool allLevels         = (desc.Texture2D.MipLevels == std::numeric_limits<UINT>::max());
+            unsigned int maxSrvMip = desc.Texture2D.MipLevels + desc.Texture2D.MostDetailedMip;
+            maxSrvMip              = allLevels ? INT_MAX : maxSrvMip;
 
             unsigned mipMin = index.mipIndex;
             unsigned mipMax = (layerIndex == -1) ? INT_MAX : layerIndex;
@@ -43,22 +45,25 @@ bool ImageIndexConflictsWithSRV(const gl::ImageIndex &index, D3D11_SHADER_RESOUR
 
         case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
         {
-            unsigned maxSrvMip =
+            bool allLevels = (desc.Texture2DArray.MipLevels == std::numeric_limits<UINT>::max());
+            unsigned int maxSrvMip =
                 desc.Texture2DArray.MipLevels + desc.Texture2DArray.MostDetailedMip;
-            maxSrvMip = (desc.Texture2DArray.MipLevels == -1) ? INT_MAX : maxSrvMip;
+            maxSrvMip = allLevels ? INT_MAX : maxSrvMip;
 
             unsigned maxSlice = desc.Texture2DArray.FirstArraySlice + desc.Texture2DArray.ArraySize;
 
             // Cube maps can be mapped to Texture2DArray SRVs
             return (type == GL_TEXTURE_2D_ARRAY || gl::IsCubeMapTextureTarget(type)) &&
                    desc.Texture2DArray.MostDetailedMip <= mipLevel && mipLevel < maxSrvMip &&
-                   desc.Texture2DArray.FirstArraySlice <= layerIndex && layerIndex < maxSlice;
+                   desc.Texture2DArray.FirstArraySlice <= static_cast<UINT>(layerIndex) &&
+                   static_cast<UINT>(layerIndex) < maxSlice;
         }
 
         case D3D11_SRV_DIMENSION_TEXTURECUBE:
         {
-            unsigned maxSrvMip = desc.TextureCube.MipLevels + desc.TextureCube.MostDetailedMip;
-            maxSrvMip          = (desc.TextureCube.MipLevels == -1) ? INT_MAX : maxSrvMip;
+            bool allLevels = (desc.TextureCube.MipLevels == std::numeric_limits<UINT>::max());
+            unsigned int maxSrvMip = desc.TextureCube.MipLevels + desc.TextureCube.MostDetailedMip;
+            maxSrvMip              = allLevels ? INT_MAX : maxSrvMip;
 
             return gl::IsCubeMapTextureTarget(type) &&
                    desc.TextureCube.MostDetailedMip <= mipLevel && mipLevel < maxSrvMip;
@@ -66,8 +71,9 @@ bool ImageIndexConflictsWithSRV(const gl::ImageIndex &index, D3D11_SHADER_RESOUR
 
         case D3D11_SRV_DIMENSION_TEXTURE3D:
         {
-            unsigned maxSrvMip = desc.Texture3D.MipLevels + desc.Texture3D.MostDetailedMip;
-            maxSrvMip          = (desc.Texture3D.MipLevels == -1) ? INT_MAX : maxSrvMip;
+            bool allLevels         = (desc.Texture3D.MipLevels == std::numeric_limits<UINT>::max());
+            unsigned int maxSrvMip = desc.Texture3D.MipLevels + desc.Texture3D.MostDetailedMip;
+            maxSrvMip              = allLevels ? INT_MAX : maxSrvMip;
 
             return type == GL_TEXTURE_3D && desc.Texture3D.MostDetailedMip <= mipLevel &&
                    mipLevel < maxSrvMip;
@@ -130,7 +136,8 @@ void StateManager11::SRVCache::clear()
 }
 
 static const GLenum QueryTypes[] = {GL_ANY_SAMPLES_PASSED, GL_ANY_SAMPLES_PASSED_CONSERVATIVE,
-                                    GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_TIME_ELAPSED_EXT};
+                                    GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_TIME_ELAPSED_EXT,
+                                    GL_COMMANDS_COMPLETED_CHROMIUM};
 
 StateManager11::StateManager11(Renderer11 *renderer)
     : mRenderer(renderer),
@@ -841,7 +848,7 @@ void StateManager11::onDeleteQueryObject(Query11 *query)
 
 gl::Error StateManager11::onMakeCurrent(const gl::ContextState &data)
 {
-    const gl::State &state = *data.state;
+    const gl::State &state = data.getState();
 
     for (Query11 *query : mCurrentQueries)
     {
@@ -979,9 +986,9 @@ void StateManager11::deinitialize()
     mCurrentValueAttribs.clear();
 }
 
-gl::Error StateManager11::syncFramebuffer(const gl::Framebuffer *framebuffer)
+gl::Error StateManager11::syncFramebuffer(gl::Framebuffer *framebuffer)
 {
-    const Framebuffer11 *framebuffer11 = GetImplAs<Framebuffer11>(framebuffer);
+    Framebuffer11 *framebuffer11 = GetImplAs<Framebuffer11>(framebuffer);
     gl::Error error = framebuffer11->invalidateSwizzles();
     if (error.isError())
     {
@@ -1083,7 +1090,7 @@ gl::Error StateManager11::syncFramebuffer(const gl::Framebuffer *framebuffer)
     }
 
     // TODO(jmadill): Use context caps?
-    UINT drawBuffers = mRenderer->getRendererCaps().maxDrawBuffers;
+    UINT drawBuffers = mRenderer->getNativeCaps().maxDrawBuffers;
 
     // Apply the render target and depth stencil
     mRenderer->getDeviceContext()->OMSetRenderTargets(drawBuffers, framebufferRTVs.data(),

@@ -8,8 +8,7 @@
     {
         'angle_path': '<(DEPTH)',
         'angle_build_winrt%': '0',
-        'angle_build_winphone%': '0',
-        'angle_build_winrt_app_type_revision%': '8.1',
+        'angle_build_winrt_app_type_revision%': '10.0',
         'angle_build_winrt_target_platform_ver%' : '',
         # angle_code is set to 1 for the core ANGLE targets defined in src/build_angle.gyp.
         # angle_code is set to 0 for test code, sample code, and third party code.
@@ -75,10 +74,6 @@
                 'msvs_application_type_revision' : '<(angle_build_winrt_app_type_revision)',
                 'msvs_target_platform_version' : '<(angle_build_winrt_target_platform_ver)',
             }],
-            ['angle_build_winphone==1',
-            {
-                'msvs_enable_winphone' : '1',
-            }],
         ],
         'configurations':
         {
@@ -109,6 +104,16 @@
                         'EnableFunctionLevelLinking': 'true',
                         'MinimalRebuild': 'false',
                         'WarningLevel': '4',
+                        'conditions':
+                        [
+                            ['angle_build_winrt==1',
+                            {
+                                # Use '/Wv:18' to avoid WRL warnings in VS2015 Update 3
+                                # Use /Gw and /Zc:threadSafeInit to avoid
+                                # LTCG-related crashes with VS2015 Update 3
+                                'AdditionalOptions': ['/Wv:18', '/Gw', '/Zc:threadSafeInit-'],
+                            }],
+                        ],
                     },
                     'VCLinkerTool':
                     {
@@ -311,7 +316,7 @@
             },
             'conditions':
             [
-                ['angle_build_winrt==0 and OS == "win" and MSVS_VERSION != "2010e"',
+                ['OS == "win"',
                 {
                     'Debug_x64':
                     {
@@ -340,28 +345,6 @@
                             },
                         },
                     }, # arm_Base
-                }],
-                ['angle_build_winrt==1 and angle_build_winphone==0',
-                {
-                    'Debug_x64':
-                    {
-                        'inherit_from': ['Common_Base', 'x64_Base', 'Debug_Base'],
-                    },
-                    'Release_x64':
-                    {
-                        'inherit_from': ['Common_Base', 'x64_Base', 'Release_Base'],
-                    },
-                    'Debug_ARM':
-                    {
-                        'inherit_from': ['Common_Base', 'arm_Base', 'Debug_Base'],
-                    },
-                    'Release_ARM':
-                    {
-                        'inherit_from': ['Common_Base', 'arm_Base', 'Release_Base'],
-                    },
-                }],
-                ['angle_build_winrt==1 and angle_build_winphone==1',
-                {
                     'Debug_ARM':
                     {
                         'inherit_from': ['Common_Base', 'arm_Base', 'Debug_Base'],

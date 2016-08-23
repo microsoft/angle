@@ -12,17 +12,19 @@
 
 #include <vector>
 
+#include "common/Optional.h"
 #include "common/angleutils.h"
 #include "libANGLE/Constants.h"
 #include "libANGLE/Debug.h"
 #include "libANGLE/Error.h"
 #include "libANGLE/FramebufferAttachment.h"
 #include "libANGLE/RefCountObject.h"
+#include "libANGLE/signal_utils.h"
 
 namespace rx
 {
 class ContextImpl;
-class ImplFactory;
+class GLImplFactory;
 class FramebufferImpl;
 class RenderbufferImpl;
 class SurfaceImpl;
@@ -42,7 +44,7 @@ class State;
 class Texture;
 class TextureCapsMap;
 struct Caps;
-struct ContextState;
+class ContextState;
 struct Extensions;
 struct ImageIndex;
 struct Rectangle;
@@ -56,6 +58,7 @@ class FramebufferState final : angle::NonCopyable
 
     const std::string &getLabel();
 
+    const FramebufferAttachment *getAttachment(GLenum attachment) const;
     const FramebufferAttachment *getReadAttachment() const;
     const FramebufferAttachment *getFirstColorAttachment() const;
     const FramebufferAttachment *getDepthOrStencilAttachment() const;
@@ -72,6 +75,10 @@ class FramebufferState final : angle::NonCopyable
     }
 
     bool attachmentsHaveSameDimensions() const;
+    bool colorAttachmentsAreUniqueImages() const;
+
+    const FramebufferAttachment *getDrawBuffer(size_t drawBufferIdx) const;
+    size_t getDrawBufferCount() const;
 
   private:
     friend class Framebuffer;
@@ -86,18 +93,17 @@ class FramebufferState final : angle::NonCopyable
     GLenum mReadBufferState;
 };
 
-class Framebuffer final : public LabeledObject
+class Framebuffer final : public LabeledObject, public angle::SignalReceiver
 {
   public:
-    Framebuffer(const Caps &caps, rx::ImplFactory *factory, GLuint id);
+    Framebuffer(const Caps &caps, rx::GLImplFactory *factory, GLuint id);
     Framebuffer(rx::SurfaceImpl *surface);
     virtual ~Framebuffer();
 
     void setLabel(const std::string &label) override;
     const std::string &getLabel() const override;
 
-    const rx::FramebufferImpl *getImplementation() const { return mImpl; }
-    rx::FramebufferImpl *getImplementation() { return mImpl; }
+    rx::FramebufferImpl *getImplementation() const { return mImpl; }
 
     GLuint id() const { return mId; }
 
@@ -134,10 +140,16 @@ class Framebuffer final : public LabeledObject
     size_t getNumColorBuffers() const;
     bool hasDepth() const;
     bool hasStencil() const;
-    int getSamples(const ContextState &data) const;
+
     bool usingExtendedDrawBuffers() const;
 
-    GLenum checkStatus(const ContextState &data) const;
+    // This method calls checkStatus.
+    int getSamples(const ContextState &state);
+    GLenum checkStatus(const ContextState &state);
+
+    // Helper for checkStatus == GL_FRAMEBUFFER_COMPLETE.
+    bool complete(const ContextState &state);
+
     bool hasValidDepthStencil() const;
 
     Error discard(size_t count, const GLenum *attachments);
@@ -193,19 +205,31 @@ class Framebuffer final : public LabeledObject
     typedef std::bitset<DIRTY_BIT_MAX> DirtyBits;
     bool hasAnyDirtyBit() const { return mDirtyBits.any(); }
 
-    void syncState() const;
+    void syncState();
 
-  protected:
+    // angle::SignalReceiver implementation
+    void signal(angle::SignalToken token) override;
+
+  private:
     void detachResourceById(GLenum resourceType, GLuint resourceId);
+    void detachMatchingAttachment(FramebufferAttachment *attachment,
+                                  GLenum matchType,
+                                  GLuint matchId,
+                                  size_t dirtyBit);
+    GLenum checkStatusImpl(const ContextState &state);
 
     FramebufferState mState;
     rx::FramebufferImpl *mImpl;
     GLuint mId;
 
-    // TODO(jmadill): See if we can make this non-mutable.
-    mutable DirtyBits mDirtyBits;
+    Optional<GLenum> mCachedStatus;
+    std::vector<angle::ChannelBinding> mDirtyColorAttachmentBindings;
+    angle::ChannelBinding mDirtyDepthAttachmentBinding;
+    angle::ChannelBinding mDirtyStencilAttachmentBinding;
+
+    DirtyBits mDirtyBits;
 };
 
-}
+}  // namespace gl
 
 #endif   // LIBANGLE_FRAMEBUFFER_H_

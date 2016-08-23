@@ -14,9 +14,10 @@
 
 #include "common/utilities.h"
 #include "GLSLANG/ShaderLang.h"
+#include "libANGLE/Caps.h"
 #include "libANGLE/Compiler.h"
 #include "libANGLE/Constants.h"
-#include "libANGLE/renderer/Renderer.h"
+#include "libANGLE/renderer/GLImplFactory.h"
 #include "libANGLE/renderer/ShaderImpl.h"
 #include "libANGLE/ResourceManager.h"
 
@@ -81,7 +82,7 @@ ShaderState::~ShaderState()
 }
 
 Shader::Shader(ResourceManager *manager,
-               rx::ImplFactory *implFactory,
+               rx::GLImplFactory *implFactory,
                const gl::Limitations &rendererLimitations,
                GLenum type,
                GLuint handle)

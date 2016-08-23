@@ -25,7 +25,7 @@
 
 namespace rx
 {
-class ImplFactory;
+class GLImplFactory;
 class ShaderImpl;
 class ShaderSh;
 }
@@ -33,7 +33,7 @@ class ShaderSh;
 namespace gl
 {
 class Compiler;
-struct ContextState;
+class ContextState;
 struct Limitations;
 class ResourceManager;
 
@@ -81,7 +81,7 @@ class Shader final : angle::NonCopyable, public LabeledObject
 {
   public:
     Shader(ResourceManager *manager,
-           rx::ImplFactory *implFactory,
+           rx::GLImplFactory *implFactory,
            const gl::Limitations &rendererLimitations,
            GLenum type,
            GLuint handle);

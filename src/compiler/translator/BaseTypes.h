@@ -7,6 +7,9 @@
 #ifndef COMPILER_TRANSLATOR_BASETYPES_H_
 #define COMPILER_TRANSLATOR_BASETYPES_H_
 
+#include <algorithm>
+#include <array>
+
 #include "common/debug.h"
 
 //
@@ -346,6 +349,15 @@ enum TQualifier
     EvqFlatIn,
     EvqCentroidIn,  // Implies smooth
 
+    // GLSL ES 3.1 compute shader special variables
+    EvqComputeIn,
+    EvqNumWorkGroups,
+    EvqWorkGroupSize,
+    EvqWorkGroupID,
+    EvqLocalInvocationID,
+    EvqGlobalInvocationID,
+    EvqLocalInvocationIndex,
+
     // end of list
     EvqLast
 };
@@ -365,11 +377,17 @@ enum TLayoutBlockStorage
     EbsStd140
 };
 
+using TLocalSize = std::array<int, 3>;
+
 struct TLayoutQualifier
 {
     int location;
     TLayoutMatrixPacking matrixPacking;
     TLayoutBlockStorage blockStorage;
+
+    // Compute shader layout qualifiers.
+    // -1 means unspecified.
+    TLocalSize localSize;
 
     static TLayoutQualifier create()
     {
@@ -379,14 +397,65 @@ struct TLayoutQualifier
         layoutQualifier.matrixPacking = EmpUnspecified;
         layoutQualifier.blockStorage = EbsUnspecified;
 
+        layoutQualifier.localSize.fill(-1);
+
         return layoutQualifier;
     }
 
     bool isEmpty() const
     {
-        return location == -1 && matrixPacking == EmpUnspecified && blockStorage == EbsUnspecified;
+        return location == -1 && matrixPacking == EmpUnspecified &&
+               blockStorage == EbsUnspecified && localSize[0] == -1 && localSize[1] == -1 &&
+               localSize[2] == -1;
+    }
+
+    bool isGroupSizeSpecified() const
+    {
+        return std::any_of(localSize.begin(), localSize.end(),
+                           [](int value) { return value != -1; });
+    }
+
+    bool isCombinationValid() const
+    {
+        bool workSizeSpecified = isGroupSizeSpecified();
+        bool otherLayoutQualifiersSpecified =
+            (location != -1 || matrixPacking != EmpUnspecified || blockStorage != EbsUnspecified);
+
+        // we can have either the work group size specified, or the other layout qualifiers
+        return !(workSizeSpecified && otherLayoutQualifiersSpecified);
+    }
+
+    bool isLocalSizeEqual(const TLocalSize &localSizeIn) const
+    {
+        for (size_t i = 0u; i < localSize.size(); ++i)
+        {
+            bool result =
+                (localSize[i] == localSizeIn[i] || (localSize[i] == 1 && localSizeIn[i] == -1) ||
+                 (localSize[i] == -1 && localSizeIn[i] == 1));
+            if (!result)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 };
+
+inline const char *getLocalSizeString(size_t dimension)
+{
+    switch (dimension)
+    {
+        case 0u:
+            return "local_size_x";
+        case 1u:
+            return "local_size_y";
+        case 2u:
+            return "local_size_z";
+        default:
+            UNREACHABLE();
+            return "dimension out of bounds";
+    }
+}
 
 //
 // This is just for debug print out, carried along with the definitions above.
@@ -427,11 +496,18 @@ inline const char* getQualifierString(TQualifier q)
     case EvqLastFragColor:          return "LastFragColor";
     case EvqLastFragData:           return "LastFragData";
     case EvqSmoothOut:              return "smooth out";
-    case EvqCentroidOut:            return "centroid out";
+    case EvqCentroidOut:            return "smooth centroid out";
     case EvqFlatOut:                return "flat out";
     case EvqSmoothIn:               return "smooth in";
     case EvqFlatIn:                 return "flat in";
-    case EvqCentroidIn:             return "centroid in";
+    case EvqCentroidIn:             return "smooth centroid in";
+    case EvqComputeIn:              return "in";
+    case EvqNumWorkGroups:          return "NumWorkGroups";
+    case EvqWorkGroupSize:          return "WorkGroupSize";
+    case EvqWorkGroupID:            return "WorkGroupID";
+    case EvqLocalInvocationID:      return "LocalInvocationID";
+    case EvqGlobalInvocationID:     return "GlobalInvocationID";
+    case EvqLocalInvocationIndex:   return "LocalInvocationIndex";
     default: UNREACHABLE();         return "unknown qualifier";
     }
     // clang-format on
@@ -465,10 +541,10 @@ inline const char* getInterpolationString(TQualifier q)
     switch(q)
     {
     case EvqSmoothOut:      return "smooth";   break;
-    case EvqCentroidOut:    return "centroid"; break;
+    case EvqCentroidOut:    return "smooth centroid"; break;
     case EvqFlatOut:        return "flat";     break;
     case EvqSmoothIn:       return "smooth";   break;
-    case EvqCentroidIn:     return "centroid"; break;
+    case EvqCentroidIn:     return "smooth centroid"; break;
     case EvqFlatIn:         return "flat";     break;
     default: UNREACHABLE(); return "unknown interpolation";
     }

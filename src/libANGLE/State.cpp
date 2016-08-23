@@ -8,7 +8,12 @@
 
 #include "libANGLE/State.h"
 
+#include <limits>
+#include <string.h>
+
 #include "common/BitSetIterator.h"
+#include "common/matrix_utils.h"
+#include "common/mathutil.h"
 #include "libANGLE/Context.h"
 #include "libANGLE/Caps.h"
 #include "libANGLE/Debug.h"
@@ -17,6 +22,16 @@
 #include "libANGLE/Query.h"
 #include "libANGLE/VertexArray.h"
 #include "libANGLE/formatutils.h"
+
+namespace
+{
+
+GLenum ActiveQueryType(const GLenum type)
+{
+    return (type == GL_ANY_SAMPLES_PASSED_CONSERVATIVE) ? GL_ANY_SAMPLES_PASSED : type;
+}
+
+}  // anonymous namepace
 
 namespace gl
 {
@@ -42,7 +57,9 @@ State::State()
       mProgram(nullptr),
       mVertexArray(nullptr),
       mActiveSampler(0),
-      mPrimitiveRestart(false)
+      mPrimitiveRestart(false),
+      mMultiSampling(false),
+      mSampleAlphaToOne(false)
 {
 }
 
@@ -159,6 +176,7 @@ void State::initialize(const Caps &caps,
     mActiveQueries[GL_ANY_SAMPLES_PASSED_CONSERVATIVE].set(nullptr);
     mActiveQueries[GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN].set(nullptr);
     mActiveQueries[GL_TIME_ELAPSED_EXT].set(nullptr);
+    mActiveQueries[GL_COMMANDS_COMPLETED_CHROMIUM].set(nullptr);
 
     mProgram = nullptr;
 
@@ -169,6 +187,20 @@ void State::initialize(const Caps &caps,
 
     mDebug.setOutputEnabled(debug);
     mDebug.setMaxLoggedMessages(extensions.maxDebugLoggedMessages);
+
+    if (extensions.framebufferMultisample)
+    {
+        mMultiSampling = true;
+        mSampleAlphaToOne = false;
+    }
+
+    mCoverageModulation = GL_NONE;
+
+    angle::Matrix<GLfloat>::setToIdentity(mPathMatrixProj);
+    angle::Matrix<GLfloat>::setToIdentity(mPathMatrixMV);
+    mPathStencilFunc = GL_ALWAYS;
+    mPathStencilRef  = 0;
+    mPathStencilMask = std::numeric_limits<GLuint>::max();
 }
 
 void State::reset()
@@ -215,6 +247,12 @@ void State::reset()
     mUnpack.pixelBuffer.set(NULL);
 
     mProgram = NULL;
+
+    angle::Matrix<GLfloat>::setToIdentity(mPathMatrixProj);
+    angle::Matrix<GLfloat>::setToIdentity(mPathMatrixMV);
+    mPathStencilFunc = GL_ALWAYS;
+    mPathStencilRef  = 0;
+    mPathStencilMask = std::numeric_limits<GLuint>::max();
 
     // TODO(jmadill): Is this necessary?
     setAllDirtyBits();
@@ -503,6 +541,28 @@ bool State::getSampleCoverageInvert() const
     return mSampleCoverageInvert;
 }
 
+void State::setSampleAlphaToOne(bool enabled)
+{
+    mSampleAlphaToOne = enabled;
+    mDirtyBits.set(DIRTY_BIT_SAMPLE_ALPHA_TO_ONE);
+}
+
+bool State::isSampleAlphaToOneEnabled() const
+{
+    return mSampleAlphaToOne;
+}
+
+void State::setMultisampling(bool enabled)
+{
+    mMultiSampling = enabled;
+    mDirtyBits.set(DIRTY_BIT_MULTISAMPLING);
+}
+
+bool State::isMultisamplingEnabled() const
+{
+    return mMultiSampling;
+}
+
 bool State::isScissorTestEnabled() const
 {
     return mScissorTest;
@@ -554,6 +614,8 @@ void State::setEnableFeature(GLenum feature, bool enabled)
 {
     switch (feature)
     {
+      case GL_MULTISAMPLE_EXT:               setMultisampling(enabled);         break;
+      case GL_SAMPLE_ALPHA_TO_ONE_EXT:       setSampleAlphaToOne(enabled);      break;
       case GL_CULL_FACE:                     setCullFace(enabled);              break;
       case GL_POLYGON_OFFSET_FILL:           setPolygonOffsetFill(enabled);     break;
       case GL_SAMPLE_ALPHA_TO_COVERAGE:      setSampleAlphaToCoverage(enabled); break;
@@ -575,10 +637,12 @@ void State::setEnableFeature(GLenum feature, bool enabled)
     }
 }
 
-bool State::getEnableFeature(GLenum feature)
+bool State::getEnableFeature(GLenum feature) const
 {
     switch (feature)
     {
+      case GL_MULTISAMPLE_EXT:               return isMultisamplingEnabled();
+      case GL_SAMPLE_ALPHA_TO_ONE_EXT:       return isSampleAlphaToOneEnabled();
       case GL_CULL_FACE:                     return isCullFaceEnabled();
       case GL_POLYGON_OFFSET_FILL:           return isPolygonOffsetFillEnabled();
       case GL_SAMPLE_ALPHA_TO_COVERAGE:      return isSampleAlphaToCoverageEnabled();
@@ -773,7 +837,7 @@ GLuint State::getRenderbufferId() const
     return mRenderbuffer.id();
 }
 
-Renderbuffer *State::getCurrentRenderbuffer()
+Renderbuffer *State::getCurrentRenderbuffer() const
 {
     return mRenderbuffer.get();
 }
@@ -852,22 +916,12 @@ Framebuffer *State::getTargetFramebuffer(GLenum target) const
     }
 }
 
-Framebuffer *State::getReadFramebuffer()
+Framebuffer *State::getReadFramebuffer() const
 {
     return mReadFramebuffer;
 }
 
-Framebuffer *State::getDrawFramebuffer()
-{
-    return mDrawFramebuffer;
-}
-
-const Framebuffer *State::getReadFramebuffer() const
-{
-    return mReadFramebuffer;
-}
-
-const Framebuffer *State::getDrawFramebuffer() const
+Framebuffer *State::getDrawFramebuffer() const
 {
     return mDrawFramebuffer;
 }
@@ -982,12 +1036,12 @@ bool State::removeTransformFeedbackBinding(GLuint transformFeedback)
     return false;
 }
 
-bool State::isQueryActive(GLenum type) const
+bool State::isQueryActive(const GLenum type) const
 {
     for (auto &iter : mActiveQueries)
     {
-        Query *query = iter.second.get();
-        if (query != nullptr && query->getType() == type)
+        const Query *query = iter.second.get();
+        if (query != nullptr && ActiveQueryType(query->getType()) == ActiveQueryType(type))
         {
             return true;
         }
@@ -1324,6 +1378,73 @@ Debug &State::getDebug()
     return mDebug;
 }
 
+void State::setCoverageModulation(GLenum components)
+{
+    mCoverageModulation = components;
+    mDirtyBits.set(DIRTY_BIT_COVERAGE_MODULATION);
+}
+
+GLenum State::getCoverageModulation() const
+{
+    return mCoverageModulation;
+}
+
+void State::loadPathRenderingMatrix(GLenum matrixMode, const GLfloat *matrix)
+{
+    if (matrixMode == GL_PATH_MODELVIEW_CHROMIUM)
+    {
+        memcpy(mPathMatrixMV, matrix, 16 * sizeof(GLfloat));
+        mDirtyBits.set(DIRTY_BIT_PATH_RENDERING_MATRIX_MV);
+    }
+    else if (matrixMode == GL_PATH_PROJECTION_CHROMIUM)
+    {
+        memcpy(mPathMatrixProj, matrix, 16 * sizeof(GLfloat));
+        mDirtyBits.set(DIRTY_BIT_PATH_RENDERING_MATRIX_PROJ);
+    }
+    else
+    {
+        UNREACHABLE();
+    }
+}
+
+const GLfloat *State::getPathRenderingMatrix(GLenum which) const
+{
+    if (which == GL_PATH_MODELVIEW_MATRIX_CHROMIUM)
+    {
+        return mPathMatrixMV;
+    }
+    else if (which == GL_PATH_PROJECTION_MATRIX_CHROMIUM)
+    {
+        return mPathMatrixProj;
+    }
+
+    UNREACHABLE();
+    return nullptr;
+}
+
+void State::setPathStencilFunc(GLenum func, GLint ref, GLuint mask)
+{
+    mPathStencilFunc = func;
+    mPathStencilRef  = ref;
+    mPathStencilMask = mask;
+    mDirtyBits.set(DIRTY_BIT_PATH_RENDERING_STENCIL_STATE);
+}
+
+GLenum State::getPathStencilFunc() const
+{
+    return mPathStencilFunc;
+}
+
+GLint State::getPathStencilRef() const
+{
+    return mPathStencilRef;
+}
+
+GLuint State::getPathStencilMask() const
+{
+    return mPathStencilMask;
+}
+
 void State::getBooleanv(GLenum pname, GLboolean *params)
 {
     switch (pname)
@@ -1358,6 +1479,12 @@ void State::getBooleanv(GLenum pname, GLboolean *params)
           break;
       case GL_DEBUG_OUTPUT:
           *params = mDebug.isOutputEnabled() ? GL_TRUE : GL_FALSE;
+          break;
+      case GL_MULTISAMPLE_EXT:
+          *params = mMultiSampling;
+          break;
+      case GL_SAMPLE_ALPHA_TO_ONE_EXT:
+          *params = mSampleAlphaToOne;
           break;
       default:
         UNREACHABLE();
@@ -1394,6 +1521,14 @@ void State::getFloatv(GLenum pname, GLfloat *params)
         params[2] = mBlendColor.blue;
         params[3] = mBlendColor.alpha;
         break;
+      case GL_MULTISAMPLE_EXT:
+        *params = static_cast<GLfloat>(mMultiSampling);
+        break;
+      case GL_SAMPLE_ALPHA_TO_ONE_EXT:
+        *params = static_cast<GLfloat>(mSampleAlphaToOne);
+      case GL_COVERAGE_MODULATION_CHROMIUM:
+          params[0] = static_cast<GLfloat>(mCoverageModulation);
+          break;
       default:
         UNREACHABLE();
         break;
@@ -1632,6 +1767,14 @@ void State::getIntegerv(const ContextState &data, GLenum pname, GLint *params)
       case GL_DEBUG_GROUP_STACK_DEPTH:
           *params = static_cast<GLint>(mDebug.getGroupStackDepth());
           break;
+      case GL_MULTISAMPLE_EXT:
+          *params = static_cast<GLint>(mMultiSampling);
+          break;
+      case GL_SAMPLE_ALPHA_TO_ONE_EXT:
+          *params = static_cast<GLint>(mSampleAlphaToOne);
+      case GL_COVERAGE_MODULATION_CHROMIUM:
+          *params = static_cast<GLint>(mCoverageModulation);
+          break;
       default:
         UNREACHABLE();
         break;
@@ -1654,7 +1797,7 @@ void State::getPointerv(GLenum pname, void **params) const
     }
 }
 
-bool State::getIndexedIntegerv(GLenum target, GLuint index, GLint *data)
+void State::getIntegeri_v(GLenum target, GLuint index, GLint *data)
 {
     switch (target)
     {
@@ -1671,13 +1814,12 @@ bool State::getIndexedIntegerv(GLenum target, GLuint index, GLint *data)
         }
         break;
       default:
-        return false;
+          UNREACHABLE();
+          break;
     }
-
-    return true;
 }
 
-bool State::getIndexedInteger64v(GLenum target, GLuint index, GLint64 *data)
+void State::getInteger64i_v(GLenum target, GLuint index, GLint64 *data)
 {
     switch (target)
     {
@@ -1706,10 +1848,14 @@ bool State::getIndexedInteger64v(GLenum target, GLuint index, GLint64 *data)
         }
         break;
       default:
-        return false;
+          UNREACHABLE();
+          break;
     }
+}
 
-    return true;
+void State::getBooleani_v(GLenum target, GLuint index, GLboolean *data)
+{
+    UNREACHABLE();
 }
 
 bool State::hasMappedBuffer(GLenum target) const

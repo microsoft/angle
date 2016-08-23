@@ -7,6 +7,7 @@
 // entry_points_gles_2_0.cpp : Implements the GLES 2.0 entry points.
 
 #include "libGLESv2/entry_points_gles_2_0.h"
+
 #include "libGLESv2/global_state.h"
 
 #include "libANGLE/formatutils.h"
@@ -48,7 +49,7 @@ void GL_APIENTRY ActiveTexture(GLenum texture)
             return;
         }
 
-        context->getState().setActiveSampler(texture - GL_TEXTURE0);
+        context->activeTexture(texture);
     }
 }
 
@@ -222,7 +223,7 @@ void GL_APIENTRY BlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclamp
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setBlendColor(clamp01(red), clamp01(green), clamp01(blue), clamp01(alpha));
+        context->blendColor(red, green, blue, alpha);
     }
 }
 
@@ -266,7 +267,7 @@ void GL_APIENTRY BlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
             return;
         }
 
-        context->getState().setBlendEquation(modeRGB, modeAlpha);
+        context->blendEquationSeparate(modeRGB, modeAlpha);
     }
 }
 
@@ -309,33 +310,33 @@ void GL_APIENTRY BlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha
 
         switch (dstRGB)
         {
-          case GL_ZERO:
-          case GL_ONE:
-          case GL_SRC_COLOR:
-          case GL_ONE_MINUS_SRC_COLOR:
-          case GL_DST_COLOR:
-          case GL_ONE_MINUS_DST_COLOR:
-          case GL_SRC_ALPHA:
-          case GL_ONE_MINUS_SRC_ALPHA:
-          case GL_DST_ALPHA:
-          case GL_ONE_MINUS_DST_ALPHA:
-          case GL_CONSTANT_COLOR:
-          case GL_ONE_MINUS_CONSTANT_COLOR:
-          case GL_CONSTANT_ALPHA:
-          case GL_ONE_MINUS_CONSTANT_ALPHA:
-            break;
+            case GL_ZERO:
+            case GL_ONE:
+            case GL_SRC_COLOR:
+            case GL_ONE_MINUS_SRC_COLOR:
+            case GL_DST_COLOR:
+            case GL_ONE_MINUS_DST_COLOR:
+            case GL_SRC_ALPHA:
+            case GL_ONE_MINUS_SRC_ALPHA:
+            case GL_DST_ALPHA:
+            case GL_ONE_MINUS_DST_ALPHA:
+            case GL_CONSTANT_COLOR:
+            case GL_ONE_MINUS_CONSTANT_COLOR:
+            case GL_CONSTANT_ALPHA:
+            case GL_ONE_MINUS_CONSTANT_ALPHA:
+                break;
 
-          case GL_SRC_ALPHA_SATURATE:
-            if (context->getClientVersion() < 3)
-            {
+            case GL_SRC_ALPHA_SATURATE:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                break;
+
+            default:
                 context->handleError(Error(GL_INVALID_ENUM));
                 return;
-            }
-            break;
-
-          default:
-              context->handleError(Error(GL_INVALID_ENUM));
-            return;
         }
 
         switch (srcAlpha)
@@ -364,33 +365,33 @@ void GL_APIENTRY BlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha
 
         switch (dstAlpha)
         {
-          case GL_ZERO:
-          case GL_ONE:
-          case GL_SRC_COLOR:
-          case GL_ONE_MINUS_SRC_COLOR:
-          case GL_DST_COLOR:
-          case GL_ONE_MINUS_DST_COLOR:
-          case GL_SRC_ALPHA:
-          case GL_ONE_MINUS_SRC_ALPHA:
-          case GL_DST_ALPHA:
-          case GL_ONE_MINUS_DST_ALPHA:
-          case GL_CONSTANT_COLOR:
-          case GL_ONE_MINUS_CONSTANT_COLOR:
-          case GL_CONSTANT_ALPHA:
-          case GL_ONE_MINUS_CONSTANT_ALPHA:
-            break;
+            case GL_ZERO:
+            case GL_ONE:
+            case GL_SRC_COLOR:
+            case GL_ONE_MINUS_SRC_COLOR:
+            case GL_DST_COLOR:
+            case GL_ONE_MINUS_DST_COLOR:
+            case GL_SRC_ALPHA:
+            case GL_ONE_MINUS_SRC_ALPHA:
+            case GL_DST_ALPHA:
+            case GL_ONE_MINUS_DST_ALPHA:
+            case GL_CONSTANT_COLOR:
+            case GL_ONE_MINUS_CONSTANT_COLOR:
+            case GL_CONSTANT_ALPHA:
+            case GL_ONE_MINUS_CONSTANT_ALPHA:
+                break;
 
-          case GL_SRC_ALPHA_SATURATE:
-            if (context->getClientVersion() < 3)
-            {
+            case GL_SRC_ALPHA_SATURATE:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                break;
+
+            default:
                 context->handleError(Error(GL_INVALID_ENUM));
                 return;
-            }
-            break;
-
-          default:
-              context->handleError(Error(GL_INVALID_ENUM));
-            return;
         }
 
         if (context->getLimitations().noSimultaneousConstantColorAndAlphaBlendFunc)
@@ -414,7 +415,7 @@ void GL_APIENTRY BlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha
             }
         }
 
-        context->getState().setBlendFactors(srcRGB, dstRGB, srcAlpha, dstAlpha);
+        context->blendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
     }
 }
 
@@ -445,10 +446,10 @@ void GL_APIENTRY BufferData(GLenum target, GLsizeiptr size, const GLvoid* data, 
           case GL_STATIC_COPY:
           case GL_DYNAMIC_READ:
           case GL_DYNAMIC_COPY:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
             }
             break;
 
@@ -463,7 +464,7 @@ void GL_APIENTRY BufferData(GLenum target, GLsizeiptr size, const GLvoid* data, 
             return;
         }
 
-        Buffer *buffer = context->getState().getTargetBuffer(target);
+        Buffer *buffer = context->getGLState().getTargetBuffer(target);
 
         if (!buffer)
         {
@@ -500,7 +501,7 @@ void GL_APIENTRY BufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, 
             return;
         }
 
-        Buffer *buffer = context->getState().getTargetBuffer(target);
+        Buffer *buffer = context->getGLState().getTargetBuffer(target);
 
         if (!buffer)
         {
@@ -515,7 +516,9 @@ void GL_APIENTRY BufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, 
         }
 
         // Check for possible overflow of size + offset
-        if (!rx::IsUnsignedAdditionSafe<size_t>(size, offset))
+        angle::CheckedNumeric<size_t> checkedSize(size);
+        checkedSize += offset;
+        if (!checkedSize.IsValid())
         {
             context->handleError(Error(GL_OUT_OF_MEMORY));
             return;
@@ -554,10 +557,10 @@ GLenum GL_APIENTRY CheckFramebufferStatus(GLenum target)
             return 0;
         }
 
-        Framebuffer *framebuffer = context->getState().getTargetFramebuffer(target);
+        Framebuffer *framebuffer = context->getGLState().getTargetFramebuffer(target);
         ASSERT(framebuffer);
 
-        return framebuffer->checkStatus(context->getData());
+        return framebuffer->checkStatus(context->getContextState());
     }
 
     return 0;
@@ -587,7 +590,7 @@ void GL_APIENTRY ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclamp
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setColorClearValue(red, green, blue, alpha);
+        context->clearColor(red, green, blue, alpha);
     }
 }
 
@@ -598,7 +601,7 @@ void GL_APIENTRY ClearDepthf(GLclampf depth)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setDepthClearValue(depth);
+        context->clearDepthf(depth);
     }
 }
 
@@ -609,7 +612,7 @@ void GL_APIENTRY ClearStencil(GLint s)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setStencilClearValue(s);
+        context->clearStencil(s);
     }
 }
 
@@ -621,7 +624,7 @@ void GL_APIENTRY ColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboo
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setColorMask(red == GL_TRUE, green == GL_TRUE, blue == GL_TRUE, alpha == GL_TRUE);
+        context->colorMask(red, green, blue, alpha);
     }
 }
 
@@ -779,7 +782,7 @@ void GL_APIENTRY CullFace(GLenum mode)
             return;
         }
 
-        context->getState().setCullMode(mode);
+        context->cullFace(mode);
     }
 }
 
@@ -942,13 +945,14 @@ void GL_APIENTRY DepthFunc(GLenum func)
           case GL_GREATER:
           case GL_GEQUAL:
           case GL_NOTEQUAL:
-            context->getState().setDepthFunc(func);
-            break;
+              break;
 
           default:
               context->handleError(Error(GL_INVALID_ENUM));
             return;
         }
+
+        context->depthFunc(func);
     }
 }
 
@@ -959,7 +963,7 @@ void GL_APIENTRY DepthMask(GLboolean flag)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setDepthMask(flag != GL_FALSE);
+        context->depthMask(flag);
     }
 }
 
@@ -970,7 +974,7 @@ void GL_APIENTRY DepthRangef(GLclampf zNear, GLclampf zFar)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setDepthRange(zNear, zFar);
+        context->depthRangef(zNear, zFar);
     }
 }
 
@@ -1014,7 +1018,7 @@ void GL_APIENTRY Disable(GLenum cap)
             return;
         }
 
-        context->getState().setEnableFeature(cap, false);
+        context->disable(cap);
     }
 }
 
@@ -1031,7 +1035,7 @@ void GL_APIENTRY DisableVertexAttribArray(GLuint index)
             return;
         }
 
-        context->getState().setEnableVertexAttribArray(index, false);
+        context->disableVertexAttribArray(index);
     }
 }
 
@@ -1106,7 +1110,7 @@ void GL_APIENTRY Enable(GLenum cap)
             }
         }
 
-        context->getState().setEnableFeature(cap, true);
+        context->enable(cap);
     }
 }
 
@@ -1123,7 +1127,7 @@ void GL_APIENTRY EnableVertexAttribArray(GLuint index)
             return;
         }
 
-        context->getState().setEnableVertexAttribArray(index, true);
+        context->enableVertexAttribArray(index);
     }
 }
 
@@ -1207,12 +1211,13 @@ void GL_APIENTRY FrontFace(GLenum mode)
         {
           case GL_CW:
           case GL_CCW:
-            context->getState().setFrontFace(mode);
-            break;
+              break;
           default:
               context->handleError(Error(GL_INVALID_ENUM));
             return;
         }
+
+        context->frontFace(mode);
     }
 }
 
@@ -1242,74 +1247,12 @@ void GL_APIENTRY GenerateMipmap(GLenum target)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        if (!ValidTextureTarget(context, target))
+        if (!context->skipValidation() && !ValidateGenerateMipmap(context, target))
         {
-            context->handleError(Error(GL_INVALID_ENUM));
             return;
         }
 
-        Texture *texture = context->getTargetTexture(target);
-
-        if (texture == NULL)
-        {
-            context->handleError(Error(GL_INVALID_OPERATION));
-            return;
-        }
-
-        GLenum baseTarget = (target == GL_TEXTURE_CUBE_MAP) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : target;
-        GLenum internalFormat = texture->getInternalFormat(baseTarget, texture->getBaseLevel());
-        const TextureCaps &formatCaps = context->getTextureCaps().get(internalFormat);
-        const InternalFormat &formatInfo = GetInternalFormatInfo(internalFormat);
-
-        // GenerateMipmap should not generate an INVALID_OPERATION for textures created with
-        // unsized formats or that are color renderable and filterable.  Since we do not track if
-        // the texture was created with sized or unsized format (only sized formats are stored),
-        // it is not possible to make sure the the LUMA formats can generate mipmaps (they should
-        // be able to) because they aren't color renderable.  Simply do a special case for LUMA
-        // textures since they're the only texture format that can be created with unsized formats
-        // that is not color renderable.  New unsized formats are unlikely to be added, since ES2
-        // was the last version to use add them.
-        bool isLUMA = internalFormat == GL_LUMINANCE8_EXT ||
-                      internalFormat == GL_LUMINANCE8_ALPHA8_EXT ||
-                      internalFormat == GL_ALPHA8_EXT;
-
-        if (formatInfo.depthBits > 0 || formatInfo.stencilBits > 0 || !formatCaps.filterable ||
-            (!formatCaps.renderable && !isLUMA) || formatInfo.compressed)
-        {
-            context->handleError(Error(GL_INVALID_OPERATION));
-            return;
-        }
-
-        // GL_EXT_sRGB does not support mipmap generation on sRGB textures
-        if (context->getClientVersion() == 2 && formatInfo.colorEncoding == GL_SRGB)
-        {
-            context->handleError(Error(GL_INVALID_OPERATION));
-            return;
-        }
-
-        // Non-power of 2 ES2 check
-        if (!context->getExtensions().textureNPOT &&
-            (!isPow2(static_cast<int>(texture->getWidth(baseTarget, 0))) ||
-             !isPow2(static_cast<int>(texture->getHeight(baseTarget, 0)))))
-        {
-            ASSERT(context->getClientVersion() <= 2 && (target == GL_TEXTURE_2D || target == GL_TEXTURE_CUBE_MAP));
-            context->handleError(Error(GL_INVALID_OPERATION));
-            return;
-        }
-
-        // Cube completeness check
-        if (target == GL_TEXTURE_CUBE_MAP && !texture->isCubeComplete())
-        {
-            context->handleError(Error(GL_INVALID_OPERATION));
-            return;
-        }
-
-        Error error = texture->generateMipmaps();
-        if (error.isError())
-        {
-            context->handleError(error);
-            return;
-        }
+        context->generateMipmap(target);
     }
 }
 
@@ -1530,7 +1473,7 @@ void GL_APIENTRY GetBufferParameteriv(GLenum target, GLenum pname, GLint* params
             return;
         }
 
-        Buffer *buffer = context->getState().getTargetBuffer(target);
+        Buffer *buffer = context->getGLState().getTargetBuffer(target);
 
         if (!buffer)
         {
@@ -1621,7 +1564,7 @@ void GL_APIENTRY GetFramebufferAttachmentParameteriv(GLenum target, GLenum attac
             return;
         }
 
-        int clientVersion = context->getClientVersion();
+        int clientVersion = context->getClientMajorVersion();
 
         switch (pname)
         {
@@ -1688,7 +1631,7 @@ void GL_APIENTRY GetFramebufferAttachmentParameteriv(GLenum target, GLenum attac
             break;
         }
 
-        const Framebuffer *framebuffer = context->getState().getTargetFramebuffer(target);
+        const Framebuffer *framebuffer = context->getGLState().getTargetFramebuffer(target);
         ASSERT(framebuffer);
 
         if (framebuffer->id() == 0)
@@ -1911,7 +1854,7 @@ void GL_APIENTRY GetProgramiv(GLuint program, GLenum pname, GLint* params)
             return;
         }
 
-        if (context->getClientVersion() < 3)
+        if (context->getClientMajorVersion() < 3)
         {
             switch (pname)
             {
@@ -2021,38 +1964,57 @@ void GL_APIENTRY GetRenderbufferParameteriv(GLenum target, GLenum pname, GLint* 
             return;
         }
 
-        if (context->getState().getRenderbufferId() == 0)
+        if (context->getGLState().getRenderbufferId() == 0)
         {
             context->handleError(Error(GL_INVALID_OPERATION));
             return;
         }
 
-        Renderbuffer *renderbuffer = context->getRenderbuffer(context->getState().getRenderbufferId());
+        Renderbuffer *renderbuffer =
+            context->getRenderbuffer(context->getGLState().getRenderbufferId());
 
         switch (pname)
         {
-          case GL_RENDERBUFFER_WIDTH:           *params = renderbuffer->getWidth();          break;
-          case GL_RENDERBUFFER_HEIGHT:          *params = renderbuffer->getHeight();         break;
-          case GL_RENDERBUFFER_INTERNAL_FORMAT: *params = renderbuffer->getInternalFormat(); break;
-          case GL_RENDERBUFFER_RED_SIZE:        *params = renderbuffer->getRedSize();        break;
-          case GL_RENDERBUFFER_GREEN_SIZE:      *params = renderbuffer->getGreenSize();      break;
-          case GL_RENDERBUFFER_BLUE_SIZE:       *params = renderbuffer->getBlueSize();       break;
-          case GL_RENDERBUFFER_ALPHA_SIZE:      *params = renderbuffer->getAlphaSize();      break;
-          case GL_RENDERBUFFER_DEPTH_SIZE:      *params = renderbuffer->getDepthSize();      break;
-          case GL_RENDERBUFFER_STENCIL_SIZE:    *params = renderbuffer->getStencilSize();    break;
+            case GL_RENDERBUFFER_WIDTH:
+                *params = renderbuffer->getWidth();
+                break;
+            case GL_RENDERBUFFER_HEIGHT:
+                *params = renderbuffer->getHeight();
+                break;
+            case GL_RENDERBUFFER_INTERNAL_FORMAT:
+                *params = renderbuffer->getFormat().info->internalFormat;
+                break;
+            case GL_RENDERBUFFER_RED_SIZE:
+                *params = renderbuffer->getRedSize();
+                break;
+            case GL_RENDERBUFFER_GREEN_SIZE:
+                *params = renderbuffer->getGreenSize();
+                break;
+            case GL_RENDERBUFFER_BLUE_SIZE:
+                *params = renderbuffer->getBlueSize();
+                break;
+            case GL_RENDERBUFFER_ALPHA_SIZE:
+                *params = renderbuffer->getAlphaSize();
+                break;
+            case GL_RENDERBUFFER_DEPTH_SIZE:
+                *params = renderbuffer->getDepthSize();
+                break;
+            case GL_RENDERBUFFER_STENCIL_SIZE:
+                *params = renderbuffer->getStencilSize();
+                break;
 
-          case GL_RENDERBUFFER_SAMPLES_ANGLE:
-            if (!context->getExtensions().framebufferMultisample)
-            {
+            case GL_RENDERBUFFER_SAMPLES_ANGLE:
+                if (!context->getExtensions().framebufferMultisample)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = renderbuffer->getSamples();
+                break;
+
+            default:
                 context->handleError(Error(GL_INVALID_ENUM));
                 return;
-            }
-            *params = renderbuffer->getSamples();
-            break;
-
-          default:
-              context->handleError(Error(GL_INVALID_ENUM));
-            return;
         }
     }
 }
@@ -2237,7 +2199,7 @@ const GLubyte *GL_APIENTRY GetString(GLenum name)
                 return reinterpret_cast<const GLubyte *>(context->getRendererString().c_str());
 
             case GL_VERSION:
-                if (context->getClientVersion() == 2)
+                if (context->getClientMajorVersion() == 2)
                 {
                     return reinterpret_cast<const GLubyte *>(
                         "OpenGL ES 2.0 (ANGLE " ANGLE_VERSION_STRING ")");
@@ -2249,7 +2211,7 @@ const GLubyte *GL_APIENTRY GetString(GLenum name)
                 }
 
             case GL_SHADING_LANGUAGE_VERSION:
-                if (context->getClientVersion() == 2)
+                if (context->getClientMajorVersion() == 2)
                 {
                     return reinterpret_cast<const GLubyte *>(
                         "OpenGL ES GLSL ES 1.00 (ANGLE " ANGLE_VERSION_STRING ")");
@@ -2279,7 +2241,7 @@ void GL_APIENTRY GetTexParameterfv(GLenum target, GLenum pname, GLfloat* params)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        if (!ValidTextureTarget(context, target))
+        if (!ValidTextureTarget(context, target) && !ValidTextureExternalTarget(context, target))
         {
             context->handleError(Error(GL_INVALID_ENUM, "Invalid texture target"));
             return;
@@ -2297,132 +2259,134 @@ void GL_APIENTRY GetTexParameterfv(GLenum target, GLenum pname, GLfloat* params)
         {
           case GL_TEXTURE_MAG_FILTER:
               *params = (GLfloat)texture->getMagFilter();
-            break;
+              break;
           case GL_TEXTURE_MIN_FILTER:
               *params = (GLfloat)texture->getMinFilter();
-            break;
+              break;
           case GL_TEXTURE_WRAP_S:
               *params = (GLfloat)texture->getWrapS();
-            break;
+              break;
           case GL_TEXTURE_WRAP_T:
               *params = (GLfloat)texture->getWrapT();
-            break;
+              break;
           case GL_TEXTURE_WRAP_R:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = (GLfloat)texture->getWrapR();
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = (GLfloat)texture->getWrapR();
+              break;
           case GL_TEXTURE_IMMUTABLE_FORMAT:
-            // Exposed to ES2.0 through EXT_texture_storage, no client version validation.
-            *params = (GLfloat)(texture->getImmutableFormat() ? GL_TRUE : GL_FALSE);
-            break;
+              // Exposed to ES2.0 through EXT_texture_storage, no client version validation.
+              *params = (GLfloat)(texture->getImmutableFormat() ? GL_TRUE : GL_FALSE);
+              break;
           case GL_TEXTURE_IMMUTABLE_LEVELS:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = (GLfloat)texture->getImmutableLevels();
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = (GLfloat)texture->getImmutableLevels();
+              break;
           case GL_TEXTURE_USAGE_ANGLE:
-            *params = (GLfloat)texture->getUsage();
-            break;
+              *params = (GLfloat)texture->getUsage();
+              break;
           case GL_TEXTURE_MAX_ANISOTROPY_EXT:
-            if (!context->getExtensions().textureFilterAnisotropic)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = (GLfloat)texture->getMaxAnisotropy();
-            break;
+              if (!context->getExtensions().textureFilterAnisotropic)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = (GLfloat)texture->getMaxAnisotropy();
+              break;
           case GL_TEXTURE_SWIZZLE_R:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = (GLfloat)texture->getSwizzleRed();
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = (GLfloat)texture->getSwizzleRed();
+              break;
           case GL_TEXTURE_SWIZZLE_G:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = (GLfloat)texture->getSwizzleGreen();
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = (GLfloat)texture->getSwizzleGreen();
+              break;
           case GL_TEXTURE_SWIZZLE_B:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = (GLfloat)texture->getSwizzleBlue();
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = (GLfloat)texture->getSwizzleBlue();
+              break;
           case GL_TEXTURE_SWIZZLE_A:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = (GLfloat)texture->getSwizzleAlpha();
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = (GLfloat)texture->getSwizzleAlpha();
+              break;
           case GL_TEXTURE_BASE_LEVEL:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = (GLfloat)texture->getBaseLevel();
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = (GLfloat)texture->getBaseLevel();
+              break;
           case GL_TEXTURE_MAX_LEVEL:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = (GLfloat)texture->getMaxLevel();
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = (GLfloat)texture->getMaxLevel();
+              break;
           case GL_TEXTURE_MIN_LOD:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = texture->getSamplerState().minLod;
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = texture->getSamplerState().minLod;
+              break;
           case GL_TEXTURE_MAX_LOD:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = texture->getSamplerState().maxLod;
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(Error(GL_INVALID_ENUM));
+                  return;
+              }
+              *params = texture->getSamplerState().maxLod;
+              break;
           case GL_TEXTURE_COMPARE_MODE:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(
-                    GL_INVALID_ENUM, "GL_TEXTURE_COMPARE_MODE not available in ES versions < 3.0"));
-                return;
-            }
-            *params = static_cast<GLfloat>(texture->getCompareMode());
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(
+                      Error(GL_INVALID_ENUM,
+                            "GL_TEXTURE_COMPARE_MODE not available in ES versions < 3.0"));
+                  return;
+              }
+              *params = static_cast<GLfloat>(texture->getCompareMode());
+              break;
           case GL_TEXTURE_COMPARE_FUNC:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(
-                    GL_INVALID_ENUM, "GL_TEXTURE_COMPARE_FUNC not available in ES versions < 3.0"));
-                return;
-            }
-            *params = static_cast<GLfloat>(texture->getCompareFunc());
-            break;
+              if (context->getClientMajorVersion() < 3)
+              {
+                  context->handleError(
+                      Error(GL_INVALID_ENUM,
+                            "GL_TEXTURE_COMPARE_FUNC not available in ES versions < 3.0"));
+                  return;
+              }
+              *params = static_cast<GLfloat>(texture->getCompareFunc());
+              break;
           default:
               context->handleError(Error(GL_INVALID_ENUM));
-            return;
+              return;
         }
     }
 }
@@ -2434,7 +2398,7 @@ void GL_APIENTRY GetTexParameteriv(GLenum target, GLenum pname, GLint* params)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        if (!ValidTextureTarget(context, target))
+        if (!ValidTextureTarget(context, target) && !ValidTextureExternalTarget(context, target))
         {
             context->handleError(Error(GL_INVALID_ENUM, "Invalid texture target"));
             return;
@@ -2450,134 +2414,136 @@ void GL_APIENTRY GetTexParameteriv(GLenum target, GLenum pname, GLint* params)
 
         switch (pname)
         {
-          case GL_TEXTURE_MAG_FILTER:
-            *params = texture->getSamplerState().magFilter;
-            break;
-          case GL_TEXTURE_MIN_FILTER:
-            *params = texture->getSamplerState().minFilter;
-            break;
-          case GL_TEXTURE_WRAP_S:
-            *params = texture->getSamplerState().wrapS;
-            break;
-          case GL_TEXTURE_WRAP_T:
-            *params = texture->getSamplerState().wrapT;
-            break;
-          case GL_TEXTURE_WRAP_R:
-            if (context->getClientVersion() < 3)
-            {
+            case GL_TEXTURE_MAG_FILTER:
+                *params = texture->getSamplerState().magFilter;
+                break;
+            case GL_TEXTURE_MIN_FILTER:
+                *params = texture->getSamplerState().minFilter;
+                break;
+            case GL_TEXTURE_WRAP_S:
+                *params = texture->getSamplerState().wrapS;
+                break;
+            case GL_TEXTURE_WRAP_T:
+                *params = texture->getSamplerState().wrapT;
+                break;
+            case GL_TEXTURE_WRAP_R:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = texture->getSamplerState().wrapR;
+                break;
+            case GL_TEXTURE_IMMUTABLE_FORMAT:
+                // Exposed to ES2.0 through EXT_texture_storage, no client version validation.
+                *params = texture->getImmutableFormat() ? GL_TRUE : GL_FALSE;
+                break;
+            case GL_TEXTURE_IMMUTABLE_LEVELS:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = static_cast<GLint>(texture->getImmutableLevels());
+                break;
+            case GL_TEXTURE_USAGE_ANGLE:
+                *params = texture->getUsage();
+                break;
+            case GL_TEXTURE_MAX_ANISOTROPY_EXT:
+                if (!context->getExtensions().textureFilterAnisotropic)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = (GLint)texture->getMaxAnisotropy();
+                break;
+            case GL_TEXTURE_SWIZZLE_R:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = texture->getSwizzleRed();
+                break;
+            case GL_TEXTURE_SWIZZLE_G:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = texture->getSwizzleGreen();
+                break;
+            case GL_TEXTURE_SWIZZLE_B:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = texture->getSwizzleBlue();
+                break;
+            case GL_TEXTURE_SWIZZLE_A:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = texture->getSwizzleAlpha();
+                break;
+            case GL_TEXTURE_BASE_LEVEL:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = texture->getBaseLevel();
+                break;
+            case GL_TEXTURE_MAX_LEVEL:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = texture->getMaxLevel();
+                break;
+            case GL_TEXTURE_MIN_LOD:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = iround<GLint>(texture->getMinLod());
+                break;
+            case GL_TEXTURE_MAX_LOD:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                *params = iround<GLint>(texture->getMaxLod());
+                break;
+            case GL_TEXTURE_COMPARE_MODE:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(
+                        Error(GL_INVALID_ENUM,
+                              "GL_TEXTURE_COMPARE_MODE not available in ES versions < 3.0"));
+                    return;
+                }
+                *params = texture->getCompareMode();
+                break;
+            case GL_TEXTURE_COMPARE_FUNC:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(
+                        Error(GL_INVALID_ENUM,
+                              "GL_TEXTURE_COMPARE_FUNC not available in ES versions < 3.0"));
+                    return;
+                }
+                *params = texture->getCompareFunc();
+                break;
+            default:
                 context->handleError(Error(GL_INVALID_ENUM));
                 return;
-            }
-            *params = texture->getSamplerState().wrapR;
-            break;
-          case GL_TEXTURE_IMMUTABLE_FORMAT:
-            // Exposed to ES2.0 through EXT_texture_storage, no client version validation.
-            *params = texture->getImmutableFormat() ? GL_TRUE : GL_FALSE;
-            break;
-          case GL_TEXTURE_IMMUTABLE_LEVELS:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = static_cast<GLint>(texture->getImmutableLevels());
-            break;
-          case GL_TEXTURE_USAGE_ANGLE:
-            *params = texture->getUsage();
-            break;
-          case GL_TEXTURE_MAX_ANISOTROPY_EXT:
-            if (!context->getExtensions().textureFilterAnisotropic)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = (GLint)texture->getMaxAnisotropy();
-            break;
-          case GL_TEXTURE_SWIZZLE_R:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = texture->getSwizzleRed();
-            break;
-          case GL_TEXTURE_SWIZZLE_G:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = texture->getSwizzleGreen();
-            break;
-          case GL_TEXTURE_SWIZZLE_B:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = texture->getSwizzleBlue();
-            break;
-          case GL_TEXTURE_SWIZZLE_A:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = texture->getSwizzleAlpha();
-            break;
-          case GL_TEXTURE_BASE_LEVEL:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = texture->getBaseLevel();
-            break;
-          case GL_TEXTURE_MAX_LEVEL:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = texture->getMaxLevel();
-            break;
-          case GL_TEXTURE_MIN_LOD:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = iround<GLint>(texture->getMinLod());
-            break;
-          case GL_TEXTURE_MAX_LOD:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(GL_INVALID_ENUM));
-                return;
-            }
-            *params = iround<GLint>(texture->getMaxLod());
-            break;
-          case GL_TEXTURE_COMPARE_MODE:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(
-                    GL_INVALID_ENUM, "GL_TEXTURE_COMPARE_MODE not available in ES versions < 3.0"));
-                return;
-            }
-            *params = texture->getCompareMode();
-            break;
-          case GL_TEXTURE_COMPARE_FUNC:
-            if (context->getClientVersion() < 3)
-            {
-                context->handleError(Error(
-                    GL_INVALID_ENUM, "GL_TEXTURE_COMPARE_FUNC not available in ES versions < 3.0"));
-                return;
-            }
-            *params = texture->getCompareFunc();
-            break;
-          default:
-              context->handleError(Error(GL_INVALID_ENUM));
-            return;
         }
     }
 }
@@ -2671,7 +2637,8 @@ void GL_APIENTRY GetVertexAttribfv(GLuint index, GLenum pname, GLfloat* params)
 
         if (pname == GL_CURRENT_VERTEX_ATTRIB)
         {
-            const VertexAttribCurrentValueData &currentValueData = context->getState().getVertexAttribCurrentValue(index);
+            const VertexAttribCurrentValueData &currentValueData =
+                context->getGLState().getVertexAttribCurrentValue(index);
             for (int i = 0; i < 4; ++i)
             {
                 params[i] = currentValueData.FloatValues[i];
@@ -2679,7 +2646,8 @@ void GL_APIENTRY GetVertexAttribfv(GLuint index, GLenum pname, GLfloat* params)
         }
         else
         {
-            const VertexAttribute &attribState = context->getState().getVertexArray()->getVertexAttribute(index);
+            const VertexAttribute &attribState =
+                context->getGLState().getVertexArray()->getVertexAttribute(index);
             *params = QuerySingleVertexAttributeParameter<GLfloat>(attribState, pname);
         }
     }
@@ -2705,7 +2673,8 @@ void GL_APIENTRY GetVertexAttribiv(GLuint index, GLenum pname, GLint* params)
 
         if (pname == GL_CURRENT_VERTEX_ATTRIB)
         {
-            const VertexAttribCurrentValueData &currentValueData = context->getState().getVertexAttribCurrentValue(index);
+            const VertexAttribCurrentValueData &currentValueData =
+                context->getGLState().getVertexAttribCurrentValue(index);
             for (int i = 0; i < 4; ++i)
             {
                 float currentValue = currentValueData.FloatValues[i];
@@ -2714,7 +2683,8 @@ void GL_APIENTRY GetVertexAttribiv(GLuint index, GLenum pname, GLint* params)
         }
         else
         {
-            const VertexAttribute &attribState = context->getState().getVertexArray()->getVertexAttribute(index);
+            const VertexAttribute &attribState =
+                context->getGLState().getVertexArray()->getVertexAttribute(index);
             *params = QuerySingleVertexAttributeParameter<GLint>(attribState, pname);
         }
     }
@@ -2739,7 +2709,7 @@ void GL_APIENTRY GetVertexAttribPointerv(GLuint index, GLenum pname, GLvoid** po
             return;
         }
 
-        *pointer = const_cast<GLvoid*>(context->getState().getVertexAttribPointer(index));
+        *pointer = const_cast<GLvoid *>(context->getGLState().getVertexAttribPointer(index));
     }
 }
 
@@ -2765,17 +2735,15 @@ void GL_APIENTRY Hint(GLenum target, GLenum mode)
         switch (target)
         {
           case GL_GENERATE_MIPMAP_HINT:
-            context->getState().setGenerateMipmapHint(mode);
-            break;
-
           case GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES:
-            context->getState().setFragmentShaderDerivativeHint(mode);
-            break;
+              break;
 
           default:
               context->handleError(Error(GL_INVALID_ENUM));
             return;
         }
+
+        context->hint(target, mode);
     }
 }
 
@@ -2810,7 +2778,7 @@ GLboolean GL_APIENTRY IsEnabled(GLenum cap)
             return GL_FALSE;
         }
 
-        return context->getState().getEnableFeature(cap);
+        return context->getGLState().getEnableFeature(cap);
     }
 
     return false;
@@ -2919,7 +2887,7 @@ void GL_APIENTRY LineWidth(GLfloat width)
             return;
         }
 
-        context->getState().setLineWidth(width);
+        context->lineWidth(width);
     }
 }
 
@@ -2941,7 +2909,7 @@ void GL_APIENTRY LinkProgram(GLuint program)
             return;
         }
 
-        Error error = programObject->link(context->getData());
+        Error error = programObject->link(context->getContextState());
         if (error.isError())
         {
             context->handleError(error);
@@ -2957,7 +2925,7 @@ void GL_APIENTRY PixelStorei(GLenum pname, GLint param)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        if (context->getClientVersion() < 3)
+        if (context->getClientMajorVersion() < 3)
         {
             switch (pname)
             {
@@ -2995,8 +2963,6 @@ void GL_APIENTRY PixelStorei(GLenum pname, GLint param)
             return;
         }
 
-        State &state = context->getState();
-
         switch (pname)
         {
           case GL_UNPACK_ALIGNMENT:
@@ -3005,8 +2971,6 @@ void GL_APIENTRY PixelStorei(GLenum pname, GLint param)
                 context->handleError(Error(GL_INVALID_VALUE));
                 return;
             }
-
-            state.setUnpackAlignment(param);
             break;
 
           case GL_PACK_ALIGNMENT:
@@ -3015,58 +2979,25 @@ void GL_APIENTRY PixelStorei(GLenum pname, GLint param)
                 context->handleError(Error(GL_INVALID_VALUE));
                 return;
             }
-
-            state.setPackAlignment(param);
             break;
 
           case GL_PACK_REVERSE_ROW_ORDER_ANGLE:
-            state.setPackReverseRowOrder(param != 0);
-            break;
-
           case GL_UNPACK_ROW_LENGTH:
-              ASSERT((context->getClientVersion() >= 3) || context->getExtensions().unpackSubimage);
-            state.setUnpackRowLength(param);
-            break;
-
           case GL_UNPACK_IMAGE_HEIGHT:
-            ASSERT(context->getClientVersion() >= 3);
-            state.setUnpackImageHeight(param);
-            break;
-
           case GL_UNPACK_SKIP_IMAGES:
-              ASSERT(context->getClientVersion() >= 3);
-              state.setUnpackSkipImages(param);
-            break;
-
           case GL_UNPACK_SKIP_ROWS:
-              ASSERT((context->getClientVersion() >= 3) || context->getExtensions().unpackSubimage);
-              state.setUnpackSkipRows(param);
-            break;
-
           case GL_UNPACK_SKIP_PIXELS:
-              ASSERT((context->getClientVersion() >= 3) || context->getExtensions().unpackSubimage);
-              state.setUnpackSkipPixels(param);
-            break;
-
           case GL_PACK_ROW_LENGTH:
-              ASSERT((context->getClientVersion() >= 3) || context->getExtensions().packSubimage);
-              state.setPackRowLength(param);
-            break;
-
           case GL_PACK_SKIP_ROWS:
-              ASSERT((context->getClientVersion() >= 3) || context->getExtensions().packSubimage);
-              state.setPackSkipRows(param);
-            break;
-
           case GL_PACK_SKIP_PIXELS:
-              ASSERT((context->getClientVersion() >= 3) || context->getExtensions().packSubimage);
-              state.setPackSkipPixels(param);
             break;
 
           default:
               context->handleError(Error(GL_INVALID_ENUM));
             return;
         }
+
+        context->pixelStorei(pname, param);
     }
 }
 
@@ -3077,7 +3008,7 @@ void GL_APIENTRY PolygonOffset(GLfloat factor, GLfloat units)
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        context->getState().setPolygonOffsetParams(factor, units);
+        context->polygonOffset(factor, units);
     }
 }
 
@@ -3133,7 +3064,7 @@ void GL_APIENTRY RenderbufferStorage(GLenum target, GLenum internalformat, GLsiz
             return;
         }
 
-        Renderbuffer *renderbuffer = context->getState().getCurrentRenderbuffer();
+        Renderbuffer *renderbuffer = context->getGLState().getCurrentRenderbuffer();
         Error error = renderbuffer->setStorage(internalformat, width, height);
         if (error.isError())
         {
@@ -3151,7 +3082,7 @@ void GL_APIENTRY SampleCoverage(GLclampf value, GLboolean invert)
 
     if (context)
     {
-        context->getState().setSampleCoverageParams(clamp01(value), invert == GL_TRUE);
+        context->sampleCoverage(value, invert);
     }
 }
 
@@ -3168,7 +3099,7 @@ void GL_APIENTRY Scissor(GLint x, GLint y, GLsizei width, GLsizei height)
             return;
         }
 
-        context->getState().setScissorParams(x, y, width, height);
+        context->scissor(x, y, width, height);
     }
 }
 
@@ -3257,15 +3188,7 @@ void GL_APIENTRY StencilFuncSeparate(GLenum face, GLenum func, GLint ref, GLuint
             return;
         }
 
-        if (face == GL_FRONT || face == GL_FRONT_AND_BACK)
-        {
-            context->getState().setStencilParams(func, ref, mask);
-        }
-
-        if (face == GL_BACK || face == GL_FRONT_AND_BACK)
-        {
-            context->getState().setStencilBackParams(func, ref, mask);
-        }
+        context->stencilFuncSeparate(face, func, ref, mask);
     }
 }
 
@@ -3293,15 +3216,7 @@ void GL_APIENTRY StencilMaskSeparate(GLenum face, GLuint mask)
             return;
         }
 
-        if (face == GL_FRONT || face == GL_FRONT_AND_BACK)
-        {
-            context->getState().setStencilWritemask(mask);
-        }
-
-        if (face == GL_BACK || face == GL_FRONT_AND_BACK)
-        {
-            context->getState().setStencilBackWritemask(mask);
-        }
+        context->stencilMaskSeparate(face, mask);
     }
 }
 
@@ -3381,15 +3296,7 @@ void GL_APIENTRY StencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenu
             return;
         }
 
-        if (face == GL_FRONT || face == GL_FRONT_AND_BACK)
-        {
-            context->getState().setStencilOperations(fail, zfail, zpass);
-        }
-
-        if (face == GL_BACK || face == GL_FRONT_AND_BACK)
-        {
-            context->getState().setStencilBackOperations(fail, zfail, zpass);
-        }
+        context->stencilOpSeparate(face, fail, zfail, zpass);
     }
 }
 
@@ -3569,7 +3476,7 @@ void GL_APIENTRY Uniform1fv(GLint location, GLsizei count, const GLfloat* v)
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniform1fv(location, count, v);
     }
 }
@@ -3591,7 +3498,7 @@ void GL_APIENTRY Uniform1iv(GLint location, GLsizei count, const GLint* v)
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniform1iv(location, count, v);
     }
 }
@@ -3615,7 +3522,7 @@ void GL_APIENTRY Uniform2fv(GLint location, GLsizei count, const GLfloat* v)
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniform2fv(location, count, v);
     }
 }
@@ -3639,7 +3546,7 @@ void GL_APIENTRY Uniform2iv(GLint location, GLsizei count, const GLint* v)
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniform2iv(location, count, v);
     }
 }
@@ -3663,7 +3570,7 @@ void GL_APIENTRY Uniform3fv(GLint location, GLsizei count, const GLfloat* v)
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniform3fv(location, count, v);
     }
 }
@@ -3687,7 +3594,7 @@ void GL_APIENTRY Uniform3iv(GLint location, GLsizei count, const GLint* v)
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniform3iv(location, count, v);
     }
 }
@@ -3711,7 +3618,7 @@ void GL_APIENTRY Uniform4fv(GLint location, GLsizei count, const GLfloat* v)
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniform4fv(location, count, v);
     }
 }
@@ -3735,7 +3642,7 @@ void GL_APIENTRY Uniform4iv(GLint location, GLsizei count, const GLint* v)
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniform4iv(location, count, v);
     }
 }
@@ -3753,7 +3660,7 @@ void GL_APIENTRY UniformMatrix2fv(GLint location, GLsizei count, GLboolean trans
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniformMatrix2fv(location, count, transpose, value);
     }
 }
@@ -3771,7 +3678,7 @@ void GL_APIENTRY UniformMatrix3fv(GLint location, GLsizei count, GLboolean trans
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniformMatrix3fv(location, count, transpose, value);
     }
 }
@@ -3789,7 +3696,7 @@ void GL_APIENTRY UniformMatrix4fv(GLint location, GLsizei count, GLboolean trans
             return;
         }
 
-        Program *program = context->getState().getProgram();
+        Program *program = context->getGLState().getProgram();
         program->setUniformMatrix4fv(location, count, transpose, value);
     }
 }
@@ -3841,8 +3748,7 @@ void GL_APIENTRY VertexAttrib1f(GLuint index, GLfloat x)
             return;
         }
 
-        GLfloat vals[4] = { x, 0, 0, 1 };
-        context->getState().setVertexAttribf(index, vals);
+        context->vertexAttrib1f(index, x);
     }
 }
 
@@ -3859,8 +3765,7 @@ void GL_APIENTRY VertexAttrib1fv(GLuint index, const GLfloat* values)
             return;
         }
 
-        GLfloat vals[4] = { values[0], 0, 0, 1 };
-        context->getState().setVertexAttribf(index, vals);
+        context->vertexAttrib1fv(index, values);
     }
 }
 
@@ -3877,8 +3782,7 @@ void GL_APIENTRY VertexAttrib2f(GLuint index, GLfloat x, GLfloat y)
             return;
         }
 
-        GLfloat vals[4] = { x, y, 0, 1 };
-        context->getState().setVertexAttribf(index, vals);
+        context->vertexAttrib2f(index, x, y);
     }
 }
 
@@ -3895,8 +3799,7 @@ void GL_APIENTRY VertexAttrib2fv(GLuint index, const GLfloat* values)
             return;
         }
 
-        GLfloat vals[4] = { values[0], values[1], 0, 1 };
-        context->getState().setVertexAttribf(index, vals);
+        context->vertexAttrib2fv(index, values);
     }
 }
 
@@ -3913,8 +3816,7 @@ void GL_APIENTRY VertexAttrib3f(GLuint index, GLfloat x, GLfloat y, GLfloat z)
             return;
         }
 
-        GLfloat vals[4] = { x, y, z, 1 };
-        context->getState().setVertexAttribf(index, vals);
+        context->vertexAttrib3f(index, x, y, z);
     }
 }
 
@@ -3931,8 +3833,7 @@ void GL_APIENTRY VertexAttrib3fv(GLuint index, const GLfloat* values)
             return;
         }
 
-        GLfloat vals[4] = { values[0], values[1], values[2], 1 };
-        context->getState().setVertexAttribf(index, vals);
+        context->vertexAttrib3fv(index, values);
     }
 }
 
@@ -3949,8 +3850,7 @@ void GL_APIENTRY VertexAttrib4f(GLuint index, GLfloat x, GLfloat y, GLfloat z, G
             return;
         }
 
-        GLfloat vals[4] = { x, y, z, w };
-        context->getState().setVertexAttribf(index, vals);
+        context->vertexAttrib4f(index, x, y, z, w);
     }
 }
 
@@ -3967,7 +3867,7 @@ void GL_APIENTRY VertexAttrib4fv(GLuint index, const GLfloat* values)
             return;
         }
 
-        context->getState().setVertexAttribf(index, values);
+        context->vertexAttrib4fv(index, values);
     }
 }
 
@@ -3994,29 +3894,29 @@ void GL_APIENTRY VertexAttribPointer(GLuint index, GLint size, GLenum type, GLbo
 
         switch (type)
         {
-          case GL_BYTE:
-          case GL_UNSIGNED_BYTE:
-          case GL_SHORT:
-          case GL_UNSIGNED_SHORT:
-          case GL_FIXED:
-          case GL_FLOAT:
-            break;
+            case GL_BYTE:
+            case GL_UNSIGNED_BYTE:
+            case GL_SHORT:
+            case GL_UNSIGNED_SHORT:
+            case GL_FIXED:
+            case GL_FLOAT:
+                break;
 
-          case GL_HALF_FLOAT:
-          case GL_INT:
-          case GL_UNSIGNED_INT:
-          case GL_INT_2_10_10_10_REV:
-          case GL_UNSIGNED_INT_2_10_10_10_REV:
-            if (context->getClientVersion() < 3)
-            {
+            case GL_HALF_FLOAT:
+            case GL_INT:
+            case GL_UNSIGNED_INT:
+            case GL_INT_2_10_10_10_REV:
+            case GL_UNSIGNED_INT_2_10_10_10_REV:
+                if (context->getClientMajorVersion() < 3)
+                {
+                    context->handleError(Error(GL_INVALID_ENUM));
+                    return;
+                }
+                break;
+
+            default:
                 context->handleError(Error(GL_INVALID_ENUM));
                 return;
-            }
-            break;
-
-          default:
-              context->handleError(Error(GL_INVALID_ENUM));
-            return;
         }
 
         if (stride < 0)
@@ -4035,14 +3935,14 @@ void GL_APIENTRY VertexAttribPointer(GLuint index, GLint size, GLenum type, GLbo
         // An INVALID_OPERATION error is generated when a non-zero vertex array object
         // is bound, zero is bound to the ARRAY_BUFFER buffer object binding point,
         // and the pointer argument is not NULL.
-        if (context->getState().getVertexArray()->id() != 0 && context->getState().getArrayBufferId() == 0 && ptr != NULL)
+        if (context->getGLState().getVertexArray()->id() != 0 &&
+            context->getGLState().getArrayBufferId() == 0 && ptr != NULL)
         {
             context->handleError(Error(GL_INVALID_OPERATION));
             return;
         }
 
-        context->getState().setVertexAttribState(index, context->getState().getTargetBuffer(GL_ARRAY_BUFFER), size, type,
-                                                 normalized == GL_TRUE, false, stride, ptr);
+        context->vertexAttribPointer(index, size, type, normalized, stride, ptr);
     }
 }
 
@@ -4059,8 +3959,8 @@ void GL_APIENTRY Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
             return;
         }
 
-        context->getState().setViewportParams(x, y, width, height);
+        context->viewport(x, y, width, height);
     }
 }
 
-}
+}  // namespace gl

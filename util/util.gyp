@@ -66,6 +66,12 @@
             'x11/X11Window.cpp',
             'x11/X11Window.h',
         ],
+        'util_ozone_sources':
+        [
+            'ozone/OzonePixmap.cpp',
+            'ozone/OzoneWindow.cpp',
+            'ozone/OzoneWindow.h',
+        ],
         'util_osx_sources':
         [
             'osx/OSX_system_utils.cpp',
@@ -76,6 +82,13 @@
             'osx/OSXWindow.mm',
             'osx/OSXWindow.h',
             'posix/Posix_system_utils.cpp',
+        ],
+        'util_android_sources':
+        [
+            'android/AndroidWindow.cpp',
+            'android/AndroidWindow.h',
+            'android/third_party/android_native_app_glue.c',
+            'android/third_party/android_native_app_glue.h',
         ],
     },
     'targets':
@@ -143,6 +156,13 @@
                     [
                         '<@(util_linux_sources)',
                     ],
+                    'link_settings':
+                    {
+                        'libraries':
+                        [
+                            '-ldl',
+                        ],
+                    },
                 }],
                 ['use_x11==1',
                 {
@@ -161,6 +181,13 @@
                             '<!@(<(pkg-config) --libs-only-l x11 xi)',
                         ],
                     },
+                }],
+                ['use_ozone==1',
+                {
+                    'sources':
+                    [
+                        '<@(util_ozone_sources)',
+                    ],
                 }],
                 ['OS=="mac"',
                 {

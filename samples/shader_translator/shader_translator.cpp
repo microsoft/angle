@@ -73,6 +73,7 @@ int main(int argc, char *argv[])
     int numCompiles = 0;
     ShHandle vertexCompiler = 0;
     ShHandle fragmentCompiler = 0;
+    ShHandle computeCompiler  = 0;
     ShShaderSpec spec = SH_GLES2_SPEC;
     ShShaderOutput output = SH_ESSL_OUTPUT;
 
@@ -102,28 +103,42 @@ int main(int argc, char *argv[])
                 {
                     switch (argv[0][3])
                     {
-                      case 'e':
-                        if (argv[0][4] == '3')
-                        {
-                            spec = SH_GLES3_SPEC;
-                        }
-                        else
-                        {
-                            spec = SH_GLES2_SPEC;
-                        }
-                        break;
-                      case 'w':
-                        if (argv[0][4] == '2')
-                        {
-                            spec = SH_WEBGL2_SPEC;
-                        }
-                        else
-                        {
-                            spec = SH_WEBGL_SPEC;
-                        }
-                        break;
-                      case 'c': spec = SH_CSS_SHADERS_SPEC; break;
-                      default: failCode = EFailUsage;
+                        case 'e':
+                            if (argv[0][4] == '3')
+                            {
+                                if (argv[0][5] == '1')
+                                {
+                                    spec = SH_GLES3_1_SPEC;
+                                }
+                                else
+                                {
+                                    spec = SH_GLES3_SPEC;
+                                }
+                            }
+                            else
+                            {
+                                spec = SH_GLES2_SPEC;
+                            }
+                            break;
+                        case 'w':
+                            if (argv[0][4] == '3')
+                            {
+                                spec = SH_WEBGL3_SPEC;
+                            }
+                            else if (argv[0][4] == '2')
+                            {
+                                spec = SH_WEBGL2_SPEC;
+                            }
+                            else
+                            {
+                                spec = SH_WEBGL_SPEC;
+                            }
+                            break;
+                        case 'c':
+                            spec = SH_CSS_SHADERS_SPEC;
+                            break;
+                        default:
+                            failCode = EFailUsage;
                     }
                 }
                 else
@@ -230,6 +245,15 @@ int main(int argc, char *argv[])
                 }
                 compiler = fragmentCompiler;
                 break;
+              case GL_COMPUTE_SHADER:
+                  if (computeCompiler == 0)
+                  {
+                      computeCompiler =
+                          ShConstructCompiler(GL_COMPUTE_SHADER, spec, output, &resources);
+                  }
+                  compiler = computeCompiler;
+                  break;
+
               default: break;
             }
             if (compiler)
@@ -268,7 +292,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if ((vertexCompiler == 0) && (fragmentCompiler == 0))
+    if ((vertexCompiler == 0) && (fragmentCompiler == 0) && (computeCompiler == 0))
         failCode = EFailUsage;
     if (failCode == EFailUsage)
         usage();
@@ -277,6 +301,9 @@ int main(int argc, char *argv[])
         ShDestruct(vertexCompiler);
     if (fragmentCompiler)
         ShDestruct(fragmentCompiler);
+    if (computeCompiler)
+        ShDestruct(computeCompiler);
+
     ShFinalize();
 
     return failCode;
@@ -301,6 +328,7 @@ void usage()
         "       -p       : use precision emulation\n"
         "       -s=e2    : use GLES2 spec (this is by default)\n"
         "       -s=e3    : use GLES3 spec (in development)\n"
+        "       -s=e31   : use GLES31 spec (in development)\n"
         "       -s=w     : use WebGL spec\n"
         "       -s=w2    : use WebGL 2 spec (in development)\n"
         "       -s=c     : use CSS Shaders spec\n"
@@ -342,8 +370,12 @@ sh::GLenum FindShaderType(const char *fileName)
     ext = strrchr(fileName, '.');
     if (ext)
     {
-        if (strncmp(ext, ".frag", 4) == 0) return GL_FRAGMENT_SHADER;
-        if (strncmp(ext, ".vert", 4) == 0) return GL_VERTEX_SHADER;
+        if (strncmp(ext, ".frag", 5) == 0)
+            return GL_FRAGMENT_SHADER;
+        if (strncmp(ext, ".vert", 5) == 0)
+            return GL_VERTEX_SHADER;
+        if (strncmp(ext, ".comp", 5) == 0)
+            return GL_COMPUTE_SHADER;
     }
 
     return GL_FRAGMENT_SHADER;
