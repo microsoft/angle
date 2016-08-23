@@ -81,7 +81,3 @@ if __name__ == '__main__':
       generateWinRTProjects(args, "winrt/8.1/windows", False, "2013e", "8.1", "");
       args = sys.argv[1:]
       generateWinRTProjects(args, "winrt/8.1/windowsphone", True, "2013e", "8.1", "");
-
-      # Generate Windows 10 projects
-      args = sys.argv[1:]
-      generateWinRTProjects(args, "winrt/10", False, "2015", "10.0", "10.0.10240.0");
