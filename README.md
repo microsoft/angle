@@ -3,14 +3,17 @@ ANGLE -- Microsoft Windows Store branch
 ANGLE allows Windows users to seamlessly run OpenGL ES content by efficiently translating 
 OpenGL ES API into DirectX 11 API calls.
 
-The ms-master branch in this repository is maintained by Microsoft to support 
-the use of ANGLE by Windows Store app developers. It contains:
+This repository is maintained by Microsoft to support the use of ANGLE by Windows Store app developers. It contains several branches:
+ - [ms-master](https://github.com/Microsoft/angle/tree/ms-master) - for Universal Windows 10 apps (UWP) and desktop apps
+ - [ms-win8.1](https://github.com/Microsoft/angle/tree/ms-win8.1) - for Windows 8.1 and Windows Phone 8.1 apps
+ - [ms-holographic-experimental](https://github.com/Microsoft/angle/tree/ms-holographic-experimental) - for experimental HoloLens support
 
-- A copy of ANGLE that is regularly updated from the ANGLE 
-  [master branch](https://code.google.com/p/angleproject)
-- Recent changes made by Microsoft that have not yet been merged back to ANGLE master 
-  _(our goal is to eventually merge everything, but if you want the latest and greatest 
+ms-master contains a copy of ANGLE that is regularly updated from the ANGLE [master branch](https://code.google.com/p/angleproject).
+It also contains recent changes made by Microsoft that have not yet been merged back to ANGLE master 
+_(our goal is to eventually merge everything, but if you want the latest and greatest 
   Windows Store features, you will find them here first)_
+  
+The repository also contains:
 - [Documentation](https://github.com/microsoft/angle/wiki) and 
   [project templates](https://github.com/Microsoft/angle/tree/ms-master/templates) 
   focused on Windows Store app development
@@ -18,14 +21,13 @@ the use of ANGLE by Windows Store app developers. It contains:
   [DDS](https://github.com/Microsoft/angle/wiki/Loading-textures-from-dds-files) and 
   [WIC](https://github.com/Microsoft/angle/wiki/Loading-textures-from-image-files) 
   texture loaders
-- This branch is the source for building the ANGLE binaries that we publish on 
-  [NuGet](https://www.nuget.org/packages/ANGLE.WindowsStore)
 
-ANGLE fully supports these C++ app types:
-- Universal Windows apps (Windows 10)
-- Windows 8.1 and Windows Phone 8.1 apps
-- Windows desktop applications
-
+The ms-master branch and ms-win8.1 branch contain the source code used to build the ANGLE binaries that we publish on NuGet. 
+The NuGet package with Windows 10 (UWP) binaries is [available here](https://www.nuget.org/packages/ANGLE.WindowsStore). 
+The NuGet package with Win8.1/Phone8.1 binaries is [available here](https://www.nuget.org/packages/ANGLE.WindowsStore.win81).
+  
+Feature Support
+=====
 ANGLE supports different versions of OpenGL ES depending on the capabilities of the underlying hardware. 
 In particular, the supported version depends on which 
 [D3D Feature Levels](https://msdn.microsoft.com/en-us/library/windows/desktop/ff476876%28v=vs.85%29.aspx) 
@@ -42,10 +44,16 @@ the hardware supports:
 11_1<br>
 11_0<br>
 10_1<br>
-10_0<br>
 </td>
 <td>Modern Desktop PCs<br>Surface Pros</td>
-<td>OpenGL ES 2.0<br> Parts of OpenGL ES 3.0</td>
+<td>OpenGL ES 2.0<br> OpenGL ES 3.0</td>
+</tr>
+<tr>
+<td>
+10_0<br>
+</td>
+<td></td>
+<td>OpenGL ES 2.0</td>
 </tr>
 <tr>
 <td>
@@ -87,12 +95,10 @@ Windows 10 Development:
 * [Visual Studio 2015 Community or higher](https://www.visualstudio.com/downloads/visual-studio-2015-downloads-vs.aspx)
 * Windows 10 for local Windows development
 
-Windows 8.1 and/or Windows Phone 8.1 Development:
-* Visual Studio Community 2013 (Update 4), or higher/later.
-* Windows 8.1 for local Windows development.
-
 Clasic Windows (Desktop) Development:
 * Visual Studio 2015 Community or higher.
+
+For Windows 8.1 or Windows Phone 8.1 development, see the [ms-win8.1](https://github.com/Microsoft/angle/tree/ms-win8.1) branch.
 
 More Info
 =====
@@ -117,14 +123,11 @@ Quick Start (compiling from source)
 The Windows 10 Visual Studio solution for ANGLE is located here:
 * /winrt/10/src/angle.sln
 
-The Windows 8.1 Visual Studio solutions for ANGLE are located here:
-
-* /winrt/8.1/windows/src/angle.sln
-* /winrt/8.1/windowsphone/src/angle.sln
-
 The Visual Studio solution for Windows desktop applications is located here:
 
 * /src/angle.sln
+
+For Windows 8.1 or Windows Phone 8.1 development, see the [ms-win8.1](https://github.com/Microsoft/angle/tree/ms-win8.1) branch.
 
 Useful Links
 =====
