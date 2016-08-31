@@ -83,10 +83,10 @@ void App::SetWindow(CoreWindow^ window)
         mHolographicSpace = HolographicSpace::CreateForCoreWindow(window);
 
         // Get the default SpatialLocator.
-        SpatialLocator^ mLocator = SpatialLocator::GetDefault();
+        SpatialLocator^ locator = SpatialLocator::GetDefault();
 
         // Create a stationary frame of reference.
-        mStationaryReferenceFrame = mLocator->CreateStationaryFrameOfReferenceAtCurrentLocation();
+        mStationaryReferenceFrame = locator->CreateStationaryFrameOfReferenceAtCurrentLocation();
 
         // The HolographicSpace has been created, so EGL can be initialized in holographic mode.
         InitializeEGL(mHolographicSpace);
@@ -147,7 +147,6 @@ void App::Run()
                 mCubeRenderer.reset(nullptr);
                 CleanupEGL();
 
-                
                 if (mHolographicSpace != nullptr)
                 {
                     InitializeEGL(mHolographicSpace);
@@ -218,7 +217,7 @@ void App::InitializeEGLInner(Platform::Object^ windowBasis)
 
     const EGLint contextAttributes[] = 
     { 
-        EGL_CONTEXT_CLIENT_VERSION, 2, 
+        EGL_CONTEXT_CLIENT_VERSION, 3, 
         EGL_NONE
     };
 
@@ -334,6 +333,8 @@ void App::InitializeEGLInner(Platform::Object^ windowBasis)
     if (mStationaryReferenceFrame != nullptr)
     {
         surfaceCreationProperties->Insert(ref new String(EGLBaseCoordinateSystemProperty), mStationaryReferenceFrame);
+        surfaceCreationProperties->Insert(ref new String(EGLAutomaticStereoRenderingProperty), PropertyValue::CreateBoolean(true));
+        surfaceCreationProperties->Insert(ref new String(EGLAutomaticDepthBasedImageStabilizationProperty), PropertyValue::CreateBoolean(true));
     }
 
     // You can configure the surface to render at a lower resolution and be scaled up to
@@ -364,6 +365,10 @@ void App::InitializeEGLInner(Platform::Object^ windowBasis)
     {
         throw Exception::CreateException(E_FAIL, L"Failed to make fullscreen EGLSurface current");
     }
+
+    // By default, allow HolographicFrame::PresentUsingCurrentPrediction() to wait for the current frame to 
+    // finish before it returns.
+    eglSurfaceAttrib(mEglDisplay, mEglSurface, EGLEXT_WAIT_FOR_VBLANK_ANGLE, true);
 }
 
 void App::CleanupEGL()

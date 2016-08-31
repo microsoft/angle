@@ -551,6 +551,40 @@ Error Display::createWindowSurface(const Config *configuration, EGLNativeWindowT
     return Error(EGL_SUCCESS);
 }
 
+Error Display::updateWindowSurfaceAttributeBoolean(Surface *surface, EGLint attribute, EGLBoolean value)
+{
+    if (mImplementation->testDeviceLost())
+    {
+        Error error = restoreLostDevice();
+        if (error.isError())
+        {
+            return error;
+        }
+    }
+
+    rx::SurfaceImpl* surfaceImpl = surface->getImplementation();
+    ASSERT(surfaceImpl != nullptr);
+    
+    return surfaceImpl->updateAttributeBoolean(attribute, value);
+}
+
+Error Display::updateWindowSurfaceAttributePointer(Surface *surface, EGLint attribute, EGLNativeWindowType value)
+{
+    if (mImplementation->testDeviceLost())
+    {
+        Error error = restoreLostDevice();
+        if (error.isError())
+        {
+            return error;
+        }
+    }
+
+    rx::SurfaceImpl* surfaceImpl = surface->getImplementation();
+    ASSERT(surfaceImpl != nullptr);
+
+    return surfaceImpl->updateAttributePointer(attribute, value);
+}
+
 Error Display::createPbufferSurface(const Config *configuration, const AttributeMap &attribs, Surface **outSurface)
 {
     ASSERT(isInitialized());

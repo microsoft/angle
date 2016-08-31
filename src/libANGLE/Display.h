@@ -55,6 +55,8 @@ class Display final : angle::NonCopyable
 
     Error createWindowSurface(const Config *configuration, EGLNativeWindowType window, const AttributeMap &attribs,
                               Surface **outSurface);
+    Error updateWindowSurfaceAttributePointer(Surface *surface, EGLint attribute, EGLNativeWindowType value);
+    Error updateWindowSurfaceAttributeBoolean(Surface *surface, EGLint attribute, EGLBoolean value);
     Error createPbufferSurface(const Config *configuration, const AttributeMap &attribs, Surface **outSurface);
     Error createPbufferFromClientBuffer(const Config *configuration, EGLClientBuffer shareHandle, const AttributeMap &attribs,
                                         Surface **outSurface);

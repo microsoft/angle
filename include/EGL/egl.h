@@ -154,6 +154,8 @@ EGLAPI EGLBoolean EGLAPIENTRY eglWaitNative (EGLint engine);
 #define EGL_MAX_SWAP_INTERVAL             0x303C
 #define EGL_MIPMAP_TEXTURE                0x3082
 #define EGL_MIPMAP_LEVEL                  0x3083
+#define EGLEXT_WAIT_FOR_VBLANK_ANGLE      0x5023 // A boolean attribute to enable or disable waiting for VBlank on holographic present calls.
+#define EGLEXT_HOLOGRAPHIC_SPATIAL_FRAME_OF_REFERENCE_ANGLE 0x5022 // An attribute of this type is an IInspectable* that is either a SpatialStationaryFrameOfReference or a DeviceAttachedFrameOfReference. Specific to Windows Holographic.
 #define EGL_NO_TEXTURE                    0x305C
 #define EGL_TEXTURE_2D                    0x305F
 #define EGL_TEXTURE_FORMAT                0x3080
@@ -163,6 +165,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglWaitNative (EGLint engine);
 EGLAPI EGLBoolean EGLAPIENTRY eglBindTexImage (EGLDisplay dpy, EGLSurface surface, EGLint buffer);
 EGLAPI EGLBoolean EGLAPIENTRY eglReleaseTexImage (EGLDisplay dpy, EGLSurface surface, EGLint buffer);
 EGLAPI EGLBoolean EGLAPIENTRY eglSurfaceAttrib (EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint value);
+EGLAPI EGLBoolean EGLAPIENTRY eglExtSurfaceAttribPointerANGLE (EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLNativeWindowType value);
 EGLAPI EGLBoolean EGLAPIENTRY eglSwapInterval (EGLDisplay dpy, EGLint interval);
 #endif /* EGL_VERSION_1_1 */
 

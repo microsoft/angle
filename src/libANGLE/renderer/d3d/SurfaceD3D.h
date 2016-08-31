@@ -12,6 +12,10 @@
 #include "libANGLE/renderer/SurfaceImpl.h"
 #include "libANGLE/renderer/d3d/d3d11/NativeWindow.h"
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+#include <vector>
+#endif
+
 namespace egl
 {
 class Surface;
@@ -21,6 +25,9 @@ namespace rx
 {
 class SwapChainD3D;
 class RendererD3D;
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+class HolographicSwapChain11;
+#endif
 
 class SurfaceD3D : public SurfaceImpl
 {
@@ -41,6 +48,9 @@ class SurfaceD3D : public SurfaceImpl
 
     egl::Error initialize() override;
     FramebufferImpl *createDefaultFramebuffer(const gl::Framebuffer::Data &data) override;
+
+    egl::Error updateAttributePointer(EGLint attribute, EGLNativeWindowType value);
+    egl::Error updateAttributeBoolean(EGLint attribute, EGLBoolean value);
 
     egl::Error swap() override;
     egl::Error postSubBuffer(EGLint x, EGLint y, EGLint width, EGLint height) override;
@@ -90,11 +100,16 @@ class SurfaceD3D : public SurfaceImpl
 
     GLenum mRenderTargetFormat;
     GLenum mDepthStencilFormat;
+    SwapChainD3D* mSwapChain;
 
-    SwapChainD3D *mSwapChain;
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    // Store a list of holographic swap chains - one per holographic camera.
+    std::vector<rx::HolographicSwapChain11*> mHolographicSwapChains;
+#endif
+
     bool mSwapIntervalDirty;
 
-    NativeWindow mNativeWindow;   // Handler for the Window that the surface is created for.
+    NativeWindow mNativeWindow; // Handler for the Window that the surface is created for.
     EGLint mWidth;
     EGLint mHeight;
 

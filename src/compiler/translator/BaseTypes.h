@@ -311,6 +311,11 @@ enum TQualifier
 
     // built-ins read by vertex shader
     EvqInstanceID,
+    // Experimental feature for ANGLE for Windows Holographic. Represents the unmodified instance ID, which
+    // is the actual instance ID given to DirectX. With the automatic stereo instancing active, the value
+    // of EvqInstanceID represents the original instance ID value that the app would expect, since it is not
+    // made aware of the instancing modification that we do to enable stereo rendering.
+    EvqInstanceIDOriginal, 
 
     // built-ins written by vertex shader
     EvqPosition,

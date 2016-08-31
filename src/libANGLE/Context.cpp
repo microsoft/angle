@@ -33,6 +33,10 @@
 #include "libANGLE/validationES.h"
 #include "libANGLE/renderer/Renderer.h"
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+#include "libANGLE\renderer\d3d\d3d11\winrt\HolographicSwapChain11.h"
+#endif
+
 namespace
 {
 
@@ -944,6 +948,20 @@ void Context::getBooleanv(GLenum pname, GLboolean *params)
     {
       case GL_SHADER_COMPILER:           *params = GL_TRUE;                             break;
       case GL_CONTEXT_ROBUST_ACCESS_EXT: *params = mRobustAccess ? GL_TRUE : GL_FALSE;  break;
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+      // This experimental value enables automatic adaptation of shaders and draw calls from
+      // mono to stereographic rendering, using instanced drawing to draw to the left and right
+      // views in a single draw call.
+      case GLEXT_ENABLE_AUTOMATIC_STEREO_RENDERING_ANGLE:
+        *params = rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled();
+        break;
+      // This experimental value enables automatic setting of the Windows Holographic image 
+      // stabilization focal plane, and position, derived from geometry stored in the depth buffer 
+      // at end-of-frame.
+      case GLEXT_ENABLE_DEPTH_BASED_IMAGE_STABILIZATION_ANGLE:
+        *params = rx::HolographicSwapChain11::getIsAutomaticDepthBasedImageStabilizationEnabled();
+        break;
+#endif
       default:
         mState.getBooleanv(pname, params);
         break;
@@ -971,6 +989,31 @@ void Context::getFloatv(GLenum pname, GLfloat *params)
       case GL_MAX_TEXTURE_LOD_BIAS:
         *params = mCaps.maxLODBias;
         break;
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+      // This experimental value provides a mono view matrix that approximates the Windows
+      // Holographic camera position. This matrix is in row-major format.
+      case GLEXT_HOLOGRAPHIC_MONO_VIEW_MATRIX_ANGLE:
+      {
+        auto const& midViewMatrix = rx::HolographicSwapChain11::getMidViewMatrix();
+        params[0] = midViewMatrix._11;
+        params[1] = midViewMatrix._12;
+        params[2] = midViewMatrix._13;
+        params[3] = midViewMatrix._14;
+        params[4] = midViewMatrix._21;
+        params[5] = midViewMatrix._22;
+        params[6] = midViewMatrix._23;
+        params[7] = midViewMatrix._24;
+        params[8] = midViewMatrix._31;
+        params[9] = midViewMatrix._32;
+        params[10] = midViewMatrix._33;
+        params[11] = midViewMatrix._34;
+        params[12] = midViewMatrix._41;
+        params[13] = midViewMatrix._42;
+        params[14] = midViewMatrix._43;
+        params[15] = midViewMatrix._44;
+      }
+        break;
+#endif
       default:
         mState.getFloatv(pname, params);
         break;
@@ -1338,6 +1381,22 @@ bool Context::getQueryParameterInfo(GLenum pname, GLenum *type, unsigned int *nu
           *type      = GL_INT;
           *numParams = 1;
           return true;
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+      // This experimental value provides a mono view matrix that approximates the Windows
+      // Holographic camera position. This matrix is in row-major format.
+      case GLEXT_HOLOGRAPHIC_MONO_VIEW_MATRIX_ANGLE:
+          *type      = GL_FLOAT;
+          *numParams = 16;
+          return true;
+      // Checks whether the optional feature is enabled for automatic stereo rendering.
+      case GLEXT_ENABLE_AUTOMATIC_STEREO_RENDERING_ANGLE:
+          *type      = GL_BOOL;
+          *numParams = 1;
+      // Checks whether the optional feature is enabled for automatic image stabilization.
+      case GLEXT_ENABLE_DEPTH_BASED_IMAGE_STABILIZATION_ANGLE:
+          *type      = GL_BOOL;
+          *numParams = 1;
+#endif
     }
 
     if (mExtensions.debug)

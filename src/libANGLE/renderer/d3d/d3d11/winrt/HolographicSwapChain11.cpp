@@ -31,6 +31,8 @@
 #include "libANGLE/renderer/d3d/d3d11/shaders/compiled/passthrough2d11vs.h"
 #include "libANGLE/renderer/d3d/d3d11/shaders/compiled/passthroughrgba2d11ps.h"
 
+#include "libANGLE/renderer/d3d/d3d11/winrt/DepthBufferPlaneFinder/DepthBufferPlaneFinder.h"
+
 
 #ifdef ANGLE_ENABLE_KEYEDMUTEX
 #define ANGLE_RESOURCE_SHARE_TYPE D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX
@@ -43,6 +45,7 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 using namespace ABI::Windows::Graphics::DirectX::Direct3D11;
 using namespace ABI::Windows::Graphics::Holographic;
 using namespace ABI::Windows::Perception::Spatial;
+using namespace DirectX;
 
 namespace rx
 {
@@ -58,6 +61,14 @@ bool NeedsOffscreenTexture(Renderer11 *renderer, NativeWindow nativeWindow, EGLi
 }
 }  // anonymous namespace
 
+
+DirectX::XMFLOAT4X4 HolographicSwapChain11::mMidViewMatrix;
+DirectX::XMFLOAT4X4 HolographicSwapChain11::mMidViewMatrixInverse;
+bool HolographicSwapChain11::mUseAutomaticStereoRendering              = true;
+bool HolographicSwapChain11::mUseAutomaticDepthBasedImageStabilization = false;
+bool HolographicSwapChain11::mWaitForVBlank = true;
+
+
 HolographicSwapChain11::HolographicSwapChain11(Renderer11 *renderer,
                          HolographicNativeWindow* nativeWindow,
                          HANDLE shareHandle,
@@ -65,38 +76,63 @@ HolographicSwapChain11::HolographicSwapChain11(Renderer11 *renderer,
     : SwapChainD3D(*((NativeWindow*)nativeWindow), shareHandle, GL_RGBA, GL_DEPTH_COMPONENT16),
       mHolographicNativeWindow(nativeWindow),
       mRenderer(renderer),
-      m_holographicCamera(pCamera),
+      mHolographicCamera(pCamera),
       mBackBufferTexture(nullptr),
       mBackBufferRTView(nullptr),
       mBackBufferSRView(nullptr),
       mDepthStencilTexture(nullptr),
       mDepthStencilDSView(nullptr),
       mDepthStencilSRView(nullptr),
+      mDepthStencilSRViewMono(nullptr),
+      mResolvedDepthBuffer(nullptr),
+      mCPUResolvedDepthTexture(nullptr),
+      mResolvedDepthView(nullptr),
+      mResolvedDepthBufferMappable(nullptr),
+      mResolvedDepthViewMappable(nullptr),
       mColorRenderTarget(this, renderer, false),
       mDepthStencilRenderTarget(this, renderer, true)
 {
-    pCamera->get_RenderTargetSize(&mD3DRenderTargetSize);
-    pCamera->get_ViewportScaleFactor(&mD3DViewportScaleFactor);
-    pCamera->get_IsStereo(&mIsStereo);
+    mHolographicCamera->get_RenderTargetSize(&mRenderTargetSize);
+    mHolographicCamera->get_ViewportScaleFactor(&mViewportScaleFactor);
+    mHolographicCamera->get_IsStereo(&mIsStereo);
 
     // cache the ID
-    m_holographicCamera->get_Id(&mId);
+    mHolographicCamera->get_Id(&mHolographicCameraId);
+    mHolographicCamera->SetNearPlaneDistance(mNearPlaneDistance);
+    mHolographicCamera->SetFarPlaneDistance(mFarPlaneDistance);
+
+    XMStoreFloat4x4(&mMidViewMatrix, XMMatrixIdentity());
+    XMStoreFloat4x4(&mMidViewMatrixInverse, XMMatrixIdentity());
+
+    InitDepthCurveArray(
+        mNearPlaneDistance,
+        mFarPlaneDistance,
+        mNearPlaneDistance > mFarPlaneDistance ? 0 : UINT16_MAX,
+        mDepthWeightArray);
+
+    mDepthBufferPlaneFinder = std::make_unique<HolographicDepthBasedImageStabilization::DepthBufferPlaneFinder>(mRenderer);
 }
 
 HolographicSwapChain11::~HolographicSwapChain11()
 {
     release();
+    mDepthBufferPlaneFinder->ReleaseDeviceDependentResources();
 }
 
 void HolographicSwapChain11::release()
 {
     SafeRelease(mKeyedMutex);
-    SafeRelease(mBackBufferTexture);
-    SafeRelease(mBackBufferRTView);
-    SafeRelease(mBackBufferSRView);
-    SafeRelease(mDepthStencilTexture);
-    SafeRelease(mDepthStencilDSView);
-    SafeRelease(mDepthStencilSRView);
+
+    // Release references to the back buffer
+    mBackBufferRTView.Reset();
+    mBackBufferSRView.Reset();
+    
+    // Force the back buffer to be released entirely
+    mBackBufferTexture.Get()->AddRef();
+    while (mBackBufferTexture.Get()->Release() > 1);
+    mBackBufferTexture.Reset();
+
+    releaseOffscreenDepthBuffer();
 }
 
 void HolographicSwapChain11::releaseOffscreenDepthBuffer()
@@ -104,6 +140,12 @@ void HolographicSwapChain11::releaseOffscreenDepthBuffer()
     SafeRelease(mDepthStencilTexture);
     SafeRelease(mDepthStencilDSView);
     SafeRelease(mDepthStencilSRView);
+    SafeRelease(mDepthStencilSRViewMono);
+    SafeRelease(mResolvedDepthBuffer);
+    SafeRelease(mCPUResolvedDepthTexture);
+    SafeRelease(mResolvedDepthView);
+    SafeRelease(mResolvedDepthBufferMappable);
+    SafeRelease(mResolvedDepthViewMappable);
 }
 
 EGLint HolographicSwapChain11::resetOffscreenBuffers(int backbufferWidth, int backbufferHeight)
@@ -121,21 +163,20 @@ EGLint HolographicSwapChain11::resetOffscreenDepthBuffer(int backbufferWidth, in
 {
     releaseOffscreenDepthBuffer();
 
+    HRESULT result = S_OK;
+
     if (mDepthBufferFormat != GL_NONE)
     {
         const d3d11::TextureFormat &depthBufferFormatInfo =
             d3d11::GetTextureFormatInfo(mDepthBufferFormat, mRenderer->getRenderer11DeviceCaps());
 
-        D3D11_TEXTURE2D_DESC depthStencilTextureDesc;
-        depthStencilTextureDesc.Width = backbufferWidth;
-        depthStencilTextureDesc.Height = backbufferHeight;
-        depthStencilTextureDesc.Format = depthBufferFormatInfo.texFormat;
-        depthStencilTextureDesc.MipLevels = 1;
-        depthStencilTextureDesc.ArraySize = mIsStereo ? 2 : 1;
-        depthStencilTextureDesc.SampleDesc.Count = 1;
-        depthStencilTextureDesc.SampleDesc.Quality = 0;
-        depthStencilTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-        depthStencilTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        CD3D11_TEXTURE2D_DESC depthStencilTextureDesc(
+            depthBufferFormatInfo.texFormat,
+            backbufferWidth,
+            backbufferHeight,
+            mIsStereo ? 2 : 1,
+            1,
+            D3D11_BIND_DEPTH_STENCIL);
 
         if (depthBufferFormatInfo.srvFormat != DXGI_FORMAT_UNKNOWN)
         {
@@ -146,8 +187,7 @@ EGLint HolographicSwapChain11::resetOffscreenDepthBuffer(int backbufferWidth, in
         depthStencilTextureDesc.MiscFlags = 0;
 
         ID3D11Device *device = mRenderer->getDevice();
-        HRESULT result =
-            device->CreateTexture2D(&depthStencilTextureDesc, NULL, &mDepthStencilTexture);
+        result = device->CreateTexture2D(&depthStencilTextureDesc, NULL, &mDepthStencilTexture);
         if (FAILED(result))
         {
             ERR("Could not create depthstencil surface for new swap chain: 0x%08X", result);
@@ -164,14 +204,13 @@ EGLint HolographicSwapChain11::resetOffscreenDepthBuffer(int backbufferWidth, in
         }
         d3d11::SetDebugName(mDepthStencilTexture, "Offscreen depth stencil texture");
 
-        D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
-        depthStencilDesc.Format = depthBufferFormatInfo.dsvFormat;
-        depthStencilDesc.ViewDimension = mIsStereo ? D3D11_DSV_DIMENSION_TEXTURE2DARRAY : D3D11_DSV_DIMENSION_TEXTURE2D;
-        depthStencilDesc.Flags = 0;
-        depthStencilDesc.Texture2D.MipSlice = 0;
-        depthStencilDesc.Texture2DArray.ArraySize = 2;
-        depthStencilDesc.Texture2DArray.FirstArraySlice = 0;
-        depthStencilDesc.Texture2DArray.MipSlice = 0;
+        CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc(
+            mIsStereo ? D3D11_DSV_DIMENSION_TEXTURE2DARRAY : D3D11_DSV_DIMENSION_TEXTURE2D,
+            depthBufferFormatInfo.dsvFormat,
+            0,
+            0,
+            mIsStereo ? 2 : 1, // Not used if the DSV dimension is TEXTURE2D
+            0);
 
         result = device->CreateDepthStencilView(mDepthStencilTexture, &depthStencilDesc, &mDepthStencilDSView);
         ASSERT(SUCCEEDED(result));
@@ -179,53 +218,136 @@ EGLint HolographicSwapChain11::resetOffscreenDepthBuffer(int backbufferWidth, in
 
         if (depthBufferFormatInfo.srvFormat != DXGI_FORMAT_UNKNOWN)
         {
-            D3D11_SHADER_RESOURCE_VIEW_DESC depthStencilSRVDesc;
-            depthStencilSRVDesc.Format = depthBufferFormatInfo.srvFormat;
-            depthStencilSRVDesc.ViewDimension = mIsStereo ? D3D11_SRV_DIMENSION_TEXTURE2DARRAY : D3D11_SRV_DIMENSION_TEXTURE2D;
-            depthStencilSRVDesc.Texture2D.MostDetailedMip = 0;
-            depthStencilSRVDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
-            depthStencilSRVDesc.Texture2DArray.ArraySize = 2;
-            depthStencilSRVDesc.Texture2DArray.FirstArraySlice = 0;
-            depthStencilSRVDesc.Texture2DArray.MostDetailedMip = 0;
-            depthStencilSRVDesc.Texture2DArray.MipLevels = static_cast<UINT>(-1);
-
-            result = device->CreateShaderResourceView(mDepthStencilTexture, &depthStencilSRVDesc, &mDepthStencilSRView);
-            ASSERT(SUCCEEDED(result));
-            d3d11::SetDebugName(mDepthStencilSRView, "Offscreen depth stencil shader resource");
-        }
-
-        if (mIsStereo)
-        {
-            D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilDesc2;
-            depthStencilDesc2.Format = depthBufferFormatInfo.dsvFormat;
-            depthStencilDesc2.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
-            depthStencilDesc2.Flags = 0;
-            depthStencilDesc2.Texture2DArray.ArraySize = 1;
-            depthStencilDesc2.Texture2DArray.FirstArraySlice = 1;
-            depthStencilDesc2.Texture2DArray.MipSlice = 0;
-
-            result = device->CreateDepthStencilView(mDepthStencilTexture, &depthStencilDesc2, &mDepthStencilDSView2);
-            ASSERT(SUCCEEDED(result));
-            d3d11::SetDebugName(mDepthStencilDSView, "Offscreen depth stencil view");
-
-            if (depthBufferFormatInfo.srvFormat != DXGI_FORMAT_UNKNOWN)
             {
-                D3D11_SHADER_RESOURCE_VIEW_DESC depthStencilSRVDesc;
+                CD3D11_SHADER_RESOURCE_VIEW_DESC depthStencilSRVDesc;
                 depthStencilSRVDesc.Format = depthBufferFormatInfo.srvFormat;
-                depthStencilSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-                depthStencilSRVDesc.Texture2DArray.ArraySize = 1;
-                depthStencilSRVDesc.Texture2DArray.FirstArraySlice = 1;
+                depthStencilSRVDesc.ViewDimension = mIsStereo ? D3D11_SRV_DIMENSION_TEXTURE2DARRAY : D3D11_SRV_DIMENSION_TEXTURE2D;
+                depthStencilSRVDesc.Texture2D.MostDetailedMip = 0;
+                depthStencilSRVDesc.Texture2D.MipLevels = static_cast<UINT>(-1);
+                depthStencilSRVDesc.Texture2DArray.ArraySize = mIsStereo ? 2 : 1; // Not used if the DSV dimension is TEXTURE2D
+                depthStencilSRVDesc.Texture2DArray.FirstArraySlice = 0;
                 depthStencilSRVDesc.Texture2DArray.MostDetailedMip = 0;
                 depthStencilSRVDesc.Texture2DArray.MipLevels = static_cast<UINT>(-1);
 
-                result = device->CreateShaderResourceView(mDepthStencilTexture, &depthStencilSRVDesc, &mDepthStencilSRView2);
+                result = device->CreateShaderResourceView(mDepthStencilTexture, &depthStencilSRVDesc, &mDepthStencilSRView);
                 ASSERT(SUCCEEDED(result));
                 d3d11::SetDebugName(mDepthStencilSRView, "Offscreen depth stencil shader resource");
+            }
+
+            {
+                CD3D11_SHADER_RESOURCE_VIEW_DESC depthStencilSRVDescMonoLeft(
+                    D3D11_SRV_DIMENSION_TEXTURE2D,
+                    depthBufferFormatInfo.srvFormat,
+                    0,
+                    static_cast<UINT>(-1));
+
+                result = device->CreateShaderResourceView(mDepthStencilTexture, &depthStencilSRVDescMonoLeft, &mDepthStencilSRViewMono);
+                ASSERT(SUCCEEDED(result));
+                d3d11::SetDebugName(mDepthStencilSRViewMono, "Offscreen depth stencil shader resource (mono)");
+            }
+        }
+
+        // Determine whether current Direct3D device can support Mappable Default Buffers functionality. If not, fall back to
+        // using Staging Buffers to access data on the CPU.
+        D3D11_FEATURE_DATA_D3D11_OPTIONS1 featureOptions;
+        result = device->CheckFeatureSupport(
+            D3D11_FEATURE_D3D11_OPTIONS1,
+            &featureOptions,
+            sizeof(featureOptions));
+
+        bool depthBufferMappedOnGpu = featureOptions.MapOnDefaultBuffers ? true : false;
+
+        const unsigned int outWidth  = lround(backbufferWidth) / DEPTH_BUFFER_SUBSAMPLE_RATE;
+        const unsigned int outHeight = lround(backbufferHeight) / DEPTH_BUFFER_SUBSAMPLE_RATE;
+        const unsigned int structureByteStride = sizeof(uint16_t);
+        const unsigned int numPixels = outWidth * outHeight;
+        const unsigned int byteWidth = structureByteStride * numPixels;
+        if (depthBufferMappedOnGpu)
+        {
+            // Create a default buffer resource that can be mapped on CPU.
+            CD3D11_BUFFER_DESC depthResolvedDesc(
+                byteWidth,
+                D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS,
+                D3D11_USAGE_DEFAULT,
+                D3D11_CPU_ACCESS_READ,
+                0,
+                structureByteStride);
+
+            if (SUCCEEDED(result))
+            {
+                result = device->CreateBuffer(&depthResolvedDesc, nullptr, &mResolvedDepthBufferMappable);
+            }
+
+            CD3D11_UNORDERED_ACCESS_VIEW_DESC depthResolvedUAVDesc(
+                D3D11_UAV_DIMENSION_BUFFER,
+                DXGI_FORMAT_R16_UNORM,
+                0,
+                numPixels);
+            
+            if (SUCCEEDED(result))
+            {
+                result = device->CreateUnorderedAccessView(
+                    mResolvedDepthBufferMappable,
+                    &depthResolvedUAVDesc,
+                    &mResolvedDepthViewMappable);
+            }
+        }
+        else
+        {
+            // Create a default resource, and copy it to a staging buffer for CPU read.
+            CD3D11_BUFFER_DESC depthResolvedDesc(
+                byteWidth,
+                D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS,
+                D3D11_USAGE_DEFAULT,
+                0,
+                0,
+                structureByteStride);
+            
+            if (SUCCEEDED(result))
+            {
+                result = device->CreateBuffer(&depthResolvedDesc, nullptr, &mResolvedDepthBuffer);
+            }
+            
+            CD3D11_UNORDERED_ACCESS_VIEW_DESC depthResolvedUAVDesc(
+                D3D11_UAV_DIMENSION_BUFFER,
+                DXGI_FORMAT_R16_UNORM,
+                0,
+                numPixels);
+            
+            if (SUCCEEDED(result))
+            {
+                result = device->CreateUnorderedAccessView(
+                    mResolvedDepthBuffer, 
+                    &depthResolvedUAVDesc, 
+                    &mResolvedDepthView);
+            }
+
+            CD3D11_BUFFER_DESC depthResolvedCPUDesc(
+                byteWidth,
+                0,
+                D3D11_USAGE_STAGING,
+                D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE,
+                0,
+                structureByteStride);
+            
+            if (SUCCEEDED(result))
+            {
+                result = device->CreateBuffer(
+                    &depthResolvedCPUDesc, 
+                    nullptr, 
+                    &mCPUResolvedDepthTexture);
             }
         }
     }
 
-    return EGL_SUCCESS;
+    if (SUCCEEDED(result))
+    {
+        return EGL_SUCCESS;
+    }
+    else
+    {
+        return EGL_BAD_ALLOC;
+    }
 }
 
 EGLint HolographicSwapChain11::resize(EGLint backbufferWidth, EGLint backbufferHeight)
@@ -240,6 +362,41 @@ EGLint HolographicSwapChain11::resize(EGLint backbufferWidth, EGLint backbufferH
 
     // Holographic apps do not have access to resize the display.
     return EGL_SUCCESS;
+}
+
+
+void HolographicSwapChain11::ComputeMidViewMatrix(
+    const XMMATRIX& left,
+    const XMMATRIX& right)
+{
+    // Decompose both matrices.
+    XMVECTOR leftScale, leftRotationQuat, leftTranslation;
+    bool success = XMMatrixDecompose(&leftScale, &leftRotationQuat, &leftTranslation, left);
+
+    XMVECTOR rightScale, rightRotationQuat, rightTranslation;
+    success = success && XMMatrixDecompose(&rightScale, &rightRotationQuat, &rightTranslation, right);
+    
+    // Only proceed if the decomposition was successful.
+    if (success)
+    {
+        // LERP the scale.
+        const XMVECTOR resultScale = XMVectorLerp(leftScale, rightScale, 0.5f);
+
+        // LERP the position.
+        const XMVECTOR resultTranslation = XMVectorLerp(leftTranslation, rightTranslation, 0.5f);
+
+        // SLERP the rotation.
+        const XMVECTOR resultRotationQuat = XMQuaternionSlerp(leftRotationQuat, rightRotationQuat, 0.5f);
+
+        // Compose the result transform.
+        auto midViewMatrix = 
+            XMMatrixScalingFromVector(resultScale) * 
+            XMMatrixRotationQuaternion(resultRotationQuat) * 
+            XMMatrixTranslationFromVector(resultTranslation);
+
+        // Store the result transform.
+        DirectX::XMStoreFloat4x4(&mMidViewMatrix, midViewMatrix);
+    }
 }
 
 EGLint HolographicSwapChain11::updateHolographicRenderingParameters(
@@ -295,14 +452,14 @@ EGLint HolographicSwapChain11::updateHolographicRenderingParameters(
     }
 
     // Don't resize unnecessarily
-    if (mBackBufferTexture != cameraBackBuffer.Get())
+    if (mBackBufferTexture != cameraBackBuffer)
     {
         // Can only recreate views if we have a resource
         ASSERT(cameraBackBuffer);
 
-        SafeRelease(mBackBufferTexture);
-        SafeRelease(mBackBufferRTView);
-        SafeRelease(mBackBufferSRView);
+        mBackBufferTexture.Reset();
+        mBackBufferRTView.Reset();
+        mBackBufferSRView.Reset();
 
         // This can change every frame as the system moves to the next buffer in the
         // swap chain. This mode of operation will occur when certain rendering modes
@@ -312,114 +469,75 @@ EGLint HolographicSwapChain11::updateHolographicRenderingParameters(
         // Create a render target view of the back buffer.
         // Creating this resource is inexpensive, and is better than keeping track of
         // the back buffers in order to pre-allocate render target views for each one.
-        d3d11::SetDebugName(mBackBufferTexture, "Back buffer texture");
-        result = device->CreateRenderTargetView(mBackBufferTexture, NULL, &mBackBufferRTView);
+        d3d11::SetDebugName(mBackBufferTexture.Get(), "Back buffer texture");
+        result = device->CreateRenderTargetView(mBackBufferTexture.Get(), NULL, &mBackBufferRTView);
         ASSERT(SUCCEEDED(result));
         if (SUCCEEDED(result))
         {
-            d3d11::SetDebugName(mBackBufferRTView, "Back buffer render target");
+            d3d11::SetDebugName(mBackBufferRTView.Get(), "Back buffer render target");
         }
 
         // Get the DXGI format for the back buffer.
         // This information can be accessed by the app using CameraResources::GetBackBufferDXGIFormat().
         D3D11_TEXTURE2D_DESC backBufferDesc;
         mBackBufferTexture->GetDesc(&backBufferDesc);
-        m_dxgiFormat = backBufferDesc.Format;
+        mDxgiFormat = backBufferDesc.Format;
 
         // Check for render target size changes.
         ABI::Windows::Foundation::Size currentSize;
-        result = m_holographicCamera->get_RenderTargetSize(&currentSize);
+        result = mHolographicCamera->get_RenderTargetSize(&currentSize);
         if (SUCCEEDED(result))
         {
-            if (mD3DRenderTargetSize.Height != currentSize.Height ||
-                mD3DRenderTargetSize.Width != currentSize.Width)
+            if (mRenderTargetSize.Height != currentSize.Height ||
+                mRenderTargetSize.Width != currentSize.Width)
             {
                 // Set render target size.
-                mD3DRenderTargetSize = currentSize;
+                mRenderTargetSize = currentSize;
             }
         }
 
         if (SUCCEEDED(result))
         {
             result = device->CreateRenderTargetView(
-                mBackBufferTexture,
+                mBackBufferTexture.Get(),
                 nullptr,
                 &mBackBufferRTView
             );
         }
 
-        if (SUCCEEDED(result))
+        if (SUCCEEDED(result) && (backBufferDesc.BindFlags & D3D11_BIND_SHADER_RESOURCE))
         {
             CD3D11_SHADER_RESOURCE_VIEW_DESC desc(
                 mIsStereo ? D3D11_SRV_DIMENSION_TEXTURE2DARRAY : D3D11_SRV_DIMENSION_TEXTURE2D,
                 backBufferDesc.Format);
-            HRESULT ignoreThisResult = device->CreateShaderResourceView(mBackBufferTexture, &desc, &mBackBufferSRView);
+            HRESULT hr = device->CreateShaderResourceView(mBackBufferTexture.Get(), &desc, &mBackBufferSRView);
 
-            if (SUCCEEDED(ignoreThisResult))
+            if (FAILED(hr))
             {
-                d3d11::SetDebugName(mBackBufferSRView, "Back buffer shader resource");
-            }
-            else
-            {
-                mBackBufferSRView = nullptr;
-            }
-        }
-
-        if (mIsStereo)
-        {
-            if (SUCCEEDED(result))
-            {
-                D3D11_RENDER_TARGET_VIEW_DESC renderTargetDesc;
-                renderTargetDesc.Format = backBufferDesc.Format;
-                renderTargetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
-                renderTargetDesc.Texture2DArray.ArraySize = 1;
-                renderTargetDesc.Texture2DArray.FirstArraySlice = 1;
-                renderTargetDesc.Texture2DArray.MipSlice = 0;
-
-                result = device->CreateRenderTargetView(
-                    mBackBufferTexture,
-                    &renderTargetDesc,
-                    &mBackBufferRTView2
-                );
+                return EGL_BAD_ALLOC;
             }
 
-            if (SUCCEEDED(result))
+            if (mBackBufferSRView != nullptr)
             {
-                D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-                srvDesc.Format = backBufferDesc.Format;
-                srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-                srvDesc.Texture2DArray.ArraySize = 1;
-                srvDesc.Texture2DArray.FirstArraySlice = 1;
-                srvDesc.Texture2DArray.MipLevels = 0;
-                srvDesc.Texture2DArray.MostDetailedMip = 0;
-
-                HRESULT ignoreThisResult = device->CreateShaderResourceView(mBackBufferTexture, &srvDesc, &mBackBufferSRView2);
-
-                if (SUCCEEDED(ignoreThisResult))
-                {
-                    d3d11::SetDebugName(mBackBufferSRView, "Back buffer shader resource");
-                }
-                else
-                {
-                    mBackBufferSRView2 = nullptr;
-                }
+                d3d11::SetDebugName(mBackBufferSRView.Get(), "Back buffer shader resource");
             }
         }
 
         // A new depth stencil view is also needed.
         return resetOffscreenBuffers(
-            static_cast<EGLint>(mD3DRenderTargetSize.Width),
-            static_cast<EGLint>(mD3DRenderTargetSize.Height));
+            static_cast<EGLint>(mRenderTargetSize.Width),
+            static_cast<EGLint>(mRenderTargetSize.Height));
     }
 
     if (SUCCEEDED(result))
     {
-        static ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> coordinateSystem = mHolographicNativeWindow->GetCoordinateSystem();
+        ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> coordinateSystem = 
+            mHolographicNativeWindow->GetCoordinateSystem();
 
         if (coordinateSystem != nullptr)
         {
             ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraPose> pose;
-            result = mHolographicNativeWindow->GetHolographicCameraPoses()->GetAt(mId, pose.GetAddressOf());
+            result = mHolographicNativeWindow->GetHolographicCameraPoses()->GetAt(mHolographicCameraId, pose.GetAddressOf());
 
             ABI::Windows::Graphics::Holographic::HolographicStereoTransform viewTransform;
             if (SUCCEEDED(result))
@@ -439,59 +557,169 @@ EGLint HolographicSwapChain11::updateHolographicRenderingParameters(
                 result = pose->get_ProjectionTransform(&projectionTransform);
             }
 
-            static DirectX::XMFLOAT4X4 viewProj[2];
-            gl::Program *program = nullptr;
-            gl::Context *context = nullptr;
             if (SUCCEEDED(result))
             {
                 // Update the view matrices. Holographic cameras (such as Microsoft HoloLens) are
                 // constantly moving relative to the world. The view matrices need to be updated
                 // every frame.
+                DirectX::XMFLOAT4X4 viewProj[2];
                 DirectX::XMStoreFloat4x4(
                     &viewProj[0],
-                    /*DirectX::XMMatrixTranspose*/(
-                        DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&viewTransform.Left)) * DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&projectionTransform.Left)))
+                    DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&viewTransform.Left)) * 
+                    DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&projectionTransform.Left))
                 );
                 DirectX::XMStoreFloat4x4(
                     &viewProj[1],
-                    /*DirectX::XMMatrixTranspose*/(
-                        DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&viewTransform.Right)) * DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&projectionTransform.Right)))
+                    DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&viewTransform.Right)) *
+                    DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&projectionTransform.Right))
+                );
+
+                // get view matrix
+                const auto leftViewMatrix = DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&viewTransform.Left));
+                const auto rightViewMatrix = DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&viewTransform.Right));
+                
+                // interpolate view matrix
+                if (mHolographicCameraId == 0)
+                {
+                    ComputeMidViewMatrix(leftViewMatrix, rightViewMatrix);
+                }
+                
+                // TODO: The display was being mirrored, so for now we hack these values to 
+                //       negative as far as the app is concerned.
+                viewTransform.Left.M11 = -viewTransform.Left.M11;
+                viewTransform.Left.M12 = -viewTransform.Left.M12;
+                viewTransform.Left.M13 = -viewTransform.Left.M13;
+                viewTransform.Right.M11 = -viewTransform.Right.M11;
+                viewTransform.Right.M12 = -viewTransform.Right.M12;
+                viewTransform.Right.M13 = -viewTransform.Right.M13;
+                mMidViewMatrix._11 = -mMidViewMatrix._11;
+                mMidViewMatrix._12 = -mMidViewMatrix._12;
+                mMidViewMatrix._13 = -mMidViewMatrix._13;
+
+                // store view matrix
+                DirectX::XMFLOAT4X4 view[2];
+                DirectX::XMStoreFloat4x4(
+                    &view[0],
+                    DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&viewTransform.Left))
+                );
+                DirectX::XMStoreFloat4x4(
+                    &view[1],
+                    DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&viewTransform.Right))
+                );
+                
+                // invert view matrix
+                XMVECTOR determinant;
+                auto leftViewInverse = XMMatrixInverse(&determinant, leftViewMatrix);
+
+                // store view matrix - and its inverse - for the depth-based focus plane finder
+                DirectX::XMStoreFloat4x4(&mView, leftViewMatrix);
+                if (!XMVector4NearEqual(determinant, XMVectorZero(), XMVectorSplatEpsilon()))
+                {
+                    DirectX::XMStoreFloat4x4(&mViewInverse, leftViewInverse);
+                }
+
+                // get projection
+                DirectX::XMFLOAT4X4 proj[2];
+                DirectX::XMStoreFloat4x4(
+                    &proj[0],
+                    DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&projectionTransform.Left))
+                );
+                DirectX::XMStoreFloat4x4(
+                    &proj[1],
+                    DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&projectionTransform.Right))
+                );
+                DirectX::XMStoreFloat4x4(
+                    &mProjection,
+                    DirectX::XMLoadFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&projectionTransform.Left))
                 );
 
                 // get the current program
-                context = gl::GetValidGlobalContext();
-                program = context->getState().getProgram();
+                gl::Context *glContext = gl::GetValidGlobalContext();
+                gl::Program *program = glContext->getState().getProgram();
 
                 if (program)
                 {
-                    GLint viewProjUniformLocation = -1;
-                    if (SUCCEEDED(result))
+                    // attach holographic view matrix, if applicable
+                    int viewMatrixIndex = program->getUniformLocation("uHolographicViewMatrix");
+                    if (viewMatrixIndex != -1)
                     {
-                        viewProjUniformLocation = program->getUniformLocation("uHolographicViewProjectionMatrix");
+                        // detach any existing buffers
+                        glContext->bindGenericUniformBuffer(0);
 
-                        if (viewProjUniformLocation == -1)
+                        // attach holographic view matrix
+                        if (!(gl::ValidateUniformMatrix(glContext, GL_FLOAT_MAT4, viewMatrixIndex, 2, GL_FALSE)))
                         {
+                            // Something unexpected has occured. We're probably in a bad state and should not continue.
                             result = E_FAIL;
+                        }
+                        else
+                        {
+                            program->setUniformMatrix4fv(viewMatrixIndex, 2, GL_FALSE, (GLfloat*) view);
                         }
                     }
 
-                    if (SUCCEEDED(result))
+                    // attach holographic projection matrix, if applicable
+                    int projectionMatrixIndex = program->getUniformLocation("uHolographicProjectionMatrix");
+                    if (projectionMatrixIndex != -1)
                     {
                         // detach any existing buffers
-                        context->bindGenericUniformBuffer(0);
+                        glContext->bindGenericUniformBuffer(0);
 
-                        if (!(gl::ValidateUniformMatrix(context, GL_FLOAT_MAT4, viewProjUniformLocation, 2, GL_FALSE)))
+                        // attach holographic projection matrix
+                        if (!(gl::ValidateUniformMatrix(glContext, GL_FLOAT_MAT4, projectionMatrixIndex, 2, GL_FALSE)))
                         {
+                            // Something unexpected has occured. We're probably in a bad state and should not continue.
                             result = E_FAIL;
                         }
-                        program->setUniformMatrix4fv(viewProjUniformLocation, 2, GL_FALSE, (GLfloat*) viewProj);
+                        else
+                        {
+                            program->setUniformMatrix4fv(projectionMatrixIndex, 2, GL_FALSE, (GLfloat*) proj);
+                        }
+                    }
+
+                    // attach holographic view/projection matrix, if applicable
+                    GLint viewProjectionMatrixUniformLocation = program->getUniformLocation("uHolographicViewProjectionMatrix");
+                    if (viewProjectionMatrixUniformLocation != -1)
+                    {
+                        // detach any existing buffers
+                        glContext->bindGenericUniformBuffer(0);
+
+                        // attach holographic view/projection matrix
+                        if (!(gl::ValidateUniformMatrix(glContext, GL_FLOAT_MAT4, viewProjectionMatrixUniformLocation, 2, GL_FALSE)))
+                        {
+                            // Something unexpected has occured. We're probably in a bad state and should not continue.
+                            result = E_FAIL;
+                        }
+                        program->setUniformMatrix4fv(viewProjectionMatrixUniformLocation, 2, GL_FALSE, (GLfloat*) viewProj);
+                    }
+
+                    // attach the mid-view matrix inverse, when enabled
+                    if (mUseAutomaticStereoRendering)
+                    {
+                        DirectX::XMVECTOR determinant;
+                        auto midViewInverse = XMMatrixInverse(&determinant, XMLoadFloat4x4(&mMidViewMatrix));
+
+                        if (!XMVector4NearEqual(determinant, XMVectorZero(), XMVectorSplatEpsilon()))
+                        {
+                            XMStoreFloat4x4(&mMidViewMatrixInverse, midViewInverse);
+                        }
+
+                        GLint undoViewProjUniformLocation = program->getUniformLocation("uUndoMidViewMatrix");
+                        if (undoViewProjUniformLocation != -1)
+                        {
+                            // detach any existing buffers
+                            glContext->bindGenericUniformBuffer(0);
+
+                            if (!(gl::ValidateUniformMatrix(glContext, GL_FLOAT_MAT4, undoViewProjUniformLocation, 1, GL_FALSE)))
+                            {
+                                // Something unexpected has occured. We're probably in a bad state and should not continue.
+                                result = E_FAIL;
+                            }
+                            program->setUniformMatrix4fv(undoViewProjUniformLocation, 1, GL_FALSE, (GLfloat*) &mMidViewMatrixInverse);
+                        }
                     }
                 }
             }
-        }
-        else
-        {
-            // TODO: Handle error scenario
         }
     }
 
@@ -518,56 +746,56 @@ EGLint HolographicSwapChain11::updateHolographicRenderingParameters(
 DXGI_FORMAT HolographicSwapChain11::getSwapChainNativeFormat() const
 {
     // Return the format of the swap chain provided by Windows Holographic.
-    return m_dxgiFormat;
+    return mDxgiFormat;
 }
 
 EGLint HolographicSwapChain11::reset(int backbufferWidth, int backbufferHeight, EGLint swapInterval)
 {
     // Windows Holographic apps use APIs to access the back buffer.
-    UINT32 id = 0;
-    HRESULT hr = m_holographicCamera->get_Id(&id);
+    UINT32 id = mHolographicCameraId;
 
-    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraPose> pose;
-    if (SUCCEEDED(hr))
     {
-        hr = mHolographicNativeWindow->GetHolographicCameraPose(id, pose.GetAddressOf());
+        HRESULT hr = S_OK;
+
+        ABI::Windows::Graphics::Holographic::IHolographicCameraPose* pose = nullptr;
+        if (SUCCEEDED(hr))
+        {
+            hr = mHolographicNativeWindow->GetHolographicCameraPose(id, &pose);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            pose->get_NearPlaneDistance(&mNearPlaneDistance);
+            pose->get_FarPlaneDistance(&mFarPlaneDistance);
+
+            // Ensure the values we set previously made it through.
+            assert(mNearPlaneDistance ==  0.1f);
+            assert(mFarPlaneDistance  == 20.0f);
+
+            ABI::Windows::Foundation::Rect viewportRect;
+            pose->get_Viewport(&viewportRect);
+            mViewport = CD3D11_VIEWPORT(
+                viewportRect.X,
+                viewportRect.Y,
+                viewportRect.Width,
+                viewportRect.Height
+            );
+        }
     }
+    
+    HRESULT hr = S_OK;
 
-    if (SUCCEEDED(hr))
-    {
-        pose->get_NearPlaneDistance(&mNearPlaneDistance);
-        pose->get_FarPlaneDistance(&mFarPlaneDistance);
-
-        ABI::Windows::Foundation::Rect viewportRect;
-        pose->get_Viewport(&viewportRect);
-        m_d3dViewport = CD3D11_VIEWPORT(
-            viewportRect.X,
-            viewportRect.Y,
-            viewportRect.Width,
-            viewportRect.Height
-        );
-    }
-
-    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters> parameters;
+    ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters = nullptr;
     if (SUCCEEDED(hr))
     {
         // This will take care of back buffer, depth buffer, viewport, coordinate system, and view/projection matrix(es).
-        hr = mHolographicNativeWindow->GetHolographicRenderingParameters(id, parameters.GetAddressOf());
+        hr = mHolographicNativeWindow->GetHolographicRenderingParameters(id, &parameters);
     }
 
     if (SUCCEEDED(hr))
     {
-        if (mParameters != parameters)
-        {
-            mParameters = parameters;
-        }
-        else
-        {
-            return EGL_SUCCESS;
-        }
-
-        EGLint result = updateHolographicRenderingParameters(parameters.Get());
-
+        EGLint result = updateHolographicRenderingParameters(parameters);
+            
         if (result != EGL_SUCCESS)
         {
             return result;
@@ -594,6 +822,7 @@ EGLint HolographicSwapChain11::swapRect(EGLint x, EGLint y, EGLint width, EGLint
 EGLint HolographicSwapChain11::swapRect(IHolographicFrame* pHolographicFrame)
 {
     EGLint result = present(pHolographicFrame);
+    mHolographicNativeWindow->ResetFrame();
     if (result != EGL_SUCCESS)
     {
         return result;
@@ -604,16 +833,108 @@ EGLint HolographicSwapChain11::swapRect(IHolographicFrame* pHolographicFrame)
     return EGL_SUCCESS;
 }
 
+// This function uses the depth buffer for the first holographic camera to determine a best-
+// fit plane for the scene geometry. It uses that plane, and a projected position, to set up
+// the focus point and plane for Windows Holographic image stabilization. To take advantage 
+// of this feature, make sure to apply the following rules when drawing content:
+//   * All information in the depth buffer should be for hologram geometry that is visible
+//     to the user.
+//   * Don't draw pixels to the depth buffer to provide occlusion. Do occlusion last
+//     instead; overwrite color pixels and turn off depth writes.
+//   * Avoid rendering techniques that overwrite the depth buffer with other data.
+void HolographicSwapChain11::SetStabilizationPlane(IHolographicFrame* pFrame)
+{
+    // Do the image stabilization plane estimation.
+
+    using namespace Windows::Foundation::Numerics;
+
+    // If the projection matrix isn't set yet, it will be the identity matrix.
+    // In that case, we aren't ready to do depth-based image stabilization yet.
+    if (mPreviousProjection.m43 == 0.f) return;
+
+    mDepthBufferPlaneFinder->SetProjectionMatrix(mPreviousProjection);
+
+    // Resolve depth for the current camera.
+    float3 planeNormalInCameraSpace = {0, 0, 1.f};
+    float distanceToPointInMeters = 2.0f - mNearPlaneDistance;
+    assert(mDepthBufferPlaneFinder != nullptr);
+    const bool estimationSuccess = mDepthBufferPlaneFinder->TryFindPlaneNormalAndDistance(
+        this, 
+        planeNormalInCameraSpace, 
+        distanceToPointInMeters);
+
+//#define ENABLE_DEBUG_OUTPUT
+#ifdef ENABLE_DEBUG_OUTPUT
+    OutputDebugStringA((
+        "Distance from near plane to point: " + 
+        std::to_string(distanceToPointInMeters) + 
+        "\n").c_str());
+#endif
+
+    if (estimationSuccess)
+    {
+        // Transform the stabilization point, which is computed in view space, into the "world space" coordinate system.
+        float3 pointInViewSpace = { 0.f, 0.f, -distanceToPointInMeters };
+        float3 pointInWorldSpace = transform(pointInViewSpace, mPreviousViewInverse);
+
+        // Note that the transpose of a rotation matrix is its inverse.
+        float4x4 normalRotationInverse = transpose(mPreviousView);
+
+        // Transform the LSR plane normal from view space to world space.
+        planeNormalInCameraSpace = normalize(planeNormalInCameraSpace);
+        float4 normalInCameraSpace = {
+            planeNormalInCameraSpace.x,
+           -planeNormalInCameraSpace.y,
+            planeNormalInCameraSpace.z,
+            dot(pointInViewSpace, planeNormalInCameraSpace)
+            };
+        float4 planeNormalInWorldSpace4 = transform(normalInCameraSpace, normalRotationInverse);
+        float3 planeNormalInWorldSpace = {
+            planeNormalInWorldSpace4.x,
+            planeNormalInWorldSpace4.y,
+            planeNormalInWorldSpace4.z
+        };
+
+        ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> coordinateSystem = 
+            mHolographicNativeWindow->GetCoordinateSystem();
+
+        // Set the focus point for the current camera.
+        ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters = nullptr;
+        HRESULT hr = mHolographicNativeWindow->GetHolographicRenderingParameters(mHolographicCameraId, &parameters);
+        if (SUCCEEDED(hr))
+        {
+            parameters->SetFocusPointWithNormal(
+                coordinateSystem.Get(),
+                pointInWorldSpace,
+                planeNormalInWorldSpace);
+        }
+    }
+}
+
 EGLint HolographicSwapChain11::present(IHolographicFrame* pFrame)
 {
     HRESULT result = S_OK;
+
+    // For now, we set the focus plane for the first camera.
+    if (mUseAutomaticDepthBasedImageStabilization)
+    {
+        SetStabilizationPlane(pFrame);
+
+        mPreviousProjection    = mProjection;
+        mPreviousView          = mView;
+        mPreviousViewInverse   = mViewInverse;
+    }
 
     // By default, this API waits for the frame to finish before it returns.
     // Holographic apps should wait for the previous frame to finish before
     // starting work on a new frame. This allows for better results from
     // holographic frame predictions.
     HolographicFramePresentResult presentResult;
-    result = pFrame->PresentUsingCurrentPrediction(&presentResult);
+        result = pFrame->PresentUsingCurrentPredictionWithBehavior(
+            mWaitForVBlank ?
+                HolographicFramePresentWaitBehavior_WaitForFrameToFinish :
+                HolographicFramePresentWaitBehavior_DoNotWaitForFrameToFinish,
+            &presentResult);
     
     if (SUCCEEDED(result))
     {
@@ -621,34 +942,22 @@ EGLint HolographicSwapChain11::present(IHolographicFrame* pFrame)
         // target.  Mark it dirty.
         mRenderer->markRenderTargetStateDirty();
 
-        //ComPtr<IHolographicFramePrediction> prediction;
-        //result = pFrame->get_CurrentPrediction(prediction.GetAddressOf());
-        //UseHolographicCameraResources<void>([this, prediction](std::map<UINT32, std::unique_ptr<CameraResources>>& cameraResourceMap)
-        //{
-            //for (auto cameraPose : prediction->CameraPoses)
-            //{
-                ComPtr<ID3D11DeviceContext1> spContext = mRenderer->getDeviceContext1IfSupported();
+        ComPtr<ID3D11DeviceContext1> spContext = mRenderer->getDeviceContext1IfSupported();
 
-                // This represents the device-based resources for a HolographicCamera.
-                //DX::CameraResources* pCameraResources = cameraResourceMap[cameraPose->HolographicCamera->Id].get();
+        // Discard the contents of the render target.
+        // This is a valid operation only when the existing contents will be
+        // entirely overwritten. If dirty or scroll rects are used, this call
+        // should be removed.
+        if (mBackBufferRTView != nullptr)
+        {
+            spContext->DiscardView(mBackBufferRTView.Get());
+        }
 
-                // Discard the contents of the render target.
-                // This is a valid operation only when the existing contents will be
-                // entirely overwritten. If dirty or scroll rects are used, this call
-                // should be removed.
-                //spContext->DiscardView(pCameraResources->GetBackBufferRenderTargetView());
-                if (mBackBufferRTView != nullptr)
-                {
-                    spContext->DiscardView(mBackBufferRTView);
-                }
-
-                // Discard the contents of the depth stencil.
-                if (mDepthStencilDSView != nullptr)
-                {
-                    spContext->DiscardView(mDepthStencilDSView);
-                }
-        //}
-    //});
+        // Discard the contents of the depth stencil.
+        if (mDepthStencilDSView != nullptr)
+        {
+            spContext->DiscardView(mDepthStencilDSView);
+        }
     }
 
     // The PresentUsingCurrentPrediction API will detect when the graphics device
@@ -677,22 +986,19 @@ EGLint HolographicSwapChain11::present(IHolographicFrame* pFrame)
 
 ID3D11Texture2D *HolographicSwapChain11::getRenderTargetTexture()
 {
-    return mBackBufferTexture;
+    return mBackBufferTexture.Get();
 }
 
 ID3D11RenderTargetView *HolographicSwapChain11::getRenderTarget()
 {
-    if (mBackBufferRTView == nullptr)
-    {
-        // TODO: Use the latest holographic rendering parameters to ensure a back buffer exists.
-        //       We might need a global with which to do that.
-    }
-    return /*mNeedsOffscreenTexture ? mOffscreenRTView : */mBackBufferRTView;
+    // Note that the holographic render target view does not currently allow an offscreen texture.
+    return mBackBufferRTView.Get();
 }
 
 ID3D11ShaderResourceView *HolographicSwapChain11::getRenderTargetShaderResource()
 {
-    return /*mNeedsOffscreenTexture ? mOffscreenSRView : */mBackBufferSRView;
+    // Note that the holographic render target view does not currently allow an offscreen texture.
+    return mBackBufferSRView.Get();
 }
 
 ID3D11DepthStencilView *HolographicSwapChain11::getDepthStencil()
@@ -710,29 +1016,39 @@ ID3D11Texture2D *HolographicSwapChain11::getDepthStencilTexture()
     return mDepthStencilTexture;
 }
 
-ID3D11RenderTargetView *HolographicSwapChain11::getRenderTarget2()
+DirectX::XMFLOAT4X4 const& HolographicSwapChain11::getMidViewMatrix()
 {
-    if (mBackBufferRTView2 == nullptr)
-    {
-        // TODO: use the latest holographic rendering parameters to ensure a back buffer exists
-        // we might need a global with which to do that
-    }
-    return /*mNeedsOffscreenTexture ? mOffscreenRTView : */mBackBufferRTView2;
+    return mMidViewMatrix;
 }
 
-ID3D11ShaderResourceView *HolographicSwapChain11::getRenderTargetShaderResource2()
+bool const& HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled()
 {
-    return /*mNeedsOffscreenTexture ? mOffscreenSRView : */mBackBufferSRView2;
+    return mUseAutomaticStereoRendering;
 }
 
-ID3D11DepthStencilView *HolographicSwapChain11::getDepthStencil2()
+bool const& HolographicSwapChain11::getIsAutomaticDepthBasedImageStabilizationEnabled()
 {
-    return mDepthStencilDSView2;
+    return mUseAutomaticDepthBasedImageStabilization;
 }
 
-ID3D11ShaderResourceView * HolographicSwapChain11::getDepthStencilShaderResource2()
+bool const& HolographicSwapChain11::getIsWaitForVBlankEnabled()
 {
-    return mDepthStencilSRView2;
+    return mWaitForVBlank;
+}
+
+void HolographicSwapChain11::setIsAutomaticStereoRenderingEnabled(bool isEnabled)
+{
+    mUseAutomaticStereoRendering = isEnabled;
+}
+
+void HolographicSwapChain11::setIsAutomaticDepthBasedImageStabilizationEnabled(bool isEnabled)
+{
+    mUseAutomaticDepthBasedImageStabilization = isEnabled;
+}
+
+void HolographicSwapChain11::setIsWaitForVBlankEnabled(bool isEnabled)
+{
+    mWaitForVBlank = isEnabled;
 }
 
 void HolographicSwapChain11::recreate()

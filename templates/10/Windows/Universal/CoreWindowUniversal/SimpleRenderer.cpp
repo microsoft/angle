@@ -96,36 +96,20 @@ GLuint CompileProgram(const std::string &vsSource, const std::string &fsSource)
 SimpleRenderer::SimpleRenderer(bool isHolographic) :
     mWindowWidth(1268),
     mWindowHeight(720),
-    mDrawCount(0)
+    mDrawCount(0),
+    mIsHolographic(isHolographic)
 {
     // Vertex Shader source
-    const std::string vs = isHolographic ?
-        STRING
+    const std::string vs = STRING
     (
-        // holographic version
+        #version 300 es\n
 
-        uniform mat4 uModelMatrix;
-        uniform mat4 uHolographicViewProjectionMatrix[2];
-        attribute vec4 aPosition;
-        attribute vec4 aColor;
-        attribute float aRenderTargetArrayIndex;
-        varying vec4 vColor;
-        varying float vRenderTargetArrayIndex;
-        void main()
-        {
-            int arrayIndex = int(aRenderTargetArrayIndex); // % 2; // TODO: integer modulus operation supported on ES 3.00 only
-            gl_Position = uHolographicViewProjectionMatrix[arrayIndex] * uModelMatrix * aPosition;
-            vColor = aColor;
-            vRenderTargetArrayIndex = aRenderTargetArrayIndex;
-        }
-    ) : STRING
-    (
         uniform mat4 uModelMatrix;
         uniform mat4 uViewMatrix;
         uniform mat4 uProjMatrix;
-        attribute vec4 aPosition;
-        attribute vec4 aColor;
-        varying vec4 vColor;
+        in vec4 aPosition;
+        in vec4 aColor;
+        out vec4 vColor;
         void main()
         {
             gl_Position = uProjMatrix * uViewMatrix * uModelMatrix * aPosition;
@@ -134,24 +118,17 @@ SimpleRenderer::SimpleRenderer(bool isHolographic) :
     );
 
     // Fragment Shader source
-    const std::string fs = isHolographic ? // TODO: this should not be necessary
-        STRING
+        const std::string fs =  STRING
     (
+        #version 300 es\n
+
         precision mediump float;
-        varying vec4 vColor;
-        varying float vRenderTargetArrayIndex; // TODO: this should not be necessary
+
+        in vec4 vColor;
+        out vec4 fragColor;
         void main()
         {
-            gl_FragColor = vColor;
-            float index = vRenderTargetArrayIndex;
-        }
-    ) : STRING
-    (
-        precision mediump float;
-        varying vec4 vColor;
-        void main()
-        {
-            gl_FragColor = vColor;
+            fragColor = vColor;
         }
     );
 
@@ -165,7 +142,7 @@ SimpleRenderer::SimpleRenderer(bool isHolographic) :
     mProjUniformLocation = glGetUniformLocation(mProgram, "uProjMatrix");
 
     // Then set up the cube geometry.
-    float halfWidth = isHolographic ? 0.1f : 0.5f;
+    float halfWidth = 0.1f;
     GLfloat vertexPositions[] =
     {
         -halfWidth, -halfWidth, -halfWidth,
@@ -227,8 +204,6 @@ SimpleRenderer::SimpleRenderer(bool isHolographic) :
     glGenBuffers(1, &mRenderTargetArrayIndices);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mRenderTargetArrayIndices);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(renderTargetArrayIndices), renderTargetArrayIndices, GL_STATIC_DRAW);
-
-    mIsHolographic = isHolographic;
 }
 
 SimpleRenderer::~SimpleRenderer()
@@ -287,17 +262,12 @@ void SimpleRenderer::Draw()
 
     if (mIsHolographic)
     {
-        // Load the render target array indices into an array.
-        glBindBuffer(GL_ARRAY_BUFFER, mRenderTargetArrayIndices);
-        glVertexAttribPointer(mRtvIndexAttribLocation, 1, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(mRtvIndexAttribLocation);
+        MathHelper::Matrix4 holographicViewMatrix = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1}; // the interpolated view matrix
+        glGetFloatv(GLEXT_HOLOGRAPHIC_MONO_VIEW_MATRIX_ANGLE, &(holographicViewMatrix.m[0][0]));
+        glUniformMatrix4fv(mViewUniformLocation, 1, GL_FALSE, &(holographicViewMatrix.m[0][0]));
 
-        // Enable instancing.
-        glVertexAttribDivisorANGLE(mRtvIndexAttribLocation, 1);
-
-        // Draw 36 indices: six faces, two triangles per face, 3 indices per triangle
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);
-        glDrawElementsInstancedANGLE(GL_TRIANGLES, (6 * 2) * 3, GL_UNSIGNED_SHORT, 0, 2);
+        MathHelper::Matrix4 projectionMatrix = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
+        glUniformMatrix4fv(mProjUniformLocation, 1, GL_FALSE, &(projectionMatrix.m[0][0]));
     }
     else
     {
@@ -306,11 +276,11 @@ void SimpleRenderer::Draw()
 
         MathHelper::Matrix4 projectionMatrix = MathHelper::SimpleProjectionMatrix(float(mWindowWidth) / float(mWindowHeight));
         glUniformMatrix4fv(mProjUniformLocation, 1, GL_FALSE, &(projectionMatrix.m[0][0]));
-
-        // Draw 36 indices: six faces, two triangles per face, 3 indices per triangle
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);
-        glDrawElements(GL_TRIANGLES, (6 * 2) * 3, GL_UNSIGNED_SHORT, 0);
     }
+
+    // Draw 36 indices: six faces, two triangles per face, 3 indices per triangle
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);
+    glDrawElements(GL_TRIANGLES, (6 * 2) * 3, GL_UNSIGNED_SHORT, 0);
 
     mDrawCount += 1;
 }

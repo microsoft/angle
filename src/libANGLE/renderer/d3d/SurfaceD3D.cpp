@@ -79,7 +79,11 @@ SurfaceD3D::~SurfaceD3D()
 
 void SurfaceD3D::releaseSwapChain()
 {
+    // Holographic swap chains are owned by the HolographicNativeWindow, and will be deleted by it instead
+    // when this is compiled for Windows Holographic.
+#ifndef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
     SafeDelete(mSwapChain);
+#endif
 }
 
 egl::Error SurfaceD3D::initialize()
@@ -120,6 +124,36 @@ egl::Error SurfaceD3D::initialize()
 FramebufferImpl *SurfaceD3D::createDefaultFramebuffer(const gl::Framebuffer::Data &data)
 {
     return mRenderer->createFramebuffer(data);
+}
+
+egl::Error SurfaceD3D::updateAttributeBoolean(EGLint attribute, EGLBoolean value)
+{
+    switch (attribute)
+    {
+    case EGLEXT_WAIT_FOR_VBLANK_ANGLE:
+        if (mNativeWindow.isHolographic())
+        {
+            HolographicNativeWindow* holographicNativeWindow = reinterpret_cast<HolographicNativeWindow*>(mNativeWindow.GetImpl());
+            return holographicNativeWindow->SetWaitForVBlank(static_cast<bool>(value));
+        }
+    default:
+        return egl::Error(EGL_SUCCESS);
+    }
+}
+
+egl::Error SurfaceD3D::updateAttributePointer(EGLint attribute, EGLNativeWindowType value)
+{
+    switch (attribute)
+    {
+    case EGLEXT_HOLOGRAPHIC_SPATIAL_FRAME_OF_REFERENCE_ANGLE:
+        if (mNativeWindow.isHolographic())
+        {
+            HolographicNativeWindow* holographicNativeWindow = reinterpret_cast<HolographicNativeWindow*>(mNativeWindow.GetImpl());
+            return holographicNativeWindow->SetSpatialFrameOfReference(value);
+        }
+    default:
+        return egl::Error(EGL_SUCCESS);
+    }
 }
 
 egl::Error SurfaceD3D::bindTexImage(gl::Texture *, EGLint)
@@ -201,16 +235,48 @@ egl::Error SurfaceD3D::resizeSwapChain(int backbufferWidth, int backbufferHeight
 
 egl::Error SurfaceD3D::resetSwapChain(int backbufferWidth, int backbufferHeight)
 {
+    EGLint status = EGL_SUCCESS;
+
 #ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    // Holographic swap chains will have a back buffer width and height of 0
+    // temporarily while waiting for the first holographic camera.
     if (!mNativeWindow.isHolographic())
 #endif
     {
         ASSERT(backbufferWidth >= 0 && backbufferHeight >= 0);
+        ASSERT(mSwapChain);
+        mSwapChain->reset(std::max(1, backbufferWidth), std::max(1, backbufferHeight), mSwapInterval);
     }
-    ASSERT(mSwapChain);
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    else
+    {
+        if (mSwapChain == nullptr)
+        {
+            // On Windows Holographic, we will have a null swap chain for a while
+            // while waiting for the first holographic camera to arrive.
+            // So, mSwapChain being null is expected.
+            return egl::Error(EGL_SUCCESS);
+        }
 
-    EGLint status = mSwapChain->reset(std::max(1, backbufferWidth), std::max(1, backbufferHeight), mSwapInterval);
-    
+        // Update all holographic cameras.
+        EGLint status = EGL_SUCCESS;
+        for each (auto const& swapChain in mHolographicSwapChains)
+        {
+            EGLint s = swapChain->reset(std::max(1, backbufferWidth), std::max(1, backbufferHeight), mSwapInterval);
+            if (s != EGL_SUCCESS)
+            {
+                status = s;
+            }
+        }
+        if (status != EGL_SUCCESS)
+        {
+            // A reset is in progress. Don't try to draw to any holographic cameras this frame.
+            mHolographicSwapChains.clear();
+            mSwapChain = nullptr;
+        }
+    }
+#endif
+
     if (status == EGL_CONTEXT_LOST)
     {
         mRenderer->notifyDeviceLost();
@@ -222,11 +288,12 @@ egl::Error SurfaceD3D::resetSwapChain(int backbufferWidth, int backbufferHeight)
     }
 
 #ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
-    if (mNativeWindow.isHolographic())
+    if (mNativeWindow.isHolographic() && (mSwapChain != nullptr))
     {
+        // Use the width and height of the holographic camera back buffer.
         HolographicSwapChain11* holographicSwapChain = reinterpret_cast<HolographicSwapChain11*>(mSwapChain);
         mWidth = holographicSwapChain->getWidth();
-        mHeight = holographicSwapChain->getHeight();        
+        mHeight = holographicSwapChain->getHeight();
     }
     else
 #endif
@@ -244,6 +311,18 @@ egl::Error SurfaceD3D::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 {
     if (!mSwapChain)
     {
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        if (mNativeWindow.isHolographic())
+        {
+            // An error was encountered. In this case, we don't have a swap chain to 
+            // present, and that is normally where the holographic native window would
+            // be reset in preparation of acquiring a new holographic frame next time
+            // the holographic FBO is cleared. So, we reset it here instead to ensure 
+            // that the next frame is still going to be acquired.
+            HolographicNativeWindow* holographicNativeWindow = reinterpret_cast<HolographicNativeWindow*>(mNativeWindow.GetImpl());
+            holographicNativeWindow->ResetFrame();
+        }
+#endif
         return egl::Error(EGL_SUCCESS);
     }
 
@@ -264,7 +343,6 @@ egl::Error SurfaceD3D::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 #ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
         if (mNativeWindow.isHolographic())
         {
-            // TODO: for swap chains based on holographic native windows, it will need to handle scenarios where the camera is removed
             HolographicNativeWindow* holographicNativeWindow = reinterpret_cast<HolographicNativeWindow*>(mNativeWindow.GetImpl());
             auto frame = holographicNativeWindow->GetHolographicFrame();
             if (frame != nullptr)
@@ -407,20 +485,40 @@ gl::Error SurfaceD3D::getAttachmentRenderTarget(const gl::FramebufferAttachment:
     // Create/upkeep the holographic swap chain
     if (mNativeWindow.isHolographic())
     {
-        if (mSwapChain == nullptr)
-        {
-            HolographicNativeWindow* holographicNativeWindow = reinterpret_cast<HolographicNativeWindow*>(mNativeWindow.GetImpl());
+        HolographicNativeWindow* holographicNativeWindow = reinterpret_cast<HolographicNativeWindow*>(mNativeWindow.GetImpl());
 
-            // TODO: be able to use multiple HolographicCameras
-            HolographicSwapChain11* swapChain = nullptr;
-            hr = holographicNativeWindow->GetHolographicSwapChain(0, &swapChain);
-            if (SUCCEEDED(hr))
+        // Update holographic resources - but only once per frame.
+        if (holographicNativeWindow->IsUpdateNeeded())
+        {
+            HRESULT hrFromCameraUpdate = holographicNativeWindow->UpdateHolographicResources();
+
+            // Check for changes to the list of holographic cameras.
+            // We will clear and draw to each one.
+            if (holographicNativeWindow->HasHolographicCameraListChanged() || (mSwapChain == nullptr))
             {
-                mSwapChain = swapChain;
+                mHolographicSwapChains.clear();
+                mSwapChain = nullptr;
+                auto cameraIds = holographicNativeWindow->GetCameraIds();
+                int i = 0;
+                for each (auto const& id in cameraIds)
+                {
+                    HolographicSwapChain11* swapChain = nullptr;
+                    hr = holographicNativeWindow->GetHolographicSwapChain(id, &swapChain);
+                    if (SUCCEEDED(hr))
+                    {
+                        if (i++ == 0)
+                        {
+                            // For now, we make the first holographic camera the "primary" 
+                            // swap chain.
+                            mSwapChain = swapChain;
+                        }
+                        mHolographicSwapChains.push_back(swapChain);
+                    }
+                }
             }
+
+            resetSwapChain(0, 0);
         }
-        
-        resetSwapChain(0, 0);
     }
 
     if (mSwapChain != nullptr)

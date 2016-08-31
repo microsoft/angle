@@ -5,13 +5,44 @@
 //
 
 // HolographicNativeWindow.cpp: NativeWindow for managing windows based on Windows Holographic app views.
+//
+// This implementation uses the frame of reference provided by the app to render a stereo version of 
+// the scene. It can provide a view matrix midway between both eye positions of the holographic camera 
+// for the app to use, and in this case the app is expected to use a projection matrix that is the 
+// identity matrix (or no projection matrix at all). Internally to ANGLE, the stereo rendering will 
+// double the number of instances provided to the shader - which is hidden from the shader by halving 
+// the value set for gl_InstanceID - and apply the left and right view matrices to each eye, after 
+// undoing the midview matrix.
+//
+// Alternatively, the app can use its own instanced draw calls and access the holographic view/projection 
+// matrix provided by ANGLE by using odd and even instance IDs for left and right views. In this case, the 
+// shader program is not modified.
+//
+// This implementation can also use automatic depth-based image stabilization. This feature determines a 
+// best-fit plane for the scene geometry by processing geometry data from the depth buffer, and then sets 
+// the focus point and plane for Windows Holographic image stabilization. To take advantage of this 
+// feature, make sure to apply the following rules when drawing content:
+//   * All information in the depth buffer should be for hologram geometry that is visible
+//     to the user.
+//   * Don't draw pixels to the depth buffer to provide occlusion. Do occlusion last
+//     instead; overwrite color pixels and turn off depth writes.
+//   * Avoid rendering techniques that overwrite the depth buffer with other data.
+// If the above rules cannot be applied, the feature for automatic depth-based image stabilization should
+// not be enabled.
+//
+// The frame of reference provided by the app can be stationary, or it can be attached to a device.
+//
+
 
 #include "libANGLE/renderer/d3d/d3d11/winrt/HolographicNativeWindow.h"
+#include "libANGLE/renderer/d3d/d3d11/Renderer11.h"
 
 using namespace ABI::Windows::Foundation::Collections;
 
 namespace rx
 {
+
+bool HolographicNativeWindow::mInitialized = false;
 
 HolographicNativeWindow::~HolographicNativeWindow()
 {
@@ -20,7 +51,7 @@ HolographicNativeWindow::~HolographicNativeWindow()
 
 bool HolographicNativeWindow::initialize(EGLNativeWindowType holographicSpace, IPropertySet *propertySet)
 {
-    mIsInitialized = true;
+    mInitialized = true;
 
     ComPtr<IPropertySet> props = propertySet;
     ComPtr<IInspectable> space = holographicSpace;
@@ -38,37 +69,97 @@ bool HolographicNativeWindow::initialize(EGLNativeWindowType holographicSpace, I
         result = props.As(&propertyMap);
     }
 
-    // Look for the presence of the EGLNativeWindowType in the property set.
-    boolean hasEglBaseCoordinateSystemProperty = false;
-    if (SUCCEEDED(result))
     {
-        result = propertyMap->HasKey(HStringReference(EGLBaseCoordinateSystemProperty).Get(), &hasEglBaseCoordinateSystemProperty);
+        // Look for the presence of the EGLNativeWindowType in the property set.
+        boolean hasEglBaseCoordinateSystemProperty = false;
+        if (SUCCEEDED(result))
+        {
+            result = propertyMap->HasKey(HStringReference(EGLBaseCoordinateSystemProperty).Get(), &hasEglBaseCoordinateSystemProperty);
+        }
+
+        // If the IPropertySet does not contain the required EGLBaseCoordinateSystemProperty key, the property set is
+        // considered invalid.
+        if (SUCCEEDED(result) && !hasEglBaseCoordinateSystemProperty)
+        {
+            ERR("Could not find EGLBaseCoordinateSystemProperty in IPropertySet. Valid EGLBaseCoordinateSystemProperty values include ISpatialStationaryFrameOfReference and IDeviceAttachedFrameOfReference");
+            return false;
+        }
+
+        // The EGLBaseCoordinateSystemProperty property exists, so retrieve the IInspectable that represents the EGLBaseCoordinateSystemProperty.
+        ComPtr<IInspectable> frameOfReference;
+        if (SUCCEEDED(result) && hasEglBaseCoordinateSystemProperty)
+        {
+            result = propertyMap->Lookup(HStringReference(EGLBaseCoordinateSystemProperty).Get(), &frameOfReference);
+        }
+
+        if (SetSpatialFrameOfReference(frameOfReference.Get()).getCode() == EGL_BAD_PARAMETER)
+        {
+            result = E_INVALIDARG;
+        }
     }
 
-    // If the IPropertySet does not contain the required EGLBaseCoordinateSystemProperty key, the property set is
-    // considered invalid.
-    if (SUCCEEDED(result) && !hasEglBaseCoordinateSystemProperty)
     {
-        ERR("Could not find EGLBaseCoordinateSystemProperty in IPropertySet. Valid EGLBaseCoordinateSystemProperty values include ISpatialStationaryFrameOfReference and IDeviceAttachedFrameOfReference");
-        return false;
+        HRESULT result = S_OK;
+
+        // Look for the presence of the EGLAutomaticStereoRenderingProperty property in the property set.
+        boolean hasEglAutomaticStereoRenderingProperty = false;
+        if (SUCCEEDED(result))
+        {
+            result = propertyMap->HasKey(HStringReference(EGLAutomaticStereoRenderingProperty).Get(), &hasEglAutomaticStereoRenderingProperty);
+        }
+
+        // The property exists, so retrieve the IInspectable that represents it.
+        ComPtr<IInspectable> enableAutomaticStereoRenderingPropertyInspectable;
+        if (SUCCEEDED(result) && hasEglAutomaticStereoRenderingProperty)
+        {
+            result = propertyMap->Lookup(HStringReference(EGLAutomaticStereoRenderingProperty).Get(), &enableAutomaticStereoRenderingPropertyInspectable);
+        }
+
+        ComPtr<IPropertyValue> enableAutomaticStereoRenderingProperty;
+        if (SUCCEEDED(result) && (enableAutomaticStereoRenderingPropertyInspectable != nullptr))
+        {
+            result = enableAutomaticStereoRenderingPropertyInspectable.As(&enableAutomaticStereoRenderingProperty);
+        }
+
+        boolean enableAutomaticStereoRendering = false;
+        if (SUCCEEDED(result) && (enableAutomaticStereoRenderingProperty != nullptr))
+        {
+            result = enableAutomaticStereoRenderingProperty->GetBoolean(&enableAutomaticStereoRendering);
+        }
+
+        HolographicSwapChain11::setIsAutomaticStereoRenderingEnabled(enableAutomaticStereoRendering);
     }
 
-    // The EGLBaseCoordinateSystemProperty property exists, so retrieve the IInspectable that represents the EGLBaseCoordinateSystemProperty.
-    ComPtr<IInspectable> frameOfReference;
-    if (SUCCEEDED(result) && hasEglBaseCoordinateSystemProperty)
     {
-        result = propertyMap->Lookup(HStringReference(EGLBaseCoordinateSystemProperty).Get(), &frameOfReference);
-    }
+        HRESULT result = S_OK;
 
-    HRESULT isStationaryFrameOfReference = S_OK;
-    if (SUCCEEDED(result))
-    {
-        isStationaryFrameOfReference = frameOfReference.As(&mStationaryReferenceFrame);
-    }
+        // Look for the presence of the EGLAutomaticDepthBasedImageStabilizationProperty property in the property set.
+        boolean hasEglAutomaticDepthBasedImageStabilizationProperty = false;
+        if (SUCCEEDED(result))
+        {
+            result = propertyMap->HasKey(HStringReference(EGLAutomaticDepthBasedImageStabilizationProperty).Get(), &hasEglAutomaticDepthBasedImageStabilizationProperty);
+        }
 
-    if (FAILED(isStationaryFrameOfReference))
-    {
-        result = frameOfReference.As(&mAttachedReferenceFrame);
+        // The property exists, so retrieve the IInspectable that represents it.
+        ComPtr<IInspectable> enableAutomaticDepthBasedImageStabilizationPropertyInspectable;
+        if (SUCCEEDED(result) && hasEglAutomaticDepthBasedImageStabilizationProperty)
+        {
+            result = propertyMap->Lookup(HStringReference(EGLAutomaticStereoRenderingProperty).Get(), &enableAutomaticDepthBasedImageStabilizationPropertyInspectable);
+        }
+
+        ComPtr<IPropertyValue> enableAutomaticDepthBasedImageStabilizationProperty;
+        if (SUCCEEDED(result) && (enableAutomaticDepthBasedImageStabilizationPropertyInspectable != nullptr))
+        {
+            result = enableAutomaticDepthBasedImageStabilizationPropertyInspectable.As(&enableAutomaticDepthBasedImageStabilizationProperty);
+        }
+
+        boolean enableAutomaticDepthBasedImageStabilization = false;
+        if (SUCCEEDED(result) && (enableAutomaticDepthBasedImageStabilizationProperty != nullptr))
+        {
+            result = enableAutomaticDepthBasedImageStabilizationProperty->GetBoolean(&enableAutomaticDepthBasedImageStabilization);
+        }
+
+        HolographicSwapChain11::setIsAutomaticDepthBasedImageStabilizationEnabled(enableAutomaticDepthBasedImageStabilization);
     }
 
     // Subscribe to holographic cameras.
@@ -207,6 +298,25 @@ HRESULT HolographicNativeWindow::createPreferredD3DDevice(ID3D11Device *givenDev
     return hr;
 }
 
+// Returns the current list of HolographicCamera IDs.
+std::vector<unsigned int> HolographicNativeWindow::GetCameraIds()
+{
+    return UseHolographicCameraResources<std::vector<unsigned int>>(
+        [&](std::map<UINT32, std::unique_ptr<HolographicSwapChain11>>& holographicCameras)
+    {
+        std::vector<unsigned int> cameraIds;
+        for each (auto const& camera in holographicCameras)
+        {
+            if (camera.second != nullptr)
+            {
+                cameraIds.push_back(camera.first);
+            }
+        }
+        return cameraIds;
+    });
+}
+
+// Returns a holographic swap chain, by HolographicCamera ID.
 HRESULT HolographicNativeWindow::GetHolographicSwapChain(size_t const& cameraIndex, HolographicSwapChain11** holographicSwapChain)
 {
     if (holographicSwapChain == nullptr)
@@ -214,12 +324,12 @@ HRESULT HolographicNativeWindow::GetHolographicSwapChain(size_t const& cameraInd
         return E_POINTER;
     }
 
-    if (cameraIndex < mHolographicCameras.size())
+    if (mHolographicCameras[cameraIndex] != nullptr)
     {
-        return UseHolographicCameraResources<HRESULT>([&](std::map<UINT32, std::unique_ptr<HolographicSwapChain11>>& holographicCameras)
+        return UseHolographicCameraResources<HRESULT>(
+            [&](std::map<UINT32, std::unique_ptr<HolographicSwapChain11>>& holographicCameras)
         {
             *holographicSwapChain = holographicCameras[cameraIndex].get();
-
             return S_OK;
         });
     }
@@ -406,28 +516,80 @@ void HolographicNativeWindow::addHolographicCamera(ABI::Windows::Graphics::Holog
 {
     UseHolographicCameraResources<void>([this, holographicCamera](std::map<UINT32, std::unique_ptr<HolographicSwapChain11>>& cameraResourceMap)
     {
+        // Add the holographic camera to the list.
         UINT32 id;
         (void) holographicCamera->get_Id(&id);
         HANDLE shareHandle = (void*) 0;
         cameraResourceMap[id] = std::make_unique<HolographicSwapChain11>(mRenderer, this, shareHandle, holographicCamera);
+
+        // Indicate to the HolographicNativeWindow that the camera list has changed.
+        mHolographicCameraListChanged = true;
     });
 }
 
 void HolographicNativeWindow::removeHolographicCamera(ABI::Windows::Graphics::Holographic::IHolographicCamera *holographicCamera)
 {
+    // Ensure system references to the back buffer are released by clearing the render
+    // target from the graphics pipeline state, and then flushing the Direct3D context.
+    auto context = mRenderer->getDeviceContext();
+    ID3D11RenderTargetView* nullViews[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = { nullptr };
+    context->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
+    context->VSSetShaderResources(0, 0, nullptr);
+    context->GSSetShaderResources(0, 0, nullptr);
+    context->DSSetShaderResources(0, 0, nullptr);
+    context->HSSetShaderResources(0, 0, nullptr);
+    context->PSSetShaderResources(0, 0, nullptr);
+    context->CSSetShaderResources(0, 0, nullptr);
+    context->Flush();
+
     UseHolographicCameraResources<void>([this, holographicCamera](std::map<UINT32, std::unique_ptr<HolographicSwapChain11>>& cameraResourceMap)
     {
+        // Indicate to the HolographicNativeWindow that the camera list has changed.
+        mHolographicCameraListChanged = true;
+
+        // Erase the holographic camera from the list.
         UINT32 id;
         (void) holographicCamera->get_Id(&id);
-
-        HolographicSwapChain11* swapChain = cameraResourceMap[id].get();
-
-        if (swapChain != nullptr)
-        {
-            swapChain->release();
-            cameraResourceMap.erase(id);
-        }
+        cameraResourceMap.erase(id);
     });
+}
+
+egl::Error HolographicNativeWindow::SetSpatialFrameOfReference(IInspectable * value)
+{
+    HRESULT result = S_OK;
+
+    if (value == nullptr)
+    {
+        result = E_INVALIDARG;
+    }
+
+    ComPtr<IInspectable> frameOfReference(value);
+    HRESULT isStationaryFrameOfReference;
+    if (SUCCEEDED(result))
+    {
+        isStationaryFrameOfReference = frameOfReference.As(&mStationaryReferenceFrame);
+    }
+    if (FAILED(isStationaryFrameOfReference))
+    {
+        mStationaryReferenceFrame.Reset();
+        result = frameOfReference.As(&mAttachedReferenceFrame);
+    }
+
+    if (SUCCEEDED(result))
+    {
+        return egl::Error(EGL_SUCCESS);
+    }
+    else
+    {
+        return egl::Error(EGL_BAD_PARAMETER);
+    }
+}
+
+egl::Error HolographicNativeWindow::SetWaitForVBlank(bool const& isEnabled)
+{
+    HolographicSwapChain11::setIsWaitForVBlankEnabled(isEnabled);
+
+    return egl::Error(EGL_SUCCESS);
 }
 
 HRESULT HolographicNativeWindow::UpdateHolographicResources()
@@ -444,10 +606,10 @@ HRESULT HolographicNativeWindow::UpdateHolographicResources()
             return E_UNEXPECTED;
         }
     }
-
+    
     ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> holographicFrame;
     HRESULT hr = mHolographicSpace->CreateNextFrame(holographicFrame.GetAddressOf());
-
+    
     if (SUCCEEDED(hr))
     {
         mHolographicFrame = holographicFrame;
@@ -460,11 +622,13 @@ HRESULT HolographicNativeWindow::UpdateHolographicResources()
             mHolographicFrame->PresentUsingCurrentPredictionWithBehavior(
                 ABI::Windows::Graphics::Holographic::HolographicFramePresentWaitBehavior_DoNotWaitForFrameToFinish,
                 &result);
-            mHolographicFrame.Reset();
         }
-    }
 
-    mHolographicCameraPoses.Reset();
+        // An error condition was encountered. We might not be able to present.
+        // Reset the per-frame update state, so that subsequent frames will try again.
+        ResetFrame();
+        return hr;
+    }
 
     // Get a prediction of where holographic cameras will be when this frame
     // is presented.
@@ -487,7 +651,7 @@ HRESULT HolographicNativeWindow::UpdateHolographicResources()
         {
             hr = mStationaryReferenceFrame->get_CoordinateSystem(mCoordinateSystem.GetAddressOf());
         }
-        else if (mStationaryReferenceFrame != nullptr)
+        else if (mAttachedReferenceFrame != nullptr)
         {
             ComPtr<ABI::Windows::Perception::IPerceptionTimestamp> timestamp;
             hr = prediction->get_Timestamp(timestamp.GetAddressOf());
@@ -497,6 +661,8 @@ HRESULT HolographicNativeWindow::UpdateHolographicResources()
             }
         }
     }
+
+    mUpdateNeeded = false;
 
     return hr;
 }
@@ -513,8 +679,19 @@ HRESULT HolographicNativeWindow::GetHolographicRenderingParameters(UINT32 id, AB
         return E_FAIL;
     }
 
+    unsigned int size = 0;
+    HRESULT hr = mHolographicCameraPoses->get_Size(&size);
+    if (FAILED(hr))
+    {
+        return E_UNEXPECTED;
+    }
+    if ((id+1) > size)
+    {
+        return E_BOUNDS;
+    }
+
     ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraPose> cameraPose;
-    HRESULT hr = mHolographicCameraPoses->GetAt(id, cameraPose.GetAddressOf());
+    hr = mHolographicCameraPoses->GetAt(id, cameraPose.GetAddressOf());
 
     if (SUCCEEDED(hr))
     {
@@ -534,6 +711,17 @@ HRESULT HolographicNativeWindow::GetHolographicCameraPose(UINT32 id, ABI::Window
     if (mHolographicCameraPoses == nullptr)
     {
         return E_FAIL;
+    }
+
+    unsigned int size = 0;
+    HRESULT hr = mHolographicCameraPoses->get_Size(&size);
+    if (FAILED(hr))
+    {
+        return E_UNEXPECTED;
+    }
+    if ((id+1) > size)
+    {
+        return E_BOUNDS;
     }
 
     return mHolographicCameraPoses->GetAt(id, outPose);

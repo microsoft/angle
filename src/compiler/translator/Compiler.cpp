@@ -234,7 +234,12 @@ TIntermNode *TCompiler::compileTreeImpl(const char *const shaderStrings[],
     {
         infoSink.info.prefix(EPrefixError);
         infoSink.info << "unsupported shader version";
+#ifndef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        // On Windows Holographic, we automatically update shaders to version 300 as needed because
+        // we need to use the gl_InstanceID built-in variable.
+        // As a result, we need to skip the version check when running in OpenGL ES 2 mode.
         success = false;
+#endif
     }
 
     TIntermNode *root = nullptr;

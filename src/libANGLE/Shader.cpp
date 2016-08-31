@@ -19,6 +19,7 @@
 #include "libANGLE/renderer/Renderer.h"
 #include "libANGLE/renderer/ShaderImpl.h"
 #include "libANGLE/ResourceManager.h"
+#include "libANGLE/renderer/d3d/d3d11/winrt/HolographicNativeWindow.h"
 
 namespace gl
 {
@@ -260,6 +261,101 @@ void Shader::compile(Compiler *compiler)
     {
         sourceCStrings.push_back(sourcePath.c_str());
     }
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    if (rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled())
+    {
+        // On Windows Holographic, update the shader version to 3, if it is less than that, and 
+        // apply our stereo instancing modification - which requires gl_InstanceID, which is only
+        // available on shader version 3 or higher.
+        bool isGlslesVersion3 = false;
+        if (sourceString.find("#version 3") != std::string::npos)
+        {
+            isGlslesVersion3 = true;
+        }
+
+        // Update the vertex shader to apply stereo instancing.
+        if (sourceString.find("gl_Position") != std::string::npos)
+        {
+            if (!isGlslesVersion3)
+            {
+                // Translate the shader to GLSL version 300 syntax.
+                std::string modifiedSourceString = std::string("#version 300 es\n ") + sourceString;
+                size_t varyingPos = 0;
+                while ((varyingPos = modifiedSourceString.find("varying")) != std::string::npos)
+                {
+                    const char* outString = "out ";
+                    modifiedSourceString.replace(varyingPos, size_t(7), outString);
+                }
+                while ((varyingPos = modifiedSourceString.find("attribute")) != std::string::npos)
+                {
+                    const char* inString = "in ";
+                    modifiedSourceString.replace(varyingPos, size_t(9), inString);
+                }
+                sourceString = modifiedSourceString;
+            }
+        
+            std::string firstStringAlwaysStart = "#version 3";
+            std::string firstStringAlwaysEnd = "\n";
+            size_t index0 = sourceString.find(firstStringAlwaysStart);
+            size_t index1 = sourceString.find(firstStringAlwaysEnd, index0 + 1) + firstStringAlwaysEnd.size();
+            size_t index2 = sourceString.find_last_of('}');
+            std::string modifiedSourceString = 
+                sourceString.substr(0, index1) + 
+                "uniform mat4 uHolographicViewMatrix[2];\n uniform mat4 uHolographicProjectionMatrix[2];\n uniform mat4 uHolographicViewProjectionMatrix[2];\n uniform mat4 uUndoMidViewMatrix;\n out float vRenderTargetArrayIndex;\n " +
+                sourceString.substr(index1, index2-index1) +
+                " int index = gl_InstanceIDUnmodified - (gl_InstanceID*2);\n vRenderTargetArrayIndex = float(index);\n gl_Position = uHolographicProjectionMatrix[index] * uHolographicViewMatrix[index] * uUndoMidViewMatrix * gl_Position;\n " +
+                sourceString.substr(index2);
+            sourceString = modifiedSourceString;
+        }
+        else
+        {
+            // Update the pixel shader to accept the render target array index as pass-through. This
+            // allows the ANGLE compiler to avoid throwing it away, if it thinks it is not being used.
+            if (!isGlslesVersion3)
+            {
+                // Translate the shader to GLSL version 300 syntax.
+                std::string modifiedSourceString = 
+                    std::string("#version 300 es\n ") + 
+                    "precision mediump float;\n " +
+                    sourceString;
+                size_t varyingPos = 0;
+                while ((varyingPos = modifiedSourceString.find("varying")) != std::string::npos)
+                {
+                    const char* outString = "in ";
+                    modifiedSourceString.replace(varyingPos, size_t(7), outString);
+                }
+                while ((varyingPos = modifiedSourceString.find("gl_FragColor")) != std::string::npos)
+                {
+                    const char* inString = "fragColor ";
+                    modifiedSourceString.replace(varyingPos, size_t(12), inString);
+                }
+                while ((varyingPos = modifiedSourceString.find("texture2D")) != std::string::npos)
+                {
+                    const char* inString = "texture";
+                    modifiedSourceString.replace(varyingPos, size_t(9), inString);
+                }
+                while ((varyingPos = modifiedSourceString.find("textureCube")) != std::string::npos)
+                {
+                    const char* inString = "texture";
+                    modifiedSourceString.replace(varyingPos, size_t(11), inString);
+                }
+                sourceString = modifiedSourceString;
+            }
+
+            size_t index1 = sourceString.find("void");
+            size_t index2 = sourceString.find_last_of('}');
+            std::string modifiedSourceString = 
+                sourceString.substr(0, index1) + 
+                (!isGlslesVersion3 ? "out vec4 fragColor;\n " : "") +
+                "in float vRenderTargetArrayIndex;\n " +
+                sourceString.substr(index1, index2-index1) +
+                "    float index = vRenderTargetArrayIndex;\n " +
+                sourceString.substr(index2);
+            sourceString = modifiedSourceString;
+        }
+    }
+#endif
 
     sourceCStrings.push_back(sourceString.c_str());
 

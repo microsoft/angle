@@ -12,6 +12,10 @@
 #include <sstream>
 #include <VersionHelpers.h>
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+#include <comdef.h> // for _com_error exception type
+#endif
+
 #include "common/tls.h"
 #include "common/utilities.h"
 #include "libANGLE/Buffer.h"
@@ -1523,19 +1527,8 @@ gl::Error Renderer11::updateState(const gl::Data &data, GLenum drawMode)
                                     framebufferObject->getFirstColorbuffer());
 
     // Setting viewport state
-#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
-    if (mViewportOverride)
-    {
-        // Windows Holographic sets a viewport to match the holographic camera.
-        // TODO: can this be set by the HolographicSwapChain11 at draw call time?
-        mStateManager.setViewport(data.caps, mViewport, mZNear, mZFar);
-    }
-    else
-#endif
-    {
-        mStateManager.setViewport(data.caps, data.state->getViewport(), data.state->getNearPlane(),
-            data.state->getFarPlane());
-    }
+    mStateManager.setViewport(data.caps, data.state->getViewport(), data.state->getNearPlane(),
+        data.state->getFarPlane());
 
     // Setting scissor state
     mStateManager.setScissorRectangle(data.state->getScissor(), data.state->isScissorTestEnabled());
@@ -1663,30 +1656,6 @@ gl::Error Renderer11::applyRenderTarget(const gl::Framebuffer *framebuffer)
             ASSERT(renderTarget);
 
 #ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
-            if (renderTarget->isHolographic())
-            {
-                // TODO: if this can be set at draw call time by the HolographicRenderTarget11, this modification can go away
-                SurfaceRenderTarget11* renderTarget11 = reinterpret_cast<SurfaceRenderTarget11*>(renderTarget);
-                auto holographicSwapChain11 = renderTarget11->getHolographicSwapChain11();
-
-                auto const& d3dViewport = holographicSwapChain11->getViewport();
-                auto const& nearZ = holographicSwapChain11->getNearPlane();
-                auto const& farZ = holographicSwapChain11->getFarPlane();
-
-                mViewportOverride = true;
-                mViewport = gl::Rectangle(
-                    static_cast<int>(d3dViewport.TopLeftX),
-                    static_cast<int>(d3dViewport.TopLeftY),
-                    static_cast<int>(d3dViewport.Width),
-                    static_cast<int>(d3dViewport.Height)
-                );
-                mZNear = static_cast<float>(nearZ);
-                mZFar = static_cast<float>(farZ);
-            }
-            else
-            {
-                mViewportOverride = false;
-            }
 
             if (renderTarget->getRenderTargetView() == nullptr)
             {
@@ -2015,6 +1984,93 @@ gl::Error Renderer11::drawArraysImpl(const gl::Data &data,
     return gl::Error(GL_NO_ERROR);
 }
 
+gl::Error Renderer11::drawInstancedToCamerasIfHolographic(
+    const gl::Data &data,
+    GLsizei count,
+    GLsizei instances,
+    int baseVertexLocation)
+{
+    if (rx::HolographicNativeWindow::IsInitialized())
+    {
+        // Get the draw buffer.
+        auto drawBuffer = const_cast<gl::State*>(data.state)->getDrawFramebuffer();
+        if (drawBuffer == nullptr)
+        {
+            return gl::Error(GL_NO_ERROR);
+        }
+
+        // Get the first color buffer.
+        auto colorbuffer = drawBuffer->getFirstColorbuffer();
+        if (colorbuffer == nullptr)
+        {
+            return gl::Error(GL_NO_ERROR);
+        }
+
+        // Get the render target.
+        RenderTarget11 *renderTarget11 = NULL;
+        gl::Error error = colorbuffer->getRenderTarget(&renderTarget11);
+        if (renderTarget11 == nullptr)
+        {
+            return gl::Error(GL_NO_ERROR);
+        }
+        
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        if (renderTarget11->isHolographic())
+        {
+            // For Windows Holographic, we repeat the draw call for each of the holographic cameras that 
+            // are provided by the system.
+
+            // Note that system view and projection matrices will be applied to each camera; the
+            // mono view matrix we gave to the app, which is representative of the "primary" camera,
+            // will be reversed by our shader modifications before applying each set of view/projection
+            // matrices.
+
+            // Acquire the holographic native window.
+            HolographicSwapChain11* holographicSwapChain11 = renderTarget11->getHolographicSwapChain11();
+            auto holographicNativeWindow = holographicSwapChain11->getHolographicNativeWindow();
+            
+            // For each active camera ID, set the viewport, view and projection matrics, and render target 
+            // and draw in stereo using an instanced draw call.
+            for each (auto const& cameraId in holographicNativeWindow->GetCameraIds())
+            {
+                HolographicSwapChain11* swapChain = nullptr;
+                HRESULT hr = holographicNativeWindow->GetHolographicSwapChain(cameraId, &swapChain);
+                if (SUCCEEDED(hr))
+                {
+                    auto const& d3dViewport = swapChain->getViewport();
+                    gl::Rectangle viewport = gl::Rectangle(
+                        static_cast<int>(d3dViewport.TopLeftX),
+                        static_cast<int>(d3dViewport.TopLeftY),
+                        static_cast<int>(d3dViewport.Width),
+                        static_cast<int>(d3dViewport.Height)
+                    );
+                    float zNear = d3dViewport.MinDepth;
+                    float zFar = d3dViewport.MaxDepth;
+                    mStateManager.forceSetViewportState();
+                    mStateManager.setViewport(data.caps, viewport, zNear, zFar);
+
+                    auto rtv = swapChain->getRenderTarget();
+                    auto dsv = swapChain->getDepthStencil();
+                    mDeviceContext->OMSetRenderTargets(1, &rtv, dsv);
+
+                    mDeviceContext->DrawIndexedInstanced(count, instances, 0, baseVertexLocation, 0);
+                }
+            }
+            
+            // Note that the viewport in mStateManager cannot be read back, so we do not
+            // bother resetting it to what it was before we looped over the holographic
+            // cameras.
+        }
+#endif
+    }
+    else
+    {
+        mDeviceContext->DrawIndexedInstanced(count, instances, 0, baseVertexLocation, 0);
+    }
+
+    return gl::Error(GL_NO_ERROR);
+};
+
 gl::Error Renderer11::drawElementsImpl(const gl::Data &data,
                                        const TranslatedIndexData &indexInfo,
                                        GLenum mode,
@@ -2037,8 +2093,13 @@ gl::Error Renderer11::drawElementsImpl(const gl::Data &data,
 
     if (instances > 0)
     {
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        // On Windows Holographic, we use instancing to do stereo rendering with one draw call.
+        return drawInstancedToCamerasIfHolographic(data, count, instances, -minIndex);
+#else
         mDeviceContext->DrawIndexedInstanced(count, instances, 0, -minIndex, 0);
         return gl::Error(GL_NO_ERROR);
+#endif
     }
 
     // If the shader is writing to gl_PointSize, then pointsprites are being rendered.
@@ -2158,7 +2219,12 @@ gl::Error Renderer11::drawLineLoop(const gl::Data &data,
 
     if (instances > 0)
     {
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        // On Windows Holographic, we draw differently to the holographic camera.
+        return drawInstancedToCamerasIfHolographic(data, indexCount, instances, baseVertexLocation);
+#else
         mDeviceContext->DrawIndexedInstanced(indexCount, instances, 0, baseVertexLocation, 0);
+#endif
     }
     else
     {
@@ -2261,7 +2327,12 @@ gl::Error Renderer11::drawTriangleFan(const gl::Data &data,
 
     if (instances > 0)
     {
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        // On Windows Holographic, we draw differently to the holographic camera.
+        return drawInstancedToCamerasIfHolographic(data, indexCount, instances, -minIndex);
+#else
         mDeviceContext->DrawIndexedInstanced(indexCount, instances, 0, -minIndex, 0);
+#endif
     }
     else
     {
@@ -2279,6 +2350,12 @@ gl::Error Renderer11::applyShadersImpl(const gl::Data &data, GLenum drawMode)
     ShaderExecutableD3D *vertexExe = NULL;
     gl::Error error = gl::Error(0);
 #ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    // On devices that support setting the render target array index from any shader stage, we
+    // can use a more optimal shader pipeline.
+    // In this pipeline, we can eliminate the geometry shader stage - which is normally required 
+    // to set the render target array index. Avoiding the extra pipeline stage eliminates a step
+    // in the rendering pipeline, and it may also allow the graphics driver to better optimize for
+    // the draw call.
     if (programD3D->getSupportsVprtShaders())
     {
          error = programD3D->getVertexExecutableForInputLayout(inputLayout, &vertexExe, nullptr, true);
@@ -3392,10 +3469,27 @@ gl::Error Renderer11::loadExecutable(const void *function,
             ID3D11VertexShader *vertexShader = NULL;
             ID3D11GeometryShader *streamOutShader = NULL;
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+            HRESULT result = S_OK;
+            try
+            {
+                result = mDevice->CreateVertexShader(function, length, NULL, &vertexShader);
+            }
+            catch (_com_error /*err*/)
+            {
+                // The shader that uses the optional Direct3D 11.3 feature to set the render 
+                // target array index from any shader stage will always fail to compile on 
+                // machines that don't support the optional Direct3D 11.3 feature to set the 
+                // render target array index.
+                // So, we do not assert here - instead, we catch a COM exception and return an
+                // error that indicates to the calling class that it should use the geometry
+                // shader after all.
+                return gl::Error(GL_OUT_OF_MEMORY, "Failed to create vertex shader that sets \
+                    the render target array index for Windows Holographic, result: 0x%X.", result);
+            }
+#else
             HRESULT result = mDevice->CreateVertexShader(function, length, NULL, &vertexShader);
-#ifndef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
-            // Windows Holographic optional feature shader will always fail on machines that don't support the feature.
-            ASSERT(SUCCEEDED(result));
+            ASSERT(SUCCEEDED(result)); 
 #endif
             if (FAILED(result))
             {

@@ -33,6 +33,27 @@ const wchar_t EGLNativeWindowTypeProperty[] = L"EGLNativeWindowTypeProperty";
 const wchar_t EGLBaseCoordinateSystemProperty [] = L"EGLBaseCoordinateSystemProperty";
 
 //
+// Property: EGLAutomaticStereoRenderingProperty
+// Type: Boolean
+// Description: Set this property to allow ANGLE to automatically convert your shaders
+//              and draw calls from mono to stereographic rendering.
+//              Your app is then responsible for setting an identity projection matrix (or
+//              not applying projection), and using the mid-view matrix provided by ANGLE
+//              for the view matrix and to determine eye position. This matrix represents
+//              the position of the HMD within the holographic space, expressed in the 
+//              coordinate system provided by the app.
+//
+const wchar_t EGLAutomaticStereoRenderingProperty [] = L"EGLAutomaticStereoRenderingProperty";
+
+//
+// Property: EGLAutomaticDepthBasedImageStabilizationProperty
+// Type: Boolean
+// Description: Set this property to allow ANGLE to automatically set the focus plane 
+//              for Windows Holographic image stabilization according to your content.
+//
+const wchar_t EGLAutomaticDepthBasedImageStabilizationProperty [] = L"EGLAutomaticDepthBasedImageStabilizationProperty";
+
+//
 // Property: EGLRenderSurfaceSizeProperty
 // Type: Size
 // Description: Set this property to specify a preferred size in pixels of the render surface.

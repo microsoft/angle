@@ -1,7 +1,7 @@
 <VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Project">
   <TemplateData>
     <Name>App for OpenGL ES (Windows Universal)</Name>
-    <Description>A project for a Windows Universal app that uses the Windows Runtime, and is written for OpenGL ES.</Description>
+    <Description>A project for a Windows Universal app that uses the Windows Runtime, is written for OpenGL ES, and easily adapts to holographic rendering.</Description>
     <Icon>__TemplateIcon.ico</Icon>
     <ProjectType>VC</ProjectType>
     <PreviewImage>preview.png</PreviewImage>

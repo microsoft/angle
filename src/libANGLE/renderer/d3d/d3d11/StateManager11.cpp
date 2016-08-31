@@ -558,6 +558,14 @@ void StateManager11::setViewport(const gl::Caps *caps,
     if (!mViewportStateIsDirty)
         return;
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    // Temporary bug fix for holographic swap chains: Since we call this multiple
+    // times per OpenGL draw call using different viewports, and the draw state does 
+    // not need to be updated (in general) during that time, always ensure the 
+    // viewport setting for ANGLE's fast present mode matches the viewport height.
+    mCurPresentPathFastColorBufferHeight = viewport.height;
+#endif
+
     float actualZNear = gl::clamp01(zNear);
     float actualZFar  = gl::clamp01(zFar);
 

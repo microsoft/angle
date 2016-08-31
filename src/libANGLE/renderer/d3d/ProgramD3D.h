@@ -415,9 +415,7 @@ class ProgramD3D : public ProgramImpl
     static unsigned int issueSerial();
     static unsigned int mCurrentSerial;
 
-#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
-    bool mSupportsVprtVertexShader;
-#endif
+    bool mSupportsVprtVertexShader = false;
 };
 }
 

@@ -53,6 +53,7 @@ class CollectVariables : public TIntermTraverser
     bool mFragCoordAdded;
 
     bool mInstanceIDAdded;
+    bool mInstanceIDOriginalAdded; // experimental built-in for Windows Holographic
     bool mPositionAdded;
     bool mPointSizeAdded;
     bool mLastFragDataAdded;

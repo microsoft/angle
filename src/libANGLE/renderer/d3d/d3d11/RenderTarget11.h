@@ -23,13 +23,14 @@ class RenderTarget11 : public RenderTargetD3D
   public:
     RenderTarget11() { }
     virtual ~RenderTarget11() { }
-
+    
     virtual ID3D11Resource *getTexture() const = 0;
     virtual ID3D11RenderTargetView *getRenderTargetView() const = 0;
     virtual ID3D11DepthStencilView *getDepthStencilView() const = 0;
     virtual ID3D11ShaderResourceView *getShaderResourceView() const = 0;
 
 #ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    virtual HolographicSwapChain11* getHolographicSwapChain11() const = 0;
     virtual bool isHolographic() const = 0;
 #endif
 
@@ -65,6 +66,7 @@ class TextureRenderTarget11 : public RenderTarget11
 
 #ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
     bool isHolographic() const override { return false; };
+    HolographicSwapChain11* getHolographicSwapChain11() const override { return nullptr; };
 #endif
 
   private:
@@ -108,7 +110,7 @@ class SurfaceRenderTarget11 : public RenderTarget11
 
 #ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
     bool isHolographic() const override { return mIsHolographic; };
-    HolographicSwapChain11* getHolographicSwapChain11() { return mHolographicSwapChain; };
+    HolographicSwapChain11* getHolographicSwapChain11() const override { return mHolographicSwapChain; };
 #endif
 
   private:

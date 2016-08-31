@@ -158,6 +158,7 @@ OutputHLSL::OutputHLSL(sh::GLenum shaderType, int shaderVersion,
     mUsesFrontFacing = false;
     mUsesPointSize = false;
     mUsesInstanceID = false;
+    mUsesInstanceIDOriginal = false; // experimental built-in for Windows Holographic
     mUsesFragDepth = false;
     mUsesXor = false;
     mUsesDiscardRewriting = false;
@@ -577,7 +578,13 @@ void OutputHLSL::header(TInfoSinkBase &out, const BuiltInFunctionEmulator *built
 
         if (mUsesInstanceID)
         {
-            out << "static int gl_InstanceID;";
+            out << "static int gl_InstanceID;\n";
+        }
+
+        if (mUsesInstanceIDOriginal)
+        {
+            // experimental built-in for Windows Holographic
+            out << "static int gl_InstanceIDUnmodified;\n";
         }
 
         out << "\n"
@@ -1495,6 +1502,12 @@ void OutputHLSL::visitSymbol(TIntermSymbol *node)
         else if (qualifier == EvqInstanceID)
         {
             mUsesInstanceID = true;
+            out << name;
+        }
+        else if (qualifier == EvqInstanceIDOriginal)
+        {
+            // experimental built-in for Windows Holographic
+            mUsesInstanceIDOriginal = true;
             out << name;
         }
         else if (name == "gl_FragDepthEXT" || name == "gl_FragDepth")

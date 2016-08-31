@@ -33,10 +33,12 @@ void NativeWindow::commitChange()
 {
 }
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
 InspectableNativeWindow* NativeWindow::GetImpl() 
 { 
     return mImpl.get();
 };
+#endif
 
 bool NativeWindow::initialize()
 {

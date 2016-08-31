@@ -28,6 +28,7 @@ EXPORTS
     eglReleaseTexImage               @21
     eglReleaseThread                 @17
     eglSurfaceAttrib                 @19
+    eglExtSurfaceAttribPointerANGLE  @99
     eglSwapBuffers                   @32
     eglSwapInterval                  @22
     eglTerminate                     @4

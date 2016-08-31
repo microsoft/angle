@@ -1209,7 +1209,11 @@ gl::Error ProgramD3D::getVertexExecutableForInputLayout(const gl::InputLayout &i
 {
     VertexExecutable::getSignature(mRenderer, inputLayout, &mCachedVertexSignature);
 
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
     std::vector<VertexExecutable *>& executablesList = useEnhancedPath ? mEnhancedVertexExecutables : mVertexExecutables;
+#else
+    std::vector<VertexExecutable *>& executablesList = mVertexExecutables;
+#endif
 
     for (size_t executableIndex = 0; executableIndex < executablesList.size(); executableIndex++)
     {
@@ -1221,8 +1225,13 @@ gl::Error ProgramD3D::getVertexExecutableForInputLayout(const gl::InputLayout &i
     }
 
     // Generate new dynamic layout with attribute conversions
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
     std::string finalVertexHLSL = mDynamicHLSL->generateVertexShaderForInputLayout(
         useEnhancedPath ? mEnhancedVertexHLSL : mVertexHLSL, inputLayout, mData.getAttributes());
+#else
+    std::string finalVertexHLSL = mDynamicHLSL->generateVertexShaderForInputLayout(
+        mVertexHLSL, inputLayout, mData.getAttributes());
+#endif
 
     // Generate new vertex executable
     ShaderExecutableD3D *vertexExecutable = NULL;
@@ -1265,18 +1274,18 @@ gl::Error ProgramD3D::getGeometryExecutableForPrimitiveType(const gl::Data &data
         *outExecutable = nullptr;
     }
 
-#ifndef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    // rendering holographically using instancing
+    // uses a pass-through geometry shader
+    if (!rx::HolographicNativeWindow::IsInitialized())
+#endif  
     {
-        // rendering holographically using instancing
-        // uses a pass-through geometry shader
-
         // Return a null shader if the current rendering doesn't use a geometry shader
         if (!usesGeometryShader(drawMode))
         {
             return gl::Error(GL_NO_ERROR);
         }
     }
-#endif  
 
     gl::PrimitiveType geometryShaderType = GetGeometryShaderTypeFromDrawMode(drawMode);
 
@@ -1370,6 +1379,9 @@ LinkResult ProgramD3D::compileProgramExecutables(const gl::Data &data, gl::InfoL
     }
 
 #ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    // rendering holographically using instancing
+    // uses a pass-through geometry shader
+    if (rx::HolographicNativeWindow::IsInitialized())
     {
         // rendering holographically using instancing
         // TODO: create a shader EXE for each type of GL_geometry, pick one depending on the state at draw time
@@ -1405,7 +1417,7 @@ LinkResult ProgramD3D::compileProgramExecutables(const gl::Data &data, gl::InfoL
     }
 
 #ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
-    bool linkSuccess = (defaultVertexExecutable && defaultPixelExecutable && pointGS);
+    bool linkSuccess = (defaultVertexExecutable && defaultPixelExecutable && ((!rx::HolographicNativeWindow::IsInitialized()) || pointGS));
 #else
     bool linkSuccess = (defaultVertexExecutable && defaultPixelExecutable && (!usesGeometryShader(GL_POINTS) || pointGS));
 #endif

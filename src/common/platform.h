@@ -51,8 +51,13 @@
 #       define ANGLE_ENABLE_WINDOWS_STORE 1
 #   endif
 
-// Uncomment this to enable the Windows Holographic code path.
-//#   define ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+// This enables the Windows Holographic code path.
+// Comment this out to revert back to non-Windows Holographic functionality in most places. This is
+// designed to ensure that real-time functionality can be reverted, if necessary, for testing and/or
+// for non-holographic UWP builds of multi-target applications.
+// To build with this enabled, use winrt\10\src\angle.sln - which includes all the source code files
+// that are specific to Windows Holographic.
+#define ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
 
 #   if defined(ANGLE_ENABLE_D3D9)
 #       include <d3d9.h>

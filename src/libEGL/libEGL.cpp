@@ -142,6 +142,11 @@ EGLBoolean EGLAPIENTRY eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, EGLi
     return egl::SurfaceAttrib(dpy, surface, attribute, value);
 }
 
+EGLBoolean EGLAPIENTRY eglExtSurfaceAttribPointerANGLE(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLNativeWindowType value)
+{
+    return egl::ExtSurfaceAttribPointerANGLE(dpy, surface, attribute, value);
+}
+
 EGLBoolean EGLAPIENTRY eglSwapInterval(EGLDisplay dpy, EGLint interval)
 {
     return egl::SwapInterval(dpy, interval);

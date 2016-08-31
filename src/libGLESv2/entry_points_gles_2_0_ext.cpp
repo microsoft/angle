@@ -14,6 +14,7 @@
 #include "libANGLE/Error.h"
 #include "libANGLE/Fence.h"
 #include "libANGLE/Framebuffer.h"
+#include "libANGLE/renderer/d3d/d3d11/winrt/HolographicNativeWindow.h"
 #include "libANGLE/Shader.h"
 #include "libANGLE/Query.h"
 
@@ -273,9 +274,26 @@ void GL_APIENTRY DrawArraysInstancedANGLE(GLenum mode,
     Context *context = GetValidGlobalContext();
     if (context)
     {
-        if (!ValidateDrawArraysInstancedANGLE(context, mode, first, count, primcount))
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        // For Windows Holographic, we double the number of instances to allow stereo
+        // rendering to occur in a single draw call, even though we draw to two render 
+        // targets.
+        // Validation should occur using the original number of instances.
+        static bool isHolographic = rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled();
+        if (isHolographic)
         {
-            return;
+            if (!ValidateDrawArraysInstancedANGLE(context, mode, first, count, primcount / 2))
+            {
+                return;
+            }
+        }
+        else
+#endif
+        {
+            if (!ValidateDrawArraysInstancedANGLE(context, mode, first, count, primcount))
+            {
+                return;
+            }
         }
 
         Error error = context->drawArraysInstanced(mode, first, count, primcount);
@@ -302,10 +320,29 @@ void GL_APIENTRY DrawElementsInstancedANGLE(GLenum mode,
     if (context)
     {
         IndexRange indexRange;
-        if (!ValidateDrawElementsInstancedANGLE(context, mode, count, type, indices, primcount,
-                                                &indexRange))
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+        // For Windows Holographic, we double the number of instances to allow stereo
+        // rendering to occur in a single draw call, even though we draw to two render 
+        // targets.
+        // Validation should occur using the original number of instances.
+        static bool isHolographic = rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled();
+        if (isHolographic)
         {
-            return;
+            if (!ValidateDrawElementsInstancedANGLE(context, mode, count, type, indices, primcount / 2,
+                                                    &indexRange))
+            {
+                return;
+            }
+        }
+        else
+#endif
+        {
+            if (!ValidateDrawElementsInstancedANGLE(context, mode, count, type, indices, primcount,
+                                                    &indexRange))
+            {
+                return;
+            }
         }
 
         Error error =

@@ -177,6 +177,7 @@ class OutputHLSL : public TIntermTraverser
     bool mUsesFrontFacing;
     bool mUsesPointSize;
     bool mUsesInstanceID;
+    bool mUsesInstanceIDOriginal; // experimental built-in for Windows Holographic
     bool mUsesFragDepth;
     bool mUsesXor;
     bool mUsesDiscardRewriting;

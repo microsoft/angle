@@ -39,6 +39,9 @@ class SurfaceImpl : public FramebufferAttachmentObjectImpl
     virtual egl::Error bindTexImage(gl::Texture *texture, EGLint buffer) = 0;
     virtual egl::Error releaseTexImage(EGLint buffer) = 0;
     virtual void setSwapInterval(EGLint interval) = 0;
+    
+    virtual egl::Error updateAttributePointer(EGLint attribute, EGLNativeWindowType value) = 0;
+    virtual egl::Error updateAttributeBoolean(EGLint attribute, EGLBoolean value) = 0;
 
     // width and height can change with client window resizing
     virtual EGLint getWidth() const = 0;

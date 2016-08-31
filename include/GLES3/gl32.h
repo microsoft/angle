@@ -378,6 +378,9 @@ typedef khronos_uint8_t GLubyte;
 #define GL_RENDERBUFFER_BINDING           0x8CA7
 #define GL_MAX_RENDERBUFFER_SIZE          0x84E8
 #define GL_INVALID_FRAMEBUFFER_OPERATION  0x0506
+#define GLEXT_HOLOGRAPHIC_MONO_VIEW_MATRIX_ANGLE 0x8FE6 // Experimental value. Returns a mono view matrix that approximates the position of a Windows Holographic camera, relative to a spatial coordinate system.
+#define GLEXT_ENABLE_AUTOMATIC_STEREO_RENDERING_ANGLE 0x8FE7 // Experimental value. Enables automatic adaptation of shaders and draw calls to stereo rendering, using instanced drawing to draw to left and right views in a single draw call.
+#define GLEXT_ENABLE_DEPTH_BASED_IMAGE_STABILIZATION_ANGLE 0x8FE8 // Experimental value. Enables automatic estimation of the focus point and plane used for Windows Holographic image stabilization, by processing data from the depth buffer.
 typedef void (GL_APIENTRYP PFNGLACTIVETEXTUREPROC) (GLenum texture);
 typedef void (GL_APIENTRYP PFNGLATTACHSHADERPROC) (GLuint program, GLuint shader);
 typedef void (GL_APIENTRYP PFNGLBINDATTRIBLOCATIONPROC) (GLuint program, GLuint index, const GLchar *name);

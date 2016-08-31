@@ -10,6 +10,8 @@
 #include "libGLESv2/entry_points_gles_2_0_ext.h"
 #include "libGLESv2/entry_points_gles_3_0.h"
 
+#include "libANGLE/renderer/d3d/d3d11/winrt/HolographicNativeWindow.h"
+
 #include "common/event_tracer.h"
 
 extern "C"
@@ -217,12 +219,34 @@ void GL_APIENTRY glDisableVertexAttribArray(GLuint index)
 
 void GL_APIENTRY glDrawArrays(GLenum mode, GLint first, GLsizei count)
 {
-    return gl::DrawArrays(mode, first, count);
+    // For Windows Holographic, we double the number of instances to allow stereo
+    // rendering to occur in a single draw call, even though we draw to two render 
+    // targets.
+    static bool isRunningOnWindowsHolographic = rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled();
+    if (isRunningOnWindowsHolographic)
+    {
+        return gl::DrawArraysInstanced(mode, first, count, 2);
+    }
+    else
+    {
+        return gl::DrawArrays(mode, first, count);
+    }
 }
 
 void GL_APIENTRY glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
 {
-    return gl::DrawElements(mode, count, type, indices);
+    // For Windows Holographic, we double the number of instances to allow stereo
+    // rendering to occur in a single draw call, even though we draw to two render 
+    // targets.
+    static bool isRunningOnWindowsHolographic = rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled();
+    if (isRunningOnWindowsHolographic)
+    {
+        return gl::DrawElementsInstancedANGLE(mode, count, type, indices, 2);
+    }
+    else
+    {
+        return gl::DrawElements(mode, count, type, indices);
+    }
 }
 
 void GL_APIENTRY glEnable(GLenum cap)
@@ -1067,12 +1091,20 @@ void GL_APIENTRY glUniformBlockBinding(GLuint program, GLuint uniformBlockIndex,
 
 void GL_APIENTRY glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei instanceCount)
 {
-    return gl::DrawArraysInstanced(mode, first, count, instanceCount);
+    // For Windows Holographic, we double the number of instances to allow stereo
+    // rendering to occur in a single draw call, even though we draw to two render 
+    // targets.
+    static int instanceCountMultiplierForStereoRendering = rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled() ? 2 : 1;
+    return gl::DrawArraysInstanced(mode, first, count, instanceCount * instanceCountMultiplierForStereoRendering);
 }
 
 void GL_APIENTRY glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLsizei instanceCount)
 {
-    return gl::DrawElementsInstanced(mode, count, type, indices, instanceCount);
+    // For Windows Holographic, we double the number of instances to allow stereo
+    // rendering to occur in a single draw call, even though we draw to two render 
+    // targets.
+    static int instanceCountMultiplierForStereoRendering = rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled() ? 2 : 1;
+    return gl::DrawElementsInstanced(mode, count, type, indices, instanceCount * instanceCountMultiplierForStereoRendering);
 }
 
 GLsync GL_APIENTRY glFenceSync(GLenum condition, GLbitfield flags)
@@ -1387,17 +1419,29 @@ void GL_APIENTRY glDrawBuffersEXT(GLsizei n, const GLenum *bufs)
 
 void GL_APIENTRY glDrawArraysInstancedANGLE(GLenum mode, GLint first, GLsizei count, GLsizei primcount)
 {
-    return gl::DrawArraysInstancedANGLE(mode, first, count, primcount);
+    // For Windows Holographic, we double the number of instances to allow stereo
+    // rendering to occur in a single draw call, even though we draw to two render 
+    // targets.
+    static int instanceCountMultiplierForStereoRendering = rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled() ? 2 : 1;
+    return gl::DrawArraysInstancedANGLE(mode, first, count, primcount * instanceCountMultiplierForStereoRendering);
 }
 
 void GL_APIENTRY glDrawElementsInstancedANGLE(GLenum mode, GLsizei count, GLenum type, const void *indices, GLsizei primcount)
 {
-    return gl::DrawElementsInstancedANGLE(mode, count, type, indices, primcount);
+    // For Windows Holographic, we double the number of instances to allow stereo
+    // rendering to occur in a single draw call, even though we draw to two render 
+    // targets.
+    static int instanceCountMultiplierForStereoRendering = rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled() ? 2 : 1;
+    return gl::DrawElementsInstancedANGLE(mode, count, type, indices, primcount * instanceCountMultiplierForStereoRendering);
 }
 
 void GL_APIENTRY glVertexAttribDivisorANGLE(GLuint index, GLuint divisor)
 {
-    return gl::VertexAttribDivisorANGLE(index, divisor);
+    // For Windows Holographic, we double the number of instances to allow stereo
+    // rendering to occur in a single draw call, even though we draw to two render 
+    // targets.
+    static int instanceCountMultiplierForStereoRendering = rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled() ? 2 : 1;
+    return gl::VertexAttribDivisorANGLE(index, divisor * instanceCountMultiplierForStereoRendering);
 }
 
 void GL_APIENTRY glGetProgramBinaryOES(GLuint program, GLsizei bufSize, GLsizei *length, GLenum *binaryFormat, GLvoid *binary)

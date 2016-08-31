@@ -11,13 +11,69 @@ the native CoreWindow in the surface creation properties, and the spatial coordi
 also provided as a surface creation property. This coordinate system will be used to create stereo
 view and projection matrices that are provided to the shader pipeline by ANGLE.
 
-Support for one holographic camera is included. The ANGLE app can draw in stereo using the 
-optimized instanced rendering technique that is supported by Microsoft HoloLens. The additional 
-optimization to set the render target array index without using a geometry shader is detected and
-enabled when running on applicable hardware.
+## Holographic rendering
 
-To see the changes you will need to make to your app, take a look at the updated app template. 
-Instructions for installing it are provided later in this document.
+The ANGLE app can draw in stereo using the optimized instanced rendering technique that is supported 
+by Microsoft HoloLens. The additional optimization to set the render target array index without 
+using a geometry shader is detected and enabled when running on applicable hardware. Two drawing modes 
+are supported: simple, and advanced.
+
+Simple drawing: ANGLE provides a view matrix to the app that represents the holographic camera, but
+from a mono viewpoint. This viewpoint is midway between both eye positions of the holographic camera.
+In this case, the app is expected to use that view matrix to determine camera position, and it is 
+expected to use a projection matrix that is the identity matrix - or no projection matrix at all. 
+Internally, ANGLE will will double the number of instances provided to the shader so that there are
+enough instances for stereo rendering. When drawing in this mode, the actual instance ID is halved 
+before it is provided to the app's shader code so that no modifications to the GLSL are necessary. 
+Also, ANGLE will modify the shader to undo the mid-view matrix, and then apply the left or right 
+view/projection matrices to alternate instances.
+
+Advanced drawing: In this mode, the app can uses its own instanced draw calls to provide stereo
+rendering. The shader will not be modified. The app should render with the Windows Holographic view/
+projection matrix, and the app is responsible for setting up stereo instanced drawing.
+
+Full support for the first holographic camera is included.
+
+## Image stabilization
+
+This version of ANGLE can also apply automatic image stabilization based on the depth buffer. This 
+feature determines a best-fit plane for the scene geometry by processing geometry data from the 
+depth buffer, and then provides the focus point and plane to Windows Holographic. 
+
+To take advantage of this feature, make sure to apply the following rules when drawing content:
+  * All information in the depth buffer should be for hologram geometry that is visible
+    to the user.
+  * Don't draw pixels to the depth buffer to provide occlusion. Do occlusion last
+    instead; overwrite color pixels and turn off depth writes.
+  * Avoid rendering techniques that overwrite the depth buffer with other data.
+
+If the above rules cannot be applied, the feature for automatic depth-based image stabilization should
+not be enabled.
+
+## Spatial reference frames
+
+The frame of reference provided by the app can be stationary, or it can be attached to a device.
+
+Also, the reference frame can be changed on-the-fly via EGL. Example code:
+
+    // Get the default SpatialLocator.
+    SpatialLocator^ locator = SpatialLocator::GetDefault();
+
+    // Create an attached frame of reference.
+    auto attachedFrameOfReference = locator->CreateAttachedFrameOfReferenceAtCurrentHeading();
+
+    // Provide the attached frame of reference to ANGLE. It will be used to create holographic 
+    // view matrices from then on.
+    eglExtSurfaceAttribPointerANGLE(
+        mEglDisplay, mEglSurface, 
+        EGLEXT_HOLOGRAPHIC_SPATIAL_FRAME_OF_REFERENCE_ANGLE, 
+        reinterpret_cast<IInspectable*>(attachedFrameOfReference));
+
+## ANGLE app templates for Windows Holographic
+
+To see the changes you will need to make to your app, take a look at the app template. Two are
+provided - one for the simple drawing mode, and one for the advanced drawing mode. Instructions 
+for installing the templates are provided later in this document.
 
 
 ## Remarks
@@ -61,7 +117,8 @@ Microsoft Visual Studio 2015 Update 2 and the Microsoft HoloLens Emulator, go to
 2. Navigate to templates\ and run install.bat.
 3. Start Microsoft Visual Studio 2015 Update 2 and select **File** \> **New ** \> **Project**.
 4. Under **Templates** \> **Visual C\+\+** \> **Windows** \> **Universal**, select 
-   **App for OpenGL ES (Windows Universal)**.
+   **App for OpenGL ES (Windows Universal)** or **Holographic App for OpenGL ES (Windows 
+   Universal)**.
 5. Name your app, select a folder, and click **OK**.
 6. Set your target platform to x86, and set Debug or Release as desired.
 7. Right-click on your app project and select **Build**.

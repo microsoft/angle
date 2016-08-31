@@ -5,12 +5,42 @@
 //
 
 // HolographicNativeWindow.h: NativeWindow for managing windows based on Windows Holographic app views.
+//
+// This implementation uses the frame of reference provided by the app to render a stereo version of 
+// the scene. It can provide a view matrix midway between both eye positions of the holographic camera 
+// for the app to use, and in this case the app is expected to use a projection matrix that is the 
+// identity matrix (or no projection matrix at all). Internally to ANGLE, the stereo rendering will 
+// double the number of instances provided to the shader - which is hidden from the shader by halving 
+// the value set for gl_InstanceID - and apply the left and right view matrices to each eye, after 
+// undoing the midview matrix.
+//
+// Alternatively, the app can use its own instanced draw calls and access the holographic view/projection 
+// matrix provided by ANGLE by using odd and even instance IDs for left and right views. In this case, the 
+// shader program is not modified.
+//
+// This implementation can also use automatic depth-based image stabilization. This feature determines a 
+// best-fit plane for the scene geometry by processing geometry data from the depth buffer, and then sets 
+// the focus point and plane for Windows Holographic image stabilization. To take advantage of this 
+// feature, make sure to apply the following rules when drawing content:
+//   * All information in the depth buffer should be for hologram geometry that is visible
+//     to the user.
+//   * Don't draw pixels to the depth buffer to provide occlusion. Do occlusion last
+//     instead; overwrite color pixels and turn off depth writes.
+//   * Avoid rendering techniques that overwrite the depth buffer with other data.
+// If the above rules cannot be applied, the feature for automatic depth-based image stabilization should
+// not be enabled.
+//
+// The frame of reference provided by the app can be stationary, or it can be attached to a device.
+//
+
 
 #ifndef LIBANGLE_RENDERER_D3D_D3D11_WINRT_HOLOGRAPHICNATIVEWINDOW_H_
 #define LIBANGLE_RENDERER_D3D_D3D11_WINRT_HOLOGRAPHICNATIVEWINDOW_H_
 
-#include "libANGLE/renderer/d3d/d3d11/winrt/InspectableNativeWindow.h"
 #include "libANGLE/renderer/d3d/d3d11/winrt/HolographicSwapChain11.h"
+
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+#include "libANGLE/renderer/d3d/d3d11/winrt/InspectableNativeWindow.h"
 
 #include <d3d11_4.h>
 #include <memory>
@@ -18,6 +48,8 @@
 #include <inspectable.h>
 #include <windows.graphics.display.h>
 #include <windows.graphics.directx.direct3d11.interop.h>
+
+#include <mutex>
 
 typedef __FITypedEventHandler_2_Windows__CGraphics__CHolographic__CHolographicSpace_Windows__CGraphics__CHolographic__CHolographicSpaceCameraAddedEventArgs IHolographicSpaceCameraAddedEventArgs;
 typedef __FITypedEventHandler_2_Windows__CGraphics__CHolographic__CHolographicSpace_Windows__CGraphics__CHolographic__CHolographicSpaceCameraRemovedEventArgs IHolographicSpaceCameraRemovedEventArgs;
@@ -48,6 +80,8 @@ class HolographicNativeWindow : public InspectableNativeWindow, public std::enab
                             unsigned int height,
                             bool containsAlpha,
                             DXGISwapChain **swapChain) override;
+
+    static bool IsInitialized() { return mInitialized; }
     
     void setRenderer11(Renderer11* renderer) { mRenderer = renderer; };
     HRESULT setD3DDevice(ID3D11Device *device);
@@ -55,8 +89,12 @@ class HolographicNativeWindow : public InspectableNativeWindow, public std::enab
     void addHolographicCamera(ABI::Windows::Graphics::Holographic::IHolographicCamera *holographicCamera);
     void removeHolographicCamera(ABI::Windows::Graphics::Holographic::IHolographicCamera *holographicCamera);
 
-    ID3D11Device        *getPreferredD3DDevice()  { return mPreferredD3DDevice.Get();  };
+    egl::Error SetSpatialFrameOfReference(IInspectable* value);
+    egl::Error SetWaitForVBlank(bool const& isEnabled);
 
+    ID3D11Device *getPreferredD3DDevice()  { return mPreferredD3DDevice.Get();  };
+
+    std::vector<unsigned int> GetCameraIds();
     HRESULT GetHolographicSwapChain(size_t const& cameraIndex, HolographicSwapChain11** holographicSwapChain);
 
     HRESULT UpdateHolographicResources();
@@ -66,8 +104,28 @@ class HolographicNativeWindow : public InspectableNativeWindow, public std::enab
     HRESULT GetHolographicCameraPose(UINT32 id, ABI::Windows::Graphics::Holographic::IHolographicCameraPose** outPose);
     ABI::Windows::Graphics::Holographic::IHolographicFrame* GetHolographicFrame() { return mHolographicFrame.Get(); };
     ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem* GetCoordinateSystem() { return mCoordinateSystem.Get(); };
-    bool IsInitialized() { return mIsInitialized;  }
-
+    
+    bool HasHolographicCameraListChanged()
+    { 
+        bool holographicCameraListChangedReturnValue = false;
+        UseHolographicCameraResources<void>(
+            [&, this](std::map<UINT32, std::unique_ptr<HolographicSwapChain11>>& cameraResourceMap)
+            {
+                holographicCameraListChangedReturnValue = mHolographicCameraListChanged;
+                mHolographicCameraListChanged = false;
+            });
+        return holographicCameraListChangedReturnValue;
+    }
+    bool IsUpdateNeeded() { return mUpdateNeeded; }
+    void ResetFrame()
+    {
+        // Reset the frame update state, triggering a holographic resource update for
+        // the next frame.
+        mUpdateNeeded = true;
+        mHolographicFrame = nullptr;
+        mCoordinateSystem = nullptr;
+        mHolographicCameraPoses.Reset();
+    }
 
   protected:
     HRESULT initializeHolographicSpaceUsingDirect3DDevice(ID3D11Device *device);
@@ -93,7 +151,7 @@ class HolographicNativeWindow : public InspectableNativeWindow, public std::enab
     ComPtr<ABI::Windows::Foundation::Collections::IVectorView<ABI::Windows::Graphics::Holographic::HolographicCameraPose*>> mHolographicCameraPoses;
     ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame>  mHolographicFrame;
     ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace>  mHolographicSpace;
-    bool                                                            mIsInitialized;
+    
 
     ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> mCoordinateSystem;
 
@@ -113,7 +171,13 @@ class HolographicNativeWindow : public InspectableNativeWindow, public std::enab
     ComPtr<IDXGIAdapter3>                mPreferredDxgiAdapter;
     ComPtr<IMap<HSTRING, IInspectable*>> mPropertyMap;
 
-    Renderer11* mRenderer;
+    Renderer11*     mRenderer;
+
+    unsigned int    mCameraCount                    = 0;
+    bool            mHolographicCameraListChanged   = false;
+    bool            mUpdateNeeded                   = true;
+
+    static bool     mInitialized;
 };
 
 [uuid(51d90891-02cc-4b67-96af-c7dc8ddf9fec)]
@@ -200,20 +264,6 @@ public:
             HRESULT hr = cameraRemovedEventArgs->get_Camera(holographicCamera.GetAddressOf());
             if (SUCCEEDED(hr))
             {
-                Concurrency::create_task([this]()
-                {
-                    //
-                    // TODO: Asynchronously unload or deactivate content resources (not back buffer 
-                    //       resources) that are specific only to the camera that was removed.
-                    //
-                });
-
-                // Before letting this callback return, ensure that all references to the back buffer 
-                // are released.
-                // Since this function may be called at any time, the RemoveHolographicCamera function
-                // waits until it can get a lock on the set of holographic camera resources before
-                // deallocating resources for this camera. At 60 frames per second this wait should
-                // not take long.
                 host->removeHolographicCamera(holographicCamera.Get());
             }
         }
@@ -243,4 +293,14 @@ RetType HolographicNativeWindow::UseHolographicCameraResources(const LCallback& 
 HRESULT GetCoreWindowSizeInPixels(const ComPtr<ABI::Windows::UI::Core::ICoreWindow>& coreWindow, SIZE *windowSize);
 }
 
+#else // ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+namespace rx
+{
+class HolographicNativeWindow
+{
+public:
+    static bool IsInitialized() { return false; }
+};
+}
+#endif // ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
 #endif // LIBANGLE_RENDERER_D3D_D3D11_WINRT_HOLOGRAPHICNATIVEWINDOW_H_

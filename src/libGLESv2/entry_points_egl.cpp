@@ -938,7 +938,48 @@ EGLBoolean EGLAPIENTRY SurfaceAttrib(EGLDisplay dpy, EGLSurface surface, EGLint 
         return EGL_FALSE;
     }
 
-    UNIMPLEMENTED();   // FIXME
+    switch (attribute)
+    {
+    case EGLEXT_WAIT_FOR_VBLANK_ANGLE:
+    {
+        Error error = display->updateWindowSurfaceAttributeBoolean(eglSurface, attribute, static_cast<EGLBoolean>(value));
+        if (error.isError())
+        {
+            SetGlobalError(error);
+            return EGL_FALSE;
+        }
+        break;
+    }
+    default:
+        UNIMPLEMENTED();
+        break;
+    }
+
+    SetGlobalError(Error(EGL_SUCCESS));
+    return EGL_TRUE;
+}
+
+EGLBoolean EGLAPIENTRY ExtSurfaceAttribPointerANGLE(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLNativeWindowType value)
+{
+    EVENT("(EGLDisplay dpy = 0x%0.8p, EGLSurface surface = 0x%0.8p, EGLint attribute = %d, EGLNativeWindowType value = %d)",
+        dpy, surface, attribute, value);
+
+    Display *display = static_cast<Display*>(dpy);
+    Surface *eglSurface = static_cast<Surface*>(surface);
+
+    Error error = ValidateSurface(display, eglSurface);
+    if (error.isError())
+    {
+        SetGlobalError(error);
+        return EGL_FALSE;
+    }
+
+    error = display->updateWindowSurfaceAttributePointer(eglSurface, attribute, value);
+    if (error.isError())
+    {
+        SetGlobalError(error);
+        return EGL_FALSE;
+    }
 
     SetGlobalError(Error(EGL_SUCCESS));
     return EGL_TRUE;
@@ -1596,6 +1637,7 @@ __eglMustCastToProperFunctionPointerType EGLAPIENTRY GetProcAddress(const char *
         INSERT_PROC_ADDRESS(egl, BindTexImage);
         INSERT_PROC_ADDRESS(egl, ReleaseTexImage);
         INSERT_PROC_ADDRESS(egl, SurfaceAttrib);
+        INSERT_PROC_ADDRESS(egl, ExtSurfaceAttribPointerANGLE);
         INSERT_PROC_ADDRESS(egl, SwapInterval);
 
         // EGL 1.2

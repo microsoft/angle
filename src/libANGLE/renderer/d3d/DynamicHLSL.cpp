@@ -13,6 +13,7 @@
 #include "libANGLE/Program.h"
 #include "libANGLE/Shader.h"
 #include "libANGLE/formatutils.h"
+#include "libANGLE/renderer/d3d/d3d11/winrt/HolographicNativeWindow.h"
 #include "libANGLE/renderer/d3d/ProgramD3D.h"
 #include "libANGLE/renderer/d3d/RendererD3D.h"
 #include "libANGLE/renderer/d3d/ShaderD3D.h"
@@ -220,6 +221,16 @@ std::string DynamicHLSL::generateVertexShaderForInputLayout(
             VertexFormatType vertexFormatType =
                 inputIndex < inputLayout.size() ? inputLayout[inputIndex] : VERTEX_FORMAT_INVALID;
 
+            if (shaderAttribute.name == "gl_InstanceIDUnmodified")
+            {
+                // This built-in is experimental for Windows Holographic. We only need to
+                // have it in the vertex shader, and it will automatically be created there 
+                // in the form it is required to be in.
+                // We should skip re-adding it, and we should not add it to the shader in/out 
+                // structs.
+                continue;
+            }
+
             // HLSL code for input structure
             if (IsMatrixType(shaderAttribute.type))
             {
@@ -235,7 +246,7 @@ std::string DynamicHLSL::generateVertexShaderForInputLayout(
                 {
                     // The input type of the instance ID in HLSL (uint) differs from the one in ESSL
                     // (int).
-                    structStream << " uint";
+                    structStream << "    uint";
                 }
                 else
                 {
@@ -244,9 +255,9 @@ std::string DynamicHLSL::generateVertexShaderForInputLayout(
                                                   VariableComponentCount(shaderAttribute.type));
                 }
             }
-
+            
             structStream << " " << decorateVariable(shaderAttribute.name) << " : ";
-
+            
             if (shaderAttribute.name == "gl_InstanceID")
             {
                 structStream << "SV_InstanceID";
@@ -273,6 +284,20 @@ std::string DynamicHLSL::generateVertexShaderForInputLayout(
             else
             {
                 initStream << "input." << decorateVariable(shaderAttribute.name);
+            }
+
+            if (shaderAttribute.name == "gl_InstanceID")
+            {
+                // On ANGLE for Windows Holographic, we currently are doubling the number
+                // of instances so that we can send odd ones to the left display, and even
+                // ones to the right display.
+                // gl_InstanceIDUnmodified will be used to store the instance ID from
+                // DirectX, and gl_InstanceID will have the value as the app expects it 
+                // to be.
+                if (rx::HolographicNativeWindow::IsInitialized() && rx::HolographicSwapChain11::getIsAutomaticStereoRenderingEnabled())
+                {
+                    initStream << " / 2;\n    gl_InstanceIDUnmodified = input.gl_InstanceID";
+                }
             }
 
             initStream << ";\n";
@@ -456,7 +481,11 @@ bool DynamicHLSL::generateShaderLinkHLSL(const gl::Data &data,
 
     // Write the HLSL input/output declarations
     vertexStream << "struct VS_OUTPUT\n";
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
     generateVaryingLinkHLSL(SHADER_VERTEX, varyingPacking, vertexStream, setRenderTargetArrayIndex);
+#else
+    generateVaryingLinkHLSL(SHADER_VERTEX, varyingPacking, vertexStream);
+#endif
     vertexStream << "\n"
                  << "VS_OUTPUT main(VS_INPUT input)\n"
                  << "{\n"
@@ -819,7 +848,11 @@ std::string DynamicHLSL::generateGeometryShaderPreamble(const VaryingPacking &va
     generateVaryingLinkHLSL(SHADER_VERTEX, varyingPacking, preambleStream);
     preambleStream << "\n"
                    << "struct GS_OUTPUT\n";
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
     generateVaryingLinkHLSL(SHADER_GEOMETRY, varyingPacking, preambleStream, true);
+#else
+    generateVaryingLinkHLSL(SHADER_GEOMETRY, varyingPacking, preambleStream);
+#endif
     preambleStream
         << "\n"
         << "void copyVertex(inout GS_OUTPUT output, GS_INPUT input, GS_INPUT flatinput)\n"

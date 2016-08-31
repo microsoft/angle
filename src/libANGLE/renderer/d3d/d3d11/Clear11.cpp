@@ -320,7 +320,7 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
             else
             {
                  // ID3D11DeviceContext::ClearRenderTargetView or ID3D11DeviceContext1::ClearView is possible
-
+                
                 ID3D11RenderTargetView *framebufferRTV = renderTarget->getRenderTargetView();
                 if (!framebufferRTV)
                 {
@@ -362,7 +362,26 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
                 }
                 else
                 {
-                    deviceContext->ClearRenderTargetView(framebufferRTV, clearValues);
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+                     if (renderTarget->isHolographic())
+                     {
+                        // For holographic render targets, we clear each camera's back buffer.
+                         auto holographicNativeWindow = renderTarget->getHolographicSwapChain11()->getHolographicNativeWindow();
+                         for each (auto& cameraId in holographicNativeWindow->GetCameraIds())
+                         {
+                             HolographicSwapChain11* swapChain = nullptr;
+                             HRESULT hr = holographicNativeWindow->GetHolographicSwapChain(cameraId, &swapChain);
+                             if (SUCCEEDED(hr))
+                             {
+                                 deviceContext->ClearRenderTargetView(swapChain->getRenderTarget(), clearValues);
+                             }
+                         }
+                     }
+                     else
+#endif
+                     {
+                        deviceContext->ClearRenderTargetView(framebufferRTV, clearValues);
+                     }
                 }
             }
         }
@@ -401,8 +420,27 @@ gl::Error Clear11::clearFramebuffer(const ClearParameters &clearParams, const gl
                                 (clearParams.clearStencil ? D3D11_CLEAR_STENCIL : 0);
             FLOAT depthClear = gl::clamp01(clearParams.depthClearValue);
             UINT8 stencilClear = clearParams.stencilClearValue & 0xFF;
-
-            deviceContext->ClearDepthStencilView(framebufferDSV, clearFlags, depthClear, stencilClear);
+            
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+            if (renderTarget->isHolographic())
+            {
+                // For holographic render targets, we clear each camera's depth buffer.
+                auto holographicNativeWindow = renderTarget->getHolographicSwapChain11()->getHolographicNativeWindow();
+                for each (auto& cameraId in holographicNativeWindow->GetCameraIds())
+                {
+                    HolographicSwapChain11* swapChain = nullptr;
+                    HRESULT hr = holographicNativeWindow->GetHolographicSwapChain(cameraId, &swapChain);
+                    if (SUCCEEDED(hr))
+                    {
+                        deviceContext->ClearDepthStencilView(swapChain->getDepthStencil(), clearFlags, depthClear, stencilClear);
+                    }
+                }
+            }
+            else
+#endif
+            {
+                deviceContext->ClearDepthStencilView(framebufferDSV, clearFlags, depthClear, stencilClear);
+            }
         }
     }
 

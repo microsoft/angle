@@ -45,6 +45,7 @@ ANGLE_EXPORT EGLBoolean EGLAPIENTRY WaitNative(EGLint engine);
 ANGLE_EXPORT EGLBoolean EGLAPIENTRY BindTexImage(EGLDisplay dpy, EGLSurface surface, EGLint buffer);
 ANGLE_EXPORT EGLBoolean EGLAPIENTRY ReleaseTexImage(EGLDisplay dpy, EGLSurface surface, EGLint buffer);
 ANGLE_EXPORT EGLBoolean EGLAPIENTRY SurfaceAttrib(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint value);
+ANGLE_EXPORT EGLBoolean EGLAPIENTRY ExtSurfaceAttribPointerANGLE(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLNativeWindowType value);
 ANGLE_EXPORT EGLBoolean EGLAPIENTRY SwapInterval(EGLDisplay dpy, EGLint interval);
 
 // EGL 1.2

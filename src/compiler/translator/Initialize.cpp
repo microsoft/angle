@@ -578,6 +578,12 @@ void IdentifyBuiltIns(sh::GLenum type, ShShaderSpec spec,
             TType(EbtFloat, EbpMedium, EvqPointSize, 1)));
         symbolTable.insert(ESSL3_BUILTINS, new TVariable(NewPoolTString("gl_InstanceID"),
             TType(EbtInt, EbpHigh, EvqInstanceID, 1)));
+        // On Windows Holographic, we need to track our instancing modification and give the app's 
+        // shader code the original instance ID instead of the modified value.
+        // If the app is modified to be aware of what is going on, it is free to use the 
+        // gl_InstanceIDUnmodified experimental built-in as well.
+        symbolTable.insert(ESSL3_BUILTINS, new TVariable(NewPoolTString("gl_InstanceIDUnmodified"),
+            TType(EbtInt, EbpHigh, EvqInstanceIDOriginal, 1)));
         break;
 
       default:

@@ -146,6 +146,7 @@ CollectVariables::CollectVariables(std::vector<sh::Attribute> *attribs,
       mFrontFacingAdded(false),
       mFragCoordAdded(false),
       mInstanceIDAdded(false),
+      mInstanceIDOriginalAdded(false), // experimental built-in for Windows Holographic
       mPositionAdded(false),
       mPointSizeAdded(false),
       mLastFragDataAdded(false),
@@ -323,6 +324,24 @@ void CollectVariables::visitSymbol(TIntermSymbol *symbol)
                 info.location = -1;
                 mAttribs->push_back(info);
                 mInstanceIDAdded = true;
+            }
+            return;
+          case EvqInstanceIDOriginal:
+            if (!mInstanceIDOriginalAdded)
+            {
+                // experimental built-in for Windows Holographic
+                // contains the modified gl_InstanceID value, as provided by ANGLE
+                Attribute info;
+                const char kName[] = "gl_InstanceIDUnmodified";
+                info.name = kName;
+                info.mappedName = kName;
+                info.type = GL_INT;
+                info.arraySize = 0;
+                info.precision = GL_HIGH_INT;
+                info.staticUse = true;
+                info.location = -1;
+                mAttribs->push_back(info);
+                mInstanceIDOriginalAdded = true;
             }
             return;
           case EvqPosition:
