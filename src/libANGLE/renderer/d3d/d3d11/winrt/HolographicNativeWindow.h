@@ -117,15 +117,7 @@ class HolographicNativeWindow : public InspectableNativeWindow, public std::enab
         return holographicCameraListChangedReturnValue;
     }
     bool IsUpdateNeeded() { return mUpdateNeeded; }
-    void ResetFrame()
-    {
-        // Reset the frame update state, triggering a holographic resource update for
-        // the next frame.
-        mUpdateNeeded = true;
-        mHolographicFrame = nullptr;
-        mCoordinateSystem = nullptr;
-        mHolographicCameraPoses.Reset();
-    }
+	void ResetFrame();
 
   protected:
     HRESULT initializeHolographicSpaceUsingDirect3DDevice(ID3D11Device *device);

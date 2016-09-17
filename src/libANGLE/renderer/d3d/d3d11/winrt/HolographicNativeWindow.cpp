@@ -53,20 +53,20 @@ bool HolographicNativeWindow::initialize(EGLNativeWindowType holographicSpace, I
 {
     mInitialized = true;
 
-    ComPtr<IPropertySet> props = propertySet;
-    ComPtr<IInspectable> space = holographicSpace;
+    ComPtr<IPropertySet> spProps = propertySet;
+    ComPtr<IInspectable> spSpace = holographicSpace;
     SIZE swapChainSize = {};
     HRESULT result = S_OK;
 
     if (SUCCEEDED(result))
     {
-        result = space.As(&mHolographicSpace);
+        result = spSpace.As(&mHolographicSpace);
     }
 
-    ComPtr<ABI::Windows::Foundation::Collections::IMap<HSTRING, IInspectable*>> propertyMap;
+    ComPtr<ABI::Windows::Foundation::Collections::IMap<HSTRING, IInspectable*>> spPropertyMap;
     if (SUCCEEDED(result))
     {
-        result = props.As(&propertyMap);
+        result = spProps.As(&spPropertyMap);
     }
 
     {
@@ -74,7 +74,7 @@ bool HolographicNativeWindow::initialize(EGLNativeWindowType holographicSpace, I
         boolean hasEglBaseCoordinateSystemProperty = false;
         if (SUCCEEDED(result))
         {
-            result = propertyMap->HasKey(HStringReference(EGLBaseCoordinateSystemProperty).Get(), &hasEglBaseCoordinateSystemProperty);
+            result = spPropertyMap->HasKey(HStringReference(EGLBaseCoordinateSystemProperty).Get(), &hasEglBaseCoordinateSystemProperty);
         }
 
         // If the IPropertySet does not contain the required EGLBaseCoordinateSystemProperty key, the property set is
@@ -89,7 +89,7 @@ bool HolographicNativeWindow::initialize(EGLNativeWindowType holographicSpace, I
         ComPtr<IInspectable> frameOfReference;
         if (SUCCEEDED(result) && hasEglBaseCoordinateSystemProperty)
         {
-            result = propertyMap->Lookup(HStringReference(EGLBaseCoordinateSystemProperty).Get(), &frameOfReference);
+            result = spPropertyMap->Lookup(HStringReference(EGLBaseCoordinateSystemProperty).Get(), &frameOfReference);
         }
 
         if (SetSpatialFrameOfReference(frameOfReference.Get()).getCode() == EGL_BAD_PARAMETER)
@@ -105,14 +105,14 @@ bool HolographicNativeWindow::initialize(EGLNativeWindowType holographicSpace, I
         boolean hasEglAutomaticStereoRenderingProperty = false;
         if (SUCCEEDED(result))
         {
-            result = propertyMap->HasKey(HStringReference(EGLAutomaticStereoRenderingProperty).Get(), &hasEglAutomaticStereoRenderingProperty);
+            result = spPropertyMap->HasKey(HStringReference(EGLAutomaticStereoRenderingProperty).Get(), &hasEglAutomaticStereoRenderingProperty);
         }
 
         // The property exists, so retrieve the IInspectable that represents it.
         ComPtr<IInspectable> enableAutomaticStereoRenderingPropertyInspectable;
         if (SUCCEEDED(result) && hasEglAutomaticStereoRenderingProperty)
         {
-            result = propertyMap->Lookup(HStringReference(EGLAutomaticStereoRenderingProperty).Get(), &enableAutomaticStereoRenderingPropertyInspectable);
+            result = spPropertyMap->Lookup(HStringReference(EGLAutomaticStereoRenderingProperty).Get(), &enableAutomaticStereoRenderingPropertyInspectable);
         }
 
         ComPtr<IPropertyValue> enableAutomaticStereoRenderingProperty;
@@ -137,14 +137,14 @@ bool HolographicNativeWindow::initialize(EGLNativeWindowType holographicSpace, I
         boolean hasEglAutomaticDepthBasedImageStabilizationProperty = false;
         if (SUCCEEDED(result))
         {
-            result = propertyMap->HasKey(HStringReference(EGLAutomaticDepthBasedImageStabilizationProperty).Get(), &hasEglAutomaticDepthBasedImageStabilizationProperty);
+            result = spPropertyMap->HasKey(HStringReference(EGLAutomaticDepthBasedImageStabilizationProperty).Get(), &hasEglAutomaticDepthBasedImageStabilizationProperty);
         }
 
         // The property exists, so retrieve the IInspectable that represents it.
         ComPtr<IInspectable> enableAutomaticDepthBasedImageStabilizationPropertyInspectable;
         if (SUCCEEDED(result) && hasEglAutomaticDepthBasedImageStabilizationProperty)
         {
-            result = propertyMap->Lookup(HStringReference(EGLAutomaticStereoRenderingProperty).Get(), &enableAutomaticDepthBasedImageStabilizationPropertyInspectable);
+            result = spPropertyMap->Lookup(HStringReference(EGLAutomaticStereoRenderingProperty).Get(), &enableAutomaticDepthBasedImageStabilizationPropertyInspectable);
         }
 
         ComPtr<IPropertyValue> enableAutomaticDepthBasedImageStabilizationProperty;
@@ -173,18 +173,18 @@ bool HolographicNativeWindow::initialize(EGLNativeWindowType holographicSpace, I
 
 bool HolographicNativeWindow::registerForHolographicCameraEvents()
 {
-    ComPtr<IHolographicSpaceCameraAddedEventArgs> cameraAddedHandler;
-    HRESULT result = Microsoft::WRL::MakeAndInitialize<CameraAddedEventHandler>(cameraAddedHandler.ReleaseAndGetAddressOf(), this->shared_from_this());
+    ComPtr<IHolographicSpaceCameraAddedEventArgs> spCameraAddedHandler;
+    HRESULT result = Microsoft::WRL::MakeAndInitialize<CameraAddedEventHandler>(spCameraAddedHandler.ReleaseAndGetAddressOf(), this->shared_from_this());
     if (SUCCEEDED(result))
     {
-        result = mHolographicSpace->add_CameraAdded(cameraAddedHandler.Get(), &mCameraAddedEventToken);
+        result = mHolographicSpace->add_CameraAdded(spCameraAddedHandler.Get(), &mCameraAddedEventToken);
     }
 
-    ComPtr<IHolographicSpaceCameraRemovedEventArgs> cameraRemovedHandler;
-    result = Microsoft::WRL::MakeAndInitialize<CameraRemovedEventHandler>(cameraRemovedHandler.ReleaseAndGetAddressOf(), this->shared_from_this());
+    ComPtr<IHolographicSpaceCameraRemovedEventArgs> spCameraRemovedHandler;
+    result = Microsoft::WRL::MakeAndInitialize<CameraRemovedEventHandler>(spCameraRemovedHandler.ReleaseAndGetAddressOf(), this->shared_from_this());
     if (SUCCEEDED(result))
     {
-        result = mHolographicSpace->add_CameraRemoved(cameraRemovedHandler.Get(), &mCameraRemovedEventToken);
+        result = mHolographicSpace->add_CameraRemoved(spCameraRemovedHandler.Get(), &mCameraRemovedEventToken);
     }
 
     if (SUCCEEDED(result))
@@ -254,8 +254,8 @@ HRESULT HolographicNativeWindow::createPreferredD3DDevice(ID3D11Device *givenDev
     };
 
     // Create the Direct3D 11 API device object and a corresponding context.
-    ComPtr<ID3D11Device> device;
-    ComPtr<ID3D11DeviceContext> context;
+    ComPtr<ID3D11Device> spNewDevice;
+    ComPtr<ID3D11DeviceContext> spNewContext;
     HRESULT hr = D3D11CreateDevice(
         mPreferredDxgiAdapter.Get(),// The primary DXGI adapter determined to support a Windows Holographic device.
         D3D_DRIVER_TYPE_HARDWARE,   // Create a device using the hardware graphics driver.
@@ -264,29 +264,35 @@ HRESULT HolographicNativeWindow::createPreferredD3DDevice(ID3D11Device *givenDev
         featureLevels,              // List of feature levels this app can support.
         ARRAYSIZE(featureLevels),   // Size of the list above.
         D3D11_SDK_VERSION,          // Always set this to D3D11_SDK_VERSION for Windows Store apps.
-        &device,                    // Returns the Direct3D device created.
+        &spNewDevice,               // Returns the Direct3D device created.
         nullptr,
-        &context                    // Returns the device immediate context.
+        &spNewContext               // Returns the device immediate context.
     );
+
+    // Store pointers to the Direct3D device and immediate context.
+    if (SUCCEEDED(hr))
+    {
+        hr = spNewDevice.As(&mPreferredD3DDevice);
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        hr = spNewContext.As(&mPreferredD3DContext);
+    }
 
     if (FAILED(hr))
     {
         // If the initialization fails, fall back to whatever D3D device we were given.
         ComPtr<ID3D11Device> spDevice = givenDevice;
-        hr = device.As(&mPreferredD3DDevice);
+        hr = spDevice.As(&mPreferredD3DDevice);
+
+        if (SUCCEEDED(hr))
+        {
+            mPreferredD3DDevice->GetImmediateContext3(mPreferredD3DContext.ReleaseAndGetAddressOf());
+        }
+
         mPreferredDxgiDevice.Reset();
         mPreferredDxgiAdapter.Reset();
-        mPreferredD3DContext.Reset();
-    }
-
-    // Store pointers to the Direct3D device and immediate context.
-    if (SUCCEEDED(hr))
-    {
-        hr = device.As(&mPreferredD3DDevice);
-    }
-    if (SUCCEEDED(hr))
-    {
-        hr = context.As(&mPreferredD3DContext);
     }
 
     // Acquire the DXGI interface for the Direct3D device.
@@ -726,5 +732,15 @@ HRESULT HolographicNativeWindow::GetHolographicCameraPose(UINT32 id, ABI::Window
 
     return mHolographicCameraPoses->GetAt(id, outPose);
 };
+
+void HolographicNativeWindow::ResetFrame()
+{
+    // Reset the frame update state, triggering a holographic resource update for
+    // the next frame.
+    mUpdateNeeded = true;
+    mHolographicFrame.Reset();
+    mCoordinateSystem.Reset();
+    mHolographicCameraPoses.Reset();
+}
 
 }

@@ -128,8 +128,6 @@ void HolographicSwapChain11::release()
     mBackBufferSRView.Reset();
     
     // Force the back buffer to be released entirely
-    mBackBufferTexture.Get()->AddRef();
-    while (mBackBufferTexture.Get()->Release() > 1);
     mBackBufferTexture.Reset();
 
     releaseOffscreenDepthBuffer();
@@ -400,7 +398,7 @@ void HolographicSwapChain11::ComputeMidViewMatrix(
 }
 
 EGLint HolographicSwapChain11::updateHolographicRenderingParameters(
-    ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* pCameraRenderingParameters)
+    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters>& spCameraRenderingParameters)
 {
     TRACE_EVENT0("gpu.angle", "HolographicSwapChain11::updateHolographicRenderingParameters");
 
@@ -418,143 +416,147 @@ EGLint HolographicSwapChain11::updateHolographicRenderingParameters(
 
     HRESULT result = S_OK;
 
-    // Get the WinRT object representing the holographic camera's back buffer.
-    ComPtr<IDirect3DSurface> surface;
-    if (SUCCEEDED(result))
+    // Update back buffer resources.
     {
-        result = pCameraRenderingParameters->get_Direct3D11BackBuffer(surface.GetAddressOf());
-    }
-
-    // Get a DXGI interface for the holographic camera's back buffer.
-    // Holographic cameras do not provide the DXGI swap chain, which is owned
-    // by the system. The Direct3D back buffer resource is provided using WinRT
-    // interop APIs.
-    ComPtr<IInspectable> inspectable;
-    if (SUCCEEDED(result))
-    {
-        result = surface.As(&inspectable);
-    }
-    ComPtr<IDirect3DDxgiInterfaceAccess> dxgiInterfaceAccess;
-    if (SUCCEEDED(result))
-    {
-        result = inspectable.As(&dxgiInterfaceAccess);
-    }
-    ComPtr<ID3D11Resource> resource;
-    if (SUCCEEDED(result))
-    {
-        result = dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&resource));
-    }
-    // Get a Direct3D interface for the holographic camera's back buffer.
-    ComPtr<ID3D11Texture2D> cameraBackBuffer;
-    if (SUCCEEDED(result))
-    {
-        result = resource.As(&cameraBackBuffer);
-    }
-
-    // Don't resize unnecessarily
-    if (mBackBufferTexture != cameraBackBuffer)
-    {
-        // Can only recreate views if we have a resource
-        ASSERT(cameraBackBuffer);
-
-        mBackBufferTexture.Reset();
-        mBackBufferRTView.Reset();
-        mBackBufferSRView.Reset();
-
-        // This can change every frame as the system moves to the next buffer in the
-        // swap chain. This mode of operation will occur when certain rendering modes
-        // are activated.
-        mBackBufferTexture = cameraBackBuffer.Get();
-
-        // Create a render target view of the back buffer.
-        // Creating this resource is inexpensive, and is better than keeping track of
-        // the back buffers in order to pre-allocate render target views for each one.
-        d3d11::SetDebugName(mBackBufferTexture.Get(), "Back buffer texture");
-        result = device->CreateRenderTargetView(mBackBufferTexture.Get(), NULL, &mBackBufferRTView);
-        ASSERT(SUCCEEDED(result));
+        // Get the WinRT object representing the holographic camera's back buffer.
+        ComPtr<IDirect3DSurface> spSurface;
         if (SUCCEEDED(result))
         {
-            d3d11::SetDebugName(mBackBufferRTView.Get(), "Back buffer render target");
+            result = spCameraRenderingParameters->get_Direct3D11BackBuffer(spSurface.GetAddressOf());
         }
 
-        // Get the DXGI format for the back buffer.
-        // This information can be accessed by the app using CameraResources::GetBackBufferDXGIFormat().
-        D3D11_TEXTURE2D_DESC backBufferDesc;
-        mBackBufferTexture->GetDesc(&backBufferDesc);
-        mDxgiFormat = backBufferDesc.Format;
-
-        // Check for render target size changes.
-        ABI::Windows::Foundation::Size currentSize;
-        result = mHolographicCamera->get_RenderTargetSize(&currentSize);
+        // Get a DXGI interface for the holographic camera's back buffer.
+        // Holographic cameras do not provide the DXGI swap chain, which is owned
+        // by the system. The Direct3D back buffer resource is provided using WinRT
+        // interop APIs.
+        ComPtr<IInspectable> spInspectable;
         if (SUCCEEDED(result))
         {
-            if (mRenderTargetSize.Height != currentSize.Height ||
-                mRenderTargetSize.Width != currentSize.Width)
-            {
-                // Set render target size.
-                mRenderTargetSize = currentSize;
-            }
+            result = spSurface.As(&spInspectable);
         }
-
+        ComPtr<IDirect3DDxgiInterfaceAccess> spDxgiInterfaceAccess;
         if (SUCCEEDED(result))
         {
-            result = device->CreateRenderTargetView(
-                mBackBufferTexture.Get(),
-                nullptr,
-                &mBackBufferRTView
-            );
+            result = spInspectable.As(&spDxgiInterfaceAccess);
         }
-
-        if (SUCCEEDED(result) && (backBufferDesc.BindFlags & D3D11_BIND_SHADER_RESOURCE))
+        ComPtr<ID3D11Resource> spResource;
+        if (SUCCEEDED(result))
         {
-            CD3D11_SHADER_RESOURCE_VIEW_DESC desc(
-                mIsStereo ? D3D11_SRV_DIMENSION_TEXTURE2DARRAY : D3D11_SRV_DIMENSION_TEXTURE2D,
-                backBufferDesc.Format);
-            HRESULT hr = device->CreateShaderResourceView(mBackBufferTexture.Get(), &desc, &mBackBufferSRView);
-
-            if (FAILED(hr))
-            {
-                return EGL_BAD_ALLOC;
-            }
-
-            if (mBackBufferSRView != nullptr)
-            {
-                d3d11::SetDebugName(mBackBufferSRView.Get(), "Back buffer shader resource");
-            }
+            result = spDxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&spResource));
+        }
+        // Get a Direct3D interface for the holographic camera's back buffer.
+        ComPtr<ID3D11Texture2D> spCameraBackBuffer;
+        if (SUCCEEDED(result))
+        {
+            result = spResource.As(&spCameraBackBuffer);
         }
 
-        // A new depth stencil view is also needed.
-        return resetOffscreenBuffers(
-            static_cast<EGLint>(mRenderTargetSize.Width),
-            static_cast<EGLint>(mRenderTargetSize.Height));
+        // Don't resize unnecessarily
+        if (mBackBufferTexture != spCameraBackBuffer)
+        {
+            // Can only recreate views if we have a resource
+            ASSERT(spCameraBackBuffer);
+
+            mBackBufferTexture.Reset();
+            mBackBufferRTView.Reset();
+            mBackBufferSRView.Reset();
+
+            // This can change every frame as the system moves to the next buffer in the
+            // swap chain. This mode of operation will occur when certain rendering modes
+            // are activated.
+            mBackBufferTexture = spCameraBackBuffer;
+
+            // Create a render target view of the back buffer.
+            // Creating this resource is inexpensive, and is better than keeping track of
+            // the back buffers in order to pre-allocate render target views for each one.
+            d3d11::SetDebugName(mBackBufferTexture.Get(), "Back buffer texture");
+            result = device->CreateRenderTargetView(mBackBufferTexture.Get(), NULL, &mBackBufferRTView);
+            ASSERT(SUCCEEDED(result));
+            if (SUCCEEDED(result))
+            {
+                d3d11::SetDebugName(mBackBufferRTView.Get(), "Back buffer render target");
+            }
+
+            // Get the DXGI format for the back buffer.
+            // This information can be accessed by the app using CameraResources::GetBackBufferDXGIFormat().
+            D3D11_TEXTURE2D_DESC backBufferDesc;
+            mBackBufferTexture->GetDesc(&backBufferDesc);
+            mDxgiFormat = backBufferDesc.Format;
+
+            // Check for render target size changes.
+            ABI::Windows::Foundation::Size currentSize;
+            result = mHolographicCamera->get_RenderTargetSize(&currentSize);
+            if (SUCCEEDED(result))
+            {
+                if (mRenderTargetSize.Height != currentSize.Height ||
+                    mRenderTargetSize.Width != currentSize.Width)
+                {
+                    // Set render target size.
+                    mRenderTargetSize = currentSize;
+                }
+            }
+
+            if (SUCCEEDED(result))
+            {
+                result = device->CreateRenderTargetView(
+                    mBackBufferTexture.Get(),
+                    nullptr,
+                    &mBackBufferRTView
+                );
+            }
+
+            if (SUCCEEDED(result) && (backBufferDesc.BindFlags & D3D11_BIND_SHADER_RESOURCE))
+            {
+                CD3D11_SHADER_RESOURCE_VIEW_DESC desc(
+                    mIsStereo ? D3D11_SRV_DIMENSION_TEXTURE2DARRAY : D3D11_SRV_DIMENSION_TEXTURE2D,
+                    backBufferDesc.Format);
+                HRESULT hr = device->CreateShaderResourceView(mBackBufferTexture.Get(), &desc, &mBackBufferSRView);
+
+                if (FAILED(hr))
+                {
+                    return EGL_BAD_ALLOC;
+                }
+
+                if (mBackBufferSRView != nullptr)
+                {
+                    d3d11::SetDebugName(mBackBufferSRView.Get(), "Back buffer shader resource");
+                }
+            }
+
+            // A new depth stencil view is also needed.
+            return resetOffscreenBuffers(
+                static_cast<EGLint>(mRenderTargetSize.Width),
+                static_cast<EGLint>(mRenderTargetSize.Height));
+        }
     }
 
+    // Update holographic view/projection matrices.
     if (SUCCEEDED(result))
     {
-        ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> coordinateSystem = 
+        ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> spCoordinateSystem = 
             mHolographicNativeWindow->GetCoordinateSystem();
 
-        if (coordinateSystem != nullptr)
+        if (spCoordinateSystem != nullptr)
         {
-            ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraPose> pose;
-            result = mHolographicNativeWindow->GetHolographicCameraPoses()->GetAt(mHolographicCameraId, pose.GetAddressOf());
+            ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraPose> spPose;
+            result = mHolographicNativeWindow->GetHolographicCameraPoses()->GetAt(mHolographicCameraId, spPose.GetAddressOf());
 
             ABI::Windows::Graphics::Holographic::HolographicStereoTransform viewTransform;
             if (SUCCEEDED(result))
             {
-                ComPtr<IReference<ABI::Windows::Graphics::Holographic::HolographicStereoTransform>> viewTransformReference;
-                result = pose->TryGetViewTransform(coordinateSystem.Get(), viewTransformReference.GetAddressOf());
+                ComPtr<IReference<ABI::Windows::Graphics::Holographic::HolographicStereoTransform>> spViewTransformReference;
+                result = spPose->TryGetViewTransform(spCoordinateSystem.Get(), spViewTransformReference.GetAddressOf());
 
-                if (SUCCEEDED(result) && (viewTransformReference != nullptr))
+                if (SUCCEEDED(result) && (spViewTransformReference != nullptr))
                 {
-                    result = viewTransformReference->get_Value(&viewTransform);
+                    result = spViewTransformReference->get_Value(&viewTransform);
                 }
             }
 
             ABI::Windows::Graphics::Holographic::HolographicStereoTransform projectionTransform;
             if (SUCCEEDED(result))
             {
-                result = pose->get_ProjectionTransform(&projectionTransform);
+                result = spPose->get_ProjectionTransform(&projectionTransform);
             }
 
             if (SUCCEEDED(result))
@@ -757,23 +759,23 @@ EGLint HolographicSwapChain11::reset(int backbufferWidth, int backbufferHeight, 
     {
         HRESULT hr = S_OK;
 
-        ABI::Windows::Graphics::Holographic::IHolographicCameraPose* pose = nullptr;
+        ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraPose> spPose;
         if (SUCCEEDED(hr))
         {
-            hr = mHolographicNativeWindow->GetHolographicCameraPose(id, &pose);
+            hr = mHolographicNativeWindow->GetHolographicCameraPose(id, spPose.GetAddressOf());
         }
 
         if (SUCCEEDED(hr))
         {
-            pose->get_NearPlaneDistance(&mNearPlaneDistance);
-            pose->get_FarPlaneDistance(&mFarPlaneDistance);
+            spPose->get_NearPlaneDistance(&mNearPlaneDistance);
+            spPose->get_FarPlaneDistance(&mFarPlaneDistance);
 
             // Ensure the values we set previously made it through.
             assert(mNearPlaneDistance ==  0.1f);
             assert(mFarPlaneDistance  == 20.0f);
 
             ABI::Windows::Foundation::Rect viewportRect;
-            pose->get_Viewport(&viewportRect);
+            spPose->get_Viewport(&viewportRect);
             mViewport = CD3D11_VIEWPORT(
                 viewportRect.X,
                 viewportRect.Y,
@@ -785,16 +787,16 @@ EGLint HolographicSwapChain11::reset(int backbufferWidth, int backbufferHeight, 
     
     HRESULT hr = S_OK;
 
-    ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters = nullptr;
+    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters> spParameters;
     if (SUCCEEDED(hr))
     {
         // This will take care of back buffer, depth buffer, viewport, coordinate system, and view/projection matrix(es).
-        hr = mHolographicNativeWindow->GetHolographicRenderingParameters(id, &parameters);
+        hr = mHolographicNativeWindow->GetHolographicRenderingParameters(id, spParameters.GetAddressOf());
     }
 
     if (SUCCEEDED(hr))
     {
-        EGLint result = updateHolographicRenderingParameters(parameters);
+        EGLint result = updateHolographicRenderingParameters(spParameters);
             
         if (result != EGL_SUCCESS)
         {
@@ -895,16 +897,15 @@ void HolographicSwapChain11::SetStabilizationPlane(IHolographicFrame* pFrame)
             planeNormalInWorldSpace4.z
         };
 
-        ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> coordinateSystem = 
+        ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> spCoordinateSystem = 
             mHolographicNativeWindow->GetCoordinateSystem();
 
         // Set the focus point for the current camera.
-        ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters = nullptr;
-        HRESULT hr = mHolographicNativeWindow->GetHolographicRenderingParameters(mHolographicCameraId, &parameters);
-        if (SUCCEEDED(hr))
+        ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters> spParameters;
+        if (SUCCEEDED(mHolographicNativeWindow->GetHolographicRenderingParameters(mHolographicCameraId, spParameters.GetAddressOf())))
         {
-            parameters->SetFocusPointWithNormal(
-                coordinateSystem.Get(),
+            spParameters->SetFocusPointWithNormal(
+                spCoordinateSystem.Get(),
                 pointInWorldSpace,
                 planeNormalInWorldSpace);
         }
