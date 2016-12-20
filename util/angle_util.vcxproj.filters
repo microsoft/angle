@@ -61,8 +61,6 @@
     <ClCompile Include="OSWindow.cpp"/>
     <ClInclude Include="OSWindow.h"/>
     <ClInclude Include="Timer.h"/>
-    <ClCompile Include="Vector.cpp"/>
-    <ClInclude Include="Vector.h"/>
     <ClCompile Include="windows\win32\Win32_system_utils.cpp">
       <Filter>windows\win32</Filter>
     </ClCompile>

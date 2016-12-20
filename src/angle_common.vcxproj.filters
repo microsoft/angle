@@ -139,6 +139,9 @@
     <Filter Include="common">
       <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
     </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\BitSetIterator.h">
@@ -217,6 +220,9 @@
       <Filter>common</Filter>
     </ClCompile>
     <ClInclude Include="common\utilities.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\vector_utils.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="common\version.h">
