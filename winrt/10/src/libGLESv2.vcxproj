@@ -75,13 +75,13 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -108,7 +108,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\include;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -119,13 +119,13 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -152,7 +152,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\include;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -163,13 +163,13 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -196,7 +196,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\include;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -206,14 +206,14 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MinSpace</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -240,7 +240,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\include;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -250,14 +250,14 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MinSpace</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -284,7 +284,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\include;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -294,14 +294,14 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MinSpace</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -328,7 +328,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\include;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBGLESV2_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;LIBANGLE_IMPLEMENTATION;GL_GLEXT_PROTOTYPES;ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ &quot;d3dcompiler_47.dll&quot;, &quot;d3dcompiler_46.dll&quot;, &quot;d3dcompiler_43.dll&quot; };GL_APICALL=;EGLAPI=;ANGLE_ENABLE_D3D11;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -369,12 +369,8 @@
       <Project>{7E3E300C-E43E-45E3-7AFE-6C728B705A32}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="translator_static.vcxproj">
-      <Project>{195002A7-E979-7387-6C9C-CFFF03DB1775}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="translator_lib.vcxproj">
-      <Project>{D42E649A-16F0-F02E-C9E0-4700295D3C78}</Project>
+    <ProjectReference Include="translator.vcxproj">
+      <Project>{CCB5F260-9E5D-B51E-07AC-61B3052C6A9F}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="preprocessor.vcxproj">

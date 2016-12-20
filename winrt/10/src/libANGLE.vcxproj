@@ -75,13 +75,13 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -107,7 +107,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -118,13 +118,13 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -150,7 +150,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -161,13 +161,13 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -193,7 +193,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -203,14 +203,14 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MinSpace</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -236,7 +236,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -246,14 +246,14 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MinSpace</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -279,7 +279,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -289,14 +289,14 @@
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100;4127;4718;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MinSpace</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -322,7 +322,7 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\src;..\..\..\include;..\..\..\src\third_party\khronos;$(OutDir)obj\global_intermediate\angle;..\..\..\src;..\..\..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_TRANSLATOR_STATIC;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LIBANGLE_IMPLEMENTATION;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_D3D11;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -369,19 +369,23 @@
     <ClInclude Include="..\..\..\src\libANGLE\Stream.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Surface.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Texture.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\Thread.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\TransformFeedback.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Uniform.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\Version.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\VertexArray.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\VertexAttribute.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\WorkerThread.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\angletypes.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\features.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\formatutils.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\histogram_macros.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\queryconversions.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\queryutils.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\BufferImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\CompilerImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\ContextImpl.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\driver_utils.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\DeviceImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\DisplayImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\EGLImplFactory.h"/>
@@ -402,6 +406,7 @@
     <ClInclude Include="..\..\..\src\libANGLE\renderer\TextureImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\TransformFeedbackImpl.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\VertexArrayImpl.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\load_functions_table.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\renderer_utils.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\signal_utils.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\validationEGL.h"/>
@@ -426,6 +431,8 @@
     <ClInclude Include="..\..\..\include\GLSLANG\ShaderVars.h"/>
     <ClInclude Include="..\..\..\include\KHR\khrplatform.h"/>
     <ClInclude Include="..\..\..\include\platform\Platform.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\hlsl\VaryingPacking.h"/>
+    <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\hlsl\hlsl_utils.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\BufferD3D.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\CompilerD3D.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\DeviceD3D.h"/>
@@ -450,7 +457,6 @@
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\SwapChainD3D.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\TextureD3D.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\TextureStorage.h"/>
-    <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\VaryingPacking.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\VertexBuffer.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\VertexDataManager.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\WorkaroundsD3D.h"/>
@@ -467,7 +473,6 @@
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\Image11.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\IndexBuffer11.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\InputLayoutCache.h"/>
-    <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\load_functions_table.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\NativeWindow11.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\PixelTransfer11.h"/>
     <ClInclude Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\Query11.h"/>
@@ -580,20 +585,26 @@
     <ClCompile Include="..\..\..\src\libANGLE\Stream.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Surface.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Texture.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\Thread.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\TransformFeedback.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\Uniform.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\VertexArray.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\VertexAttribute.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\WorkerThread.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\angletypes.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\es3_copy_conversion_table_autogen.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\format_map_autogen.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\formatutils.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\queryconversions.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\queryutils.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\ContextImpl.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\driver_utils.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\DeviceImpl.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\DisplayImpl.cpp"/>
-    <ClCompile Include="..\..\..\src\libANGLE\renderer\Format_autogen.cpp"/>
-    <ClCompile Include="..\..\..\src\libANGLE\renderer\Format.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\Format_table_autogen.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\SurfaceImpl.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\TextureImpl.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\load_functions_table_autogen.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\renderer_utils.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\signal_utils.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\validationEGL.cpp"/>
@@ -602,6 +613,7 @@
     <ClCompile Include="..\..\..\src\libANGLE\validationES3.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\validationES31.cpp"/>
     <ClCompile Include="..\..\..\src\third_party\murmurhash\MurmurHash3.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\hlsl\VaryingPacking.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\BufferD3D.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\CompilerD3D.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\DeviceD3D.cpp"/>
@@ -621,8 +633,8 @@
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\ShaderD3D.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\ShaderExecutableD3D.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\SurfaceD3D.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\SwapChainD3D.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\TextureD3D.cpp"/>
-    <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\VaryingPacking.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\VertexBuffer.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\VertexDataManager.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\Blit11.cpp"/>
@@ -630,6 +642,7 @@
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\Clear11.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\Context11.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\DebugAnnotator11.cpp"/>
+    <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\dxgi_format_map_autogen.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\dxgi_support_table.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\Fence11.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\formatutils11.cpp"/>
@@ -637,7 +650,6 @@
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\Image11.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\IndexBuffer11.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\InputLayoutCache.cpp"/>
-    <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\load_functions_table_autogen.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\PixelTransfer11.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\Query11.cpp"/>
     <ClCompile Include="..\..\..\src\libANGLE\renderer\d3d\d3d11\Renderer11.cpp"/>

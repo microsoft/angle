@@ -157,12 +157,6 @@
     <Filter Include="compiler\preprocessor">
       <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
     </Filter>
-    <Filter Include="compiler">
-      <UniqueIdentifier>{041FFD28-E4BD-ABC0-5AF7-A6D1560FAC0E}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="compiler\preprocessor">
-      <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\compiler\preprocessor\DiagnosticsBase.cpp">
@@ -241,9 +235,6 @@
       <Filter>compiler\preprocessor</Filter>
     </None>
     <ClInclude Include="..\..\..\src\compiler\preprocessor\numeric_lex.h">
-      <Filter>compiler\preprocessor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\compiler\preprocessor\pp_utils.h">
       <Filter>compiler\preprocessor</Filter>
     </ClInclude>
     <None Include="..\..\..\src\angle.gyp"/>

@@ -305,7 +305,7 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                             break;
                         
                         default:
-                            SetGlobalError(egl::Error(EGL_SUCCESS));
+                            thread->setError(egl::Error(EGL_BAD_ATTRIBUTE));
                             return EGL_NO_DISPLAY;
                         }
                         

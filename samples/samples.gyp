@@ -199,7 +199,7 @@
             'target_name': 'texture_loading_dds',
             'type': 'executable',
             'dependencies': [ 'sample_util' ],
-            'includes': [ '../build/common_defines.gypi', ],
+            'includes': [ '../gyp/common_defines.gypi', ],
             'sources': 
             [ 
                 'texture_loading_dds/DDSTextureLoader.cpp',
@@ -222,7 +222,7 @@
             'target_name': 'texture_loading_wic',
             'type': 'executable',
             'dependencies': [ 'sample_util' ],
-            'includes': [ '../build/common_defines.gypi', ],
+            'includes': [ '../gyp/common_defines.gypi', ],
             'sources': 
             [ 
                 'texture_loading_wic/WICTextureLoader.cpp',
