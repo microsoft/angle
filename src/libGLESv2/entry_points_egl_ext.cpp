@@ -295,7 +295,7 @@ EGLDisplay EGLAPIENTRY GetPlatformDisplayEXT(EGLenum platform, void *native_disp
                     break;
 
                     case EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER:
-                        ERR("EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER is deprecated, please use"
+                        ERR("EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER is deprecated, please use "
                             "EGL_EXPERIMENTAL_PRESENT_PATH_ANGLE.");
 
                         switch (curAttrib[1])
