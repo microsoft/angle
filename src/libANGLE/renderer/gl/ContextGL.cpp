@@ -62,7 +62,8 @@ ProgramImpl *ContextGL::createProgram(const gl::ProgramState &data)
 
 FramebufferImpl *ContextGL::createFramebuffer(const gl::FramebufferState &data)
 {
-    return new FramebufferGL(data, getFunctions(), getStateManager(), getWorkaroundsGL(), false);
+    return new FramebufferGL(data, getFunctions(), getStateManager(), getWorkaroundsGL(),
+                             mRenderer->getBlitter(), false);
 }
 
 TextureImpl *ContextGL::createTexture(const gl::TextureState &state)
@@ -77,9 +78,9 @@ RenderbufferImpl *ContextGL::createRenderbuffer()
                               getNativeTextureCaps());
 }
 
-BufferImpl *ContextGL::createBuffer()
+BufferImpl *ContextGL::createBuffer(const gl::BufferState &state)
 {
-    return new BufferGL(getFunctions(), getStateManager());
+    return new BufferGL(state, getFunctions(), getStateManager());
 }
 
 VertexArrayImpl *ContextGL::createVertexArray(const gl::VertexArrayState &data)
@@ -89,7 +90,14 @@ VertexArrayImpl *ContextGL::createVertexArray(const gl::VertexArrayState &data)
 
 QueryImpl *ContextGL::createQuery(GLenum type)
 {
-    return new QueryGL(type, getFunctions(), getStateManager());
+    switch (type)
+    {
+        case GL_COMMANDS_COMPLETED_CHROMIUM:
+            return new SyncQueryGL(type, getFunctions(), getStateManager());
+
+        default:
+            return new StandardQueryGL(type, getFunctions(), getStateManager());
+    }
 }
 
 FenceNVImpl *ContextGL::createFenceNV()
@@ -186,6 +194,16 @@ gl::Error ContextGL::drawRangeElements(GLenum mode,
     return mRenderer->drawRangeElements(mState, mode, start, end, count, type, indices, indexRange);
 }
 
+gl::Error ContextGL::drawArraysIndirect(GLenum mode, const GLvoid *indirect)
+{
+    return mRenderer->drawArraysIndirect(mState, mode, indirect);
+}
+
+gl::Error ContextGL::drawElementsIndirect(GLenum mode, GLenum type, const GLvoid *indirect)
+{
+    return mRenderer->drawElementsIndirect(mState, mode, type, indirect);
+}
+
 void ContextGL::stencilFillPath(const gl::Path *path, GLenum fillMode, GLuint mask)
 {
     mRenderer->stencilFillPath(mState, path, fillMode, mask);
@@ -280,24 +298,9 @@ void ContextGL::stencilThenCoverStrokePathInstanced(const std::vector<gl::Path *
                                                    transformType, transformValues);
 }
 
-void ContextGL::notifyDeviceLost()
+GLenum ContextGL::getResetStatus()
 {
-    mRenderer->notifyDeviceLost();
-}
-
-bool ContextGL::isDeviceLost() const
-{
-    return mRenderer->isDeviceLost();
-}
-
-bool ContextGL::testDeviceLost()
-{
-    return mRenderer->testDeviceLost();
-}
-
-bool ContextGL::testDeviceResettable()
-{
-    return mRenderer->testDeviceResettable();
+    return mRenderer->getResetStatus();
 }
 
 std::string ContextGL::getVendorString() const
@@ -376,7 +379,7 @@ StateManagerGL *ContextGL::getStateManager()
     return mRenderer->getStateManager();
 }
 
-const WorkaroundsGL &ContextGL::getWorkaroundsGL()
+const WorkaroundsGL &ContextGL::getWorkaroundsGL() const
 {
     return mRenderer->getWorkarounds();
 }

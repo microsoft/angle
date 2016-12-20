@@ -70,13 +70,16 @@ std::ostream &operator<<(std::ostream& stream, const PlatformParameters &pp)
         break;
       case EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE:
           stream << "OPENGLES";
-        break;
+          break;
+      case EGL_PLATFORM_ANGLE_TYPE_NULL_ANGLE:
+          stream << "NULL";
+          break;
       case EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE:
         stream << "DEFAULT";
         break;
       default:
-        UNREACHABLE();
-        break;
+          stream << "UNDEFINED";
+          break;
     }
 
     if (pp.eglParameters.majorVersion != EGL_DONT_CARE)
@@ -555,6 +558,16 @@ PlatformParameters ES3_OPENGLES(EGLint major, EGLint minor)
     return PlatformParameters(3, 0, egl_platform::OPENGLES(major, minor));
 }
 
+PlatformParameters ES31_OPENGLES()
+{
+    return PlatformParameters(3, 1, egl_platform::OPENGLES());
+}
+
+PlatformParameters ES31_OPENGLES(EGLint major, EGLint minor)
+{
+    return PlatformParameters(3, 1, egl_platform::OPENGLES(major, minor));
+}
+
 PlatformParameters ES2_OPENGL()
 {
     return PlatformParameters(2, 0, egl_platform::OPENGL());
@@ -573,6 +586,31 @@ PlatformParameters ES3_OPENGL()
 PlatformParameters ES3_OPENGL(EGLint major, EGLint minor)
 {
     return PlatformParameters(3, 0, egl_platform::OPENGL(major, minor));
+}
+
+PlatformParameters ES31_OPENGL()
+{
+    return PlatformParameters(3, 1, egl_platform::OPENGL());
+}
+
+PlatformParameters ES31_OPENGL(EGLint major, EGLint minor)
+{
+    return PlatformParameters(3, 1, egl_platform::OPENGL(major, minor));
+}
+
+PlatformParameters ES2_NULL()
+{
+    return PlatformParameters(2, 0, EGLPlatformParameters(EGL_PLATFORM_ANGLE_TYPE_NULL_ANGLE));
+}
+
+PlatformParameters ES3_NULL()
+{
+    return PlatformParameters(3, 0, EGLPlatformParameters(EGL_PLATFORM_ANGLE_TYPE_NULL_ANGLE));
+}
+
+PlatformParameters ES31_NULL()
+{
+    return PlatformParameters(3, 1, EGLPlatformParameters(EGL_PLATFORM_ANGLE_TYPE_NULL_ANGLE));
 }
 
 } // namespace angle

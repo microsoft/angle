@@ -53,6 +53,10 @@
 #   endif
 #endif
 
+#if defined(ANGLE_ENABLE_NULL)
+#include "libANGLE/renderer/null/DisplayNULL.h"
+#endif
+
 namespace egl
 {
 
@@ -207,6 +211,12 @@ rx::DisplayImpl *CreateDisplayFromAttribs(const AttributeMap &attribMap)
         impl = nullptr;
 #endif
         break;
+#endif
+
+#if defined(ANGLE_ENABLE_NULL)
+      case EGL_PLATFORM_ANGLE_TYPE_NULL_ANGLE:
+          impl = new rx::DisplayNULL();
+          break;
 #endif
 
       default:
@@ -577,8 +587,11 @@ Error Display::createPbufferSurface(const Config *configuration, const Attribute
     return egl::Error(EGL_SUCCESS);
 }
 
-Error Display::createPbufferFromClientBuffer(const Config *configuration, EGLClientBuffer shareHandle,
-                                             const AttributeMap &attribs, Surface **outSurface)
+Error Display::createPbufferFromClientBuffer(const Config *configuration,
+                                             EGLenum buftype,
+                                             EGLClientBuffer clientBuffer,
+                                             const AttributeMap &attribs,
+                                             Surface **outSurface)
 {
     ASSERT(isInitialized());
 
@@ -588,7 +601,7 @@ Error Display::createPbufferFromClientBuffer(const Config *configuration, EGLCli
     }
 
     std::unique_ptr<Surface> surface(
-        new PbufferSurface(mImplementation, configuration, shareHandle, attribs));
+        new PbufferSurface(mImplementation, configuration, buftype, clientBuffer, attribs));
     ANGLE_TRY(surface->initialize());
 
     ASSERT(outSurface != nullptr);
@@ -745,7 +758,6 @@ void Display::destroySurface(Surface *surface)
         }
 
         ASSERT(surfaceRemoved);
-        UNUSED_ASSERTION_VARIABLE(surfaceRemoved);
     }
 
     mImplementation->destroySurface(surface);
@@ -791,7 +803,10 @@ bool Display::testDeviceLost()
 
 void Display::notifyDeviceLost()
 {
-    ASSERT(!mDeviceLost);
+    if (mDeviceLost)
+    {
+        return;
+    }
 
     for (ContextSet::iterator context = mContextSet.begin(); context != mContextSet.end(); context++)
     {
@@ -826,14 +841,15 @@ bool Display::isValidConfig(const Config *config) const
     return mConfigSet.contains(config);
 }
 
-bool Display::isValidContext(gl::Context *context) const
+bool Display::isValidContext(const gl::Context *context) const
 {
-    return mContextSet.find(context) != mContextSet.end();
+    return mContextSet.find(const_cast<gl::Context *>(context)) != mContextSet.end();
 }
 
-bool Display::isValidSurface(Surface *surface) const
+bool Display::isValidSurface(const Surface *surface) const
 {
-    return mImplementation->getSurfaceSet().find(surface) != mImplementation->getSurfaceSet().end();
+    return mImplementation->getSurfaceSet().find(const_cast<Surface *>(surface)) !=
+           mImplementation->getSurfaceSet().end();
 }
 
 bool Display::isValidImage(const Image *image) const
@@ -869,6 +885,10 @@ static ClientExtensions GenerateClientExtensions()
 
 #if defined(ANGLE_ENABLE_OPENGL)
     extensions.platformANGLEOpenGL = true;
+#endif
+
+#if defined(ANGLE_ENABLE_NULL)
+    extensions.platformANGLENULL = true;
 #endif
 
 #if defined(ANGLE_ENABLE_D3D11)
@@ -915,6 +935,8 @@ void Display::initDisplayExtensions()
     // Some extensions are always available because they are implemented in the EGL layer.
     mDisplayExtensions.createContext        = true;
     mDisplayExtensions.createContextNoError = true;
+    mDisplayExtensions.createContextWebGLCompatibility = true;
+    mDisplayExtensions.createContextBindGeneratesResource = true;
 
     // Force EGL_KHR_get_all_proc_addresses on.
     mDisplayExtensions.getAllProcAddresses = true;
@@ -925,6 +947,14 @@ void Display::initDisplayExtensions()
 bool Display::isValidNativeWindow(EGLNativeWindowType window) const
 {
     return mImplementation->isValidNativeWindow(window);
+}
+
+Error Display::validateClientBuffer(const Config *configuration,
+                                    EGLenum buftype,
+                                    EGLClientBuffer clientBuffer,
+                                    const AttributeMap &attribs)
+{
+    return mImplementation->validateClientBuffer(configuration, buftype, clientBuffer, attribs);
 }
 
 bool Display::isValidDisplay(const egl::Display *display)
@@ -996,4 +1026,8 @@ Device *Display::getDevice() const
     return mDevice;
 }
 
+gl::Version Display::getMaxSupportedESVersion() const
+{
+    return mImplementation->getMaxSupportedESVersion();
+}
 }

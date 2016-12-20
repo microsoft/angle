@@ -28,8 +28,6 @@
             'OSWindow.cpp',
             'OSWindow.h',
             'Timer.h',
-            'Vector.cpp',
-            'Vector.h',
         ],
         'util_win32_sources':
         [
@@ -85,6 +83,7 @@
         ],
         'util_android_sources':
         [
+            'android/AndroidPixmap.cpp',
             'android/AndroidWindow.cpp',
             'android/AndroidWindow.h',
             'android/third_party/android_native_app_glue.c',
@@ -95,8 +94,8 @@
     [
         {
             'target_name': 'angle_util',
-            'type': 'static_library',
-            'includes': [ '../build/common_defines.gypi', ],
+            'type': 'shared_library',
+            'includes': [ '../gyp/common_defines.gypi', ],
             'dependencies':
             [
                 '<(angle_path)/src/angle.gyp:angle_common',
@@ -120,6 +119,7 @@
             [
                 'GL_GLEXT_PROTOTYPES',
                 'EGL_EGLEXT_PROTOTYPES',
+                'LIBANGLE_UTIL_IMPLEMENTATION',
             ],
             'direct_dependent_settings':
             {
@@ -195,6 +195,10 @@
                     [
                         '<@(util_osx_sources)',
                     ],
+                    'xcode_settings':
+                    {
+                        'DYLIB_INSTALL_NAME_BASE': '@rpath',
+                    },
                     'link_settings':
                     {
                         'libraries':

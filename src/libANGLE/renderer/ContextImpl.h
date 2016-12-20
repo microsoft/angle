@@ -61,6 +61,9 @@ class ContextImpl : public GLImplFactory
                                         const GLvoid *indices,
                                         const gl::IndexRange &indexRange) = 0;
 
+    virtual gl::Error drawArraysIndirect(GLenum mode, const GLvoid *indirect) = 0;
+    virtual gl::Error drawElementsIndirect(GLenum mode, GLenum type, const GLvoid *indirect) = 0;
+
     // CHROMIUM_path_rendering path drawing methods.
     virtual void stencilFillPath(const gl::Path *path, GLenum fillMode, GLuint mask);
     virtual void stencilStrokePath(const gl::Path *path, GLint reference, GLuint mask);
@@ -107,11 +110,8 @@ class ContextImpl : public GLImplFactory
                                                      GLenum transformType,
                                                      const GLfloat *transformValues);
 
-    // TODO(jmadill): Investigate proper impl methods for this.
-    virtual void notifyDeviceLost() = 0;
-    virtual bool isDeviceLost() const = 0;
-    virtual bool testDeviceLost() = 0;
-    virtual bool testDeviceResettable() = 0;
+    // Device loss
+    virtual GLenum getResetStatus() = 0;
 
     // Vendor and description strings.
     virtual std::string getVendorString() const = 0;

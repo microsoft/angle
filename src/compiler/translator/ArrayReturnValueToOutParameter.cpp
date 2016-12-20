@@ -3,12 +3,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
-// The ArrayReturnValueToOutParameter function changes return values of an array type to out parameters in
+// The ArrayReturnValueToOutParameter function changes return values of an array type to out
+// parameters in
 // function definitions, prototypes, and call sites.
 
 #include "compiler/translator/ArrayReturnValueToOutParameter.h"
 
 #include "compiler/translator/IntermNode.h"
+
+namespace sh
+{
 
 namespace
 {
@@ -36,16 +40,16 @@ TIntermSymbol *CreateReturnValueOutSymbol(const TType &type)
     return CreateReturnValueSymbol(outType);
 }
 
-TIntermAggregate *CreateReplacementCall(TIntermAggregate *originalCall, TIntermTyped *returnValueTarget)
+TIntermAggregate *CreateReplacementCall(TIntermAggregate *originalCall,
+                                        TIntermTyped *returnValueTarget)
 {
     TIntermAggregate *replacementCall = new TIntermAggregate(EOpFunctionCall);
     replacementCall->setType(TType(EbtVoid));
     replacementCall->setUserDefined();
-    replacementCall->setNameObj(originalCall->getNameObj());
-    replacementCall->setFunctionId(originalCall->getFunctionId());
+    *replacementCall->getFunctionSymbolInfo() = *originalCall->getFunctionSymbolInfo();
     replacementCall->setLine(originalCall->getLine());
     TIntermSequence *replacementParameters = replacementCall->getSequence();
-    TIntermSequence *originalParameters = originalCall->getSequence();
+    TIntermSequence *originalParameters    = originalCall->getSequence();
     for (auto &param : *originalParameters)
     {
         replacementParameters->push_back(param);
@@ -58,9 +62,11 @@ class ArrayReturnValueToOutParameterTraverser : private TIntermTraverser
 {
   public:
     static void apply(TIntermNode *root, unsigned int *temporaryIndex);
+
   private:
     ArrayReturnValueToOutParameterTraverser();
 
+    bool visitFunctionDefinition(Visit visit, TIntermFunctionDefinition *node) override;
     bool visitAggregate(Visit visit, TIntermAggregate *node) override;
     bool visitBranch(Visit visit, TIntermBranch *node) override;
     bool visitBinary(Visit visit, TIntermBinary *node) override;
@@ -77,9 +83,42 @@ void ArrayReturnValueToOutParameterTraverser::apply(TIntermNode *root, unsigned 
 }
 
 ArrayReturnValueToOutParameterTraverser::ArrayReturnValueToOutParameterTraverser()
-    : TIntermTraverser(true, false, true),
-      mInFunctionWithArrayReturnValue(false)
+    : TIntermTraverser(true, false, true), mInFunctionWithArrayReturnValue(false)
 {
+}
+
+bool ArrayReturnValueToOutParameterTraverser::visitFunctionDefinition(
+    Visit visit,
+    TIntermFunctionDefinition *node)
+{
+    if (node->isArray() && visit == PreVisit)
+    {
+        // Replace the parameters child node of the function definition with another node
+        // that has the out parameter added.
+        // Also set the function to return void.
+
+        TIntermAggregate *params = node->getFunctionParameters();
+        ASSERT(params != nullptr && params->getOp() == EOpParameters);
+
+        TIntermAggregate *replacementParams = new TIntermAggregate;
+        replacementParams->setOp(EOpParameters);
+        CopyAggregateChildren(params, replacementParams);
+        replacementParams->getSequence()->push_back(CreateReturnValueOutSymbol(node->getType()));
+        replacementParams->setLine(params->getLine());
+
+        queueReplacementWithParent(node, params, replacementParams, OriginalNode::IS_DROPPED);
+
+        node->setType(TType(EbtVoid));
+
+        mInFunctionWithArrayReturnValue = true;
+    }
+    if (visit == PostVisit)
+    {
+        // This isn't conditional on node->isArray() since the type has already been changed on
+        // PreVisit.
+        mInFunctionWithArrayReturnValue = false;
+    }
+    return true;
 }
 
 bool ArrayReturnValueToOutParameterTraverser::visitAggregate(Visit visit, TIntermAggregate *node)
@@ -88,38 +127,16 @@ bool ArrayReturnValueToOutParameterTraverser::visitAggregate(Visit visit, TInter
     {
         if (node->isArray())
         {
-            if (node->getOp() == EOpFunction)
+            if (node->getOp() == EOpPrototype)
             {
-                // Replace the parameters child node of the function definition with another node
-                // that has the out parameter added.
-                // Also set the function to return void.
-
-                TIntermAggregate *params = node->getSequence()->front()->getAsAggregate();
-                ASSERT(params != nullptr && params->getOp() == EOpParameters);
-
-                TIntermAggregate *replacementParams = new TIntermAggregate;
-                replacementParams->setOp(EOpParameters);
-                CopyAggregateChildren(params, replacementParams);
-                replacementParams->getSequence()->push_back(CreateReturnValueOutSymbol(node->getType()));
-                replacementParams->setLine(params->getLine());
-
-                queueReplacementWithParent(node, params, replacementParams,
-                                           OriginalNode::IS_DROPPED);
-
-                node->setType(TType(EbtVoid));
-
-                mInFunctionWithArrayReturnValue = true;
-            }
-            else if (node->getOp() == EOpPrototype)
-            {
-                // Replace the whole prototype node with another node that has the out parameter added.
+                // Replace the whole prototype node with another node that has the out parameter
+                // added.
                 TIntermAggregate *replacement = new TIntermAggregate;
                 replacement->setOp(EOpPrototype);
                 CopyAggregateChildren(node, replacement);
                 replacement->getSequence()->push_back(CreateReturnValueOutSymbol(node->getType()));
                 replacement->setUserDefined();
-                replacement->setNameObj(node->getNameObj());
-                replacement->setFunctionId(node->getFunctionId());
+                *replacement->getFunctionSymbolInfo() = *node->getFunctionSymbolInfo();
                 replacement->setLine(node->getLine());
                 replacement->setType(TType(EbtVoid));
 
@@ -133,28 +150,24 @@ bool ArrayReturnValueToOutParameterTraverser::visitAggregate(Visit visit, TInter
                 // 2. another_array == f();
                 // 3. another_function(f());
                 // 4. return f();
-                // Cases 2 to 4 are already converted to simpler cases by SeparateExpressionsReturningArrays, so we
-                // only need to worry about the case where a function call returning an array forms an expression by
+                // Cases 2 to 4 are already converted to simpler cases by
+                // SeparateExpressionsReturningArrays, so we
+                // only need to worry about the case where a function call returning an array forms
+                // an expression by
                 // itself.
-                TIntermAggregate *parentAgg = getParentNode()->getAsAggregate();
-                if (parentAgg != nullptr && parentAgg->getOp() == EOpSequence)
+                TIntermBlock *parentBlock = getParentNode()->getAsBlock();
+                if (parentBlock)
                 {
                     nextTemporaryIndex();
                     TIntermSequence replacements;
                     replacements.push_back(createTempDeclaration(node->getType()));
                     TIntermSymbol *returnSymbol = createTempSymbol(node->getType());
                     replacements.push_back(CreateReplacementCall(node, returnSymbol));
-                    mMultiReplacements.push_back(NodeReplaceWithMultipleEntry(parentAgg, node, replacements));
+                    mMultiReplacements.push_back(
+                        NodeReplaceWithMultipleEntry(parentBlock, node, replacements));
                 }
                 return false;
             }
-        }
-    }
-    else if (visit == PostVisit)
-    {
-        if (node->getOp() == EOpFunction)
-        {
-            mInFunctionWithArrayReturnValue = false;
         }
     }
     return true;
@@ -167,12 +180,11 @@ bool ArrayReturnValueToOutParameterTraverser::visitBranch(Visit visit, TIntermBr
         // Instead of returning a value, assign to the out parameter and then return.
         TIntermSequence replacements;
 
-        TIntermBinary *replacementAssignment = new TIntermBinary(EOpAssign);
         TIntermTyped *expression = node->getExpression();
         ASSERT(expression != nullptr);
-        replacementAssignment->setLeft(CreateReturnValueSymbol(expression->getType()));
-        replacementAssignment->setRight(node->getExpression());
-        replacementAssignment->setType(expression->getType());
+        TIntermSymbol *returnValueSymbol = CreateReturnValueSymbol(expression->getType());
+        TIntermBinary *replacementAssignment =
+            new TIntermBinary(EOpAssign, returnValueSymbol, expression);
         replacementAssignment->setLine(expression->getLine());
         replacements.push_back(replacementAssignment);
 
@@ -180,7 +192,8 @@ bool ArrayReturnValueToOutParameterTraverser::visitBranch(Visit visit, TIntermBr
         replacementBranch->setLine(node->getLine());
         replacements.push_back(replacementBranch);
 
-        mMultiReplacements.push_back(NodeReplaceWithMultipleEntry(getParentNode()->getAsAggregate(), node, replacements));
+        mMultiReplacements.push_back(
+            NodeReplaceWithMultipleEntry(getParentNode()->getAsBlock(), node, replacements));
     }
     return false;
 }
@@ -190,7 +203,8 @@ bool ArrayReturnValueToOutParameterTraverser::visitBinary(Visit visit, TIntermBi
     if (node->getOp() == EOpAssign && node->getLeft()->isArray())
     {
         TIntermAggregate *rightAgg = node->getRight()->getAsAggregate();
-        if (rightAgg != nullptr && rightAgg->getOp() == EOpFunctionCall && rightAgg->isUserDefined())
+        if (rightAgg != nullptr && rightAgg->getOp() == EOpFunctionCall &&
+            rightAgg->isUserDefined())
         {
             TIntermAggregate *replacementCall = CreateReplacementCall(rightAgg, node->getLeft());
             queueReplacement(node, replacementCall, OriginalNode::IS_DROPPED);
@@ -199,9 +213,11 @@ bool ArrayReturnValueToOutParameterTraverser::visitBinary(Visit visit, TIntermBi
     return false;
 }
 
-} // namespace
+}  // namespace
 
 void ArrayReturnValueToOutParameter(TIntermNode *root, unsigned int *temporaryIndex)
 {
     ArrayReturnValueToOutParameterTraverser::apply(root, temporaryIndex);
 }
+
+}  // namespace sh

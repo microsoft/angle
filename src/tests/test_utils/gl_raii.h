@@ -46,34 +46,67 @@ using GLBuffer       = GLWrapper<glGenBuffers, glDeleteBuffers>;
 using GLTexture      = GLWrapper<glGenTextures, glDeleteTextures>;
 using GLFramebuffer  = GLWrapper<glGenFramebuffers, glDeleteFramebuffers>;
 using GLRenderbuffer = GLWrapper<glGenRenderbuffers, glDeleteRenderbuffers>;
+using GLSampler      = GLWrapper<glGenSamplers, glDeleteSamplers>;
 
+// Don't use GLProgram directly, use ANGLE_GL_PROGRAM.
+namespace priv
+{
 class GLProgram
 {
   public:
-    GLProgram(const std::string &vertexShader, const std::string &fragmentShader)
-        : mHandle(0), mVertexShader(vertexShader), mFragmentShader(fragmentShader)
-    {
-    }
+    GLProgram() : mHandle(0) {}
 
     ~GLProgram() { glDeleteProgram(mHandle); }
 
+    void makeCompute(const std::string &computeShader)
+    {
+        mHandle = CompileComputeProgram(computeShader);
+    }
+
+    void makeRaster(const std::string &vertexShader, const std::string &fragmentShader)
+    {
+        mHandle = CompileProgram(vertexShader, fragmentShader);
+    }
+
+    void makeBinaryOES(const std::vector<uint8_t> &binary, GLenum binaryFormat)
+    {
+        mHandle = LoadBinaryProgramOES(binary, binaryFormat);
+    }
+
+    void makeBinaryES3(const std::vector<uint8_t> &binary, GLenum binaryFormat)
+    {
+        mHandle = LoadBinaryProgramES3(binary, binaryFormat);
+    }
+
     GLuint get()
     {
-        if (mHandle == 0)
-        {
-            mHandle = CompileProgram(mVertexShader, mFragmentShader);
-        }
+        ASSERT(mHandle != 0);
         return mHandle;
     }
 
   private:
     GLuint mHandle;
-    const std::string mVertexShader;
-    const std::string mFragmentShader;
 };
+}  // namespace priv
 
 #define ANGLE_GL_PROGRAM(name, vertex, fragment) \
-    GLProgram name(vertex, fragment);            \
+    priv::GLProgram name;                        \
+    name.makeRaster(vertex, fragment);           \
+    ASSERT_NE(0u, name.get());
+
+#define ANGLE_GL_COMPUTE_PROGRAM(name, compute) \
+    priv::GLProgram name;                       \
+    name.makeCompute(compute);                  \
+    ASSERT_NE(0u, name.get());
+
+#define ANGLE_GL_BINARY_OES_PROGRAM(name, binary, binaryFormat) \
+    priv::GLProgram name;                                       \
+    name.makeBinaryOES(binary, binaryFormat);                   \
+    ASSERT_NE(0u, name.get());
+
+#define ANGLE_GL_BINARY_ES3_PROGRAM(name, binary, binaryFormat) \
+    priv::GLProgram name;                                       \
+    name.makeBinaryES3(binary, binaryFormat);                   \
     ASSERT_NE(0u, name.get());
 
 }  // namespace angle

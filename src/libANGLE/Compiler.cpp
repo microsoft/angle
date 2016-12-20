@@ -19,42 +19,45 @@ namespace gl
 namespace
 {
 
-// Global count of active shader compiler handles. Needed to know when to call ShInitialize and
-// ShFinalize.
+// Global count of active shader compiler handles. Needed to know when to call sh::Initialize and
+// sh::Finalize.
 size_t activeCompilerHandles = 0;
 
-ShShaderSpec SelectShaderSpec(GLint majorVersion, GLint minorVersion)
+ShShaderSpec SelectShaderSpec(GLint majorVersion, GLint minorVersion, bool isWebGL)
 {
     if (majorVersion >= 3)
     {
         if (minorVersion == 1)
         {
-            return SH_GLES3_1_SPEC;
+            return isWebGL ? SH_WEBGL3_SPEC : SH_GLES3_1_SPEC;
         }
         else
         {
-            return SH_GLES3_SPEC;
+            return isWebGL ? SH_WEBGL2_SPEC : SH_GLES3_SPEC;
         }
     }
-    return SH_GLES2_SPEC;
+    return isWebGL ? SH_WEBGL_SPEC : SH_GLES2_SPEC;
 }
 
 }  // anonymous namespace
 
 Compiler::Compiler(rx::GLImplFactory *implFactory, const ContextState &state)
     : mImplementation(implFactory->createCompiler()),
-      mSpec(SelectShaderSpec(state.getClientMajorVersion(), state.getClientMinorVersion())),
+      mSpec(SelectShaderSpec(state.getClientMajorVersion(),
+                             state.getClientMinorVersion(),
+                             state.getExtensions().webglCompatibility)),
       mOutputType(mImplementation->getTranslatorOutputType()),
       mResources(),
       mFragmentCompiler(nullptr),
-      mVertexCompiler(nullptr)
+      mVertexCompiler(nullptr),
+      mComputeCompiler(nullptr)
 {
     ASSERT(state.getClientMajorVersion() == 2 || state.getClientMajorVersion() == 3);
 
     const gl::Caps &caps             = state.getCaps();
     const gl::Extensions &extensions = state.getExtensions();
 
-    ShInitBuiltInResources(&mResources);
+    sh::InitBuiltInResources(&mResources);
     mResources.MaxVertexAttribs             = caps.maxVertexAttributes;
     mResources.MaxVertexUniformVectors      = caps.maxVertexUniformVectors;
     mResources.MaxVaryingVectors            = caps.maxVaryingVectors;
@@ -119,7 +122,7 @@ Error Compiler::release()
 {
     if (mFragmentCompiler)
     {
-        ShDestruct(mFragmentCompiler);
+        sh::Destruct(mFragmentCompiler);
         mFragmentCompiler = nullptr;
 
         ASSERT(activeCompilerHandles > 0);
@@ -128,8 +131,17 @@ Error Compiler::release()
 
     if (mVertexCompiler)
     {
-        ShDestruct(mVertexCompiler);
+        sh::Destruct(mVertexCompiler);
         mVertexCompiler = nullptr;
+
+        ASSERT(activeCompilerHandles > 0);
+        activeCompilerHandles--;
+    }
+
+    if (mComputeCompiler)
+    {
+        sh::Destruct(mComputeCompiler);
+        mComputeCompiler = nullptr;
 
         ASSERT(activeCompilerHandles > 0);
         activeCompilerHandles--;
@@ -137,7 +149,7 @@ Error Compiler::release()
 
     if (activeCompilerHandles == 0)
     {
-        ShFinalize();
+        sh::Finalize();
     }
 
     mImplementation->release();
@@ -157,7 +169,9 @@ ShHandle Compiler::getCompilerHandle(GLenum type)
         case GL_FRAGMENT_SHADER:
             compiler = &mFragmentCompiler;
             break;
-
+        case GL_COMPUTE_SHADER:
+            compiler = &mComputeCompiler;
+            break;
         default:
             UNREACHABLE();
             return nullptr;
@@ -167,10 +181,10 @@ ShHandle Compiler::getCompilerHandle(GLenum type)
     {
         if (activeCompilerHandles == 0)
         {
-            ShInitialize();
+            sh::Initialize();
         }
 
-        *compiler = ShConstructCompiler(type, mSpec, mOutputType, &mResources);
+        *compiler = sh::ConstructCompiler(type, mSpec, mOutputType, &mResources);
         activeCompilerHandles++;
     }
 

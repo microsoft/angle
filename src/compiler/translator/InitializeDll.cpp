@@ -13,14 +13,19 @@
 
 #include <assert.h>
 
+namespace sh
+{
+
 bool InitProcess()
 {
-    if (!InitializePoolIndex()) {
+    if (!InitializePoolIndex())
+    {
         assert(0 && "InitProcess(): Failed to initalize global pool");
         return false;
     }
 
-    if (!InitializeParseContextIndex()) {
+    if (!InitializeParseContextIndex())
+    {
         assert(0 && "InitProcess(): Failed to initalize parse context");
         return false;
     }
@@ -36,3 +41,5 @@ void DetachProcess()
     FreePoolIndex();
     TCache::destroy();
 }
+
+}  // namespace sh

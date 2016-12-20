@@ -16,6 +16,19 @@ namespace gl
 class Context;
 
 bool ValidateGetBooleani_v(Context *context, GLenum target, GLuint index, GLboolean *data);
+bool ValidateGetBooleani_vRobustANGLE(Context *context,
+                                      GLenum target,
+                                      GLuint index,
+                                      GLsizei bufSize,
+                                      GLsizei *length,
+                                      GLboolean *data);
+
+bool ValidateDrawIndirectBase(Context *context, GLenum mode, const GLvoid *indirect);
+bool ValidateDrawArraysIndirect(Context *context, GLenum mode, const GLvoid *indirect);
+bool ValidateDrawElementsIndirect(Context *context,
+                                  GLenum mode,
+                                  GLenum type,
+                                  const GLvoid *indirect);
 
 }  // namespace gl
 

@@ -31,11 +31,12 @@ namespace rx
 
 RendererD3D::RendererD3D(egl::Display *display)
     : mDisplay(display),
-      mDeviceLost(false),
       mPresentPathFastEnabled(false),
       mCapsInitialized(false),
       mWorkaroundsInitialized(false),
-      mDisjoint(false)
+      mDisjoint(false),
+      mDeviceLost(false),
+      mWorkerThreadPool(4)
 {
 }
 
@@ -275,14 +276,29 @@ gl::Texture *RendererD3D::getIncompleteTexture(GLImplFactory *implFactory, GLenu
     return mIncompleteTextures[type].get();
 }
 
-bool RendererD3D::isDeviceLost() const
+GLenum RendererD3D::getResetStatus()
 {
-    return mDeviceLost;
+    if (!mDeviceLost)
+    {
+        if (testDeviceLost())
+        {
+            mDeviceLost = true;
+            notifyDeviceLost();
+            return GL_UNKNOWN_CONTEXT_RESET_EXT;
+        }
+        return GL_NO_ERROR;
+    }
+
+    if (testDeviceResettable())
+    {
+        return GL_NO_ERROR;
+    }
+
+    return GL_UNKNOWN_CONTEXT_RESET_EXT;
 }
 
 void RendererD3D::notifyDeviceLost()
 {
-    mDeviceLost = true;
     mDisplay->notifyDeviceLost();
 }
 
@@ -352,6 +368,11 @@ const gl::Limitations &RendererD3D::getNativeLimitations() const
 {
     ensureCapsInitialized();
     return mNativeLimitations;
+}
+
+angle::WorkerThreadPool *RendererD3D::getWorkerThreadPool()
+{
+    return &mWorkerThreadPool;
 }
 
 }  // namespace rx

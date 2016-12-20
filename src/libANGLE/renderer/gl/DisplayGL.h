@@ -12,6 +12,11 @@
 #include "libANGLE/renderer/DisplayImpl.h"
 #include "libANGLE/renderer/gl/FunctionsGL.h"
 
+namespace egl
+{
+class Surface;
+}
+
 namespace rx
 {
 
@@ -39,15 +44,17 @@ class DisplayGL : public DisplayImpl
     egl::Error makeCurrent(egl::Surface *drawSurface, egl::Surface *readSurface, gl::Context *context) override;
 
     virtual egl::Error getDriverVersion(std::string *version) const = 0;
+    gl::Version getMaxSupportedESVersion() const override;
 
   protected:
     RendererGL *getRenderer() const { return mRenderer; };
-    const gl::Version &getMaxSupportedESVersion() const;
 
   private:
     virtual const FunctionsGL *getFunctionsGL() const = 0;
 
     RendererGL *mRenderer;
+
+    egl::Surface *mCurrentDrawSurface;
 };
 
 }

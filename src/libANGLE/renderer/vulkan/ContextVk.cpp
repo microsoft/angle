@@ -106,27 +106,23 @@ gl::Error ContextVk::drawRangeElements(GLenum mode,
     return gl::Error(GL_INVALID_OPERATION);
 }
 
-void ContextVk::notifyDeviceLost()
+gl::Error ContextVk::drawArraysIndirect(GLenum mode, const GLvoid *indirect)
 {
     UNIMPLEMENTED();
+    return gl::InternalError() << "DrawArraysIndirect hasn't been implemented for vulkan backend.";
 }
 
-bool ContextVk::isDeviceLost() const
+gl::Error ContextVk::drawElementsIndirect(GLenum mode, GLenum type, const GLvoid *indirect)
 {
     UNIMPLEMENTED();
-    return bool();
+    return gl::InternalError()
+           << "DrawElementsIndirect hasn't been implemented for vulkan backend.";
 }
 
-bool ContextVk::testDeviceLost()
+GLenum ContextVk::getResetStatus()
 {
     UNIMPLEMENTED();
-    return bool();
-}
-
-bool ContextVk::testDeviceResettable()
-{
-    UNIMPLEMENTED();
-    return bool();
+    return GL_NO_ERROR;
 }
 
 std::string ContextVk::getVendorString() const
@@ -228,9 +224,9 @@ RenderbufferImpl *ContextVk::createRenderbuffer()
     return new RenderbufferVk();
 }
 
-BufferImpl *ContextVk::createBuffer()
+BufferImpl *ContextVk::createBuffer(const gl::BufferState &state)
 {
-    return new BufferVk();
+    return new BufferVk(state);
 }
 
 VertexArrayImpl *ContextVk::createVertexArray(const gl::VertexArrayState &state)

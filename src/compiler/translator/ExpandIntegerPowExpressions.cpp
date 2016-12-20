@@ -116,18 +116,15 @@ bool Traverser::visitAggregate(Visit visit, TIntermAggregate *node)
     TIntermTyped *lhs = sequence->at(0)->getAsTyped();
     ASSERT(lhs);
 
-    TIntermAggregate *init = createTempInitDeclaration(lhs);
-    TIntermTyped *current  = createTempSymbol(lhs->getType());
+    TIntermDeclaration *init = createTempInitDeclaration(lhs);
+    TIntermTyped *current    = createTempSymbol(lhs->getType());
 
     insertStatementInParentBlock(init);
 
     // Create a chain of n-1 multiples.
     for (int i = 1; i < n; ++i)
     {
-        TIntermBinary *mul = new TIntermBinary(EOpMul);
-        mul->setLeft(current);
-        mul->setRight(createTempSymbol(lhs->getType()));
-        mul->setType(node->getType());
+        TIntermBinary *mul = new TIntermBinary(EOpMul, current, createTempSymbol(lhs->getType()));
         mul->setLine(node->getLine());
         current = mul;
     }
@@ -138,10 +135,8 @@ bool Traverser::visitAggregate(Visit visit, TIntermAggregate *node)
         TConstantUnion *oneVal = new TConstantUnion();
         oneVal->setFConst(1.0f);
         TIntermConstantUnion *oneNode = new TIntermConstantUnion(oneVal, node->getType());
-        TIntermBinary *div            = new TIntermBinary(EOpDiv);
-        div->setLeft(oneNode);
-        div->setRight(current);
-        current = div;
+        TIntermBinary *div            = new TIntermBinary(EOpDiv, oneNode, current);
+        current                       = div;
     }
 
     queueReplacement(node, current, OriginalNode::IS_DROPPED);

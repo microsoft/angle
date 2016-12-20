@@ -12,12 +12,16 @@
 #include "libANGLE/Config.h"
 #include "libANGLE/Display.h"
 #include "libANGLE/Surface.h"
+#include "libANGLE/renderer/gl/RendererGL.h"
 #include "libANGLE/renderer/gl/renderergl_utils.h"
+#include "libANGLE/renderer/gl/wgl/D3DTextureSurfaceWGL.h"
 #include "libANGLE/renderer/gl/wgl/DXGISwapChainWindowSurfaceWGL.h"
 #include "libANGLE/renderer/gl/wgl/FunctionsWGL.h"
 #include "libANGLE/renderer/gl/wgl/PbufferSurfaceWGL.h"
 #include "libANGLE/renderer/gl/wgl/WindowSurfaceWGL.h"
 #include "libANGLE/renderer/gl/wgl/wgl_utils.h"
+
+#include "platform/Platform.h"
 
 #include <EGL/eglext.h>
 #include <string>
@@ -59,6 +63,7 @@ DisplayWGL::DisplayWGL()
       mOpenGLModule(nullptr),
       mFunctionsWGL(nullptr),
       mFunctionsGL(nullptr),
+      mHasRobustness(false),
       mWindowClass(0),
       mWindow(nullptr),
       mDeviceContext(nullptr),
@@ -173,6 +178,9 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
     // Reinitialize the wgl functions to grab the extensions
     mFunctionsWGL->initialize(mOpenGLModule, dummyDeviceContext);
 
+    bool hasWGLCreateContextRobustness =
+        mFunctionsWGL->hasExtension("WGL_ARB_create_context_robustness");
+
     // Destroy the dummy window and context
     mFunctionsWGL->makeCurrent(dummyDeviceContext, nullptr);
     mFunctionsWGL->deleteContext(dummyWGLContext);
@@ -259,6 +267,12 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
 
         std::vector<int> contextCreationAttributes;
 
+        if (hasWGLCreateContextRobustness)
+        {
+            contextCreationAttributes.push_back(WGL_CONTEXT_RESET_NOTIFICATION_STRATEGY_ARB);
+            contextCreationAttributes.push_back(WGL_LOSE_CONTEXT_ON_RESET_ARB);
+        }
+
         // Don't request a specific version unless the user wants one.  WGL will return the highest version
         // that the driver supports if no version is requested.
         EGLint requestedMajorVersion = static_cast<EGLint>(
@@ -329,9 +343,17 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
     mFunctionsGL = new FunctionsGLWindows(mOpenGLModule, mFunctionsWGL->getProcAddress);
     mFunctionsGL->initialize();
 
+    mHasRobustness = mFunctionsGL->getGraphicsResetStatus != nullptr;
+    if (hasWGLCreateContextRobustness != mHasRobustness)
+    {
+        ANGLEPlatformCurrent()->logWarning(
+            "WGL_ARB_create_context_robustness exists but unable to OpenGL context with "
+            "robustness.");
+    }
+
     // Intel OpenGL ES drivers are not currently supported due to bugs in the driver and ANGLE
     VendorID vendor = GetVendorID(mFunctionsGL);
-    if (requestedDisplayType == EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE && vendor == VENDOR_ID_INTEL)
+    if (requestedDisplayType == EGL_PLATFORM_ANGLE_TYPE_OPENGLES_ANGLE && IsIntel(vendor))
     {
         return egl::Error(EGL_NOT_INITIALIZED, "Intel OpenGL ES drivers are not supported.");
     }
@@ -347,7 +369,7 @@ egl::Error DisplayWGL::initialize(egl::Display *display)
         GetWindowThreadProcessId(nativeWindow, &windowProcessId);
 
         // AMD drivers advertise the WGL_NV_DX_interop and WGL_NV_DX_interop2 extensions but fail
-        mUseDXGISwapChains = vendor != VENDOR_ID_AMD && (currentProcessId != windowProcessId);
+        mUseDXGISwapChains = !IsAMD(vendor) && (currentProcessId != windowProcessId);
     }
     else
     {
@@ -416,13 +438,13 @@ SurfaceImpl *DisplayWGL::createWindowSurface(const egl::SurfaceState &state,
     EGLint orientation = static_cast<EGLint>(attribs.get(EGL_SURFACE_ORIENTATION_ANGLE, 0));
     if (mUseDXGISwapChains)
     {
-        return new DXGISwapChainWindowSurfaceWGL(state, this->getRenderer(), window, mD3D11Device,
+        return new DXGISwapChainWindowSurfaceWGL(state, getRenderer(), window, mD3D11Device,
                                                  mD3D11DeviceHandle, mWGLContext, mDeviceContext,
                                                  mFunctionsGL, mFunctionsWGL, orientation);
     }
     else
     {
-        return new WindowSurfaceWGL(state, this->getRenderer(), window, mPixelFormat, mWGLContext,
+        return new WindowSurfaceWGL(state, getRenderer(), window, mPixelFormat, mWGLContext,
                                     mFunctionsWGL, orientation);
     }
 }
@@ -437,18 +459,19 @@ SurfaceImpl *DisplayWGL::createPbufferSurface(const egl::SurfaceState &state,
     EGLenum textureFormat = static_cast<EGLenum>(attribs.get(EGL_TEXTURE_FORMAT, EGL_NO_TEXTURE));
     EGLenum textureTarget = static_cast<EGLenum>(attribs.get(EGL_TEXTURE_TARGET, EGL_NO_TEXTURE));
 
-    return new PbufferSurfaceWGL(state, this->getRenderer(), width, height, textureFormat,
-                                 textureTarget, largest, mPixelFormat, mDeviceContext, mWGLContext,
-                                 mFunctionsWGL);
+    return new PbufferSurfaceWGL(state, getRenderer(), width, height, textureFormat, textureTarget,
+                                 largest, mPixelFormat, mDeviceContext, mWGLContext, mFunctionsWGL);
 }
 
 SurfaceImpl *DisplayWGL::createPbufferFromClientBuffer(const egl::SurfaceState &state,
                                                        const egl::Config *configuration,
-                                                       EGLClientBuffer shareHandle,
+                                                       EGLenum buftype,
+                                                       EGLClientBuffer clientBuffer,
                                                        const egl::AttributeMap &attribs)
 {
-    UNIMPLEMENTED();
-    return nullptr;
+    ASSERT(buftype == EGL_D3D_TEXTURE_ANGLE);
+    return new D3DTextureSurfaceWGL(state, getRenderer(), clientBuffer, this, mWGLContext,
+                                    mDeviceContext, mFunctionsGL, mFunctionsWGL);
 }
 
 SurfaceImpl *DisplayWGL::createPixmapSurface(const egl::SurfaceState &state,
@@ -543,19 +566,37 @@ egl::ConfigSet DisplayWGL::generateConfigs()
 
 bool DisplayWGL::testDeviceLost()
 {
-    //UNIMPLEMENTED();
+    if (mHasRobustness)
+    {
+        return getRenderer()->getResetStatus() != GL_NO_ERROR;
+    }
+
     return false;
 }
 
 egl::Error DisplayWGL::restoreLostDevice()
 {
-    UNIMPLEMENTED();
     return egl::Error(EGL_BAD_DISPLAY);
 }
 
 bool DisplayWGL::isValidNativeWindow(EGLNativeWindowType window) const
 {
     return (IsWindow(window) == TRUE);
+}
+
+egl::Error DisplayWGL::validateClientBuffer(const egl::Config *configuration,
+                                            EGLenum buftype,
+                                            EGLClientBuffer clientBuffer,
+                                            const egl::AttributeMap &attribs) const
+{
+    switch (buftype)
+    {
+        case EGL_D3D_TEXTURE_ANGLE:
+            return D3DTextureSurfaceWGL::ValidateD3DTextureClientBuffer(clientBuffer);
+
+        default:
+            return DisplayGL::validateClientBuffer(configuration, buftype, clientBuffer, attribs);
+    }
 }
 
 std::string DisplayWGL::getVendorString() const
@@ -619,6 +660,10 @@ void DisplayWGL::generateExtensions(egl::DisplayExtensions *outExtensions) const
     // prefer to swap with inverted Y.
     outExtensions->postSubBuffer      = mUseDXGISwapChains;
     outExtensions->surfaceOrientation = mUseDXGISwapChains;
+
+    outExtensions->createContextRobustness = mHasRobustness;
+
+    outExtensions->d3dTextureClientBuffer = mFunctionsWGL->hasExtension("WGL_NV_DX_interop2");
 }
 
 void DisplayWGL::generateCaps(egl::Caps *outCaps) const

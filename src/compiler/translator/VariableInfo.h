@@ -31,7 +31,7 @@ class CollectVariables : public TIntermTraverser
                      const TExtensionBehavior &extensionBehavior);
 
     void visitSymbol(TIntermSymbol *symbol) override;
-    bool visitAggregate(Visit, TIntermAggregate *node) override;
+    bool visitDeclaration(Visit, TIntermDeclaration *node) override;
     bool visitBinary(Visit visit, TIntermBinary *binaryNode) override;
 
   private:
@@ -79,9 +79,7 @@ void ExpandVariable(const ShaderVariable &variable,
                     std::vector<ShaderVariable> *expanded);
 
 // Expand struct uniforms to flattened lists of split variables
-void ExpandUniforms(const std::vector<Uniform> &compact,
-                    std::vector<ShaderVariable> *expanded);
-
+void ExpandUniforms(const std::vector<Uniform> &compact, std::vector<ShaderVariable> *expanded);
 }
 
 #endif  // COMPILER_TRANSLATOR_VARIABLEINFO_H_

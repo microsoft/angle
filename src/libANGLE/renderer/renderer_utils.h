@@ -44,7 +44,27 @@ typedef void (*ColorReadFunction)(const uint8_t *source, uint8_t *dest);
 typedef void (*ColorWriteFunction)(const uint8_t *source, uint8_t *dest);
 typedef void (*ColorCopyFunction)(const uint8_t *source, uint8_t *dest);
 
-typedef std::map<gl::FormatType, ColorCopyFunction> FastCopyFunctionMap;
+class FastCopyFunctionMap
+{
+  public:
+    struct Entry
+    {
+        GLenum format;
+        GLenum type;
+        ColorCopyFunction func;
+    };
+
+    constexpr FastCopyFunctionMap() : FastCopyFunctionMap(nullptr, 0) {}
+
+    constexpr FastCopyFunctionMap(const Entry *data, size_t size) : mSize(size), mData(data) {}
+
+    bool has(const gl::FormatType &formatType) const;
+    ColorCopyFunction get(const gl::FormatType &formatType) const;
+
+  private:
+    size_t mSize;
+    const Entry *mData;
+};
 
 struct PackPixelsParams
 {
@@ -74,6 +94,30 @@ void PackPixels(const PackPixelsParams &params,
 ColorWriteFunction GetColorWriteFunction(const gl::FormatType &formatType);
 ColorCopyFunction GetFastCopyFunction(const FastCopyFunctionMap &fastCopyFunctions,
                                       const gl::FormatType &formatType);
+
+using LoadImageFunction = void (*)(size_t width,
+                                   size_t height,
+                                   size_t depth,
+                                   const uint8_t *input,
+                                   size_t inputRowPitch,
+                                   size_t inputDepthPitch,
+                                   uint8_t *output,
+                                   size_t outputRowPitch,
+                                   size_t outputDepthPitch);
+
+struct LoadImageFunctionInfo
+{
+    LoadImageFunctionInfo() : loadFunction(nullptr), requiresConversion(false) {}
+    LoadImageFunctionInfo(LoadImageFunction loadFunction, bool requiresConversion)
+        : loadFunction(loadFunction), requiresConversion(requiresConversion)
+    {
+    }
+
+    LoadImageFunction loadFunction;
+    bool requiresConversion;
+};
+
+using LoadFunctionMap = LoadImageFunctionInfo (*)(GLenum);
 
 }  // namespace rx
 

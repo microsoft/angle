@@ -191,6 +191,16 @@ CollectInfoResult CollectGpuID(uint32* vendor_id, uint32* device_id) {
 
 #endif
 
+#if defined(OS_ANDROID)
+CollectInfoResult CollectGpuID(uint32 *vendor_id, uint32 *device_id)
+{
+    DCHECK(vendor_id && device_id);
+    *vendor_id = 0;
+    *device_id = 0;
+    return kCollectInfoNonFatalFailure;
+}
+#endif  // defined(OS_ANDROID)
+
 namespace gpu {
 
 namespace {
@@ -420,33 +430,41 @@ bool GPUTestBotConfig::Matches(const std::string& config_data) const {
   return Matches(config);
 }
 
-bool GPUTestBotConfig::LoadCurrentConfig(const GPUInfo* gpu_info) {
-  bool rt;
-  if (gpu_info == NULL) {
-    GPUInfo my_gpu_info;
-    CollectInfoResult result = CollectGpuID(
-        &my_gpu_info.gpu.vendor_id, &my_gpu_info.gpu.device_id);
-    if (result != kCollectInfoSuccess) {
-      LOG(ERROR) << "Fail to identify GPU";
-      DisableGPUInfoValidation();
-      rt = true;
-    } else {
-      rt = SetGPUInfo(my_gpu_info);
+bool GPUTestBotConfig::LoadCurrentConfig(const GPUInfo *gpu_info)
+{
+    bool rt;
+    if (gpu_info == NULL)
+    {
+        GPUInfo my_gpu_info;
+        CollectInfoResult result =
+            CollectGpuID(&my_gpu_info.gpu.vendor_id, &my_gpu_info.gpu.device_id);
+        if (result != kCollectInfoSuccess)
+        {
+            LOG(ERROR) << "Fail to identify GPU\n";
+            DisableGPUInfoValidation();
+            rt = true;
+        }
+        else
+        {
+            rt = SetGPUInfo(my_gpu_info);
+        }
     }
-  } else {
-    rt = SetGPUInfo(*gpu_info);
-  }
-  set_os(GetCurrentOS());
-  if (os() == kOsUnknown) {
-    LOG(ERROR) << "Unknown OS";
-    rt = false;
-  }
+    else
+    {
+        rt = SetGPUInfo(*gpu_info);
+    }
+    set_os(GetCurrentOS());
+    if (os() == kOsUnknown)
+    {
+        LOG(ERROR) << "Unknown OS\n";
+        rt = false;
+    }
 #if defined(NDEBUG)
-  set_build_type(kBuildTypeRelease);
+    set_build_type(kBuildTypeRelease);
 #else
-  set_build_type(kBuildTypeDebug);
+    set_build_type(kBuildTypeDebug);
 #endif
-  return rt;
+    return rt;
 }
 
 // static

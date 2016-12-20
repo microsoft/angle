@@ -53,7 +53,8 @@ class DisplayGLX : public DisplayGL
                                       const egl::AttributeMap &attribs) override;
     SurfaceImpl *createPbufferFromClientBuffer(const egl::SurfaceState &state,
                                                const egl::Config *configuration,
-                                               EGLClientBuffer shareHandle,
+                                               EGLenum buftype,
+                                               EGLClientBuffer clientBuffer,
                                                const egl::AttributeMap &attribs) override;
     SurfaceImpl *createPixmapSurface(const egl::SurfaceState &state,
                                      const egl::Config *configuration,
@@ -125,6 +126,7 @@ class DisplayGLX : public DisplayGL
     bool mHasMultisample;
     bool mHasARBCreateContext;
     bool mHasARBCreateContextProfile;
+    bool mHasARBCreateContextRobustness;
     bool mHasEXTCreateContextES2Profile;
 
     enum class SwapControl

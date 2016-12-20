@@ -109,6 +109,11 @@ size_t LinkedUniform::getElementSize() const
     return VariableExternalSize(type);
 }
 
+size_t LinkedUniform::getElementComponents() const
+{
+    return VariableComponentCount(type);
+}
+
 uint8_t *LinkedUniform::getDataPtrToElement(size_t elementIndex)
 {
     ASSERT((!isArray() && elementIndex == 0) || (isArray() && elementIndex < arraySize));
@@ -121,7 +126,12 @@ const uint8_t *LinkedUniform::getDataPtrToElement(size_t elementIndex) const
 }
 
 UniformBlock::UniformBlock()
-    : isArray(false), arrayElement(0), dataSize(0), vertexStaticUse(false), fragmentStaticUse(false)
+    : isArray(false),
+      arrayElement(0),
+      dataSize(0),
+      vertexStaticUse(false),
+      fragmentStaticUse(false),
+      computeStaticUse(false)
 {
 }
 
@@ -131,7 +141,8 @@ UniformBlock::UniformBlock(const std::string &nameIn, bool isArrayIn, unsigned i
       arrayElement(arrayElementIn),
       dataSize(0),
       vertexStaticUse(false),
-      fragmentStaticUse(false)
+      fragmentStaticUse(false),
+      computeStaticUse(false)
 {
 }
 

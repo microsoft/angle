@@ -12,27 +12,26 @@
 
 #include "compiler/translator/IntermNode.h"
 
-namespace
+namespace sh
 {
-
-bool IsNodeBlock(TIntermNode *node)
-{
-    ASSERT(node != nullptr);
-    return (node->getAsAggregate() && node->getAsAggregate()->getOp() == EOpSequence);
-}
-
-}  // anonymous namespace
 
 IntermNodePatternMatcher::IntermNodePatternMatcher(const unsigned int mask) : mMask(mask)
 {
 }
 
-bool IntermNodePatternMatcher::match(TIntermBinary *node, TIntermNode *parentNode)
+// static
+bool IntermNodePatternMatcher::IsDynamicIndexingOfVectorOrMatrix(TIntermBinary *node)
+{
+    return node->getOp() == EOpIndexIndirect && !node->getLeft()->isArray() &&
+           node->getLeft()->getBasicType() != EbtStruct;
+}
+
+bool IntermNodePatternMatcher::matchInternal(TIntermBinary *node, TIntermNode *parentNode)
 {
     if ((mMask & kExpressionReturningArray) != 0)
     {
         if (node->isArray() && node->getOp() == EOpAssign && parentNode != nullptr &&
-            !IsNodeBlock(parentNode))
+            !parentNode->getAsBlock())
         {
             return true;
         }
@@ -42,6 +41,33 @@ bool IntermNodePatternMatcher::match(TIntermBinary *node, TIntermNode *parentNod
     {
         if (node->getRight()->hasSideEffects() &&
             (node->getOp() == EOpLogicalOr || node->getOp() == EOpLogicalAnd))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool IntermNodePatternMatcher::match(TIntermBinary *node, TIntermNode *parentNode)
+{
+    // L-value tracking information is needed to check for dynamic indexing in L-value.
+    // Traversers that don't track l-values can still use this class and match binary nodes with
+    // this variation of this method if they don't need to check for dynamic indexing in l-values.
+    ASSERT((mMask & kDynamicIndexingOfVectorOrMatrixInLValue) == 0);
+    return matchInternal(node, parentNode);
+}
+
+bool IntermNodePatternMatcher::match(TIntermBinary *node,
+                                     TIntermNode *parentNode,
+                                     bool isLValueRequiredHere)
+{
+    if (matchInternal(node, parentNode))
+    {
+        return true;
+    }
+    if ((mMask & kDynamicIndexingOfVectorOrMatrixInLValue) != 0)
+    {
+        if (isLValueRequiredHere && IsDynamicIndexingOfVectorOrMatrix(node))
         {
             return true;
         }
@@ -62,7 +88,7 @@ bool IntermNodePatternMatcher::match(TIntermAggregate *node, TIntermNode *parent
 
             if (node->getType().isArray() && !parentIsAssignment &&
                 (node->isConstructor() || node->getOp() == EOpFunctionCall) &&
-                !IsNodeBlock(parentNode))
+                !parentNode->getAsBlock())
             {
                 return true;
             }
@@ -71,14 +97,22 @@ bool IntermNodePatternMatcher::match(TIntermAggregate *node, TIntermNode *parent
     return false;
 }
 
-bool IntermNodePatternMatcher::match(TIntermSelection *node)
+bool IntermNodePatternMatcher::match(TIntermTernary *node)
 {
     if ((mMask & kUnfoldedShortCircuitExpression) != 0)
     {
-        if (node->usesTernaryOperator())
-        {
-            return true;
-        }
+        return true;
     }
     return false;
 }
+
+bool IntermNodePatternMatcher::match(TIntermDeclaration *node)
+{
+    if ((mMask & kMultiDeclaration) != 0)
+    {
+        return node->getSequence()->size() > 1;
+    }
+    return false;
+}
+
+}  // namespace sh

@@ -26,7 +26,7 @@ GLsizei TypeStride(GLenum attribType)
         case GL_FLOAT:
             return 4;
         default:
-            UNREACHABLE();
+            EXPECT_TRUE(false);
             return 0;
     }
 }
@@ -102,7 +102,7 @@ class VertexAttributeTest : public ANGLETest
 
         if (test.source == Source::BUFFER)
         {
-            GLsizei dataSize = mVertexCount * TypeStride(test.type) * typeSize;
+            GLsizei dataSize = mVertexCount * TypeStride(test.type);
             glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
             glBufferData(GL_ARRAY_BUFFER, dataSize, test.inputData, GL_STATIC_DRAW);
             glVertexAttribPointer(mTestAttrib, typeSize, test.type, test.normalized, 0,

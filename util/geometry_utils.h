@@ -12,27 +12,29 @@
 
 #include <cstddef>
 #include <vector>
+
+#include <export.h>
 #include <GLES2/gl2.h>
 
-#include "Vector.h"
+#include "common/vector_utils.h"
 
-struct SphereGeometry
+struct ANGLE_EXPORT SphereGeometry
 {
-    std::vector<Vector3> positions;
-    std::vector<Vector3> normals;
+    std::vector<angle::Vector3> positions;
+    std::vector<angle::Vector3> normals;
     std::vector<GLushort> indices;
 };
 
-void CreateSphereGeometry(size_t sliceCount, float radius, SphereGeometry *result);
+ANGLE_EXPORT void CreateSphereGeometry(size_t sliceCount, float radius, SphereGeometry *result);
 
-struct CubeGeometry
+struct ANGLE_EXPORT CubeGeometry
 {
-    std::vector<Vector3> positions;
-    std::vector<Vector3> normals;
-    std::vector<Vector2> texcoords;
+    std::vector<angle::Vector3> positions;
+    std::vector<angle::Vector3> normals;
+    std::vector<angle::Vector2> texcoords;
     std::vector<GLushort> indices;
 };
 
-void GenerateCubeGeometry(float radius, CubeGeometry *result);
+ANGLE_EXPORT void GenerateCubeGeometry(float radius, CubeGeometry *result);
 
 #endif  // UTIL_GEOMETRY_UTILS_H

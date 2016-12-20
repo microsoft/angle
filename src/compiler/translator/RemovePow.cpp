@@ -13,6 +13,9 @@
 #include "compiler/translator/InfoSink.h"
 #include "compiler/translator/IntermNode.h"
 
+namespace sh
+{
+
 namespace
 {
 
@@ -43,8 +46,7 @@ class RemovePowTraverser : public TIntermTraverser
 };
 
 RemovePowTraverser::RemovePowTraverser()
-    : TIntermTraverser(true, false, false),
-      mNeedAnotherIteration(false)
+    : TIntermTraverser(true, false, false), mNeedAnotherIteration(false)
 {
 }
 
@@ -55,21 +57,15 @@ bool RemovePowTraverser::visitAggregate(Visit visit, TIntermAggregate *node)
         TIntermTyped *x = node->getSequence()->at(0)->getAsTyped();
         TIntermTyped *y = node->getSequence()->at(1)->getAsTyped();
 
-        TIntermUnary *log = new TIntermUnary(EOpLog2);
-        log->setOperand(x);
+        TIntermUnary *log = new TIntermUnary(EOpLog2, x);
         log->setLine(node->getLine());
-        log->setType(x->getType());
 
-        TIntermBinary *mul = new TIntermBinary(EOpMul, y, log);
+        TOperator op       = TIntermBinary::GetMulOpBasedOnOperands(y->getType(), log->getType());
+        TIntermBinary *mul = new TIntermBinary(op, y, log);
         mul->setLine(node->getLine());
-        bool valid = mul->promote();
-        UNUSED_ASSERTION_VARIABLE(valid);
-        ASSERT(valid);
 
-        TIntermUnary *exp = new TIntermUnary(EOpExp2);
-        exp->setOperand(mul);
+        TIntermUnary *exp = new TIntermUnary(EOpExp2, mul);
         exp->setLine(node->getLine());
-        exp->setType(node->getType());
 
         queueReplacement(node, exp, OriginalNode::IS_DROPPED);
 
@@ -84,7 +80,7 @@ bool RemovePowTraverser::visitAggregate(Visit visit, TIntermAggregate *node)
     return true;
 }
 
-} // namespace
+}  // namespace
 
 void RemovePow(TIntermNode *root)
 {
@@ -95,6 +91,7 @@ void RemovePow(TIntermNode *root)
         traverser.nextIteration();
         root->traverse(&traverser);
         traverser.updateTree();
-    }
-    while (traverser.needAnotherIteration());
+    } while (traverser.needAnotherIteration());
 }
+
+}  // namespace sh

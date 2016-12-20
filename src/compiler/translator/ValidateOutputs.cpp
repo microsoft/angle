@@ -9,6 +9,9 @@
 #include "compiler/translator/InitializeParseContext.h"
 #include "compiler/translator/ParseContext.h"
 
+namespace sh
+{
+
 namespace
 {
 void error(int *errorCount, TInfoSinkBase &sink, const TIntermSymbol &symbol, const char *reason)
@@ -31,7 +34,7 @@ ValidateOutputs::ValidateOutputs(const TExtensionBehavior &extBehavior, int maxD
 
 void ValidateOutputs::visitSymbol(TIntermSymbol *symbol)
 {
-    TString name = symbol->getSymbol();
+    TString name         = symbol->getSymbol();
     TQualifier qualifier = symbol->getQualifier();
 
     if (mVisitedSymbols.count(name.c_str()) == 1)
@@ -106,3 +109,5 @@ int ValidateOutputs::validateAndCountErrors(TInfoSinkBase &sink) const
     }
     return errorCount;
 }
+
+}  // namespace sh

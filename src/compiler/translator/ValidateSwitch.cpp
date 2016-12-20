@@ -8,8 +8,13 @@
 
 #include "compiler/translator/ParseContext.h"
 
-bool ValidateSwitch::validate(TBasicType switchType, TParseContext *context,
-    TIntermAggregate *statementList, const TSourceLoc &loc)
+namespace sh
+{
+
+bool ValidateSwitch::validate(TBasicType switchType,
+                              TParseContext *context,
+                              TIntermBlock *statementList,
+                              const TSourceLoc &loc)
 {
     ValidateSwitch validate(switchType, context);
     ASSERT(statementList);
@@ -29,13 +34,14 @@ ValidateSwitch::ValidateSwitch(TBasicType switchType, TParseContext *context)
       mCaseInsideControlFlow(false),
       mDefaultCount(0),
       mDuplicateCases(false)
-{}
+{
+}
 
 void ValidateSwitch::visitSymbol(TIntermSymbol *)
 {
     if (!mFirstCaseFound)
         mStatementBeforeCase = true;
-    mLastStatementWasCase = false;
+    mLastStatementWasCase    = false;
 }
 
 void ValidateSwitch::visitConstantUnion(TIntermConstantUnion *)
@@ -44,14 +50,14 @@ void ValidateSwitch::visitConstantUnion(TIntermConstantUnion *)
     // Could be just a statement like "0;"
     if (!mFirstCaseFound)
         mStatementBeforeCase = true;
-    mLastStatementWasCase = false;
+    mLastStatementWasCase    = false;
 }
 
 bool ValidateSwitch::visitBinary(Visit, TIntermBinary *)
 {
     if (!mFirstCaseFound)
         mStatementBeforeCase = true;
-    mLastStatementWasCase = false;
+    mLastStatementWasCase    = false;
     return true;
 }
 
@@ -59,11 +65,19 @@ bool ValidateSwitch::visitUnary(Visit, TIntermUnary *)
 {
     if (!mFirstCaseFound)
         mStatementBeforeCase = true;
-    mLastStatementWasCase = false;
+    mLastStatementWasCase    = false;
     return true;
 }
 
-bool ValidateSwitch::visitSelection(Visit visit, TIntermSelection *)
+bool ValidateSwitch::visitTernary(Visit, TIntermTernary *)
+{
+    if (!mFirstCaseFound)
+        mStatementBeforeCase = true;
+    mLastStatementWasCase    = false;
+    return true;
+}
+
+bool ValidateSwitch::visitIfElse(Visit visit, TIntermIfElse *)
 {
     if (visit == PreVisit)
         ++mControlFlowDepth;
@@ -71,7 +85,7 @@ bool ValidateSwitch::visitSelection(Visit visit, TIntermSelection *)
         --mControlFlowDepth;
     if (!mFirstCaseFound)
         mStatementBeforeCase = true;
-    mLastStatementWasCase = false;
+    mLastStatementWasCase    = false;
     return true;
 }
 
@@ -79,7 +93,7 @@ bool ValidateSwitch::visitSwitch(Visit, TIntermSwitch *)
 {
     if (!mFirstCaseFound)
         mStatementBeforeCase = true;
-    mLastStatementWasCase = false;
+    mLastStatementWasCase    = false;
     // Don't go into nested switch statements
     return false;
 }
@@ -92,7 +106,7 @@ bool ValidateSwitch::visitCase(Visit, TIntermCase *node)
         mContext->error(node->getLine(), "label statement nested inside control flow", nodeStr);
         mCaseInsideControlFlow = true;
     }
-    mFirstCaseFound = true;
+    mFirstCaseFound       = true;
     mLastStatementWasCase = true;
     if (!node->hasCondition())
     {
@@ -114,7 +128,7 @@ bool ValidateSwitch::visitCase(Visit, TIntermCase *node)
         if (conditionType != mSwitchType)
         {
             mContext->error(condition->getLine(),
-                "case label type does not match switch init-expression type", nodeStr);
+                            "case label type does not match switch init-expression type", nodeStr);
             mCaseTypeMismatch = true;
         }
 
@@ -158,7 +172,7 @@ bool ValidateSwitch::visitAggregate(Visit visit, TIntermAggregate *)
         // This is not the statementList node, but some other node.
         if (!mFirstCaseFound)
             mStatementBeforeCase = true;
-        mLastStatementWasCase = false;
+        mLastStatementWasCase    = false;
     }
     return true;
 }
@@ -171,7 +185,7 @@ bool ValidateSwitch::visitLoop(Visit visit, TIntermLoop *)
         --mControlFlowDepth;
     if (!mFirstCaseFound)
         mStatementBeforeCase = true;
-    mLastStatementWasCase = false;
+    mLastStatementWasCase    = false;
     return true;
 }
 
@@ -179,7 +193,7 @@ bool ValidateSwitch::visitBranch(Visit, TIntermBranch *)
 {
     if (!mFirstCaseFound)
         mStatementBeforeCase = true;
-    mLastStatementWasCase = false;
+    mLastStatementWasCase    = false;
     return true;
 }
 
@@ -187,14 +201,16 @@ bool ValidateSwitch::validateInternal(const TSourceLoc &loc)
 {
     if (mStatementBeforeCase)
     {
-        mContext->error(loc,
-            "statement before the first label", "switch");
+        mContext->error(loc, "statement before the first label", "switch");
     }
     if (mLastStatementWasCase)
     {
         mContext->error(loc,
-            "no statement between the last label and the end of the switch statement", "switch");
+                        "no statement between the last label and the end of the switch statement",
+                        "switch");
     }
     return !mStatementBeforeCase && !mLastStatementWasCase && !mCaseInsideControlFlow &&
-        !mCaseTypeMismatch && mDefaultCount <= 1 && !mDuplicateCases;
+           !mCaseTypeMismatch && mDefaultCount <= 1 && !mDuplicateCases;
 }
+
+}  // namespace sh

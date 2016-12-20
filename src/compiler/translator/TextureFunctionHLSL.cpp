@@ -393,41 +393,22 @@ void OutputTextureFunctionArgumentList(TInfoSinkBase &out,
     {
         switch (textureFunction.sampler)
         {
-            case EbtSampler2D:
-                out << ", int2 offset";
-                break;
             case EbtSampler3D:
-                out << ", int3 offset";
-                break;
-            case EbtSampler2DArray:
-                out << ", int2 offset";
-                break;
-            case EbtISampler2D:
-                out << ", int2 offset";
-                break;
             case EbtISampler3D:
-                out << ", int3 offset";
-                break;
-            case EbtISampler2DArray:
-                out << ", int2 offset";
-                break;
-            case EbtUSampler2D:
-                out << ", int2 offset";
-                break;
             case EbtUSampler3D:
                 out << ", int3 offset";
                 break;
+            case EbtSampler2D:
+            case EbtSampler2DArray:
+            case EbtISampler2D:
+            case EbtISampler2DArray:
+            case EbtUSampler2D:
             case EbtUSampler2DArray:
-                out << ", int2 offset";
-                break;
             case EbtSampler2DShadow:
-                out << ", int2 offset";
-                break;
             case EbtSampler2DArrayShadow:
-                out << ", int2 offset";
-                break;
             case EbtSamplerExternalOES:
                 out << ", int2 offset";
+                break;
             default:
                 UNREACHABLE();
         }
@@ -473,22 +454,40 @@ void GetTextureReference(TInfoSinkBase &out,
 
 void OutputTextureSizeFunctionBody(TInfoSinkBase &out,
                                    const TextureFunctionHLSL::TextureFunction &textureFunction,
-                                   const TString &textureReference)
+                                   const TString &textureReference,
+                                   bool getDimensionsIgnoresBaseLevel)
 {
-    out << "int baseLevel = samplerMetadata[samplerIndex].baseLevel;\n";
+    if (getDimensionsIgnoresBaseLevel)
+    {
+        out << "int baseLevel = samplerMetadata[samplerIndex].baseLevel;\n";
+    }
+    else
+    {
+        out << "int baseLevel = 0;\n";
+    }
+
     if (IsSampler3D(textureFunction.sampler) || IsSamplerArray(textureFunction.sampler) ||
         (IsIntegerSampler(textureFunction.sampler) && IsSamplerCube(textureFunction.sampler)))
     {
         // "depth" stores either the number of layers in an array texture or 3D depth
         out << "    uint width; uint height; uint depth; uint numberOfLevels;\n"
             << "    " << textureReference
-            << ".GetDimensions(baseLevel + lod, width, height, depth, numberOfLevels);\n";
+            << ".GetDimensions(baseLevel, width, height, depth, numberOfLevels);\n"
+            << "    width = max(width >> lod, 1);\n"
+            << "    height = max(height >> lod, 1);\n";
+
+        if (!IsSamplerArray(textureFunction.sampler))
+        {
+            out << "    depth = max(depth >> lod, 1);\n";
+        }
     }
     else if (IsSampler2D(textureFunction.sampler) || IsSamplerCube(textureFunction.sampler))
     {
         out << "    uint width; uint height; uint numberOfLevels;\n"
             << "    " << textureReference
-            << ".GetDimensions(baseLevel + lod, width, height, numberOfLevels);\n";
+            << ".GetDimensions(baseLevel, width, height, numberOfLevels);\n"
+            << "    width = max(width >> lod, 1);\n"
+            << "    height = max(height >> lod, 1);\n";
     }
     else
         UNREACHABLE();
@@ -1095,32 +1094,8 @@ const char *TextureFunctionHLSL::TextureFunction::getReturnType() const
 
 bool TextureFunctionHLSL::TextureFunction::operator<(const TextureFunction &rhs) const
 {
-    if (sampler < rhs.sampler)
-        return true;
-    if (sampler > rhs.sampler)
-        return false;
-
-    if (coords < rhs.coords)
-        return true;
-    if (coords > rhs.coords)
-        return false;
-
-    if (!proj && rhs.proj)
-        return true;
-    if (proj && !rhs.proj)
-        return false;
-
-    if (!offset && rhs.offset)
-        return true;
-    if (offset && !rhs.offset)
-        return false;
-
-    if (method < rhs.method)
-        return true;
-    if (method > rhs.method)
-        return false;
-
-    return false;
+    return std::tie(sampler, coords, proj, offset, method) <
+           std::tie(rhs.sampler, rhs.coords, rhs.proj, rhs.offset, rhs.method);
 }
 
 TString TextureFunctionHLSL::useTextureFunction(const TString &name,
@@ -1249,7 +1224,9 @@ TString TextureFunctionHLSL::useTextureFunction(const TString &name,
     return textureFunction.name();
 }
 
-void TextureFunctionHLSL::textureFunctionHeader(TInfoSinkBase &out, const ShShaderOutput outputType)
+void TextureFunctionHLSL::textureFunctionHeader(TInfoSinkBase &out,
+                                                const ShShaderOutput outputType,
+                                                bool getDimensionsIgnoresBaseLevel)
 {
     for (const TextureFunction &textureFunction : mUsesTexture)
     {
@@ -1272,7 +1249,8 @@ void TextureFunctionHLSL::textureFunctionHeader(TInfoSinkBase &out, const ShShad
 
         if (textureFunction.method == TextureFunction::SIZE)
         {
-            OutputTextureSizeFunctionBody(out, textureFunction, textureReference);
+            OutputTextureSizeFunctionBody(out, textureFunction, textureReference,
+                                          getDimensionsIgnoresBaseLevel);
         }
         else
         {

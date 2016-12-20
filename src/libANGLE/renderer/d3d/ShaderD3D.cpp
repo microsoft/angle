@@ -49,6 +49,24 @@ ShaderD3D::ShaderD3D(const gl::ShaderState &data, const WorkaroundsD3D &workarou
     {
         mAdditionalOptions |= SH_EXPAND_SELECT_HLSL_INTEGER_POW_EXPRESSIONS;
     }
+
+    if (workarounds.getDimensionsIgnoresBaseLevel)
+    {
+        mAdditionalOptions |= SH_HLSL_GET_DIMENSIONS_IGNORES_BASE_LEVEL;
+    }
+
+    if (workarounds.preAddTexelFetchOffsets)
+    {
+        mAdditionalOptions |= SH_REWRITE_TEXELFETCHOFFSET_TO_TEXELFETCH;
+    }
+    if (workarounds.rewriteUnaryMinusOperator)
+    {
+        mAdditionalOptions |= SH_REWRITE_INTEGER_UNARY_MINUS_OPERATOR;
+    }
+    if (workarounds.emulateIsnanFloat)
+    {
+        mAdditionalOptions |= SH_EMULATE_ISNAN_FLOAT_FUNCTION;
+    }
 }
 
 ShaderD3D::~ShaderD3D()
@@ -123,12 +141,12 @@ ShShaderOutput ShaderD3D::getCompilerOutputType() const
     return mCompilerOutputType;
 }
 
-int ShaderD3D::prepareSourceAndReturnOptions(std::stringstream *shaderSourceStream,
-                                             std::string *sourcePath)
+ShCompileOptions ShaderD3D::prepareSourceAndReturnOptions(std::stringstream *shaderSourceStream,
+                                                          std::string *sourcePath)
 {
     uncompile();
 
-    int additionalOptions = 0;
+    ShCompileOptions additionalOptions = 0;
 
     const std::string &source = mData.getSource();
 
@@ -183,7 +201,7 @@ bool ShaderD3D::postTranslateCompile(gl::Compiler *compiler, std::string *infoLo
 
     ShHandle compilerHandle = compiler->getCompilerHandle(mData.getShaderType());
 
-    mUniformRegisterMap = GetUniformRegisterMap(ShGetUniformRegisterMap(compilerHandle));
+    mUniformRegisterMap = GetUniformRegisterMap(sh::GetUniformRegisterMap(compilerHandle));
 
     for (const sh::InterfaceBlock &interfaceBlock : mData.getInterfaceBlocks())
     {
@@ -191,8 +209,7 @@ bool ShaderD3D::postTranslateCompile(gl::Compiler *compiler, std::string *infoLo
         {
             unsigned int index = static_cast<unsigned int>(-1);
             bool blockRegisterResult =
-                ShGetInterfaceBlockRegister(compilerHandle, interfaceBlock.name, &index);
-            UNUSED_ASSERTION_VARIABLE(blockRegisterResult);
+                sh::GetInterfaceBlockRegister(compilerHandle, interfaceBlock.name, &index);
             ASSERT(blockRegisterResult);
 
             mInterfaceBlockRegisterMap[interfaceBlock.name] = index;

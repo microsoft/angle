@@ -16,6 +16,7 @@
 #include "common/angleutils.h"
 #include "common/debug.h"
 #include "common/Optional.h"
+#include "common/platform.h"
 #include "common/string_utils.h"
 #include "gpu_test_expectations_parser.h"
 #include "system_utils.h"
@@ -23,11 +24,16 @@
 namespace
 {
 
+#if defined(ANGLE_PLATFORM_ANDROID)
+const char *g_CaseListRelativePath =
+    "/../../sdcard/chromium_tests_root/third_party/deqp/src/android/cts/master/";
+#else
 const char *g_CaseListRelativePath = "/../../third_party/deqp/src/android/cts/master/";
+#endif
 
 const char *g_TestExpectationsSearchPaths[] = {
     "/../../src/tests/deqp_support/", "/../../third_party/angle/src/tests/deqp_support/",
-    "/deqp_support/",
+    "/deqp_support/", "/../../sdcard/chromium_tests_root/third_party/angle/src/tests/deqp_support/",
 };
 
 const char *g_CaseListFiles[] = {
@@ -38,6 +44,54 @@ const char *g_TestExpectationsFiles[] = {
     "deqp_gles2_test_expectations.txt", "deqp_gles3_test_expectations.txt",
     "deqp_gles31_test_expectations.txt", "deqp_egl_test_expectations.txt",
 };
+
+using APIInfo = std::pair<const char *, gpu::GPUTestConfig::API>;
+
+const APIInfo g_eglDisplayAPIs[] = {
+    {"angle-d3d9", gpu::GPUTestConfig::kAPID3D9},
+    {"angle-d3d11", gpu::GPUTestConfig::kAPID3D11},
+    {"angle-gl", gpu::GPUTestConfig::kAPIGLDesktop},
+    {"angle-gles", gpu::GPUTestConfig::kAPIGLES},
+    {"angle-null", gpu::GPUTestConfig::kAPIUnknown },
+};
+
+const char *g_deqpEGLString = "--deqp-egl-display-type=";
+const char *g_angleEGLString = "--use-angle=";
+
+const APIInfo *g_initAPI = nullptr;
+
+// Returns the default API for a platform.
+const char *GetDefaultAPIName()
+{
+#if defined(ANGLE_PLATFORM_WINDOWS)
+    return "angle-d3d11";
+#elif defined(ANGLE_PLATFORM_APPLE) || defined(ANGLE_PLATFORM_LINUX)
+    return "angle-gl";
+#elif defined(ANGLE_PLATFORM_ANDROID)
+    return "angle-gles";
+#else
+#error Unknown platform.
+#endif
+}
+
+const APIInfo *FindAPIInfo(const std::string &arg)
+{
+    for (auto &displayAPI : g_eglDisplayAPIs)
+    {
+        if (arg == displayAPI.first)
+        {
+            return &displayAPI;
+        }
+    }
+    return nullptr;
+}
+
+const APIInfo *GetDefaultAPIInfo()
+{
+    const APIInfo *defaultInfo = FindAPIInfo(GetDefaultAPIName());
+    ASSERT(defaultInfo);
+    return defaultInfo;
+}
 
 // During the CaseList initialization we cannot use the GTEST FAIL macro to quit the program because
 // the initialization is called outside of tests the first time.
@@ -156,6 +210,16 @@ void dEQPCaseList::initialize()
         Die();
     }
 
+    // Set the API from the command line, or using the default platform API.
+    if (g_initAPI)
+    {
+        mTestConfig.set_api(g_initAPI->second);
+    }
+    else
+    {
+        mTestConfig.set_api(GetDefaultAPIInfo()->second);
+    }
+
     std::ifstream caseListStream(caseListPath);
     if (caseListStream.fail())
     {
@@ -209,13 +273,7 @@ class dEQPTest : public testing::TestWithParam<size_t>
         return sCaseList;
     }
 
-    static void SetUpTestCase()
-    {
-        sPasses           = 0;
-        sFails            = 0;
-        sUnexpectedPasses = 0;
-    }
-
+    static void SetUpTestCase();
     static void TearDownTestCase();
 
   protected:
@@ -257,6 +315,32 @@ unsigned int dEQPTest<TestModuleIndex>::sUnexpectedPasses = 0;
 
 // static
 template <size_t TestModuleIndex>
+void dEQPTest<TestModuleIndex>::SetUpTestCase()
+{
+    sPasses           = 0;
+    sFails            = 0;
+    sUnexpectedPasses = 0;
+
+    std::vector<const char *> argv;
+
+    // Reserve one argument for the binary name.
+    argv.push_back("");
+
+    // Add init api.
+    const char *targetApi    = g_initAPI ? g_initAPI->first : GetDefaultAPIName();
+    std::string apiArgString = std::string(g_deqpEGLString) + targetApi;
+    argv.push_back(apiArgString.c_str());
+
+    // Init the platform.
+    if (!deqp_libtester_init_platform(static_cast<int>(argv.size()), argv.data()))
+    {
+        std::cout << "Aborting test due to dEQP initialization error." << std::endl;
+        exit(1);
+    }
+}
+
+// static
+template <size_t TestModuleIndex>
 void dEQPTest<TestModuleIndex>::TearDownTestCase()
 {
     unsigned int total = sPasses + sFails;
@@ -273,9 +357,10 @@ void dEQPTest<TestModuleIndex>::TearDownTestCase()
     {
         std::cout << sUnexpectedPasses << " tests unexpectedly passed." << std::endl;
     }
+
+    deqp_libtester_shutdown_platform();
 }
 
-// TODO(jmadill): add different platform configs, or ability to choose platform
 #define ANGLE_INSTANTIATE_DEQP_TEST_CASE(DEQP_TEST, N)                          \
     class DEQP_TEST : public dEQPTest<N>                                        \
     {                                                                           \
@@ -303,4 +388,66 @@ ANGLE_INSTANTIATE_DEQP_TEST_CASE(dEQP_GLES31, 2);
 ANGLE_INSTANTIATE_DEQP_TEST_CASE(dEQP_EGL, 3);
 #endif
 
+void HandleDisplayType(const char *displayTypeString)
+{
+    std::stringstream argStream;
+
+    if (g_initAPI)
+    {
+        std::cout << "Cannot specify two EGL displays!" << std::endl;
+        exit(1);
+    }
+
+    if (strncmp(displayTypeString, "angle-", strlen("angle-")) != 0)
+    {
+        argStream << "angle-";
+    }
+
+    argStream << displayTypeString;
+    std::string arg = argStream.str();
+
+    g_initAPI = FindAPIInfo(arg);
+
+    if (!g_initAPI)
+    {
+        std::cout << "Unknown ANGLE back-end API: " << displayTypeString << std::endl;
+        exit(1);
+    }
+}
+
+void DeleteArg(int *argc, int argIndex, char **argv)
+{
+    (*argc)--;
+    for (int moveIndex = argIndex; moveIndex < *argc; ++moveIndex)
+    {
+        argv[moveIndex] = argv[moveIndex + 1];
+    }
+}
+
 } // anonymous namespace
+
+// Called from main() to process command-line arguments.
+namespace angle
+{
+void InitTestHarness(int *argc, char **argv)
+{
+    int argIndex = 0;
+    while (argIndex < *argc)
+    {
+        if (strncmp(argv[argIndex], g_deqpEGLString, strlen(g_deqpEGLString)) == 0)
+        {
+            HandleDisplayType(argv[argIndex] + strlen(g_deqpEGLString));
+            DeleteArg(argc, argIndex, argv);
+        }
+        else if (strncmp(argv[argIndex], g_angleEGLString, strlen(g_angleEGLString)) == 0)
+        {
+            HandleDisplayType(argv[argIndex] + strlen(g_angleEGLString));
+            DeleteArg(argc, argIndex, argv);
+        }
+        else
+        {
+            argIndex++;
+        }
+    }
+}
+}  // namespace angle

@@ -9,12 +9,14 @@
 #include "compiler/translator/SymbolTable.h"
 #include "compiler/translator/Cache.h"
 
+namespace sh
+{
+
 class BuiltInFunctionEmulator::BuiltInFunctionEmulationMarker : public TIntermTraverser
 {
   public:
     BuiltInFunctionEmulationMarker(BuiltInFunctionEmulator &emulator)
-        : TIntermTraverser(true, false, false),
-          mEmulator(emulator)
+        : TIntermTraverser(true, false, false), mEmulator(emulator)
     {
     }
 
@@ -22,7 +24,8 @@ class BuiltInFunctionEmulator::BuiltInFunctionEmulationMarker : public TIntermTr
     {
         if (visit == PreVisit)
         {
-            bool needToEmulate = mEmulator.SetFunctionCalled(node->getOp(), node->getOperand()->getType());
+            bool needToEmulate =
+                mEmulator.SetFunctionCalled(node->getOp(), node->getOperand()->getType());
             if (needToEmulate)
                 node->setUseEmulatedFunction();
         }
@@ -65,7 +68,7 @@ class BuiltInFunctionEmulator::BuiltInFunctionEmulationMarker : public TIntermTr
                     return true;
             }
             const TIntermSequence &sequence = *(node->getSequence());
-            bool needToEmulate = false;
+            bool needToEmulate              = false;
             // Right now we only handle built-in functions with two or three parameters.
             if (sequence.size() == 2)
             {
@@ -73,8 +76,8 @@ class BuiltInFunctionEmulator::BuiltInFunctionEmulationMarker : public TIntermTr
                 TIntermTyped *param2 = sequence[1]->getAsTyped();
                 if (!param1 || !param2)
                     return true;
-                needToEmulate = mEmulator.SetFunctionCalled(
-                    node->getOp(), param1->getType(), param2->getType());
+                needToEmulate = mEmulator.SetFunctionCalled(node->getOp(), param1->getType(),
+                                                            param2->getType());
             }
             else if (sequence.size() == 3)
             {
@@ -83,8 +86,8 @@ class BuiltInFunctionEmulator::BuiltInFunctionEmulationMarker : public TIntermTr
                 TIntermTyped *param3 = sequence[2]->getAsTyped();
                 if (!param1 || !param2 || !param3)
                     return true;
-                needToEmulate = mEmulator.SetFunctionCalled(
-                    node->getOp(), param1->getType(), param2->getType(), param3->getType());
+                needToEmulate = mEmulator.SetFunctionCalled(node->getOp(), param1->getType(),
+                                                            param2->getType(), param3->getType());
             }
             else
             {
@@ -102,24 +105,53 @@ class BuiltInFunctionEmulator::BuiltInFunctionEmulationMarker : public TIntermTr
 };
 
 BuiltInFunctionEmulator::BuiltInFunctionEmulator()
-{}
-
-void BuiltInFunctionEmulator::addEmulatedFunction(TOperator op, const TType *param,
-                                                  const char *emulatedFunctionDefinition)
 {
-    mEmulatedFunctions[FunctionId(op, param)] = std::string(emulatedFunctionDefinition);
 }
 
-void BuiltInFunctionEmulator::addEmulatedFunction(TOperator op, const TType *param1, const TType *param2,
-                                                  const char *emulatedFunctionDefinition)
+BuiltInFunctionEmulator::FunctionId BuiltInFunctionEmulator::addEmulatedFunction(
+    TOperator op,
+    const TType *param,
+    const char *emulatedFunctionDefinition)
 {
-    mEmulatedFunctions[FunctionId(op, param1, param2)] = std::string(emulatedFunctionDefinition);
+    FunctionId id(op, param);
+    mEmulatedFunctions[id] = std::string(emulatedFunctionDefinition);
+    return id;
 }
 
-void BuiltInFunctionEmulator::addEmulatedFunction(TOperator op, const TType *param1, const TType *param2,
-                                                  const TType *param3, const char *emulatedFunctionDefinition)
+BuiltInFunctionEmulator::FunctionId BuiltInFunctionEmulator::addEmulatedFunction(
+    TOperator op,
+    const TType *param1,
+    const TType *param2,
+    const char *emulatedFunctionDefinition)
 {
-    mEmulatedFunctions[FunctionId(op, param1, param2, param3)] = std::string(emulatedFunctionDefinition);
+    FunctionId id(op, param1, param2);
+    mEmulatedFunctions[id] = std::string(emulatedFunctionDefinition);
+    return id;
+}
+
+BuiltInFunctionEmulator::FunctionId BuiltInFunctionEmulator::addEmulatedFunctionWithDependency(
+    FunctionId dependency,
+    TOperator op,
+    const TType *param1,
+    const TType *param2,
+    const char *emulatedFunctionDefinition)
+{
+    FunctionId id(op, param1, param2);
+    mEmulatedFunctions[id]    = std::string(emulatedFunctionDefinition);
+    mFunctionDependencies[id] = dependency;
+    return id;
+}
+
+BuiltInFunctionEmulator::FunctionId BuiltInFunctionEmulator::addEmulatedFunction(
+    TOperator op,
+    const TType *param1,
+    const TType *param2,
+    const TType *param3,
+    const char *emulatedFunctionDefinition)
+{
+    FunctionId id(op, param1, param2, param3);
+    mEmulatedFunctions[id] = std::string(emulatedFunctionDefinition);
+    return id;
 }
 
 bool BuiltInFunctionEmulator::IsOutputEmpty() const
@@ -140,13 +172,17 @@ bool BuiltInFunctionEmulator::SetFunctionCalled(TOperator op, const TType &param
     return SetFunctionCalled(FunctionId(op, &param));
 }
 
-bool BuiltInFunctionEmulator::SetFunctionCalled(TOperator op, const TType &param1, const TType &param2)
+bool BuiltInFunctionEmulator::SetFunctionCalled(TOperator op,
+                                                const TType &param1,
+                                                const TType &param2)
 {
     return SetFunctionCalled(FunctionId(op, &param1, &param2));
 }
 
 bool BuiltInFunctionEmulator::SetFunctionCalled(TOperator op,
-                                                const TType &param1, const TType &param2, const TType &param3)
+                                                const TType &param1,
+                                                const TType &param2,
+                                                const TType &param3)
 {
     return SetFunctionCalled(FunctionId(op, &param1, &param2, &param3));
 }
@@ -159,6 +195,12 @@ bool BuiltInFunctionEmulator::SetFunctionCalled(const FunctionId &functionId)
         {
             if (mFunctions[i] == functionId)
                 return true;
+        }
+        // If the function depends on another, mark the dependency as called.
+        auto dependency = mFunctionDependencies.find(functionId);
+        if (dependency != mFunctionDependencies.end())
+        {
+            SetFunctionCalled((*dependency).second);
         }
         // Copy the functionId if it needs to be stored, to make sure that the TType pointers inside
         // remain valid and constant.
@@ -182,50 +224,53 @@ void BuiltInFunctionEmulator::MarkBuiltInFunctionsForEmulation(TIntermNode *root
 void BuiltInFunctionEmulator::Cleanup()
 {
     mFunctions.clear();
+    mFunctionDependencies.clear();
 }
 
-//static
-TString BuiltInFunctionEmulator::GetEmulatedFunctionName(
-    const TString &name)
+// static
+TString BuiltInFunctionEmulator::GetEmulatedFunctionName(const TString &name)
 {
     ASSERT(name[name.length() - 1] == '(');
     return "webgl_" + name.substr(0, name.length() - 1) + "_emu(";
 }
 
-BuiltInFunctionEmulator::FunctionId::FunctionId(TOperator op, const TType *param)
-    : mOp(op),
-      mParam1(param),
+BuiltInFunctionEmulator::FunctionId::FunctionId()
+    : mOp(EOpNull),
+      mParam1(TCache::getType(EbtVoid)),
       mParam2(TCache::getType(EbtVoid)),
       mParam3(TCache::getType(EbtVoid))
 {
 }
 
-BuiltInFunctionEmulator::FunctionId::FunctionId(TOperator op, const TType *param1, const TType *param2)
-    : mOp(op),
-      mParam1(param1),
-      mParam2(param2),
-      mParam3(TCache::getType(EbtVoid))
+BuiltInFunctionEmulator::FunctionId::FunctionId(TOperator op, const TType *param)
+    : mOp(op), mParam1(param), mParam2(TCache::getType(EbtVoid)), mParam3(TCache::getType(EbtVoid))
 {
 }
 
 BuiltInFunctionEmulator::FunctionId::FunctionId(TOperator op,
-                                                const TType *param1, const TType *param2, const TType *param3)
-    : mOp(op),
-      mParam1(param1),
-      mParam2(param2),
-      mParam3(param3)
+                                                const TType *param1,
+                                                const TType *param2)
+    : mOp(op), mParam1(param1), mParam2(param2), mParam3(TCache::getType(EbtVoid))
 {
 }
 
-bool BuiltInFunctionEmulator::FunctionId::operator==(const BuiltInFunctionEmulator::FunctionId &other) const
+BuiltInFunctionEmulator::FunctionId::FunctionId(TOperator op,
+                                                const TType *param1,
+                                                const TType *param2,
+                                                const TType *param3)
+    : mOp(op), mParam1(param1), mParam2(param2), mParam3(param3)
 {
-    return (mOp == other.mOp &&
-            *mParam1 == *other.mParam1 &&
-            *mParam2 == *other.mParam2 &&
+}
+
+bool BuiltInFunctionEmulator::FunctionId::operator==(
+    const BuiltInFunctionEmulator::FunctionId &other) const
+{
+    return (mOp == other.mOp && *mParam1 == *other.mParam1 && *mParam2 == *other.mParam2 &&
             *mParam3 == *other.mParam3);
 }
 
-bool BuiltInFunctionEmulator::FunctionId::operator<(const BuiltInFunctionEmulator::FunctionId &other) const
+bool BuiltInFunctionEmulator::FunctionId::operator<(
+    const BuiltInFunctionEmulator::FunctionId &other) const
 {
     if (mOp != other.mOp)
         return mOp < other.mOp;
@@ -234,11 +279,13 @@ bool BuiltInFunctionEmulator::FunctionId::operator<(const BuiltInFunctionEmulato
     if (*mParam2 != *other.mParam2)
         return *mParam2 < *other.mParam2;
     if (*mParam3 != *other.mParam3)
-       return *mParam3 < *other.mParam3;
-    return false; // all fields are equal
+        return *mParam3 < *other.mParam3;
+    return false;  // all fields are equal
 }
 
 BuiltInFunctionEmulator::FunctionId BuiltInFunctionEmulator::FunctionId::getCopy() const
 {
     return FunctionId(mOp, new TType(*mParam1), new TType(*mParam2), new TType(*mParam3));
 }
+
+}  // namespace sh
