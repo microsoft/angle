@@ -237,7 +237,6 @@ void WinRTWindow::messageLoop()
     {
         HRESULT result =
             mCoreDispatcher->ProcessEvents(CoreProcessEventsOption_ProcessAllIfPresent);
-        UNUSED_ASSERTION_VARIABLE(result);
         ASSERT(SUCCEEDED(result));
     }
 }
