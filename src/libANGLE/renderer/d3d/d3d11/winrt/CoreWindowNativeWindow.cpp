@@ -160,6 +160,7 @@ HRESULT CoreWindowNativeWindow::createSwapChain(ID3D11Device *device,
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
     swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
     swapChainDesc.AlphaMode             = DXGI_ALPHA_MODE_UNSPECIFIED;
+    swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
     *swapChain = nullptr;
 
