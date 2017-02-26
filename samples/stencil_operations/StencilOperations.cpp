@@ -151,7 +151,7 @@ class StencilOperationsSample : public SampleApplication
         // stencil test, which is
         //
         //      ref   mask   stencil  mask
-        //    ( 0x7 & 0x3 ) < ( 0x1 & 0x7 )
+        //    ( 0x7 & 0x3 ) < ( 0x1 & 0x3 )
         //
         // The value in the stencil buffer for these pixels will be 0x7.
         glStencilFunc(GL_LESS, 0x7, 0x3);
