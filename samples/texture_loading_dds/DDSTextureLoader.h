@@ -22,8 +22,6 @@
 #pragma once
 #endif
 
-#include <d3d11_1.h>
-
 #pragma warning(push)
 #pragma warning(disable : 4005)
 #include <stdint.h>

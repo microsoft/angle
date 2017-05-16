@@ -9,6 +9,12 @@ Release_ARM/
 *.sdf
 *.ncb
 *.suo
+/**/build/*.sln
+/**/build/*.vcxproj
+/**/build/*.vcxproj.filters
+/**/gyp/*.sln
+/**/gyp/*.vcxproj
+/**/gyp/*.vcxproj.filters
 /**/src/tests/*.sln
 /**/src/tests/*.vcxproj
 /**/src/tests/*.vcxproj.filters

@@ -24,6 +24,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
+#include <d3d11_1.h>
 #include "DDSTextureLoader.h"
 
 
