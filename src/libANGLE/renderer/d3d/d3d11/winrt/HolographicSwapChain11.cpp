@@ -762,29 +762,31 @@ EGLint HolographicSwapChain11::reset(int backbufferWidth, int backbufferHeight, 
 {
     // Windows Holographic apps use APIs to access the back buffer.
 
-    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraPose> spPose;
-    HRESULT hr = mHolographicNativeWindow->GetHolographicCameraPose(mHolographicCameraId, spPose.GetAddressOf());
-
-    if (SUCCEEDED(hr))
     {
-        spPose->get_NearPlaneDistance(&mNearPlaneDistance);
-        spPose->get_FarPlaneDistance(&mFarPlaneDistance);
+        ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraPose> spPose;
+        HRESULT hr = mHolographicNativeWindow->GetHolographicCameraPose(mHolographicCameraId, spPose.GetAddressOf());
 
-        // Ensure the values we set previously made it through.
-        assert(mNearPlaneDistance == 0.1f);
-        assert(mFarPlaneDistance == 20.0f);
+        if (SUCCEEDED(hr))
+        {
+            spPose->get_NearPlaneDistance(&mNearPlaneDistance);
+            spPose->get_FarPlaneDistance(&mFarPlaneDistance);
 
-        ABI::Windows::Foundation::Rect viewportRect;
-        spPose->get_Viewport(&viewportRect);
-        mViewport = CD3D11_VIEWPORT(
-            viewportRect.X,
-            viewportRect.Y,
-            viewportRect.Width,
-            viewportRect.Height
-        );
+            // Ensure the values we set previously made it through.
+            assert(mNearPlaneDistance == 0.1f);
+            assert(mFarPlaneDistance == 20.0f);
+
+            ABI::Windows::Foundation::Rect viewportRect;
+            spPose->get_Viewport(&viewportRect);
+            mViewport = CD3D11_VIEWPORT(
+                viewportRect.X,
+                viewportRect.Y,
+                viewportRect.Width,
+                viewportRect.Height
+            );
+        }
     }
 
-    return EGL_SUCCESS;
+    return updateHolographicRenderingParameters();
 }
 
 // parameters should be validated/clamped by caller
