@@ -397,8 +397,7 @@ void HolographicSwapChain11::ComputeMidViewMatrix(
     }
 }
 
-EGLint HolographicSwapChain11::updateHolographicRenderingParameters(
-    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters>& spCameraRenderingParameters)
+EGLint HolographicSwapChain11::updateHolographicRenderingParameters()
 {
     TRACE_EVENT0("gpu.angle", "HolographicSwapChain11::updateHolographicRenderingParameters");
 
@@ -415,6 +414,14 @@ EGLint HolographicSwapChain11::updateHolographicRenderingParameters(
     }
 
     HRESULT result = S_OK;
+
+    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters> spCameraRenderingParameters;
+    if (SUCCEEDED(result))
+    {
+        UINT32 id = mHolographicCameraId;
+        // This will take care of back buffer, depth buffer, viewport, coordinate system, and view/projection matrix(es).
+        result = mHolographicNativeWindow->GetHolographicRenderingParameters(id, spCameraRenderingParameters.GetAddressOf());
+    }
 
     // Update back buffer resources.
     {
@@ -787,16 +794,11 @@ EGLint HolographicSwapChain11::reset(int backbufferWidth, int backbufferHeight, 
     
     HRESULT hr = S_OK;
 
-    ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters> spParameters;
-    if (SUCCEEDED(hr))
-    {
-        // This will take care of back buffer, depth buffer, viewport, coordinate system, and view/projection matrix(es).
-        hr = mHolographicNativeWindow->GetHolographicRenderingParameters(id, spParameters.GetAddressOf());
-    }
+    
 
     if (SUCCEEDED(hr))
     {
-        EGLint result = updateHolographicRenderingParameters(spParameters);
+        EGLint result = updateHolographicRenderingParameters();
             
         if (result != EGL_SUCCESS)
         {

@@ -783,6 +783,7 @@ void Context::bindPixelUnpackBuffer(GLuint buffer)
 void Context::useProgram(GLuint program)
 {
     mState.setProgram(getProgram(program));
+    mCurrentSurface->onProgramChanged();
 }
 
 void Context::bindTransformFeedback(GLuint transformFeedback)

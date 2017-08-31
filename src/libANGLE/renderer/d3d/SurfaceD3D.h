@@ -76,6 +76,8 @@ class SurfaceD3D : public SurfaceImpl
     gl::Error getAttachmentRenderTarget(const gl::FramebufferAttachment::Target &target,
                                         FramebufferAttachmentRenderTarget **rtOut) override;
 
+    void onProgramChanged() override;
+
   private:
     SurfaceD3D(RendererD3D *renderer,
                egl::Display *display,

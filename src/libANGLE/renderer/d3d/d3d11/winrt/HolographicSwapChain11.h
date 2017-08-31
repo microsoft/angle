@@ -48,7 +48,7 @@ class HolographicSwapChain11 : public SwapChainD3D
     virtual ~HolographicSwapChain11();
 
             EGLint  resize(EGLint backbufferWidth, EGLint backbufferHeight);
-            EGLint  updateHolographicRenderingParameters(ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters>& cameraRenderingParameters);
+            EGLint  updateHolographicRenderingParameters();
     virtual EGLint  reset(EGLint backbufferWidth, EGLint backbufferHeight, EGLint swapInterval);
     virtual EGLint  swapRect(EGLint x, EGLint y, EGLint width, EGLint height);
             EGLint  swapRect(ABI::Windows::Graphics::Holographic::IHolographicFrame* pHolographicFrame);

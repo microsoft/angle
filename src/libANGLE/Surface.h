@@ -86,6 +86,8 @@ class Surface final : public gl::FramebufferAttachmentObject
 
     bool directComposition() const { return mDirectComposition; }
 
+    void onProgramChanged() { mImplementation->onProgramChanged(); }
+
   private:
     virtual ~Surface();
     rx::FramebufferAttachmentObjectImpl *getAttachmentImpl() const override { return mImplementation; }

@@ -307,6 +307,37 @@ egl::Error SurfaceD3D::resetSwapChain(int backbufferWidth, int backbufferHeight)
     return egl::Error(EGL_SUCCESS);
 }
 
+void SurfaceD3D::onProgramChanged()
+{
+#ifdef ANGLE_ENABLE_WINDOWS_HOLOGRAPHIC
+    EGLint status = EGL_SUCCESS;
+    // Holographic swap chains will have a back buffer width and height of 0
+    // temporarily while waiting for the first holographic camera.
+    if (!mNativeWindow.isHolographic())
+    {
+        return;
+    }
+    else
+    {
+        OutputDebugStringA("\n!!! Update params on program change !!!\n");
+        if (mSwapChain == nullptr)
+        {
+            // On Windows Holographic, we will have a null swap chain for a while
+            // while waiting for the first holographic camera to arrive.
+            // So, mSwapChain being null is expected.
+            return;
+        }
+
+        // Update all holographic cameras.
+        EGLint status = EGL_SUCCESS;
+        for each (auto const& swapChain in mHolographicSwapChains)
+        {
+            swapChain->updateHolographicRenderingParameters();
+        }
+    }
+#endif
+}
+
 egl::Error SurfaceD3D::swapRect(EGLint x, EGLint y, EGLint width, EGLint height)
 {
     if (!mSwapChain)
