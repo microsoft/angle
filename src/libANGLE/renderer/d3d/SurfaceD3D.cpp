@@ -319,7 +319,6 @@ void SurfaceD3D::onProgramChanged()
     }
     else
     {
-        OutputDebugStringA("\n!!! Update params on program change !!!\n");
         if (mSwapChain == nullptr)
         {
             // On Windows Holographic, we will have a null swap chain for a while
