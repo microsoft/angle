@@ -144,7 +144,7 @@ bool HolographicNativeWindow::initialize(EGLNativeWindowType holographicSpace, I
         ComPtr<IInspectable> enableAutomaticDepthBasedImageStabilizationPropertyInspectable;
         if (SUCCEEDED(result) && hasEglAutomaticDepthBasedImageStabilizationProperty)
         {
-            result = spPropertyMap->Lookup(HStringReference(EGLAutomaticStereoRenderingProperty).Get(), &enableAutomaticDepthBasedImageStabilizationPropertyInspectable);
+            result = spPropertyMap->Lookup(HStringReference(EGLAutomaticDepthBasedImageStabilizationProperty).Get(), &enableAutomaticDepthBasedImageStabilizationPropertyInspectable);
         }
 
         ComPtr<IPropertyValue> enableAutomaticDepthBasedImageStabilizationProperty;
