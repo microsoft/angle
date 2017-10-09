@@ -186,11 +186,7 @@ GLenum GLVariableType(const TType &type)
 {
     if (type.getBasicType() == EbtFloat)
     {
-        if (type.isScalar())
-        {
-            return GL_FLOAT;
-        }
-        else if (type.isVector())
+        if (type.isVector())
         {
             switch (type.getNominalSize())
             {
@@ -252,15 +248,13 @@ GLenum GLVariableType(const TType &type)
             }
         }
         else
-            UNREACHABLE();
+        {
+            return GL_FLOAT;
+        }
     }
     else if (type.getBasicType() == EbtInt)
     {
-        if (type.isScalar())
-        {
-            return GL_INT;
-        }
-        else if (type.isVector())
+        if (type.isVector())
         {
             switch (type.getNominalSize())
             {
@@ -275,15 +269,14 @@ GLenum GLVariableType(const TType &type)
             }
         }
         else
-            UNREACHABLE();
+        {
+            ASSERT(!type.isMatrix());
+            return GL_INT;
+        }
     }
     else if (type.getBasicType() == EbtUInt)
     {
-        if (type.isScalar())
-        {
-            return GL_UNSIGNED_INT;
-        }
-        else if (type.isVector())
+        if (type.isVector())
         {
             switch (type.getNominalSize())
             {
@@ -298,15 +291,14 @@ GLenum GLVariableType(const TType &type)
             }
         }
         else
-            UNREACHABLE();
+        {
+            ASSERT(!type.isMatrix());
+            return GL_UNSIGNED_INT;
+        }
     }
     else if (type.getBasicType() == EbtBool)
     {
-        if (type.isScalar())
-        {
-            return GL_BOOL;
-        }
-        else if (type.isVector())
+        if (type.isVector())
         {
             switch (type.getNominalSize())
             {
@@ -321,7 +313,10 @@ GLenum GLVariableType(const TType &type)
             }
         }
         else
-            UNREACHABLE();
+        {
+            ASSERT(!type.isMatrix());
+            return GL_BOOL;
+        }
     }
 
     switch (type.getBasicType())
@@ -334,10 +329,14 @@ GLenum GLVariableType(const TType &type)
             return GL_SAMPLER_CUBE;
         case EbtSamplerExternalOES:
             return GL_SAMPLER_EXTERNAL_OES;
+        case EbtSamplerExternal2DY2YEXT:
+            return GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT;
         case EbtSampler2DRect:
-            return GL_SAMPLER_2D_RECT_ARB;
+            return GL_SAMPLER_2D_RECT_ANGLE;
         case EbtSampler2DArray:
             return GL_SAMPLER_2D_ARRAY;
+        case EbtSampler2DMS:
+            return GL_SAMPLER_2D_MULTISAMPLE;
         case EbtISampler2D:
             return GL_INT_SAMPLER_2D;
         case EbtISampler3D:
@@ -346,6 +345,8 @@ GLenum GLVariableType(const TType &type)
             return GL_INT_SAMPLER_CUBE;
         case EbtISampler2DArray:
             return GL_INT_SAMPLER_2D_ARRAY;
+        case EbtISampler2DMS:
+            return GL_INT_SAMPLER_2D_MULTISAMPLE;
         case EbtUSampler2D:
             return GL_UNSIGNED_INT_SAMPLER_2D;
         case EbtUSampler3D:
@@ -354,6 +355,8 @@ GLenum GLVariableType(const TType &type)
             return GL_UNSIGNED_INT_SAMPLER_CUBE;
         case EbtUSampler2DArray:
             return GL_UNSIGNED_INT_SAMPLER_2D_ARRAY;
+        case EbtUSampler2DMS:
+            return GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE;
         case EbtSampler2DShadow:
             return GL_SAMPLER_2D_SHADOW;
         case EbtSamplerCubeShadow:
@@ -384,6 +387,8 @@ GLenum GLVariableType(const TType &type)
             return GL_INT_IMAGE_CUBE;
         case EbtUImageCube:
             return GL_UNSIGNED_INT_IMAGE_CUBE;
+        case EbtAtomicCounter:
+            return GL_UNSIGNED_INT_ATOMIC_COUNTER;
         default:
             UNREACHABLE();
     }
@@ -432,12 +437,22 @@ GLenum GLVariablePrecision(const TType &type)
 
 TString ArrayString(const TType &type)
 {
-    if (!type.isArray())
+    TStringStream arrayString;
+    const TVector<unsigned int> &arraySizes = type.getArraySizes();
+    for (auto arraySizeIter = arraySizes.rbegin(); arraySizeIter != arraySizes.rend();
+         ++arraySizeIter)
     {
-        return "";
+        arrayString << "[" << (*arraySizeIter) << "]";
     }
+    return arrayString.str();
+}
 
-    return "[" + str(type.getArraySize()) + "]";
+TString GetTypeName(const TType &type, ShHashFunction64 hashFunction, NameMap *nameMap)
+{
+    if (type.getBasicType() == EbtStruct)
+        return HashName(TName(type.getStruct()->name()), hashFunction, nameMap);
+    else
+        return type.getBuiltInTypeNameString();
 }
 
 bool IsVaryingOut(TQualifier qualifier)
@@ -567,225 +582,6 @@ TType GetShaderVariableBasicType(const sh::ShaderVariable &var)
     }
 }
 
-TOperator TypeToConstructorOperator(const TType &type)
-{
-    switch (type.getBasicType())
-    {
-        case EbtFloat:
-            if (type.isMatrix())
-            {
-                switch (type.getCols())
-                {
-                    case 2:
-                        switch (type.getRows())
-                        {
-                            case 2:
-                                return EOpConstructMat2;
-                            case 3:
-                                return EOpConstructMat2x3;
-                            case 4:
-                                return EOpConstructMat2x4;
-                            default:
-                                break;
-                        }
-                        break;
-
-                    case 3:
-                        switch (type.getRows())
-                        {
-                            case 2:
-                                return EOpConstructMat3x2;
-                            case 3:
-                                return EOpConstructMat3;
-                            case 4:
-                                return EOpConstructMat3x4;
-                            default:
-                                break;
-                        }
-                        break;
-
-                    case 4:
-                        switch (type.getRows())
-                        {
-                            case 2:
-                                return EOpConstructMat4x2;
-                            case 3:
-                                return EOpConstructMat4x3;
-                            case 4:
-                                return EOpConstructMat4;
-                            default:
-                                break;
-                        }
-                        break;
-                }
-            }
-            else
-            {
-                switch (type.getNominalSize())
-                {
-                    case 1:
-                        return EOpConstructFloat;
-                    case 2:
-                        return EOpConstructVec2;
-                    case 3:
-                        return EOpConstructVec3;
-                    case 4:
-                        return EOpConstructVec4;
-                    default:
-                        break;
-                }
-            }
-            break;
-
-        case EbtInt:
-            switch (type.getNominalSize())
-            {
-                case 1:
-                    return EOpConstructInt;
-                case 2:
-                    return EOpConstructIVec2;
-                case 3:
-                    return EOpConstructIVec3;
-                case 4:
-                    return EOpConstructIVec4;
-                default:
-                    break;
-            }
-            break;
-
-        case EbtUInt:
-            switch (type.getNominalSize())
-            {
-                case 1:
-                    return EOpConstructUInt;
-                case 2:
-                    return EOpConstructUVec2;
-                case 3:
-                    return EOpConstructUVec3;
-                case 4:
-                    return EOpConstructUVec4;
-                default:
-                    break;
-            }
-            break;
-
-        case EbtBool:
-            switch (type.getNominalSize())
-            {
-                case 1:
-                    return EOpConstructBool;
-                case 2:
-                    return EOpConstructBVec2;
-                case 3:
-                    return EOpConstructBVec3;
-                case 4:
-                    return EOpConstructBVec4;
-                default:
-                    break;
-            }
-            break;
-
-        case EbtStruct:
-            return EOpConstructStruct;
-
-        default:
-            break;
-    }
-
-    return EOpNull;
-}
-
-GetVariableTraverser::GetVariableTraverser(const TSymbolTable &symbolTable)
-    : mSymbolTable(symbolTable)
-{
-}
-
-template void GetVariableTraverser::setTypeSpecificInfo(const TType &type,
-                                                        const TString &name,
-                                                        InterfaceBlockField *variable);
-template void GetVariableTraverser::setTypeSpecificInfo(const TType &type,
-                                                        const TString &name,
-                                                        ShaderVariable *variable);
-template void GetVariableTraverser::setTypeSpecificInfo(const TType &type,
-                                                        const TString &name,
-                                                        Uniform *variable);
-
-template <>
-void GetVariableTraverser::setTypeSpecificInfo(const TType &type,
-                                               const TString &name,
-                                               Varying *variable)
-{
-    ASSERT(variable);
-    switch (type.getQualifier())
-    {
-        case EvqVaryingIn:
-        case EvqVaryingOut:
-        case EvqVertexOut:
-        case EvqSmoothOut:
-        case EvqFlatOut:
-        case EvqCentroidOut:
-            if (mSymbolTable.isVaryingInvariant(std::string(name.c_str())) || type.isInvariant())
-            {
-                variable->isInvariant = true;
-            }
-            break;
-        default:
-            break;
-    }
-
-    variable->interpolation = GetInterpolationType(type.getQualifier());
-}
-
-template <typename VarT>
-void GetVariableTraverser::traverse(const TType &type,
-                                    const TString &name,
-                                    std::vector<VarT> *output)
-{
-    const TStructure *structure = type.getStruct();
-
-    VarT variable;
-    variable.name      = name.c_str();
-    variable.arraySize = type.getArraySize();
-
-    if (!structure)
-    {
-        variable.type      = GLVariableType(type);
-        variable.precision = GLVariablePrecision(type);
-    }
-    else
-    {
-        // Note: this enum value is not exposed outside ANGLE
-        variable.type       = GL_STRUCT_ANGLEX;
-        variable.structName = structure->name().c_str();
-
-        const TFieldList &fields = structure->fields();
-
-        for (size_t fieldIndex = 0; fieldIndex < fields.size(); fieldIndex++)
-        {
-            TField *field = fields[fieldIndex];
-            traverse(*field->type(), field->name(), &variable.fields);
-        }
-    }
-    setTypeSpecificInfo(type, name, &variable);
-    visitVariable(&variable);
-
-    ASSERT(output);
-    output->push_back(variable);
-}
-
-template void GetVariableTraverser::traverse(const TType &,
-                                             const TString &,
-                                             std::vector<InterfaceBlockField> *);
-template void GetVariableTraverser::traverse(const TType &,
-                                             const TString &,
-                                             std::vector<ShaderVariable> *);
-template void GetVariableTraverser::traverse(const TType &,
-                                             const TString &,
-                                             std::vector<Uniform> *);
-template void GetVariableTraverser::traverse(const TType &,
-                                             const TString &,
-                                             std::vector<Varying> *);
-
 // GLSL ES 1.0.17 4.6.1 The Invariant Qualifier
 bool CanBeInvariantESSL1(TQualifier qualifier)
 {
@@ -834,4 +630,49 @@ bool IsBuiltinFragmentInputVariable(TQualifier qualifier)
     }
     return false;
 }
+
+bool IsOutputESSL(ShShaderOutput output)
+{
+    return output == SH_ESSL_OUTPUT;
+}
+
+bool IsOutputGLSL(ShShaderOutput output)
+{
+    switch (output)
+    {
+        case SH_GLSL_130_OUTPUT:
+        case SH_GLSL_140_OUTPUT:
+        case SH_GLSL_150_CORE_OUTPUT:
+        case SH_GLSL_330_CORE_OUTPUT:
+        case SH_GLSL_400_CORE_OUTPUT:
+        case SH_GLSL_410_CORE_OUTPUT:
+        case SH_GLSL_420_CORE_OUTPUT:
+        case SH_GLSL_430_CORE_OUTPUT:
+        case SH_GLSL_440_CORE_OUTPUT:
+        case SH_GLSL_450_CORE_OUTPUT:
+        case SH_GLSL_COMPATIBILITY_OUTPUT:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+bool IsOutputHLSL(ShShaderOutput output)
+{
+    switch (output)
+    {
+        case SH_HLSL_3_0_OUTPUT:
+        case SH_HLSL_4_1_OUTPUT:
+        case SH_HLSL_4_0_FL9_3_OUTPUT:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+bool IsOutputVulkan(ShShaderOutput output)
+{
+    return output == SH_GLSL_VULKAN_OUTPUT;
+}
+
 }  // namespace sh

@@ -26,10 +26,12 @@ GLenum VariableComponentType(GLenum type);
 size_t VariableComponentSize(GLenum type);
 size_t VariableInternalSize(GLenum type);
 size_t VariableExternalSize(GLenum type);
-GLenum VariableBoolVectorType(GLenum type);
 int VariableRowCount(GLenum type);
 int VariableColumnCount(GLenum type);
 bool IsSamplerType(GLenum type);
+bool IsImageType(GLenum type);
+bool IsAtomicCounterType(GLenum type);
+bool IsOpaqueType(GLenum type);
 GLenum SamplerTypeToTextureType(GLenum samplerType);
 bool IsMatrixType(GLenum type);
 GLenum TransposeMatrixType(GLenum type);
@@ -37,6 +39,7 @@ int VariableRegisterCount(GLenum type);
 int MatrixRegisterCount(GLenum type, bool isRowMajorMatrix);
 int MatrixComponentCount(GLenum type, bool isRowMajorMatrix);
 int VariableSortOrder(GLenum type);
+GLenum VariableBoolVectorType(GLenum type);
 
 int AllocateFirstFreeBits(unsigned int *bits, unsigned int allocationSize, unsigned int bitsSize);
 
@@ -46,9 +49,10 @@ bool IsCubeMapTextureTarget(GLenum target);
 size_t CubeMapTextureTargetToLayerIndex(GLenum target);
 GLenum LayerIndexToCubeMapTextureTarget(size_t index);
 
-// Parse the base uniform name and array index.  Returns the base name of the uniform. outSubscript is
-// set to GL_INVALID_INDEX if the provided name is not an array or the array index is invalid.
-std::string ParseUniformName(const std::string &name, size_t *outSubscript);
+// Parse the base resource name and array index.  Returns the base name of the resource.
+// outSubscript is set to GL_INVALID_INDEX if the provided name is not an array or the array index
+// is invalid.
+std::string ParseResourceName(const std::string &name, size_t *outSubscript);
 
 // Find the range of index values in the provided indices pointer.  Primitive restart indices are
 // only counted in the range if primitive restart is disabled.
@@ -61,84 +65,60 @@ IndexRange ComputeIndexRange(GLenum indexType,
 GLuint GetPrimitiveRestartIndex(GLenum indexType);
 
 bool IsTriangleMode(GLenum drawMode);
-
-// [OpenGL ES 3.0.2] Section 2.3.1 page 14
-// Data Conversion For State-Setting Commands
-// Floating-point values are rounded to the nearest integer, instead of truncated, as done by static_cast.
-template <typename outT> outT iround(GLfloat value) { return static_cast<outT>(value > 0.0f ? floor(value + 0.5f) : ceil(value - 0.5f)); }
-template <typename outT> outT uiround(GLfloat value) { return static_cast<outT>(value + 0.5f); }
-
-// Helper for converting arbitrary GL types to other GL types used in queries and state setting
-template <typename ParamType>
-GLuint ConvertToGLuint(ParamType param)
-{
-    return static_cast<GLuint>(param);
-}
-template <>
-GLuint ConvertToGLuint(GLfloat param);
-
-template <typename ParamType>
-GLint ConvertToGLint(ParamType param)
-{
-    return static_cast<GLint>(param);
-}
-template <>
-GLint ConvertToGLint(GLfloat param);
-
-// Same conversion as uint
-template <typename ParamType>
-GLenum ConvertToGLenum(ParamType param)
-{
-    return static_cast<GLenum>(ConvertToGLuint(param));
-}
-
-template <typename ParamType>
-GLfloat ConvertToGLfloat(ParamType param)
-{
-    return static_cast<GLfloat>(param);
-}
-
-template <typename ParamType>
-ParamType ConvertFromGLfloat(GLfloat param)
-{
-    return static_cast<ParamType>(param);
-}
-template <>
-GLint ConvertFromGLfloat(GLfloat param);
-template <>
-GLuint ConvertFromGLfloat(GLfloat param);
-
-template <typename ParamType>
-ParamType ConvertFromGLenum(GLenum param)
-{
-    return static_cast<ParamType>(param);
-}
-
-template <typename ParamType>
-ParamType ConvertFromGLuint(GLuint param)
-{
-    return static_cast<ParamType>(param);
-}
-
-template <typename ParamType>
-ParamType ConvertFromGLint(GLint param)
-{
-    return static_cast<ParamType>(param);
-}
-
-template <typename ParamType>
-ParamType ConvertFromGLboolean(GLboolean param)
-{
-    return static_cast<ParamType>(param ? GL_TRUE : GL_FALSE);
-}
-
-template <typename ParamType>
-ParamType ConvertFromGLint64(GLint64 param)
-{
-    return clampCast<ParamType>(param);
-}
+bool IsIntegerFormat(GLenum unsizedFormat);
 
 unsigned int ParseAndStripArrayIndex(std::string *name);
+
+struct UniformTypeInfo final : angle::NonCopyable
+{
+    constexpr UniformTypeInfo(GLenum type,
+                              GLenum componentType,
+                              GLenum samplerTextureType,
+                              GLenum transposedMatrixType,
+                              GLenum boolVectorType,
+                              int rowCount,
+                              int columnCount,
+                              int componentCount,
+                              size_t componentSize,
+                              size_t internalSize,
+                              size_t externalSize,
+                              bool isSampler,
+                              bool isMatrixType,
+                              bool isImageType)
+        : type(type),
+          componentType(componentType),
+          samplerTextureType(samplerTextureType),
+          transposedMatrixType(transposedMatrixType),
+          boolVectorType(boolVectorType),
+          rowCount(rowCount),
+          columnCount(columnCount),
+          componentCount(componentCount),
+          componentSize(componentSize),
+          internalSize(internalSize),
+          externalSize(externalSize),
+          isSampler(isSampler),
+          isMatrixType(isMatrixType),
+          isImageType(isImageType)
+    {
+    }
+
+    GLenum type;
+    GLenum componentType;
+    GLenum samplerTextureType;
+    GLenum transposedMatrixType;
+    GLenum boolVectorType;
+    int rowCount;
+    int columnCount;
+    int componentCount;
+    size_t componentSize;
+    size_t internalSize;
+    size_t externalSize;
+    bool isSampler;
+    bool isMatrixType;
+    bool isImageType;
+};
+
+const UniformTypeInfo &GetUniformTypeInfo(GLenum uniformType);
 
 }  // namespace gl
 
@@ -159,6 +139,11 @@ GLenum EGLCubeMapTargetToGLCubeMapTarget(EGLenum eglTarget);
 GLenum EGLImageTargetToGLTextureTarget(EGLenum eglTarget);
 GLuint EGLClientBufferToGLObjectHandle(EGLClientBuffer buffer);
 }
+
+namespace gl_egl
+{
+EGLenum GLComponentTypeToEGLColorComponentType(GLenum glComponentType);
+}  // namespace gl_egl
 
 #if !defined(ANGLE_ENABLE_WINDOWS_STORE)
 std::string getTempPath();

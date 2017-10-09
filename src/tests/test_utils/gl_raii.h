@@ -23,11 +23,32 @@ using GLGen    = decltype(glGenBuffers);
 using GLDelete = decltype(glDeleteBuffers);
 
 template <GLGen GenF, GLDelete DeleteF>
-class GLWrapper
+class GLWrapper : angle::NonCopyable
 {
   public:
     GLWrapper() {}
     ~GLWrapper() { DeleteF(1, &mHandle); }
+
+    // The move-constructor and move-assignment operators are necessary so that the data within a
+    // GLWrapper object can be relocated.
+    GLWrapper(GLWrapper &&rht) : mHandle(rht.mHandle) { rht.mHandle = 0u; }
+    GLWrapper &operator=(GLWrapper &&rht)
+    {
+        if (this != &rht)
+        {
+            std::swap(mHandle, rht.mHandle);
+        }
+        return *this;
+    }
+
+    void reset()
+    {
+        if (mHandle != 0u)
+        {
+            DeleteF(1, &mHandle);
+            mHandle = 0u;
+        }
+    }
 
     GLuint get()
     {
@@ -38,15 +59,21 @@ class GLWrapper
         return mHandle;
     }
 
+    operator GLuint() { return get(); }
+
   private:
-    GLuint mHandle = 0;
+    GLuint mHandle = 0u;
 };
 
-using GLBuffer       = GLWrapper<glGenBuffers, glDeleteBuffers>;
-using GLTexture      = GLWrapper<glGenTextures, glDeleteTextures>;
-using GLFramebuffer  = GLWrapper<glGenFramebuffers, glDeleteFramebuffers>;
-using GLRenderbuffer = GLWrapper<glGenRenderbuffers, glDeleteRenderbuffers>;
-using GLSampler      = GLWrapper<glGenSamplers, glDeleteSamplers>;
+using GLVertexArray       = GLWrapper<glGenVertexArrays, glDeleteVertexArrays>;
+using GLBuffer            = GLWrapper<glGenBuffers, glDeleteBuffers>;
+using GLTexture           = GLWrapper<glGenTextures, glDeleteTextures>;
+using GLFramebuffer       = GLWrapper<glGenFramebuffers, glDeleteFramebuffers>;
+using GLRenderbuffer      = GLWrapper<glGenRenderbuffers, glDeleteRenderbuffers>;
+using GLSampler           = GLWrapper<glGenSamplers, glDeleteSamplers>;
+using GLTransformFeedback = GLWrapper<glGenTransformFeedbacks, glDeleteTransformFeedbacks>;
+using GLProgramPipeline   = GLWrapper<glGenProgramPipelines, glDeleteProgramPipelines>;
+using GLQueryEXT          = GLWrapper<glGenQueriesEXT, glDeleteQueriesEXT>;
 
 // Don't use GLProgram directly, use ANGLE_GL_PROGRAM.
 namespace priv
@@ -78,11 +105,15 @@ class GLProgram
         mHandle = LoadBinaryProgramES3(binary, binaryFormat);
     }
 
+    bool valid() const { return mHandle != 0; }
+
     GLuint get()
     {
-        ASSERT(mHandle != 0);
+        ASSERT(valid());
         return mHandle;
     }
+
+    operator GLuint() { return get(); }
 
   private:
     GLuint mHandle;
@@ -92,22 +123,22 @@ class GLProgram
 #define ANGLE_GL_PROGRAM(name, vertex, fragment) \
     priv::GLProgram name;                        \
     name.makeRaster(vertex, fragment);           \
-    ASSERT_NE(0u, name.get());
+    ASSERT_TRUE(name.valid());
 
 #define ANGLE_GL_COMPUTE_PROGRAM(name, compute) \
     priv::GLProgram name;                       \
     name.makeCompute(compute);                  \
-    ASSERT_NE(0u, name.get());
+    ASSERT_TRUE(name.valid());
 
 #define ANGLE_GL_BINARY_OES_PROGRAM(name, binary, binaryFormat) \
     priv::GLProgram name;                                       \
     name.makeBinaryOES(binary, binaryFormat);                   \
-    ASSERT_NE(0u, name.get());
+    ASSERT_TRUE(name.valid());
 
 #define ANGLE_GL_BINARY_ES3_PROGRAM(name, binary, binaryFormat) \
     priv::GLProgram name;                                       \
     name.makeBinaryES3(binary, binaryFormat);                   \
-    ASSERT_NE(0u, name.get());
+    ASSERT_TRUE(name.valid());
 
 }  // namespace angle
 

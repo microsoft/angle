@@ -6,6 +6,8 @@
 
 #include "libANGLE/AttributeMap.h"
 
+#include "common/debug.h"
+
 namespace egl
 {
 
@@ -23,16 +25,27 @@ bool AttributeMap::contains(EGLAttrib key) const
     return (mAttributes.find(key) != mAttributes.end());
 }
 
+EGLAttrib AttributeMap::get(EGLAttrib key) const
+{
+    auto iter = mAttributes.find(key);
+    ASSERT(iter != mAttributes.end());
+    return iter->second;
+}
+
 EGLAttrib AttributeMap::get(EGLAttrib key, EGLAttrib defaultValue) const
 {
-    std::map<EGLAttrib, EGLAttrib>::const_iterator iter = mAttributes.find(key);
+    auto iter = mAttributes.find(key);
     return (mAttributes.find(key) != mAttributes.end()) ? iter->second : defaultValue;
+}
+
+EGLint AttributeMap::getAsInt(EGLAttrib key) const
+{
+    return static_cast<EGLint>(get(key));
 }
 
 EGLint AttributeMap::getAsInt(EGLAttrib key, EGLint defaultValue) const
 {
-    return static_cast<EGLint>(
-        get(static_cast<EGLAttrib>(key), static_cast<EGLAttrib>(defaultValue)));
+    return static_cast<EGLint>(get(key, static_cast<EGLAttrib>(defaultValue)));
 }
 
 bool AttributeMap::isEmpty() const

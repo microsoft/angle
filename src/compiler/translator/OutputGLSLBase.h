@@ -9,8 +9,9 @@
 
 #include <set>
 
-#include "compiler/translator/IntermNode.h"
-#include "compiler/translator/ParseContext.h"
+#include "compiler/translator/HashNames.h"
+#include "compiler/translator/InfoSink.h"
+#include "compiler/translator/IntermTraverse.h"
 
 namespace sh
 {
@@ -22,7 +23,7 @@ class TOutputGLSLBase : public TIntermTraverser
                     ShArrayIndexClampingStrategy clampingStrategy,
                     ShHashFunction64 hashFunction,
                     NameMap &nameMap,
-                    TSymbolTable &symbolTable,
+                    TSymbolTable *symbolTable,
                     sh::GLenum shaderType,
                     int shaderVersion,
                     ShShaderOutput output,
@@ -30,11 +31,16 @@ class TOutputGLSLBase : public TIntermTraverser
 
     ShShaderOutput getShaderOutput() const { return mOutput; }
 
+    // Return the original name if hash function pointer is NULL;
+    // otherwise return the hashed name. Has special handling for internal names, which are not
+    // hashed.
+    TString hashName(const TName &name);
+
   protected:
     TInfoSinkBase &objSink() { return mObjSink; }
     void writeFloat(TInfoSinkBase &out, float f);
     void writeTriplet(Visit visit, const char *preStr, const char *inStr, const char *postStr);
-    void writeLayoutQualifier(const TType &type);
+    virtual void writeLayoutQualifier(TIntermTyped *variable);
     void writeInvariantQualifier(const TType &type);
     void writeVariableType(const TType &type);
     virtual bool writeVariablePrecision(TPrecision precision) = 0;
@@ -52,6 +58,7 @@ class TOutputGLSLBase : public TIntermTraverser
     bool visitIfElse(Visit visit, TIntermIfElse *node) override;
     bool visitSwitch(Visit visit, TIntermSwitch *node) override;
     bool visitCase(Visit visit, TIntermCase *node) override;
+    bool visitFunctionPrototype(Visit visit, TIntermFunctionPrototype *node) override;
     bool visitFunctionDefinition(Visit visit, TIntermFunctionDefinition *node) override;
     bool visitAggregate(Visit visit, TIntermAggregate *node) override;
     bool visitBlock(Visit visit, TIntermBlock *node) override;
@@ -62,15 +69,12 @@ class TOutputGLSLBase : public TIntermTraverser
 
     void visitCodeBlock(TIntermBlock *node);
 
-    // Return the original name if hash function pointer is NULL;
-    // otherwise return the hashed name.
-    TString hashName(const TName &name);
     // Same as hashName(), but without hashing built-in variables.
     TString hashVariableName(const TName &name);
-    // Same as hashName(), but without hashing built-in functions and with unmangling.
-    TString hashFunctionNameIfNeeded(const TName &mangledName);
+    // Same as hashName(), but without hashing internal functions or "main".
+    TString hashFunctionNameIfNeeded(const TFunctionSymbolInfo &info);
     // Used to translate function names for differences between ESSL and GLSL
-    virtual TString translateTextureFunction(TString &name) { return name; }
+    virtual TString translateTextureFunction(const TString &name) { return name; }
 
   private:
     bool structDeclared(const TStructure *structure) const;
@@ -79,7 +83,7 @@ class TOutputGLSLBase : public TIntermTraverser
     void declareInterfaceBlockLayout(const TInterfaceBlock *interfaceBlock);
     void declareInterfaceBlock(const TInterfaceBlock *interfaceBlock);
 
-    void writeBuiltInFunctionTriplet(Visit visit, const char *preStr, bool useEmulatedFunction);
+    void writeBuiltInFunctionTriplet(Visit visit, TOperator op, bool useEmulatedFunction);
 
     const char *mapQualifierToString(TQualifier qialifier);
 
@@ -96,8 +100,6 @@ class TOutputGLSLBase : public TIntermTraverser
 
     NameMap &mNameMap;
 
-    TSymbolTable &mSymbolTable;
-
     sh::GLenum mShaderType;
 
     const int mShaderVersion;
@@ -106,6 +108,14 @@ class TOutputGLSLBase : public TIntermTraverser
 
     ShCompileOptions mCompileOptions;
 };
+
+void WriteGeometryShaderLayoutQualifiers(TInfoSinkBase &out,
+                                         sh::TLayoutPrimitiveType inputPrimitive,
+                                         int invocations,
+                                         sh::TLayoutPrimitiveType outputPrimitive,
+                                         int maxVertices);
+
+bool NeedsToWriteLayoutQualifier(const TType &type);
 
 }  // namespace sh
 

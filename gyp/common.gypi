@@ -23,7 +23,6 @@
             '-Wextra',
             '-Wformat=2',
             '-Winit-self',
-            '-Wnon-virtual-dtor',
             '-Wno-format-nonliteral',
             '-Wno-unknown-pragmas',
             '-Wno-unused-function',
@@ -32,6 +31,10 @@
             '-Wpointer-arith',
             '-Wundef',
             '-Wwrite-strings',
+        ],
+        'gcc_or_clang_warnings_cc':
+        [
+            '-Wnon-virtual-dtor',
         ],
 
         # TODO: Pull chromium's clang dep.
@@ -80,6 +83,8 @@
             'Common_Base':
             {
                 'abstract': 1,
+                # Require the version of the Windows 10 SDK installed on the local machine.
+                'msvs_windows_sdk_version': 'v10.0',
                 'msvs_configuration_attributes':
                 {
                     'OutputDirectory': '$(SolutionDir)$(ConfigurationName)_$(Platform)',
@@ -286,6 +291,7 @@
                         'TargetMachine': '1', # x86
                     },
                 },
+                'defines': [ 'ANGLE_X86_CPU' ],
             }, # x86_Base
 
             'x64_Base':
@@ -303,6 +309,7 @@
                         'TargetMachine': '17', # x86 - 64
                     },
                 },
+                'defines': [ 'ANGLE_X64_CPU' ],
             },    # x64_Base
 
             # Concrete configurations
@@ -431,7 +438,21 @@
                     }],
                     ['OS != "win" and OS != "mac"',
                     {
-                        'cflags': ['<@(gcc_or_clang_warnings)']
+                        'cflags_c':
+                        [
+                            '<@(gcc_or_clang_warnings)',
+                            '-std=c99',
+                        ],
+                        'cflags_cc':
+                        [
+                            '<@(gcc_or_clang_warnings_cc)',
+                        ],
+                        'defines':
+                        [
+                            'SYSCONFDIR="/etc"',
+                            'FALLBACK_CONFIG_DIRS="/etc/xdg"',
+                            'FALLBACK_DATA_DIRS="/usr/local/share:/usr/share"',
+                        ],
                     }],
                     ['clang==1',
                     {

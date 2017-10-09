@@ -21,11 +21,11 @@ class TranslatorESSL : public TCompiler
     void initBuiltInFunctionEmulator(BuiltInFunctionEmulator *emu,
                                      ShCompileOptions compileOptions) override;
 
-    void translate(TIntermNode *root, ShCompileOptions compileOptions) override;
+    void translate(TIntermBlock *root, ShCompileOptions compileOptions) override;
     bool shouldFlattenPragmaStdglInvariantAll() override;
 
   private:
-    void writeExtensionBehavior();
+    void writeExtensionBehavior(ShCompileOptions compileOptions);
 };
 
 }  // namespace sh

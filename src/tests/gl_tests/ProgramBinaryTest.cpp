@@ -11,6 +11,7 @@
 
 #include "EGLWindow.h"
 #include "OSWindow.h"
+#include "common/string_utils.h"
 #include "test_utils/angle_test_configs.h"
 #include "test_utils/gl_raii.h"
 
@@ -33,22 +34,18 @@ class ProgramBinaryTest : public ANGLETest
     {
         ANGLETest::SetUp();
 
-        const std::string vertexShaderSource = SHADER_SOURCE
-        (
-            attribute vec4 inputAttribute;
+        const std::string vertexShaderSource =
+            R"(attribute vec4 inputAttribute;
             void main()
             {
                 gl_Position = inputAttribute;
-            }
-        );
+            })";
 
-        const std::string fragmentShaderSource = SHADER_SOURCE
-        (
-            void main()
+        const std::string fragmentShaderSource =
+            R"(void main()
             {
                 gl_FragColor = vec4(1,0,0,1);
-            }
-        );
+            })";
 
         mProgram = CompileProgram(vertexShaderSource, fragmentShaderSource);
         if (mProgram == 0)
@@ -58,7 +55,7 @@ class ProgramBinaryTest : public ANGLETest
 
         glGenBuffers(1, &mBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
-        glBufferData(GL_ARRAY_BUFFER, 128, NULL, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 128, nullptr, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         ASSERT_GL_NO_ERROR();
@@ -79,6 +76,25 @@ class ProgramBinaryTest : public ANGLETest
         return formatCount;
     }
 
+    bool supported() const
+    {
+        if (!extensionEnabled("GL_OES_get_program_binary"))
+        {
+            std::cout << "Test skipped because GL_OES_get_program_binary is not available."
+                      << std::endl;
+            return false;
+        }
+
+        if (getAvailableProgramBinaryFormatCount() == 0)
+        {
+            std::cout << "Test skipped because no program binary formats are available."
+                      << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+
     GLuint mProgram;
     GLuint mBuffer;
 };
@@ -87,23 +103,15 @@ class ProgramBinaryTest : public ANGLETest
 // should not internally cause a vertex shader recompile (for conversion).
 TEST_P(ProgramBinaryTest, FloatDynamicShaderSize)
 {
-    if (!extensionEnabled("GL_OES_get_program_binary"))
+    if (!supported())
     {
-        std::cout << "Test skipped because GL_OES_get_program_binary is not available."
-                  << std::endl;
-        return;
-    }
-
-    if (getAvailableProgramBinaryFormatCount() == 0)
-    {
-        std::cout << "Test skipped because no program binary formats are available." << std::endl;
         return;
     }
 
     glUseProgram(mProgram);
     glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
 
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 8, NULL);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 8, nullptr);
     glEnableVertexAttribArray(0);
     glDrawArrays(GL_POINTS, 0, 1);
 
@@ -114,7 +122,7 @@ TEST_P(ProgramBinaryTest, FloatDynamicShaderSize)
 
     for (GLsizei size = 1; size <= 3; size++)
     {
-        glVertexAttribPointer(0, size, GL_FLOAT, GL_FALSE, 8, NULL);
+        glVertexAttribPointer(0, size, GL_FLOAT, GL_FALSE, 8, nullptr);
         glEnableVertexAttribArray(0);
         glDrawArrays(GL_POINTS, 0, 1);
 
@@ -146,16 +154,8 @@ TEST_P(ProgramBinaryTest, DynamicShadersSignatureBug)
 // This tests the ability to successfully save and load a program binary.
 TEST_P(ProgramBinaryTest, SaveAndLoadBinary)
 {
-    if (!extensionEnabled("GL_OES_get_program_binary"))
+    if (!supported())
     {
-        std::cout << "Test skipped because GL_OES_get_program_binary is not available."
-                  << std::endl;
-        return;
-    }
-
-    if (getAvailableProgramBinaryFormatCount() == 0)
-    {
-        std::cout << "Test skipped because no program binary formats are available." << std::endl;
         return;
     }
 
@@ -190,7 +190,7 @@ TEST_P(ProgramBinaryTest, SaveAndLoadBinary)
             if (infoLogLength > 0)
             {
                 std::vector<GLchar> infoLog(infoLogLength);
-                glGetProgramInfoLog(program2, static_cast<GLsizei>(infoLog.size()), NULL,
+                glGetProgramInfoLog(program2, static_cast<GLsizei>(infoLog.size()), nullptr,
                                     &infoLog[0]);
                 FAIL() << "program link failed: " << &infoLog[0];
             }
@@ -204,7 +204,7 @@ TEST_P(ProgramBinaryTest, SaveAndLoadBinary)
             glUseProgram(program2);
             glBindBuffer(GL_ARRAY_BUFFER, mBuffer);
 
-            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 8, NULL);
+            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 8, nullptr);
             glEnableVertexAttribArray(0);
             glDrawArrays(GL_POINTS, 0, 1);
 
@@ -213,6 +213,39 @@ TEST_P(ProgramBinaryTest, SaveAndLoadBinary)
 
         glDeleteProgram(program2);
     }
+}
+
+// Ensures that we init the compiler before calling ProgramBinary.
+TEST_P(ProgramBinaryTest, CallProgramBinaryBeforeLink)
+{
+    if (!supported())
+    {
+        return;
+    }
+
+    // Initialize a simple program.
+    glUseProgram(mProgram);
+
+    GLsizei length = 0;
+    glGetProgramiv(mProgram, GL_PROGRAM_BINARY_LENGTH, &length);
+    ASSERT_GL_NO_ERROR();
+    ASSERT_GT(length, 0);
+
+    GLsizei readLength  = 0;
+    GLenum binaryFormat = GL_NONE;
+    std::vector<uint8_t> binaryBlob(length);
+    glGetProgramBinaryOES(mProgram, length, &readLength, &binaryFormat, binaryBlob.data());
+    ASSERT_GL_NO_ERROR();
+
+    // Shutdown and restart GL entirely.
+    TearDown();
+    SetUp();
+
+    ANGLE_GL_BINARY_OES_PROGRAM(binaryProgram, binaryBlob, binaryFormat);
+    ASSERT_GL_NO_ERROR();
+
+    drawQuad(binaryProgram, "inputAttribute", 0.5f);
+    ASSERT_GL_NO_ERROR();
 }
 
 // Use this to select which configurations (e.g. which renderer, which GLES major version) these tests should be run against.
@@ -226,10 +259,11 @@ ANGLE_INSTANTIATE_TEST(ProgramBinaryTest,
 
 class ProgramBinaryES3Test : public ANGLETest
 {
+  protected:
+    void testBinaryAndUBOBlockIndexes(bool drawWithProgramFirst);
 };
 
-// Tests that saving and loading a program perserves uniform block binding info.
-TEST_P(ProgramBinaryES3Test, UniformBlockBinding)
+void ProgramBinaryES3Test::testBinaryAndUBOBlockIndexes(bool drawWithProgramFirst)
 {
     // We can't run the test if no program binary formats are supported.
     GLint binaryFormatCount = 0;
@@ -280,9 +314,12 @@ TEST_P(ProgramBinaryES3Test, UniformBlockBinding)
     glClear(GL_COLOR_BUFFER_BIT);
     EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::red);
 
-    drawQuad(program.get(), "position", 0.5f);
-    ASSERT_GL_NO_ERROR();
-    EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::white);
+    if (drawWithProgramFirst)
+    {
+        drawQuad(program.get(), "position", 0.5f);
+        ASSERT_GL_NO_ERROR();
+        EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::white);
+    }
 
     // Read back the binary.
     GLint programLength = 0;
@@ -309,7 +346,91 @@ TEST_P(ProgramBinaryES3Test, UniformBlockBinding)
     EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::white);
 }
 
+// Tests that saving and loading a program perserves uniform block binding info.
+TEST_P(ProgramBinaryES3Test, UniformBlockBindingWithDraw)
+{
+    testBinaryAndUBOBlockIndexes(true);
+}
+
+// Same as above, but does not do an initial draw with the program. Covers an ANGLE crash.
+// http://anglebug.com/1637
+TEST_P(ProgramBinaryES3Test, UniformBlockBindingNoDraw)
+{
+    // TODO(jmadill): Investigate Intel failure.
+    // http://anglebug.com/1637
+    if (IsWindows() && IsOpenGL() && IsIntel())
+    {
+        std::cout << "Test skipped on Windows Intel OpenGL." << std::endl;
+        return;
+    }
+
+    testBinaryAndUBOBlockIndexes(false);
+}
+
 ANGLE_INSTANTIATE_TEST(ProgramBinaryES3Test, ES3_D3D11(), ES3_OPENGL(), ES3_OPENGLES());
+
+class ProgramBinaryES31Test : public ANGLETest
+{
+  protected:
+    ProgramBinaryES31Test()
+    {
+        setWindowWidth(128);
+        setWindowHeight(128);
+        setConfigRedBits(8);
+        setConfigGreenBits(8);
+        setConfigBlueBits(8);
+        setConfigAlphaBits(8);
+    }
+};
+
+// Tests that saving and loading a program attached with computer shader.
+TEST_P(ProgramBinaryES31Test, ProgramBinaryWithComputeShader)
+{
+    // We can't run the test if no program binary formats are supported.
+    GLint binaryFormatCount = 0;
+    glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &binaryFormatCount);
+    if (binaryFormatCount == 0)
+    {
+        std::cout << "Test skipped because no program binary formats available." << std::endl;
+        return;
+    }
+
+    const std::string &computeShader =
+        "#version 310 es\n"
+        "layout(local_size_x=4, local_size_y=3, local_size_z=1) in;\n"
+        "uniform block {\n"
+        "    vec2 f;\n"
+        "};\n"
+        "uniform vec2 g;\n"
+        "uniform highp sampler2D tex;\n"
+        "void main() {\n"
+        "    vec4 color = texture(tex, f + g);\n"
+        "}";
+
+    ANGLE_GL_COMPUTE_PROGRAM(program, computeShader);
+
+    // Read back the binary.
+    GLint programLength = 0;
+    glGetProgramiv(program.get(), GL_PROGRAM_BINARY_LENGTH, &programLength);
+    ASSERT_GL_NO_ERROR();
+
+    GLsizei readLength  = 0;
+    GLenum binaryFormat = GL_NONE;
+    std::vector<uint8_t> binary(programLength);
+    glGetProgramBinary(program.get(), programLength, &readLength, &binaryFormat, binary.data());
+    ASSERT_GL_NO_ERROR();
+
+    EXPECT_EQ(static_cast<GLsizei>(programLength), readLength);
+
+    // Load a new program with the binary.
+    ANGLE_GL_BINARY_ES3_PROGRAM(binaryProgram, binary, binaryFormat);
+
+    // TODO(Xinghua): add dispatch support when available.
+
+    ASSERT_GL_NO_ERROR();
+}
+
+ANGLE_INSTANTIATE_TEST(ProgramBinaryES31Test, ES31_D3D11(), ES31_OPENGL(), ES31_OPENGLES());
 
 class ProgramBinaryTransformFeedbackTest : public ANGLETest
 {
@@ -328,25 +449,23 @@ class ProgramBinaryTransformFeedbackTest : public ANGLETest
     {
         ANGLETest::SetUp();
 
-        const std::string vertexShaderSource = SHADER_SOURCE
-        (   #version 300 es\n
+        const std::string vertexShaderSource =
+            R"(#version 300 es
             in vec4 inputAttribute;
             out vec4 outputVarying;
             void main()
             {
                 outputVarying = inputAttribute;
-            }
-        );
+            })";
 
-        const std::string fragmentShaderSource = SHADER_SOURCE
-        (   #version 300 es\n
+        const std::string fragmentShaderSource =
+            R"(#version 300 es
             precision highp float;
             out vec4 outputColor;
             void main()
             {
                 outputColor = vec4(1,0,0,1);
-            }
-        );
+            })";
 
         std::vector<std::string> transformFeedbackVaryings;
         transformFeedbackVaryings.push_back("outputVarying");
@@ -509,50 +628,44 @@ class ProgramBinariesAcrossPlatforms : public testing::TestWithParam<PlatformsWi
 
     GLuint createES2ProgramFromSource()
     {
-        const std::string testVertexShaderSource = SHADER_SOURCE
-        (
-            attribute highp vec4 position;
+        const std::string testVertexShaderSource =
+            R"(attribute highp vec4 position;
 
             void main(void)
             {
                 gl_Position = position;
-            }
-        );
+            })";
 
-        const std::string testFragmentShaderSource = SHADER_SOURCE
-        (
-            void main(void)
+        const std::string testFragmentShaderSource =
+            R"(void main(void)
             {
                 gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            }
-        );
+            })";
 
         return CompileProgram(testVertexShaderSource, testFragmentShaderSource);
     }
 
     GLuint createES3ProgramFromSource()
     {
-        const std::string testVertexShaderSource = SHADER_SOURCE
-        (   #version 300 es\n
+        const std::string testVertexShaderSource =
+            R"(#version 300 es
             precision highp float;
             in highp vec4 position;
 
             void main(void)
             {
                 gl_Position = position;
-            }
-        );
+            })";
 
-        const std::string testFragmentShaderSource = SHADER_SOURCE
-        (   #version 300 es \n
+        const std::string testFragmentShaderSource =
+            R"(#version 300 es
             precision highp float;
             out vec4 out_FragColor;
 
             void main(void)
             {
                 out_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-            }
-        );
+            })";
 
         return CompileProgram(testVertexShaderSource, testFragmentShaderSource);
     }
@@ -583,7 +696,7 @@ class ProgramBinariesAcrossPlatforms : public testing::TestWithParam<PlatformsWi
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glDisableVertexAttribArray(positionLocation);
-        glVertexAttribPointer(positionLocation, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+        glVertexAttribPointer(positionLocation, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 
         EXPECT_PIXEL_EQ(mOSWindow->getWidth() / 2, mOSWindow->getHeight() / 2, 255, 0, 0, 255);
     }
@@ -638,7 +751,7 @@ TEST_P(ProgramBinariesAcrossPlatforms, CreateAndReloadBinary)
         secondRenderer.eglParameters.deviceType == EGL_PLATFORM_ANGLE_DEVICE_TYPE_WARP_ANGLE)
     {
         std::string rendererString = std::string(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-        std::transform(rendererString.begin(), rendererString.end(), rendererString.begin(), ::tolower);
+        angle::ToLower(&rendererString);
 
         auto basicRenderPos = rendererString.find(std::string("microsoft basic render"));
         auto softwareAdapterPos = rendererString.find(std::string("software adapter"));

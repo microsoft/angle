@@ -98,59 +98,41 @@ bool TVersionGLSL::visitInvariantDeclaration(Visit, TIntermInvariantDeclaration 
     return true;
 }
 
+bool TVersionGLSL::visitFunctionPrototype(Visit, TIntermFunctionPrototype *node)
+{
+    const TIntermSequence &params = *(node->getSequence());
+    for (TIntermSequence::const_iterator iter = params.begin(); iter != params.end(); ++iter)
+    {
+        const TIntermTyped *param = (*iter)->getAsTyped();
+        if (param->isArray())
+        {
+            TQualifier qualifier = param->getQualifier();
+            if ((qualifier == EvqOut) || (qualifier == EvqInOut))
+            {
+                ensureVersionIsAtLeast(GLSL_VERSION_120);
+                break;
+            }
+        }
+    }
+    // Fully processed. No need to visit children.
+    return false;
+}
+
 bool TVersionGLSL::visitAggregate(Visit, TIntermAggregate *node)
 {
-    bool visitChildren = true;
-
-    switch (node->getOp())
+    if (node->getOp() == EOpConstruct && node->getType().isMatrix())
     {
-        case EOpParameters:
+        const TIntermSequence &sequence = *(node->getSequence());
+        if (sequence.size() == 1)
         {
-            const TIntermSequence &params = *(node->getSequence());
-            for (TIntermSequence::const_iterator iter = params.begin(); iter != params.end();
-                 ++iter)
+            TIntermTyped *typed = sequence.front()->getAsTyped();
+            if (typed && typed->isMatrix())
             {
-                const TIntermTyped *param = (*iter)->getAsTyped();
-                if (param->isArray())
-                {
-                    TQualifier qualifier = param->getQualifier();
-                    if ((qualifier == EvqOut) || (qualifier == EvqInOut))
-                    {
-                        ensureVersionIsAtLeast(GLSL_VERSION_120);
-                        break;
-                    }
-                }
+                ensureVersionIsAtLeast(GLSL_VERSION_120);
             }
-            // Fully processed. No need to visit children.
-            visitChildren = false;
-            break;
         }
-        case EOpConstructMat2:
-        case EOpConstructMat2x3:
-        case EOpConstructMat2x4:
-        case EOpConstructMat3x2:
-        case EOpConstructMat3:
-        case EOpConstructMat3x4:
-        case EOpConstructMat4x2:
-        case EOpConstructMat4x3:
-        case EOpConstructMat4:
-        {
-            const TIntermSequence &sequence = *(node->getSequence());
-            if (sequence.size() == 1)
-            {
-                TIntermTyped *typed = sequence.front()->getAsTyped();
-                if (typed && typed->isMatrix())
-                {
-                    ensureVersionIsAtLeast(GLSL_VERSION_120);
-                }
-            }
-            break;
-        }
-        default:
-            break;
     }
-
-    return visitChildren;
+    return true;
 }
 
 void TVersionGLSL::ensureVersionIsAtLeast(int version)

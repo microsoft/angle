@@ -6,6 +6,7 @@
 
 #include "compiler/translator/ValidateGlobalInitializer.h"
 
+#include "compiler/translator/IntermTraverse.h"
 #include "compiler/translator/ParseContext.h"
 
 namespace sh
@@ -72,8 +73,8 @@ bool ValidateGlobalInitializerTraverser::visitAggregate(Visit visit, TIntermAggr
     // Disallow calls to user-defined functions and texture lookup functions in global variable
     // initializers.
     // This is done simply by disabling all function calls - built-in math functions don't use
-    // EOpFunctionCall.
-    if (node->getOp() == EOpFunctionCall)
+    // the function call ops.
+    if (node->isFunctionCall())
     {
         mIsValid = false;
     }

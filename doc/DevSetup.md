@@ -15,10 +15,12 @@ On all platforms:
 
 On Windows:
 
- * [Visual Studio Community 2015 Update 2](http://www.visualstudio.com/downloads/download-visual-studio-vs)
-     Required to build ANGLE on Windows and for the packaged Windows 8.1 SDK.
+ * [Visual Studio Community 2015 Update 3](https://www.visualstudio.com/en-us/news/releasenotes/vs2015-update3-vs)
+   * Required to build ANGLE on Windows and for the packaged Windows 10 SDK. Note: Chrome is in the process of upgrading to Visual Studio 2017. ANGLE will switch over once Chrome does.
+ * [Windows 10 Standalone SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk)
+    * Comes with additional features that aid development, such as the Debug runtime for D3D11. Required for the D3D Compiler DLL.
  * [Cygwin's Bison, flex, and patch](https://cygwin.com/setup-x86_64.exe) (optional)
-     This is only required if you need to modify GLSL ES grammar files (`glslang.l` and `glslang.y` under `src/compiler/translator`, or `ExpressionParser.y` and `Tokenizer.l` in `src/compiler/preprocessor`).
+    * This is only required if you need to modify GLSL ES grammar files (`glslang.l` and `glslang.y` under `src/compiler/translator`, or `ExpressionParser.y` and `Tokenizer.l` in `src/compiler/preprocessor`).
      Use the latest versions of bison, flex and patch from the 64-bit cygwin distribution.
 
 On Linux:
@@ -38,7 +40,6 @@ Set the following environment variables as needed:
 On Windows:
 
  * `GYP_GENERATORS` to `msvs` (other options include `ninja` and `make`)
- * `GYP_DEFINES` to `windows_sdk_path=YOUR_WIN_SDK_INSTALL_DIR` if you did not install the Windows 8.1 SDK in the default location.
  * `GYP_MSVS_VERSION` to `2015`
 
 On Linux and MacOS:
@@ -97,13 +98,22 @@ use_goma = true               # Remove this if you don't have goma
 ```
 
 These ANGLE targets are supported:
-`ninja -C out/Release translator libEGL libGLESv2 angle_unittests angle_end2end_tests angle_deqp_gles2_tests angle_deqp_gles3_tests angle_deqp_egl_tests`
+`ninja -C out/Release translator libEGL libGLESv2 angle_unittests angle_end2end_tests angle_white_box_tests angle_deqp_gles2_tests angle_deqp_gles3_tests angle_deqp_egl_tests`
 In order to run ANGLE tests, prepend `bin/run_` to the test name, for example: `./out/Release/bin/run_angle_unittests`.
 Additional details are in [Android Test Instructions](https://chromium.googlesource.com/chromium/src/+/master/docs/android_test_instructions.md).
 
+Note: Running the tests not using the test runner is tricky, but is necessary in order to get a complete TestResults.qpa from the dEQP tests (since the runner shards the tests, only the results of the last shard will be available when using the test runner). First, use the runner to install the APK, test data and test expectations on the device. After the tests start running, the test runner can be stopped with Ctrl+C. Then, run
+```
+adb shell am start -a android.intent.action.MAIN -n org.chromium.native_test/.NativeUnitTestNativeActivity -e org.chromium.native_test.NativeTest.StdoutFile /sdcard/chromium_tests_root/out.txt
+```
+After the tests finish, get the results with
+```
+adb pull /sdcard/chromium_tests_root/third_party/deqp/src/data/TestResults.qpa .
+```
+
 In order to run GPU telemetry tests, build `chrome_public_apk` target. Then follow [GPU Testing](http://www.chromium.org/developers/testing/gpu-testing#TOC-Running-the-GPU-Tests-Locally) doc, using `--browser=android-chromium` argument. Make sure to set your `CHROMIUM_OUT_DIR` environment variable, so that your browser is found, otherwise the stock one will run.
 
-Also, follow [How to build ANGLE in Chromium for dev](doc/BuildingAngleForChromiumDevelopment.md) to work with Top of Tree ANGLE in Chromium.
+Also, follow [How to build ANGLE in Chromium for dev](https://chromium.googlesource.com/angle/angle/+/HEAD/doc/BuildingAngleForChromiumDevelopment.md) to work with Top of Tree ANGLE in Chromium.
 
 ## Application Development with ANGLE
 This sections describes how to use ANGLE to build an OpenGL ES application.

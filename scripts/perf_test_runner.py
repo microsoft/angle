@@ -19,6 +19,8 @@ base_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file_
 
 # You might have to re-order these to find the specific version you want.
 perftests_paths = [
+    os.path.join('src', 'tests', 'Release_x64'),
+    os.path.join('src', 'tests', 'Release_Win32'),
     os.path.join('out', 'Release_x64'),
     os.path.join('out', 'Release'),
     os.path.join('gyp', 'Release_x64'),
@@ -26,8 +28,9 @@ perftests_paths = [
 ]
 metric = 'score'
 
-# TODO(jmadill): Linux binaries
-binary_name = 'angle_perftests.exe'
+binary_name = 'angle_perftests'
+if sys.platform == 'win32':
+    binary_name += '.exe'
 
 scores = []
 
@@ -81,10 +84,13 @@ for path in perftests_paths:
 perftests_path = newest_binary
 
 if perftests_path == None or not os.path.exists(perftests_path):
-    print("Cannot find Release angle_perftests.exe!")
+    print('Cannot find Release %s!' % binary_name)
     sys.exit(1)
 
-test_name = "DrawCallPerfBenchmark.Run/d3d11_null"
+if sys.platform == 'win32':
+    test_name = 'DrawCallPerfBenchmark.Run/d3d11_null'
+else:
+    test_name = 'DrawCallPerfBenchmark.Run/gl'
 
 if len(sys.argv) >= 2:
     test_name = sys.argv[1]
@@ -94,7 +100,8 @@ print('Test name: ' + test_name)
 
 # Infinite loop of running the tests.
 while True:
-    output = subprocess.check_output([perftests_path, '--gtest_filter=' + test_name])
+    process = subprocess.Popen([perftests_path, '--gtest_filter=' + test_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, err = process.communicate()
 
     start_index = output.find(metric + "=")
     if start_index == -1:

@@ -19,12 +19,14 @@
             'includes': [ '../gyp/common_defines.gypi', ],
             'dependencies':
             [
+                '<(angle_path)/src/angle.gyp:angle_common',
                 '<(angle_path)/src/angle.gyp:libEGL',
                 '<(angle_path)/src/angle.gyp:libGLESv2',
                 '<(angle_path)/util/util.gyp:angle_util',
             ],
             'export_dependent_settings':
             [
+                '<(angle_path)/src/angle.gyp:angle_common',
                 '<(angle_path)/util/util.gyp:angle_util',
             ],
             'include_dirs':
@@ -121,7 +123,15 @@
                 }
             ]
         },
-
+        
+        {
+            'target_name': 'multiview',
+            'type': 'executable',
+            'dependencies': [ 'sample_util' ],
+            'includes': [ '../gyp/common_defines.gypi', ],
+            'sources': [ 'multiview/Multiview.cpp', ],
+        },
+        
         {
             'target_name': 'particle_system',
             'type': 'executable',
