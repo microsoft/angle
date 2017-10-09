@@ -564,6 +564,14 @@ Renderer11::Renderer11(egl::Display *display)
             EGL_EXPERIMENTAL_PRESENT_PATH_ANGLE, EGL_EXPERIMENTAL_PRESENT_PATH_COPY_ANGLE));
         mPresentPathFastEnabled = (presentPath == EGL_EXPERIMENTAL_PRESENT_PATH_FAST_ANGLE);
 
+        if (attributes.contains(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER))
+        {
+            ERR() << "EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER is deprecated, please use "
+                     "EGL_EXPERIMENTAL_PRESENT_PATH_ANGLE.";
+
+            mPresentPathFastEnabled = (static_cast<EGLenum>(attributes.get(EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER)) == EGL_TRUE);
+        }
+
         mCreateDebugDevice = ShouldUseDebugLayers(attributes);
     }
     else if (display->getPlatform() == EGL_PLATFORM_DEVICE_EXT)

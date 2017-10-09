@@ -89,6 +89,7 @@ HRESULT NativeWindow11WinRT::createSwapChain(ID3D11Device *device,
                                              DXGI_FORMAT format,
                                              UINT width,
                                              UINT height,
+                                             UINT samples,
                                              IDXGISwapChain **swapChain)
 {
     if (mImpl)

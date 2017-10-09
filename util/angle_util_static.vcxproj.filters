@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\win32">
+      <UniqueIdentifier>{789FEF16-EFE7-512E-F91B-DF7E0D72FB79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\win32">
+      <UniqueIdentifier>{789FEF16-EFE7-512E-F91B-DF7E0D72FB79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\win32">
+      <UniqueIdentifier>{789FEF16-EFE7-512E-F91B-DF7E0D72FB79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\win32">
+      <UniqueIdentifier>{789FEF16-EFE7-512E-F91B-DF7E0D72FB79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\win32">
+      <UniqueIdentifier>{789FEF16-EFE7-512E-F91B-DF7E0D72FB79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="com_utils.h"/>
+    <ClInclude Include="keyboard.h"/>
+    <ClCompile Include="geometry_utils.cpp"/>
+    <ClInclude Include="geometry_utils.h"/>
+    <ClInclude Include="mouse.h"/>
+    <ClCompile Include="random_utils.cpp"/>
+    <ClInclude Include="random_utils.h"/>
+    <ClCompile Include="shader_utils.cpp"/>
+    <ClInclude Include="shader_utils.h"/>
+    <ClInclude Include="system_utils.h"/>
+    <ClInclude Include="Event.h"/>
+    <ClCompile Include="EGLWindow.cpp"/>
+    <ClInclude Include="EGLWindow.h"/>
+    <ClCompile Include="Matrix.cpp"/>
+    <ClInclude Include="Matrix.h"/>
+    <ClInclude Include="OSPixmap.h"/>
+    <ClCompile Include="OSWindow.cpp"/>
+    <ClInclude Include="OSWindow.h"/>
+    <ClInclude Include="Timer.h"/>
+    <ClCompile Include="windows\win32\Win32_system_utils.cpp">
+      <Filter>windows\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\win32\Win32Pixmap.cpp">
+      <Filter>windows\win32</Filter>
+    </ClCompile>
+    <ClInclude Include="windows\win32\Win32Pixmap.h">
+      <Filter>windows\win32</Filter>
+    </ClInclude>
+    <ClCompile Include="windows\win32\Win32Window.cpp">
+      <Filter>windows\win32</Filter>
+    </ClCompile>
+    <ClInclude Include="windows\win32\Win32Window.h">
+      <Filter>windows\win32</Filter>
+    </ClInclude>
+    <ClCompile Include="windows\Windows_system_utils.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\WindowsTimer.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClInclude Include="windows\WindowsTimer.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <None Include="util.gyp"/>
+  </ItemGroup>
+</Project>

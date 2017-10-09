@@ -21,8 +21,9 @@
 #include <cfgmgr32.h>
 #include <setupapi.h>
 #elif defined(GPU_INFO_USE_DXGI)
+#include <initguid.h>
 #include <dxgi.h>
-#include <d3d10.h>
+#include <d3d11.h>
 #else
 #error "SystemInfo_win needs at least GPU_INFO_USE_SETUPAPI or GPU_INFO_USE_DXGI defined"
 #endif
@@ -36,6 +37,7 @@ namespace angle
 namespace
 {
 
+#ifndef ANGLE_ENABLE_WINDOWS_STORE
 // Returns the CM device ID of the primary GPU.
 std::string GetPrimaryDisplayDeviceId()
 {
@@ -52,6 +54,7 @@ std::string GetPrimaryDisplayDeviceId()
 
     return "";
 }
+#endif // ANGLE_ENABLE_WINDOWS_STORE
 
 #if defined(GPU_INFO_USE_SETUPAPI)
 
@@ -143,7 +146,11 @@ bool GetDevicesFromRegistry(std::vector<GPUDeviceInfo> *devices)
 bool GetDevicesFromDXGI(std::vector<GPUDeviceInfo> *devices)
 {
     IDXGIFactory *factory;
+#ifndef ANGLE_ENABLE_WINDOWS_STORE
     if (!SUCCEEDED(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void **>(&factory))))
+#else
+    if (!SUCCEEDED(CreateDXGIFactory1(__uuidof(IDXGIFactory), reinterpret_cast<void **>(&factory))))
+#endif
     {
         return false;
     }
@@ -156,7 +163,7 @@ bool GetDevicesFromDXGI(std::vector<GPUDeviceInfo> *devices)
         adapter->GetDesc(&desc);
 
         LARGE_INTEGER umdVersion;
-        if (adapter->CheckInterfaceSupport(__uuidof(ID3D10Device), &umdVersion) ==
+        if (adapter->CheckInterfaceSupport(__uuidof(ID3D11Device), &umdVersion) ==
             DXGI_ERROR_UNSUPPORTED)
         {
             adapter->Release();
@@ -196,8 +203,10 @@ bool GetDevicesFromDXGI(std::vector<GPUDeviceInfo> *devices)
 
 bool GetSystemInfo(SystemInfo *info)
 {
+#ifndef ANGLE_ENABLE_WINDOWS_STORE
     // Get the CM device ID first so that it is returned even in error cases.
     info->primaryDisplayDeviceId = GetPrimaryDisplayDeviceId();
+#endif // ANGLE_ENABLE_WINDOWS_STORE
 
 #if defined(GPU_INFO_USE_SETUPAPI)
     if (!GetDevicesFromRegistry(&info->gpus))
@@ -241,9 +250,13 @@ bool GetSystemInfo(SystemInfo *info)
     }
     ASSERT(foundPrimary);
 
+#ifndef ANGLE_ENABLE_WINDOWS_STORE
     // nvd3d9wrap.dll is loaded into all processes when Optimus is enabled.
     HMODULE nvd3d9wrap = GetModuleHandleW(L"nvd3d9wrap.dll");
     info->isOptimus    = nvd3d9wrap != nullptr;
+#else
+    info->isOptimus = false;
+#endif // ANGLE_ENABLE_WINDOWS_STORE
 
     return true;
 }

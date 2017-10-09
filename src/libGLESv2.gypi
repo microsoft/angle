@@ -840,7 +840,7 @@
             # It also links against the right libs. This is useful for the tests, which
             # have special D3D11 code for Debug runtime error message handling.
             'target_name': 'libANGLE_d3d11_config',
-            'type': 'none',
+            'type' : 'shared_library',
             'conditions':
             [
                 ['angle_enable_d3d11==1',
@@ -879,7 +879,7 @@
 
         {
             'target_name': 'libANGLE_renderer_config',
-            'type': 'none',
+            'type': 'shared_library',
             'direct_dependent_settings':
             {
                 'conditions':
@@ -921,6 +921,13 @@
                     }],
                 ],
             },
+            'conditions':
+            [
+                ['angle_build_winrt==1',
+                {
+                    'type' : 'shared_library',
+                }],
+            ],
         },
 
         {
@@ -1226,6 +1233,13 @@
                 ['angle_build_winrt==1',
                 {
                     'msvs_requires_importlibrary' : 'true',
+                    'msvs_settings':
+                    {
+                        'VCCLCompilerTool':
+                        {                             
+                            'CompileAsWinRT': 'true',
+                        },
+                    },
                 }],
             ],
         },

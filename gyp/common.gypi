@@ -77,14 +77,18 @@
                 'msvs_application_type_revision' : '<(angle_build_winrt_app_type_revision)',
                 'msvs_target_platform_version' : '<(angle_build_winrt_target_platform_ver)',
             }],
+            ['angle_build_winrt==0 and OS=="win"',
+            {
+                # Require the version of the Windows 10 SDK installed on the local machine.
+                'msvs_windows_sdk_version': 'v10.0',
+            }],
         ],
         'configurations':
         {
             'Common_Base':
             {
                 'abstract': 1,
-                # Require the version of the Windows 10 SDK installed on the local machine.
-                'msvs_windows_sdk_version': 'v10.0',
+
                 'msvs_configuration_attributes':
                 {
                     'OutputDirectory': '$(SolutionDir)$(ConfigurationName)_$(Platform)',
@@ -116,8 +120,17 @@
                                 # Use '/Wv:18' to avoid WRL warnings in VS2015 Update 3
                                 # Use /Gw and /Zc:threadSafeInit to avoid
                                 # LTCG-related crashes with VS2015 Update 3
-                                'AdditionalOptions': ['/Wv:18', '/Gw', '/Zc:threadSafeInit-'],
-                            }],
+                                'AdditionalOptions': ['/Wv:18', '/Gw', '/Zc:threadSafeInit-', '/IGNORE:4264'],
+                                
+                                # Enabled for now due to possible bug in WRL:
+                                #     error C2220: warning treated as error - no 'object' file generated 
+                                #     C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\vccorlib.h(1333)
+                                #     note: This diagnostic occurred in the compiler generated function 'long Platform::String::__abi_Platform_IDisposable____abi_<Dispose>(void)'
+                                #     5>C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\vccorlib.h(1333):
+                                'ExceptionHandling': '1',
+                                
+                                'CompileAsWinRT': 'false',
+                             }],
                         ],
                     },
                     'VCLinkerTool':

@@ -345,7 +345,7 @@
             [
                 {
                     'destination': '<(angle_gen_path)',
-                    'files': [ 'copy_compiler_dll.bat', 'commit_id.bat' ],
+                    'files': [ 'copy_compiler_dll.bat', '<(angle_id_script_base)' ],
                 },
             ],
             'conditions':
@@ -375,12 +375,12 @@
                             'action_name': 'Generate ANGLE Commit ID Header',
                             'message': 'Generating ANGLE Commit ID',
                             # reference the git index as an input, so we rebuild on changes to the index
-                            'inputs': [ '<(angle_gen_path)/commit_id.bat', '<(angle_path)/.git/index' ],
+                            'inputs': [ '<(angle_id_script)', '<(angle_path)/.git/index' ],
                             'outputs': [ '<(angle_id_header)' ],
                             'msvs_cygwin_shell': 0,
                             'action':
                             [
-                                '"<(angle_gen_path)/commit_id.bat"', 'gen', '<(angle_path)', '<(angle_id_header)'
+                                'python', '<(angle_id_script)', 'gen', '<(angle_path)', '<(angle_id_header)'
                             ],
                         },
                     ],

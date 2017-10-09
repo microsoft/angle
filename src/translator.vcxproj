@@ -24,6 +24,7 @@
     <RootNamespace>translator</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
   <PropertyGroup Label="Configuration">
@@ -53,11 +54,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
@@ -65,7 +65,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;ANGLE_X86_CPU;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -90,18 +90,17 @@
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;ANGLE_X86_CPU;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
@@ -109,7 +108,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;ANGLE_X64_CPU;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -134,17 +133,16 @@
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;ANGLE_X64_CPU;_DEBUG;ANGLE_ENABLE_DEBUG_ANNOTATIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
@@ -152,7 +150,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;ANGLE_X86_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -177,17 +175,16 @@
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;ANGLE_X86_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
-      <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4100;4127;4718;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>false</ExceptionHandling>
@@ -195,7 +192,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;NOMINMAX;ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;ANGLE_X64_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -220,9 +217,9 @@
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\numerics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\include;$(OutDir)obj\global_intermediate\angle;..\src;..\src\common\third_party\base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Culture>0x0409</Culture>
-      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ANGLE_STANDALONE_BUILD;ANGLE_ENABLE_ESSL;ANGLE_ENABLE_GLSL;ANGLE_ENABLE_HLSL;ANGLE_X64_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -251,9 +248,12 @@
     <ClInclude Include="compiler\translator\BreakVariableAliasingInInnerLoops.h"/>
     <ClInclude Include="compiler\translator\Cache.h"/>
     <ClInclude Include="compiler\translator\CallDAG.h"/>
+    <ClInclude Include="compiler\translator\ClampPointSize.h"/>
+    <ClInclude Include="compiler\translator\CollectVariables.h"/>
     <ClInclude Include="compiler\translator\Common.h"/>
     <ClInclude Include="compiler\translator\Compiler.h"/>
     <ClInclude Include="compiler\translator\ConstantUnion.h"/>
+    <ClInclude Include="compiler\translator\DeclareAndInitBuiltinsForInstancedMultiview.h"/>
     <ClInclude Include="compiler\translator\DeferGlobalInitializers.h"/>
     <ClInclude Include="compiler\translator\Diagnostics.h"/>
     <ClInclude Include="compiler\translator\DirectiveHandler.h"/>
@@ -261,33 +261,46 @@
     <ClInclude Include="compiler\translator\EmulatePrecision.h"/>
     <ClInclude Include="compiler\translator\ExpandIntegerPowExpressions.h"/>
     <ClInclude Include="compiler\translator\ExtensionBehavior.h"/>
+    <ClInclude Include="compiler\translator\FindMain.h"/>
+    <ClInclude Include="compiler\translator\FindSymbolNode.h"/>
     <ClInclude Include="compiler\translator\FlagStd140Structs.h"/>
     <ClInclude Include="compiler\translator\HashNames.h"/>
     <ClInclude Include="compiler\translator\InfoSink.h"/>
     <ClInclude Include="compiler\translator\Initialize.h"/>
     <ClInclude Include="compiler\translator\InitializeDll.h"/>
     <ClInclude Include="compiler\translator\InitializeGlobals.h"/>
-    <ClInclude Include="compiler\translator\InitializeParseContext.h"/>
     <ClInclude Include="compiler\translator\InitializeVariables.h"/>
     <ClInclude Include="compiler\translator\IntermNode.h"/>
-    <ClInclude Include="compiler\translator\Intermediate.h"/>
+    <ClInclude Include="compiler\translator\IntermNodePatternMatcher.h"/>
+    <ClInclude Include="compiler\translator\IntermNode_util.h"/>
+    <ClInclude Include="compiler\translator\IntermTraverse.h"/>
+    <ClInclude Include="compiler\translator\IsASTDepthBelowLimit.h"/>
     <ClInclude Include="compiler\translator\NodeSearch.h"/>
     <ClInclude Include="compiler\translator\Operator.h"/>
+    <ClInclude Include="compiler\translator\OutputTree.h"/>
+    <ClInclude Include="compiler\translator\ParamType.h"/>
     <ClInclude Include="compiler\translator\ParseContext.h"/>
     <ClInclude Include="compiler\translator\PoolAlloc.h"/>
     <ClInclude Include="compiler\translator\Pragma.h"/>
     <ClInclude Include="compiler\translator\PruneEmptyDeclarations.h"/>
+    <ClInclude Include="compiler\translator\PrunePureLiteralStatements.h"/>
     <ClInclude Include="compiler\translator\QualifierTypes.h"/>
     <ClInclude Include="compiler\translator\RecordConstantPrecision.h"/>
     <ClInclude Include="compiler\translator\RegenerateStructNames.h"/>
+    <ClInclude Include="compiler\translator\RemoveArrayLengthMethod.h"/>
     <ClInclude Include="compiler\translator\RemoveInvariantDeclaration.h"/>
     <ClInclude Include="compiler\translator\RemovePow.h"/>
     <ClInclude Include="compiler\translator\RewriteDoWhile.h"/>
     <ClInclude Include="compiler\translator\RewriteTexelFetchOffset.h"/>
     <ClInclude Include="compiler\translator\RewriteUnaryMinusOperatorFloat.h"/>
     <ClInclude Include="compiler\translator\RewriteUnaryMinusOperatorInt.h"/>
+    <ClInclude Include="compiler\translator\RunAtTheEndOfShader.h"/>
     <ClInclude Include="compiler\translator\ScalarizeVecAndMatConstructorArgs.h"/>
     <ClInclude Include="compiler\translator\SearchSymbol.h"/>
+    <ClInclude Include="compiler\translator\SeparateDeclarations.h"/>
+    <ClInclude Include="compiler\translator\Severity.h"/>
+    <ClInclude Include="compiler\translator\SimplifyLoopConditions.h"/>
+    <ClInclude Include="compiler\translator\SplitSequenceOperator.h"/>
     <ClInclude Include="compiler\translator\SymbolTable.h"/>
     <ClInclude Include="compiler\translator\Types.h"/>
     <ClInclude Include="compiler\translator\UnfoldShortCircuitAST.h"/>
@@ -297,7 +310,7 @@
     <ClInclude Include="compiler\translator\ValidateMaxParameters.h"/>
     <ClInclude Include="compiler\translator\ValidateOutputs.h"/>
     <ClInclude Include="compiler\translator\ValidateSwitch.h"/>
-    <ClInclude Include="compiler\translator\VariableInfo.h"/>
+    <ClInclude Include="compiler\translator\ValidateVaryingLocations.h"/>
     <ClInclude Include="compiler\translator\VariablePacker.h"/>
     <ClInclude Include="compiler\translator\blocklayout.h"/>
     <ClInclude Include="compiler\translator\glslang.h"/>
@@ -318,16 +331,12 @@
     <ClInclude Include="compiler\translator\ASTMetadataHLSL.h"/>
     <ClInclude Include="compiler\translator\blocklayoutHLSL.h"/>
     <ClInclude Include="compiler\translator\BuiltInFunctionEmulatorHLSL.h"/>
-    <ClInclude Include="compiler\translator\IntermNodePatternMatcher.h"/>
     <ClInclude Include="compiler\translator\OutputHLSL.h"/>
     <ClInclude Include="compiler\translator\RemoveDynamicIndexing.h"/>
     <ClInclude Include="compiler\translator\RemoveSwitchFallThrough.h"/>
     <ClInclude Include="compiler\translator\RewriteElseBlocks.h"/>
     <ClInclude Include="compiler\translator\SeparateArrayInitialization.h"/>
-    <ClInclude Include="compiler\translator\SeparateDeclarations.h"/>
     <ClInclude Include="compiler\translator\SeparateExpressionsReturningArrays.h"/>
-    <ClInclude Include="compiler\translator\SimplifyLoopConditions.h"/>
-    <ClInclude Include="compiler\translator\SplitSequenceOperator.h"/>
     <ClInclude Include="compiler\translator\StructureHLSL.h"/>
     <ClInclude Include="compiler\translator\TextureFunctionHLSL.h"/>
     <ClInclude Include="compiler\translator\TranslatorHLSL.h"/>
@@ -341,41 +350,56 @@
     <ClCompile Include="compiler\translator\BreakVariableAliasingInInnerLoops.cpp"/>
     <ClCompile Include="compiler\translator\Cache.cpp"/>
     <ClCompile Include="compiler\translator\CallDAG.cpp"/>
+    <ClCompile Include="compiler\translator\ClampPointSize.cpp"/>
     <ClCompile Include="compiler\translator\CodeGen.cpp"/>
+    <ClCompile Include="compiler\translator\CollectVariables.cpp"/>
     <ClCompile Include="compiler\translator\Compiler.cpp"/>
     <ClCompile Include="compiler\translator\ConstantUnion.cpp"/>
+    <ClCompile Include="compiler\translator\DeclareAndInitBuiltinsForInstancedMultiview.cpp"/>
     <ClCompile Include="compiler\translator\DeferGlobalInitializers.cpp"/>
     <ClCompile Include="compiler\translator\Diagnostics.cpp"/>
     <ClCompile Include="compiler\translator\DirectiveHandler.cpp"/>
     <ClCompile Include="compiler\translator\EmulateGLFragColorBroadcast.cpp"/>
     <ClCompile Include="compiler\translator\EmulatePrecision.cpp"/>
     <ClCompile Include="compiler\translator\ExpandIntegerPowExpressions.cpp"/>
+    <ClCompile Include="compiler\translator\ExtensionBehavior.cpp"/>
+    <ClCompile Include="compiler\translator\FindMain.cpp"/>
+    <ClCompile Include="compiler\translator\FindSymbolNode.cpp"/>
     <ClCompile Include="compiler\translator\FlagStd140Structs.cpp"/>
+    <ClCompile Include="compiler\translator\HashNames.cpp"/>
     <ClCompile Include="compiler\translator\InfoSink.cpp"/>
     <ClCompile Include="compiler\translator\Initialize.cpp"/>
     <ClCompile Include="compiler\translator\InitializeDll.cpp"/>
-    <ClCompile Include="compiler\translator\InitializeParseContext.cpp"/>
     <ClCompile Include="compiler\translator\InitializeVariables.cpp"/>
     <ClCompile Include="compiler\translator\IntermNode.cpp"/>
+    <ClCompile Include="compiler\translator\IntermNodePatternMatcher.cpp"/>
+    <ClCompile Include="compiler\translator\IntermNode_util.cpp"/>
     <ClCompile Include="compiler\translator\IntermTraverse.cpp"/>
-    <ClCompile Include="compiler\translator\Intermediate.cpp"/>
+    <ClCompile Include="compiler\translator\IsASTDepthBelowLimit.cpp"/>
     <ClCompile Include="compiler\translator\Operator.cpp"/>
+    <ClCompile Include="compiler\translator\OutputTree.cpp"/>
     <ClCompile Include="compiler\translator\ParseContext.cpp"/>
     <ClCompile Include="compiler\translator\PoolAlloc.cpp"/>
     <ClCompile Include="compiler\translator\PruneEmptyDeclarations.cpp"/>
+    <ClCompile Include="compiler\translator\PrunePureLiteralStatements.cpp"/>
     <ClCompile Include="compiler\translator\QualifierTypes.cpp"/>
     <ClCompile Include="compiler\translator\RecordConstantPrecision.cpp"/>
     <ClCompile Include="compiler\translator\RegenerateStructNames.cpp"/>
+    <ClCompile Include="compiler\translator\RemoveArrayLengthMethod.cpp"/>
     <ClCompile Include="compiler\translator\RemoveInvariantDeclaration.cpp"/>
     <ClCompile Include="compiler\translator\RemovePow.cpp"/>
     <ClCompile Include="compiler\translator\RewriteDoWhile.cpp"/>
     <ClCompile Include="compiler\translator\RewriteTexelFetchOffset.cpp"/>
     <ClCompile Include="compiler\translator\RewriteUnaryMinusOperatorFloat.cpp"/>
     <ClCompile Include="compiler\translator\RewriteUnaryMinusOperatorInt.cpp"/>
+    <ClCompile Include="compiler\translator\RunAtTheEndOfShader.cpp"/>
     <ClCompile Include="compiler\translator\ScalarizeVecAndMatConstructorArgs.cpp"/>
     <ClCompile Include="compiler\translator\SearchSymbol.cpp"/>
+    <ClCompile Include="compiler\translator\SeparateDeclarations.cpp"/>
     <ClCompile Include="compiler\translator\ShaderLang.cpp"/>
     <ClCompile Include="compiler\translator\ShaderVars.cpp"/>
+    <ClCompile Include="compiler\translator\SimplifyLoopConditions.cpp"/>
+    <ClCompile Include="compiler\translator\SplitSequenceOperator.cpp"/>
     <ClCompile Include="compiler\translator\SymbolTable.cpp"/>
     <ClCompile Include="compiler\translator\Types.cpp"/>
     <ClCompile Include="compiler\translator\UnfoldShortCircuitAST.cpp"/>
@@ -385,12 +409,11 @@
     <ClCompile Include="compiler\translator\ValidateMaxParameters.cpp"/>
     <ClCompile Include="compiler\translator\ValidateOutputs.cpp"/>
     <ClCompile Include="compiler\translator\ValidateSwitch.cpp"/>
-    <ClCompile Include="compiler\translator\VariableInfo.cpp"/>
+    <ClCompile Include="compiler\translator\ValidateVaryingLocations.cpp"/>
     <ClCompile Include="compiler\translator\VariablePacker.cpp"/>
     <ClCompile Include="compiler\translator\blocklayout.cpp"/>
     <ClCompile Include="compiler\translator\glslang_lex.cpp"/>
     <ClCompile Include="compiler\translator\glslang_tab.cpp"/>
-    <ClCompile Include="compiler\translator\intermOut.cpp"/>
     <ClCompile Include="compiler\translator\util.cpp"/>
     <ClCompile Include="third_party\compiler\ArrayBoundsClamper.cpp"/>
     <ClCompile Include="compiler\translator\OutputESSL.cpp"/>
@@ -406,22 +429,19 @@
     <ClCompile Include="compiler\translator\ASTMetadataHLSL.cpp"/>
     <ClCompile Include="compiler\translator\blocklayoutHLSL.cpp"/>
     <ClCompile Include="compiler\translator\BuiltInFunctionEmulatorHLSL.cpp"/>
-    <ClCompile Include="compiler\translator\IntermNodePatternMatcher.cpp"/>
     <ClCompile Include="compiler\translator\OutputHLSL.cpp"/>
     <ClCompile Include="compiler\translator\RemoveDynamicIndexing.cpp"/>
     <ClCompile Include="compiler\translator\RemoveSwitchFallThrough.cpp"/>
     <ClCompile Include="compiler\translator\RewriteElseBlocks.cpp"/>
     <ClCompile Include="compiler\translator\SeparateArrayInitialization.cpp"/>
-    <ClCompile Include="compiler\translator\SeparateDeclarations.cpp"/>
     <ClCompile Include="compiler\translator\SeparateExpressionsReturningArrays.cpp"/>
-    <ClCompile Include="compiler\translator\SimplifyLoopConditions.cpp"/>
-    <ClCompile Include="compiler\translator\SplitSequenceOperator.cpp"/>
     <ClCompile Include="compiler\translator\StructureHLSL.cpp"/>
     <ClCompile Include="compiler\translator\TextureFunctionHLSL.cpp"/>
     <ClCompile Include="compiler\translator\TranslatorHLSL.cpp"/>
     <ClCompile Include="compiler\translator\UnfoldShortCircuitToIf.cpp"/>
     <ClCompile Include="compiler\translator\UniformHLSL.cpp"/>
     <ClCompile Include="compiler\translator\UtilsHLSL.cpp"/>
+    <ClCompile Include="compiler\translator\emulated_builtin_functions_hlsl_autogen.cpp"/>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
   <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>

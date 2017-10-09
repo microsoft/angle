@@ -58,11 +58,11 @@
     <Filter Include="common\third_party">
       <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common\third_party\numerics">
-      <UniqueIdentifier>{168745A4-2F0D-B7A8-2F10-9299025EF8C6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="common\third_party\numerics\base">
+    <Filter Include="common\third_party\base">
       <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
     </Filter>
     <Filter Include="common">
       <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
@@ -70,13 +70,52 @@
     <Filter Include="common\third_party">
       <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common\third_party\numerics">
-      <UniqueIdentifier>{168745A4-2F0D-B7A8-2F10-9299025EF8C6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="common\third_party\numerics\base">
+    <Filter Include="common\third_party\base">
       <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common\third_party\numerics\base\numerics">
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase\containers">
+      <UniqueIdentifier>{850CC7C6-4057-8728-DB1E-8B89B1880B8C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base">
+      <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base">
+      <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base">
+      <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase\numerics">
       <UniqueIdentifier>{168745A4-2F0D-B7A8-2F10-9299025EF8C6}</UniqueIdentifier>
     </Filter>
     <Filter Include="common">
@@ -85,13 +124,13 @@
     <Filter Include="common\third_party">
       <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common\third_party\numerics">
-      <UniqueIdentifier>{168745A4-2F0D-B7A8-2F10-9299025EF8C6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="common\third_party\numerics\base">
+    <Filter Include="common\third_party\base">
       <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common\third_party\numerics\base\numerics">
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase\numerics">
       <UniqueIdentifier>{168745A4-2F0D-B7A8-2F10-9299025EF8C6}</UniqueIdentifier>
     </Filter>
     <Filter Include="common">
@@ -100,13 +139,13 @@
     <Filter Include="common\third_party">
       <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common\third_party\numerics">
-      <UniqueIdentifier>{168745A4-2F0D-B7A8-2F10-9299025EF8C6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="common\third_party\numerics\base">
+    <Filter Include="common\third_party\base">
       <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common\third_party\numerics\base\numerics">
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase\numerics">
       <UniqueIdentifier>{168745A4-2F0D-B7A8-2F10-9299025EF8C6}</UniqueIdentifier>
     </Filter>
     <Filter Include="common">
@@ -115,14 +154,80 @@
     <Filter Include="common\third_party">
       <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common\third_party\numerics">
-      <UniqueIdentifier>{168745A4-2F0D-B7A8-2F10-9299025EF8C6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="common\third_party\numerics\base">
+    <Filter Include="common\third_party\base">
       <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common\third_party\numerics\base\numerics">
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase\numerics">
       <UniqueIdentifier>{168745A4-2F0D-B7A8-2F10-9299025EF8C6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base">
+      <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base">
+      <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base">
+      <UniqueIdentifier>{DBBAC0A6-BB0A-CA51-45CC-DA4574B671E6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\base\anglebase">
+      <UniqueIdentifier>{20E48008-F92F-44F0-DADC-A8339F625C92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\smhasher">
+      <UniqueIdentifier>{EEEBC3D2-7A68-1E44-6E5B-BFE66A8C0BDC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\smhasher\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\smhasher">
+      <UniqueIdentifier>{EEEBC3D2-7A68-1E44-6E5B-BFE66A8C0BDC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\third_party\smhasher\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
     </Filter>
     <Filter Include="common">
       <UniqueIdentifier>{2F5FD094-EF52-77F7-7AA8-4327A01BF747}</UniqueIdentifier>
@@ -144,9 +249,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common\BitSetIterator.h">
-      <Filter>common</Filter>
-    </ClInclude>
     <ClInclude Include="common\Color.h">
       <Filter>common</Filter>
     </ClInclude>
@@ -169,6 +271,9 @@
       <Filter>common</Filter>
     </ClCompile>
     <ClInclude Include="common\angleutils.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\bitset_utils.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClCompile Include="common\debug.cpp">
@@ -195,20 +300,44 @@
     <ClInclude Include="common\string_utils.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="common\third_party\numerics\base\logging.h">
-      <Filter>common\third_party\numerics\base</Filter>
+    <ClInclude Include="common\third_party\base\anglebase\base_export.h">
+      <Filter>common\third_party\base\anglebase</Filter>
     </ClInclude>
-    <ClInclude Include="common\third_party\numerics\base\numerics\safe_conversions.h">
-      <Filter>common\third_party\numerics\base\numerics</Filter>
+    <ClInclude Include="common\third_party\base\anglebase\containers\mru_cache.h">
+      <Filter>common\third_party\base\anglebase\containers</Filter>
     </ClInclude>
-    <ClInclude Include="common\third_party\numerics\base\numerics\safe_conversions_impl.h">
-      <Filter>common\third_party\numerics\base\numerics</Filter>
+    <ClInclude Include="common\third_party\base\anglebase\logging.h">
+      <Filter>common\third_party\base\anglebase</Filter>
     </ClInclude>
-    <ClInclude Include="common\third_party\numerics\base\numerics\safe_math.h">
-      <Filter>common\third_party\numerics\base\numerics</Filter>
+    <ClInclude Include="common\third_party\base\anglebase\macros.h">
+      <Filter>common\third_party\base\anglebase</Filter>
     </ClInclude>
-    <ClInclude Include="common\third_party\numerics\base\numerics\safe_math_impl.h">
-      <Filter>common\third_party\numerics\base\numerics</Filter>
+    <ClInclude Include="common\third_party\base\anglebase\numerics\safe_conversions.h">
+      <Filter>common\third_party\base\anglebase\numerics</Filter>
+    </ClInclude>
+    <ClInclude Include="common\third_party\base\anglebase\numerics\safe_conversions_impl.h">
+      <Filter>common\third_party\base\anglebase\numerics</Filter>
+    </ClInclude>
+    <ClInclude Include="common\third_party\base\anglebase\numerics\safe_math.h">
+      <Filter>common\third_party\base\anglebase\numerics</Filter>
+    </ClInclude>
+    <ClInclude Include="common\third_party\base\anglebase\numerics\safe_math_impl.h">
+      <Filter>common\third_party\base\anglebase\numerics</Filter>
+    </ClInclude>
+    <ClCompile Include="common\third_party\base\anglebase\sha1.cc">
+      <Filter>common\third_party\base\anglebase</Filter>
+    </ClCompile>
+    <ClInclude Include="common\third_party\base\anglebase\sha1.h">
+      <Filter>common\third_party\base\anglebase</Filter>
+    </ClInclude>
+    <ClInclude Include="common\third_party\base\anglebase\sys_byteorder.h">
+      <Filter>common\third_party\base\anglebase</Filter>
+    </ClInclude>
+    <ClCompile Include="common\third_party\smhasher\src\PMurHash.cpp">
+      <Filter>common\third_party\smhasher\src</Filter>
+    </ClCompile>
+    <ClInclude Include="common\third_party\smhasher\src\PMurHash.h">
+      <Filter>common\third_party\smhasher\src</Filter>
     </ClInclude>
     <ClCompile Include="common\tls.cpp">
       <Filter>common</Filter>
@@ -216,6 +345,9 @@
     <ClInclude Include="common\tls.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClCompile Include="common\uniform_type_info_autogen.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
     <ClCompile Include="common\utilities.cpp">
       <Filter>common</Filter>
     </ClCompile>
@@ -228,6 +360,9 @@
     <ClInclude Include="common\version.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClCompile Include="common\system_utils_win.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
     <None Include="angle.gyp"/>
   </ItemGroup>
 </Project>

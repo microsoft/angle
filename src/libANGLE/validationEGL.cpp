@@ -398,6 +398,21 @@ Error ValidateGetPlatformDisplayCommon(EGLenum platform,
                     }
                     break;
 
+                case EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER:
+                    ERR() << "EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER is deprecated, please use "
+                        "EGL_EXPERIMENTAL_PRESENT_PATH_ANGLE.";
+
+                    switch (value)
+                    {
+                    case EGL_FALSE:
+                    case EGL_TRUE:
+                        break;
+
+                    default:
+                        return EglBadAttribute();
+                    }
+                    break;
+
                 default:
                     break;
             }

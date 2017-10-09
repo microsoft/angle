@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CEE04889-A327-4533-6FCD-F3BF234799E6}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>VkLayer_object_tracker</RootNamespace>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+  <PropertyGroup Label="Configuration">
+    <CharacterSet>MultiByte</CharacterSet>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Locals">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
+  <ImportGroup Label="ExtensionSettings"/>
+  <ImportGroup Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros"/>
+  <PropertyGroup>
+    <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\third_party\cygwin\bin\;$(MSBuildProjectDirectory)\..\third_party\python_26\</ExecutablePath>
+    <OutDir>$(SolutionDir)$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
+    <TargetPath>$(OutDir)\$(ProjectName)$(TargetExt)</TargetPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\glslang-angle\src;..\third_party\vulkan-validation-layers\src\layers;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4201 /wd4456 /wd4505 /wd4996 /MP /d2guard4 /Wv:18 /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X86_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <ModuleDefinitionFile>..\third_party\vulkan-validation-layers\src\layers\VkLayer_object_tracker.def</ModuleDefinitionFile>
+      <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\glslang-angle\src;..\third_party\vulkan-validation-layers\src\layers;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X86_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\glslang-angle\src;..\third_party\vulkan-validation-layers\src\layers;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4201 /wd4456 /wd4505 /wd4996 /MP /d2guard4 /Wv:18 /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X64_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <ModuleDefinitionFile>..\third_party\vulkan-validation-layers\src\layers\VkLayer_object_tracker.def</ModuleDefinitionFile>
+      <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\glslang-angle\src;..\third_party\vulkan-validation-layers\src\layers;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X64_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\glslang-angle\src;..\third_party\vulkan-validation-layers\src\layers;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4201 /wd4456 /wd4505 /wd4996 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X86_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <ModuleDefinitionFile>..\third_party\vulkan-validation-layers\src\layers\VkLayer_object_tracker.def</ModuleDefinitionFile>
+      <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\glslang-angle\src;..\third_party\vulkan-validation-layers\src\layers;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X86_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\glslang-angle\src;..\third_party\vulkan-validation-layers\src\layers;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4201 /wd4456 /wd4505 /wd4996 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X64_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <ModuleDefinitionFile>..\third_party\vulkan-validation-layers\src\layers\VkLayer_object_tracker.def</ModuleDefinitionFile>
+      <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\glslang-angle\src;..\third_party\vulkan-validation-layers\src\layers;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X64_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\VkLayer_object_tracker.def"/>
+    <None Include="angle.gyp"/>
+    <None Include="$(OutDir)\angledata\VkLayer_core_validation.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="$(OutDir)\angledata\VkLayer_object_tracker.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="$(OutDir)\angledata\VkLayer_parameter_validation.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="$(OutDir)\angledata\VkLayer_swapchain.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="$(OutDir)\angledata\VkLayer_threading.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="$(OutDir)\angledata\VkLayer_unique_objects.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\third_party\vulkan-validation-layers\src\layers\object_tracker.h"/>
+    <ClInclude Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_table.h"/>
+    <ClInclude Include="$(OutDir)obj\global_intermediate\angle\vulkan\vk_struct_size_helper.h">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="$(OutDir)obj\global_intermediate\angle\vulkan\vk_safe_struct.h">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="$(OutDir)obj\global_intermediate\angle\vulkan\vk_layer_dispatch_table.h">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="$(OutDir)obj\global_intermediate\angle\vulkan\vk_dispatch_table_helper.h">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="$(OutDir)obj\global_intermediate\angle\vulkan\vk_loader_extensions.h">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\third_party\vulkan-validation-layers\src\layers\object_tracker.cpp"/>
+    <ClCompile Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_table.cpp"/>
+    <ClCompile Include="$(OutDir)obj\global_intermediate\angle\vulkan\vk_struct_size_helper.c">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(OutDir)obj\global_intermediate\angle\vulkan\vk_safe_struct.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="$(OutDir)obj\global_intermediate\angle\vulkan\vk_loader_extensions.c">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="$(OutDir)obj\global_intermediate\angle\vulkan\vk_enum_string_helper.h">
+      <FileType>Document</FileType>
+      <Command>call call python &quot;..\gyp\touch_stamp.py&quot; &quot;$(OutDir)obj\global_intermediate\angle\vulkan\layer_object_tracker_order_deps.stamp&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Message>stamping for layer_object_tracker_order_deps</Message>
+      <Outputs>$(OutDir)obj\global_intermediate\angle\vulkan\layer_object_tracker_order_deps.stamp</Outputs>
+      <AdditionalInputs>$(OutDir)obj\global_intermediate\angle\vulkan\vk_struct_size_helper.h;$(OutDir)obj\global_intermediate\angle\vulkan\vk_struct_size_helper.c;$(OutDir)obj\global_intermediate\angle\vulkan\vk_safe_struct.h;$(OutDir)obj\global_intermediate\angle\vulkan\vk_safe_struct.cpp;$(OutDir)obj\global_intermediate\angle\vulkan\vk_layer_dispatch_table.h;$(OutDir)obj\global_intermediate\angle\vulkan\vk_dispatch_table_helper.h;$(OutDir)obj\global_intermediate\angle\vulkan\vk_loader_extensions.h;$(OutDir)obj\global_intermediate\angle\vulkan\vk_loader_extensions.c;$(OutDir)\angledata\VkLayer_core_validation.json;$(OutDir)\angledata\VkLayer_object_tracker.json;$(OutDir)\angledata\VkLayer_parameter_validation.json;$(OutDir)\angledata\VkLayer_swapchain.json;$(OutDir)\angledata\VkLayer_threading.json;$(OutDir)\angledata\VkLayer_unique_objects.json</AdditionalInputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="vulkan_layer_utils_static.vcxproj">
+      <Project>{2163DEF2-BDFA-94C0-4BD1-2E3B816ECA38}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
+  <ImportGroup Label="ExtensionTargets"/>
+</Project>

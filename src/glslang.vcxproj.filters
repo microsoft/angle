@@ -1,0 +1,2009 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\GenericCodeGen">
+      <UniqueIdentifier>{94063447-82B3-46EB-C3FF-960DDA504B59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\GenericCodeGen">
+      <UniqueIdentifier>{94063447-82B3-46EB-C3FF-960DDA504B59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Include">
+      <UniqueIdentifier>{1D8253A7-67C1-9BE7-3731-070319CC979E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor">
+      <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor">
+      <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor">
+      <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor">
+      <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor">
+      <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor">
+      <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor">
+      <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor">
+      <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor">
+      <UniqueIdentifier>{56A90BCD-B311-1BEE-A8AC-25D8344BCE41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\MachineIndependent">
+      <UniqueIdentifier>{1FCBF3E2-0E34-EC52-8F43-FAB86C9C496D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\OSDependent">
+      <UniqueIdentifier>{91D0431C-929A-BB16-5616-40B8118A7A2B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\Public">
+      <UniqueIdentifier>{3D6CBF1F-39AF-CEF2-5BC2-2C8DD6B98407}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\hlsl">
+      <UniqueIdentifier>{49761D13-9830-2253-022D-4EC794F2DE27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\OGLCompilersDLL">
+      <UniqueIdentifier>{90C25480-A377-DF86-E15F-04BAD163819C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\OGLCompilersDLL">
+      <UniqueIdentifier>{90C25480-A377-DF86-E15F-04BAD163819C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\SPIRV">
+      <UniqueIdentifier>{19DE4C2B-2AF6-B9FF-569F-0F6371B00C95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\StandAlone">
+      <UniqueIdentifier>{853AFAD9-0E1C-1860-5590-24C5F2B900AC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\StandAlone">
+      <UniqueIdentifier>{853AFAD9-0E1C-1860-5590-24C5F2B900AC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle">
+      <UniqueIdentifier>{6FC8D3FB-E9FA-E2B8-AC70-82300DDCB60D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang">
+      <UniqueIdentifier>{1BED879E-EC9F-0074-D349-C3D09019204C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\OSDependent">
+      <UniqueIdentifier>{91D0431C-929A-BB16-5616-40B8118A7A2B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\glslang-angle\src\glslang\OSDependent\Windows">
+      <UniqueIdentifier>{FCF99277-4DD1-BB5E-2FD0-3F007CDE9C1F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\GenericCodeGen\CodeGen.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\GenericCodeGen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\GenericCodeGen\Link.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\GenericCodeGen</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\arrays.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\BaseTypes.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\Common.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\ConstantUnion.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\InfoSink.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\InitializeGlobals.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\intermediate.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\PoolAlloc.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\ResourceLimits.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\revision.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\ShHandle.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\Types.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Include</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Constant.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\gl_types.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <None Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\glslang.y">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </None>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\glslang_tab.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\glslang_tab.cpp.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\InfoSink.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Initialize.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Initialize.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Intermediate.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\intermOut.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\IntermTraverse.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\iomapper.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\iomapper.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\limits.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\linkValidate.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\LiveTraverser.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\localintermediate.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\parseConst.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\ParseContextBase.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\ParseHelper.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\ParseHelper.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\parseVersions.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\PoolAlloc.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\Pp.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpAtom.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpContext.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpContext.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpMemory.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpScanner.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpSymbols.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpTokens.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpTokens.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\propagateNoContraction.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\propagateNoContraction.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\reflection.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\reflection.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\RemoveTree.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\RemoveTree.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Scan.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Scan.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\ScanContext.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\ShaderLang.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\SymbolTable.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\SymbolTable.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Versions.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Versions.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\MachineIndependent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\OSDependent\osinclude.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\OSDependent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Public\ShaderLang.h">
+      <Filter>..\third_party\glslang-angle\src\glslang\Public</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslAttributes.cpp">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslAttributes.h">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslGrammar.cpp">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslGrammar.h">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslOpMap.cpp">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslOpMap.h">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslParseables.cpp">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslParseables.h">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslParseHelper.cpp">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslParseHelper.h">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslScanContext.cpp">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslScanContext.h">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslTokens.h">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslTokenStream.cpp">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslTokenStream.h">
+      <Filter>..\third_party\glslang-angle\src\hlsl</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\OGLCompilersDLL\InitializeDll.cpp">
+      <Filter>..\third_party\glslang-angle\src\OGLCompilersDLL</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\OGLCompilersDLL\InitializeDll.h">
+      <Filter>..\third_party\glslang-angle\src\OGLCompilersDLL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\bitutils.h">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\disassemble.cpp">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\disassemble.h">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\doc.cpp">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\doc.h">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\GLSL.ext.KHR.h">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\GLSL.std.450.h">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\GlslangToSpv.cpp">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\GlslangToSpv.h">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\hex_float.h">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\InReadableOrder.cpp">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClCompile>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\Logger.cpp">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\Logger.h">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClInclude>
+    <None Include="..\third_party\glslang-angle\src\SPIRV\spirv.hpp">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </None>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\SpvBuilder.cpp">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\SpvBuilder.h">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\spvIR.h">
+      <Filter>..\third_party\glslang-angle\src\SPIRV</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\StandAlone\ResourceLimits.cpp">
+      <Filter>..\third_party\glslang-angle\src\StandAlone</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\glslang-angle\src\StandAlone\ResourceLimits.h">
+      <Filter>..\third_party\glslang-angle\src\StandAlone</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\OSDependent\Windows\ossource.cpp">
+      <Filter>..\third_party\glslang-angle\src\glslang\OSDependent\Windows</Filter>
+    </ClCompile>
+    <None Include="angle.gyp"/>
+  </ItemGroup>
+</Project>

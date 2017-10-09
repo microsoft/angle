@@ -25,7 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="angle.gyp"/>
-    <None Include="$(OutDir)obj\global_intermediate\angle\commit_id.bat">
+    <None Include="$(OutDir)obj\global_intermediate\angle\commit_id.py">
       <Filter>$(OutDir)obj\global_intermediate\angle\_excluded_files</Filter>
     </None>
     <None Include="..\.git\index">

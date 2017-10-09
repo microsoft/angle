@@ -32,6 +32,7 @@ def appendCommonArgs(args):
 def generateProjects(generate_args):
     args = generate_args
     appendCommonArgs(args)
+    args.append('-Dangle_enable_vulkan=0')
     # Add all.gyp as the main gyp file to be generated.
     args.append(os.path.join(script_dir, 'ANGLE.gyp'))
 

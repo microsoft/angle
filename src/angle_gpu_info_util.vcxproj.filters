@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="gpu_info_util">
+      <UniqueIdentifier>{CA272AE5-18F7-7B68-C686-2BC6B0CE8E8F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gpu_info_util">
+      <UniqueIdentifier>{CA272AE5-18F7-7B68-C686-2BC6B0CE8E8F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gpu_info_util">
+      <UniqueIdentifier>{CA272AE5-18F7-7B68-C686-2BC6B0CE8E8F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gpu_info_util">
+      <UniqueIdentifier>{CA272AE5-18F7-7B68-C686-2BC6B0CE8E8F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="gpu_info_util\SystemInfo.cpp">
+      <Filter>gpu_info_util</Filter>
+    </ClCompile>
+    <ClInclude Include="gpu_info_util\SystemInfo.h">
+      <Filter>gpu_info_util</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu_info_util\SystemInfo_internal.h">
+      <Filter>gpu_info_util</Filter>
+    </ClInclude>
+    <ClCompile Include="gpu_info_util\SystemInfo_win.cpp">
+      <Filter>gpu_info_util</Filter>
+    </ClCompile>
+    <None Include="angle.gyp"/>
+  </ItemGroup>
+</Project>

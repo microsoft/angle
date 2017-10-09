@@ -71,9 +71,11 @@ bool SetCWD(const char *dirName)
     return (SetCurrentDirectoryA(dirName) == TRUE);
 }
 
+#ifndef ANGLE_ENABLE_WINDOWS_STORE
 bool SetEnvironmentVar(const char *variableName, const char *value)
 {
     return (SetEnvironmentVariableA(variableName, value) == TRUE);
 }
+#endif // ANGLE_ENABLE_WINDOWS_STORE
 
 }  // namespace angle

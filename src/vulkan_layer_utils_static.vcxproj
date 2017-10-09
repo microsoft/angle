@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2163DEF2-BDFA-94C0-4BD1-2E3B816ECA38}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>vulkan_layer_utils_static</RootNamespace>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+  <PropertyGroup Label="Configuration">
+    <CharacterSet>MultiByte</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Locals">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
+  <ImportGroup Label="ExtensionSettings"/>
+  <ImportGroup Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros"/>
+  <PropertyGroup>
+    <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\third_party\cygwin\bin\;$(MSBuildProjectDirectory)\..\third_party\python_26\</ExecutablePath>
+    <OutDir>$(SolutionDir)$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
+    <TargetPath>$(OutDir)lib\$(ProjectName)$(TargetExt)</TargetPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4309 /wd4505 /wd4996 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;WIN32;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X86_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X86_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4309 /wd4505 /wd4996 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;WIN32;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X64_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X64_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4309 /wd4505 /wd4996 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;WIN32;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X86_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X86_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4309 /wd4505 /wd4996 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;WIN32;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X64_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\vulkan-validation-layers\src\include;..\third_party\vulkan-validation-layers\src\loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>WIN32;WIN32_LEAN_AND_MEAN;VK_USE_PLATFORM_WIN32_KHR;VK_USE_PLATFORM_WIN32_KHX;ANGLE_X64_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="angle.gyp"/>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\helper_file_generator.py">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\reg.py">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\vk.xml">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_core_validation.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_object_tracker.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_parameter_validation.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_swapchain.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_threading.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_unique_objects.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_config.h"/>
+    <ClInclude Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_extension_utils.h"/>
+    <ClInclude Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_utils.h"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_config.cpp"/>
+    <ClCompile Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_extension_utils.cpp"/>
+    <ClCompile Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_utils.cpp"/>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\third_party\vulkan-validation-layers\src\scripts\dispatch_table_helper_generator.py">
+      <FileType>Document</FileType>
+      <Command>call call python &quot;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py&quot; &quot;-o&quot; &quot;$(OutDir)obj\global_intermediate\angle\vulkan&quot; &quot;-registry&quot; &quot;..\third_party\vulkan-validation-layers\src\scripts\vk.xml&quot; &quot;vk_dispatch_table_helper.h&quot; &quot;-quiet&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Message>generating vk_dispatch_table_helper.h</Message>
+      <Outputs>$(OutDir)obj\global_intermediate\angle\vulkan\vk_dispatch_table_helper.h</Outputs>
+      <AdditionalInputs>..\third_party\vulkan-validation-layers\src\scripts\generator.py;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py;..\third_party\vulkan-validation-layers\src\scripts\reg.py;..\third_party\vulkan-validation-layers\src\scripts\vk.xml</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\third_party\vulkan-validation-layers\src\scripts\generator.py">
+      <FileType>Document</FileType>
+      <Command>call call python &quot;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py&quot; &quot;-o&quot; &quot;$(OutDir)obj\global_intermediate\angle\vulkan&quot; &quot;-registry&quot; &quot;..\third_party\vulkan-validation-layers\src\scripts\vk.xml&quot; &quot;vk_enum_string_helper.h&quot; &quot;-quiet&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%&#xD;&#xA;call call python &quot;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py&quot; &quot;-o&quot; &quot;$(OutDir)obj\global_intermediate\angle\vulkan&quot; &quot;-registry&quot; &quot;..\third_party\vulkan-validation-layers\src\scripts\vk.xml&quot; &quot;vk_struct_size_helper.h&quot; &quot;-quiet&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%&#xD;&#xA;call call python &quot;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py&quot; &quot;-o&quot; &quot;$(OutDir)obj\global_intermediate\angle\vulkan&quot; &quot;-registry&quot; &quot;..\third_party\vulkan-validation-layers\src\scripts\vk.xml&quot; &quot;vk_struct_size_helper.c&quot; &quot;-quiet&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%&#xD;&#xA;call call python &quot;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py&quot; &quot;-o&quot; &quot;$(OutDir)obj\global_intermediate\angle\vulkan&quot; &quot;-registry&quot; &quot;..\third_party\vulkan-validation-layers\src\scripts\vk.xml&quot; &quot;vk_safe_struct.h&quot; &quot;-quiet&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%&#xD;&#xA;call call python &quot;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py&quot; &quot;-o&quot; &quot;$(OutDir)obj\global_intermediate\angle\vulkan&quot; &quot;-registry&quot; &quot;..\third_party\vulkan-validation-layers\src\scripts\vk.xml&quot; &quot;vk_safe_struct.cpp&quot; &quot;-quiet&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Message>generating vk_enum_string_helper.h, and also generating vk_struct_size_helper.h, and also generating vk_struct_size_helper.c, and also generating vk_safe_struct.h, and also generating vk_safe_struct.cpp</Message>
+      <Outputs>$(OutDir)obj\global_intermediate\angle\vulkan\vk_enum_string_helper.h;$(OutDir)obj\global_intermediate\angle\vulkan\vk_struct_size_helper.h;$(OutDir)obj\global_intermediate\angle\vulkan\vk_struct_size_helper.c;$(OutDir)obj\global_intermediate\angle\vulkan\vk_safe_struct.h;$(OutDir)obj\global_intermediate\angle\vulkan\vk_safe_struct.cpp</Outputs>
+      <AdditionalInputs>..\third_party\vulkan-validation-layers\src\scripts\helper_file_generator.py;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py;..\third_party\vulkan-validation-layers\src\scripts\reg.py;..\third_party\vulkan-validation-layers\src\scripts\vk.xml</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\scripts\generate_vulkan_layers_json.py">
+      <FileType>Document</FileType>
+      <Command>call call python &quot;..\scripts\generate_vulkan_layers_json.py&quot; &quot;..\third_party\vulkan-validation-layers\src\layers\windows&quot; &quot;$(OutDir)angledata&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Message>generating Vulkan json files</Message>
+      <Outputs>$(OutDir)\angledata\VkLayer_core_validation.json;$(OutDir)\angledata\VkLayer_object_tracker.json;$(OutDir)\angledata\VkLayer_parameter_validation.json;$(OutDir)\angledata\VkLayer_swapchain.json;$(OutDir)\angledata\VkLayer_threading.json;$(OutDir)\angledata\VkLayer_unique_objects.json</Outputs>
+      <AdditionalInputs>..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_core_validation.json;..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_object_tracker.json;..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_parameter_validation.json;..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_swapchain.json;..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_threading.json;..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_unique_objects.json</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\third_party\vulkan-validation-layers\src\scripts\loader_extension_generator.py">
+      <FileType>Document</FileType>
+      <Command>call call python &quot;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py&quot; &quot;-o&quot; &quot;$(OutDir)obj\global_intermediate\angle\vulkan&quot; &quot;-registry&quot; &quot;..\third_party\vulkan-validation-layers\src\scripts\vk.xml&quot; &quot;vk_layer_dispatch_table.h&quot; &quot;-quiet&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%&#xD;&#xA;call call python &quot;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py&quot; &quot;-o&quot; &quot;$(OutDir)obj\global_intermediate\angle\vulkan&quot; &quot;-registry&quot; &quot;..\third_party\vulkan-validation-layers\src\scripts\vk.xml&quot; &quot;vk_loader_extensions.h&quot; &quot;-quiet&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%&#xD;&#xA;call call python &quot;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py&quot; &quot;-o&quot; &quot;$(OutDir)obj\global_intermediate\angle\vulkan&quot; &quot;-registry&quot; &quot;..\third_party\vulkan-validation-layers\src\scripts\vk.xml&quot; &quot;vk_loader_extensions.c&quot; &quot;-quiet&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Message>generating vk_layer_dispatch_table.h, and also generating vk_loader_extensions.h, and also generating vk_loader_extensions.c</Message>
+      <Outputs>$(OutDir)obj\global_intermediate\angle\vulkan\vk_layer_dispatch_table.h;$(OutDir)obj\global_intermediate\angle\vulkan\vk_loader_extensions.h;$(OutDir)obj\global_intermediate\angle\vulkan\vk_loader_extensions.c</Outputs>
+      <AdditionalInputs>..\third_party\vulkan-validation-layers\src\scripts\generator.py;..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py;..\third_party\vulkan-validation-layers\src\scripts\reg.py;..\third_party\vulkan-validation-layers\src\scripts\vk.xml</AdditionalInputs>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
+  <ImportGroup Label="ExtensionTargets"/>
+</Project>

@@ -33,8 +33,6 @@ debug.txt
 *.TMP
 *.VC.db
 *.VC.opendb
-*.vcxproj
-*.vcxproj.filters
 *.vcxproj.user
 *.vsp
 *~

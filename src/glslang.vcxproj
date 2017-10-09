@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0296BF7C-0171-C4F5-EA1F-F9B296CE0D97}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>glslang</RootNamespace>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+  <PropertyGroup Label="Configuration">
+    <CharacterSet>MultiByte</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Locals">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
+  <ImportGroup Label="ExtensionSettings"/>
+  <ImportGroup Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros"/>
+  <PropertyGroup>
+    <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\third_party\cygwin\bin\;$(MSBuildProjectDirectory)\..\third_party\python_26\</ExecutablePath>
+    <OutDir>$(SolutionDir)$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
+    <TargetPath>$(OutDir)lib\$(ProjectName)$(TargetExt)</TargetPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\third_party\glslang-angle\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4244 /wd4456 /wd4457 /wd4458 /wd4702 /wd4718 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;ANGLE_X86_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\third_party\glslang-angle\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_X86_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\third_party\glslang-angle\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4244 /wd4456 /wd4457 /wd4458 /wd4702 /wd4718 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;ANGLE_X64_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\third_party\glslang-angle\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_X64_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\third_party\glslang-angle\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4244 /wd4456 /wd4457 /wd4458 /wd4702 /wd4718 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;ANGLE_X86_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\third_party\glslang-angle\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_X86_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\third_party\glslang-angle\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4100 /wd4244 /wd4456 /wd4457 /wd4458 /wd4702 /wd4718 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;ANGLE_X64_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..\third_party\glslang-angle\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_X64_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\glslang.y"/>
+    <None Include="..\third_party\glslang-angle\src\SPIRV\spirv.hpp"/>
+    <None Include="angle.gyp"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\arrays.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\BaseTypes.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\Common.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\ConstantUnion.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\InfoSink.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\InitializeGlobals.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\intermediate.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\PoolAlloc.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\ResourceLimits.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\revision.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\ShHandle.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Include\Types.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\gl_types.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\glslang_tab.cpp.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Initialize.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\iomapper.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\LiveTraverser.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\localintermediate.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\ParseHelper.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\parseVersions.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpContext.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpTokens.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\propagateNoContraction.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\reflection.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\RemoveTree.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Scan.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\ScanContext.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\SymbolTable.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Versions.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\OSDependent\osinclude.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\glslang\Public\ShaderLang.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslAttributes.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslGrammar.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslOpMap.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslParseables.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslParseHelper.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslScanContext.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslTokens.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\hlsl\hlslTokenStream.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\OGLCompilersDLL\InitializeDll.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\bitutils.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\disassemble.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\doc.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\GLSL.ext.KHR.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\GLSL.std.450.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\GlslangToSpv.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\hex_float.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\Logger.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\SpvBuilder.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\SPIRV\spvIR.h"/>
+    <ClInclude Include="..\third_party\glslang-angle\src\StandAlone\ResourceLimits.h"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\GenericCodeGen\CodeGen.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\GenericCodeGen\Link.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Constant.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\glslang_tab.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\InfoSink.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Initialize.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Intermediate.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\intermOut.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\IntermTraverse.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\iomapper.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\limits.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\linkValidate.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\parseConst.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\ParseContextBase.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\ParseHelper.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\PoolAlloc.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\Pp.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpAtom.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpContext.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpMemory.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpScanner.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpSymbols.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\preprocessor\PpTokens.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\propagateNoContraction.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\reflection.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\RemoveTree.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Scan.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\ShaderLang.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\SymbolTable.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\MachineIndependent\Versions.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslAttributes.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslGrammar.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslOpMap.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslParseables.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslParseHelper.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslScanContext.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\hlsl\hlslTokenStream.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\OGLCompilersDLL\InitializeDll.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\disassemble.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\doc.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\GlslangToSpv.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\InReadableOrder.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\Logger.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\SPIRV\SpvBuilder.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\StandAlone\ResourceLimits.cpp"/>
+    <ClCompile Include="..\third_party\glslang-angle\src\glslang\OSDependent\Windows\ossource.cpp"/>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
+  <ImportGroup Label="ExtensionTargets"/>
+</Project>

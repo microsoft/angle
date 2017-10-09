@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts">
+      <UniqueIdentifier>{4FDF30BD-A895-58AC-A912-7C70A5371544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts">
+      <UniqueIdentifier>{4FDF30BD-A895-58AC-A912-7C70A5371544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts">
+      <UniqueIdentifier>{4FDF30BD-A895-58AC-A912-7C70A5371544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts">
+      <UniqueIdentifier>{4FDF30BD-A895-58AC-A912-7C70A5371544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts">
+      <UniqueIdentifier>{4FDF30BD-A895-58AC-A912-7C70A5371544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts">
+      <UniqueIdentifier>{4FDF30BD-A895-58AC-A912-7C70A5371544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts">
+      <UniqueIdentifier>{4FDF30BD-A895-58AC-A912-7C70A5371544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\scripts\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\scripts">
+      <UniqueIdentifier>{4FDF30BD-A895-58AC-A912-7C70A5371544}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\scripts\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..">
+      <UniqueIdentifier>{739DB09A-CC57-A953-A6CF-F64FA08E4FA7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party">
+      <UniqueIdentifier>{D6C6CEA7-AAD0-03AD-2394-AC6FCBF8A498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers">
+      <UniqueIdentifier>{5DD0D833-D52E-5BA1-CD42-747157389E8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src">
+      <UniqueIdentifier>{8CDEE807-BC53-E450-C8B8-4DEBB66742D4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers">
+      <UniqueIdentifier>{EAFA666A-961B-FA79-BC53-06BA70E47686}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows">
+      <UniqueIdentifier>{C1450D01-C033-76F3-3763-6DE88AF48A77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files">
+      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_config.cpp">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_config.h">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_extension_utils.cpp">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_extension_utils.h">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers</Filter>
+    </ClInclude>
+    <ClCompile Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_utils.cpp">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers</Filter>
+    </ClCompile>
+    <ClInclude Include="..\third_party\vulkan-validation-layers\src\layers\vk_layer_utils.h">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers</Filter>
+    </ClInclude>
+    <None Include="angle.gyp"/>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\generator.py">
+      <Filter>..\third_party\vulkan-validation-layers\src\scripts\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\helper_file_generator.py">
+      <Filter>..\third_party\vulkan-validation-layers\src\scripts\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\lvl_genvk.py">
+      <Filter>..\third_party\vulkan-validation-layers\src\scripts\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\reg.py">
+      <Filter>..\third_party\vulkan-validation-layers\src\scripts\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\vk.xml">
+      <Filter>..\third_party\vulkan-validation-layers\src\scripts\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\loader_extension_generator.py">
+      <Filter>..\third_party\vulkan-validation-layers\src\scripts\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\scripts\dispatch_table_helper_generator.py">
+      <Filter>..\third_party\vulkan-validation-layers\src\scripts\_excluded_files</Filter>
+    </None>
+    <None Include="..\scripts\generate_vulkan_layers_json.py">
+      <Filter>..\scripts\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_core_validation.json">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_object_tracker.json">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_parameter_validation.json">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_swapchain.json">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_threading.json">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files</Filter>
+    </None>
+    <None Include="..\third_party\vulkan-validation-layers\src\layers\windows\VkLayer_unique_objects.json">
+      <Filter>..\third_party\vulkan-validation-layers\src\layers\windows\_excluded_files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

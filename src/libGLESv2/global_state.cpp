@@ -126,6 +126,10 @@ bool TerminateProcess()
 
 }  // namespace egl
 
+// 'main' signature found without threading model. Consider using 'int main(Platform::Array<Platform::String^>^ args)'.
+#pragma warning (push)
+#pragma warning (disable : 4447)
+
 extern "C" BOOL WINAPI DllMain(HINSTANCE, DWORD reason, LPVOID)
 {
     switch (reason)
@@ -145,4 +149,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE, DWORD reason, LPVOID)
 
     return TRUE;
 }
+
+#pragma warning (pop)
+
 #endif  // ANGLE_PLATFORM_WINDOWS

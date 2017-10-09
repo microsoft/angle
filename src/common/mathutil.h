@@ -884,10 +884,19 @@ inline uint32_t BitfieldReverse(uint32_t value)
 
 // Count the 1 bits.
 #if defined(ANGLE_PLATFORM_WINDOWS)
+#if defined(_M_ARM)
+inline int BitCount(uint32_t bits)
+{
+    bits = bits - ((bits >> 1) & 0x55555555);
+    bits = (bits & 0x33333333) + ((bits >> 2) & 0x33333333);
+    return (((bits + (bits >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+}
+#else
 inline int BitCount(uint32_t bits)
 {
     return static_cast<int>(__popcnt(bits));
 }
+#endif
 #if defined(ANGLE_X64_CPU)
 inline int BitCount(uint64_t bits)
 {

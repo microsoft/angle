@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8CCEAAED-F1DC-355A-BB9A-FD62515D3768}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>spirv_tools</RootNamespace>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+  <PropertyGroup Label="Configuration">
+    <CharacterSet>MultiByte</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Locals">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
+  <ImportGroup Label="ExtensionSettings"/>
+  <ImportGroup Label="PropertySheets">
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros"/>
+  <PropertyGroup>
+    <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\third_party\cygwin\bin\;$(MSBuildProjectDirectory)\..\third_party\python_26\</ExecutablePath>
+    <OutDir>$(SolutionDir)$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <TargetName>$(ProjectName)</TargetName>
+    <TargetPath>$(OutDir)lib\$(ProjectName)$(TargetExt)</TargetPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\spirv-headers\src\include;..\third_party\spirv-tools-angle\src\include;..\third_party\spirv-tools-angle\src\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4127 /wd4706 /wd4996 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;ANGLE_X86_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\spirv-headers\src\include;..\third_party\spirv-tools-angle\src\include;..\third_party\spirv-tools-angle\src\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_X86_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\spirv-headers\src\include;..\third_party\spirv-tools-angle\src\include;..\third_party\spirv-tools-angle\src\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4127 /wd4706 /wd4996 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;ANGLE_X64_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\spirv-headers\src\include;..\third_party\spirv-tools-angle\src\include;..\third_party\spirv-tools-angle\src\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_X64_CPU;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\spirv-headers\src\include;..\third_party\spirv-tools-angle\src\include;..\third_party\spirv-tools-angle\src\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4127 /wd4706 /wd4996 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;ANGLE_X86_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\spirv-headers\src\include;..\third_party\spirv-tools-angle\src\include;..\third_party\spirv-tools-angle\src\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_X86_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\spirv-headers\src\include;..\third_party\spirv-tools-angle\src\include;..\third_party\spirv-tools-angle\src\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/wd4127 /wd4706 /wd4996 /MP /d2guard4 /Wv:18 %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;ANGLE_X64_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Lib>
+    <Link>
+      <AdditionalDependencies></AdditionalDependencies>
+      <AdditionalOptions>/guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)obj\global_intermediate\angle\vulkan;..\third_party\spirv-headers\src\include;..\third_party\spirv-tools-angle\src\include;..\third_party\spirv-tools-angle\src\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>ANGLE_X64_CPU;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="$(OutDir)obj\global_intermediate\angle\vulkan\core.insts-1.0.inc"/>
+    <None Include="$(OutDir)obj\global_intermediate\angle\vulkan\core.insts-1.1.inc"/>
+    <None Include="$(OutDir)obj\global_intermediate\angle\vulkan\generators.inc"/>
+    <None Include="$(OutDir)obj\global_intermediate\angle\vulkan\glsl.std.450.insts-1.0.inc"/>
+    <None Include="$(OutDir)obj\global_intermediate\angle\vulkan\opencl.std.insts-1.0.inc"/>
+    <None Include="$(OutDir)obj\global_intermediate\angle\vulkan\operand.kinds-1.0.inc"/>
+    <None Include="$(OutDir)obj\global_intermediate\angle\vulkan\operand.kinds-1.1.inc"/>
+    <None Include="angle.gyp"/>
+    <None Include="..\third_party\spirv-headers\src\include\spirv\1.0\spirv.core.grammar.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\spirv-tools-angle\src\source\extinst-1.0.opencl.std.grammar.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\spirv-headers\src\include\spirv\1.1\spirv.core.grammar.json">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+    <None Include="..\third_party\spirv-headers\src\include\spirv\spir-v.xml">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\assembly_grammar.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\binary.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\diagnostic.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\enum_set.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\ext_inst.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\instruction.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\macro.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\name_mapper.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\opcode.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\operand.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\parsed_operand.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\print.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\spirv_constant.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\spirv_definition.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\spirv_endian.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\spirv_target_env.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\table.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\text.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\text_handler.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\util\bitutils.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\util\hex_float.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\util\parse_number.h"/>
+    <ClInclude Include="..\third_party\spirv-tools-angle\src\source\validate.h"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\assembly_grammar.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\binary.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\diagnostic.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\disassemble.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\ext_inst.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\libspirv.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\message.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\name_mapper.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\opcode.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\operand.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\parsed_operand.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\print.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\spirv_endian.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\spirv_target_env.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\table.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\text.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\text_handler.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\util\parse_number.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\val\basic_block.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\val\construct.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\val\function.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\val\instruction.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\val\validation_state.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\validate.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\validate_cfg.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\validate_datarules.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\validate_id.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\validate_instruction.cpp"/>
+    <ClCompile Include="..\third_party\spirv-tools-angle\src\source\validate_layout.cpp"/>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\third_party\spirv-tools-angle\src\utils\generate_registry_tables.py">
+      <FileType>Document</FileType>
+      <Command>call call python &quot;..\third_party\spirv-tools-angle\src\utils\generate_registry_tables.py&quot; &quot;--xml=../third_party/spirv-headers/src/include/spirv/spir-v.xml&quot; &quot;--generator-output=$(OutDir)obj/global_intermediate/angle/vulkan/generators.inc&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Message>generating generators.inc for SPIRV-Tools</Message>
+      <Outputs>$(OutDir)obj\global_intermediate\angle\vulkan\generators.inc</Outputs>
+      <AdditionalInputs>..\third_party\spirv-headers\src\include\spirv\spir-v.xml</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\third_party\spirv-tools-angle\src\utils\generate_grammar_tables.py">
+      <FileType>Document</FileType>
+      <Command>call call python &quot;..\third_party\spirv-tools-angle\src\utils\generate_grammar_tables.py&quot; &quot;--spirv-core-grammar=../third_party/spirv-headers/src/include/spirv/1.1/spirv.core.grammar.json&quot; &quot;--core-insts-output=$(OutDir)obj/global_intermediate/angle/vulkan/core.insts-1.1.inc&quot; &quot;--operand-kinds-output=$(OutDir)obj/global_intermediate/angle/vulkan/operand.kinds-1.1.inc&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Message>generating info tables for SPIR-V 1.1 instructions and operands</Message>
+      <Outputs>$(OutDir)obj\global_intermediate\angle\vulkan\core.insts-1.1.inc;$(OutDir)obj\global_intermediate\angle\vulkan\operand.kinds-1.1.inc</Outputs>
+      <AdditionalInputs>..\third_party\spirv-headers\src\include\spirv\1.1\spirv.core.grammar.json</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="..\third_party\spirv-headers\src\include\spirv\1.0\extinst.glsl.std.450.grammar.json">
+      <FileType>Document</FileType>
+      <Command>call call python &quot;..\third_party\spirv-tools-angle\src\utils\generate_grammar_tables.py&quot; &quot;--spirv-core-grammar=../third_party/spirv-headers/src/include/spirv/1.0/spirv.core.grammar.json&quot; &quot;--extinst-glsl-grammar=../third_party/spirv-headers/src/include/spirv/1.0/extinst.glsl.std.450.grammar.json&quot; &quot;--extinst-opencl-grammar=../third_party/spirv-tools-angle/src/source/extinst-1.0.opencl.std.grammar.json&quot; &quot;--core-insts-output=$(OutDir)obj/global_intermediate/angle/vulkan/core.insts-1.0.inc&quot; &quot;--glsl-insts-output=$(OutDir)obj/global_intermediate/angle/vulkan/glsl.std.450.insts-1.0.inc&quot; &quot;--opencl-insts-output=$(OutDir)obj/global_intermediate/angle/vulkan/opencl.std.insts-1.0.inc&quot; &quot;--operand-kinds-output=$(OutDir)obj/global_intermediate/angle/vulkan/operand.kinds-1.0.inc&quot;&#xD;&#xA;if %errorlevel% neq 0 exit /b %errorlevel%</Command>
+      <Message>generating info tables for SPIR-V 1.0 instructions and operands</Message>
+      <Outputs>$(OutDir)obj\global_intermediate\angle\vulkan\core.insts-1.0.inc;$(OutDir)obj\global_intermediate\angle\vulkan\glsl.std.450.insts-1.0.inc;$(OutDir)obj\global_intermediate\angle\vulkan\opencl.std.insts-1.0.inc;$(OutDir)obj\global_intermediate\angle\vulkan\operand.kinds-1.0.inc</Outputs>
+      <AdditionalInputs>..\third_party\spirv-headers\src\include\spirv\1.0\spirv.core.grammar.json;..\third_party\spirv-tools-angle\src\source\extinst-1.0.opencl.std.grammar.json;..\third_party\spirv-tools-angle\src\utils\generate_grammar_tables.py</AdditionalInputs>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
+  <ImportGroup Label="ExtensionTargets"/>
+</Project>

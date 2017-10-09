@@ -32,6 +32,13 @@
                 ['angle_build_winrt==1',
                 {
                     'msvs_requires_importlibrary' : 'true',
+                    'msvs_settings':
+                    {
+                        'VCCLCompilerTool':
+                        {                             
+                            'CompileAsWinRT': 'true',
+                        },
+                    },
                 }],
                 ['OS=="win"', {
                     'defines':
