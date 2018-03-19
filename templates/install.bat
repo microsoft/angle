@@ -108,6 +108,48 @@ echo    Visual Studio 2015 template directory not found. Skipped installing VS20
 :ENDVS2015
 REM ---------------------------------------------------------------------------------------------------------
 
+REM ---------------------------------------------------------------------------------------------------------
+REM Install Visual Studio 2017 templates
+REM ---------------------------------------------------------------------------------------------------------
+echo Installing ANGLE's Visual Studio 2017 templates
+
+IF NOT EXIST "%userprofile%\Documents\Visual Studio 2017\Templates\ProjectTemplates" GOTO NOVS2015
+echo    Visual Studio 2017 templates directory found
+
+REM delete any old ANGLE templates
+IF EXIST "%userprofile%\Documents\Visual Studio 2017\Templates\ProjectTemplates\Windows\Windows Universal\CoreWindowUniversal" (
+echo    Removing old VS2017 CoreWindowUniversal template
+@RD /S /Q "%userprofile%\Documents\Visual Studio 2017\Templates\ProjectTemplates\Windows\Windows Universal\CoreWindowUniversal"
+)
+IF EXIST "%userprofile%\Documents\Visual Studio 2017\Templates\ProjectTemplates\Windows\Windows Universal\XamlUniversal" (
+echo    Removing old VS2017 XamlUniversal template
+@RD /S /Q "%userprofile%\Documents\Visual Studio 2017\Templates\ProjectTemplates\Windows\Windows Universal\XamlUniversal"
+)
+IF EXIST "%userprofile%\Documents\Visual Studio 2017\Templates\ProjectTemplates\Windows\Universal\CoreWindowUniversal" (
+echo    Removing old VS2017 CoreWindowUniversal template
+@RD /S /Q "%userprofile%\Documents\Visual Studio 2017\Templates\ProjectTemplates\Windows\Universal\CoreWindowUniversal"
+)
+IF EXIST "%userprofile%\Documents\Visual Studio 2017\Templates\ProjectTemplates\Windows\Universal\XamlUniversal" (
+echo    Removing old VS2017 XamlUniversal template
+@RD /S /Q "%userprofile%\Documents\Visual Studio 2017\Templates\ProjectTemplates\Windows\Universal\XamlUniversal"
+)
+
+XCOPY "%~dp010" "%userprofile%\Documents\Visual Studio 2017\Templates\ProjectTemplates" /s /d /y > nul
+IF %ERRORLEVEL% NEQ 0 ( 
+    echo    Failed to install templates for Visual Studio 2017.
+    echo    See www.github.com/Microsoft/angle/wiki/installing-templates for manual installation steps.
+) ELSE (
+    echo    Successfully installed latest Visual Studio 2017 templates.
+)
+
+GOTO ENDVS2017
+
+:NOVS2017
+echo    Visual Studio 2017 template directory not found. Skipped installing VS2017 templates.
+:ENDVS2017
+REM ---------------------------------------------------------------------------------------------------------
+
+
 echo Script complete.
 :END
 pause
