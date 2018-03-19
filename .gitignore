@@ -55,6 +55,7 @@ buildtools/
 debug.txt
 Debug/
 Debug_ARM/
+Debug_ARM64/
 Debug_Win32/
 Debug_x64/
 diag.txt
@@ -65,6 +66,7 @@ out
 patches-*
 Release/
 Release_ARM/
+Release_ARM64/
 Release_Win32/
 Release_x64/
 TestResults.qpa
@@ -80,3 +82,4 @@ Generated Files/
 AppPackages/
 *.pyc
 *.TMP
+**/.vs/*

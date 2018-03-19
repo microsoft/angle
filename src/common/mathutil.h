@@ -150,7 +150,7 @@ inline bool supportsSSE2()
         return supports;
     }
 
-#if defined(ANGLE_PLATFORM_WINDOWS) && !defined(_M_ARM)
+#if defined(ANGLE_PLATFORM_WINDOWS) && !defined(_M_ARM) && !defined(_M_ARM64)
     {
         int info[4];
         __cpuid(info, 0);
@@ -884,7 +884,7 @@ inline uint32_t BitfieldReverse(uint32_t value)
 
 // Count the 1 bits.
 #if defined(ANGLE_PLATFORM_WINDOWS)
-#if defined(_M_ARM)
+#if defined(_M_ARM) || defined(_M_ARM64)
 inline int BitCount(uint32_t bits)
 {
     bits = bits - ((bits >> 1) & 0x55555555);
