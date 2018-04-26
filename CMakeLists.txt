@@ -195,21 +195,3 @@ add_library(libEGL SHARED
 )
 target_link_libraries(libEGL PRIVATE angle::common angle::libANGLE libGLESv2)
 target_include_directories(libEGL PUBLIC "$<INSTALL_INTERFACE:include>")
-
-#install(TARGETS libEGL libGLESv2 EXPORT ANGLEExport
-#    RUNTIME DESTINATION bin
-#    LIBRARY DESTINATION lib
-#    ARCHIVE DESTINATION lib
-#)
-
-#install(EXPORT ANGLEExport FILE ms-angle-config.cmake NAMESPACE ms-angle:: DESTINATION share/ms-angle)
-
-#if(NOT DISABLE_INSTALL_HEADERS)
-#    install(
-#        DIRECTORY include/
-#        DESTINATION include
-#        FILES_MATCHING PATTERN "*.h"
-#        PATTERN "GLSLANG" EXCLUDE
-#        PATTERN "export.h" EXCLUDE
-#    )
-#endif()
