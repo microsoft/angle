@@ -80,3 +80,4 @@ Generated Files/
 AppPackages/
 *.pyc
 *.TMP
+/**/.vs/
