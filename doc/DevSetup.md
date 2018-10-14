@@ -136,7 +136,7 @@ On Windows:
      * Right-click your project in the _Solution Explorer_, and select _Properties_.
      * Under the _Configuration Properties_ branch, click _C/C++_.
      * Add the relative path to the Khronos EGL and GLES2 header files to _Additional Include Directories_.
- 2. Configure your build environment to have access to `libEGL.lib` and `libGLESv2.lib` found in the build output directory (see [Building ANGLE](DevSteup.md#Building-ANGLE)).
+ 2. Configure your build environment to have access to `libEGL.lib` and `libGLESv2.lib` found in the build output directory (see [Building ANGLE](DevSetup.md#Building-ANGLE)).
    * For Visual C++
      * Right-click your project in the _Solution Explorer_, and select _Properties_.
      * Under the _Configuration Properties_ branch, open the _Linker_ branch and click _Input_.
