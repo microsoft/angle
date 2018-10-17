@@ -195,3 +195,19 @@ add_library(libEGL SHARED
 )
 target_link_libraries(libEGL PRIVATE angle::common angle::libANGLE libGLESv2)
 target_include_directories(libEGL PUBLIC "$<INSTALL_INTERFACE:include>")
+
+set(ANGLE_FOLDER "Dependencies/Angle")
+
+set(ANGLE_TARGETS
+    libEGL
+    libANGLE
+    libGLESv2
+    angle_common
+    angle_image_util
+    angle_preprocessor
+    angle_translator    
+)
+
+foreach(ANGLE_TARGET ${ANGLE_TARGETS})
+    set_target_properties (${ANGLE_TARGET} PROPERTIES FOLDER ${ANGLE_FOLDER})
+endforeach()
