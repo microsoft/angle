@@ -195,6 +195,7 @@ add_library(libEGL SHARED
 )
 target_link_libraries(libEGL PRIVATE angle::common angle::libANGLE libGLESv2)
 target_include_directories(libEGL PUBLIC "$<INSTALL_INTERFACE:include>")
+target_include_directories(libEGL PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include")
 
 set(ANGLE_FOLDER "Dependencies/Angle")
 
