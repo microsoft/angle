@@ -7,8 +7,7 @@ else()
     set(WINDOWS_DESKTOP 0)
 endif()
 
-add_compile_options(/d2guard4 /Wv:18)
-set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /guard:cf")
+add_compile_options(/d2guard4 /Wv:18 /guard:cf)
 
 add_definitions(
     -D_CRT_SECURE_NO_DEPRECATE
@@ -174,7 +173,7 @@ add_library(angle::libANGLE ALIAS libANGLE)
 ##########
 # libGLESv2
 file(GLOB LIBGLESV2_SOURCES "src/libGLESv2/*.h" "src/libGLESv2/*.cpp" "src/libGLESv2/libGLESv2.def")
-add_library(libGLESv2 SHARED ${LIBGLESV2_SOURCES})
+add_library(libGLESv2 ${LIBGLESV2_SOURCES})
 target_link_libraries(libGLESv2 PRIVATE angle::common angle::libANGLE)
 target_compile_definitions(libGLESv2
     PRIVATE -DLIBGLESV2_IMPLEMENTATION
@@ -187,7 +186,7 @@ target_include_directories(libGLESv2 PUBLIC "$<INSTALL_INTERFACE:include>")
 
 ##########
 # libEGL
-add_library(libEGL SHARED
+add_library(libEGL
     "src/libEGL/libEGL.def"
     "src/libEGL/libEGL.cpp"
     "src/libEGL/libEGL.rc"
