@@ -195,19 +195,3 @@ add_library(libEGL
 target_link_libraries(libEGL PRIVATE angle::common angle::libANGLE libGLESv2)
 target_include_directories(libEGL PUBLIC "$<INSTALL_INTERFACE:include>")
 target_include_directories(libEGL PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include")
-
-set(ANGLE_FOLDER "Dependencies/Angle")
-
-set(ANGLE_TARGETS
-    libEGL
-    libANGLE
-    libGLESv2
-    angle_common
-    angle_image_util
-    angle_preprocessor
-    angle_translator    
-)
-
-foreach(ANGLE_TARGET ${ANGLE_TARGETS})
-    set_target_properties (${ANGLE_TARGET} PROPERTIES FOLDER ${ANGLE_FOLDER})
-endforeach()
