@@ -1,4 +1,4 @@
-# ANGLE -- Microsoft repo
+# ANGLE -- Microsoft repository
 
 ### In short
 Going forward, please use Google's master ANGLE repository. https://opensource.google.com/projects/angle.
@@ -14,7 +14,7 @@ This repository was maintained by Microsoft while we made changes to ANGLE. All 
 ### When should I use this repository?
 We strongly recommend that you use the master ANGLE repository going forward. There are a couple of exceptions though:
 
-1) [This branch](https://github.com/microsoft/angle/tree/2017-lkg/templates) includes support for Windows 8.1 or Windows Phone 8.1 support, which is not available in Google's repository.
+1) [This branch](https://github.com/microsoft/angle/tree/2017-lkg) includes support for Windows 8.1 or Windows Phone 8.1 support, which is not available in Google's repository.
 
 2) [This branch](https://github.com/Microsoft/angle/tree/ms-holographic-experimental) includes an experimental version of ANGLE with HoloLens support, created by the HoloLens team.
 
