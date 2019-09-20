@@ -19,7 +19,7 @@ We strongly recommend that you use the master ANGLE repository going forward. Th
 2) [This branch](https://github.com/Microsoft/angle/tree/ms-holographic-experimental) includes an experimental version of ANGLE with HoloLens support, created by the HoloLens team.
 
 ### Where can I get help?
-In general we recommend asking your questions on the master ANGLE mailing list. The mailing list includes regular ANGLE contributors and several Microsoft employees.
+In general we recommend asking your questions on the master ANGLE mailing list [here](https://groups.google.com/forum/#!forum/angleproject). The mailing list includes regular ANGLE contributors and several Microsoft employees.
 
 Otherwise, there are still some resources available in this repository:
 
