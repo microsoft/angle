@@ -4,7 +4,7 @@ Please do not use this repository or the ANGLE.WindowStore NuGet package. Instea
 We have upstreamed all changes from Microsoft/ANGLE to the master ANGLE repository.
 
 ### Why shouldn't I use the ANGLE.WindowStore NuGet package?
-The NuGet package is deprecated, it and hasn't been updated since 2016. We strongly discourage you from using it. The master ANGLE repository contains years of improvements and bug fixes compared to the NuGet packages.
+The NuGet package is deprecated, and it hasn't been updated since 2016. We strongly discourage you from using it. The master ANGLE repository contains years of improvements and bug fixes compared to the NuGet packages.
 
 ### Where can I get help?
 Please contact the master ANGLE mailing list [here](https://groups.google.com/forum/#!forum/angleproject). The mailing list includes regular ANGLE contributors and several Microsoft employees.
